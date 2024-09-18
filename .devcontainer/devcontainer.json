@@ -7,15 +7,20 @@
 
   // Use 'mounts' to make the cargo cache persistent in a Docker Volume.
   "mounts": [
-  	{
-  		"source": "devcontainer-cargo-cache-${devcontainerId}",
-  		"target": "/usr/local/cargo",
-  		"type": "volume"
-  	}
+    {
+      "source": "devcontainer-cargo-cache-${devcontainerId}",
+      "target": "/usr/local/cargo",
+      "type": "volume"
+    },
+    // https://code.visualstudio.com/remote/advancedcontainers/improve-performance
+    {
+      "source": "${localWorkspaceFolderBasename}-target",
+      "target": "${containerWorkspaceFolder}/target",
+      "type": "volume"
+    }
   ],
 
   // Features to add to the dev container. More info: https://containers.dev/features.
-  // FYI:
   // https://gist.github.com/nakedible/f6a0d4bcbea1df7768e9ed425f6f33db
   "features": {
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
@@ -27,8 +32,8 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "sudo git config --system --add safe.directory ${containerWorkspaceFolder}"
-
+  "postCreateCommand": "sudo git config --system --add safe.directory ${containerWorkspaceFolder} && sudo chown vscode target && rustup target install wasm32-unknown-unknown && cargo install wasm-server-runner"
+  
   // Configure tool-specific properties.
   // "customizations": {},
 
