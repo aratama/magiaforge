@@ -1,0 +1,10 @@
+[package]
+name = "my_bevy_game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.14.2"
+
+[dev-dependencies]
+wasm-server-runner = "0.6.3"
