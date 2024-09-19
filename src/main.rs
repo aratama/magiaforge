@@ -74,7 +74,7 @@ fn setup(
 
     // #[cfg(not(target_arch = "wasm32"))]
     commands.spawn(
-        TextBundle::from_section("Press space to toggle wireframes", TextStyle::default())
+        TextBundle::from_section("poyo Press space to toggle wireframes", TextStyle::default())
             .with_style(Style {
                 position_type: PositionType::Absolute,
                 top: Val::Px(12.0),
