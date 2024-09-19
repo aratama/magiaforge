@@ -5,13 +5,16 @@
 
 #[cfg(not(target_arch = "wasm32"))]
 use bevy::sprite::{Wireframe2dConfig, Wireframe2dPlugin};
+
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
+mod console;
+
 fn main() {
-    println!("start");
+    console::log("start");
 
     let mut app = App::new();
     app.add_plugins((
@@ -23,8 +26,6 @@ fn main() {
     #[cfg(not(target_arch = "wasm32"))]
     app.add_systems(Update, toggle_wireframe);
     app.run();
-
-    println!("running");
 }
 
 const X_EXTENT: f32 = 900.;
