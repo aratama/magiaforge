@@ -3,3 +3,7 @@ target = "wasm32-unknown-unknown"
 
 [target.wasm32-unknown-unknown]
 runner = "wasm-server-runner"
+
+[env]
+# https://github.com/jakobhellermann/wasm-server-runner/tree/main?tab=readme-ov-file#configuration-options
+WASM_SERVER_RUNNER_CUSTOM_INDEX_HTML = "index.html"
