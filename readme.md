@@ -1,5 +1,7 @@
 # bevy-wasm-example
 
+![screenshot](screenshot.png)
+
 ### Usage
 
 Run locally:
