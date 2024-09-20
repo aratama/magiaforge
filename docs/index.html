@@ -4,15 +4,19 @@
     <!-- https://trunkrs.dev/assets/ -->
     <link rel="stylesheet" href="./index-21cc2d81480eab49.css" integrity="sha384&#x2D;LJF7b2IQ9rP7MTHzX&#x2F;SJJsOhbX4Do&#x2B;4TuSbbBksMjCRThxiKjS8hYDGl&#x2B;bbVO8bo"/>
     
+
+    <!-- ChromeのC/C++ DevTools Supportでデバッグをしたいときは、デバッグ情報を残すために以下のオプションを有効にする -->
+    <!-- ただしWSLで開発している場合は、WindowsがわのChromeはWSL内のソースファイルを参照できないのでうまくいかない -->
+    <!-- <link data-trunk rel="rust" data-wasm-opt="0" data-keep-debug /> -->
     <title></title>
 
-<link rel="modulepreload" href="./my_bevy_game-2388c215d760dc6.js" crossorigin=anonymous integrity="sha384-eS87zw5KQaqrBuHsOCW+0e/FqFtW1+WIozqzhJn/CVEmi2FaNvPFCgk/Zh3rsSFM">
-<link rel="preload" href="./my_bevy_game-2388c215d760dc6_bg.wasm" crossorigin=anonymous integrity="sha384-lgXaVJMkc+2GGzl7fMhk6mBHrkfjCliN4R3PEacAvYmNeErdtWiZKsiA8ckFHp0Y" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="./my_bevy_game-59c406278a6b930a.js" crossorigin=anonymous integrity="sha384-gPEqNP39ZjC8knl7h/HYn+Gf207OSNPQzmV+hMAuBIuIpCpn1di2qDgWjHDGBzSV">
+<link rel="preload" href="./my_bevy_game-59c406278a6b930a_bg.wasm" crossorigin=anonymous integrity="sha384-H+bQYrEejorIcl6C7z2J6Vuzvwoz8a82Tcarp3nkI2qXbR5joPxmkGu9HaX7hLWG" as="fetch" type="application/wasm"></head>
 
 <body>
-<script type="module" nonce="fbOPNAPjBl/VtFeByV4rEg==">
-import init, * as bindings from './my_bevy_game-2388c215d760dc6.js';
-const wasm = await init('./my_bevy_game-2388c215d760dc6_bg.wasm');
+<script type="module" nonce="FNqG8reownBXAC7xyQjQCw==">
+import init, * as bindings from './my_bevy_game-59c406278a6b930a.js';
+const wasm = await init('./my_bevy_game-59c406278a6b930a_bg.wasm');
 
 
 window.wasmBindings = bindings;
