@@ -2,12 +2,23 @@
 
 ### Usage
 
+Run locally:
+
 ```bash
 $ rustup target install wasm32-unknown-unknown
 
 $ cargo install --locked trunk
 
 $ trunk serve
+```
+
+Build and publish:
+
+```bash
+$ trunk build
+
+# For GitHub Pages
+$ cp -r dist/* docs/
 ```
 
 ### Demo
