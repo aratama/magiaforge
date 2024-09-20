@@ -7,7 +7,6 @@ use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use bevy_ecs_ldtk::{LdtkPlugin, LevelSelection};
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
 use camera::*;
@@ -44,7 +43,11 @@ fn main() {
         ..default()
     })
     .insert_resource(LevelSelection::index(0))
-    .register_ldtk_entity::<MyBundle>("MyEntityIdentifier")
+    .insert_resource(LdtkSettings {
+        level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation,
+        ..default()
+    })
+    .register_ldtk_entity::<TreeBundle>("Tree")
     .add_plugins(LdtkPlugin)
     .add_systems(Startup, setup_hud)
     .add_systems(Startup, setup_player)
@@ -52,21 +55,8 @@ fn main() {
     .add_systems(Startup, setup_camera)
     .add_systems(Update, update_player)
     .add_systems(Update, update_camera)
-    .add_systems(Update, update_hud);
+    .add_systems(Update, update_hud)
+    .add_systems(Update, update_world);
 
     app.run();
-}
-
-#[derive(Default, Component)]
-struct ComponentA;
-
-#[derive(Default, Component)]
-struct ComponentB;
-
-#[derive(Default, Bundle, LdtkEntity)]
-pub struct MyBundle {
-    a: ComponentA,
-    b: ComponentB,
-    #[sprite_sheet_bundle]
-    sprite_bundle: LdtkSpriteSheetBundle,
 }

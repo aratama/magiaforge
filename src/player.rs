@@ -12,7 +12,7 @@ pub fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_xyz(20.0, 20.0, 1.0),
             texture: asset_server.load("Pixel Art Top Down Basic/TX Player.png"),
             sprite: Sprite {
-                anchor: bevy::sprite::Anchor::BottomCenter,
+                anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, -0.35)),
                 rect: Some(Rect::new(0.0, 0.0, 32.0, 58.0)),
                 ..default()
             },
