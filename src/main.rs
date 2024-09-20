@@ -48,6 +48,7 @@ fn main() {
         ..default()
     })
     .register_ldtk_entity::<TreeBundle>("Tree")
+    .register_ldtk_entity::<WallBundle>("Wall")
     .add_plugins(LdtkPlugin)
     .add_systems(Startup, setup_hud)
     .add_systems(Startup, setup_player)

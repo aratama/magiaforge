@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_ldtk::LdtkWorldBundle;
 use bevy_rapier2d::prelude::*;
+use wasm_bindgen::JsValue;
+use web_sys::console;
 
 #[derive(Default, Component)]
 pub struct Tree;
@@ -9,6 +11,20 @@ pub struct Tree;
 #[derive(Default, Bundle, LdtkEntity)]
 pub struct TreeBundle {
     tree: Tree,
+    #[sprite_sheet_bundle]
+    sprite_bundle: LdtkSpriteSheetBundle,
+    #[grid_coords]
+    grid_coords: GridCoords,
+    rigit_body: RigidBody,
+    collider: Collider,
+}
+
+#[derive(Default, Component)]
+pub struct Wall;
+
+#[derive(Default, Bundle, LdtkEntity)]
+pub struct WallBundle {
+    wall: Wall,
     #[sprite_sheet_bundle]
     sprite_bundle: LdtkSpriteSheetBundle,
     #[grid_coords]
@@ -34,7 +50,13 @@ pub fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 pub fn update_world(
-    mut tree_query: Query<(&mut Sprite, &mut RigidBody, &mut Collider, &mut Transform), With<Tree>>,
+    mut tree_query: Query<
+        (&mut Sprite, &mut RigidBody, &mut Collider, &mut Transform),
+        (With<Tree>, Without<Wall>),
+    >,
+    mut wall_query: Query<(&mut RigidBody, &mut Collider), With<Wall>>,
+    // layer_query: Query<&LayerMetadata>,
+    // tile_query: Query<&Parent>,
 ) {
     for s in &mut tree_query {
         let (mut sprite, mut body, mut collider, mut transform) = s;
@@ -46,4 +68,29 @@ pub fn update_world(
         // 1000を足したところが座標になる
         transform.translation.z = 1000.0 - transform.translation.y;
     }
+
+    for s in &mut wall_query {
+        let (mut body, mut collider) = s;
+        *body = RigidBody::Fixed;
+
+        // (8.0, 8.0)でエンティティの大きさにちょうど合致する
+        *collider = Collider::cuboid(8.0, 8.0);
+    }
+
+    // for layer in layer_query.iter() {
+    //     //
+    //     console::log_1(&JsValue::from(layer.identifier.clone()));
+    // }
+
+    // for my_tile_parent in tile_query.iter() {
+    //     let layer_for_this_tile = layer_query.get(my_tile_parent.get());
+    //     match layer_for_this_tile {
+    //         Ok(layer) => {
+    //             console::log_1(&JsValue::from(layer.identifier.clone()));
+    //         }
+    //         Err(e) => {
+    //             // console::log_1(&JsValue::from("error"));
+    //         }
+    //     }
+    // }
 }
