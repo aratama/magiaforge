@@ -3,11 +3,13 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Person;
 
+use bevy_rapier2d::prelude::*;
+
 pub fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Person,
         SpriteBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+            transform: Transform::from_xyz(20.0, 20.0, 1.0),
             texture: asset_server.load("Pixel Art Top Down Basic/TX Player.png"),
             sprite: Sprite {
                 anchor: bevy::sprite::Anchor::BottomCenter,
@@ -16,12 +18,20 @@ pub fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             ..default()
         },
+        KinematicCharacterController::default(),
+        RigidBody::KinematicPositionBased,
+        Collider::ball(10.0),
+        GravityScale(0.0),
+        LockedAxes::ROTATION_LOCKED,
     ));
 }
 
 pub fn update_player(
     keys: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<&mut Transform, (With<Person>, Without<Camera2d>)>,
+    mut player_query: Query<
+        (&mut Transform, &mut KinematicCharacterController),
+        (With<Person>, Without<Camera2d>),
+    >,
     mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Person>)>,
 ) {
     let speed = 3.0;
@@ -33,11 +43,10 @@ pub fn update_player(
     .normalize_or_zero()
         * speed;
 
-    let mut player = player_query.single_mut();
+    let (mut player, mut controller) = player_query.single_mut();
 
-    player.translation.x += velocity.x;
-    player.translation.y += velocity.y;
     player.translation.z = -player.translation.y;
+    controller.translation = Some(velocity);
 
     let mut camera = camera_query.single_mut();
 

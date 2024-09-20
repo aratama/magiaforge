@@ -1,12 +1,15 @@
 mod camera;
 mod hud;
+mod physics;
 mod player;
 mod world;
 
+use crate::physics::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+use bevy_rapier2d::prelude::*;
 use camera::*;
 use hud::*;
 use iyes_perf_ui::prelude::*;
@@ -34,10 +37,17 @@ fn main() {
     .add_plugins(EntityCountDiagnosticsPlugin)
     .add_plugins(SystemInformationDiagnosticsPlugin)
     .add_plugins(PerfUiPlugin)
+    .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+    .add_plugins(RapierDebugRenderPlugin {
+        enabled: false,
+        mode: DebugRenderMode::COLLIDER_SHAPES,
+        ..default()
+    })
     .add_systems(Startup, setup_hud)
     .add_systems(Startup, setup_player)
     .add_systems(Startup, setup_world)
     .add_systems(Startup, setup_camera)
+    .add_systems(Startup, setup_physics)
     .add_systems(Update, update_player)
     .add_systems(Update, update_camera)
     .add_systems(Update, update_hud);

@@ -16,6 +16,7 @@ pub fn update_camera(
 ) {
     let player = player_query.single();
     let mut camera = camera_query.single_mut();
-    camera.translation.x += (player.translation.x - camera.translation.x) * 0.1;
-    camera.translation.y += (player.translation.y - camera.translation.y) * 0.1;
+    let t = 0.001;
+    camera.translation.x += (player.translation.x - camera.translation.x) * t;
+    camera.translation.y += (player.translation.y - camera.translation.y) * t;
 }

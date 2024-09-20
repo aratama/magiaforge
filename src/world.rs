@@ -1,21 +1,28 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 
 pub fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
     for _ in 0..10 {
         let x = 400.0 * random::<f32>();
         let y = 400.0 * random::<f32>();
-        commands.spawn(SpriteBundle {
-            transform: Transform::from_xyz(x, y, -y),
-            texture: asset_server.load("Pixel Art Top Down Basic/TX Plant.png"),
-            sprite: Sprite {
-                anchor: bevy::sprite::Anchor::BottomCenter,
-                rect: Some(Rect::new(0.0, 0.0, 8.0 * 19.0, 155.0)),
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(x, y, -y),
+                texture: asset_server.load("Pixel Art Top Down Basic/TX Plant.png"),
+                sprite: Sprite {
+                    anchor: bevy::sprite::Anchor::BottomCenter,
+                    rect: Some(Rect::new(0.0, 0.0, 8.0 * 19.0, 155.0)),
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        });
+            RigidBody::Fixed,
+            Collider::ball(5.0),
+            Restitution::coefficient(0.7),
+            GravityScale(0.0),
+        ));
     }
 
     let texture_handle: Handle<Image> =

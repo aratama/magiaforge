@@ -14,6 +14,10 @@ wasm-bindgen = "0.2.78"
 version = "0.3.70"
 features = ["console"]
 
+[dependencies.bevy_rapier2d]
+version = "0.27.0"
+features = ["debug-render-2d"]
+
 [dev-dependencies]
 trunk = "*"
 
