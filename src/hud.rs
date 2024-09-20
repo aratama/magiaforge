@@ -5,7 +5,7 @@ use iyes_perf_ui::entries::PerfUiBundle;
 #[derive(Component)]
 pub struct HUD;
 
-pub fn setup_hud(mut commands: Commands) {
+fn setup_hud(mut commands: Commands) {
     commands.spawn((
         TextBundle::from_section("Test", TextStyle::default()).with_style(Style {
             position_type: PositionType::Absolute,
@@ -18,7 +18,7 @@ pub fn setup_hud(mut commands: Commands) {
     commands.spawn(PerfUiBundle::default());
 }
 
-pub fn update_hud(
+fn update_hud(
     q_window: Query<&Window, With<PrimaryWindow>>,
     player_query: Query<&Transform, (With<Person>, Without<Camera2d>)>,
     camera_query: Query<(&Camera, &Transform, &GlobalTransform), (With<Camera2d>, Without<Person>)>,
@@ -44,4 +44,13 @@ pub fn update_hud(
         cursor.map_or(0.0, |c| c.y)
     );
     hud.sections = vec![TextSection::from(text)];
+}
+
+pub struct HudPlugin;
+
+impl Plugin for HudPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, setup_hud);
+        app.add_systems(Update, update_hud);
+    }
 }

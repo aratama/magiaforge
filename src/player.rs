@@ -1,15 +1,23 @@
+use crate::console::log;
+use crate::ldtk_util::*;
+use crate::serialize::*;
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct Person;
 
-use bevy_rapier2d::prelude::*;
-
-pub fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_player(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    player_data: Option<PlayerData>,
+) {
+    let position = get_initial_position(player_data);
     commands.spawn((
         Person,
         SpriteBundle {
-            transform: Transform::from_xyz(20.0, 20.0, 1.0),
+            transform: Transform::from_xyz(position.x, position.y, 1.0),
             texture: asset_server.load("Pixel Art Top Down Basic/TX Player.png"),
             sprite: Sprite {
                 anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, -0.35)),
@@ -29,10 +37,18 @@ pub fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
 pub fn update_player(
     keys: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<
-        (&mut Transform, &mut KinematicCharacterController),
+        (
+            &mut Transform,
+            &mut KinematicCharacterController,
+            &GlobalTransform,
+        ),
         (With<Person>, Without<Camera2d>),
     >,
     mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Person>)>,
+
+    ldtk_projects: Query<&Handle<LdtkProject>>,
+    ldtk_project_assets: Res<Assets<LdtkProject>>,
+    mut level_selection: ResMut<LevelSelection>,
 ) {
     let speed = 3.0;
 
@@ -43,7 +59,7 @@ pub fn update_player(
     .normalize_or_zero()
         * speed;
 
-    let (mut player, mut controller) = player_query.single_mut();
+    let (mut player, mut controller, _) = player_query.single_mut();
 
     player.translation.z = -player.translation.y;
     controller.translation = Some(velocity);
@@ -52,6 +68,29 @@ pub fn update_player(
 
     camera.translation.x += (player.translation.x - camera.translation.x) * 0.1;
     camera.translation.y += (player.translation.y - camera.translation.y) * 0.1;
+
+    // セーブ
+    if keys.just_pressed(KeyCode::KeyZ) {
+        save_player(&PlayerData {
+            x: player.translation.x,
+            y: player.translation.y,
+        });
+    }
+
+    // レベルの追従
+    // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/how-to-guides/make-level-selection-follow-player.html
+    // ただし上記の方法では読み込み済みのレベルを利用して現在のレベルを判定しているため、
+    // 歩いて移動する場合は機能しますが、プレイヤーがワープしたり、セーブした位置から再開する場合は機能しません。
+    // このため、常にアセット全体を検索して現在のレベルを判定しています
+    let player_position = Vec2::new(player.translation.x, player.translation.y);
+    if let Ok(project_handle) = ldtk_projects.get_single() {
+        if let Some(ldtk_project) = ldtk_project_assets.get(project_handle) {
+            let found = find_level(ldtk_project, player_position);
+            if let Some(level_iid) = found {
+                *level_selection = LevelSelection::Iid(level_iid.clone());
+            }
+        }
+    }
 }
 
 fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCode) -> f32 {

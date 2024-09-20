@@ -32,6 +32,7 @@ https://aratama.github.io/bevy-wasm-example/
 - https://trunkrs.dev/
 - https://bevy-cheatbook.github.io/platforms/wasm.html
 - https://gist.github.com/nakedible/f6a0d4bcbea1df7768e9ed425f6f33db
+- Linux 用 Windows サブシステム で Linux GUI アプリを実行する https://learn.microsoft.com/ja-jp/windows/wsl/tutorials/gui-apps
 
 ### Assets
 

@@ -3936,6 +3936,8 @@ dependencies = [
  "bevy_rapier2d",
  "iyes_perf_ui",
  "rand 0.8.5",
+ "serde",
+ "serde_json",
  "trunk",
  "wasm-bindgen",
  "web-sys",
