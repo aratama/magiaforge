@@ -1,30 +1,20 @@
 //! Shows how to render simple primitive shapes with a single color.
-//!
-//! You can toggle wireframes with the space bar except on wasm. Wasm does not support
-//! `POLYGON_MODE_LINE` on the gpu.
-
-#[cfg(not(target_arch = "wasm32"))]
-use bevy::sprite::{Wireframe2dConfig, Wireframe2dPlugin};
 
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
-mod console;
+use wasm_bindgen::JsValue;
+use web_sys::console;
 
 fn main() {
-    console::log("start");
+    console::log_1(&JsValue::from("start"));
 
     let mut app = App::new();
-    app.add_plugins((
-        DefaultPlugins,
-        #[cfg(not(target_arch = "wasm32"))]
-        Wireframe2dPlugin,
-    ))
-    .add_systems(Startup, setup);
-    #[cfg(not(target_arch = "wasm32"))]
-    app.add_systems(Update, toggle_wireframe);
+    app.add_plugins((DefaultPlugins,))
+        .add_systems(Startup, setup);
+    app.add_systems(Update, keyboard_input);
     app.run();
 }
 
@@ -72,24 +62,37 @@ fn setup(
         });
     }
 
-    // #[cfg(not(target_arch = "wasm32"))]
     commands.spawn(
-        TextBundle::from_section("poyo Press space to toggle wireframes", TextStyle::default())
-            .with_style(Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(12.0),
-                left: Val::Px(12.0),
-                ..default()
-            }),
+        TextBundle::from_section("Primitives Test", TextStyle::default()).with_style(Style {
+            position_type: PositionType::Absolute,
+            top: Val::Px(12.0),
+            left: Val::Px(12.0),
+            ..default()
+        }),
     );
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn toggle_wireframe(
-    mut wireframe_config: ResMut<Wireframe2dConfig>,
-    keyboard: Res<ButtonInput<KeyCode>>,
-) {
-    if keyboard.just_pressed(KeyCode::Space) {
-        wireframe_config.global = !wireframe_config.global;
+fn keyboard_input(keys: Res<ButtonInput<KeyCode>>) {
+    if keys.just_pressed(KeyCode::Space) {
+        // Space was pressed
+        console::log_1(&JsValue::from("space was pressed"));
+    }
+    if keys.just_released(KeyCode::ControlLeft) {
+        // Left Ctrl was released
+        console::log_1(&JsValue::from("left ctrl was released"));
+    }
+    if keys.pressed(KeyCode::KeyW) {
+        // W is being held down
+        console::log_1(&JsValue::from("W is being held down"));
+    }
+    // we can check multiple at once with `.any_*`
+    if keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) {
+        // Either the left or right shift are being held down
+        console::log_1(&JsValue::from(
+            "Either the left or right shift are being held down",
+        ));
+    }
+    if keys.any_just_pressed([KeyCode::Delete, KeyCode::Backspace]) {
+        // Either delete or backspace was just pressed
     }
 }

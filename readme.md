@@ -3,7 +3,10 @@
 ### Usage
 
 ```bash
-# https://trunkrs.dev/
+$ rustup target install wasm32-unknown-unknown
+
+$ cargo install --locked trunk
+
 $ trunk serve
 ```
 

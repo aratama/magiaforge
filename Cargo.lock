@@ -3820,6 +3820,7 @@ dependencies = [
  "bevy",
  "trunk",
  "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
