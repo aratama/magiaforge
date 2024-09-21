@@ -32,7 +32,8 @@ fn update_hud(
     let cursor = window
         .cursor_position()
         .and_then(|cursor| camera.viewport_to_world(camera_global_transform, cursor))
-        .map(|ray| ray.origin.truncate());
+        .map(|ray| ray.origin.truncate())
+        .unwrap_or(Vec2::ZERO);
 
     let text = format!(
         "Player: ({:.2}, {:.2})\nCamera: ({:.2}, {:.2})\nCursor: ({:.2}, {:.2})",
@@ -40,8 +41,8 @@ fn update_hud(
         player.translation.y,
         camera_transform.translation.x,
         camera_transform.translation.y,
-        cursor.map_or(0.0, |c| c.x),
-        cursor.map_or(0.0, |c| c.y)
+        cursor.x,
+        cursor.y
     );
     hud.sections = vec![TextSection::from(text)];
 }

@@ -77,8 +77,15 @@ fn main() {
     .add_plugins(WorldPlugin)
     .add_plugins(TreePlugin)
     .add_systems(PostStartup, {
-        move |commands: Commands, asset_server: Res<AssetServer>| {
-            setup_player(commands, asset_server, player_data.clone());
+        move |commands: Commands,
+              asset_server: Res<AssetServer>,
+              texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>| {
+            setup_player(
+                commands,
+                asset_server,
+                texture_atlas_layouts,
+                player_data.clone(),
+            );
         }
     })
     .add_systems(Update, update_player);
