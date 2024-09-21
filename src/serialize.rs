@@ -1,6 +1,5 @@
 use crate::Person;
 use bevy::{
-    math::Vec2,
     prelude::*,
     time::{Time, Timer},
 };

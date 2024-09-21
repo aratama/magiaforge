@@ -2,6 +2,7 @@ mod camera;
 mod console;
 mod hud;
 mod ldtk_util;
+mod overlay;
 mod player;
 mod serialize;
 mod tree;
@@ -18,6 +19,7 @@ use camera::*;
 use console::log;
 use hud::*;
 use iyes_perf_ui::prelude::*;
+use overlay::OverlayPlugin;
 use player::*;
 use serialize::*;
 use tree::*;
@@ -65,6 +67,7 @@ fn main() {
     .register_ldtk_entity::<WallBundle>("Wall")
     .add_plugins(LdtkPlugin)
     .add_plugins(HudPlugin)
+    .add_plugins(OverlayPlugin)
     .add_systems(Startup, setup_autosave_timer)
     .add_systems(Update, spawn_autosave_timer)
     .add_systems(Startup, move |commands: Commands| {
