@@ -65,6 +65,8 @@ fn main() {
     .register_ldtk_entity::<WallBundle>("Wall")
     .add_plugins(LdtkPlugin)
     .add_plugins(HudPlugin)
+    .add_systems(Startup, setup_autosave_timer)
+    .add_systems(Update, spawn_autosave_timer)
     .add_systems(Startup, move |commands: Commands| {
         setup_camera(commands, player_data_clone.clone());
     })

@@ -1,19 +1,18 @@
-use crate::{get_initial_position, player::*, PlayerData};
+use crate::{player::*, PlayerData};
 use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
-pub fn setup_camera(mut commands: Commands, player_data: Option<PlayerData>) {
+pub fn setup_camera(mut commands: Commands, player_data: PlayerData) {
     let initial_scale_factor = -1.0;
-    let position = get_initial_position(player_data);
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される
     // この範囲を超えるとクリップされることに注意
     let mut camera_bundle = Camera2dBundle::default();
     camera_bundle.projection.scale = 2.0_f32.powf(initial_scale_factor);
-    camera_bundle.transform.translation.x = position.x;
-    camera_bundle.transform.translation.y = position.y;
+    camera_bundle.transform.translation.x = player_data.x;
+    camera_bundle.transform.translation.y = player_data.y;
 
     commands.spawn((camera_bundle, CameraScaleFactor(initial_scale_factor)));
 }

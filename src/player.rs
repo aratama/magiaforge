@@ -1,4 +1,3 @@
-use crate::console::log;
 use crate::ldtk_util::*;
 use crate::serialize::*;
 use bevy::prelude::*;
@@ -11,13 +10,12 @@ pub struct Person;
 pub fn setup_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    player_data: Option<PlayerData>,
+    player_data: PlayerData,
 ) {
-    let position = get_initial_position(player_data);
     commands.spawn((
         Person,
         SpriteBundle {
-            transform: Transform::from_xyz(position.x, position.y, 1.0),
+            transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
             texture: asset_server.load("Pixel Art Top Down Basic/TX Player.png"),
             sprite: Sprite {
                 anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, -0.35)),
@@ -68,14 +66,6 @@ pub fn update_player(
 
     camera.translation.x += (player.translation.x - camera.translation.x) * 0.1;
     camera.translation.y += (player.translation.y - camera.translation.y) * 0.1;
-
-    // セーブ
-    if keys.just_pressed(KeyCode::KeyZ) {
-        save_player(&PlayerData {
-            x: player.translation.x,
-            y: player.translation.y,
-        });
-    }
 
     // レベルの追従
     // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/how-to-guides/make-level-selection-follow-player.html
