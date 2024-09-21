@@ -64,7 +64,6 @@ fn main() {
         ..default()
     })
     .register_ldtk_entity::<TreeBundle>("Tree")
-    .register_ldtk_entity::<WallBundle>("Wall")
     .add_plugins(LdtkPlugin)
     .add_plugins(HudPlugin)
     .add_plugins(OverlayPlugin)
@@ -88,7 +87,10 @@ fn main() {
             );
         }
     })
-    .add_systems(Update, update_player);
+    .add_systems(Update, update_player)
+    .add_systems(Update, spawn_wall_collision)
+    .register_ldtk_int_cell::<WallBundle>(1)
+    .register_ldtk_int_cell::<WallBundle>(3);
 
     app.run();
 }

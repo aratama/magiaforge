@@ -1,14 +1,12 @@
-use std::f32::consts::PI;
-use std::fmt::Display;
-use std::fmt::Formatter;
-
-use crate::console::log;
 use crate::ldtk_util::*;
 use crate::serialize::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+use std::f32::consts::PI;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 #[derive(Component)]
 pub struct Person;
