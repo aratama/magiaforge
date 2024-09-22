@@ -1,4 +1,3 @@
-use crate::Wall;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -39,7 +38,7 @@ impl Default for TreeBundle {
     }
 }
 
-fn update_tree(mut tree_query: Query<(&mut Sprite, &mut Transform), (With<Tree>, Without<Wall>)>) {
+fn update_tree(mut tree_query: Query<(&mut Sprite, &mut Transform), Added<Tree>>) {
     for s in &mut tree_query {
         let (mut sprite, mut transform) = s;
         sprite.anchor = bevy::sprite::Anchor::Custom(Vec2::new(0.12, -0.42));

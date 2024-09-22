@@ -8,6 +8,8 @@ use std::time::Duration;
 
 // use https://github.com/Zeenobit/moonshine_save?
 
+const PLAYER_DATA_KEY: &str = "data";
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PlayerData {
     pub x: f32,
@@ -23,19 +25,16 @@ impl Default for PlayerData {
 pub fn save_player(data: &PlayerData) {
     let win = web_sys::window().unwrap();
     let local_storage = win.local_storage().unwrap().unwrap();
-    let str = serde_json::to_string(data).unwrap();
-    local_storage.set_item("data", str.as_str()).unwrap();
+    if let Ok(str) = serde_json::to_string(data) {
+        local_storage.set_item(PLAYER_DATA_KEY, &str).unwrap();
+    }
 }
 
 pub fn restore_player() -> PlayerData {
     let win = web_sys::window().unwrap();
     let local_storage = win.local_storage().unwrap().unwrap();
-    if let Ok(Some(str)) = local_storage.get_item("data") {
-        if let Ok(data) = serde_json::from_str::<PlayerData>(str.as_str()) {
-            data
-        } else {
-            default()
-        }
+    if let Ok(Some(str)) = local_storage.get_item(PLAYER_DATA_KEY) {
+        serde_json::from_str::<PlayerData>(&str).unwrap_or_default()
     } else {
         default()
     }

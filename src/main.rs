@@ -16,7 +16,6 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
 use camera::*;
-use console::log;
 use hud::*;
 use iyes_perf_ui::prelude::*;
 use overlay::OverlayPlugin;
@@ -27,10 +26,8 @@ use wall::*;
 use world::*;
 
 fn main() {
-    log("start");
-
     let player_data = restore_player();
-    let player_data_clone = player_data.clone();
+    let player_data_for_camera = player_data.clone();
 
     let mut app = App::new();
 
@@ -55,7 +52,8 @@ fn main() {
         ..default()
     })
     // ここではひとまず level 0 を読み込んでいますが、
-    // 実際には起動直後にプレイヤーの位置に応じて読み込むレベルを切り替えています
+    // 実際には起動直後にプレイヤーの位置に応じて読み込むレベルを切り替わります
+    // 一瞬プレイヤーの周囲が真っ暗に見えるので、最初から正しいレベルを読み込むようにしたほうがいいかも
     .insert_resource(LevelSelection::index(0))
     .insert_resource(LdtkSettings {
         level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
@@ -70,7 +68,7 @@ fn main() {
     .add_systems(Startup, setup_autosave_timer)
     .add_systems(Update, spawn_autosave_timer)
     .add_systems(Startup, move |commands: Commands| {
-        setup_camera(commands, player_data_clone.clone());
+        setup_camera(commands, &player_data_for_camera);
     })
     .add_systems(Update, update_camera)
     .add_plugins(WorldPlugin)
@@ -79,12 +77,7 @@ fn main() {
         move |commands: Commands,
               asset_server: Res<AssetServer>,
               texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>| {
-            setup_player(
-                commands,
-                asset_server,
-                texture_atlas_layouts,
-                player_data.clone(),
-            );
+            setup_player(commands, asset_server, texture_atlas_layouts, &player_data);
         }
     })
     .add_systems(Update, update_player)

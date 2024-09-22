@@ -15,7 +15,7 @@ pub fn setup_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    player_data: PlayerData,
+    player_data: &PlayerData,
 ) {
     let texture = asset_server.load("Pixel Art Top Down Basic/TX Player.png");
     let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 128), 4, 2, None, None);

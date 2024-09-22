@@ -4,7 +4,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
-pub fn setup_camera(mut commands: Commands, player_data: PlayerData) {
+pub fn setup_camera(mut commands: Commands, player_data: &PlayerData) {
     let initial_scale_factor = -1.0;
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される
