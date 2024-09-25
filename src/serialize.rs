@@ -8,6 +8,7 @@ use std::time::Duration;
 
 // use https://github.com/Zeenobit/moonshine_save?
 
+#[cfg(target_arch = "wasm32")]
 const PLAYER_DATA_KEY: &str = "data";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -22,6 +23,7 @@ impl Default for PlayerData {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 pub fn save_player(data: &PlayerData) {
     let win = web_sys::window().unwrap();
     let local_storage = win.local_storage().unwrap().unwrap();
@@ -30,6 +32,12 @@ pub fn save_player(data: &PlayerData) {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+pub fn save_player(_data: &PlayerData) {
+    // todo
+}
+
+#[cfg(target_arch = "wasm32")]
 pub fn restore_player() -> PlayerData {
     let win = web_sys::window().unwrap();
     let local_storage = win.local_storage().unwrap().unwrap();
@@ -38,6 +46,12 @@ pub fn restore_player() -> PlayerData {
     } else {
         default()
     }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn restore_player() -> PlayerData {
+    // todo
+    default()
 }
 
 #[derive(Resource)]

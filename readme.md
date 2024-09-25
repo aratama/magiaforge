@@ -4,7 +4,15 @@
 
 ### Usage
 
-Run locally:
+To run locally (as native) with [cargo-watch](https://github.com/watchexec/cargo-watch):
+
+```bash
+$ cargo install cargo-watch --locked
+
+$ cargo watch -x 'run'
+```
+
+To run locally on browser with [trunk](https://trunkrs.dev/):
 
 ```bash
 $ rustup target install wasm32-unknown-unknown
@@ -14,7 +22,7 @@ $ cargo install --locked trunk
 $ trunk serve
 ```
 
-Build and publish:
+To build and publish:
 
 ```bash
 $ trunk build
