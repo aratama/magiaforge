@@ -2,6 +2,7 @@ use crate::ldtk_util::*;
 use crate::serialize::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::f32::consts::PI;
@@ -14,27 +15,23 @@ pub struct Person;
 pub fn setup_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     player_data: &PlayerData,
 ) {
-    let texture = asset_server.load("Pixel Art Top Down Basic/TX Player.png");
-    let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 128), 4, 2, None, None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
     commands.spawn((
         Person,
-        SpriteBundle {
-            transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
-            texture,
+        AsepriteSliceBundle {
+            slice: "witch".into(),
+            // you can override the default sprite settings here
+            // the `rect` will be overriden by the slice
+            // if there is a pivot provided in the aseprite slice, the `anchor` will be overwritten
+            // and changes the origin of rotation.
             sprite: Sprite {
-                anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 0.1)),
+                // flip_x: true,
                 ..default()
             },
+            aseprite: asset_server.load("asset.aseprite"),
+            transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
             ..default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout,
-            index: 0,
         },
         KinematicCharacterController::default(),
         RigidBody::KinematicPositionBased,
@@ -66,7 +63,7 @@ pub fn update_player(
     mut level_selection: ResMut<LevelSelection>,
     q_window: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let speed = 3.0;
+    let speed = 2.0;
 
     let velocity = Vec2::new(
         to_s(&keys, KeyCode::KeyD) - to_s(&keys, KeyCode::KeyA),
@@ -99,19 +96,19 @@ pub fn update_player(
     let dir = angle_to_direction(angle);
     match dir {
         PlayerDirection::PlayerUp => {
-            texture_atlas.index = 1;
+            // texture_atlas.index = 1;
             player_sprite.flip_x = false;
         }
         PlayerDirection::PlayerDown => {
-            texture_atlas.index = 0;
+            // texture_atlas.index = 0;
             player_sprite.flip_x = false;
         }
         PlayerDirection::PlayerLeft => {
-            texture_atlas.index = 2;
+            // texture_atlas.index = 2;
             player_sprite.flip_x = false;
         }
         PlayerDirection::PlayerRight => {
-            texture_atlas.index = 2;
+            // texture_atlas.index = 2;
             player_sprite.flip_x = true;
         }
     }

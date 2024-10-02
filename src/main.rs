@@ -1,3 +1,4 @@
+mod book_shelf;
 mod camera;
 mod console;
 mod hud;
@@ -12,9 +13,12 @@ mod world;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
+use book_shelf::BookShelfBundle;
+use book_shelf::*;
 use camera::*;
 use hud::*;
 use iyes_perf_ui::prelude::*;
@@ -47,10 +51,11 @@ fn main() {
     .add_plugins(PerfUiPlugin)
     .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .add_plugins(RapierDebugRenderPlugin {
-        enabled: false,
+        enabled: true,
         mode: DebugRenderMode::COLLIDER_SHAPES,
         ..default()
     })
+    .add_plugins(BevySprityPlugin)
     // ここではひとまず level 0 を読み込んでいますが、
     // 実際には起動直後にプレイヤーの位置に応じて読み込むレベルを切り替わります
     // 一瞬プレイヤーの周囲が真っ暗に見えるので、最初から正しいレベルを読み込むようにしたほうがいいかも
@@ -62,6 +67,8 @@ fn main() {
         ..default()
     })
     .register_ldtk_entity::<TreeBundle>("Tree")
+    .register_ldtk_entity::<BookShelfBundle>("Book_Shelf")
+    .add_systems(Update, set_book_shelf_aseprite)
     .add_plugins(LdtkPlugin)
     .add_plugins(HudPlugin)
     .add_plugins(OverlayPlugin)
@@ -74,10 +81,8 @@ fn main() {
     .add_plugins(WorldPlugin)
     .add_plugins(TreePlugin)
     .add_systems(PostStartup, {
-        move |commands: Commands,
-              asset_server: Res<AssetServer>,
-              texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>| {
-            setup_player(commands, asset_server, texture_atlas_layouts, &player_data);
+        move |commands: Commands, asset_server: Res<AssetServer>| {
+            setup_player(commands, asset_server, &player_data);
         }
     })
     .add_systems(Update, update_player)
