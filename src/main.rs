@@ -1,6 +1,7 @@
 mod book_shelf;
 mod camera;
 mod console;
+mod constant;
 mod hud;
 mod ldtk_util;
 mod overlay;
@@ -51,7 +52,7 @@ fn main() {
     .add_plugins(PerfUiPlugin)
     .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .add_plugins(RapierDebugRenderPlugin {
-        enabled: true,
+        enabled: false,
         mode: DebugRenderMode::COLLIDER_SHAPES,
         ..default()
     })

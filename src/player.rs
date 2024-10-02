@@ -1,3 +1,4 @@
+use crate::constant::*;
 use crate::ldtk_util::*;
 use crate::serialize::*;
 use bevy::prelude::*;
@@ -27,6 +28,8 @@ pub fn setup_player(
             // and changes the origin of rotation.
             sprite: Sprite {
                 // flip_x: true,
+                // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
+                // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
                 ..default()
             },
             aseprite: asset_server.load("asset.aseprite"),
@@ -35,7 +38,7 @@ pub fn setup_player(
         },
         KinematicCharacterController::default(),
         RigidBody::KinematicPositionBased,
-        Collider::ball(10.0),
+        Collider::ball(6.0),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
     ));
@@ -75,8 +78,16 @@ pub fn update_player(
     let (mut player, mut controller, _, mut texture_atlas, mut player_sprite) =
         player_query.single_mut();
 
-    player.translation.z = -player.translation.y;
+    // 本棚などのエンティティが設置されているレイヤーは z が 3 に設定されているらしく、
+    // y を z に変換する同一の式を設定しても、さらに 3 を加算してようやく z が合致するらしい
+    // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/explanation/anatomy-of-the-world.html
+    player.translation.z = 3.0 + (-player.translation.y * Z_ORDER_SCALE);
     controller.translation = Some(velocity);
+
+    // println!(
+    //     "player y:{} z:{}",
+    //     player.translation.y, player.translation.z
+    // );
 
     let (camera, mut camera_transform, camera_global_transform) = camera_query.single_mut();
 
@@ -93,24 +104,11 @@ pub fn update_player(
 
     let ray = cursor - player.translation.truncate();
     let angle = ray.y.atan2(ray.x);
-    let dir = angle_to_direction(angle);
-    match dir {
-        PlayerDirection::PlayerUp => {
-            // texture_atlas.index = 1;
-            player_sprite.flip_x = false;
-        }
-        PlayerDirection::PlayerDown => {
-            // texture_atlas.index = 0;
-            player_sprite.flip_x = false;
-        }
-        PlayerDirection::PlayerLeft => {
-            // texture_atlas.index = 2;
-            player_sprite.flip_x = false;
-        }
-        PlayerDirection::PlayerRight => {
-            // texture_atlas.index = 2;
-            player_sprite.flip_x = true;
-        }
+    // println!("angle: {}", angle);
+    if angle < -PI * 0.5 || PI * 0.5 < angle {
+        player_sprite.flip_x = true;
+    } else {
+        player_sprite.flip_x = false;
     }
 
     // レベルの追従

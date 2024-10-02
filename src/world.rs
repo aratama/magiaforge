@@ -8,7 +8,7 @@ fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
         // サンプルコードでは get_tilemap_center_transform を使って画面中央に揃えているが、
         // 座標計算が面倒になるので x:0, y:0 に配置している
         // また、アンカーがタイルの中央になっているので、タイルの大きさの半分だけずらして原点に揃える
-        transform: Transform::from_xyz(0.0, 0.0, -1000.0),
+        // transform: Transform::from_xyz(0.0, 0.0, -1000.0),
         ..Default::default()
     });
     // commands.spawn((
