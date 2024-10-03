@@ -67,6 +67,9 @@ pub fn run_game() {
         level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
             load_level_neighbors: true,
         },
+        // デフォルトではInt LayerにもLDTKと同様の色が描画される
+        // デバッグ中以外はInvisibleにしておく
+        int_grid_rendering: IntGridRendering::Invisible,
         ..default()
     })
     .register_ldtk_entity::<TreeBundle>("Tree")

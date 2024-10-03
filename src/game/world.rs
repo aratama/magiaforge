@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::LdtkWorldBundle;
+use bevy_ecs_ldtk::{LayerMetadata, LdtkWorldBundle};
 
 fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(LdtkWorldBundle {
