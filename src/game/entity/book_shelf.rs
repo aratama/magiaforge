@@ -1,14 +1,30 @@
+use std::sync::LazyLock;
+
 use crate::game::constant::*;
+use app::LdtkEntityAppExt;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::*;
 use bevy_rapier2d::prelude::*;
 
+// Asepriteのファイルパス
+const ASEPRITE_PATH: &str = "asset.aseprite";
+
+// Asepriteのスライス名
+// スライスの原点はAsepriteのpivotで指定します
+const SLICE_NAME: &str = "book_shelf";
+
+// LDTKでのEntity名
+const ENTITY_ID: &str = "Book_Shelf";
+
+// repierでの衝突形状
+static COLLIDER: LazyLock<Collider> = LazyLock::new(|| Collider::cuboid(16.0, 8.0));
+
 #[derive(Default, Component)]
-pub struct BookShelf;
+struct BookShelf;
 
 #[derive(Bundle, LdtkEntity)]
-pub struct BookShelfBundle {
+struct BookShelfBundle {
     book_shelf: BookShelf,
     aseprite_slice_bundle: AsepriteSliceBundle,
     #[grid_coords]
@@ -22,7 +38,7 @@ impl Default for BookShelfBundle {
         Self {
             book_shelf: BookShelf,
             aseprite_slice_bundle: AsepriteSliceBundle {
-                slice: "book_shelf".into(),
+                slice: SLICE_NAME.into(),
                 sprite: Sprite {
                     // ここでanchorを設定しても反映されないことに注意
                     // Aseprite側でスライスごとに pivot を設定することができるようになっており、
@@ -39,23 +55,28 @@ impl Default for BookShelfBundle {
             },
             grid_coords: GridCoords::default(),
             rigit_body: RigidBody::Fixed,
-            collider: Collider::cuboid(16.0, 8.0),
+            collider: COLLIDER.clone(),
         }
     }
 }
 
-pub fn set_book_shelf_aseprite(
+fn set_aseprite(
     mut query: Query<(&mut Handle<Aseprite>, &mut Transform), Added<BookShelf>>,
     asset_server: Res<AssetServer>,
 ) {
     for (mut aseprite, mut transform) in query.iter_mut() {
-        *aseprite = asset_server.load("asset.aseprite");
+        *aseprite = asset_server.load(ASEPRITE_PATH);
 
         // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/explanation/anatomy-of-the-world.html
         transform.translation.z = (256.0 - transform.translation.y) * Z_ORDER_SCALE;
-        // println!(
-        //     "book shelf  y:{} z:{}",
-        //     transform.translation.y, transform.translation.z
-        // );
+    }
+}
+
+pub struct BookShelfPlugin;
+
+impl Plugin for BookShelfPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, set_aseprite);
+        app.register_ldtk_entity::<BookShelfBundle>(ENTITY_ID);
     }
 }

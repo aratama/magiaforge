@@ -1,8 +1,8 @@
-mod book_shelf;
 mod camera;
 mod close_on_esc;
 mod console;
 mod constant;
+mod entity;
 mod hud;
 mod ldtk_util;
 mod overlay;
@@ -19,10 +19,10 @@ use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
-use book_shelf::BookShelfBundle;
-use book_shelf::*;
 use camera::*;
 use close_on_esc::close_on_esc;
+use entity::book_shelf::BookShelfPlugin;
+use entity::chest::ChestPlugin;
 use hud::*;
 use iyes_perf_ui::prelude::*;
 use overlay::OverlayPlugin;
@@ -73,8 +73,8 @@ pub fn run_game() {
         ..default()
     })
     .register_ldtk_entity::<TreeBundle>("Tree")
-    .register_ldtk_entity::<BookShelfBundle>("Book_Shelf")
-    .add_systems(Update, set_book_shelf_aseprite)
+    .add_plugins(BookShelfPlugin)
+    .add_plugins(ChestPlugin)
     .add_plugins(LdtkPlugin)
     .add_plugins(HudPlugin)
     .add_plugins(OverlayPlugin)
