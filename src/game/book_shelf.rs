@@ -1,4 +1,4 @@
-use crate::constant::*;
+use crate::game::constant::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::*;

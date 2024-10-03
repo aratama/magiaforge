@@ -1,6 +1,6 @@
-use crate::constant::*;
-use crate::ldtk_util::*;
-use crate::serialize::*;
+use crate::game::constant::*;
+use crate::game::ldtk_util::*;
+use crate::game::serialize::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
@@ -20,25 +20,22 @@ pub fn setup_player(
 ) {
     commands.spawn((
         Person,
-        AsepriteSliceBundle {
-            slice: "witch".into(),
-            // you can override the default sprite settings here
-            // the `rect` will be overriden by the slice
-            // if there is a pivot provided in the aseprite slice, the `anchor` will be overwritten
-            // and changes the origin of rotation.
+        AsepriteAnimationBundle {
+            aseprite: asset_server.load("player.aseprite"),
+            transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
+            animation: Animation::default().with_tag("idle").with_speed(0.2),
             sprite: Sprite {
                 // flip_x: true,
                 // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
                 // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
                 ..default()
             },
-            aseprite: asset_server.load("asset.aseprite"),
-            transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
+
             ..default()
         },
         KinematicCharacterController::default(),
         RigidBody::KinematicPositionBased,
-        Collider::ball(6.0),
+        Collider::ball(5.0),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
     ));
@@ -51,7 +48,6 @@ pub fn update_player(
             &mut Transform,
             &mut KinematicCharacterController,
             &GlobalTransform,
-            &mut TextureAtlas,
             &mut Sprite,
         ),
         (With<Person>, Without<Camera2d>),
@@ -75,8 +71,7 @@ pub fn update_player(
     .normalize_or_zero()
         * speed;
 
-    let (mut player, mut controller, _, mut texture_atlas, mut player_sprite) =
-        player_query.single_mut();
+    let (mut player, mut controller, _, mut player_sprite) = player_query.single_mut();
 
     // 本棚などのエンティティが設置されているレイヤーは z が 3 に設定されているらしく、
     // y を z に変換する同一の式を設定しても、さらに 3 を加算してようやく z が合致するらしい
@@ -131,7 +126,7 @@ fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCode) 
     return if keys.pressed(code) { 1.0 } else { 0.0 };
 }
 
-enum PlayerDirection {
+pub enum PlayerDirection {
     PlayerUp,
     PlayerDown,
     PlayerLeft,
@@ -149,7 +144,7 @@ impl Display for PlayerDirection {
     }
 }
 
-fn angle_to_direction(angle: f32) -> PlayerDirection {
+pub fn angle_to_direction(angle: f32) -> PlayerDirection {
     if PI * -0.75 <= angle && angle < PI * -0.25 {
         return PlayerDirection::PlayerDown;
     } else if PI * -0.25 <= angle && angle < 0.25 {

@@ -1,4 +1,4 @@
-use crate::{constant::TILE_SIZE, Person};
+use crate::game::{constant::TILE_SIZE, Person};
 use bevy::{
     prelude::*,
     time::{Time, Timer},
@@ -21,7 +21,7 @@ impl Default for PlayerData {
     fn default() -> Self {
         PlayerData {
             x: TILE_SIZE * 5.0,
-            y: TILE_SIZE * -5.0,
+            y: TILE_SIZE * -7.0,
         }
     }
 }

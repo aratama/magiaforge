@@ -1,4 +1,4 @@
-use crate::player::*;
+use crate::game::player::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use iyes_perf_ui::entries::PerfUiBundle;
 
