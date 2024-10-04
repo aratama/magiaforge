@@ -1,4 +1,5 @@
-use crate::game::{constant::TILE_SIZE, Player};
+use super::player::Player;
+use crate::game::constant::TILE_SIZE;
 use bevy::{
     prelude::*,
     time::{Time, Timer},

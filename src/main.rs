@@ -1,6 +1,6 @@
 mod game;
 
-use game::*;
+use game::game::run_game;
 
 fn main() {
     run_game();

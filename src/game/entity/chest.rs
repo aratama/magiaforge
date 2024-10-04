@@ -1,12 +1,10 @@
-use crate::game::constant::*;
+use super::setup::set_aseprite_and_z;
 use app::LdtkEntityAppExt;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::*;
 use bevy_rapier2d::prelude::*;
 use std::sync::LazyLock;
-
-use super::set_aseprite_and_z;
 
 const ASEPRITE_PATH: &str = "asset.aseprite";
 

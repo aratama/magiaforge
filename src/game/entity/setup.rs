@@ -1,6 +1,3 @@
-pub mod book_shelf;
-pub mod chest;
-
 use crate::game::constant::*;
 use bevy::{asset::AssetPath, prelude::*};
 use bevy_aseprite_ultra::prelude::*;

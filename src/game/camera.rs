@@ -1,4 +1,5 @@
-use crate::game::{player::*, PlayerData};
+use super::serialize::PlayerData;
+use crate::game::player::*;
 use bevy::prelude::*;
 
 #[derive(Component)]
