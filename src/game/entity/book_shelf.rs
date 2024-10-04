@@ -7,6 +7,8 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::*;
 use bevy_rapier2d::prelude::*;
 
+use super::set_aseprite_and_z;
+
 // Asepriteのファイルパス
 const ASEPRITE_PATH: &str = "asset.aseprite";
 
@@ -61,15 +63,12 @@ impl Default for BookShelfBundle {
 }
 
 fn set_aseprite(
-    mut query: Query<(&mut Handle<Aseprite>, &mut Transform), Added<BookShelf>>,
     asset_server: Res<AssetServer>,
+    level_query: Query<&Transform, (With<LevelIid>, Without<BookShelf>)>,
+    layer_query: Query<&Parent, With<LayerMetadata>>,
+    query: Query<(&mut Handle<Aseprite>, &mut Transform, &Parent), With<BookShelf>>,
 ) {
-    for (mut aseprite, mut transform) in query.iter_mut() {
-        *aseprite = asset_server.load(ASEPRITE_PATH);
-
-        // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/explanation/anatomy-of-the-world.html
-        transform.translation.z = (256.0 - transform.translation.y) * Z_ORDER_SCALE;
-    }
+    set_aseprite_and_z::<BookShelf>(ASEPRITE_PATH, asset_server, level_query, layer_query, query);
 }
 
 pub struct BookShelfPlugin;

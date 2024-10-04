@@ -1,4 +1,4 @@
-use crate::game::{constant::TILE_SIZE, Person};
+use crate::game::{constant::TILE_SIZE, Player};
 use bevy::{
     prelude::*,
     time::{Time, Timer},
@@ -71,7 +71,7 @@ pub fn setup_autosave_timer(mut commands: Commands) {
 pub fn spawn_autosave_timer(
     time: Res<Time>,
     mut config: ResMut<AutoSaveTimerConfig>,
-    player_query: Query<&Transform, (With<Person>, Without<Camera2d>)>,
+    player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
 ) {
     config.timer.tick(time.delta());
     if config.timer.finished() {

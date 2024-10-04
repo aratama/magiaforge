@@ -18,6 +18,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use camera::*;
 use close_on_esc::close_on_esc;
@@ -47,6 +48,7 @@ pub fn run_game() {
             })
             .set(ImagePlugin::default_nearest()),
     )
+    .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TilemapPlugin)
     .add_plugins(FrameTimeDiagnosticsPlugin::default())
     .add_plugins(EntityCountDiagnosticsPlugin)

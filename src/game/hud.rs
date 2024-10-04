@@ -20,31 +20,32 @@ fn setup_hud(mut commands: Commands) {
 
 fn update_hud(
     q_window: Query<&Window, With<PrimaryWindow>>,
-    player_query: Query<&Transform, (With<Person>, Without<Camera2d>)>,
-    camera_query: Query<(&Camera, &Transform, &GlobalTransform), (With<Camera2d>, Without<Person>)>,
+    player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
+    camera_query: Query<(&Camera, &Transform, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
     mut hud_query: Query<&mut Text, With<HUD>>,
 ) {
-    let window = q_window.single();
-    let player = player_query.single();
-    let (camera, camera_transform, camera_global_transform) = camera_query.single();
-    let mut hud = hud_query.single_mut();
+    if let Ok(window) = q_window.get_single() {
+        let player = player_query.single();
+        let (camera, camera_transform, camera_global_transform) = camera_query.single();
+        let mut hud = hud_query.single_mut();
 
-    let cursor = window
-        .cursor_position()
-        .and_then(|cursor| camera.viewport_to_world(camera_global_transform, cursor))
-        .map(|ray| ray.origin.truncate())
-        .unwrap_or(Vec2::ZERO);
+        let cursor = window
+            .cursor_position()
+            .and_then(|cursor| camera.viewport_to_world(camera_global_transform, cursor))
+            .map(|ray| ray.origin.truncate())
+            .unwrap_or(Vec2::ZERO);
 
-    let text = format!(
-        "Player: ({:.2}, {:.2})\nCamera: ({:.2}, {:.2})\nCursor: ({:.2}, {:.2})",
-        player.translation.x,
-        player.translation.y,
-        camera_transform.translation.x,
-        camera_transform.translation.y,
-        cursor.x,
-        cursor.y
-    );
-    hud.sections = vec![TextSection::from(text)];
+        let text = format!(
+            "Player: ({:.2}, {:.2})\nCamera: ({:.2}, {:.2})\nCursor: ({:.2}, {:.2})",
+            player.translation.x,
+            player.translation.y,
+            camera_transform.translation.x,
+            camera_transform.translation.y,
+            cursor.x,
+            cursor.y
+        );
+        hud.sections = vec![TextSection::from(text)];
+    }
 }
 
 pub struct HudPlugin;

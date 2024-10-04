@@ -18,29 +18,30 @@ pub fn setup_camera(mut commands: Commands, player_data: &PlayerData) {
 }
 
 pub fn update_camera(
-    player_query: Query<&Transform, (With<Person>, Without<Camera2d>)>,
+    player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
     mut camera_query: Query<
         (
             &mut Transform,
             &mut OrthographicProjection,
             &mut CameraScaleFactor,
         ),
-        (With<Camera2d>, Without<Person>),
+        (With<Camera2d>, Without<Player>),
     >,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
     let player = player_query.single();
-    let (mut camera, mut ortho, mut scale_factor) = camera_query.single_mut();
-    let t = 0.001;
-    camera.translation.x += (player.translation.x - camera.translation.x) * t;
-    camera.translation.y += (player.translation.y - camera.translation.y) * t;
+    if let Ok((mut camera, mut ortho, mut scale_factor)) = camera_query.get_single_mut() {
+        let t = 0.001;
+        camera.translation.x += (player.translation.x - camera.translation.x) * t;
+        camera.translation.y += (player.translation.y - camera.translation.y) * t;
 
-    if keys.just_pressed(KeyCode::KeyR) {
-        *scale_factor = CameraScaleFactor(scale_factor.0 - 1.0);
+        if keys.just_pressed(KeyCode::KeyR) {
+            *scale_factor = CameraScaleFactor(scale_factor.0 - 1.0);
+        }
+        if keys.just_pressed(KeyCode::KeyF) {
+            *scale_factor = CameraScaleFactor(scale_factor.0 + 1.0);
+        }
+        let s = ortho.scale.log2();
+        ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.1);
     }
-    if keys.just_pressed(KeyCode::KeyF) {
-        *scale_factor = CameraScaleFactor(scale_factor.0 + 1.0);
-    }
-    let s = ortho.scale.log2();
-    ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.1);
 }
