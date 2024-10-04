@@ -1164,6 +1164,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_particle_systems"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6355fc6d813d41d32fbab7a7ebd87d9dd9b2ad0a9e8509094de7a23108d47b7"
+dependencies = [
+ "bevy_app",
+ "bevy_asset",
+ "bevy_color",
+ "bevy_ecs",
+ "bevy_hierarchy",
+ "bevy_math",
+ "bevy_reflect",
+ "bevy_render",
+ "bevy_sprite",
+ "bevy_time",
+ "bevy_transform",
+ "rand 0.8.5",
+]
+
+[[package]]
 name = "bevy_pbr"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4159,6 +4179,7 @@ dependencies = [
  "bevy_aseprite_ultra",
  "bevy_ecs_ldtk",
  "bevy_ecs_tilemap",
+ "bevy_particle_systems",
  "bevy_rapier2d",
  "iyes_perf_ui",
  "rand 0.8.5",

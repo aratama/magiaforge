@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
+use bevy_particle_systems::{
+    ColorOverTime, JitteredValue, ParticleSystem, ParticleSystemBundle, Playing,
+};
 use bevy_rapier2d::prelude::*;
 
 const ASEPRITE_PATH: &str = "asset.aseprite";
@@ -54,10 +57,10 @@ pub fn add_bullet(
 
 pub fn update_bullet(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Bullet)>,
+    mut query: Query<(Entity, &mut Bullet, &Transform)>,
     mut collision_events: EventReader<CollisionEvent>,
 ) {
-    for (entity, mut bullet) in query.iter_mut() {
+    for (entity, mut bullet, _) in query.iter_mut() {
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn();
@@ -67,16 +70,40 @@ pub fn update_bullet(
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
                 // 弾丸は何かに接触した時点で消滅する
-                if query.contains(*a) {
+                if let Ok((_, _, bul)) = query.get(*a) {
                     commands.entity(*a).despawn();
+                    spawn_particle_system(&mut commands, bul.translation.truncate());
                 }
-                if query.contains(*b) {
+                if let Ok((_, _, bul)) = query.get(*b) {
                     commands.entity(*b).despawn();
+                    spawn_particle_system(&mut commands, bul.translation.truncate());
                 }
             }
             _ => {}
         }
     }
+}
+
+fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
+    commands
+        // Add the bundle specifying the particle system itself.
+        .spawn(ParticleSystemBundle {
+            transform: Transform::from_translation(position.extend(BULLET_Z)),
+            particle_system: ParticleSystem {
+                max_particles: 100,
+                // texture: ParticleTexture::Sprite(asset_server.load("my_particle.png")),
+                spawn_rate_per_second: 400.0.into(),
+                initial_speed: JitteredValue::jittered(200.0, -100.0..100.0),
+                lifetime: JitteredValue::jittered(0.07, -0.05..0.05),
+                color: ColorOverTime::Constant(Color::WHITE),
+                looping: false,
+                system_duration_seconds: 0.05,
+                ..ParticleSystem::default()
+            },
+            ..ParticleSystemBundle::default()
+        })
+        // Add the playing component so it starts playing. This can be added later as well.
+        .insert(Playing);
 }
 
 pub struct BulletPlugin;

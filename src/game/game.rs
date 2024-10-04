@@ -19,6 +19,7 @@ use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
 use iyes_perf_ui::prelude::*;
 
@@ -87,7 +88,8 @@ pub fn run_game() {
     .register_ldtk_int_cell::<WallBundle>(1)
     .register_ldtk_int_cell::<WallBundle>(3)
     .add_systems(Update, close_on_esc)
-    .add_plugins(BulletPlugin);
+    .add_plugins(BulletPlugin)
+    .add_plugins(ParticleSystemPlugin);
 
     app.run();
 }
