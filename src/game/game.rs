@@ -1,3 +1,4 @@
+use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
 use super::entity::book_shelf::*;
@@ -85,7 +86,8 @@ pub fn run_game() {
     .add_systems(Update, spawn_wall_collision)
     .register_ldtk_int_cell::<WallBundle>(1)
     .register_ldtk_int_cell::<WallBundle>(3)
-    .add_systems(Update, close_on_esc);
+    .add_systems(Update, close_on_esc)
+    .add_plugins(BulletPlugin);
 
     app.run();
 }

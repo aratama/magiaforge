@@ -8,6 +8,8 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::f32::consts::PI;
 
+use super::bullet::add_bullet;
+
 #[derive(Component)]
 pub struct Player;
 
@@ -59,6 +61,11 @@ pub fn update_player(
     ldtk_project_assets: Res<Assets<LdtkProject>>,
     mut level_selection: ResMut<LevelSelection>,
     q_window: Query<&Window, With<PrimaryWindow>>,
+
+    commands: Commands,
+    asset_server: Res<AssetServer>,
+
+    buttons: Res<ButtonInput<MouseButton>>,
 ) {
     let speed = 2.0;
 
@@ -120,6 +127,17 @@ pub fn update_player(
                         *level_selection = LevelSelection::Iid(level_iid.clone());
                     }
                 }
+            }
+
+            // 魔法の発射
+            if buttons.just_pressed(MouseButton::Left) {
+                let dir = ray.normalize_or_zero();
+                add_bullet(
+                    commands,
+                    asset_server,
+                    player.translation.truncate() + dir * 10.0,
+                    dir * 200.0,
+                );
             }
         }
     }
