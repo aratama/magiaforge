@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
 use bevy_particle_systems::{
-    ColorOverTime, JitteredValue, ParticleSystem, ParticleSystemBundle, Playing,
+    ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
 
@@ -87,23 +87,25 @@ pub fn update_bullet(
 fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
     commands
         // Add the bundle specifying the particle system itself.
-        .spawn(ParticleSystemBundle {
-            transform: Transform::from_translation(position.extend(BULLET_Z)),
-            particle_system: ParticleSystem {
-                max_particles: 100,
-                // texture: ParticleTexture::Sprite(asset_server.load("my_particle.png")),
-                spawn_rate_per_second: 400.0.into(),
-                initial_speed: JitteredValue::jittered(200.0, -100.0..100.0),
-                lifetime: JitteredValue::jittered(0.07, -0.05..0.05),
-                color: ColorOverTime::Constant(Color::WHITE),
-                looping: false,
-                system_duration_seconds: 0.05,
-                ..ParticleSystem::default()
+        .spawn((
+            ParticleSystemBundle {
+                transform: Transform::from_translation(position.extend(BULLET_Z)),
+                particle_system: ParticleSystem {
+                    spawn_rate_per_second: 0.0.into(),
+                    max_particles: 100,
+                    initial_speed: JitteredValue::jittered(50.0, -50.0..50.0),
+                    lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
+                    color: ColorOverTime::Constant(Color::WHITE),
+                    bursts: vec![ParticleBurst {
+                        time: 0.0,
+                        count: 20,
+                    }],
+                    ..ParticleSystem::oneshot()
+                },
+                ..ParticleSystemBundle::default()
             },
-            ..ParticleSystemBundle::default()
-        })
-        // Add the playing component so it starts playing. This can be added later as well.
-        .insert(Playing);
+            Playing,
+        ));
 }
 
 pub struct BulletPlugin;

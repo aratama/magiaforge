@@ -14,6 +14,8 @@ use super::wall::WallBundle;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
+use bevy::log::Level;
+use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
@@ -37,6 +39,11 @@ pub fn run_game() {
                 ..default()
             })
             .set(ImagePlugin::default_nearest()),
+        //
+        // .set(LogPlugin {
+        //     level: Level::DEBUG,
+        //     ..default()
+        // })
     )
     .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TilemapPlugin)

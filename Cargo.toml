@@ -57,7 +57,7 @@ features = ["console", "Window", "Storage"]
 [dependencies.bevy_rapier2d]
 version = "0.27.0"
 features = ["debug-render-2d"]
-
+opt-level = 3                  # https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
 
 [dev-dependencies]
 trunk = "*"
@@ -67,9 +67,8 @@ opt-level = "z"
 # data-wasm-opt = "0"
 
 # https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
-[profile.dev.package.bevy_rapier2d]
-opt-level = 3
-
+# [profile.dev.package.bevy_rapier2d]
+# opt-level = 3
 
 [profile.release]
 opt-level = "z"

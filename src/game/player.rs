@@ -6,12 +6,16 @@ use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+use rand::random;
 use std::f32::consts::PI;
 
 use super::bullet::add_bullet;
 
 #[derive(Component)]
-pub struct Player;
+pub struct Player {
+    // 次の魔法を発射できるまでのクールタイム
+    cooltime: i32,
+}
 
 pub fn setup_player(
     mut commands: Commands,
@@ -19,7 +23,7 @@ pub fn setup_player(
     player_data: &PlayerData,
 ) {
     commands.spawn((
-        Player,
+        Player { cooltime: 0 },
         AsepriteAnimationBundle {
             aseprite: asset_server.load("player.aseprite"),
             transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
@@ -45,12 +49,13 @@ pub fn update_player(
     keys: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<
         (
+            &mut Player,
             &mut Transform,
             &mut KinematicCharacterController,
             &GlobalTransform,
             &mut Sprite,
         ),
-        (With<Player>, Without<Camera2d>),
+        Without<Camera2d>,
     >,
     mut camera_query: Query<
         (&Camera, &mut Transform, &GlobalTransform),
@@ -76,12 +81,13 @@ pub fn update_player(
     .normalize_or_zero()
         * speed;
 
-    let (mut player, mut controller, _, mut player_sprite) = player_query.single_mut();
+    let (mut player, mut player_transform, mut controller, _, mut player_sprite) =
+        player_query.single_mut();
 
     // 本棚などのエンティティが設置されているレイヤーは z が 3 に設定されているらしく、
     // y を z に変換する同一の式を設定しても、さらに 3 を加算してようやく z が合致するらしい
     // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/explanation/anatomy-of-the-world.html
-    player.translation.z = 3.0 + (-player.translation.y * Z_ORDER_SCALE);
+    player_transform.translation.z = 3.0 + (-player_transform.translation.y * Z_ORDER_SCALE);
     controller.translation = Some(velocity);
 
     // println!(
@@ -93,9 +99,9 @@ pub fn update_player(
         camera_query.get_single_mut()
     {
         camera_transform.translation.x +=
-            (player.translation.x - camera_transform.translation.x) * 0.1;
+            (player_transform.translation.x - camera_transform.translation.x) * 0.1;
         camera_transform.translation.y +=
-            (player.translation.y - camera_transform.translation.y) * 0.1;
+            (player_transform.translation.y - camera_transform.translation.y) * 0.1;
 
         // プレイヤーの向き
         if let Ok(window) = q_window.get_single() {
@@ -105,7 +111,7 @@ pub fn update_player(
                 .map(|ray| ray.origin.truncate())
                 .unwrap_or(Vec2::ZERO);
 
-            let ray = cursor - player.translation.truncate();
+            let ray = cursor - player_transform.translation.truncate();
             let angle = ray.y.atan2(ray.x);
             // println!("angle: {}", angle);
             if angle < -PI * 0.5 || PI * 0.5 < angle {
@@ -119,7 +125,10 @@ pub fn update_player(
             // ただし上記の方法では読み込み済みのレベルを利用して現在のレベルを判定しているため、
             // 歩いて移動する場合は機能しますが、プレイヤーがワープしたり、セーブした位置から再開する場合は機能しません。
             // このため、常にアセット全体を検索して現在のレベルを判定しています
-            let player_position = Vec2::new(player.translation.x, player.translation.y);
+            let player_position = Vec2::new(
+                player_transform.translation.x,
+                player_transform.translation.y,
+            );
             if let Ok(project_handle) = ldtk_projects.get_single() {
                 if let Some(ldtk_project) = ldtk_project_assets.get(project_handle) {
                     let found = find_level(ldtk_project, player_position);
@@ -130,14 +139,32 @@ pub fn update_player(
             }
 
             // 魔法の発射
-            if buttons.just_pressed(MouseButton::Left) {
-                let dir = ray.normalize_or_zero();
+            if buttons.pressed(MouseButton::Left) && player.cooltime == 0 {
+                // 魔法の拡散
+                let scattering = 0.3;
+
+                // 魔法弾の速度
+                // pixels_per_meter が 100.0 に設定されているので、
+                // 200は1フレームに2ピクセル移動する速度です
+                let speed = 200.0;
+
+                // 次の魔法を発射するまでの待機フレーム数
+                let cooltime = 10;
+
+                let normalized = ray.normalize_or_zero();
+                let angle = normalized.y.atan2(normalized.x) + (random::<f32>() - 0.5) * scattering;
+                let direction = Vec2::new(angle.cos(), angle.sin());
+
                 add_bullet(
                     commands,
                     asset_server,
-                    player.translation.truncate() + dir * 10.0,
-                    dir * 200.0,
+                    player_transform.translation.truncate() + normalized * 10.0,
+                    direction * speed,
                 );
+
+                player.cooltime = cooltime;
+            } else {
+                player.cooltime = (player.cooltime - 1).max(0);
             }
         }
     }
