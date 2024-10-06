@@ -42,6 +42,9 @@ https://aratama.github.io/bevy-wasm-example/
 - https://gist.github.com/nakedible/f6a0d4bcbea1df7768e9ed425f6f33db
 - Linux 用 Windows サブシステム で Linux GUI アプリを実行する https://learn.microsoft.com/ja-jp/windows/wsl/tutorials/gui-apps
 
+- https://github.com/jgayfer/bevy_light_2d
+- https://github.com/zaycev/bevy-magic-light-2d
+
 ### Assets
 
 - 芝生の上を歩く https://soundeffect-lab.info/sound/various/
