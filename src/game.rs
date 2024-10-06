@@ -3,6 +3,7 @@ mod camera;
 mod close_on_esc;
 mod console;
 mod constant;
+mod embedded;
 mod entity;
 pub mod game;
 mod hud;

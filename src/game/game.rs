@@ -1,6 +1,7 @@
 use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
+use super::embedded::EmbeddedAssetPlugin;
 use super::entity::book_shelf::*;
 use super::entity::chest::*;
 use super::hud::*;
@@ -14,8 +15,8 @@ use super::wall::WallBundle;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
-use bevy::log::Level;
-use bevy::log::LogPlugin;
+// use bevy::log::Level;
+// use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
@@ -45,6 +46,7 @@ pub fn run_game() {
         //     ..default()
         // })
     )
+    .add_plugins(EmbeddedAssetPlugin)
     .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TilemapPlugin)
     .add_plugins(FrameTimeDiagnosticsPlugin::default())

@@ -1,9 +1,13 @@
+// use super::constant::CRATE_NAME;
+// use bevy::asset::io::*;
+use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
+// use std::path::Path;
 
 const ASEPRITE_PATH: &str = "asset.aseprite";
 
@@ -29,9 +33,22 @@ pub fn add_bullet(
     position: Vec2,
     velocity: Vec2,
 ) {
+    // TODO:
+    // 現状ではアセットの埋め込みはしていません
+    // 埋め込みができない理由は、world.rs のコメントに記載しています
+    //
+    // // https://bevyengine.org/examples/assets/embedded-asset/
+    // アセットのパスは URL のような形式になっており、
+    // プロトコルは embedded、それ以下のパスは crate 名とアセットのパスになります
+    // embedded_asset 側の設定で、パスの game は省略されます
+    // 実際のパスは Window では例えば、 embedded://my_bevy_game\asset/asset.aseprite になります
+    // let path = Path::new(CRATE_NAME).join("asset/asset.aseprite");
+    // let asset_path = AssetPath::from_path(&path).with_source(AssetSourceId::from("embedded"));
+
     commands.spawn((
         Bullet { life: 120 },
         AsepriteSliceBundle {
+            // aseprite: asset_server.load(asset_path),
             aseprite: asset_server.load(ASEPRITE_PATH),
             slice: SLICE_NAME.into(),
             transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
