@@ -1,6 +1,7 @@
 // use super::constant::CRATE_NAME;
 // use bevy::asset::io::*;
 use bevy::asset::*;
+use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
 use bevy_particle_systems::{
@@ -76,6 +77,7 @@ pub fn update_bullet(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Bullet, &Transform)>,
     mut collision_events: EventReader<CollisionEvent>,
+    asset_server: Res<AssetServer>,
 ) {
     for (entity, mut bullet, _) in query.iter_mut() {
         bullet.life -= 1;
@@ -90,15 +92,28 @@ pub fn update_bullet(
                 if let Ok((_, _, bul)) = query.get(*a) {
                     commands.entity(*a).despawn();
                     spawn_particle_system(&mut commands, bul.translation.truncate());
+                    play_despown_bullet_se(&asset_server, &mut commands);
                 }
                 if let Ok((_, _, bul)) = query.get(*b) {
                     commands.entity(*b).despawn();
                     spawn_particle_system(&mut commands, bul.translation.truncate());
+                    play_despown_bullet_se(&asset_server, &mut commands);
                 }
             }
             _ => {}
         }
     }
+}
+
+fn play_despown_bullet_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
+    commands.spawn(AudioBundle {
+        source: asset_server.load("shibafu.ogg"),
+        settings: PlaybackSettings {
+            mode: PlaybackMode::Despawn,
+            ..default()
+        },
+        ..default()
+    });
 }
 
 fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
