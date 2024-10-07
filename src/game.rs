@@ -13,6 +13,7 @@ mod ldtk_util;
 mod overlay;
 mod player;
 mod serialize;
+mod start;
 mod tree;
 mod wall;
 mod world;

@@ -1,0 +1,73 @@
+use super::overlay::{Overlay, OverlayClosedEvent};
+use bevy::prelude::*;
+
+const SHOW_TITLE_PAGE: bool = false;
+
+#[derive(Component, Reflect)]
+pub struct StartPage;
+
+#[derive(Bundle)]
+pub struct StartPageBundle {
+    start: StartPage,
+}
+
+pub fn setup_start_page(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands
+        .spawn((
+            StartPage,
+            Name::new("start page"),
+            NodeBundle {
+                style: Style {
+                    width: Val::Px(1280.0),
+                    height: Val::Px(720.0),
+                    ..Default::default()
+                },
+                background_color: Color::srgba(0.0, 0.0, 0.0, 1.0).into(),
+                visibility: if SHOW_TITLE_PAGE {
+                    Visibility::Visible
+                } else {
+                    Visibility::Hidden
+                },
+                ..Default::default()
+            },
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                image: UiImage::new(asset_server.load("title.png")),
+                ..default()
+            });
+        });
+}
+
+pub fn update_start_page(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    buttons: Res<ButtonInput<MouseButton>>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mut query: Query<(Entity, &mut Visibility), With<StartPage>>,
+    mut overlay_query: Query<&mut Overlay>,
+    mut event_overlay_closed: EventReader<OverlayClosedEvent>,
+) {
+    if let Ok(mut overlay) = overlay_query.get_single_mut() {
+        if let Ok((_, mut visibility)) = query.get_single_mut() {
+            if *visibility == Visibility::Visible {
+                if keys.just_pressed(KeyCode::Enter) || buttons.just_pressed(MouseButton::Left) {
+                    overlay.enabled = false;
+                }
+            }
+            for _ in event_overlay_closed.read() {
+                *visibility = Visibility::Hidden;
+                overlay.enabled = true;
+            }
+        }
+    }
+}
+
+pub struct StartPagePlugin;
+
+impl Plugin for StartPagePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, setup_start_page);
+        app.add_systems(Update, update_start_page);
+    }
+}

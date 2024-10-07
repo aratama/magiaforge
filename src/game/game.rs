@@ -10,6 +10,8 @@ use super::overlay::*;
 use super::player::setup_player;
 use super::player::update_player;
 use super::serialize::*;
+use super::start::StartPage;
+use super::start::StartPagePlugin;
 use super::tree::*;
 use super::wall::spawn_wall_collision;
 use super::wall::WallBundle;
@@ -100,7 +102,8 @@ pub fn run_game() {
     .add_systems(Update, close_on_esc)
     .add_plugins(BulletPlugin)
     .add_plugins(ParticleSystemPlugin)
-    .add_plugins(EnemyPlugin);
+    .add_plugins(EnemyPlugin)
+    .add_plugins(StartPagePlugin);
 
     app.run();
 }

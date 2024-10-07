@@ -90,7 +90,6 @@ pub fn update_bullet(
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
-                // 弾丸は何かに接触した時点で消滅する
                 if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*a) {
                     process_bullet_event(
                         &mut commands,
