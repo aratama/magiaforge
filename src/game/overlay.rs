@@ -11,6 +11,7 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
     let height = window.resolution.height();
 
     commands.spawn((
+        Name::new("overlay"),
         Overlay { enabled: true },
         NodeBundle {
             style: Style {

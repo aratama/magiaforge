@@ -19,6 +19,7 @@ struct Chest;
 
 #[derive(Bundle, LdtkEntity)]
 struct ChestBundle {
+    name: Name,
     chest: Chest,
     aseprite_slice_bundle: AsepriteSliceBundle,
     #[grid_coords]
@@ -30,6 +31,7 @@ struct ChestBundle {
 impl Default for ChestBundle {
     fn default() -> Self {
         Self {
+            name: Name::new("chest"),
             chest: Chest,
             aseprite_slice_bundle: AsepriteSliceBundle {
                 slice: SLICE_NAME.into(),

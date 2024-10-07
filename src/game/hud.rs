@@ -7,6 +7,7 @@ pub struct HUD;
 
 fn setup_hud(mut commands: Commands) {
     commands.spawn((
+        Name::new("hud"),
         TextBundle::from_section("Test", TextStyle::default()).with_style(Style {
             position_type: PositionType::Absolute,
             top: Val::Px(12.0),

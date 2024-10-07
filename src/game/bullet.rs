@@ -47,6 +47,7 @@ pub fn add_bullet(
     // let asset_path = AssetPath::from_path(&path).with_source(AssetSourceId::from("embedded"));
 
     commands.spawn((
+        Name::new("bullet"),
         Bullet { life: 120 },
         AsepriteSliceBundle {
             // aseprite: asset_server.load(asset_path),
@@ -106,20 +107,24 @@ pub fn update_bullet(
 }
 
 fn play_despown_bullet_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
-    commands.spawn(AudioBundle {
-        source: asset_server.load("shibafu.ogg"),
-        settings: PlaybackSettings {
-            mode: PlaybackMode::Despawn,
+    commands.spawn((
+        Name::new("bullet se"),
+        AudioBundle {
+            source: asset_server.load("shibafu.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn,
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    });
+    ));
 }
 
 fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
     commands
         // Add the bundle specifying the particle system itself.
         .spawn((
+            Name::new("particle"),
             ParticleSystemBundle {
                 transform: Transform::from_translation(position.extend(BULLET_Z)),
                 particle_system: ParticleSystem {
@@ -145,5 +150,6 @@ pub struct BulletPlugin;
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, update_bullet);
+        app.register_type::<Bullet>();
     }
 }

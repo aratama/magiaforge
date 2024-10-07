@@ -24,6 +24,7 @@ struct BookShelf;
 
 #[derive(Bundle, LdtkEntity)]
 struct BookShelfBundle {
+    name: Name,
     book_shelf: BookShelf,
     aseprite_slice_bundle: AsepriteSliceBundle,
     #[grid_coords]
@@ -35,6 +36,7 @@ struct BookShelfBundle {
 impl Default for BookShelfBundle {
     fn default() -> Self {
         Self {
+            name: Name::new("book_shelf"),
             book_shelf: BookShelf,
             aseprite_slice_bundle: AsepriteSliceBundle {
                 slice: SLICE_NAME.into(),

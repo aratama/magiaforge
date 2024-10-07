@@ -23,6 +23,7 @@ pub fn setup_player(
     player_data: &PlayerData,
 ) {
     commands.spawn((
+        Name::new("player"),
         Player { cooltime: 0 },
         AsepriteAnimationBundle {
             aseprite: asset_server.load("player.aseprite"),
