@@ -1,15 +1,12 @@
-// use super::constant::CRATE_NAME;
-// use bevy::asset::io::*;
-use bevy::audio::PlaybackMode;
 use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
-use bevy::{asset::*, ecs::entity};
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
 
+use super::audio::play_se;
 use super::enemy::Enemy;
 // use std::path::Path;
 
@@ -79,12 +76,12 @@ pub fn add_bullet(
 
 pub fn update_bullet(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Bullet, &Transform)>,
+    mut query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut collision_events: EventReader<CollisionEvent>,
     mut enemies: Query<(Entity, &mut Enemy)>,
     asset_server: Res<AssetServer>,
 ) {
-    for (entity, mut bullet, _) in query.iter_mut() {
+    for (entity, mut bullet, _, _) in query.iter_mut() {
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn();
@@ -94,21 +91,23 @@ pub fn update_bullet(
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
                 // 弾丸は何かに接触した時点で消滅する
-                if let Ok((_, _, bullet_transform)) = query.get(*a) {
+                if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*a) {
                     process_bullet_event(
                         &mut commands,
                         &asset_server,
                         &a,
                         &bullet_transform,
+                        &bullet_velocity,
                         enemies.get_mut(*b),
                     );
                 }
-                if let Ok((_, _, bullet_transform)) = query.get(*b) {
+                if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*b) {
                     process_bullet_event(
                         &mut commands,
                         &asset_server,
                         &b,
                         &bullet_transform,
+                        &bullet_velocity,
                         enemies.get_mut(*a),
                     );
                 }
@@ -123,6 +122,7 @@ fn process_bullet_event(
     asset_server: &Res<AssetServer>,
     bullet_entity: &Entity,
     bullet_transform: &Transform,
+    bullet_velocity: &Velocity,
     enemy: Result<(Entity, Mut<'_, Enemy>), QueryEntityError>,
 ) {
     commands.entity(*bullet_entity).despawn();
@@ -130,57 +130,14 @@ fn process_bullet_event(
 
     if let Ok((enemy_entity, mut enemy)) = enemy {
         enemy.life -= 1;
-        if enemy.life <= 0 {
-            commands.entity(enemy_entity).despawn();
-            play_enemy_down_se(&asset_server, &mut commands);
-        } else {
-            play_enemy_hit_se(&asset_server, &mut commands);
-        }
+        commands.entity(enemy_entity).insert(ExternalForce {
+            force: bullet_velocity.linvel.normalize_or_zero() * 10000.0,
+            torque: 0.0,
+        });
+        play_se(&mut commands, &asset_server, "dageki.ogg");
     } else {
-        play_despown_bullet_se(&asset_server, &mut commands);
+        play_se(&mut commands, &asset_server, "shibafu.ogg");
     }
-}
-
-fn play_despown_bullet_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
-    commands.spawn((
-        Name::new("bullet se"),
-        AudioBundle {
-            source: asset_server.load("shibafu.ogg"),
-            settings: PlaybackSettings {
-                mode: PlaybackMode::Despawn,
-                ..default()
-            },
-            ..default()
-        },
-    ));
-}
-
-fn play_enemy_down_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
-    commands.spawn((
-        Name::new("enemy down se"),
-        AudioBundle {
-            source: asset_server.load("hiyoko.ogg"),
-            settings: PlaybackSettings {
-                mode: PlaybackMode::Despawn,
-                ..default()
-            },
-            ..default()
-        },
-    ));
-}
-
-fn play_enemy_hit_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
-    commands.spawn((
-        Name::new("enemy hit se"),
-        AudioBundle {
-            source: asset_server.load("dageki.ogg"),
-            settings: PlaybackSettings {
-                mode: PlaybackMode::Despawn,
-                ..default()
-            },
-            ..default()
-        },
-    ));
 }
 
 fn spawn_particle_system(commands: &mut Commands, position: Vec2) {

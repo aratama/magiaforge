@@ -1,3 +1,4 @@
+mod audio;
 mod bullet;
 mod camera;
 mod close_on_esc;

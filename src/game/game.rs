@@ -2,7 +2,6 @@ use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
 use super::embedded::EmbeddedAssetPlugin;
-use super::enemy::spawn_enemy;
 use super::enemy::EnemyPlugin;
 use super::entity::book_shelf::*;
 use super::entity::chest::*;
