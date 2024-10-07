@@ -2,6 +2,8 @@ use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
 use super::embedded::EmbeddedAssetPlugin;
+use super::enemy::spawn_enemy;
+use super::enemy::EnemyPlugin;
 use super::entity::book_shelf::*;
 use super::entity::chest::*;
 use super::hud::*;
@@ -98,7 +100,8 @@ pub fn run_game() {
     .register_ldtk_int_cell::<WallBundle>(3)
     .add_systems(Update, close_on_esc)
     .add_plugins(BulletPlugin)
-    .add_plugins(ParticleSystemPlugin);
+    .add_plugins(ParticleSystemPlugin)
+    .add_plugins(EnemyPlugin);
 
     app.run();
 }

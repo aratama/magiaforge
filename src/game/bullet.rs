@@ -1,13 +1,16 @@
 // use super::constant::CRATE_NAME;
 // use bevy::asset::io::*;
-use bevy::asset::*;
 use bevy::audio::PlaybackMode;
+use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
+use bevy::{asset::*, ecs::entity};
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
+
+use super::enemy::Enemy;
 // use std::path::Path;
 
 const ASEPRITE_PATH: &str = "asset.aseprite";
@@ -78,6 +81,7 @@ pub fn update_bullet(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Bullet, &Transform)>,
     mut collision_events: EventReader<CollisionEvent>,
+    mut enemies: Query<(Entity, &mut Enemy)>,
     asset_server: Res<AssetServer>,
 ) {
     for (entity, mut bullet, _) in query.iter_mut() {
@@ -90,19 +94,50 @@ pub fn update_bullet(
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
                 // 弾丸は何かに接触した時点で消滅する
-                if let Ok((_, _, bul)) = query.get(*a) {
-                    commands.entity(*a).despawn();
-                    spawn_particle_system(&mut commands, bul.translation.truncate());
-                    play_despown_bullet_se(&asset_server, &mut commands);
+                if let Ok((_, _, bullet_transform)) = query.get(*a) {
+                    process_bullet_event(
+                        &mut commands,
+                        &asset_server,
+                        &a,
+                        &bullet_transform,
+                        enemies.get_mut(*b),
+                    );
                 }
-                if let Ok((_, _, bul)) = query.get(*b) {
-                    commands.entity(*b).despawn();
-                    spawn_particle_system(&mut commands, bul.translation.truncate());
-                    play_despown_bullet_se(&asset_server, &mut commands);
+                if let Ok((_, _, bullet_transform)) = query.get(*b) {
+                    process_bullet_event(
+                        &mut commands,
+                        &asset_server,
+                        &b,
+                        &bullet_transform,
+                        enemies.get_mut(*a),
+                    );
                 }
             }
             _ => {}
         }
+    }
+}
+
+fn process_bullet_event(
+    mut commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    bullet_entity: &Entity,
+    bullet_transform: &Transform,
+    enemy: Result<(Entity, Mut<'_, Enemy>), QueryEntityError>,
+) {
+    commands.entity(*bullet_entity).despawn();
+    spawn_particle_system(&mut commands, bullet_transform.translation.truncate());
+
+    if let Ok((enemy_entity, mut enemy)) = enemy {
+        enemy.life -= 1;
+        if enemy.life <= 0 {
+            commands.entity(enemy_entity).despawn();
+            play_enemy_down_se(&asset_server, &mut commands);
+        } else {
+            play_enemy_hit_se(&asset_server, &mut commands);
+        }
+    } else {
+        play_despown_bullet_se(&asset_server, &mut commands);
     }
 }
 
@@ -111,6 +146,34 @@ fn play_despown_bullet_se(asset_server: &Res<AssetServer>, commands: &mut Comman
         Name::new("bullet se"),
         AudioBundle {
             source: asset_server.load("shibafu.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn,
+                ..default()
+            },
+            ..default()
+        },
+    ));
+}
+
+fn play_enemy_down_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
+    commands.spawn((
+        Name::new("enemy down se"),
+        AudioBundle {
+            source: asset_server.load("hiyoko.ogg"),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn,
+                ..default()
+            },
+            ..default()
+        },
+    ));
+}
+
+fn play_enemy_hit_se(asset_server: &Res<AssetServer>, commands: &mut Commands) {
+    commands.spawn((
+        Name::new("enemy hit se"),
+        AudioBundle {
+            source: asset_server.load("dageki.ogg"),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Despawn,
                 ..default()

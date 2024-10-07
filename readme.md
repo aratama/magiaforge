@@ -48,3 +48,5 @@ https://aratama.github.io/bevy-wasm-example/
 ### Assets
 
 - 芝生の上を歩く https://soundeffect-lab.info/sound/various/
+- ひよこの鳴き声 https://soundeffect-lab.info/sound/animal/
+- 打撃 1 https://soundeffect-lab.info/sound/battle/

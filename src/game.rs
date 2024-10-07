@@ -4,6 +4,7 @@ mod close_on_esc;
 mod console;
 mod constant;
 mod embedded;
+mod enemy;
 mod entity;
 pub mod game;
 mod hud;
