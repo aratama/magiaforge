@@ -2,6 +2,8 @@ use crate::game::player::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use iyes_perf_ui::entries::PerfUiBundle;
 
+use super::states::GameState;
+
 #[derive(Component)]
 pub struct HUD;
 
@@ -53,7 +55,7 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_hud);
-        app.add_systems(Update, update_hud);
+        app.add_systems(Startup, setup_hud.run_if(in_state(GameState::InGame)));
+        app.add_systems(Update, update_hud.run_if(in_state(GameState::InGame)));
     }
 }

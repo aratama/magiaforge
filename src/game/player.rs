@@ -17,11 +17,7 @@ pub struct Player {
     cooltime: i32,
 }
 
-pub fn setup_player(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    player_data: &PlayerData,
-) {
+fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>, player_data: &PlayerData) {
     commands.spawn((
         Name::new("player"),
         Player { cooltime: 0 },
@@ -46,7 +42,7 @@ pub fn setup_player(
     ));
 }
 
-pub fn update_player(
+fn update_player(
     keys: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<
         (
@@ -173,4 +169,21 @@ pub fn update_player(
 
 fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCode) -> f32 {
     return if keys.pressed(code) { 1.0 } else { 0.0 };
+}
+
+pub struct PlayerPlugin {
+    pub player_data: PlayerData,
+}
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        let player_data = self.player_data.clone();
+        app.add_systems(
+            PostStartup,
+            move |commands: Commands, asset_server: Res<AssetServer>| {
+                setup_player(commands, asset_server, &player_data);
+            },
+        );
+        app.add_systems(Update, update_player);
+    }
 }

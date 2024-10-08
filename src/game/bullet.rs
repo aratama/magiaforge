@@ -8,6 +8,7 @@ use bevy_rapier2d::prelude::*;
 
 use super::audio::play_se;
 use super::enemy::Enemy;
+use super::states::GameState;
 // use std::path::Path;
 
 const ASEPRITE_PATH: &str = "asset.aseprite";
@@ -168,7 +169,7 @@ pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_bullet);
+        app.add_systems(Update, update_bullet.run_if(in_state(GameState::InGame)));
         app.register_type::<Bullet>();
     }
 }

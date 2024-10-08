@@ -1,7 +1,8 @@
-use super::overlay::{Overlay, OverlayClosedEvent};
+use super::{
+    overlay::{Overlay, OverlayClosedEvent},
+    states::GameState,
+};
 use bevy::prelude::*;
-
-const SHOW_TITLE_PAGE: bool = false;
 
 #[derive(Component, Reflect)]
 pub struct StartPage;
@@ -11,7 +12,11 @@ pub struct StartPageBundle {
     start: StartPage,
 }
 
-pub fn setup_start_page(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_start_page(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    state: Res<State<GameState>>,
+) {
     commands
         .spawn((
             StartPage,
@@ -23,10 +28,9 @@ pub fn setup_start_page(mut commands: Commands, asset_server: Res<AssetServer>) 
                     ..Default::default()
                 },
                 background_color: Color::srgba(0.0, 0.0, 0.0, 1.0).into(),
-                visibility: if SHOW_TITLE_PAGE {
-                    Visibility::Visible
-                } else {
-                    Visibility::Hidden
+                visibility: match state.get() {
+                    GameState::MainMenu => Visibility::Visible,
+                    _ => Visibility::Hidden,
                 },
                 ..Default::default()
             },
@@ -57,6 +61,7 @@ pub fn update_start_page(
             }
             for _ in event_overlay_closed.read() {
                 *visibility = Visibility::Hidden;
+
                 overlay.enabled = true;
             }
         }
@@ -67,7 +72,13 @@ pub struct StartPagePlugin;
 
 impl Plugin for StartPagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_start_page);
-        app.add_systems(Update, update_start_page);
+        app.add_systems(
+            Startup,
+            setup_start_page.run_if(in_state(GameState::MainMenu)),
+        );
+        app.add_systems(
+            Update,
+            update_start_page.run_if(in_state(GameState::MainMenu)),
+        );
     }
 }

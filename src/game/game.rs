@@ -7,11 +7,11 @@ use super::entity::book_shelf::*;
 use super::entity::chest::*;
 use super::hud::*;
 use super::overlay::*;
-use super::player::setup_player;
-use super::player::update_player;
+use super::player::*;
 use super::serialize::*;
 use super::start::StartPage;
 use super::start::StartPagePlugin;
+use super::states::GameState;
 use super::tree::*;
 use super::wall::spawn_wall_collision;
 use super::wall::WallBundle;
@@ -31,7 +31,6 @@ use iyes_perf_ui::prelude::*;
 
 pub fn run_game() {
     let player_data = restore_player();
-    let player_data_for_camera = player_data.clone();
 
     let mut app = App::new();
 
@@ -84,18 +83,12 @@ pub fn run_game() {
     .add_plugins(OverlayPlugin)
     .add_systems(Startup, setup_autosave_timer)
     .add_systems(Update, spawn_autosave_timer)
-    .add_systems(Startup, move |commands: Commands| {
-        setup_camera(commands, &player_data_for_camera);
+    .add_plugins(CameraPlugin {
+        initial_camera_position: Vec2::new(player_data.x, player_data.y),
     })
-    .add_systems(Update, update_camera)
     .add_plugins(WorldPlugin)
     .add_plugins(TreePlugin)
-    .add_systems(PostStartup, {
-        move |commands: Commands, asset_server: Res<AssetServer>| {
-            setup_player(commands, asset_server, &player_data);
-        }
-    })
-    .add_systems(Update, update_player)
+    .add_plugins(PlayerPlugin { player_data })
     .add_systems(Update, spawn_wall_collision)
     .register_ldtk_int_cell::<WallBundle>(1)
     .register_ldtk_int_cell::<WallBundle>(3)
@@ -103,7 +96,8 @@ pub fn run_game() {
     .add_plugins(BulletPlugin)
     .add_plugins(ParticleSystemPlugin)
     .add_plugins(EnemyPlugin)
-    .add_plugins(StartPagePlugin);
+    .add_plugins(StartPagePlugin)
+    .insert_state(GameState::InGame);
 
     app.run();
 }
