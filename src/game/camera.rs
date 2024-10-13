@@ -70,7 +70,7 @@ impl Plugin for CameraPlugin {
         );
         // TODO:GameState::InGameをデフォルトにして起動したとき、 StartUp より OnEnter のほうが先に実行されてしまう？
         // GameState::MainMenuだとStartUpが先に実行される？
-        // https://github.com/bevyengine/bevy/issues/14740
+        // https://bevyengine.org/learn/migration-guides/0-13-to-0-14/#onenter-state-schedules-now-run-before-startup-schedules
         app.add_systems(OnEnter(GameState::InGame), on_enter_camera);
         app.add_systems(
             FixedUpdate,
