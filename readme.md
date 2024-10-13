@@ -22,13 +22,10 @@ $ cargo install --locked trunk
 $ trunk serve
 ```
 
-To build and publish:
+To build and publish on GitHub Pages:
 
 ```bash
 $ trunk build
-
-# For GitHub Pages
-$ cp -r dist/* docs/
 ```
 
 ### Demo

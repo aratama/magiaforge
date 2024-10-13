@@ -1,2 +1,3 @@
 [build]
 public_url = "./"
+dist = "docs"
