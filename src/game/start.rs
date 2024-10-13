@@ -19,6 +19,7 @@ pub fn setup_start_page(
 ) {
     commands
         .spawn((
+            StateScoped(GameState::MainMenu),
             StartPage,
             Name::new("start page"),
             NodeBundle {
@@ -44,13 +45,13 @@ pub fn setup_start_page(
 }
 
 pub fn update_start_page(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
     buttons: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut query: Query<(Entity, &mut Visibility), With<StartPage>>,
     mut overlay_query: Query<&mut Overlay>,
     mut event_overlay_closed: EventReader<OverlayClosedEvent>,
+
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     if let Ok(mut overlay) = overlay_query.get_single_mut() {
         if let Ok((_, mut visibility)) = query.get_single_mut() {
@@ -63,6 +64,8 @@ pub fn update_start_page(
                 *visibility = Visibility::Hidden;
 
                 overlay.enabled = true;
+
+                next_state.set(GameState::InGame);
             }
         }
     }
@@ -72,12 +75,9 @@ pub struct StartPagePlugin;
 
 impl Plugin for StartPagePlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(GameState::MainMenu), setup_start_page);
         app.add_systems(
-            Startup,
-            setup_start_page.run_if(in_state(GameState::MainMenu)),
-        );
-        app.add_systems(
-            Update,
+            FixedUpdate,
             update_start_page.run_if(in_state(GameState::MainMenu)),
         );
     }

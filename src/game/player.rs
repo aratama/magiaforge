@@ -10,6 +10,7 @@ use rand::random;
 use std::f32::consts::PI;
 
 use super::bullet::add_bullet;
+use super::states::GameState;
 
 #[derive(Component)]
 pub struct Player {
@@ -17,9 +18,14 @@ pub struct Player {
     cooltime: i32,
 }
 
-fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>, player_data: &PlayerData) {
+fn setup_player(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    player_data: Res<PlayerData>,
+) {
     commands.spawn((
         Name::new("player"),
+        StateScoped(GameState::InGame),
         Player { cooltime: 0 },
         AsepriteAnimationBundle {
             aseprite: asset_server.load("player.aseprite"),
@@ -171,19 +177,14 @@ fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCode) 
     return if keys.pressed(code) { 1.0 } else { 0.0 };
 }
 
-pub struct PlayerPlugin {
-    pub player_data: PlayerData,
-}
+pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        let player_data = self.player_data.clone();
+        app.add_systems(OnEnter(GameState::InGame), setup_player);
         app.add_systems(
-            PostStartup,
-            move |commands: Commands, asset_server: Res<AssetServer>| {
-                setup_player(commands, asset_server, &player_data);
-            },
+            FixedUpdate,
+            update_player.run_if(in_state(GameState::InGame)),
         );
-        app.add_systems(Update, update_player);
     }
 }

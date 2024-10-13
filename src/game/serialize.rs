@@ -12,7 +12,7 @@ use std::time::Duration;
 #[cfg(target_arch = "wasm32")]
 const PLAYER_DATA_KEY: &str = "data";
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Resource)]
 pub struct PlayerData {
     pub x: f32,
     pub y: f32,

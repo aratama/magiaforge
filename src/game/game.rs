@@ -9,17 +9,14 @@ use super::hud::*;
 use super::overlay::*;
 use super::player::*;
 use super::serialize::*;
-use super::start::StartPage;
-use super::start::StartPagePlugin;
-use super::states::GameState;
+use super::start::*;
+use super::states::*;
 use super::tree::*;
 use super::wall::spawn_wall_collision;
 use super::wall::WallBundle;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
-// use bevy::log::Level;
-// use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
@@ -34,6 +31,9 @@ pub fn run_game() {
 
     let mut app = App::new();
 
+    //
+    // デフォルトのプラグインや依存しているサードパーティのプラグインなど
+    //
     app.add_plugins(
         DefaultPlugins
             .set(AssetPlugin {
@@ -49,12 +49,8 @@ pub fn run_game() {
         // })
     )
     .add_plugins(EmbeddedAssetPlugin)
-    .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TilemapPlugin)
-    .add_plugins(FrameTimeDiagnosticsPlugin::default())
-    .add_plugins(EntityCountDiagnosticsPlugin)
-    .add_plugins(SystemInformationDiagnosticsPlugin)
-    .add_plugins(PerfUiPlugin)
+    .add_plugins(LdtkPlugin)
     .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .add_plugins(RapierDebugRenderPlugin {
         enabled: false,
@@ -62,6 +58,7 @@ pub fn run_game() {
         ..default()
     })
     .add_plugins(BevySprityPlugin)
+    .add_plugins(ParticleSystemPlugin)
     // ここではひとまず level 0 を読み込んでいますが、
     // 実際には起動直後にプレイヤーの位置に応じて読み込むレベルを切り替わります
     // 一瞬プレイヤーの周囲が真っ暗に見えるので、最初から正しいレベルを読み込むようにしたほうがいいかも
@@ -75,29 +72,49 @@ pub fn run_game() {
         int_grid_rendering: IntGridRendering::Invisible,
         ..default()
     })
+    //
+    // 以下はデバッグ用のプラグインなど
+    // 無くてもゲーム事態は動作します
+    //
+    .add_plugins(PerfUiPlugin)
+    .add_plugins(FrameTimeDiagnosticsPlugin::default())
+    .add_plugins(EntityCountDiagnosticsPlugin)
+    .add_plugins(SystemInformationDiagnosticsPlugin)
+    .add_plugins(WorldInspectorPlugin::new())
+    //
+    // 以下はこのゲーム本体で定義されたプラグイン
+    //
     .register_ldtk_entity::<TreeBundle>("Tree")
     .add_plugins(BookShelfPlugin)
     .add_plugins(ChestPlugin)
-    .add_plugins(LdtkPlugin)
     .add_plugins(HudPlugin)
     .add_plugins(OverlayPlugin)
     .add_systems(Startup, setup_autosave_timer)
-    .add_systems(Update, spawn_autosave_timer)
-    .add_plugins(CameraPlugin {
-        initial_camera_position: Vec2::new(player_data.x, player_data.y),
-    })
+    .add_systems(FixedUpdate, spawn_autosave_timer)
+    .add_plugins(CameraPlugin)
     .add_plugins(WorldPlugin)
     .add_plugins(TreePlugin)
-    .add_plugins(PlayerPlugin { player_data })
-    .add_systems(Update, spawn_wall_collision)
+    .add_plugins(PlayerPlugin)
+    .add_systems(FixedUpdate, spawn_wall_collision)
     .register_ldtk_int_cell::<WallBundle>(1)
     .register_ldtk_int_cell::<WallBundle>(3)
-    .add_systems(Update, close_on_esc)
+    .add_systems(FixedUpdate, close_on_esc)
     .add_plugins(BulletPlugin)
-    .add_plugins(ParticleSystemPlugin)
     .add_plugins(EnemyPlugin)
     .add_plugins(StartPagePlugin)
-    .insert_state(GameState::InGame);
-
-    app.run();
+    //
+    // セーブデータの選択
+    //
+    .insert_resource(player_data.clone())
+    //
+    // メインメニューやゲームプレイ画面などのシーンを定義するstate
+    //
+    .init_state::<GameState>()
+    // State Scoped Entities をオンにすることで、
+    // stateを変更したときに自動的にエンティティを削除できます
+    .enable_state_scoped_entities::<GameState>()
+    //
+    // 開始
+    //
+    .run();
 }

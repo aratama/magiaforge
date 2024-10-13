@@ -1,3 +1,5 @@
+use crate::game::states::GameState;
+
 use super::setup::set_aseprite_and_z;
 use app::LdtkEntityAppExt;
 use bevy::prelude::*;
@@ -25,6 +27,7 @@ struct BookShelf;
 #[derive(Bundle, LdtkEntity)]
 struct BookShelfBundle {
     name: Name,
+    scope: StateScoped<GameState>,
     book_shelf: BookShelf,
     aseprite_slice_bundle: AsepriteSliceBundle,
     #[grid_coords]
@@ -37,6 +40,7 @@ impl Default for BookShelfBundle {
     fn default() -> Self {
         Self {
             name: Name::new("book_shelf"),
+            scope: StateScoped(GameState::InGame),
             book_shelf: BookShelf,
             aseprite_slice_bundle: AsepriteSliceBundle {
                 slice: SLICE_NAME.into(),

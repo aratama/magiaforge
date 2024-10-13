@@ -1,22 +1,32 @@
 use crate::game::player::*;
 use bevy::prelude::*;
 
-use super::{set::GameSet, states::GameState};
+use super::{serialize::PlayerData, set::GameSet, states::GameState};
 
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
-fn setup_camera(mut commands: Commands, initial_camera_position: Vec2) {
+fn setup_camera(mut commands: Commands) {
+    // println!("setup_camera");
     let initial_scale_factor = -1.0;
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される
     // この範囲を超えるとクリップされることに注意
     let mut camera_bundle = Camera2dBundle::default();
     camera_bundle.projection.scale = 2.0_f32.powf(initial_scale_factor);
-    camera_bundle.transform.translation.x = initial_camera_position.x;
-    camera_bundle.transform.translation.y = initial_camera_position.y;
 
     commands.spawn((camera_bundle, CameraScaleFactor(initial_scale_factor)));
+}
+
+fn on_enter_camera(
+    mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Player>)>,
+    player_data: Res<PlayerData>,
+) {
+    // println!("on_enter_camera");
+    if let Ok(mut camera) = camera_query.get_single_mut() {
+        camera.translation.x = player_data.x;
+        camera.translation.y = player_data.y;
+    }
 }
 
 fn update_camera(
@@ -48,23 +58,22 @@ fn update_camera(
     }
 }
 
-pub struct CameraPlugin {
-    pub initial_camera_position: Vec2,
-}
+pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        let pos = self.initial_camera_position;
         app.add_systems(
             Startup,
-            (move |commands: Commands| {
-                setup_camera(commands, pos);
-            })
-            .run_if(in_state(GameState::InGame))
-            .in_set(GameSet),
+            setup_camera, // メインメニューなどのシーンでもカメラは必要なため、run_ifでの制御は行わない
+                          // .run_if(in_state(GameState::InGame))
+                          // .in_set(GameSet)
         );
+        // TODO:GameState::InGameをデフォルトにして起動したとき、 StartUp より OnEnter のほうが先に実行されてしまう？
+        // GameState::MainMenuだとStartUpが先に実行される？
+        // https://github.com/bevyengine/bevy/issues/14740
+        app.add_systems(OnEnter(GameState::InGame), on_enter_camera);
         app.add_systems(
-            Update,
+            FixedUpdate,
             update_camera
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet),

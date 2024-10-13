@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use super::states::GameState;
-
 #[derive(Component)]
 pub struct Overlay {
     pub enabled: bool,
@@ -65,8 +63,8 @@ pub struct OverlayPlugin;
 
 impl Plugin for OverlayPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_overlay.run_if(in_state(GameState::InGame)));
-        app.add_systems(Update, update_overlay.run_if(in_state(GameState::InGame)));
+        app.add_systems(Startup, setup_overlay);
+        app.add_systems(Update, update_overlay);
         app.add_event::<OverlayClosedEvent>();
     }
 }

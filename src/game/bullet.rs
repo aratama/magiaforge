@@ -144,7 +144,8 @@ fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
     commands
         // Add the bundle specifying the particle system itself.
         .spawn((
-            Name::new("particle"),
+            Name::new("particle system"),
+            StateScoped(GameState::InGame),
             ParticleSystemBundle {
                 transform: Transform::from_translation(position.extend(BULLET_Z)),
                 particle_system: ParticleSystem {
@@ -154,7 +155,11 @@ fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
                     lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
                     color: ColorOverTime::Constant(Color::WHITE),
                     bursts: vec![ParticleBurst {
-                        time: 0.0,
+                        // このシステムのスケジュールをUpdate意外に設定し、このtimeを0.0にすると、
+                        // パーティクルシステムを設置してそのGlobalTransformが更新される前にパーティクルが生成されてしまうため、
+                        // パーティクルの発生位置が原点になってしまうことに注意
+                        // 0.1くらいにしておくと0.0ではないので大丈夫っぽい
+                        time: 0.1,
                         count: 20,
                     }],
                     ..ParticleSystem::oneshot()
@@ -169,7 +174,11 @@ pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_bullet.run_if(in_state(GameState::InGame)));
+        // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
+        app.add_systems(
+            FixedUpdate,
+            update_bullet.run_if(in_state(GameState::InGame)),
+        );
         app.register_type::<Bullet>();
     }
 }

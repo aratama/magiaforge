@@ -2,6 +2,8 @@ use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::*;
 
+use super::states::GameState;
+
 fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
     // TODO:
     // world.ldtk をバイナリに埋め込む場合は、src/game/asset 以下などに配置します
@@ -33,6 +35,6 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_world);
+        app.add_systems(OnEnter(GameState::InGame), setup_world);
     }
 }

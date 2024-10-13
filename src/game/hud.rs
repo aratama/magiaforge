@@ -10,6 +10,7 @@ pub struct HUD;
 fn setup_hud(mut commands: Commands) {
     commands.spawn((
         Name::new("hud"),
+        StateScoped(GameState::InGame),
         TextBundle::from_section("Test", TextStyle::default()).with_style(Style {
             position_type: PositionType::Absolute,
             top: Val::Px(12.0),
@@ -55,7 +56,7 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_hud.run_if(in_state(GameState::InGame)));
+        app.add_systems(OnEnter(GameState::InGame), setup_hud);
         app.add_systems(Update, update_hud.run_if(in_state(GameState::InGame)));
     }
 }

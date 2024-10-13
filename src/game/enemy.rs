@@ -13,6 +13,7 @@ pub struct Enemy {
 pub fn spawn_enemy(mut commands: Commands, asset_server: Res<AssetServer>, position: Vec2) {
     commands.spawn((
         Name::new("enemy"),
+        StateScoped(GameState::InGame),
         Enemy { life: 20 },
         AsepriteAnimationBundle {
             aseprite: asset_server.load("slime.aseprite"),
@@ -58,9 +59,9 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_enemy.run_if(in_state(GameState::InGame)));
+        app.add_systems(OnEnter(GameState::InGame), setup_enemy);
         app.add_systems(
-            Update,
+            FixedUpdate,
             update_enemy
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet),
