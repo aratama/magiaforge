@@ -1,12 +1,11 @@
+use super::{serialize::PlayerData, set::GameSet, states::GameState};
 use crate::game::player::*;
 use bevy::prelude::*;
-
-use super::{serialize::PlayerData, set::GameSet, states::GameState};
 
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
-fn setup_camera(mut commands: Commands) {
+pub fn setup_camera(mut commands: Commands) {
     // println!("setup_camera");
     let initial_scale_factor = -1.0;
 
@@ -62,15 +61,6 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Startup,
-            setup_camera, // メインメニューなどのシーンでもカメラは必要なため、run_ifでの制御は行わない
-                          // .run_if(in_state(GameState::InGame))
-                          // .in_set(GameSet)
-        );
-        // TODO:GameState::InGameをデフォルトにして起動したとき、 StartUp より OnEnter のほうが先に実行されてしまう？
-        // GameState::MainMenuだとStartUpが先に実行される？
-        // https://bevyengine.org/learn/migration-guides/0-13-to-0-14/#onenter-state-schedules-now-run-before-startup-schedules
         app.add_systems(OnEnter(GameState::InGame), on_enter_camera);
         app.add_systems(
             FixedUpdate,

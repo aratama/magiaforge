@@ -1,8 +1,7 @@
+use super::states::GameState;
 use crate::game::player::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use iyes_perf_ui::entries::PerfUiBundle;
-
-use super::states::GameState;
 
 #[derive(Component)]
 pub struct HUD;

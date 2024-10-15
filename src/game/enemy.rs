@@ -1,9 +1,8 @@
+use super::{audio::play_se, set::GameSet, states::GameState};
 use crate::game::constant::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::{audio::play_se, set::GameSet, states::GameState};
 
 #[derive(Component)]
 pub struct Enemy {

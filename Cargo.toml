@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy-inspector-egui = "0.26.0"
+bevy-inspector-egui = "0.27.0"
 bevy_aseprite_ultra = "0.2.4"
 bevy_ecs_ldtk = "0.10.0"
 bevy_ecs_tilemap = "0.14.0"
@@ -57,20 +57,18 @@ features = ["console", "Window", "Storage"]
 [dependencies.bevy_rapier2d]
 version = "0.27.0"
 features = ["debug-render-2d"]
-opt-level = 3                  # https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
+
+[profile.dev.package.bevy_rapier2d]
+# https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
+opt-level = 3
 
 [dev-dependencies]
 trunk = "*"
 
-[profile.dev]
-opt-level = "z"
-# data-wasm-opt = "0"
-
-# https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
-# [profile.dev.package.bevy_rapier2d]
-# opt-level = 3
-
 [profile.release]
+codegen-units = 1
+# wasmターゲットの場合は以下のオプションでサイズに対して最適化したい
 opt-level = "z"
 # https://bevy-cheatbook.github.io/platforms/wasm/size-opt.html
-lto = "thin"
+# lto = "thin"
+lto = true

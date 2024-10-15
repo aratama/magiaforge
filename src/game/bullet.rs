@@ -1,3 +1,6 @@
+use super::audio::play_se;
+use super::enemy::Enemy;
+use super::states::GameState;
 use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
@@ -5,10 +8,6 @@ use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
-
-use super::audio::play_se;
-use super::enemy::Enemy;
-use super::states::GameState;
 // use std::path::Path;
 
 const ASEPRITE_PATH: &str = "asset.aseprite";
@@ -49,6 +48,7 @@ pub fn add_bullet(
 
     commands.spawn((
         Name::new("bullet"),
+        StateScoped(GameState::InGame),
         Bullet { life: 120 },
         AsepriteSliceBundle {
             // aseprite: asset_server.load(asset_path),

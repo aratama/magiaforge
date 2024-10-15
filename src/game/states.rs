@@ -2,10 +2,16 @@ use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum GameState {
-    // LoadingScreen,
+    // #[default]をつけたstateが最初のステートになります
+    // どの画面から起動したとしても、カメラの設定は最初に行わなければなりませんが、
+    // StartUpスケジュールは OnEnter より後に実行される仕様のため、
+    // カメラの初期化を StartUp スケジュールで実行することはできません
+    // このため、初期化専用の Setupステートを設けています
+    // https://bevyengine.org/learn/migration-guides/0-13-to-0-14/#onenter-state-schedules-now-run-before-startup-schedules
+    #[default]
+    Setup,
+
     MainMenu,
 
-    // #[default]をつけてデフォルトに設定したstateが起動時の画面になります
-    #[default]
     InGame,
 }

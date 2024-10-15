@@ -1,29 +1,8 @@
-<html>
-
-<head>
-    <!-- https://trunkrs.dev/assets/ -->
-    <link rel="stylesheet" href="./index-d67fcd6731c2e45b.css" integrity="sha384&#x2D;8sIJ&#x2F;ikSLhj7m1qbHxQYd&#x2F;WSfqPULYLskP&#x2F;oLe0UWK9uHp8a3NJABlV1jCzX&#x2F;5xc"/>
-    
-
-    <!-- ChromeのC/C++ DevTools Supportでデバッグをしたいときは、デバッグ情報を残すために以下のオプションを有効にする -->
-    <!-- ただしWSLで開発している場合は、WindowsがわのChromeはWSL内のソースファイルを参照できないのでうまくいかない -->
-    <!-- <link data-trunk rel="rust" data-wasm-opt="0" data-keep-debug /> -->
-    <title></title>
-
-<link rel="modulepreload" href="./my_bevy_game-5b5ea31d27893478.js" crossorigin=anonymous integrity="sha384-n0+U0GoQFNXknlfmbCOdyRVkaVvOe8YMcB5Ar4NCiKzpxLJy3bDjNkDovz0ToAH8">
-<link rel="preload" href="./my_bevy_game-5b5ea31d27893478_bg.wasm" crossorigin=anonymous integrity="sha384-2fyTve/dQyHQ0uImtv42DtIpxSIDG/q+QE+v9OsUHfPH0CFahsHCJ6/FUqcpNTNU" as="fetch" type="application/wasm"></head>
-
-<body>
-<script type="module" nonce="RzNpOOkhfEg2pb4L0HMh5w==">
-import init, * as bindings from './my_bevy_game-5b5ea31d27893478.js';
-const wasm = await init('./my_bevy_game-5b5ea31d27893478_bg.wasm');
+<link href=./index-56627a79e0752a1c.css integrity=sha384-m/ivHNojsD/VAvwMMce+fhrN8VxOZuZt5hms1JExuO36KLCDKKRGDtjLXSlnQq0B rel=stylesheet><link data-wasm-opt=z><title></title><link crossorigin href=./my_bevy_game-f12737ab4614a4a5.js integrity=sha384-U5fARE5dDGPMPnlGlB/g/mLZkL9ELq+reLlVEW/lXIHFOzJKODTpV7HyWA8XHFQM rel=modulepreload><link as=fetch crossorigin href=./my_bevy_game-f12737ab4614a4a5_bg.wasm integrity=sha384-OT1SgNnu1luKNu8dK/IOdUl4kFKozAVq1qx/+e3rN4A2laxd0NZJfg73wVhgGiI6 rel=preload type=application/wasm></head><body><script nonce="hJ6hq0qjsiUm0d4WuqeuJw==" type=module>import init, * as bindings from './my_bevy_game-f12737ab4614a4a5.js';
+const wasm = await init('./my_bevy_game-f12737ab4614a4a5_bg.wasm');
 
 
 window.wasmBindings = bindings;
 
 
-dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
-
-</script></body>
-
-</html>
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));</script></body></html>

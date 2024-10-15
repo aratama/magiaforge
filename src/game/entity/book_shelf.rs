@@ -1,6 +1,5 @@
-use crate::game::states::GameState;
-
 use super::setup::set_aseprite_and_z;
+use crate::game::states::GameState;
 use app::LdtkEntityAppExt;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;

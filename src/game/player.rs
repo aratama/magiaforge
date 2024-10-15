@@ -1,3 +1,5 @@
+use super::bullet::add_bullet;
+use super::states::GameState;
 use crate::game::constant::*;
 use crate::game::ldtk_util::*;
 use crate::game::serialize::*;
@@ -8,9 +10,6 @@ use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::random;
 use std::f32::consts::PI;
-
-use super::bullet::add_bullet;
-use super::states::GameState;
 
 #[derive(Component)]
 pub struct Player {

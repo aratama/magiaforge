@@ -16,6 +16,5 @@ mod serialize;
 mod set;
 mod start;
 mod states;
-mod tree;
 mod wall;
 mod world;

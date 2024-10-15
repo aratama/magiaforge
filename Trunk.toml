@@ -1,3 +1,6 @@
+# https://trunkrs.dev/configuration/
 [build]
+release = true
 public_url = "./"
 dist = "docs"
+minify = "always"
