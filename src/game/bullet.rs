@@ -4,6 +4,7 @@ use super::states::GameState;
 use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
+use bevy_light_2d::light::PointLight2d;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
@@ -72,6 +73,13 @@ pub fn add_bullet(
         ActiveEvents::COLLISION_EVENTS,
         Sleeping::disabled(),
         Ccd::enabled(),
+        PointLight2d {
+            radius: 50.0,
+            intensity: 1.0,
+            falloff: 10.0,
+            color: Color::hsl(245.0, 1.0, 0.6),
+            ..default()
+        },
     ));
 }
 

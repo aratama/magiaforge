@@ -22,6 +22,7 @@ use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
 use iyes_perf_ui::prelude::*;
@@ -80,6 +81,7 @@ pub fn run_game() {
         .add_plugins(EntityCountDiagnosticsPlugin)
         .add_plugins(SystemInformationDiagnosticsPlugin)
         .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(Light2dPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //

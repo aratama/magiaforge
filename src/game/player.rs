@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
+use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use rand::random;
 use std::f32::consts::PI;
@@ -44,6 +45,12 @@ fn setup_player(
         Collider::ball(5.0),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
+        PointLight2d {
+            radius: 100.0,
+            intensity: 3.0,
+            falloff: 10.0,
+            ..default()
+        },
     ));
 }
 
