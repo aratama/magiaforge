@@ -5,7 +5,7 @@ use super::{asset::GameAssets, audio::play_se};
 use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(feature = "light")]
 use bevy_light_2d::light::PointLight2d;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
@@ -73,7 +73,7 @@ pub fn add_bullet(
             ActiveEvents::COLLISION_EVENTS,
             Sleeping::disabled(),
             Ccd::enabled(),
-            #[cfg(not(target_arch = "wasm32"))]
+            #[cfg(feature = "light")]
             PointLight2d {
                 radius: 50.0,
                 intensity: 1.0,

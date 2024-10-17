@@ -19,13 +19,13 @@ $ rustup target install wasm32-unknown-unknown
 
 $ cargo install --locked trunk
 
-$ trunk serve
+$ trunk serve --no-default-features
 ```
 
 To build and publish on GitHub Pages:
 
 ```bash
-$ trunk build
+$ trunk build --no-default-features
 ```
 
 ### Demo

@@ -73,3 +73,7 @@ opt-level = "z"
 # https://bevy-cheatbook.github.io/platforms/wasm/size-opt.html
 # lto = "thin"
 lto = true
+
+[features]
+default = ["light"]
+light = []

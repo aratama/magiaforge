@@ -6,7 +6,7 @@ use crate::game::serialize::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(feature = "light")]
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use rand::random;
@@ -41,7 +41,7 @@ fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Re
         Collider::ball(5.0),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(feature = "light")]
         PointLight2d {
             radius: 100.0,
             intensity: 3.0,
