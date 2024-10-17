@@ -1,10 +1,15 @@
 use super::{serialize::PlayerData, set::GameSet, states::GameState};
 use crate::game::player::*;
 use bevy::prelude::*;
+
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_light_2d::light::AmbientLight2d;
 
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
+
+#[cfg(not(target_arch = "wasm32"))]
+static BLIGHTNESS_IN_GAME: f32 = 0.05;
 
 pub fn setup_camera(mut commands: Commands) {
     // println!("setup_camera");
@@ -20,10 +25,11 @@ pub fn setup_camera(mut commands: Commands) {
         CameraScaleFactor(initial_scale_factor),
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
+        #[cfg(not(target_arch = "wasm32"))]
         AmbientLight2d {
             // color: Color::hsl(250.0, 0.8, 0.5),
-            // brightness: 0.05,
-            brightness: 1.,
+            brightness: BLIGHTNESS_IN_GAME,
+            // brightness: 1.,
             ..default()
         },
     ));
@@ -65,7 +71,20 @@ fn update_camera(
             *scale_factor = CameraScaleFactor(scale_factor.0 + 1.0);
         }
         let s = ortho.scale.log2();
-        ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.1);
+        ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.2);
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn update_camera_brightness(
+    mut camera_query: Query<&mut AmbientLight2d, With<Camera2d>>,
+    state: Res<State<GameState>>,
+) {
+    if let Ok(mut light) = camera_query.get_single_mut() {
+        light.brightness = match state.get() {
+            GameState::InGame => BLIGHTNESS_IN_GAME,
+            _ => 0.0,
+        };
     }
 }
 
@@ -77,6 +96,14 @@ impl Plugin for CameraPlugin {
         app.add_systems(
             FixedUpdate,
             update_camera
+                .run_if(in_state(GameState::InGame))
+                .in_set(GameSet),
+        );
+
+        #[cfg(not(target_arch = "wasm32"))]
+        app.add_systems(
+            FixedUpdate,
+            update_camera_brightness
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet),
         );

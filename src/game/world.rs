@@ -1,4 +1,9 @@
+use super::asset::GameAssets;
+use super::constant::TILE_SIZE;
+use super::constant::Z_ORDER_SCALE;
 use super::enemy;
+use super::entity::book_shelf::spawn_book_shelf;
+use super::entity::chest::spawn_chest;
 use super::states::GameState;
 use super::wall::get_tile;
 use super::wall::get_wall_collisions;
@@ -6,32 +11,17 @@ use super::wall::Tile;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
-use bevy_asset_loader::prelude::*;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::Friction;
 use bevy_rapier2d::prelude::RigidBody;
-use web_sys::js_sys::WebAssembly::Global;
-
-#[derive(AssetCollection, Resource)]
-pub struct AsepriteAssets {
-    #[asset(path = "level.aseprite")]
-    level: Handle<Aseprite>,
-
-    #[asset(path = "tile.png")]
-    tile: Handle<Image>,
-}
-
-const BLANK_TILE: [u8; 4] = [0, 0, 0, 0];
-const WALL_TILE: [u8; 4] = [203, 219, 252, 255];
-const EMPTY_TILE: [u8; 4] = [82, 75, 36, 255];
 
 fn setup_world(
     mut commands: Commands,
     level: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
-    aseprite_assets: Res<AsepriteAssets>,
+    assets: Res<GameAssets>,
 ) {
-    let level_handle = aseprite_assets.level.clone();
+    let level_handle = assets.level.clone();
     if let Some(level) = level.get(level_handle.id()) {
         if let Some(img) = images.get(level.atlas_image.id()) {
             for y in 0..img.height() {
@@ -41,7 +31,7 @@ fn setup_world(
                             commands.spawn((
                                 StateScoped(GameState::InGame),
                                 SpriteBundle {
-                                    texture: aseprite_assets.tile.clone(),
+                                    texture: assets.tile.clone(),
                                     sprite: Sprite {
                                         custom_size: Some(Vec2::new(16.0, 16.0)),
                                         rect: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
@@ -57,20 +47,19 @@ fn setup_world(
                             ));
                         }
                         Tile::Wall => {
+                            let tx = x as f32 * 16.0;
+                            let ty = y as f32 * -16.0;
+                            let tz = 3.0 + (-ty * Z_ORDER_SCALE);
                             commands.spawn((
                                 StateScoped(GameState::InGame),
                                 SpriteBundle {
-                                    texture: aseprite_assets.tile.clone(),
+                                    texture: assets.tile.clone(),
                                     sprite: Sprite {
                                         custom_size: Some(Vec2::new(16.0, 16.0)),
                                         rect: Some(Rect::new(0.0, 16.0 * 3.0, 16.0, 16.0 * 4.0)),
                                         ..Default::default()
                                     },
-                                    transform: Transform::from_translation(Vec3::new(
-                                        x as f32 * 16.0,
-                                        y as f32 * -16.0,
-                                        0.0,
-                                    )),
+                                    transform: Transform::from_translation(Vec3::new(tx, ty, tz)),
                                     ..Default::default()
                                 },
                                 // todo: merge colliders
@@ -79,13 +68,28 @@ fn setup_world(
                                 // Friction::new(1.0),
                             ));
                         }
+                        Tile::BookShelf => {
+                            spawn_book_shelf(
+                                &mut commands,
+                                assets.asset.clone(),
+                                TILE_SIZE * x as f32,
+                                TILE_SIZE * -1.0 * y as f32,
+                            );
+                        }
+                        Tile::Chest => {
+                            spawn_chest(
+                                &mut commands,
+                                assets.asset.clone(),
+                                TILE_SIZE * x as f32,
+                                TILE_SIZE * -1.0 * y as f32,
+                            );
+                        }
                         _ => {}
                     }
                 }
             }
 
             for rect in get_wall_collisions(&img) {
-                println!("rect: {:?}", rect);
                 let w = 8.0 * (rect.width() + 1.0);
                 let h = 8.0 * (rect.height() + 1.0);
                 let x = rect.min.x as f32 * 16.0 + w - 8.0;

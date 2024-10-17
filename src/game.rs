@@ -1,3 +1,4 @@
+mod asset;
 mod audio;
 mod bullet;
 mod camera;
@@ -9,7 +10,6 @@ mod enemy;
 mod entity;
 pub mod game;
 mod hud;
-mod ldtk_util;
 mod overlay;
 mod player;
 mod serialize;

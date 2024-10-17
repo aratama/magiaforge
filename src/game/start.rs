@@ -1,4 +1,5 @@
 use super::{
+    asset::GameAssets,
     overlay::{Overlay, OverlayClosedEvent},
     states::GameState,
 };
@@ -14,7 +15,7 @@ pub struct StartPageBundle {
 
 pub fn setup_start_page(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    assets: Res<GameAssets>,
     state: Res<State<GameState>>,
 ) {
     commands
@@ -38,7 +39,7 @@ pub fn setup_start_page(
         ))
         .with_children(|parent| {
             parent.spawn(ImageBundle {
-                image: UiImage::new(asset_server.load("title.png")),
+                image: UiImage::new(assets.title.clone()),
                 ..default()
             });
         });

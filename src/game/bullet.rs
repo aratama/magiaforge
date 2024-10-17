@@ -1,17 +1,16 @@
-use super::audio::play_se;
 use super::enemy::Enemy;
 use super::states::GameState;
+use super::{asset::GameAssets, audio::play_se};
 use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
+use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_light_2d::light::PointLight2d;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
 // use std::path::Path;
-
-const ASEPRITE_PATH: &str = "asset.aseprite";
 
 const SLICE_NAME: &str = "bullet";
 
@@ -31,7 +30,7 @@ pub struct BulletBundle {
 
 pub fn add_bullet(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    aseprite: Handle<Aseprite>,
     position: Vec2,
     velocity: Vec2,
 ) {
@@ -52,8 +51,7 @@ pub fn add_bullet(
         StateScoped(GameState::InGame),
         Bullet { life: 120 },
         AsepriteSliceBundle {
-            // aseprite: asset_server.load(asset_path),
-            aseprite: asset_server.load(ASEPRITE_PATH),
+            aseprite,
             slice: SLICE_NAME.into(),
             transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
                 * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
@@ -73,6 +71,7 @@ pub fn add_bullet(
         ActiveEvents::COLLISION_EVENTS,
         Sleeping::disabled(),
         Ccd::enabled(),
+        #[cfg(not(target_arch = "wasm32"))]
         PointLight2d {
             radius: 50.0,
             intensity: 1.0,
@@ -88,7 +87,7 @@ pub fn update_bullet(
     mut query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut collision_events: EventReader<CollisionEvent>,
     mut enemies: Query<(Entity, &mut Enemy)>,
-    asset_server: Res<AssetServer>,
+    assets: Res<GameAssets>,
 ) {
     for (entity, mut bullet, _, _) in query.iter_mut() {
         bullet.life -= 1;
@@ -102,7 +101,7 @@ pub fn update_bullet(
                 if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*a) {
                     process_bullet_event(
                         &mut commands,
-                        &asset_server,
+                        &assets,
                         &a,
                         &bullet_transform,
                         &bullet_velocity,
@@ -112,7 +111,7 @@ pub fn update_bullet(
                 if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*b) {
                     process_bullet_event(
                         &mut commands,
-                        &asset_server,
+                        &assets,
                         &b,
                         &bullet_transform,
                         &bullet_velocity,
@@ -127,7 +126,7 @@ pub fn update_bullet(
 
 fn process_bullet_event(
     mut commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
+    assets: &Res<GameAssets>,
     bullet_entity: &Entity,
     bullet_transform: &Transform,
     bullet_velocity: &Velocity,
@@ -142,9 +141,9 @@ fn process_bullet_event(
             force: bullet_velocity.linvel.normalize_or_zero() * 10000.0,
             torque: 0.0,
         });
-        play_se(&mut commands, &asset_server, "dageki.ogg");
+        play_se(&mut commands, assets.dageki.clone());
     } else {
-        play_se(&mut commands, &asset_server, "shibafu.ogg");
+        play_se(&mut commands, assets.shibafu.clone());
     }
 }
 

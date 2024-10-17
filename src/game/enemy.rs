@@ -1,4 +1,4 @@
-use super::{audio::play_se, set::GameSet, states::GameState};
+use super::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
 use crate::game::constant::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -9,13 +9,13 @@ pub struct Enemy {
     pub life: i32,
 }
 
-pub fn spawn_enemy(mut commands: Commands, asset_server: Res<AssetServer>, position: Vec2) {
+pub fn spawn_enemy(mut commands: Commands, aseprite: Handle<Aseprite>, position: Vec2) {
     commands.spawn((
         Name::new("enemy"),
         StateScoped(GameState::InGame),
         Enemy { life: 20 },
         AsepriteAnimationBundle {
-            aseprite: asset_server.load("slime.aseprite"),
+            aseprite: aseprite,
             transform: Transform::from_translation(position.extend(5.0)),
             animation: Animation::default().with_tag("idle").with_speed(0.2),
             ..default()
@@ -31,17 +31,17 @@ pub fn spawn_enemy(mut commands: Commands, asset_server: Res<AssetServer>, posit
     ));
 }
 
-fn setup_enemy(commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_enemy(commands: Commands, assets: Res<GameAssets>) {
     spawn_enemy(
         commands,
-        asset_server,
+        assets.slime.clone(),
         Vec2::new(TILE_SIZE * 8.0, TILE_SIZE * -10.0),
     );
 }
 
 pub fn update_enemy(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    assets: Res<GameAssets>,
     mut query: Query<(Entity, &Enemy), Without<Camera2d>>,
 ) {
     for (entity, enemy) in query.iter_mut() {
@@ -49,7 +49,7 @@ pub fn update_enemy(
         commands.entity(entity).remove::<ExternalImpulse>();
         if enemy.life <= 0 {
             commands.entity(entity).despawn();
-            play_se(&mut commands, &asset_server, "hiyoko.ogg");
+            play_se(&mut commands, assets.hiyoko.clone());
         }
     }
 }

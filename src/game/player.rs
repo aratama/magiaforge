@@ -1,12 +1,12 @@
+use super::asset::GameAssets;
 use super::bullet::add_bullet;
 use super::states::GameState;
 use crate::game::constant::*;
-use crate::game::ldtk_util::*;
 use crate::game::serialize::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_ecs_ldtk::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use rand::random;
@@ -18,17 +18,13 @@ pub struct Player {
     cooltime: i32,
 }
 
-fn setup_player(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    player_data: Res<PlayerData>,
-) {
+fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Res<GameAssets>) {
     commands.spawn((
         Name::new("player"),
         StateScoped(GameState::InGame),
         Player { cooltime: 0 },
         AsepriteAnimationBundle {
-            aseprite: asset_server.load("player.aseprite"),
+            aseprite: assets.player.clone(),
             transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
             animation: Animation::default().with_tag("idle").with_speed(0.2),
             sprite: Sprite {
@@ -45,6 +41,7 @@ fn setup_player(
         Collider::ball(5.0),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
+        #[cfg(not(target_arch = "wasm32"))]
         PointLight2d {
             radius: 100.0,
             intensity: 3.0,
@@ -71,13 +68,10 @@ fn update_player(
         (With<Camera2d>, Without<Player>),
     >,
 
-    ldtk_projects: Query<&Handle<LdtkProject>>,
-    ldtk_project_assets: Res<Assets<LdtkProject>>,
-    mut level_selection: ResMut<LevelSelection>,
     q_window: Query<&Window, With<PrimaryWindow>>,
 
     commands: Commands,
-    asset_server: Res<AssetServer>,
+    assets: Res<GameAssets>,
 
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
@@ -129,24 +123,6 @@ fn update_player(
                 player_sprite.flip_x = false;
             }
 
-            // レベルの追従
-            // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/how-to-guides/make-level-selection-follow-player.html
-            // ただし上記の方法では読み込み済みのレベルを利用して現在のレベルを判定しているため、
-            // 歩いて移動する場合は機能しますが、プレイヤーがワープしたり、セーブした位置から再開する場合は機能しません。
-            // このため、常にアセット全体を検索して現在のレベルを判定しています
-            let player_position = Vec2::new(
-                player_transform.translation.x,
-                player_transform.translation.y,
-            );
-            if let Ok(project_handle) = ldtk_projects.get_single() {
-                if let Some(ldtk_project) = ldtk_project_assets.get(project_handle) {
-                    let found = find_level(ldtk_project, player_position);
-                    if let Some(level_iid) = found {
-                        *level_selection = LevelSelection::Iid(level_iid.clone());
-                    }
-                }
-            }
-
             // 魔法の発射
             if buttons.pressed(MouseButton::Left) && player.cooltime == 0 {
                 // 魔法の拡散
@@ -166,7 +142,7 @@ fn update_player(
 
                 add_bullet(
                     commands,
-                    asset_server,
+                    assets.asset.clone(),
                     player_transform.translation.truncate() + normalized * 10.0,
                     direction * speed,
                 );

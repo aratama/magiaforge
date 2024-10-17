@@ -1,28 +1,25 @@
+use super::asset::GameAssets;
 use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
 use super::constant::INITIAL_STATE;
 use super::embedded::EmbeddedAssetPlugin;
 use super::enemy::EnemyPlugin;
-use super::entity::book_shelf::*;
-use super::entity::chest::*;
 use super::hud::*;
 use super::overlay::*;
 use super::player::*;
 use super::serialize::*;
 use super::start::*;
 use super::states::*;
-use super::wall::spawn_wall_collision;
-use super::wall::WallBundle;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
-use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
@@ -51,28 +48,14 @@ pub fn run_game() {
         )
         .add_plugins(EmbeddedAssetPlugin)
         .add_plugins(TilemapPlugin)
-        .add_plugins(LdtkPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin {
-            enabled: true,
+            enabled: false,
             mode: DebugRenderMode::COLLIDER_SHAPES,
             ..default()
         })
         .add_plugins(BevySprityPlugin)
         .add_plugins(ParticleSystemPlugin)
-        // ここではひとまず level 0 を読み込んでいますが、
-        // 実際には起動直後にプレイヤーの位置に応じて読み込むレベルを切り替わります
-        // 一瞬プレイヤーの周囲が真っ暗に見えるので、最初から正しいレベルを読み込むようにしたほうがいいかも
-        .insert_resource(LevelSelection::index(0))
-        .insert_resource(LdtkSettings {
-            level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
-                load_level_neighbors: true,
-            },
-            // デフォルトではInt LayerにもLDTKと同様の色が描画される
-            // デバッグ中以外はInvisibleにしておく
-            int_grid_rendering: IntGridRendering::Invisible,
-            ..default()
-        })
         //
         // 以下はデバッグ用のプラグインなど
         // 無くてもゲーム事態は動作します
@@ -82,12 +65,9 @@ pub fn run_game() {
         .add_plugins(EntityCountDiagnosticsPlugin)
         .add_plugins(SystemInformationDiagnosticsPlugin)
         .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(Light2dPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //
-        .add_plugins(BookShelfPlugin)
-        .add_plugins(ChestPlugin)
         .add_plugins(HudPlugin)
         .add_plugins(OverlayPlugin)
         .add_systems(Startup, setup_autosave_timer)
@@ -95,9 +75,6 @@ pub fn run_game() {
         .add_plugins(CameraPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(PlayerPlugin)
-        .add_systems(FixedUpdate, spawn_wall_collision)
-        .register_ldtk_int_cell::<WallBundle>(1)
-        .register_ldtk_int_cell::<WallBundle>(3)
         .add_systems(FixedUpdate, close_on_esc)
         .add_plugins(BulletPlugin)
         .add_plugins(EnemyPlugin)
@@ -122,14 +99,19 @@ pub fn run_game() {
         .add_loading_state(
             LoadingState::new(GameState::Setup)
                 .continue_to_state(INITIAL_STATE)
-                .load_collection::<AsepriteAssets>(),
+                .load_collection::<GameAssets>(),
         )
         // State Scoped Entities をオンにすることで、
         // stateを変更したときに自動的にエンティティを削除できます
         // https://bevyengine.org/news/bevy-0-14/#state-scoped-entities
-        .enable_state_scoped_entities::<GameState>()
-        //
-        // 開始
-        //
-        .run();
+        .enable_state_scoped_entities::<GameState>();
+
+    // bevy_light_2d のプラグインはwasm32向けには対応していません
+    // https://github.com/jgayfer/bevy_light_2d/issues/5
+    // https://github.com/jgayfer/bevy_light_2d/issues/6
+    // https://github.com/jgayfer/bevy_light_2d/pull/7
+    #[cfg(not(target_arch = "wasm32"))]
+    app.add_plugins(Light2dPlugin);
+
+    app.run();
 }
