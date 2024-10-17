@@ -47,7 +47,12 @@ features = [
     "sysinfo_plugin",
     # "tonemapping_luts",
     "vorbis",
-    "webgl2",
+    # "webgl2",
+
+    # https://bevyengine.org/news/bevy-webgpu/
+    # https://github.com/bevyengine/bevy/tree/main/examples#webgl2-and-webgpu
+    "webgpu",
+
     # "x11",
 ]
 
