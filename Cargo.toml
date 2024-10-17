@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 bevy-inspector-egui = "0.27.0"
 bevy_aseprite_ultra = "0.2.4"
+bevy_asset_loader = "0.21.0"
 bevy_ecs_ldtk = "0.10.0"
 bevy_ecs_tilemap = "0.14.0"
 bevy_light_2d = "0.4.0"

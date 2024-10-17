@@ -21,7 +21,9 @@ pub fn setup_camera(mut commands: Commands) {
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
         AmbientLight2d {
-            brightness: 0.03,
+            // color: Color::hsl(250.0, 0.8, 0.5),
+            // brightness: 0.05,
+            brightness: 1.,
             ..default()
         },
     ));

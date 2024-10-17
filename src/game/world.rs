@@ -1,37 +1,109 @@
 use super::enemy;
 use super::states::GameState;
+use super::wall::get_tile;
+use super::wall::get_wall_collisions;
+use super::wall::Tile;
 use bevy::asset::*;
 use bevy::prelude::*;
-use bevy_ecs_ldtk::*;
+use bevy_aseprite_ultra::prelude::Aseprite;
+use bevy_asset_loader::prelude::*;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::Friction;
+use bevy_rapier2d::prelude::RigidBody;
+use web_sys::js_sys::WebAssembly::Global;
 
-fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // TODO:
-    // world.ldtk をバイナリに埋め込む場合は、src/game/asset 以下などに配置します
-    // ただし、world.ldtk をバイナリに埋め込もうとすると、 world.ldtk はさらに asset.png に依存しているため、
-    // bevy-wasm-example\assets\my_bevy_game\asset\asset.png を参照しようとします
-    // これによりファイルが見つからなくなってしまうため、world.ldtk をバイナリに埋め込む良い方法がありません
-    //
-    // let path = Path::new(CRATE_NAME).join("asset/world.ldtk");
-    // let asset_path = AssetPath::from_path(&path).with_source(AssetSourceId::from("embedded"));
+#[derive(AssetCollection, Resource)]
+pub struct AsepriteAssets {
+    #[asset(path = "level.aseprite")]
+    level: Handle<Aseprite>,
 
-    commands.spawn((
-        StateScoped(GameState::InGame),
-        LdtkWorldBundle {
-            // ldtk_handle: asset_server.load(asset_path),
-            ldtk_handle: asset_server.load("world.ldtk"),
+    #[asset(path = "tile.png")]
+    tile: Handle<Image>,
+}
 
-            // タイルマップは最も背後に配置したいので z: -1000にする
-            // サンプルコードでは get_tilemap_center_transform を使って画面中央に揃えているが、
-            // 座標計算が面倒になるので x:0, y:0 に配置している
-            // また、アンカーがタイルの中央になっているので、タイルの大きさの半分だけずらして原点に揃える
-            // transform: Transform::from_xyz(0.0, 0.0, -1000.0),
-            ..Default::default()
-        },
-    ));
-    // commands.spawn((
-    //     Collider::cuboid(400.0, 20.0),
-    //     TransformBundle::from(Transform::from_xyz(0.0, -20.0, 0.0)),
-    // ));
+const BLANK_TILE: [u8; 4] = [0, 0, 0, 0];
+const WALL_TILE: [u8; 4] = [203, 219, 252, 255];
+const EMPTY_TILE: [u8; 4] = [82, 75, 36, 255];
+
+fn setup_world(
+    mut commands: Commands,
+    level: Res<Assets<Aseprite>>,
+    images: Res<Assets<Image>>,
+    aseprite_assets: Res<AsepriteAssets>,
+) {
+    let level_handle = aseprite_assets.level.clone();
+    if let Some(level) = level.get(level_handle.id()) {
+        if let Some(img) = images.get(level.atlas_image.id()) {
+            for y in 0..img.height() {
+                for x in 0..img.width() {
+                    match get_tile(img, x, y) {
+                        Tile::Empty => {
+                            commands.spawn((
+                                StateScoped(GameState::InGame),
+                                SpriteBundle {
+                                    texture: aseprite_assets.tile.clone(),
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(16.0, 16.0)),
+                                        rect: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
+                                        ..Default::default()
+                                    },
+                                    transform: Transform::from_translation(Vec3::new(
+                                        x as f32 * 16.0,
+                                        y as f32 * -16.0,
+                                        0.0,
+                                    )),
+                                    ..Default::default()
+                                },
+                            ));
+                        }
+                        Tile::Wall => {
+                            commands.spawn((
+                                StateScoped(GameState::InGame),
+                                SpriteBundle {
+                                    texture: aseprite_assets.tile.clone(),
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(16.0, 16.0)),
+                                        rect: Some(Rect::new(0.0, 16.0 * 3.0, 16.0, 16.0 * 4.0)),
+                                        ..Default::default()
+                                    },
+                                    transform: Transform::from_translation(Vec3::new(
+                                        x as f32 * 16.0,
+                                        y as f32 * -16.0,
+                                        0.0,
+                                    )),
+                                    ..Default::default()
+                                },
+                                // todo: merge colliders
+                                // Collider::cuboid(8.0, 8.0),
+                                // RigidBody::Fixed,
+                                // Friction::new(1.0),
+                            ));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+
+            for rect in get_wall_collisions(&img) {
+                println!("rect: {:?}", rect);
+                let w = 8.0 * (rect.width() + 1.0);
+                let h = 8.0 * (rect.height() + 1.0);
+                let x = rect.min.x as f32 * 16.0 + w - 8.0;
+                let y = rect.min.y as f32 * -16.0 - h + 8.0;
+                commands.spawn((
+                    StateScoped(GameState::InGame),
+                    Transform::from_translation(Vec3::new(x, y, 0.0)),
+                    GlobalTransform::default(),
+                    // todo: merge colliders
+                    Collider::cuboid(w, h),
+                    RigidBody::Fixed,
+                    Friction::new(1.0),
+                ));
+            }
+        }
+    } else {
+        println!("level not found");
+    }
 }
 
 fn update_world(

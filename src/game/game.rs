@@ -19,6 +19,7 @@ use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
+use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -53,7 +54,7 @@ pub fn run_game() {
         .add_plugins(LdtkPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin {
-            enabled: false,
+            enabled: true,
             mode: DebugRenderMode::COLLIDER_SHAPES,
             ..default()
         })
@@ -105,25 +106,24 @@ pub fn run_game() {
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
         //
-        .add_systems(
-            OnEnter(GameState::Setup),
-            |mut commands: Commands, mut next: ResMut<NextState<GameState>>| {
-                // セーブデータの選択
-                // 現在はデバッグ用
-                let player_data = restore_player();
-                commands.insert_resource(player_data);
+        .add_systems(OnEnter(GameState::Setup), |mut commands: Commands| {
+            // セーブデータの選択
+            // 現在はデバッグ用
+            let player_data = restore_player();
+            commands.insert_resource(player_data);
 
-                // カメラの初期化
-                setup_camera(commands);
-
-                // セットアップが完了したので最初の画面を表示
-                next.set(INITIAL_STATE);
-            },
-        )
+            // カメラの初期化
+            setup_camera(commands);
+        })
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
         .init_state::<GameState>()
+        .add_loading_state(
+            LoadingState::new(GameState::Setup)
+                .continue_to_state(INITIAL_STATE)
+                .load_collection::<AsepriteAssets>(),
+        )
         // State Scoped Entities をオンにすることで、
         // stateを変更したときに自動的にエンティティを削除できます
         // https://bevyengine.org/news/bevy-0-14/#state-scoped-entities
