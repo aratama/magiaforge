@@ -1,5 +1,7 @@
 use super::asset::GameAssets;
+use super::constant::BULLET_GROUP;
 use super::constant::TILE_SIZE;
+use super::constant::WALL_GROUP;
 use super::constant::Z_ORDER_SCALE;
 use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
@@ -11,9 +13,7 @@ use super::wall::Tile;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
-use bevy_rapier2d::prelude::Collider;
-use bevy_rapier2d::prelude::Friction;
-use bevy_rapier2d::prelude::RigidBody;
+use bevy_rapier2d::prelude::*;
 
 fn setup_world(
     mut commands: Commands,
@@ -102,6 +102,7 @@ fn setup_world(
                     Collider::cuboid(w, h),
                     RigidBody::Fixed,
                     Friction::new(1.0),
+                    CollisionGroups::new(WALL_GROUP, BULLET_GROUP),
                 ));
             }
         }

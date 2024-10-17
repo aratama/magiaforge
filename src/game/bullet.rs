@@ -1,3 +1,4 @@
+use super::constant::{BULLET_GROUP, WALL_GROUP};
 use super::enemy::Enemy;
 use super::states::GameState;
 use super::{asset::GameAssets, audio::play_se};
@@ -10,7 +11,7 @@ use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
-// use std::path::Path;
+use std::collections::HashSet;
 
 const SLICE_NAME: &str = "bullet";
 
@@ -46,40 +47,42 @@ pub fn add_bullet(
     // let path = Path::new(CRATE_NAME).join("asset/asset.aseprite");
     // let asset_path = AssetPath::from_path(&path).with_source(AssetSourceId::from("embedded"));
 
-    commands.spawn((
-        Name::new("bullet"),
-        StateScoped(GameState::InGame),
-        Bullet { life: 120 },
-        AsepriteSliceBundle {
-            aseprite,
-            slice: SLICE_NAME.into(),
-            transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
-                * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
-            ..default()
-        },
-        Velocity {
-            linvel: velocity,
-            angvel: 0.0,
-        },
-        KinematicCharacterController::default(),
-        RigidBody::KinematicVelocityBased,
-        Collider::ball(5.0),
-        GravityScale(0.0),
-        Sensor,
-        // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
-        ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
-        ActiveEvents::COLLISION_EVENTS,
-        Sleeping::disabled(),
-        Ccd::enabled(),
-        #[cfg(not(target_arch = "wasm32"))]
-        PointLight2d {
-            radius: 50.0,
-            intensity: 1.0,
-            falloff: 10.0,
-            color: Color::hsl(245.0, 1.0, 0.6),
-            ..default()
-        },
-    ));
+    commands
+        .spawn((
+            Name::new("bullet"),
+            StateScoped(GameState::InGame),
+            Bullet { life: 120 },
+            AsepriteSliceBundle {
+                aseprite,
+                slice: SLICE_NAME.into(),
+                transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
+                    * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
+                ..default()
+            },
+            Velocity {
+                linvel: velocity,
+                angvel: 0.0,
+            },
+            KinematicCharacterController::default(),
+            RigidBody::KinematicVelocityBased,
+            Collider::ball(5.0),
+            GravityScale(0.0),
+            Sensor,
+            // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
+            ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
+            ActiveEvents::COLLISION_EVENTS,
+            Sleeping::disabled(),
+            Ccd::enabled(),
+            #[cfg(not(target_arch = "wasm32"))]
+            PointLight2d {
+                radius: 50.0,
+                intensity: 1.0,
+                falloff: 10.0,
+                color: Color::hsl(245.0, 1.0, 0.6),
+                ..default()
+            },
+        ))
+        .insert(CollisionGroups::new(BULLET_GROUP, WALL_GROUP));
 }
 
 pub fn update_bullet(
@@ -95,28 +98,39 @@ pub fn update_bullet(
             commands.entity(entity).despawn();
         }
     }
+
+    // 弾丸が壁の角に当たった場合、衝突イベントが複数回発生するため、
+    // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
+    // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
+    let mut hashset: HashSet<Entity> = HashSet::new();
+
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
                 if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*a) {
-                    process_bullet_event(
-                        &mut commands,
-                        &assets,
-                        &a,
-                        &bullet_transform,
-                        &bullet_velocity,
-                        enemies.get_mut(*b),
-                    );
-                }
-                if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*b) {
-                    process_bullet_event(
-                        &mut commands,
-                        &assets,
-                        &b,
-                        &bullet_transform,
-                        &bullet_velocity,
-                        enemies.get_mut(*a),
-                    );
+                    if !hashset.contains(a) {
+                        process_bullet_event(
+                            &mut commands,
+                            &assets,
+                            &a,
+                            &bullet_transform,
+                            &bullet_velocity,
+                            enemies.get_mut(*b),
+                        );
+                        hashset.insert(a.clone());
+                    }
+                } else if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*b) {
+                    if !hashset.contains(b) {
+                        process_bullet_event(
+                            &mut commands,
+                            &assets,
+                            &b,
+                            &bullet_transform,
+                            &bullet_velocity,
+                            enemies.get_mut(*a),
+                        );
+                        hashset.insert(b.clone());
+                    }
                 }
             }
             _ => {}
