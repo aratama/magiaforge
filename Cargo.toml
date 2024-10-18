@@ -82,5 +82,5 @@ opt-level = "z"
 lto = true
 
 [features]
-default = ["light"]
-light = []
+debug = []
+default = []

@@ -14,16 +14,13 @@ use super::start::*;
 use super::states::*;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
-use bevy::diagnostic::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
-use iyes_perf_ui::prelude::*;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -50,22 +47,9 @@ pub fn run_game() {
         .add_plugins(EmbeddedAssetPlugin)
         .add_plugins(TilemapPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugins(RapierDebugRenderPlugin {
-            enabled: false,
-            mode: DebugRenderMode::COLLIDER_SHAPES,
-            ..default()
-        })
         .add_plugins(BevySprityPlugin)
         .add_plugins(ParticleSystemPlugin)
-        //
-        // 以下はデバッグ用のプラグインなど
-        // 無くてもゲーム事態は動作します
-        //
-        .add_plugins(PerfUiPlugin)
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
-        .add_plugins(EntityCountDiagnosticsPlugin)
-        .add_plugins(SystemInformationDiagnosticsPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(Light2dPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //
@@ -113,7 +97,21 @@ pub fn run_game() {
     // https://github.com/jgayfer/bevy_light_2d/issues/6
     // https://github.com/jgayfer/bevy_light_2d/pull/7
 
-    app.add_plugins(Light2dPlugin);
+    //
+    // 以下はデバッグ用のプラグインなど
+    // 無くてもゲーム事態は動作します
+    //
+    #[cfg(feature = "debug")]
+    app.add_plugins(PerfUiPlugin)
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(EntityCountDiagnosticsPlugin)
+        .add_plugins(SystemInformationDiagnosticsPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(RapierDebugRenderPlugin {
+            enabled: true,
+            mode: DebugRenderMode::COLLIDER_SHAPES,
+            ..default()
+        });
 
     app.run();
 }

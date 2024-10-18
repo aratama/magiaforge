@@ -3,6 +3,12 @@ use super::states::GameState;
 use bevy::audio::Volume;
 use bevy::prelude::*;
 
+#[cfg(not(feature = "debug"))]
+const BGM_VOLUME: f32 = 0.2;
+
+#[cfg(feature = "debug")]
+const BGM_VOLUME: f32 = 0.0;
+
 #[derive(Component)]
 struct BGM;
 
@@ -13,7 +19,7 @@ fn setup_world_bgm(mut commands: Commands, asset: Res<GameAssets>, bgm: Query<&B
             AudioBundle {
                 source: asset.they.clone(),
                 settings: PlaybackSettings {
-                    volume: Volume::new(0.5),
+                    volume: Volume::new(BGM_VOLUME),
                     ..default()
                 },
             },

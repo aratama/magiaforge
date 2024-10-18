@@ -6,6 +6,10 @@ use bevy_light_2d::light::AmbientLight2d;
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
+#[cfg(feature = "debug")]
+static BLIGHTNESS_IN_GAME: f32 = 1.0;
+
+#[cfg(not(feature = "debug"))]
 static BLIGHTNESS_IN_GAME: f32 = 0.05;
 
 pub fn setup_camera(mut commands: Commands) {
