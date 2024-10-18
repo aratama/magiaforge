@@ -49,8 +49,10 @@ features = [
     "vorbis",
     # "webgl2",
 
+    # bevy_light_2dはデスクトップではwebgl2でも動きますが、wasmではwebgpuでないと実行時エラーで動きません
     # https://bevyengine.org/news/bevy-webgpu/
     # https://github.com/bevyengine/bevy/tree/main/examples#webgl2-and-webgpu
+    # https://github.com/jgayfer/bevy_light_2d/pull/7
     "webgpu",
 
     # "x11",

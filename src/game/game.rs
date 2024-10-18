@@ -1,4 +1,5 @@
 use super::asset::GameAssets;
+use super::bgm::BGMPlugin;
 use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
@@ -19,7 +20,6 @@ use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-#[cfg(feature = "light")]
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
@@ -79,6 +79,7 @@ pub fn run_game() {
         .add_plugins(BulletPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(StartPagePlugin)
+        .add_plugins(BGMPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
@@ -110,7 +111,7 @@ pub fn run_game() {
     // https://github.com/jgayfer/bevy_light_2d/issues/5
     // https://github.com/jgayfer/bevy_light_2d/issues/6
     // https://github.com/jgayfer/bevy_light_2d/pull/7
-    #[cfg(feature = "light")]
+
     app.add_plugins(Light2dPlugin);
 
     app.run();

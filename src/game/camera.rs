@@ -1,14 +1,11 @@
 use super::{serialize::PlayerData, set::GameSet, states::GameState};
 use crate::game::player::*;
 use bevy::prelude::*;
-
-#[cfg(feature = "light")]
 use bevy_light_2d::light::AmbientLight2d;
 
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
-#[cfg(feature = "light")]
 static BLIGHTNESS_IN_GAME: f32 = 0.05;
 
 pub fn setup_camera(mut commands: Commands) {
@@ -25,7 +22,6 @@ pub fn setup_camera(mut commands: Commands) {
         CameraScaleFactor(initial_scale_factor),
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
-        #[cfg(feature = "light")]
         AmbientLight2d {
             // color: Color::hsl(250.0, 0.8, 0.5),
             brightness: BLIGHTNESS_IN_GAME,
@@ -75,7 +71,6 @@ fn update_camera(
     }
 }
 
-#[cfg(feature = "light")]
 fn update_camera_brightness(
     mut camera_query: Query<&mut AmbientLight2d, With<Camera2d>>,
     state: Res<State<GameState>>,
@@ -100,7 +95,6 @@ impl Plugin for CameraPlugin {
                 .in_set(GameSet),
         );
 
-        #[cfg(feature = "light")]
         app.add_systems(
             FixedUpdate,
             update_camera_brightness

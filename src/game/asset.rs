@@ -31,4 +31,7 @@ pub struct GameAssets {
 
     #[asset(path = "title.png")]
     pub title: Handle<Image>,
+
+    #[asset(path = "They.ogg")]
+    pub they: Handle<AudioSource>,
 }
