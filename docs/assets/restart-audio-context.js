@@ -29,7 +29,6 @@
 
     // To resume all AudioContexts being tracked
     function resumeAllContexts(event) {
-        console.log("resumeAllContexts");
 
         let count = 0;
 
@@ -57,3 +56,15 @@
         document.addEventListener(eventName, resumeAllContexts);
     });
 })();
+
+
+window.onerror = function(event) {
+    if(typeof event === "string" && event.startsWith("Uncaught Error: Using exceptions for control flow, don't mind me. This isn't actually an error!")){
+        // これはエラーではないので握りつぶします
+        // Bevyのサンプルでも同様にしてエラーを握りつぶしています
+        // onerrorをキャンセルするにはtrueを返します
+        // https://developer.mozilla.org/ja/docs/Web/API/Window/error_event
+        return true;        
+    }
+    throw event
+  };
