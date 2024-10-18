@@ -26,20 +26,20 @@ fn setup_world(
         if let Some(img) = images.get(level.atlas_image.id()) {
             for y in 0..img.height() {
                 for x in 0..img.width() {
-                    match get_tile(img, x, y) {
+                    match get_tile(img, x as i32, y as i32) {
                         Tile::Empty => {
                             commands.spawn((
                                 StateScoped(GameState::InGame),
                                 SpriteBundle {
                                     texture: assets.tile.clone(),
                                     sprite: Sprite {
-                                        custom_size: Some(Vec2::new(16.0, 16.0)),
-                                        rect: Some(Rect::new(0.0, 0.0, 16.0, 16.0)),
+                                        custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
+                                        rect: Some(Rect::new(0.0, 0.0, TILE_SIZE, TILE_SIZE)),
                                         ..Default::default()
                                     },
                                     transform: Transform::from_translation(Vec3::new(
-                                        x as f32 * 16.0,
-                                        y as f32 * -16.0,
+                                        x as f32 * TILE_SIZE,
+                                        y as f32 * -TILE_SIZE,
                                         0.0,
                                     )),
                                     ..Default::default()
@@ -47,26 +47,61 @@ fn setup_world(
                             ));
                         }
                         Tile::Wall => {
-                            let tx = x as f32 * 16.0;
-                            let ty = y as f32 * -16.0;
+                            let tx = x as f32 * TILE_SIZE;
+                            let ty = y as f32 * -TILE_SIZE;
                             let tz = 3.0 + (-ty * Z_ORDER_SCALE);
-                            commands.spawn((
-                                StateScoped(GameState::InGame),
-                                SpriteBundle {
-                                    texture: assets.tile.clone(),
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(16.0, 16.0)),
-                                        rect: Some(Rect::new(0.0, 16.0 * 3.0, 16.0, 16.0 * 4.0)),
+
+                            // 壁
+                            if get_tile(img, x as i32, y as i32 + 1) == Tile::Empty {
+                                commands.spawn((
+                                    StateScoped(GameState::InGame),
+                                    SpriteBundle {
+                                        texture: assets.tile.clone(),
+                                        sprite: Sprite {
+                                            custom_size: Some(Vec2::new(TILE_SIZE, 8.0)),
+                                            rect: Some(Rect::new(
+                                                TILE_SIZE * 3.0,
+                                                TILE_SIZE * 0.0,
+                                                TILE_SIZE * 4.0,
+                                                TILE_SIZE * 0.5,
+                                            )),
+                                            ..Default::default()
+                                        },
+                                        transform: Transform::from_translation(Vec3::new(
+                                            tx,
+                                            ty - 4.0,
+                                            tz,
+                                        )),
                                         ..Default::default()
                                     },
-                                    transform: Transform::from_translation(Vec3::new(tx, ty, tz)),
-                                    ..Default::default()
-                                },
-                                // todo: merge colliders
-                                // Collider::cuboid(8.0, 8.0),
-                                // RigidBody::Fixed,
-                                // Friction::new(1.0),
-                            ));
+                                ));
+                            }
+
+                            // 天井
+                            if get_tile(img, x as i32, y as i32 - 1) == Tile::Empty {
+                                commands.spawn((
+                                    StateScoped(GameState::InGame),
+                                    SpriteBundle {
+                                        texture: assets.tile.clone(),
+                                        sprite: Sprite {
+                                            custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
+                                            rect: Some(Rect::new(
+                                                TILE_SIZE * 1.0,
+                                                TILE_SIZE * 3.0,
+                                                TILE_SIZE * 2.0,
+                                                TILE_SIZE * 4.0,
+                                            )),
+                                            ..Default::default()
+                                        },
+                                        transform: Transform::from_translation(Vec3::new(
+                                            tx,
+                                            ty + 8.0,
+                                            tz + 1.0,
+                                        )),
+                                        ..Default::default()
+                                    },
+                                ));
+                            }
                         }
                         Tile::BookShelf => {
                             spawn_book_shelf(
@@ -92,8 +127,8 @@ fn setup_world(
             for rect in get_wall_collisions(&img) {
                 let w = 8.0 * (rect.width() + 1.0);
                 let h = 8.0 * (rect.height() + 1.0);
-                let x = rect.min.x as f32 * 16.0 + w - 8.0;
-                let y = rect.min.y as f32 * -16.0 - h + 8.0;
+                let x = rect.min.x as f32 * TILE_SIZE + w - 8.0;
+                let y = rect.min.y as f32 * -TILE_SIZE - h + 8.0;
                 commands.spawn((
                     StateScoped(GameState::InGame),
                     Transform::from_translation(Vec3::new(x, y, 0.0)),

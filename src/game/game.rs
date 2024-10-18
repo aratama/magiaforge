@@ -32,6 +32,7 @@ pub fn run_game() {
         //
         // デフォルトのプラグインや依存しているサードパーティのプラグインなど
         //
+        .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
         .add_plugins(
             DefaultPlugins
                 .set(AssetPlugin {

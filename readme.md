@@ -41,6 +41,7 @@ https://aratama.github.io/bevy-wasm-example/ (**Desktop Chrome only** for now)
 - https://github.com/jgayfer/bevy_light_2d
 - https://github.com/zaycev/bevy-magic-light-2d
 - https://github.com/rustwasm/wasm-pack/issues/1434 Windows で trunk 0.21.1 をインストールしようとするとビルドエラーになる
+- https://cloud.google.com/blog/products/serverless/cloud-run-gets-websockets-http-2-and-grpc-bidirectional-streams?hl=en
 
 ### Assets
 

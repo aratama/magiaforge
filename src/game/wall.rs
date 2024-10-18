@@ -23,7 +23,10 @@ pub fn get_wall_collisions(image: &Image) -> Vec<Rect> {
 
         // + 1 to the width so the algorithm "terminates" plates that touch the right edge
         for x in 0..width + 1 {
-            match (plate_start, get_tile(&image, x, y) == Tile::Wall) {
+            match (
+                plate_start,
+                get_tile(&image, x as i32, y as i32) == Tile::Wall,
+            ) {
                 (Some(s), false) => {
                     row_plates.push(Plate {
                         left: s,
@@ -82,15 +85,15 @@ pub enum Tile {
     Chest,
 }
 
-pub fn get_tile(img: &Image, x: u32, y: u32) -> Tile {
-    let w = img.width();
-    let h = img.height();
+pub fn get_tile(img: &Image, x: i32, y: i32) -> Tile {
+    let w = img.width() as i32;
+    let h = img.height() as i32;
 
-    if x >= w || y >= h {
+    if x < 0 || x >= w || y < 0 || y >= h {
         return Tile::Blank;
     }
 
-    let i = 4 * (y * img.width() + x) as usize;
+    let i = 4 * (y * img.width() as i32 + x) as usize;
     let r = img.data[i + 0];
     let g = img.data[i + 1];
     let b = img.data[i + 2];
