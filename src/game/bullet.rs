@@ -1,4 +1,4 @@
-use super::constant::{BULLET_GROUP, WALL_GROUP};
+use super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::enemy::Enemy;
 use super::states::GameState;
 use super::{asset::GameAssets, audio::play_se};
@@ -36,18 +36,18 @@ pub fn add_bullet(
     position: Vec2,
     velocity: Vec2,
 ) {
-    commands
-        .spawn((
-            Name::new("bullet"),
-            StateScoped(GameState::InGame),
-            Bullet { life: 120 },
-            AsepriteSliceBundle {
-                aseprite,
-                slice: SLICE_NAME.into(),
-                transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
-                    * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
-                ..default()
-            },
+    commands.spawn((
+        Name::new("bullet"),
+        StateScoped(GameState::InGame),
+        Bullet { life: 120 },
+        AsepriteSliceBundle {
+            aseprite,
+            slice: SLICE_NAME.into(),
+            transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
+                * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
+            ..default()
+        },
+        (
             Velocity {
                 linvel: velocity,
                 angvel: 0.0,
@@ -62,15 +62,17 @@ pub fn add_bullet(
             ActiveEvents::COLLISION_EVENTS,
             Sleeping::disabled(),
             Ccd::enabled(),
-            PointLight2d {
-                radius: 50.0,
-                intensity: 1.0,
-                falloff: 10.0,
-                color: Color::hsl(245.0, 1.0, 0.6),
-                ..default()
-            },
-        ))
-        .insert(CollisionGroups::new(BULLET_GROUP, WALL_GROUP));
+            // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
+            CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ENEMY_GROUP),
+        ),
+        PointLight2d {
+            radius: 50.0,
+            intensity: 1.0,
+            falloff: 10.0,
+            color: Color::hsl(245.0, 1.0, 0.6),
+            ..default()
+        },
+    ));
 }
 
 pub fn update_bullet(

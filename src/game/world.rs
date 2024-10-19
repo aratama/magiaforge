@@ -185,7 +185,7 @@ fn setup_world(
             Collider::cuboid(w, h),
             RigidBody::Fixed,
             Friction::new(1.0),
-            CollisionGroups::new(WALL_GROUP, BULLET_GROUP),
+            CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
         ));
     }
 }

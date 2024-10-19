@@ -1,7 +1,4 @@
-use crate::game::{
-    constant::{TILE_SIZE, Z_ORDER_SCALE},
-    states::GameState,
-};
+use crate::game::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -35,5 +32,6 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
         },
         RigidBody::Fixed,
         COLLIDER.clone(),
+        CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
     ));
 }

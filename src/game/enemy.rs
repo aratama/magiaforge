@@ -46,11 +46,13 @@ pub fn spawn_enemy(
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
             Damping {
-                linear_damping: 6.0,
+                linear_damping: 10.0,
                 angular_damping: 1.0,
             },
             ExternalForce::default(),
             ExternalImpulse::default(),
+            ActiveEvents::COLLISION_EVENTS,
+            CollisionGroups::new(ENEMY_GROUP, Group::ALL),
         ))
         .with_children(|mut parent| {
             spawn_life_bar(&mut parent, &life_bar_locals);
@@ -81,28 +83,71 @@ pub fn update_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut query: Query<(Entity, &Enemy, &mut ExternalForce, &GlobalTransform), Without<Camera2d>>,
-    player_query: Query<&GlobalTransform, With<Player>>,
+    mut player_query: Query<(Entity, &GlobalTransform, &mut ExternalImpulse), With<Player>>,
+    mut collision_events: EventReader<CollisionEvent>,
 ) {
-    let player = player_query.get_single();
+    if let Ok((player, player_transform, mut player_impulse)) = player_query.get_single_mut() {
+        for (entity, enemy, mut force, enemy_transform) in query.iter_mut() {
+            // 1マス以上5マス以内にプレイヤーがいたら追いかける
 
-    for (entity, enemy, mut force, enemy_transform) in query.iter_mut() {
-        // 1マス以上5マス以内にプレイヤーがいたら追いかける
-        if let Ok(player_transform) = player {
             let diff = player_transform.translation() - enemy_transform.translation();
-            if TILE_SIZE < diff.length() && diff.length() < ENEMY_DETECTION_RANGE {
+            if diff.length() < ENEMY_DETECTION_RANGE {
                 let direction = diff.normalize_or_zero();
                 force.force = direction.truncate() * ENEMY_MOVE_FORCE;
             } else {
                 force.force = Vec2::ZERO;
             }
+
+            // ライフが0以下になったら消滅
+            if enemy.life <= 0 {
+                commands.entity(entity).despawn_recursive();
+                play_se(&mut commands, assets.hiyoko.clone());
+            }
         }
 
-        // ライフが0以下になったら消滅
-        if enemy.life <= 0 {
-            commands.entity(entity).despawn_recursive();
-            play_se(&mut commands, assets.hiyoko.clone());
+        for collision_event in collision_events.read() {
+            match collision_event {
+                CollisionEvent::Started(a, b, _) => {
+                    if *a == player {
+                        if let Ok(en) = query.get(*b) {
+                            process_attack_event(
+                                &en.3,
+                                &player_transform,
+                                &mut player_impulse,
+                                &mut commands,
+                                &assets,
+                            );
+                        };
+                    } else if *b == player {
+                        if let Ok(en) = query.get(*a) {
+                            process_attack_event(
+                                &en.3,
+                                &player_transform,
+                                &mut player_impulse,
+                                &mut commands,
+                                &assets,
+                            );
+                        };
+                    }
+                }
+                _ => {}
+            }
         }
     }
+}
+
+fn process_attack_event(
+    enemy_transform: &GlobalTransform,
+    player_transform: &GlobalTransform,
+    player_impulse: &mut ExternalImpulse,
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+) {
+    let direction = player_transform.translation() - enemy_transform.translation();
+    let impulse = direction.normalize_or_zero() * 20000.0;
+    player_impulse.impulse = impulse.truncate();
+
+    play_se(&mut commands, assets.dageki.clone());
 }
 
 pub struct EnemyPlugin;

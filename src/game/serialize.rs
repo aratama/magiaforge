@@ -22,7 +22,7 @@ impl Default for PlayerData {
     fn default() -> Self {
         PlayerData {
             x: TILE_SIZE * 5.0,
-            y: TILE_SIZE * -7.0,
+            y: TILE_SIZE * -5.0,
         }
     }
 }

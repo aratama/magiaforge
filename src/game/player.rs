@@ -32,14 +32,19 @@ fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Re
                 // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
                 ..default()
             },
-
             ..default()
         },
-        KinematicCharacterController::default(),
-        RigidBody::KinematicPositionBased,
+        RigidBody::Dynamic,
         Collider::ball(5.0),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
+        Damping {
+            linear_damping: 6.0,
+            angular_damping: 1.0,
+        },
+        ExternalForce::default(),
+        ExternalImpulse::default(),
+        CollisionGroups::new(PLAYER_GROUP, ENEMY_GROUP | WALL_GROUP),
         PointLight2d {
             radius: 100.0,
             intensity: 3.0,
@@ -55,7 +60,7 @@ fn update_player(
         (
             &mut Player,
             &mut Transform,
-            &mut KinematicCharacterController,
+            &mut ExternalForce,
             &GlobalTransform,
             &mut Sprite,
         ),
@@ -70,23 +75,22 @@ fn update_player(
     assets: Res<GameAssets>,
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
-    let speed = 2.0;
+    let force = 50000.0;
 
-    let velocity = Vec2::new(
+    let direction = Vec2::new(
         to_s(&keys, KeyCode::KeyD) - to_s(&keys, KeyCode::KeyA),
         to_s(&keys, KeyCode::KeyW) - to_s(&keys, KeyCode::KeyS),
     )
-    .normalize_or_zero()
-        * speed;
+    .normalize_or_zero();
 
-    let (mut player, mut player_transform, mut controller, _, mut player_sprite) =
+    let (mut player, mut player_transform, mut player_force, _, mut player_sprite) =
         player_query.single_mut();
 
     // 本棚などのエンティティが設置されているレイヤーは z が 3 に設定されているらしく、
     // y を z に変換する同一の式を設定しても、さらに 3 を加算してようやく z が合致するらしい
     // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/explanation/anatomy-of-the-world.html
     player_transform.translation.z = 3.0 + (-player_transform.translation.y * Z_ORDER_SCALE);
-    controller.translation = Some(velocity);
+    player_force.force = direction * force;
 
     // println!(
     //     "player y:{} z:{}",
