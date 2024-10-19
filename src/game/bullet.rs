@@ -34,18 +34,6 @@ pub fn add_bullet(
     position: Vec2,
     velocity: Vec2,
 ) {
-    // TODO:
-    // 現状ではアセットの埋め込みはしていません
-    // 埋め込みができない理由は、world.rs のコメントに記載しています
-    //
-    // // https://bevyengine.org/examples/assets/embedded-asset/
-    // アセットのパスは URL のような形式になっており、
-    // プロトコルは embedded、それ以下のパスは crate 名とアセットのパスになります
-    // embedded_asset 側の設定で、パスの game は省略されます
-    // 実際のパスは Window では例えば、 embedded://my_bevy_game\asset/asset.aseprite になります
-    // let path = Path::new(CRATE_NAME).join("asset/asset.aseprite");
-    // let asset_path = AssetPath::from_path(&path).with_source(AssetSourceId::from("embedded"));
-
     commands
         .spawn((
             Name::new("bullet"),

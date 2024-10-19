@@ -28,36 +28,41 @@ fn setup_world(
     let stone_tile_slice_index =
         slice_to_tile_texture_index(asset_aseprite, asset_image, "stone tile");
 
+    let black_slice_index = slice_to_tile_texture_index(asset_aseprite, asset_image, "black");
+
     let map_size = TilemapSize {
         x: level_image.width(),
         y: level_image.height(),
     };
 
-    let tilemap_entity = commands.spawn_empty().id();
+    let floor_layer_entity = commands.spawn_empty().id();
+    let roof_layer_entity = commands.spawn_empty().id();
 
-    let mut tile_storage = TileStorage::empty(map_size);
+    let mut floor_layer_storage = TileStorage::empty(map_size);
+    let mut roof_layer_storage = TileStorage::empty(map_size);
 
     for y in 0..level_image.height() {
         for x in 0..level_image.width() {
+            let tile_pos = TilePos {
+                x,
+                y: map_size.y - y - 1,
+            };
+
             match get_tile(level_image, x as i32, y as i32) {
                 Tile::StoneTile => {
                     // タイルマップの個々のタイルの生成
-                    let tile_pos = TilePos {
-                        x,
-                        y: map_size.y - y - 1,
-                    };
                     let tile_entity = commands
                         .spawn((
                             Name::new("stone_tile"),
                             TileBundle {
                                 position: tile_pos,
-                                tilemap_id: TilemapId(tilemap_entity),
+                                tilemap_id: TilemapId(floor_layer_entity),
                                 texture_index: stone_tile_slice_index,
                                 ..default()
                             },
                         ))
                         .id();
-                    tile_storage.set(&tile_pos, tile_entity);
+                    floor_layer_storage.set(&tile_pos, tile_entity);
                 }
                 Tile::Wall => {
                     let tx = x as f32 * TILE_SIZE;
@@ -80,20 +85,18 @@ fn setup_world(
 
                     // 天井
                     if get_tile(level_image, x as i32, y as i32 - 1) == Tile::StoneTile {
-                        commands.spawn((
-                            Name::new("roof"),
-                            StateScoped(GameState::InGame),
-                            AsepriteSliceBundle {
-                                aseprite: assets.asset.clone(),
-                                slice: "black".into(),
-                                transform: Transform::from_translation(Vec3::new(
-                                    tx,
-                                    ty + 8.0,
-                                    ROOF_LAYER_Z,
-                                )),
-                                ..default()
-                            },
-                        ));
+                        let tile_entity = commands
+                            .spawn((
+                                Name::new("roof tile"),
+                                TileBundle {
+                                    position: tile_pos,
+                                    tilemap_id: TilemapId(roof_layer_entity),
+                                    texture_index: black_slice_index,
+                                    ..default()
+                                },
+                            ))
+                            .id();
+                        roof_layer_storage.set(&tile_pos, tile_entity);
                     }
                 }
                 Tile::BookShelf => {
@@ -124,14 +127,15 @@ fn setup_world(
     };
     let grid_size = tile_size.into();
     let map_type = TilemapType::default();
-    commands.entity(tilemap_entity).insert((
-        Name::new("tilemap"),
+
+    commands.entity(floor_layer_entity).insert((
+        Name::new("floor layer tilemap"),
         StateScoped(GameState::InGame),
         TilemapBundle {
             grid_size,
             map_type,
             size: map_size,
-            storage: tile_storage,
+            storage: floor_layer_storage,
             texture: TilemapTexture::Single(asset_aseprite.atlas_image.clone()),
             tile_size,
             // transformを計算するのにはget_tilemap_center_transform という関数もありますが、
@@ -146,12 +150,32 @@ fn setup_world(
         },
     ));
 
+    commands.entity(roof_layer_entity).insert((
+        Name::new("roof layer tilemap"),
+        StateScoped(GameState::InGame),
+        TilemapBundle {
+            grid_size,
+            map_type,
+            size: map_size,
+            storage: roof_layer_storage,
+            texture: TilemapTexture::Single(asset_aseprite.atlas_image.clone()),
+            tile_size,
+            transform: Transform::from_translation(Vec3::new(
+                0.0,
+                // 天井レイヤーは8.0だけ上にずらしていることに注意
+                -TILE_SIZE * (map_size.y - 1) as f32 + WALL_HEIGHT,
+                ROOF_LAYER_Z,
+            )),
+            ..default()
+        },
+    ));
+
     // 衝突形状の生成
     for rect in get_wall_collisions(&level_image) {
-        let w = 8.0 * (rect.width() + 1.0);
-        let h = 8.0 * (rect.height() + 1.0);
-        let x = rect.min.x as f32 * TILE_SIZE + w - 8.0;
-        let y = rect.min.y as f32 * -TILE_SIZE - h + 8.0;
+        let w = TILE_HALF * (rect.width() + 1.0);
+        let h = TILE_HALF * (rect.height() + 1.0);
+        let x = rect.min.x as f32 * TILE_SIZE + w - TILE_HALF;
+        let y = rect.min.y as f32 * -TILE_SIZE - h + TILE_HALF;
         commands.spawn((
             Name::new("wall collider"),
             StateScoped(GameState::InGame),
