@@ -23,6 +23,8 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 use bevy::prelude::*;
+use bevy::window::Cursor;
+use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
@@ -52,10 +54,21 @@ pub fn run_game() {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
+                        cursor: Cursor {
+                            icon: CursorIcon::Crosshair,
+                            ..default()
+                        },
                         title: "Magia Gene 0.1".to_string(),
-                        ..Default::default()
+                        resizable: false,
+                        enabled_buttons: EnabledButtons {
+                            close: true,
+                            maximize: false,
+                            minimize: true,
+                        },
+                        focused: true,
+                        ..default()
                     }),
-                    ..Default::default()
+                    ..default()
                 }),
             //
             // .set(LogPlugin {
