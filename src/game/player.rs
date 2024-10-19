@@ -1,8 +1,8 @@
 use super::asset::GameAssets;
 use super::bullet::add_bullet;
+use super::constant::*;
+use super::serialize::*;
 use super::states::GameState;
-use crate::game::constant::*;
-use crate::game::serialize::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;

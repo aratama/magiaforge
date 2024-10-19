@@ -1,3 +1,4 @@
+use super::constant::*;
 use super::{
     asset::GameAssets,
     audio::play_se,
@@ -6,7 +7,6 @@ use super::{
     set::GameSet,
     states::GameState,
 };
-use crate::game::constant::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

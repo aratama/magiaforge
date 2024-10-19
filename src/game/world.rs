@@ -84,7 +84,11 @@ fn setup_world(
                     }
 
                     // 天井
-                    if get_tile(level_image, x as i32, y as i32 - 1) == Tile::StoneTile {
+                    if get_tile(level_image, x as i32, y as i32 - 1) == Tile::StoneTile
+                        || get_tile(level_image, x as i32, y as i32 - 2) == Tile::StoneTile
+                        || get_tile(level_image, x as i32 - 1, y as i32) == Tile::StoneTile
+                        || get_tile(level_image, x as i32 + 1, y as i32) == Tile::StoneTile
+                    {
                         let tile_entity = commands
                             .spawn((
                                 Name::new("roof tile"),

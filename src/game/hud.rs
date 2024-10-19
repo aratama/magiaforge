@@ -1,5 +1,5 @@
+use super::player::*;
 use super::states::GameState;
-use crate::game::player::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 
 #[cfg(feature = "debug")]

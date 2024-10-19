@@ -1,5 +1,5 @@
+use super::player::*;
 use super::{serialize::PlayerData, set::GameSet, states::GameState};
-use crate::game::player::*;
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
 
