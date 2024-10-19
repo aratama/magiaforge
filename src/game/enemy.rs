@@ -9,7 +9,7 @@ pub struct Enemy {
     pub life: i32,
 }
 
-pub fn spawn_enemy(mut commands: Commands, aseprite: Handle<Aseprite>, position: Vec2) {
+pub fn spawn_enemy(commands: &mut Commands, aseprite: Handle<Aseprite>, position: Vec2) {
     commands.spawn((
         Name::new("enemy"),
         StateScoped(GameState::InGame),
@@ -31,11 +31,17 @@ pub fn spawn_enemy(mut commands: Commands, aseprite: Handle<Aseprite>, position:
     ));
 }
 
-fn setup_enemy(commands: Commands, assets: Res<GameAssets>) {
+fn setup_enemy(mut commands: Commands, assets: Res<GameAssets>) {
     spawn_enemy(
-        commands,
+        &mut commands,
         assets.slime.clone(),
         Vec2::new(TILE_SIZE * 8.0, TILE_SIZE * -10.0),
+    );
+
+    spawn_enemy(
+        &mut commands,
+        assets.slime.clone(),
+        Vec2::new(TILE_SIZE * 13.0, TILE_SIZE * -10.0),
     );
 }
 

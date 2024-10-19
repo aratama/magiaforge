@@ -17,5 +17,6 @@ mod player;
 mod serialize;
 mod set;
 mod states;
+mod tile;
 mod wall;
 mod world;

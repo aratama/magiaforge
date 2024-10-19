@@ -47,7 +47,14 @@ pub fn run_game() {
                     meta_check: AssetMetaCheck::Never,
                     ..default()
                 })
-                .set(ImagePlugin::default_nearest()),
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Magia Gene 0.1".to_string(),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
             //
             // .set(LogPlugin {
             //     level: Level::DEBUG,

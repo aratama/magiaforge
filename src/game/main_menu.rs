@@ -65,6 +65,7 @@ pub fn setup_main_menu(
         });
 
     commands.spawn((
+        Name::new("title image"),
         StateScoped(GameState::MainMenu),
         AsepriteAnimationBundle {
             aseprite: assets.title.clone(),

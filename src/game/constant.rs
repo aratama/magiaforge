@@ -1,7 +1,14 @@
 use super::states::GameState;
 use bevy_rapier2d::prelude::*;
 
+// タイルサイズは意味合いとしてゃ u32 ですが、f32 で扱うことが多いので f32 にしています
 pub const TILE_SIZE: f32 = 16.0;
+
+pub const FLOOR_LAYER_Z: f32 = 0.0;
+
+pub const ENTITY_LAYER_Z: f32 = 3.0;
+
+pub const ROOF_LAYER_Z: f32 = 6.0;
 
 pub const Z_ORDER_SCALE: f32 = 0.001;
 

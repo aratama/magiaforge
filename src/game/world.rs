@@ -1,128 +1,168 @@
 use super::asset::GameAssets;
-use super::constant::BULLET_GROUP;
-use super::constant::TILE_SIZE;
-use super::constant::WALL_GROUP;
-use super::constant::Z_ORDER_SCALE;
+use super::constant::*;
 use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
 use super::overlay::OverlayNextState;
 use super::states::GameState;
-use super::wall::get_tile;
-use super::wall::get_wall_collisions;
-use super::wall::Tile;
+use super::tile::*;
+use super::wall::*;
 use bevy::asset::*;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::Aseprite;
-use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
+use bevy_aseprite_ultra::prelude::*;
+use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 fn setup_world(
     mut commands: Commands,
-    level: Res<Assets<Aseprite>>,
+    level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
 ) {
-    let level_handle = assets.level.clone();
-    if let Some(level) = level.get(level_handle.id()) {
-        if let Some(img) = images.get(level.atlas_image.id()) {
-            for y in 0..img.height() {
-                for x in 0..img.width() {
-                    match get_tile(img, x as i32, y as i32) {
-                        Tile::Empty => {
-                            commands.spawn((
-                                StateScoped(GameState::InGame),
-                                AsepriteSliceBundle {
-                                    aseprite: assets.asset.clone(),
-                                    slice: "stone tile".into(),
-                                    transform: Transform::from_translation(Vec3::new(
-                                        x as f32 * TILE_SIZE,
-                                        y as f32 * -TILE_SIZE,
-                                        0.0,
-                                    )),
-                                    ..default()
-                                },
-                            ));
-                        }
-                        Tile::Wall => {
-                            let tx = x as f32 * TILE_SIZE;
-                            let ty = y as f32 * -TILE_SIZE;
-                            let tz = 3.0 + (-ty * Z_ORDER_SCALE);
+    let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
+    let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
 
-                            // 壁
-                            if get_tile(img, x as i32, y as i32 + 1) == Tile::Empty {
-                                commands.spawn((
-                                    StateScoped(GameState::InGame),
-                                    AsepriteSliceBundle {
-                                        aseprite: assets.asset.clone(),
-                                        slice: "stone wall".into(),
-                                        transform: Transform::from_translation(Vec3::new(
-                                            tx,
-                                            ty - 4.0,
-                                            tz,
-                                        )),
-                                        ..default()
-                                    },
-                                ));
-                            }
+    let asset_aseprite = level_aseprites.get(assets.asset.id()).unwrap();
+    let asset_image = images.get(asset_aseprite.atlas_image.id()).unwrap();
 
-                            // 天井
-                            if get_tile(img, x as i32, y as i32 - 1) == Tile::Empty {
-                                commands.spawn((
-                                    StateScoped(GameState::InGame),
-                                    AsepriteSliceBundle {
-                                        aseprite: assets.asset.clone(),
-                                        slice: "black".into(),
-                                        transform: Transform::from_translation(Vec3::new(
-                                            tx,
-                                            ty + 8.0,
-                                            tz + 1.0,
-                                        )),
-                                        ..default()
-                                    },
-                                ));
-                            }
-                        }
-                        Tile::BookShelf => {
-                            spawn_book_shelf(
-                                &mut commands,
-                                assets.asset.clone(),
-                                TILE_SIZE * x as f32,
-                                TILE_SIZE * -1.0 * y as f32,
-                            );
-                        }
-                        Tile::Chest => {
-                            spawn_chest(
-                                &mut commands,
-                                assets.asset.clone(),
-                                TILE_SIZE * x as f32,
-                                TILE_SIZE * -1.0 * y as f32,
-                            );
-                        }
-                        _ => {}
+    let stone_tile_slice_index =
+        slice_to_tile_texture_index(asset_aseprite, asset_image, "stone tile");
+
+    let map_size = TilemapSize {
+        x: level_image.width(),
+        y: level_image.height(),
+    };
+
+    let tilemap_entity = commands.spawn_empty().id();
+
+    let mut tile_storage = TileStorage::empty(map_size);
+
+    for y in 0..level_image.height() {
+        for x in 0..level_image.width() {
+            match get_tile(level_image, x as i32, y as i32) {
+                Tile::StoneTile => {
+                    // タイルマップの個々のタイルの生成
+                    let tile_pos = TilePos {
+                        x,
+                        y: map_size.y - y - 1,
+                    };
+                    let tile_entity = commands
+                        .spawn((
+                            Name::new("stone_tile"),
+                            TileBundle {
+                                position: tile_pos,
+                                tilemap_id: TilemapId(tilemap_entity),
+                                texture_index: stone_tile_slice_index,
+                                ..default()
+                            },
+                        ))
+                        .id();
+                    tile_storage.set(&tile_pos, tile_entity);
+                }
+                Tile::Wall => {
+                    let tx = x as f32 * TILE_SIZE;
+                    let ty = y as f32 * -TILE_SIZE;
+                    let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
+
+                    // 壁
+                    if get_tile(level_image, x as i32, y as i32 + 1) == Tile::StoneTile {
+                        commands.spawn((
+                            Name::new("wall"),
+                            StateScoped(GameState::InGame),
+                            AsepriteSliceBundle {
+                                aseprite: assets.asset.clone(),
+                                slice: "stone wall".into(),
+                                transform: Transform::from_translation(Vec3::new(tx, ty - 4.0, tz)),
+                                ..default()
+                            },
+                        ));
+                    }
+
+                    // 天井
+                    if get_tile(level_image, x as i32, y as i32 - 1) == Tile::StoneTile {
+                        commands.spawn((
+                            Name::new("roof"),
+                            StateScoped(GameState::InGame),
+                            AsepriteSliceBundle {
+                                aseprite: assets.asset.clone(),
+                                slice: "black".into(),
+                                transform: Transform::from_translation(Vec3::new(
+                                    tx,
+                                    ty + 8.0,
+                                    ROOF_LAYER_Z,
+                                )),
+                                ..default()
+                            },
+                        ));
                     }
                 }
-            }
-
-            for rect in get_wall_collisions(&img) {
-                let w = 8.0 * (rect.width() + 1.0);
-                let h = 8.0 * (rect.height() + 1.0);
-                let x = rect.min.x as f32 * TILE_SIZE + w - 8.0;
-                let y = rect.min.y as f32 * -TILE_SIZE - h + 8.0;
-                commands.spawn((
-                    StateScoped(GameState::InGame),
-                    Transform::from_translation(Vec3::new(x, y, 0.0)),
-                    GlobalTransform::default(),
-                    // todo: merge colliders
-                    Collider::cuboid(w, h),
-                    RigidBody::Fixed,
-                    Friction::new(1.0),
-                    CollisionGroups::new(WALL_GROUP, BULLET_GROUP),
-                ));
+                Tile::BookShelf => {
+                    spawn_book_shelf(
+                        &mut commands,
+                        assets.asset.clone(),
+                        TILE_SIZE * x as f32,
+                        TILE_SIZE * -1.0 * y as f32,
+                    );
+                }
+                Tile::Chest => {
+                    spawn_chest(
+                        &mut commands,
+                        assets.asset.clone(),
+                        TILE_SIZE * x as f32,
+                        TILE_SIZE * -1.0 * y as f32,
+                    );
+                }
+                _ => {}
             }
         }
-    } else {
-        println!("level not found");
+    }
+
+    // タイルマップ本体の生成
+    let tile_size = TilemapTileSize {
+        x: TILE_SIZE,
+        y: TILE_SIZE,
+    };
+    let grid_size = tile_size.into();
+    let map_type = TilemapType::default();
+    commands.entity(tilemap_entity).insert((
+        Name::new("tilemap"),
+        StateScoped(GameState::InGame),
+        TilemapBundle {
+            grid_size,
+            map_type,
+            size: map_size,
+            storage: tile_storage,
+            texture: TilemapTexture::Single(asset_aseprite.atlas_image.clone()),
+            tile_size,
+            // transformを計算するのにはget_tilemap_center_transform という関数もありますが、
+            // それだとそこにタイルマップの中心が来てしまうことに注意します
+            // Asepriteの座標系とはYが反転していることもあり、ここでは自力でTransformを計算しています
+            transform: Transform::from_translation(Vec3::new(
+                0.0,
+                -TILE_SIZE * (map_size.y - 1) as f32,
+                FLOOR_LAYER_Z,
+            )),
+            ..default()
+        },
+    ));
+
+    // 衝突形状の生成
+    for rect in get_wall_collisions(&level_image) {
+        let w = 8.0 * (rect.width() + 1.0);
+        let h = 8.0 * (rect.height() + 1.0);
+        let x = rect.min.x as f32 * TILE_SIZE + w - 8.0;
+        let y = rect.min.y as f32 * -TILE_SIZE - h + 8.0;
+        commands.spawn((
+            Name::new("wall collider"),
+            StateScoped(GameState::InGame),
+            Transform::from_translation(Vec3::new(x, y, 0.0)),
+            GlobalTransform::default(),
+            // todo: merge colliders
+            Collider::cuboid(w, h),
+            RigidBody::Fixed,
+            Friction::new(1.0),
+            CollisionGroups::new(WALL_GROUP, BULLET_GROUP),
+        ));
     }
 }
 
@@ -145,4 +185,19 @@ impl Plugin for WorldPlugin {
             update_world.run_if(in_state(GameState::InGame)),
         );
     }
+}
+
+/// スライス名からタイルマップのインデックスを計算します
+fn slice_to_tile_texture_index(
+    asset_aseprite: &Aseprite,
+    asset_atlas: &Image,
+    slice: &str,
+) -> TileTextureIndex {
+    let asset_tile_size = asset_atlas.width() / TILE_SIZE as u32;
+    let stone_tile_slice = asset_aseprite.slices.get(slice).unwrap();
+    let stone_tile_slice_index = TileTextureIndex(
+        asset_tile_size * (stone_tile_slice.rect.min.y / TILE_SIZE) as u32
+            + (stone_tile_slice.rect.min.x / TILE_SIZE) as u32,
+    );
+    return stone_tile_slice_index;
 }
