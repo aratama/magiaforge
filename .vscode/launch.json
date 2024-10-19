@@ -9,7 +9,12 @@
       "request": "launch",
       "name": "Debug executable 'my_bevy_game'",
       "cargo": {
-        "args": ["build", "--bin=my_bevy_game", "--package=my_bevy_game"],
+        "args": [
+          "build",
+          "--bin=my_bevy_game",
+          "--package=my_bevy_game",
+          "--features=debug"
+        ],
         "filter": {
           "name": "my_bevy_game",
           "kind": "bin"

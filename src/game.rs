@@ -11,6 +11,7 @@ mod enemy;
 mod entity;
 pub mod game;
 mod hud;
+mod life_bar;
 mod main_menu;
 mod overlay;
 mod player;
