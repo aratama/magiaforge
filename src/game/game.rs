@@ -7,20 +7,30 @@ use super::constant::INITIAL_STATE;
 use super::embedded::EmbeddedAssetPlugin;
 use super::enemy::EnemyPlugin;
 use super::hud::*;
+use super::main_menu::*;
 use super::overlay::*;
 use super::player::*;
 use super::serialize::*;
-use super::start::*;
 use super::states::*;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
+#[cfg(feature = "debug")]
+use bevy::diagnostic::EntityCountDiagnosticsPlugin;
+#[cfg(feature = "debug")]
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+#[cfg(feature = "debug")]
+use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+#[cfg(feature = "debug")]
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
+#[cfg(feature = "debug")]
+use iyes_perf_ui::PerfUiPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -82,6 +92,7 @@ pub fn run_game() {
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
         .init_state::<GameState>()
+        .add_sub_state::<MainMenuPhase>()
         .add_loading_state(
             LoadingState::new(GameState::Setup)
                 .continue_to_state(INITIAL_STATE)

@@ -11,27 +11,24 @@ pub struct GameAssets {
     #[asset(path = "level.aseprite")]
     pub level: Handle<Aseprite>,
 
-    #[asset(path = "tile.png")]
-    pub tile: Handle<Image>,
-
-    #[asset(path = "player.aseprite")]
+    #[asset(path = "entity/player.aseprite")]
     pub player: Handle<Aseprite>,
 
-    #[asset(path = "slime.aseprite")]
+    #[asset(path = "entity/slime.aseprite")]
     pub slime: Handle<Aseprite>,
 
-    #[asset(path = "dageki.ogg")]
+    #[asset(path = "title.aseprite")]
+    pub title: Handle<Aseprite>,
+
+    #[asset(path = "audio/dageki.ogg")]
     pub dageki: Handle<AudioSource>,
 
-    #[asset(path = "shibafu.ogg")]
+    #[asset(path = "audio/shibafu.ogg")]
     pub shibafu: Handle<AudioSource>,
 
-    #[asset(path = "hiyoko.ogg")]
+    #[asset(path = "audio/hiyoko.ogg")]
     pub hiyoko: Handle<AudioSource>,
 
-    #[asset(path = "title.png")]
-    pub title: Handle<Image>,
-
-    #[asset(path = "They.ogg")]
+    #[asset(path = "audio/They.ogg")]
     pub they: Handle<AudioSource>,
 }

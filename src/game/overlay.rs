@@ -1,12 +1,11 @@
+use super::states::GameState;
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct Overlay {
-    pub enabled: bool,
-}
+struct Overlay;
 
-#[derive(Event)]
-pub struct OverlayClosedEvent;
+#[derive(Resource, Clone, PartialEq, Eq, Debug)]
+pub struct OverlayNextState(pub Option<GameState>);
 
 fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
@@ -15,7 +14,7 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
 
     commands.spawn((
         Name::new("overlay"),
-        Overlay { enabled: true },
+        Overlay,
         NodeBundle {
             style: Style {
                 width: Val::Px(width),
@@ -30,24 +29,18 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
 }
 
 fn update_overlay(
-    mut query: Query<(&mut Overlay, &mut BackgroundColor)>,
-    keys: Res<ButtonInput<KeyCode>>,
-    mut event_writer: EventWriter<OverlayClosedEvent>,
+    mut query: Query<&mut BackgroundColor, With<Overlay>>,
+    mut state: ResMut<NextState<GameState>>,
+    mut overlay_next_state: ResMut<OverlayNextState>,
 ) {
-    if keys.just_pressed(KeyCode::Space) {
-        for (mut overlay, _) in query.iter_mut() {
-            overlay.enabled = !overlay.enabled;
-        }
-    }
-
-    let (overlay, mut background) = query.single_mut();
+    let mut background = query.single_mut();
     let a = background.0.alpha();
     let speed = 0.005;
 
-    let updated = (1.0_f32).min((0.0_f32).max(if overlay.enabled {
-        a - speed
-    } else {
-        a + speed
+    let next = overlay_next_state.0.clone();
+    let updated = (1.0_f32).min((0.0_f32).max(match next {
+        Option::None => a - speed,
+        _ => a + speed,
     }));
 
     let current = background.0.alpha();
@@ -55,7 +48,13 @@ fn update_overlay(
     background.0.set_alpha(updated);
 
     if current < 1.0 && updated == 1.0 {
-        event_writer.send(OverlayClosedEvent);
+        match next {
+            Option::Some(next_state) => {
+                state.set(next_state);
+                *overlay_next_state = OverlayNextState(Option::None);
+            }
+            _ => {}
+        }
     }
 }
 
@@ -65,6 +64,6 @@ impl Plugin for OverlayPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_overlay);
         app.add_systems(Update, update_overlay);
-        app.add_event::<OverlayClosedEvent>();
+        app.insert_resource::<OverlayNextState>(OverlayNextState(Option::None));
     }
 }

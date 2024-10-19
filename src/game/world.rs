@@ -6,6 +6,7 @@ use super::constant::Z_ORDER_SCALE;
 use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
+use super::overlay::OverlayNextState;
 use super::states::GameState;
 use super::wall::get_tile;
 use super::wall::get_wall_collisions;
@@ -13,6 +14,7 @@ use super::wall::Tile;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
+use bevy_aseprite_ultra::prelude::AsepriteSliceBundle;
 use bevy_rapier2d::prelude::*;
 
 fn setup_world(
@@ -30,19 +32,15 @@ fn setup_world(
                         Tile::Empty => {
                             commands.spawn((
                                 StateScoped(GameState::InGame),
-                                SpriteBundle {
-                                    texture: assets.tile.clone(),
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
-                                        rect: Some(Rect::new(0.0, 0.0, TILE_SIZE, TILE_SIZE)),
-                                        ..Default::default()
-                                    },
+                                AsepriteSliceBundle {
+                                    aseprite: assets.asset.clone(),
+                                    slice: "stone tile".into(),
                                     transform: Transform::from_translation(Vec3::new(
                                         x as f32 * TILE_SIZE,
                                         y as f32 * -TILE_SIZE,
                                         0.0,
                                     )),
-                                    ..Default::default()
+                                    ..default()
                                 },
                             ));
                         }
@@ -55,24 +53,15 @@ fn setup_world(
                             if get_tile(img, x as i32, y as i32 + 1) == Tile::Empty {
                                 commands.spawn((
                                     StateScoped(GameState::InGame),
-                                    SpriteBundle {
-                                        texture: assets.tile.clone(),
-                                        sprite: Sprite {
-                                            custom_size: Some(Vec2::new(TILE_SIZE, 8.0)),
-                                            rect: Some(Rect::new(
-                                                TILE_SIZE * 3.0,
-                                                TILE_SIZE * 0.0,
-                                                TILE_SIZE * 4.0,
-                                                TILE_SIZE * 0.5,
-                                            )),
-                                            ..Default::default()
-                                        },
+                                    AsepriteSliceBundle {
+                                        aseprite: assets.asset.clone(),
+                                        slice: "stone wall".into(),
                                         transform: Transform::from_translation(Vec3::new(
                                             tx,
                                             ty - 4.0,
                                             tz,
                                         )),
-                                        ..Default::default()
+                                        ..default()
                                     },
                                 ));
                             }
@@ -81,24 +70,15 @@ fn setup_world(
                             if get_tile(img, x as i32, y as i32 - 1) == Tile::Empty {
                                 commands.spawn((
                                     StateScoped(GameState::InGame),
-                                    SpriteBundle {
-                                        texture: assets.tile.clone(),
-                                        sprite: Sprite {
-                                            custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
-                                            rect: Some(Rect::new(
-                                                TILE_SIZE * 1.0,
-                                                TILE_SIZE * 3.0,
-                                                TILE_SIZE * 2.0,
-                                                TILE_SIZE * 4.0,
-                                            )),
-                                            ..Default::default()
-                                        },
+                                    AsepriteSliceBundle {
+                                        aseprite: assets.asset.clone(),
+                                        slice: "black".into(),
                                         transform: Transform::from_translation(Vec3::new(
                                             tx,
                                             ty + 8.0,
                                             tz + 1.0,
                                         )),
-                                        ..Default::default()
+                                        ..default()
                                     },
                                 ));
                             }
@@ -148,10 +128,10 @@ fn setup_world(
 
 fn update_world(
     enemy_query: Query<&enemy::Enemy>,
-    mut next_game_state: ResMut<NextState<GameState>>,
+    mut overlay_next_state: ResMut<OverlayNextState>,
 ) {
     if enemy_query.is_empty() {
-        next_game_state.set(GameState::MainMenu);
+        *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
     }
 }
 

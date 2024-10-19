@@ -1,23 +1,38 @@
 use super::states::GameState;
 use crate::game::player::*;
 use bevy::{prelude::*, window::PrimaryWindow};
+
+#[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
 
 #[derive(Component)]
 pub struct HUD;
 
 fn setup_hud(mut commands: Commands) {
+    #[cfg(feature = "debug")]
+    let visibility = Visibility::Visible;
+
+    #[cfg(not(feature = "debug"))]
+    let visibility = Visibility::Hidden;
+
     commands.spawn((
         Name::new("hud"),
         StateScoped(GameState::InGame),
-        TextBundle::from_section("Test", TextStyle::default()).with_style(Style {
-            position_type: PositionType::Absolute,
-            top: Val::Px(12.0),
-            left: Val::Px(12.0),
+        TextBundle {
+            text: Text::from_section("Test", TextStyle::default()),
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(12.0),
+                left: Val::Px(12.0),
+                ..default()
+            },
+            visibility,
             ..default()
-        }),
+        },
         HUD,
     ));
+
+    #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());
 }
 

@@ -10,7 +10,7 @@ pub struct CameraScaleFactor(f32);
 static BLIGHTNESS_IN_GAME: f32 = 1.0;
 
 #[cfg(not(feature = "debug"))]
-static BLIGHTNESS_IN_GAME: f32 = 0.05;
+static BLIGHTNESS_IN_GAME: f32 = 0.1;
 
 pub fn setup_camera(mut commands: Commands) {
     // println!("setup_camera");
@@ -82,7 +82,7 @@ fn update_camera_brightness(
     if let Ok(mut light) = camera_query.get_single_mut() {
         light.brightness = match state.get() {
             GameState::InGame => BLIGHTNESS_IN_GAME,
-            _ => 0.0,
+            _ => 1.0,
         };
     }
 }
@@ -99,11 +99,6 @@ impl Plugin for CameraPlugin {
                 .in_set(GameSet),
         );
 
-        app.add_systems(
-            FixedUpdate,
-            update_camera_brightness
-                .run_if(in_state(GameState::InGame))
-                .in_set(GameSet),
-        );
+        app.add_systems(FixedUpdate, update_camera_brightness);
     }
 }

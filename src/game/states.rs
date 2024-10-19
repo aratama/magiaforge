@@ -15,3 +15,11 @@ pub enum GameState {
 
     InGame,
 }
+
+#[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+#[source(GameState = GameState::MainMenu)]
+pub enum MainMenuPhase {
+    #[default]
+    Active,
+    Paused,
+}
