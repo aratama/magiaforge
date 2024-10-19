@@ -1,4 +1,4 @@
-use super::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
+use super::{asset::GameAssets, audio::play_se, player::Player, set::GameSet, states::GameState};
 use crate::game::constant::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -8,6 +8,10 @@ use bevy_rapier2d::prelude::*;
 pub struct Enemy {
     pub life: i32,
 }
+
+static ENEMY_MOVE_FORCE: f32 = 50000.0;
+
+static ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 5.0;
 
 pub fn spawn_enemy(commands: &mut Commands, aseprite: Handle<Aseprite>, position: Vec2) {
     commands.spawn((
@@ -28,6 +32,8 @@ pub fn spawn_enemy(commands: &mut Commands, aseprite: Handle<Aseprite>, position
             linear_damping: 6.0,
             angular_damping: 1.0,
         },
+        ExternalForce::default(),
+        ExternalImpulse::default(),
     ));
 }
 
@@ -48,11 +54,24 @@ fn setup_enemy(mut commands: Commands, assets: Res<GameAssets>) {
 pub fn update_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut query: Query<(Entity, &Enemy), Without<Camera2d>>,
+    mut query: Query<(Entity, &Enemy, &mut ExternalForce, &GlobalTransform), Without<Camera2d>>,
+    player_query: Query<&GlobalTransform, With<Player>>,
 ) {
-    for (entity, enemy) in query.iter_mut() {
-        commands.entity(entity).remove::<ExternalForce>();
-        commands.entity(entity).remove::<ExternalImpulse>();
+    let player = player_query.get_single();
+
+    for (entity, enemy, mut force, enemy_transform) in query.iter_mut() {
+        // 1マス以上5マス以内にプレイヤーがいたら追いかける
+        if let Ok(player_transform) = player {
+            let diff = player_transform.translation() - enemy_transform.translation();
+            if TILE_SIZE < diff.length() && diff.length() < ENEMY_DETECTION_RANGE {
+                let direction = diff.normalize_or_zero();
+                force.force = direction.truncate() * ENEMY_MOVE_FORCE;
+            } else {
+                force.force = Vec2::ZERO;
+            }
+        }
+
+        // ライフが0以下になったら消滅
         if enemy.life <= 0 {
             commands.entity(entity).despawn();
             play_se(&mut commands, assets.hiyoko.clone());

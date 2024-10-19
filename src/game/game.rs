@@ -4,6 +4,7 @@ use super::bullet::BulletPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
 use super::constant::INITIAL_STATE;
+use super::constant::PIXELS_PER_METER;
 use super::embedded::EmbeddedAssetPlugin;
 use super::enemy::EnemyPlugin;
 use super::hud::*;
@@ -63,7 +64,9 @@ pub fn run_game() {
         )
         .add_plugins(EmbeddedAssetPlugin)
         .add_plugins(TilemapPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
+            PIXELS_PER_METER,
+        ))
         .add_plugins(BevySprityPlugin)
         .add_plugins(ParticleSystemPlugin)
         .add_plugins(Light2dPlugin)

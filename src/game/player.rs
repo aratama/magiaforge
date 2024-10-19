@@ -65,12 +65,9 @@ fn update_player(
         (&Camera, &mut Transform, &GlobalTransform),
         (With<Camera2d>, Without<Player>),
     >,
-
     q_window: Query<&Window, With<PrimaryWindow>>,
-
     commands: Commands,
     assets: Res<GameAssets>,
-
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
     let speed = 2.0;

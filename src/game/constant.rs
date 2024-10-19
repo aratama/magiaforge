@@ -31,3 +31,7 @@ pub const INITIAL_STATE: GameState = GameState::InGame;
 pub const WALL_GROUP: Group = Group::GROUP_1;
 
 pub const BULLET_GROUP: Group = Group::GROUP_2;
+
+/// rapier の pixels_per_meter に設定する値
+/// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
+pub const PIXELS_PER_METER: f32 = 16.0;

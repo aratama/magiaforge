@@ -16,6 +16,8 @@ const SLICE_NAME: &str = "bullet";
 
 static BULLET_Z: f32 = 10.0;
 
+static BULLET_IMPULSE: f32 = 20000.0;
+
 #[derive(Component, Reflect)]
 pub struct Bullet {
     life: u32,
@@ -75,7 +77,7 @@ pub fn update_bullet(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut collision_events: EventReader<CollisionEvent>,
-    mut enemies: Query<(Entity, &mut Enemy)>,
+    mut enemies: Query<(&mut Enemy, &mut ExternalImpulse)>,
     assets: Res<GameAssets>,
 ) {
     for (entity, mut bullet, _, _) in query.iter_mut() {
@@ -130,17 +132,15 @@ fn process_bullet_event(
     bullet_entity: &Entity,
     bullet_transform: &Transform,
     bullet_velocity: &Velocity,
-    enemy: Result<(Entity, Mut<'_, Enemy>), QueryEntityError>,
+    enemy: Result<(Mut<'_, Enemy>, Mut<'_, ExternalImpulse>), QueryEntityError>,
 ) {
     commands.entity(*bullet_entity).despawn();
     spawn_particle_system(&mut commands, bullet_transform.translation.truncate());
 
-    if let Ok((enemy_entity, mut enemy)) = enemy {
+    if let Ok((mut enemy, mut impilse)) = enemy {
         enemy.life -= 1;
-        commands.entity(enemy_entity).insert(ExternalForce {
-            force: bullet_velocity.linvel.normalize_or_zero() * 10000.0,
-            torque: 0.0,
-        });
+        impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * BULLET_IMPULSE;
+
         play_se(&mut commands, assets.dageki.clone());
     } else {
         play_se(&mut commands, assets.shibafu.clone());
