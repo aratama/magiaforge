@@ -1,5 +1,6 @@
 use super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::enemy::Enemy;
+use super::entity::book_shelf::BookShelf;
 use super::states::GameState;
 use super::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
@@ -84,6 +85,7 @@ pub fn update_bullet(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut enemy_query: Query<(&mut Enemy, &mut ExternalImpulse)>,
+    mut bookshelf_query: Query<&mut BookShelf>,
     assets: Res<GameAssets>,
     mut collision_events: EventReader<CollisionEvent>,
 ) {
@@ -105,6 +107,7 @@ pub fn update_bullet(
                     &assets,
                     &mut bullet_query,
                     &mut enemy_query,
+                    &mut bookshelf_query,
                     &mut despownings,
                     &a,
                     &b,
@@ -114,6 +117,7 @@ pub fn update_bullet(
                         &assets,
                         &mut bullet_query,
                         &mut enemy_query,
+                        &mut bookshelf_query,
                         &mut despownings,
                         &b,
                         &a,
@@ -130,6 +134,7 @@ fn process_bullet_event(
     assets: &Res<GameAssets>,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     enemies: &mut Query<(&mut Enemy, &mut ExternalImpulse)>,
+    bookshelf_query: &mut Query<&mut BookShelf>,
     respownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
@@ -138,6 +143,7 @@ fn process_bullet_event(
         // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
         // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
         // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
+        // https://github.com/bevyengine/bevy/issues/5617
         if !respownings.contains(&bullet_entity) {
             respownings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn();
@@ -147,8 +153,15 @@ fn process_bullet_event(
                 enemy.life -= bullet.damage;
                 impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
                 play_se(&mut commands, assets.dageki.clone());
+            } else if let Ok(mut bookshelf) = bookshelf_query.get_mut(*b) {
+                // 弾丸が本棚に衝突したとき
+                // TODO: この調子で破壊可能オブジェクトを増やすと、システムの引数やifの分岐が増えてしまう
+                // Breakableコンポーネントにしてまとめる？
+                // でも破壊したときの効果が物体によって異なるのでまとめられない？
+                bookshelf.life -= bullet.damage;
+                play_se(&mut commands, assets.dageki.clone());
             } else {
-                // 弾丸が衝突したのが敵以外の壁などのとき
+                // 弾丸が衝突したのが壁などの破壊不能エンティティのとき
                 play_se(&mut commands, assets.shibafu.clone());
             }
             true

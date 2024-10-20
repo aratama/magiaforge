@@ -52,18 +52,15 @@ fn setup_world(
             match get_tile(level_image, x as i32, y as i32) {
                 Tile::StoneTile => {
                     // タイルマップの個々のタイルの生成
-                    let tile_entity = commands
-                        .spawn((
-                            Name::new("stone_tile"),
-                            TileBundle {
-                                position: tile_pos,
-                                tilemap_id: TilemapId(floor_layer_entity),
-                                texture_index: stone_tile_slice_index,
-                                ..default()
-                            },
-                        ))
-                        .id();
-                    floor_layer_storage.set(&tile_pos, tile_entity);
+                    floor_layer_storage.set(
+                        &tile_pos,
+                        spawn_floor_tile(
+                            &mut commands,
+                            tile_pos,
+                            TilemapId(floor_layer_entity),
+                            stone_tile_slice_index,
+                        ),
+                    );
                 }
                 Tile::Wall => {
                     let tx = x as f32 * TILE_SIZE;
@@ -71,7 +68,7 @@ fn setup_world(
                     let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
 
                     // 壁
-                    if get_tile(level_image, x as i32, y as i32 + 1) == Tile::StoneTile {
+                    if get_tile(level_image, x as i32, y as i32 + 1) != Tile::Wall {
                         commands.spawn((
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
@@ -105,6 +102,15 @@ fn setup_world(
                     }
                 }
                 Tile::BookShelf => {
+                    floor_layer_storage.set(
+                        &tile_pos,
+                        spawn_floor_tile(
+                            &mut commands,
+                            tile_pos,
+                            TilemapId(floor_layer_entity),
+                            stone_tile_slice_index,
+                        ),
+                    );
                     spawn_book_shelf(
                         &mut commands,
                         assets.asset.clone(),
@@ -113,6 +119,15 @@ fn setup_world(
                     );
                 }
                 Tile::Chest => {
+                    floor_layer_storage.set(
+                        &tile_pos,
+                        spawn_floor_tile(
+                            &mut commands,
+                            tile_pos,
+                            TilemapId(floor_layer_entity),
+                            stone_tile_slice_index,
+                        ),
+                    );
                     spawn_chest(
                         &mut commands,
                         assets.asset.clone(),
@@ -193,6 +208,25 @@ fn setup_world(
             CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
         ));
     }
+}
+
+fn spawn_floor_tile(
+    commands: &mut Commands,
+    tile_pos: TilePos,
+    tilemap_id: TilemapId,
+    texture_index: TileTextureIndex,
+) -> Entity {
+    commands
+        .spawn((
+            Name::new("stone_tile"),
+            TileBundle {
+                position: tile_pos,
+                tilemap_id,
+                texture_index,
+                ..default()
+            },
+        ))
+        .id()
 }
 
 fn update_world(

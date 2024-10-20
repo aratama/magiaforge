@@ -49,3 +49,4 @@ https://aratama.github.io/bevy-wasm-example/ (**Desktop Chrome only** for now)
 - ひよこの鳴き声 https://soundeffect-lab.info/sound/animal/
 - 打撃 1 https://soundeffect-lab.info/sound/battle/
 - They https://dova-s.jp/bgm/play21009.html#google_vignette
+- 建物が少し崩れる 1 https://soundeffect-lab.info/sound/battle/

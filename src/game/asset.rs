@@ -31,7 +31,10 @@ pub struct GameAssets {
     #[asset(path = "audio/hiyoko.ogg")]
     pub hiyoko: Handle<AudioSource>,
 
-    #[asset(path = "audio/They.ogg")]
+    #[asset(path = "audio/kuzureru.ogg")]
+    pub kuzureru: Handle<AudioSource>,
+
+    #[asset(path = "bgm/They.ogg")]
     pub they: Handle<AudioSource>,
 }
 

@@ -1,3 +1,5 @@
+use crate::game::{asset::GameAssets, audio::play_se};
+
 use super::super::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -16,8 +18,10 @@ static ENTITY_HEIGHT: f32 = 8.0;
 static COLLIDER: LazyLock<Collider> =
     LazyLock::new(|| Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT));
 
-#[derive(Default, Component)]
-struct BookShelf;
+#[derive(Default, Component, Reflect)]
+pub struct BookShelf {
+    pub life: i32,
+}
 
 pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
     let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
@@ -26,7 +30,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
     commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        BookShelf,
+        BookShelf { life: 8 },
         AsepriteSliceBundle {
             slice: SLICE_NAME.into(),
             aseprite: aseprite,
@@ -46,4 +50,30 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         COLLIDER.clone(),
         CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
     ));
+}
+
+fn update_book_shelf(
+    mut commands: Commands,
+    query: Query<(Entity, &BookShelf)>,
+    assets: Res<GameAssets>,
+) {
+    for (entity, book_shelf) in query.iter() {
+        if book_shelf.life <= 0 {
+            commands.entity(entity).despawn();
+            play_se(&mut commands, assets.kuzureru.clone());
+        }
+    }
+}
+
+pub struct BookshelfPlugin;
+
+impl Plugin for BookshelfPlugin {
+    fn build(&self, app: &mut App) {
+        // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
+        app.add_systems(
+            FixedUpdate,
+            update_book_shelf.run_if(in_state(GameState::InGame)),
+        );
+        app.register_type::<BookShelf>();
+    }
 }

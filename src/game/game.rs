@@ -7,6 +7,7 @@ use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
 use super::embedded::EmbeddedAssetPlugin;
 use super::enemy::EnemyPlugin;
+use super::entity::book_shelf::BookshelfPlugin;
 use super::hud::*;
 use super::life_bar::LifeBarPlugin;
 use super::main_menu::*;
@@ -100,6 +101,7 @@ pub fn run_game() {
         .add_plugins(StartPagePlugin)
         .add_plugins(BGMPlugin)
         .add_plugins(LifeBarPlugin)
+        .add_plugins(BookshelfPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています

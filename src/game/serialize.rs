@@ -9,8 +9,8 @@ use std::time::Duration;
 
 // use https://github.com/Zeenobit/moonshine_save?
 
-#[cfg(target_arch = "wasm32")]
-const PLAYER_DATA_KEY: &str = "data";
+// #[cfg(target_arch = "wasm32")]
+// const PLAYER_DATA_KEY: &str = "data";
 
 #[derive(Serialize, Deserialize, Clone, Resource)]
 pub struct PlayerData {
@@ -27,32 +27,32 @@ impl Default for PlayerData {
     }
 }
 
-#[cfg(target_arch = "wasm32")]
-pub fn save_player(data: &PlayerData) {
-    let win = web_sys::window().unwrap();
-    let local_storage = win.local_storage().unwrap().unwrap();
-    if let Ok(str) = serde_json::to_string(data) {
-        local_storage.set_item(PLAYER_DATA_KEY, &str).unwrap();
-    }
-}
+// #[cfg(target_arch = "wasm32")]
+// pub fn save_player(data: &PlayerData) {
+//     let win = web_sys::window().unwrap();
+//     let local_storage = win.local_storage().unwrap().unwrap();
+//     if let Ok(str) = serde_json::to_string(data) {
+//         local_storage.set_item(PLAYER_DATA_KEY, &str).unwrap();
+//     }
+// }
 
-#[cfg(not(target_arch = "wasm32"))]
+// #[cfg(not(target_arch = "wasm32"))]
 pub fn save_player(_data: &PlayerData) {
     // todo
 }
 
-#[cfg(target_arch = "wasm32")]
-pub fn restore_player() -> PlayerData {
-    let win = web_sys::window().unwrap();
-    let local_storage = win.local_storage().unwrap().unwrap();
-    if let Ok(Some(str)) = local_storage.get_item(PLAYER_DATA_KEY) {
-        serde_json::from_str::<PlayerData>(&str).unwrap_or_default()
-    } else {
-        default()
-    }
-}
+// #[cfg(target_arch = "wasm32")]
+// pub fn restore_player() -> PlayerData {
+//     let win = web_sys::window().unwrap();
+//     let local_storage = win.local_storage().unwrap().unwrap();
+//     if let Ok(Some(str)) = local_storage.get_item(PLAYER_DATA_KEY) {
+//         serde_json::from_str::<PlayerData>(&str).unwrap_or_default()
+//     } else {
+//         default()
+//     }
+// }
 
-#[cfg(not(target_arch = "wasm32"))]
+// #[cfg(not(target_arch = "wasm32"))]
 pub fn restore_player() -> PlayerData {
     // todo
     default()
