@@ -20,5 +20,4 @@ mod set;
 mod states;
 mod tile;
 mod wall;
-mod websocket;
 mod world;

@@ -15,8 +15,6 @@ use super::overlay::*;
 use super::player::*;
 use super::serialize::*;
 use super::states::*;
-#[cfg(target_arch = "wasm32")]
-use super::websocket::send_to_server;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 #[cfg(feature = "debug")]
@@ -39,21 +37,7 @@ use bevy_rapier2d::prelude::*;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::PerfUiPlugin;
 
-#[cfg(target_arch = "wasm32")]
-use web_sys::console;
-
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::JsValue;
-
 pub fn run_game() {
-    #[cfg(target_arch = "wasm32")]
-    if let Err(err) = send_to_server() {
-        console::log_1(&JsValue::from_str("Failed to send message to server"));
-        // console::log_1(
-        //     &JsValue::from_str(&err.as_string().unwrap_or("".to_string())),
-        // );
-    }
-
     let mut app = App::new();
 
     app
@@ -145,11 +129,6 @@ pub fn run_game() {
         // stateを変更したときに自動的にエンティティを削除できます
         // https://bevyengine.org/news/bevy-0-14/#state-scoped-entities
         .enable_state_scoped_entities::<GameState>();
-
-    // bevy_light_2d のプラグインはwasm32向けには対応していません
-    // https://github.com/jgayfer/bevy_light_2d/issues/5
-    // https://github.com/jgayfer/bevy_light_2d/issues/6
-    // https://github.com/jgayfer/bevy_light_2d/pull/7
 
     //
     // 以下はデバッグ用のプラグインなど

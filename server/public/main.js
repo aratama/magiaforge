@@ -1,7 +1,7 @@
 'use strict';
 
 (function() {
-    const socket = new WebSocket("ws://localhost:3000");
+    const socket = new WebSocket("https://magia-server-38847751193.asia-northeast1.run.app");
 
     socket.onopen = () => {
         console.log('Connected to server');
@@ -10,8 +10,6 @@
     };
     
     socket.onmessage = (event) => {
-        console.log('Message from server', event.data);
-
-        socket.send(event.data.toUppserCase());
+        console.log('Message from server: ', event.data);
     };
 })();

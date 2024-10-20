@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-std = "1.13.0"
 bevy-inspector-egui = "0.27.0"
 bevy_aseprite_ultra = "0.2.4"
 bevy_asset_loader = "0.21.0"
+bevy_async_task = "0.2.0"
 bevy_ecs_tilemap = "0.14.0"
 bevy_light_2d = "0.4.0"
 bevy_particle_systems = "0.13.0"
@@ -60,14 +62,7 @@ features = [
 
 [dependencies.web-sys]
 version = "0.3.70"
-features = [
-    "console",
-    "Window",
-    "Storage",
-    "WebSocket",
-    "MessageEvent",
-    "ErrorEvent",
-]
+features = ["console", "Window", "Storage"]
 
 [dependencies.bevy_rapier2d]
 version = "0.27.0"

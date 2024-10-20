@@ -15,14 +15,14 @@ server.on('connection', (ws, req) => {
   });
 
   ws.on('message', (message, isBinary) => {
-    console.log('received: %s', message);
+    // console.log('received: %s', message);
     
-    const data = message.toString().toUpperCase();
+    // const data = message.toString();
     // ws.send(`Hello, you sent -> ${message.toString().toUpperCase()}`);
 
     server.clients.forEach(function each(client) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(data, { binary: isBinary });
+        client.send(message, { binary: isBinary });
       }
     });
   });

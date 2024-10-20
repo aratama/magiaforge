@@ -9,7 +9,7 @@
     },
     "scripts": {
         "start": "node index",
-        "deploy": "gcloud run deploy magia-server --project=magia --source ."
+        "deploy": "gcloud run deploy magia-server --project=magia-439208 --region=asia-northeast1 --allow-unauthenticated --max-instances=1 --timeout=60m --source ."
     },
     "author": "Damien Arrachequesne",
     "license": "MIT"

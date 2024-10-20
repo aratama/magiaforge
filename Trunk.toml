@@ -1,6 +1,7 @@
 # https://trunkrs.dev/configuration/
 [build]
 release = true
+minify = "always"
 public_url = "./"
 dist = "docs"
-minify = "always"
+wasm_opt = 0
