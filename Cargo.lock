@@ -2839,6 +2839,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ewebsock"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "735ef60c8cd338b55f972d66c95558a71298d6f8bce1e1347d4c95b082ab2c37"
+dependencies = [
+ "document-features",
+ "js-sys",
+ "log",
+ "tungstenite 0.24.0",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4274,6 +4289,7 @@ dependencies = [
  "bevy_light_2d",
  "bevy_particle_systems",
  "bevy_rapier2d",
+ "ewebsock",
  "iyes_perf_ui",
  "rand 0.8.5",
  "serde",

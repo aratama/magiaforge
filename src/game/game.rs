@@ -2,6 +2,7 @@ use super::asset::GameAssets;
 use super::bgm::BGMPlugin;
 use super::bullet::BulletPlugin;
 use super::camera::*;
+use super::client::GameClientPlugin;
 use super::close_on_esc::close_on_esc;
 use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
@@ -102,6 +103,7 @@ pub fn run_game() {
         .add_plugins(BGMPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(BookshelfPlugin)
+        .add_plugins(GameClientPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
