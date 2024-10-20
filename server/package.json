@@ -1,0 +1,16 @@
+{
+    "name": "whiteboard",
+    "version": "1.0.0",
+    "description": "A simple collaborative whiteboard using socket.io",
+    "main": "index.js",
+    "keywords": [],
+    "dependencies": {
+        "ws": "^8.18.0"
+    },
+    "scripts": {
+        "start": "node index",
+        "deploy": "gcloud run deploy magia-server --project=magia --source ."
+    },
+    "author": "Damien Arrachequesne",
+    "license": "MIT"
+}

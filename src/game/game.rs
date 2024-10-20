@@ -15,6 +15,8 @@ use super::overlay::*;
 use super::player::*;
 use super::serialize::*;
 use super::states::*;
+#[cfg(target_arch = "wasm32")]
+use super::websocket::send_to_server;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 #[cfg(feature = "debug")]
@@ -37,7 +39,21 @@ use bevy_rapier2d::prelude::*;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::PerfUiPlugin;
 
+#[cfg(target_arch = "wasm32")]
+use web_sys::console;
+
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsValue;
+
 pub fn run_game() {
+    #[cfg(target_arch = "wasm32")]
+    if let Err(err) = send_to_server() {
+        console::log_1(&JsValue::from_str("Failed to send message to server"));
+        // console::log_1(
+        //     &JsValue::from_str(&err.as_string().unwrap_or("".to_string())),
+        // );
+    }
+
     let mut app = App::new();
 
     app
@@ -59,7 +75,7 @@ pub fn run_game() {
                             icon: CursorIcon::Crosshair,
                             ..default()
                         },
-                        title: "Magia Gene 0.1".to_string(),
+                        title: "Magna Magia 0.1".to_string(),
                         resizable: false,
                         enabled_buttons: EnabledButtons {
                             close: true,

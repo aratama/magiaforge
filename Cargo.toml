@@ -60,7 +60,14 @@ features = [
 
 [dependencies.web-sys]
 version = "0.3.70"
-features = ["console", "Window", "Storage"]
+features = [
+    "console",
+    "Window",
+    "Storage",
+    "WebSocket",
+    "MessageEvent",
+    "ErrorEvent",
+]
 
 [dependencies.bevy_rapier2d]
 version = "0.27.0"
