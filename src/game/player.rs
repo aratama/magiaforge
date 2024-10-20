@@ -17,6 +17,7 @@ pub struct Player {
     pub cooltime: i32,
     pub life: i32,
     pub max_life: i32,
+    pub latest_damage: i32,
 }
 
 fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Res<GameAssets>) {
@@ -25,8 +26,9 @@ fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Re
         StateScoped(GameState::InGame),
         Player {
             cooltime: 0,
-            life: 220,
+            life: 250,
             max_life: 250,
+            latest_damage: 0,
         },
         AsepriteAnimationBundle {
             aseprite: assets.player.clone(),
@@ -77,7 +79,7 @@ fn update_player(
         (With<Camera2d>, Without<Player>),
     >,
     q_window: Query<&Window, With<PrimaryWindow>>,
-    commands: Commands,
+    mut commands: Commands,
     assets: Res<GameAssets>,
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
@@ -132,18 +134,25 @@ fn update_player(
                 let speed = 200.0;
 
                 // 次の魔法を発射するまでの待機フレーム数
-                let cooltime = 10;
+                let cooltime = 16;
+
+                // 一度に発射する弾丸の数
+                let bullets_unit = 1;
 
                 let normalized = ray.normalize_or_zero();
-                let angle = normalized.y.atan2(normalized.x) + (random::<f32>() - 0.5) * scattering;
-                let direction = Vec2::new(angle.cos(), angle.sin());
 
-                add_bullet(
-                    commands,
-                    assets.asset.clone(),
-                    player_transform.translation.truncate() + normalized * 10.0,
-                    direction * speed,
-                );
+                for _ in 0..bullets_unit {
+                    let angle =
+                        normalized.y.atan2(normalized.x) + (random::<f32>() - 0.5) * scattering;
+                    let direction = Vec2::new(angle.cos(), angle.sin());
+
+                    add_bullet(
+                        &mut commands,
+                        assets.asset.clone(),
+                        player_transform.translation.truncate() + normalized * 10.0,
+                        direction * speed,
+                    );
+                }
 
                 player.cooltime = cooltime;
             } else {

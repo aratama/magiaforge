@@ -41,3 +41,8 @@ pub const BULLET_GROUP: Group = Group::GROUP_2;
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
 pub const PIXELS_PER_METER: f32 = 16.0;
+
+// z_index
+pub const HUD_Z_INDEX: i32 = 10000;
+
+pub const OVERLAY_Z_INDEX: i32 = 1000;

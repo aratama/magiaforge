@@ -2,7 +2,6 @@ use super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::enemy::Enemy;
 use super::states::GameState;
 use super::{asset::GameAssets, audio::play_se};
-use bevy::ecs::query::QueryEntityError;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
 use bevy_light_2d::light::PointLight2d;
@@ -21,6 +20,8 @@ static BULLET_IMPULSE: f32 = 20000.0;
 #[derive(Component, Reflect)]
 pub struct Bullet {
     life: u32,
+    damage: i32,
+    impulse: f32,
 }
 
 #[derive(Bundle)]
@@ -31,7 +32,7 @@ pub struct BulletBundle {
 }
 
 pub fn add_bullet(
-    mut commands: Commands,
+    commands: &mut Commands,
     aseprite: Handle<Aseprite>,
     position: Vec2,
     velocity: Vec2,
@@ -39,7 +40,11 @@ pub fn add_bullet(
     commands.spawn((
         Name::new("bullet"),
         StateScoped(GameState::InGame),
-        Bullet { life: 120 },
+        Bullet {
+            life: 120,
+            damage: 1,
+            impulse: BULLET_IMPULSE,
+        },
         AsepriteSliceBundle {
             aseprite,
             slice: SLICE_NAME.into(),
@@ -77,50 +82,42 @@ pub fn add_bullet(
 
 pub fn update_bullet(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    mut collision_events: EventReader<CollisionEvent>,
-    mut enemies: Query<(&mut Enemy, &mut ExternalImpulse)>,
+    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
+    mut enemy_query: Query<(&mut Enemy, &mut ExternalImpulse)>,
     assets: Res<GameAssets>,
+    mut collision_events: EventReader<CollisionEvent>,
 ) {
-    for (entity, mut bullet, _, _) in query.iter_mut() {
+    // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
+    for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn();
         }
     }
 
-    // 弾丸が壁の角に当たった場合、衝突イベントが複数回発生するため、
-    // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
-    // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
-    let mut hashset: HashSet<Entity> = HashSet::new();
+    let mut despownings: HashSet<Entity> = HashSet::new();
 
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
-                if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*a) {
-                    if !hashset.contains(a) {
-                        process_bullet_event(
-                            &mut commands,
-                            &assets,
-                            &a,
-                            &bullet_transform,
-                            &bullet_velocity,
-                            enemies.get_mut(*b),
-                        );
-                        hashset.insert(a.clone());
-                    }
-                } else if let Ok((_, _, bullet_transform, bullet_velocity)) = query.get(*b) {
-                    if !hashset.contains(b) {
-                        process_bullet_event(
-                            &mut commands,
-                            &assets,
-                            &b,
-                            &bullet_transform,
-                            &bullet_velocity,
-                            enemies.get_mut(*a),
-                        );
-                        hashset.insert(b.clone());
-                    }
+                if !process_bullet_event(
+                    &mut commands,
+                    &assets,
+                    &mut bullet_query,
+                    &mut enemy_query,
+                    &mut despownings,
+                    &a,
+                    &b,
+                ) {
+                    process_bullet_event(
+                        &mut commands,
+                        &assets,
+                        &mut bullet_query,
+                        &mut enemy_query,
+                        &mut despownings,
+                        &b,
+                        &a,
+                    );
                 }
             }
             _ => {}
@@ -131,21 +128,35 @@ pub fn update_bullet(
 fn process_bullet_event(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
-    bullet_entity: &Entity,
-    bullet_transform: &Transform,
-    bullet_velocity: &Velocity,
-    enemy: Result<(Mut<'_, Enemy>, Mut<'_, ExternalImpulse>), QueryEntityError>,
-) {
-    commands.entity(*bullet_entity).despawn();
-    spawn_particle_system(&mut commands, bullet_transform.translation.truncate());
-
-    if let Ok((mut enemy, mut impilse)) = enemy {
-        enemy.life -= 1;
-        impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * BULLET_IMPULSE;
-
-        play_se(&mut commands, assets.dageki.clone());
+    query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
+    enemies: &mut Query<(&mut Enemy, &mut ExternalImpulse)>,
+    respownings: &mut HashSet<Entity>,
+    a: &Entity,
+    b: &Entity,
+) -> bool {
+    if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
+        // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
+        // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
+        // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
+        if !respownings.contains(&bullet_entity) {
+            respownings.insert(bullet_entity.clone());
+            commands.entity(bullet_entity).despawn();
+            spawn_particle_system(&mut commands, bullet_transform.translation.truncate());
+            if let Ok((mut enemy, mut impilse)) = enemies.get_mut(*b) {
+                // 弾丸が敵に衝突したとき
+                enemy.life -= bullet.damage;
+                impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
+                play_se(&mut commands, assets.dageki.clone());
+            } else {
+                // 弾丸が衝突したのが敵以外の壁などのとき
+                play_se(&mut commands, assets.shibafu.clone());
+            }
+            true
+        } else {
+            false
+        }
     } else {
-        play_se(&mut commands, assets.shibafu.clone());
+        false
     }
 }
 

@@ -1,4 +1,4 @@
-use super::states::GameState;
+use super::{constant::OVERLAY_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -22,7 +22,7 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
                 ..Default::default()
             },
             background_color: Color::srgba(0.0, 0.0, 0.0, 1.0).into(),
-            z_index: ZIndex::Global(10000),
+            z_index: ZIndex::Global(OVERLAY_Z_INDEX),
             ..Default::default()
         },
     ));

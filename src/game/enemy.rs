@@ -84,18 +84,17 @@ fn setup_enemy(
 pub fn update_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut query: Query<(Entity, &Enemy, &mut ExternalForce, &GlobalTransform), Without<Camera2d>>,
+    mut query: Query<(Entity, &Enemy, &mut ExternalForce, &mut Transform), Without<Camera2d>>,
     mut player_query: Query<(Entity, &mut Player, &GlobalTransform, &mut ExternalImpulse)>,
     mut collision_events: EventReader<CollisionEvent>,
 ) {
     if let Ok((player_entity, mut player, player_transform, mut player_impulse)) =
         player_query.get_single_mut()
     {
-        for (entity, enemy, mut force, enemy_transform) in query.iter_mut() {
+        for (entity, enemy, mut force, mut enemy_transform) in query.iter_mut() {
             // 1マス以上5マス以内にプレイヤーがいたら追いかける
-
-            let diff = player_transform.translation() - enemy_transform.translation();
-            if diff.length() < ENEMY_DETECTION_RANGE {
+            let diff = player_transform.translation() - enemy_transform.translation;
+            if 0 < player.life && diff.length() < ENEMY_DETECTION_RANGE {
                 let direction = diff.normalize_or_zero();
                 force.force = direction.truncate() * ENEMY_MOVE_FORCE;
             } else {
@@ -107,6 +106,10 @@ pub fn update_enemy(
                 commands.entity(entity).despawn_recursive();
                 play_se(&mut commands, assets.hiyoko.clone());
             }
+
+            // z を設定
+            enemy_transform.translation.z =
+                ENTITY_LAYER_Z - enemy_transform.translation.y * Z_ORDER_SCALE;
         }
 
         for collision_event in collision_events.read() {
@@ -143,17 +146,22 @@ pub fn update_enemy(
 }
 
 fn process_attack_event(
-    enemy_transform: &GlobalTransform,
+    enemy_transform: &Transform,
     player: &mut Player,
     player_transform: &GlobalTransform,
     player_impulse: &mut ExternalImpulse,
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
 ) {
-    let direction = player_transform.translation() - enemy_transform.translation();
+    if player.life <= 0 {
+        return;
+    }
+    let direction = player_transform.translation() - enemy_transform.translation;
     let impulse = direction.normalize_or_zero() * 20000.0;
+    let damage = ENEMY_ATTACK_POINT;
     player_impulse.impulse = impulse.truncate();
-    player.life = (player.life - ENEMY_ATTACK_POINT).max(0);
+    player.life = (player.life - damage).max(0);
+    player.latest_damage = damage;
 
     play_se(&mut commands, assets.dageki.clone());
 }
