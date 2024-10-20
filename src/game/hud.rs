@@ -1,6 +1,9 @@
 use super::player::*;
 use super::states::GameState;
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
+
+const PLAYER_LIFE_BAR_WIDTH: f32 = 200.0;
+const PLAYER_LIFE_BAR_HEIGHT: f32 = 20.0;
 
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
@@ -8,61 +11,93 @@ use iyes_perf_ui::entries::PerfUiBundle;
 #[derive(Component)]
 pub struct HUD;
 
+#[derive(Component)]
+pub struct PlayerLifeBar;
+
+#[derive(Component)]
+pub struct PlayerLifeText;
+
 fn setup_hud(mut commands: Commands) {
-    #[cfg(feature = "debug")]
-    let visibility = Visibility::Visible;
-
-    #[cfg(not(feature = "debug"))]
-    let visibility = Visibility::Hidden;
-
-    commands.spawn((
-        Name::new("hud"),
+    let mut root = commands.spawn((
         StateScoped(GameState::InGame),
-        TextBundle {
-            text: Text::from_section("Test", TextStyle::default()),
+        NodeBundle {
             style: Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(12.0),
-                left: Val::Px(12.0),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::SpaceBetween,
                 ..default()
             },
-            visibility,
             ..default()
         },
-        HUD,
     ));
+
+    root.with_children(|parent| {
+        parent.spawn((
+            PlayerLifeBar,
+            StateScoped(GameState::InGame),
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(12.0),
+                    left: Val::Px(12.0),
+                    width: Val::Px(PLAYER_LIFE_BAR_WIDTH),
+                    height: Val::Px(PLAYER_LIFE_BAR_HEIGHT),
+                    ..default()
+                },
+                background_color: Color::srgba(0., 0.7, 0., 0.9).into(),
+                ..default()
+            },
+        ));
+        parent.spawn((
+            StateScoped(GameState::InGame),
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(12.0),
+                    left: Val::Px(12.0),
+                    width: Val::Px(PLAYER_LIFE_BAR_WIDTH),
+                    height: Val::Px(PLAYER_LIFE_BAR_HEIGHT),
+                    border: UiRect::all(Val::Px(1.)),
+                    ..default()
+                },
+                background_color: Color::srgba(0., 0., 0., 0.5).into(),
+                border_color: Color::WHITE.into(),
+                ..default()
+            },
+        ));
+        parent.spawn((
+            PlayerLifeText,
+            Name::new("hitpoint"),
+            StateScoped(GameState::InGame),
+            TextBundle {
+                text: Text::from_section("", TextStyle::default()),
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(20.0),
+                    top: Val::Px(10.0),
+                    ..default()
+                },
+                ..default()
+            },
+            HUD,
+        ));
+    });
 
     #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());
 }
 
 fn update_hud(
-    q_window: Query<&Window, With<PrimaryWindow>>,
-    player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
-    camera_query: Query<(&Camera, &Transform, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    mut hud_query: Query<&mut Text, With<HUD>>,
+    player_query: Query<&Player, Without<Camera2d>>,
+    mut player_life_bar_query: Query<&mut Style, With<PlayerLifeBar>>,
+    mut player_life_query: Query<&mut Text, With<PlayerLifeText>>,
 ) {
-    if let Ok(window) = q_window.get_single() {
-        let player = player_query.single();
-        let (camera, camera_transform, camera_global_transform) = camera_query.single();
-        let mut hud = hud_query.single_mut();
-
-        let cursor = window
-            .cursor_position()
-            .and_then(|cursor| camera.viewport_to_world(camera_global_transform, cursor))
-            .map(|ray| ray.origin.truncate())
-            .unwrap_or(Vec2::ZERO);
-
-        let text = format!(
-            "Player: ({:.2}, {:.2})\nCamera: ({:.2}, {:.2})\nCursor: ({:.2}, {:.2})",
-            player.translation.x,
-            player.translation.y,
-            camera_transform.translation.x,
-            camera_transform.translation.y,
-            cursor.x,
-            cursor.y
-        );
-        hud.sections = vec![TextSection::from(text)];
+    if let Ok(player) = player_query.get_single() {
+        let mut player_life = player_life_query.single_mut();
+        player_life.sections[0].value = format!("{} / {}", player.life, player.max_life);
+        let mut player_life_bar = player_life_bar_query.single_mut();
+        player_life_bar.width =
+            Val::Px((player.life as f32 / player.max_life as f32) * PLAYER_LIFE_BAR_WIDTH);
     }
 }
 

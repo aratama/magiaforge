@@ -17,9 +17,11 @@ pub struct Enemy {
     pub max_life: i32,
 }
 
-static ENEMY_MOVE_FORCE: f32 = 50000.0;
+const ENEMY_MOVE_FORCE: f32 = 50000.0;
 
-static ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 5.0;
+const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 5.0;
+
+const ENEMY_ATTACK_POINT: i32 = 8;
 
 pub fn spawn_enemy(
     commands: &mut Commands,
@@ -83,10 +85,12 @@ pub fn update_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut query: Query<(Entity, &Enemy, &mut ExternalForce, &GlobalTransform), Without<Camera2d>>,
-    mut player_query: Query<(Entity, &GlobalTransform, &mut ExternalImpulse), With<Player>>,
+    mut player_query: Query<(Entity, &mut Player, &GlobalTransform, &mut ExternalImpulse)>,
     mut collision_events: EventReader<CollisionEvent>,
 ) {
-    if let Ok((player, player_transform, mut player_impulse)) = player_query.get_single_mut() {
+    if let Ok((player_entity, mut player, player_transform, mut player_impulse)) =
+        player_query.get_single_mut()
+    {
         for (entity, enemy, mut force, enemy_transform) in query.iter_mut() {
             // 1マス以上5マス以内にプレイヤーがいたら追いかける
 
@@ -108,20 +112,22 @@ pub fn update_enemy(
         for collision_event in collision_events.read() {
             match collision_event {
                 CollisionEvent::Started(a, b, _) => {
-                    if *a == player {
+                    if *a == player_entity {
                         if let Ok(en) = query.get(*b) {
                             process_attack_event(
                                 &en.3,
+                                &mut player,
                                 &player_transform,
                                 &mut player_impulse,
                                 &mut commands,
                                 &assets,
                             );
                         };
-                    } else if *b == player {
+                    } else if *b == player_entity {
                         if let Ok(en) = query.get(*a) {
                             process_attack_event(
                                 &en.3,
+                                &mut player,
                                 &player_transform,
                                 &mut player_impulse,
                                 &mut commands,
@@ -138,6 +144,7 @@ pub fn update_enemy(
 
 fn process_attack_event(
     enemy_transform: &GlobalTransform,
+    player: &mut Player,
     player_transform: &GlobalTransform,
     player_impulse: &mut ExternalImpulse,
     mut commands: &mut Commands,
@@ -146,6 +153,7 @@ fn process_attack_event(
     let direction = player_transform.translation() - enemy_transform.translation();
     let impulse = direction.normalize_or_zero() * 20000.0;
     player_impulse.impulse = impulse.truncate();
+    player.life = (player.life - ENEMY_ATTACK_POINT).max(0);
 
     play_se(&mut commands, assets.dageki.clone());
 }

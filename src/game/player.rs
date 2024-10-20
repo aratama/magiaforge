@@ -13,15 +13,21 @@ use std::f32::consts::PI;
 
 #[derive(Component)]
 pub struct Player {
-    // 次の魔法を発射できるまでのクールタイム
-    cooltime: i32,
+    /// 次の魔法を発射できるまでのクールタイム
+    pub cooltime: i32,
+    pub life: i32,
+    pub max_life: i32,
 }
 
 fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Res<GameAssets>) {
     commands.spawn((
         Name::new("player"),
         StateScoped(GameState::InGame),
-        Player { cooltime: 0 },
+        Player {
+            cooltime: 0,
+            life: 220,
+            max_life: 250,
+        },
         AsepriteAnimationBundle {
             aseprite: assets.player.clone(),
             transform: Transform::from_xyz(player_data.x, player_data.y, 1.0),
@@ -86,24 +92,17 @@ fn update_player(
     let (mut player, mut player_transform, mut player_force, _, mut player_sprite) =
         player_query.single_mut();
 
-    // 本棚などのエンティティが設置されているレイヤーは z が 3 に設定されているらしく、
-    // y を z に変換する同一の式を設定しても、さらに 3 を加算してようやく z が合致するらしい
-    // https://trouv.github.io/bevy_ecs_ldtk/v0.10.0/explanation/anatomy-of-the-world.html
-    player_transform.translation.z = 3.0 + (-player_transform.translation.y * Z_ORDER_SCALE);
+    player_transform.translation.z =
+        ENTITY_LAYER_Z - player_transform.translation.y * Z_ORDER_SCALE;
     player_force.force = direction * force;
-
-    // println!(
-    //     "player y:{} z:{}",
-    //     player.translation.y, player.translation.z
-    // );
 
     if let Ok((camera, mut camera_transform, camera_global_transform)) =
         camera_query.get_single_mut()
     {
         camera_transform.translation.x +=
-            (player_transform.translation.x - camera_transform.translation.x) * 0.1;
+            (player_transform.translation.x - camera_transform.translation.x) * CAMERA_SPEED;
         camera_transform.translation.y +=
-            (player_transform.translation.y - camera_transform.translation.y) * 0.1;
+            (player_transform.translation.y - camera_transform.translation.y) * CAMERA_SPEED;
 
         // プレイヤーの向き
         if let Ok(window) = q_window.get_single() {

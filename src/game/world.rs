@@ -4,6 +4,7 @@ use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
 use super::overlay::OverlayNextState;
+use super::player::Player;
 use super::states::GameState;
 use super::tile::*;
 use super::wall::*;
@@ -195,10 +196,12 @@ fn setup_world(
 }
 
 fn update_world(
+    player_query: Query<&Player>,
     enemy_query: Query<&enemy::Enemy>,
     mut overlay_next_state: ResMut<OverlayNextState>,
 ) {
-    if enemy_query.is_empty() {
+    let player = player_query.get_single();
+    if enemy_query.is_empty() || player.is_ok_and(|p| p.life == 0) {
         *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
     }
 }

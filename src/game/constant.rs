@@ -21,6 +21,8 @@ pub const ROOF_LAYER_Z: f32 = 6.0;
 
 pub const Z_ORDER_SCALE: f32 = 0.001;
 
+pub const CAMERA_SPEED: f32 = 0.1;
+
 #[allow(dead_code)]
 pub const CRATE_NAME: &str = "my_bevy_game";
 
