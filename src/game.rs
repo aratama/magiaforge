@@ -14,6 +14,7 @@ pub mod game;
 mod hud;
 mod life_bar;
 mod main_menu;
+mod map;
 mod overlay;
 mod player;
 mod serialize;

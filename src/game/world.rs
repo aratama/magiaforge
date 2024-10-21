@@ -3,6 +3,9 @@ use super::constant::*;
 use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
+use super::map::image_to_tilemap;
+use super::map::GameEntity;
+use super::map::TileMapChunk;
 use super::overlay::OverlayNextState;
 use super::player::Player;
 use super::states::GameState;
@@ -26,14 +29,28 @@ fn setup_world(
     let asset_aseprite = level_aseprites.get(assets.asset.id()).unwrap();
     let asset_image = images.get(asset_aseprite.atlas_image.id()).unwrap();
 
+    let chunk = image_to_tilemap(&level_image);
+
+    spawn_world_tilemap(&mut commands, assets, asset_aseprite, asset_image, &chunk);
+
+    spawn_wall_collisions(&mut commands, &chunk);
+}
+
+fn spawn_world_tilemap(
+    mut commands: &mut Commands,
+    assets: Res<GameAssets>,
+    asset_aseprite: &Aseprite,
+    asset_image: &Image,
+    chunk: &TileMapChunk,
+) {
     let stone_tile_slice_index =
         slice_to_tile_texture_index(asset_aseprite, asset_image, "stone tile");
 
     let black_slice_index = slice_to_tile_texture_index(asset_aseprite, asset_image, "black");
 
     let map_size = TilemapSize {
-        x: level_image.width(),
-        y: level_image.height(),
+        x: chunk.width as u32,
+        y: chunk.height as u32,
     };
 
     let floor_layer_entity = commands.spawn_empty().id();
@@ -42,16 +59,16 @@ fn setup_world(
     let mut floor_layer_storage = TileStorage::empty(map_size);
     let mut roof_layer_storage = TileStorage::empty(map_size);
 
-    for y in 0..level_image.height() {
-        for x in 0..level_image.width() {
+    // 床と壁の生成
+    for y in 0..chunk.height as i32 {
+        for x in 0..chunk.width as i32 {
             let tile_pos = TilePos {
-                x,
-                y: map_size.y - y - 1,
+                x: x as u32,
+                y: map_size.y - (y as u32) - 1,
             };
 
-            match get_tile(level_image, x as i32, y as i32) {
+            match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
-                    // タイルマップの個々のタイルの生成
                     floor_layer_storage.set(
                         &tile_pos,
                         spawn_floor_tile(
@@ -68,7 +85,7 @@ fn setup_world(
                     let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
 
                     // 壁
-                    if get_tile(level_image, x as i32, y as i32 + 1) != Tile::Wall {
+                    if chunk.get_tile(x as i32, y as i32 + 1) != Tile::Wall {
                         commands.spawn((
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
@@ -82,10 +99,10 @@ fn setup_world(
                     }
 
                     // 天井
-                    if get_tile(level_image, x as i32, y as i32 - 1) == Tile::StoneTile
-                        || get_tile(level_image, x as i32, y as i32 - 2) == Tile::StoneTile
-                        || get_tile(level_image, x as i32 - 1, y as i32) == Tile::StoneTile
-                        || get_tile(level_image, x as i32 + 1, y as i32) == Tile::StoneTile
+                    if chunk.is_empty(x, y - 1)
+                        || chunk.is_empty(x, y - 2)
+                        || chunk.is_empty(x - 1, y)
+                        || chunk.is_empty(x + 1, y)
                     {
                         let tile_entity = commands
                             .spawn((
@@ -101,41 +118,21 @@ fn setup_world(
                         roof_layer_storage.set(&tile_pos, tile_entity);
                     }
                 }
-                Tile::BookShelf => {
-                    floor_layer_storage.set(
-                        &tile_pos,
-                        spawn_floor_tile(
-                            &mut commands,
-                            tile_pos,
-                            TilemapId(floor_layer_entity),
-                            stone_tile_slice_index,
-                        ),
-                    );
-                    spawn_book_shelf(
-                        &mut commands,
-                        assets.asset.clone(),
-                        TILE_SIZE * x as f32,
-                        TILE_SIZE * -1.0 * y as f32,
-                    );
-                }
-                Tile::Chest => {
-                    floor_layer_storage.set(
-                        &tile_pos,
-                        spawn_floor_tile(
-                            &mut commands,
-                            tile_pos,
-                            TilemapId(floor_layer_entity),
-                            stone_tile_slice_index,
-                        ),
-                    );
-                    spawn_chest(
-                        &mut commands,
-                        assets.asset.clone(),
-                        TILE_SIZE * x as f32,
-                        TILE_SIZE * -1.0 * y as f32,
-                    );
-                }
                 _ => {}
+            }
+        }
+    }
+
+    // エンティティの生成
+    for (entity, x, y) in &chunk.entities {
+        let tx = TILE_SIZE * *x as f32;
+        let ty = TILE_SIZE * -*y as f32;
+        match entity {
+            &GameEntity::BookShelf => {
+                spawn_book_shelf(&mut commands, assets.asset.clone(), tx, ty);
+            }
+            GameEntity::Chest => {
+                spawn_chest(&mut commands, assets.asset.clone(), tx, ty);
             }
         }
     }
@@ -189,9 +186,11 @@ fn setup_world(
             ..default()
         },
     ));
+}
 
+fn spawn_wall_collisions(commands: &mut Commands, chunk: &TileMapChunk) {
     // 衝突形状の生成
-    for rect in get_wall_collisions(&level_image) {
+    for rect in get_wall_collisions(&chunk) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w - TILE_HALF;
