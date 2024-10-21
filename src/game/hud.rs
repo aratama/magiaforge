@@ -1,15 +1,16 @@
-use super::constant::HUD_Z_INDEX;
 use super::player::*;
+use super::pointer::Pointer;
 use super::states::GameState;
+use super::{asset::GameAssets, constant::HUD_Z_INDEX};
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
+#[cfg(feature = "debug")]
+use iyes_perf_ui::entries::PerfUiBundle;
 
 const PLAYER_LIFE_BAR_WIDTH: f32 = 200.0;
 const PLAYER_LIFE_BAR_HEIGHT: f32 = 20.0;
 const PLAYER_LIFE_BAR_LEFT: f32 = 12.0;
 const PLAYER_LIFE_BAR_TOP: f32 = 12.0;
-
-#[cfg(feature = "debug")]
-use iyes_perf_ui::entries::PerfUiBundle;
 
 #[derive(Component)]
 pub struct HUD;
@@ -23,7 +24,7 @@ pub struct PlayerDamageBar;
 #[derive(Component)]
 pub struct PlayerLifeText;
 
-fn setup_hud(mut commands: Commands) {
+fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
     let mut root = commands.spawn((
         StateScoped(GameState::InGame),
         NodeBundle {
@@ -97,8 +98,8 @@ fn setup_hud(mut commands: Commands) {
                 text: Text::from_section("", TextStyle::default()),
                 style: Style {
                     position_type: PositionType::Absolute,
-                    left: Val::Px(20.0),
-                    top: Val::Px(10.0),
+                    left: Val::Px(PLAYER_LIFE_BAR_LEFT + 8.0),
+                    top: Val::Px(PLAYER_LIFE_BAR_TOP - 2.0),
                     ..default()
                 },
                 ..default()
@@ -106,6 +107,26 @@ fn setup_hud(mut commands: Commands) {
             HUD,
         ));
     });
+
+    commands.spawn((
+        Pointer,
+        ImageBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(0.0),
+                left: Val::Px(0.0),
+                width: Val::Px(13.0 * 2.0),
+                height: Val::Px(13.0 * 2.0),
+                ..default()
+            },
+            ..default()
+        },
+        AsepriteSliceUiBundle {
+            slice: "pointer".into(),
+            aseprite: assets.asset.clone(),
+            ..default()
+        },
+    ));
 
     #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());

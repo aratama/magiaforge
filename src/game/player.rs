@@ -1,10 +1,10 @@
 use super::asset::GameAssets;
 use super::bullet::add_bullet;
 use super::constant::*;
+use super::gamepad::{get_direction, get_fire_trigger, MyGamepad};
 use super::serialize::*;
 use super::states::GameState;
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
@@ -18,6 +18,9 @@ pub struct Player {
     pub life: i32,
     pub max_life: i32,
     pub latest_damage: i32,
+
+    /// プレイヤーの位置からの相対的なポインターの位置
+    pub pointer: Vec2,
 }
 
 fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Res<GameAssets>) {
@@ -29,6 +32,7 @@ fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Re
             life: 250,
             max_life: 250,
             latest_damage: 0,
+            pointer: Vec2::ZERO,
         },
         AsepriteAnimationBundle {
             aseprite: assets.player.clone(),
@@ -74,22 +78,18 @@ fn update_player(
         ),
         Without<Camera2d>,
     >,
-    mut camera_query: Query<
-        (&Camera, &mut Transform, &GlobalTransform),
-        (With<Camera2d>, Without<Player>),
-    >,
-    q_window: Query<&Window, With<PrimaryWindow>>,
+    mut camera_query: Query<&mut Transform, (With<Camera>, With<Camera2d>, Without<Player>)>,
     mut commands: Commands,
     assets: Res<GameAssets>,
     buttons: Res<ButtonInput<MouseButton>>,
+
+    my_gamepad: Option<Res<MyGamepad>>,
+    axes: Res<Axis<GamepadAxis>>,
+    gamepad_buttons: Res<ButtonInput<GamepadButton>>,
 ) {
     let force = 50000.0;
 
-    let direction = Vec2::new(
-        to_s(&keys, KeyCode::KeyD) - to_s(&keys, KeyCode::KeyA),
-        to_s(&keys, KeyCode::KeyW) - to_s(&keys, KeyCode::KeyS),
-    )
-    .normalize_or_zero();
+    let direction = get_direction(keys, axes, &my_gamepad);
 
     let (mut player, mut player_transform, mut player_force, _, mut player_sprite) =
         player_query.single_mut();
@@ -98,72 +98,56 @@ fn update_player(
         ENTITY_LAYER_Z - player_transform.translation.y * Z_ORDER_SCALE;
     player_force.force = direction * force;
 
-    if let Ok((camera, mut camera_transform, camera_global_transform)) =
-        camera_query.get_single_mut()
-    {
+    if let Ok(mut camera_transform) = camera_query.get_single_mut() {
         camera_transform.translation.x +=
             (player_transform.translation.x - camera_transform.translation.x) * CAMERA_SPEED;
         camera_transform.translation.y +=
             (player_transform.translation.y - camera_transform.translation.y) * CAMERA_SPEED;
 
         // プレイヤーの向き
-        if let Ok(window) = q_window.get_single() {
-            let cursor = window
-                .cursor_position()
-                .and_then(|cursor| camera.viewport_to_world(camera_global_transform, cursor))
-                .map(|ray| ray.origin.truncate())
-                .unwrap_or(Vec2::ZERO);
+        let angle = player.pointer.to_angle();
 
-            let ray = cursor - player_transform.translation.truncate();
-            let angle = ray.y.atan2(ray.x);
-            // println!("angle: {}", angle);
-            if angle < -PI * 0.5 || PI * 0.5 < angle {
-                player_sprite.flip_x = true;
-            } else {
-                player_sprite.flip_x = false;
+        // println!("angle: {}", angle);
+        if angle < -PI * 0.5 || PI * 0.5 < angle {
+            player_sprite.flip_x = true;
+        } else {
+            player_sprite.flip_x = false;
+        }
+
+        // 魔法の発射
+        if get_fire_trigger(buttons, gamepad_buttons, &my_gamepad) && player.cooltime == 0 {
+            // 魔法の拡散
+            let scattering = 0.3;
+
+            // 魔法弾の速度
+            // pixels_per_meter が 100.0 に設定されているので、
+            // 200は1フレームに2ピクセル移動する速度です
+            let speed = 200.0;
+
+            // 次の魔法を発射するまでの待機フレーム数
+            let cooltime = 16;
+
+            // 一度に発射する弾丸の数
+            let bullets_unit = 1;
+
+            let normalized = player.pointer.normalize();
+
+            for _ in 0..bullets_unit {
+                let angle_with_random = angle + (random::<f32>() - 0.5) * scattering;
+                let direction = Vec2::from_angle(angle_with_random);
+                add_bullet(
+                    &mut commands,
+                    assets.asset.clone(),
+                    player_transform.translation.truncate() + normalized * 10.0,
+                    direction * speed,
+                );
             }
 
-            // 魔法の発射
-            if buttons.pressed(MouseButton::Left) && player.cooltime == 0 {
-                // 魔法の拡散
-                let scattering = 0.3;
-
-                // 魔法弾の速度
-                // pixels_per_meter が 100.0 に設定されているので、
-                // 200は1フレームに2ピクセル移動する速度です
-                let speed = 200.0;
-
-                // 次の魔法を発射するまでの待機フレーム数
-                let cooltime = 16;
-
-                // 一度に発射する弾丸の数
-                let bullets_unit = 1;
-
-                let normalized = ray.normalize_or_zero();
-
-                for _ in 0..bullets_unit {
-                    let angle =
-                        normalized.y.atan2(normalized.x) + (random::<f32>() - 0.5) * scattering;
-                    let direction = Vec2::new(angle.cos(), angle.sin());
-
-                    add_bullet(
-                        &mut commands,
-                        assets.asset.clone(),
-                        player_transform.translation.truncate() + normalized * 10.0,
-                        direction * speed,
-                    );
-                }
-
-                player.cooltime = cooltime;
-            } else {
-                player.cooltime = (player.cooltime - 1).max(0);
-            }
+            player.cooltime = cooltime;
+        } else {
+            player.cooltime = (player.cooltime - 1).max(0);
         }
     }
-}
-
-fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCode) -> f32 {
-    return if keys.pressed(code) { 1.0 } else { 0.0 };
 }
 
 pub struct PlayerPlugin;

@@ -9,11 +9,13 @@ use super::constant::PIXELS_PER_METER;
 use super::embedded::EmbeddedAssetPlugin;
 use super::enemy::EnemyPlugin;
 use super::entity::book_shelf::BookshelfPlugin;
+use super::gamepad::GamepadPlugin;
 use super::hud::*;
 use super::life_bar::LifeBarPlugin;
 use super::main_menu::*;
 use super::overlay::*;
 use super::player::*;
+use super::pointer::PointerPlugin;
 use super::serialize::*;
 use super::states::*;
 use super::world::*;
@@ -57,7 +59,7 @@ pub fn run_game() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         cursor: Cursor {
-                            icon: CursorIcon::Crosshair,
+                            // visible: false,
                             ..default()
                         },
                         title: "Magna Magia 0.1".to_string(),
@@ -104,6 +106,8 @@ pub fn run_game() {
         .add_plugins(LifeBarPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(GameClientPlugin)
+        .add_plugins(GamepadPlugin)
+        .add_plugins(PointerPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
