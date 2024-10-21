@@ -1,10 +1,12 @@
 use super::asset::GameAssets;
+use super::ceil::get_ceil_tile_indices;
+use super::ceil::spawn_roof_tiles;
 use super::constant::*;
 use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
+use super::entity::GameEntity;
 use super::map::image_to_tilemap;
-use super::map::GameEntity;
 use super::map::TileMapChunk;
 use super::overlay::OverlayNextState;
 use super::player::Player;
@@ -46,35 +48,40 @@ fn spawn_world_tilemap(
     let stone_tile_slice_index =
         slice_to_tile_texture_index(asset_aseprite, asset_image, "stone tile");
 
-    let black_slice_index = slice_to_tile_texture_index(asset_aseprite, asset_image, "black");
+    let ceil_tile_indices = get_ceil_tile_indices(&asset_aseprite, &asset_image);
 
-    let map_size = TilemapSize {
+    let floor_map_size = TilemapSize {
         x: chunk.width as u32,
         y: chunk.height as u32,
     };
 
-    let floor_layer_entity = commands.spawn_empty().id();
-    let roof_layer_entity = commands.spawn_empty().id();
+    let ceil_map_size = TilemapSize {
+        x: chunk.width as u32 * 2,
+        y: chunk.height as u32 * 2,
+    };
 
-    let mut floor_layer_storage = TileStorage::empty(map_size);
-    let mut roof_layer_storage = TileStorage::empty(map_size);
+    let floor_layer_entity = TilemapId(commands.spawn_empty().id());
+    let roof_layer_entity = TilemapId(commands.spawn_empty().id());
+
+    let mut floor_layer_storage = TileStorage::empty(floor_map_size);
+    let mut ceil_layer_storage = TileStorage::empty(ceil_map_size);
 
     // 床と壁の生成
     for y in 0..chunk.height as i32 {
         for x in 0..chunk.width as i32 {
-            let tile_pos = TilePos {
+            let floor_tile_pos = TilePos {
                 x: x as u32,
-                y: map_size.y - (y as u32) - 1,
+                y: floor_map_size.y - (y as u32) - 1,
             };
 
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
                     floor_layer_storage.set(
-                        &tile_pos,
+                        &floor_tile_pos,
                         spawn_floor_tile(
                             &mut commands,
-                            tile_pos,
-                            TilemapId(floor_layer_entity),
+                            floor_tile_pos,
+                            floor_layer_entity,
                             stone_tile_slice_index,
                         ),
                     );
@@ -99,23 +106,26 @@ fn spawn_world_tilemap(
                     }
 
                     // 天井
-                    if chunk.is_empty(x, y - 1)
-                        || chunk.is_empty(x, y - 2)
-                        || chunk.is_empty(x - 1, y)
-                        || chunk.is_empty(x + 1, y)
+                    if false
+                        || chunk.is_empty(x - 1, y - 1)
+                        || chunk.is_empty(x + 0, y - 1)
+                        || chunk.is_empty(x + 1, y - 1)
+                        || chunk.is_empty(x - 1, y + 0)
+                        || chunk.is_empty(x + 0, y + 0)
+                        || chunk.is_empty(x + 1, y + 0)
+                        || chunk.is_empty(x - 1, y + 1)
+                        || chunk.is_empty(x + 0, y + 1)
+                        || chunk.is_empty(x + 1, y + 1)
                     {
-                        let tile_entity = commands
-                            .spawn((
-                                Name::new("roof tile"),
-                                TileBundle {
-                                    position: tile_pos,
-                                    tilemap_id: TilemapId(roof_layer_entity),
-                                    texture_index: black_slice_index,
-                                    ..default()
-                                },
-                            ))
-                            .id();
-                        roof_layer_storage.set(&tile_pos, tile_entity);
+                        spawn_roof_tiles(
+                            commands,
+                            floor_map_size.y as i32,
+                            &mut ceil_layer_storage,
+                            roof_layer_entity,
+                            &ceil_tile_indices,
+                            x,
+                            y,
+                        )
                     }
                 }
                 _ => {}
@@ -128,7 +138,7 @@ fn spawn_world_tilemap(
         let tx = TILE_SIZE * *x as f32;
         let ty = TILE_SIZE * -*y as f32;
         match entity {
-            &GameEntity::BookShelf => {
+            GameEntity::BookShelf => {
                 spawn_book_shelf(&mut commands, assets.asset.clone(), tx, ty);
             }
             GameEntity::Chest => {
@@ -138,49 +148,52 @@ fn spawn_world_tilemap(
     }
 
     // タイルマップ本体の生成
-    let tile_size = TilemapTileSize {
+    let floor_tile_size = TilemapTileSize {
         x: TILE_SIZE,
         y: TILE_SIZE,
     };
-    let grid_size = tile_size.into();
-    let map_type = TilemapType::default();
 
-    commands.entity(floor_layer_entity).insert((
+    commands.entity(floor_layer_entity.0).insert((
         Name::new("floor layer tilemap"),
         StateScoped(GameState::InGame),
         TilemapBundle {
-            grid_size,
-            map_type,
-            size: map_size,
+            grid_size: floor_tile_size.into(),
+            map_type: TilemapType::default(),
+            size: floor_map_size,
             storage: floor_layer_storage,
             texture: TilemapTexture::Single(asset_aseprite.atlas_image.clone()),
-            tile_size,
+            tile_size: floor_tile_size,
             // transformを計算するのにはget_tilemap_center_transform という関数もありますが、
             // それだとそこにタイルマップの中心が来てしまうことに注意します
             // Asepriteの座標系とはYが反転していることもあり、ここでは自力でTransformを計算しています
             transform: Transform::from_translation(Vec3::new(
                 0.0,
-                -TILE_SIZE * (map_size.y - 1) as f32,
+                -TILE_SIZE * (floor_map_size.y - 1) as f32,
                 FLOOR_LAYER_Z,
             )),
             ..default()
         },
     ));
 
-    commands.entity(roof_layer_entity).insert((
+    let ceil_tile_size = TilemapTileSize {
+        x: TILE_HALF,
+        y: TILE_HALF,
+    };
+    commands.entity(roof_layer_entity.0).insert((
         Name::new("roof layer tilemap"),
         StateScoped(GameState::InGame),
         TilemapBundle {
-            grid_size,
-            map_type,
-            size: map_size,
-            storage: roof_layer_storage,
+            grid_size: ceil_tile_size.into(),
+            map_type: TilemapType::default(),
+            size: ceil_map_size,
+            storage: ceil_layer_storage,
             texture: TilemapTexture::Single(asset_aseprite.atlas_image.clone()),
-            tile_size,
+            tile_size: ceil_tile_size,
             transform: Transform::from_translation(Vec3::new(
-                0.0,
+                // 床とタイル半分ずれているので -4 しているが、ここ直さないといけないかも
+                -4.0,
                 // 天井レイヤーは8.0だけ上にずらしていることに注意
-                -TILE_SIZE * (map_size.y - 1) as f32 + WALL_HEIGHT,
+                -TILE_SIZE * (floor_map_size.y - 1) as f32 + WALL_HEIGHT - 4.0,
                 ROOF_LAYER_Z,
             )),
             ..default()
@@ -252,7 +265,7 @@ impl Plugin for WorldPlugin {
 }
 
 /// スライス名からタイルマップのインデックスを計算します
-fn slice_to_tile_texture_index(
+pub fn slice_to_tile_texture_index(
     asset_aseprite: &Aseprite,
     asset_atlas: &Image,
     slice: &str,

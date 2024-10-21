@@ -1,12 +1,6 @@
 use bevy::prelude::Image;
 
-use super::tile::Tile;
-
-#[derive(PartialEq, Eq, Clone, Copy)]
-pub enum GameEntity {
-    Chest,
-    BookShelf,
-}
+use super::{entity::GameEntity, tile::Tile};
 
 #[derive(Clone)]
 pub struct TileMapChunk {

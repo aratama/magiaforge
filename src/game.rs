@@ -3,6 +3,7 @@ mod audio;
 mod bgm;
 mod bullet;
 mod camera;
+mod ceil;
 mod client;
 mod close_on_esc;
 mod console;
