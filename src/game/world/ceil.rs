@@ -90,18 +90,18 @@ fn spawn_roof_tile(
         y: (((floor_map_size - y - 1) * 2) + dy) as u32,
     };
 
-    ceil_layer_storage.set(
-        &ceil_tile_pos,
-        commands
-            .spawn((
-                Name::new("roof tile"),
-                TileBundle {
-                    position: ceil_tile_pos,
-                    tilemap_id: roof_layer_entity,
-                    texture_index: roof0_slice_index,
-                    ..default()
-                },
-            ))
-            .id(),
-    );
+    // ceil_layer_storage.set(
+    //     &ceil_tile_pos,
+    //     commands
+    //         .spawn((
+    //             Name::new("roof tile"),
+    //             TileBundle {
+    //                 position: ceil_tile_pos,
+    //                 tilemap_id: roof_layer_entity,
+    //                 texture_index: roof0_slice_index,
+    //                 ..default()
+    //             },
+    //         ))
+    //         .id(),
+    // );
 }

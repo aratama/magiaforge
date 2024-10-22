@@ -81,15 +81,30 @@ fn spawn_world_tilemap(
 
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
-                    floor_layer_storage.set(
-                        &floor_tile_pos,
-                        spawn_floor_tile(
-                            &mut commands,
-                            floor_tile_pos,
-                            floor_layer_entity,
-                            stone_tile_slice_index,
-                        ),
-                    );
+                    // floor_layer_storage.set(
+                    //     &floor_tile_pos,
+                    //     spawn_floor_tile(
+                    //         &mut commands,
+                    //         floor_tile_pos,
+                    //         floor_layer_entity,
+                    //         stone_tile_slice_index,
+                    //     ),
+                    // );
+
+                    commands.spawn((
+                        Name::new("stone_tile"),
+                        StateScoped(GameState::InGame),
+                        AsepriteSliceBundle {
+                            aseprite: assets.asset.clone(),
+                            slice: "stone tile".into(),
+                            transform: Transform::from_translation(Vec3::new(
+                                x as f32 * TILE_SIZE,
+                                y as f32 * -TILE_SIZE,
+                                FLOOR_LAYER_Z,
+                            )),
+                            ..default()
+                        },
+                    ));
                 }
                 Tile::Wall => {
                     let tx = x as f32 * TILE_SIZE;
