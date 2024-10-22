@@ -4,7 +4,6 @@ use super::{
 };
 use crate::game::{asset::GameAssets, audio::play_se, states::GameState, world::tile::Tile};
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_rapier2d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
@@ -106,8 +105,8 @@ pub fn respawn_wall_collisions(
     for rect in get_wall_collisions(&chunk) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
-        let x = rect.min.x as f32 * TILE_SIZE + w - TILE_HALF;
-        let y = rect.min.y as f32 * -TILE_SIZE - h + TILE_HALF;
+        let x = rect.min.x as f32 * TILE_SIZE + w;
+        let y = rect.min.y as f32 * -TILE_SIZE - h;
         commands.spawn((
             WallCollider,
             Name::new("wall collider"),

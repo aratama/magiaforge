@@ -1,32 +1,26 @@
-use crate::game::{asset::GameAssets, audio::play_se};
-
 use super::super::{constant::*, states::GameState};
+use crate::game::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use std::sync::LazyLock;
 
 // Asepriteのスライス名
 // スライスの原点はAsepriteのpivotで指定します
 const SLICE_NAME: &str = "book_shelf";
 
-static ENTITY_WIDTH: f32 = 16.0;
+static BOOKSHELF_ENTITY_WIDTH: f32 = 16.0;
 
-static ENTITY_HEIGHT: f32 = 8.0;
-
-// repierでの衝突形状
-static COLLIDER: LazyLock<Collider> =
-    LazyLock::new(|| Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT));
+static BOOKSHELF_ENTITY_HEIGHT: f32 = 8.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct BookShelf {
     pub life: i32,
 }
 
+/// 指定した位置に本棚を生成します
+/// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
-    let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
-    let ty = y - ENTITY_HEIGHT + TILE_SIZE / 2.0;
-    let tz = 3.0 + (-ty * Z_ORDER_SCALE);
+    let z = 3.0 + (-y * Z_ORDER_SCALE);
     commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
@@ -43,11 +37,11 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
                 // anchor: bevy::sprite::Anchor::Center,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(tx, ty, tz)),
+            transform: Transform::from_translation(Vec3::new(x, y, z)),
             ..default()
         },
         RigidBody::Fixed,
-        COLLIDER.clone(),
+        Collider::cuboid(BOOKSHELF_ENTITY_WIDTH, BOOKSHELF_ENTITY_HEIGHT),
         CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
     ));
 }

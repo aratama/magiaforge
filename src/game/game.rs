@@ -80,9 +80,11 @@ pub fn run_game() {
             // })
         )
         .add_plugins(EmbeddedAssetPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
-            PIXELS_PER_METER,
-        ))
+        .add_plugins(
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER)
+                // .with_length_unit(PIXELS_PER_METER)
+                .in_fixed_schedule(),
+        )
         .add_plugins(BevySprityPlugin)
         .add_plugins(ParticleSystemPlugin)
         .add_plugins(Light2dPlugin)

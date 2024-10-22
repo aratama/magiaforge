@@ -1,6 +1,8 @@
 use super::super::{entity::GameEntity, world::tile::Tile};
 use bevy::prelude::{Image, Resource};
 
+const LEVEL_SIZE: i32 = 64;
+
 #[derive(Clone, Copy)]
 struct LevelTileMapile {
     tile: Tile,
@@ -65,48 +67,56 @@ impl LevelTileMap {
 }
 
 pub fn image_to_tilemap(level_image: &Image) -> LevelTileMap {
-    let width = level_image.width() as i32;
-    let height = level_image.height() as i32;
+    let width = LEVEL_SIZE; // level_image.width() や level_image.height() はアトラステクスチャのサイズであり、Asepriteのキャンバスより大きいことがあるので注意
+    let height = LEVEL_SIZE;
+    let texture_width = level_image.width();
     let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
     for y in 0..height {
         for x in 0..width {
-            let i = 4 * (y * width as i32 + x) as usize;
+            let i = 4 * (y * texture_width as i32 + x) as usize;
             let r = level_image.data[i + 0];
             let g = level_image.data[i + 1];
             let b = level_image.data[i + 2];
             let a = level_image.data[i + 3];
+
+            let life = if x == 0 || y == 0 || x == width - 1 || y == height - 1 {
+                std::i32::MAX
+            } else {
+                4
+            };
+
             match (r, g, b, a) {
                 (203, 219, 252, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
-                        life: 4,
+                        life,
                     });
                 }
                 (82, 75, 36, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Wall,
-                        life: 4,
+                        life,
                     });
                 }
                 (118, 66, 138, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
-                        life: 4,
+                        life,
                     });
                     entities.push((GameEntity::BookShelf, x, y));
                 }
                 (251, 242, 54, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
-                        life: 4,
+                        life,
                     });
                     entities.push((GameEntity::Chest, x, y));
                 }
                 _ => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Blank,
-                        life: 4,
+                        life,
                     });
                 }
             }

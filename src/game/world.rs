@@ -64,7 +64,7 @@ fn respawn_world_tilemap(
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
                     commands.spawn((
-                        WorldTile,
+                        WorldTile((x, y)),
                         Name::new("stone_tile"),
                         StateScoped(GameState::InGame),
                         AsepriteSliceBundle {
@@ -87,19 +87,23 @@ fn respawn_world_tilemap(
                     // 壁
                     if chunk.get_tile(x as i32, y as i32 + 1) != Tile::Wall {
                         commands.spawn((
-                            WorldTile,
+                            WorldTile((x, y)),
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
                             AsepriteSliceBundle {
                                 aseprite: assets.asset.clone(),
                                 slice: "stone wall".into(),
-                                transform: Transform::from_translation(Vec3::new(tx, ty - 4.0, tz)),
+                                transform: Transform::from_translation(Vec3::new(
+                                    tx,
+                                    ty - TILE_HALF,
+                                    tz,
+                                )),
                                 ..default()
                             },
                         ));
                     }
 
-                    // 天井
+                    // // 天井
                     if false
                         || chunk.is_empty(x - 1, y - 1)
                         || chunk.is_empty(x + 0, y - 1)
@@ -127,10 +131,20 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
         let ty = TILE_SIZE * -*y as f32;
         match entity {
             GameEntity::BookShelf => {
-                spawn_book_shelf(&mut commands, assets.asset.clone(), tx, ty);
+                spawn_book_shelf(
+                    &mut commands,
+                    assets.asset.clone(),
+                    tx + TILE_SIZE,
+                    ty - TILE_HALF,
+                );
             }
             GameEntity::Chest => {
-                spawn_chest(&mut commands, assets.asset.clone(), tx, ty);
+                spawn_chest(
+                    &mut commands,
+                    assets.asset.clone(),
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                );
             }
         }
     }

@@ -44,7 +44,7 @@ pub fn add_bullet(
         Name::new("bullet"),
         StateScoped(GameState::InGame),
         Bullet {
-            life: 120,
+            life: 240,
             damage: 1,
             impulse: BULLET_IMPULSE,
         },
@@ -62,7 +62,8 @@ pub fn add_bullet(
             },
             KinematicCharacterController::default(),
             RigidBody::KinematicVelocityBased,
-            Collider::ball(5.0),
+            // 弾丸が大きくなると衝突時の位置の精度が悪化するので小さくしてあります
+            Collider::ball(1.0),
             GravityScale(0.0),
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
             ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
@@ -93,7 +94,7 @@ pub fn update_bullet(
 
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut break_wall_events: EventWriter<BreakWallEvent>,
-    // rapier_context: Res<RapierContext>,
+    rapier_context: Res<RapierContext>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
@@ -119,7 +120,7 @@ pub fn update_bullet(
                     &b,
                     &wall_collider_query,
                     &mut break_wall_events,
-                    // &rapier_context,
+                    &rapier_context,
                 ) {
                     process_bullet_event(
                         &mut commands,
@@ -132,7 +133,7 @@ pub fn update_bullet(
                         &a,
                         &wall_collider_query,
                         &mut break_wall_events,
-                        // &rapier_context,
+                        &rapier_context,
                     );
                 }
             }
@@ -152,7 +153,7 @@ fn process_bullet_event(
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
     break_wall_events: &mut EventWriter<BreakWallEvent>,
-    // rapier_context: &Res<RapierContext>,
+    rapier_context: &Res<RapierContext>,
 ) -> bool {
     // for contact_pair in rapier_context.contact_pairs_with(*a) {
     //     println!(
@@ -202,23 +203,35 @@ fn process_bullet_event(
                 // 弾丸が壁に衝突したとき
 
                 // TODO
-                // 衝突した点を取得しようとしたものの、なぜか正確な値が取得できない
-                // 壁が壊せないときがあって、このあたりのコードがおかしい
+                // 衝突した点を取得しようとしたものの、正確な値がうまく取得できない
+                // 弾丸が速くなると接触位置が数ピクセルずれることがある
                 // https://rapier.rs/docs/user_guides/bevy_plugin/advanced_collision_detection#the-contact-graph
-                // if let Some(item) = rapier_context.contact_pair(bullet_entity, *b) {
-                //     if let Some((contact_view, _)) = item.find_deepest_contact() {
-                //         let local_p1 = contact_view.point(0).unwrap().local_p1();
-                //         let local_p2 = contact_view.point(0).unwrap().local_p2();
-                //         let body1 = contact_view.rigid_body1().unwrap();
-                //         let position = if body1.index() == bullet_entity.index() {
-                //             bullet_position + local_p1
-                //         } else {
-                //             bullet_position + local_p2
-                //         };
-                //         break_wall_events.send(BreakWallEvent { position });
-                //         play_se(&mut commands, assets.shibafu.clone());
-                //     }
-                // }
+                if let Some(item) = rapier_context.contact_pair(bullet_entity, *b) {
+                    if let Some((contact_view, _)) = item.find_deepest_contact() {
+                        let local_p1 = contact_view.point(0).unwrap().local_p1();
+                        let local_p2 = contact_view.point(0).unwrap().local_p2();
+                        let body1 = contact_view.rigid_body1().unwrap();
+                        let position = if body1.index() == bullet_entity.index() {
+                            bullet_position - local_p1
+                        } else {
+                            bullet_position - local_p2
+                        };
+                        // println!("bullet position {:?}", bullet_position);
+                        // println!("local_p1 {:?}", local_p1);
+                        // println!("local_p2 {:?}", local_p2);
+                        // println!(
+                        //     "bullet_position - local_p1 {:?}",
+                        //     bullet_position - local_p1
+                        // );
+                        // println!(
+                        //     "bullet_position - local_p2 {:?}",
+                        //     bullet_position - local_p2
+                        // );
+                        // println!("hit position {:?}", position);
+                        // break_wall_events.send(BreakWallEvent { position });
+                        // play_se(&mut commands, assets.shibafu.clone());
+                    }
+                }
 
                 // 仕方ないので、弾丸の位置から近い壁を破壊する方法で凌ぐ
                 break_wall_events.send(BreakWallEvent {
@@ -258,11 +271,19 @@ fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
                         time: 0.1,
                         count: 20,
                     }],
+                    system_duration_seconds: 0.2,
                     ..ParticleSystem::oneshot()
                 },
                 ..ParticleSystemBundle::default()
             },
             Playing,
+            PointLight2d {
+                radius: 50.0,
+                intensity: 1.0,
+                falloff: 10.0,
+                color: Color::hsl(245.0, 1.0, 0.6),
+                ..default()
+            },
         ));
 }
 
@@ -270,7 +291,6 @@ pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
-        // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
         app.add_systems(
             FixedUpdate,
             update_bullet.run_if(in_state(GameState::InGame)),

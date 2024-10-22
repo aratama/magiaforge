@@ -1,6 +1,6 @@
 use crate::game::{asset::GameAssets, states::GameState};
 
-use super::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE};
+use super::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceBundle};
 
@@ -86,15 +86,15 @@ fn spawn_roof_tile(
     roof_index: i32,
 ) {
     commands.spawn((
-        WorldTile,
+        WorldTile((x, y)),
         Name::new("ceil"),
         StateScoped(GameState::InGame),
         AsepriteSliceBundle {
             aseprite: assets.asset.clone(),
             slice: AsepriteSlice::new(format!("roof{:?}", roof_index).as_str()),
             transform: Transform::from_xyz(
-                TILE_SIZE * x as f32 + TILE_HALF * dx as f32 - 4.0,
-                (TILE_SIZE * -y as f32) + TILE_HALF * -dy as f32 + 12.0,
+                TILE_SIZE * x as f32 + TILE_HALF * dx as f32,
+                (TILE_SIZE * -y as f32) + TILE_HALF * -dy as f32 + WALL_HEIGHT,
                 5.0,
             ),
             ..default()
