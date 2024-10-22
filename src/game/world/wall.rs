@@ -147,8 +147,6 @@ fn process_break_wall_event(
     let mut rebuild = false;
 
     for event in break_wall_events.read() {
-        rebuild = true;
-
         // 格子点との距離をXとYそれぞれで計算し、どちらの方向が壁なのかを判定して、
         // 壁のあるほうを破壊します
         // TODO 壁が壊せないときがあって、このあたりのコードがおかしい
@@ -187,15 +185,24 @@ fn process_break_wall_event(
                 let dist_b = (*b - event.position).length_squared();
                 dist_a.partial_cmp(&dist_b).unwrap()
             });
-            let rx = tile_list[0].x / TILE_SIZE as f32;
-            let ry = tile_list[0].y / TILE_SIZE as f32;
-            chunk.set_tile(rx as i32, ry as i32, Tile::StoneTile);
+
+            // 魔法が当たったとみなされた壁タイルの位置
+            let rx = (tile_list[0].x / TILE_SIZE as f32) as i32;
+            let ry = (tile_list[0].y / TILE_SIZE as f32) as i32;
+            let life = chunk.get_life(rx, ry);
+            if 0 < life {
+                chunk.set_life(rx as i32, ry as i32, life - 1);
+
+                play_se(&mut commands, assets.dageki.clone());
+            } else {
+                chunk.set_tile(rx as i32, ry as i32, Tile::StoneTile);
+                rebuild = true;
+            }
         }
     }
 
     break_wall_events.clear();
 
-    // 壁のダメージ蓄積を実装するまでは確率的に壊れるようにする
     if rebuild {
         respawn_world(
             &mut commands,

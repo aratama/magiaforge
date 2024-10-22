@@ -1,5 +1,4 @@
 pub mod ceil;
-pub mod floor;
 pub mod map;
 pub mod tile;
 pub mod wall;

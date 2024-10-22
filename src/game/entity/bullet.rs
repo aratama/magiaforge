@@ -93,8 +93,7 @@ pub fn update_bullet(
 
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut break_wall_events: EventWriter<BreakWallEvent>,
-
-    rapier_context: Res<RapierContext>,
+    // rapier_context: Res<RapierContext>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
@@ -120,7 +119,7 @@ pub fn update_bullet(
                     &b,
                     &wall_collider_query,
                     &mut break_wall_events,
-                    &rapier_context,
+                    // &rapier_context,
                 ) {
                     process_bullet_event(
                         &mut commands,
@@ -133,7 +132,7 @@ pub fn update_bullet(
                         &a,
                         &wall_collider_query,
                         &mut break_wall_events,
-                        &rapier_context,
+                        // &rapier_context,
                     );
                 }
             }
@@ -153,7 +152,7 @@ fn process_bullet_event(
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
     break_wall_events: &mut EventWriter<BreakWallEvent>,
-    rapier_context: &Res<RapierContext>,
+    // rapier_context: &Res<RapierContext>,
 ) -> bool {
     // for contact_pair in rapier_context.contact_pairs_with(*a) {
     //     println!(
