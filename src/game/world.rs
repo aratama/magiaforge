@@ -54,13 +54,9 @@ fn respawn_world(
     chunk: &TileMapChunk,
     world_tile: &Query<Entity, With<WorldTile>>,
 ) {
-    println!("respowning world...");
-
     let asset_aseprite = level_aseprites.get(assets.asset.id()).unwrap();
     respawn_world_tilemap(&mut commands, &assets, asset_aseprite, &chunk, &world_tile);
     respawn_wall_collisions(&mut commands, &collider_query, &chunk);
-
-    println!("respowned world");
 }
 
 fn respawn_world_tilemap(
@@ -245,6 +241,7 @@ impl Plugin for WorldPlugin {
 }
 
 /// スライス名からタイルマップのインデックスを計算します
+#[allow(dead_code)]
 pub fn slice_to_tile_texture_index(
     asset_aseprite: &Aseprite,
     asset_atlas: &Image,

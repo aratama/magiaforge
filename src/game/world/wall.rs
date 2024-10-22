@@ -149,24 +149,54 @@ fn process_break_wall_event(
     for event in break_wall_events.read() {
         rebuild = true;
 
-        let x = (event.position.x / TILE_SIZE) as i32;
-        let y = -(event.position.y / TILE_SIZE) as i32;
+        // 格子点との距離をXとYそれぞれで計算し、どちらの方向が壁なのかを判定して、
+        // 壁のあるほうを破壊します
+        // TODO 壁が壊せないときがあって、このあたりのコードがおかしい
+        // let x = event.position.x / TILE_SIZE;
+        // let y = -event.position.y / TILE_SIZE;
+        // let near_x = (x - x.round()).abs();
+        // let near_y = (y - y.round()).abs();
+        // if near_x < near_y {
+        //     chunk.set_tile(x.round() as i32 - 1, y.floor() as i32 + 0, Tile::StoneTile);
+        //     chunk.set_tile(x.round() as i32 + 0, y.floor() as i32 + 0, Tile::StoneTile);
+        // } else {
+        //     chunk.set_tile(x.floor() as i32 + 1, y.round() as i32 - 1, Tile::StoneTile);
+        //     chunk.set_tile(x.floor() as i32 + 1, y.round() as i32 + 0, Tile::StoneTile);
+        // }
 
-        println!("tile {:?} broken", (x, y));
-
-        // ひとまず端の壁は壊れないようにしておく
-        if 1 < x && x < chunk.width - 2 && 1 < y && y < chunk.height - 2 {
-            chunk.set_tile(x - 1, y + 0, Tile::StoneTile);
-            chunk.set_tile(x + 1, y + 0, Tile::StoneTile);
-            chunk.set_tile(x + 0, y - 1, Tile::StoneTile);
-            chunk.set_tile(x + 0, y + 1, Tile::StoneTile);
+        // 仕方ないので、弾丸の周囲の壁のうち最も近いものを破壊する
+        let x = event.position.x / TILE_SIZE as f32;
+        let y = -event.position.y / TILE_SIZE as f32;
+        let mut tile_list = Vec::<Vec2>::new();
+        for dy in 0..3 {
+            for dx in 0..3 {
+                let tx = (x + dx as f32) as i32;
+                let ty = (y + dy as f32) as i32;
+                let tile = chunk.get_tile(tx, ty);
+                if tile == Tile::Wall {
+                    tile_list.push(Vec2::new(
+                        TILE_SIZE * tx as f32 + TILE_HALF,
+                        TILE_SIZE * ty as f32 + TILE_HALF,
+                    ));
+                }
+            }
+        }
+        if !tile_list.is_empty() {
+            tile_list.sort_by(|a, b| {
+                let dist_a = (*a - event.position).length_squared();
+                let dist_b = (*b - event.position).length_squared();
+                dist_a.partial_cmp(&dist_b).unwrap()
+            });
+            let rx = tile_list[0].x / TILE_SIZE as f32;
+            let ry = tile_list[0].y / TILE_SIZE as f32;
+            chunk.set_tile(rx as i32, ry as i32, Tile::StoneTile);
         }
     }
 
     break_wall_events.clear();
 
     // 壁のダメージ蓄積を実装するまでは確率的に壊れるようにする
-    if rebuild && 0.8 < rand::random::<f32>() {
+    if rebuild {
         respawn_world(
             &mut commands,
             level_aseprites,

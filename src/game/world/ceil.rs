@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
 use bevy_ecs_tilemap::prelude::*;
 
+#[allow(dead_code)]
 pub fn get_ceil_tile_indices(
     asset_aseprite: &Aseprite,
     asset_image: &Image,
