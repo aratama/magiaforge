@@ -11,6 +11,20 @@ use bevy_rapier2d::prelude::*;
 use rand::random;
 use std::f32::consts::PI;
 
+// 魔法の拡散
+const BULLET_SCATTERING: f32 = 0.3;
+
+// 魔法弾の速度
+// pixels_per_meter が 100.0 に設定されているので、
+// 200は1フレームに2ピクセル移動する速度です
+const BULLET_SPEED: f32 = 200.0;
+
+// 次の魔法を発射するまでの待機フレーム数
+const BULLET_COOLTIME: i32 = 8;
+
+// 一度に発射する弾丸の数
+const BULLETS_PER_FIRE: u32 = 1;
+
 #[derive(Component)]
 pub struct Player {
     /// 次の魔法を発射できるまでのクールタイム
@@ -116,34 +130,20 @@ fn update_player(
 
         // 魔法の発射
         if get_fire_trigger(buttons, gamepad_buttons, &my_gamepad) && player.cooltime == 0 {
-            // 魔法の拡散
-            let scattering = 0.3;
-
-            // 魔法弾の速度
-            // pixels_per_meter が 100.0 に設定されているので、
-            // 200は1フレームに2ピクセル移動する速度です
-            let speed = 200.0;
-
-            // 次の魔法を発射するまでの待機フレーム数
-            let cooltime = 16;
-
-            // 一度に発射する弾丸の数
-            let bullets_unit = 1;
-
             let normalized = player.pointer.normalize();
 
-            for _ in 0..bullets_unit {
-                let angle_with_random = angle + (random::<f32>() - 0.5) * scattering;
+            for _ in 0..BULLETS_PER_FIRE {
+                let angle_with_random = angle + (random::<f32>() - 0.5) * BULLET_SCATTERING;
                 let direction = Vec2::from_angle(angle_with_random);
                 add_bullet(
                     &mut commands,
                     assets.asset.clone(),
                     player_transform.translation.truncate() + normalized * 10.0,
-                    direction * speed,
+                    direction * BULLET_SPEED,
                 );
             }
 
-            player.cooltime = cooltime;
+            player.cooltime = BULLET_COOLTIME;
         } else {
             player.cooltime = (player.cooltime - 1).max(0);
         }

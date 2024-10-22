@@ -1,5 +1,5 @@
 use super::{
-    map::TileMapChunk, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, PLAYER_GROUP,
+    map::LevelTileMap, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, PLAYER_GROUP,
     TILE_HALF, TILE_SIZE, WALL_GROUP,
 };
 use crate::game::{asset::GameAssets, audio::play_se, states::GameState, world::tile::Tile};
@@ -15,7 +15,7 @@ use std::collections::HashMap;
 /// TODO: 本棚などのエンティティもここで一括で生成したほうが効率はいい？
 /// でもエンティティが個別に削除されることも多そうなので、その場合はエンティティは別のほうがいいかも
 /// https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/walls.rs
-pub fn get_wall_collisions(chunk: &TileMapChunk) -> Vec<Rect> {
+pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
     let width = chunk.width;
     let height = chunk.height;
 
@@ -95,7 +95,7 @@ pub struct WallCollider;
 pub fn respawn_wall_collisions(
     commands: &mut Commands,
     collider_query: &Query<Entity, With<WallCollider>>,
-    chunk: &TileMapChunk,
+    chunk: &LevelTileMap,
 ) {
     // 既存の壁コライダーを削除
     for entity in collider_query.iter() {
@@ -138,10 +138,9 @@ pub struct BreakWallEvent {
 fn process_break_wall_event(
     mut break_wall_events: EventReader<BreakWallEvent>,
     mut commands: Commands,
-    level_aseprites: Res<Assets<Aseprite>>,
     assets: Res<GameAssets>,
     collider_query: Query<Entity, With<WallCollider>>,
-    mut chunk: ResMut<TileMapChunk>,
+    mut chunk: ResMut<LevelTileMap>,
     world_tile: Query<Entity, With<WorldTile>>,
 ) {
     let mut rebuild = false;
@@ -204,14 +203,7 @@ fn process_break_wall_event(
     break_wall_events.clear();
 
     if rebuild {
-        respawn_world(
-            &mut commands,
-            level_aseprites,
-            &assets,
-            collider_query,
-            &chunk,
-            &world_tile,
-        );
+        respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
 
         play_se(&mut commands, assets.kuzureru.clone());
     }

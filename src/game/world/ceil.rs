@@ -1,33 +1,13 @@
 use crate::game::{asset::GameAssets, states::GameState};
 
-use super::{
-    super::world::slice_to_tile_texture_index, map::TileMapChunk, Tile, WorldTile, TILE_HALF,
-    TILE_SIZE,
-};
+use super::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE};
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
-use bevy_ecs_tilemap::prelude::*;
-
-#[allow(dead_code)]
-pub fn get_ceil_tile_indices(
-    asset_aseprite: &Aseprite,
-    asset_image: &Image,
-) -> Vec<TileTextureIndex> {
-    let mut ceil_tile_indices = Vec::with_capacity(16);
-    for i in 0..16 {
-        ceil_tile_indices.push(slice_to_tile_texture_index(
-            asset_aseprite,
-            asset_image,
-            format!("roof{}", i).as_str(),
-        ));
-    }
-    return ceil_tile_indices;
-}
+use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceBundle};
 
 pub fn spawn_roof_tiles(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    chunk: &TileMapChunk,
+    chunk: &LevelTileMap,
     x: i32,
     y: i32,
 ) {

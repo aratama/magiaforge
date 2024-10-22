@@ -2,20 +2,20 @@ use super::super::{entity::GameEntity, world::tile::Tile};
 use bevy::prelude::{Image, Resource};
 
 #[derive(Clone, Copy)]
-struct TileMapChunkTile {
+struct LevelTileMapile {
     tile: Tile,
     life: i32,
 }
 
 #[derive(Clone, Resource)]
-pub struct TileMapChunk {
-    tiles: Vec<TileMapChunkTile>,
+pub struct LevelTileMap {
+    tiles: Vec<LevelTileMapile>,
     pub width: i32,
     pub height: i32,
     pub entities: Vec<(GameEntity, i32, i32)>,
 }
 
-impl TileMapChunk {
+impl LevelTileMap {
     pub fn get_tile(&self, x: i32, y: i32) -> Tile {
         if x < 0 || x >= self.width || y < 0 || y >= self.height {
             return Tile::Blank;
@@ -64,10 +64,10 @@ impl TileMapChunk {
     }
 }
 
-pub fn image_to_tilemap(level_image: &Image) -> TileMapChunk {
+pub fn image_to_tilemap(level_image: &Image) -> LevelTileMap {
     let width = level_image.width() as i32;
     let height = level_image.height() as i32;
-    let mut tiles: Vec<TileMapChunkTile> = Vec::new();
+    let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
     for y in 0..height {
         for x in 0..width {
@@ -78,33 +78,33 @@ pub fn image_to_tilemap(level_image: &Image) -> TileMapChunk {
             let a = level_image.data[i + 3];
             match (r, g, b, a) {
                 (203, 219, 252, 255) => {
-                    tiles.push(TileMapChunkTile {
+                    tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         life: 4,
                     });
                 }
                 (82, 75, 36, 255) => {
-                    tiles.push(TileMapChunkTile {
+                    tiles.push(LevelTileMapile {
                         tile: Tile::Wall,
                         life: 4,
                     });
                 }
                 (118, 66, 138, 255) => {
-                    tiles.push(TileMapChunkTile {
+                    tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         life: 4,
                     });
                     entities.push((GameEntity::BookShelf, x, y));
                 }
                 (251, 242, 54, 255) => {
-                    tiles.push(TileMapChunkTile {
+                    tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         life: 4,
                     });
                     entities.push((GameEntity::Chest, x, y));
                 }
                 _ => {
-                    tiles.push(TileMapChunkTile {
+                    tiles.push(LevelTileMapile {
                         tile: Tile::Blank,
                         life: 4,
                     });
@@ -112,7 +112,7 @@ pub fn image_to_tilemap(level_image: &Image) -> TileMapChunk {
             }
         }
     }
-    return TileMapChunk {
+    return LevelTileMap {
         tiles,
         width,
         height,

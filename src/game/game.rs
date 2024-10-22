@@ -30,7 +30,6 @@ use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
-use bevy_ecs_tilemap::prelude::*;
 #[cfg(feature = "debug")]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
@@ -81,7 +80,6 @@ pub fn run_game() {
             // })
         )
         .add_plugins(EmbeddedAssetPlugin)
-        .add_plugins(TilemapPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(
             PIXELS_PER_METER,
         ))
