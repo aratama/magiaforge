@@ -68,6 +68,11 @@ pub fn setup_main_menu(
         StateScoped(GameState::MainMenu),
         ImageBundle {
             z_index: ZIndex::Global(-1000),
+            style: Style {
+                width: Val::Px(1280.0),
+                height: Val::Px(720.0),
+                ..default()
+            },
             ..default()
         },
         AsepriteSliceUiBundle {
