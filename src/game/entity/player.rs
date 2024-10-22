@@ -58,7 +58,7 @@ fn setup_player(mut commands: Commands, player_data: Res<PlayerData>, assets: Re
         ExternalImpulse::default(),
         CollisionGroups::new(PLAYER_GROUP, ENEMY_GROUP | WALL_GROUP),
         PointLight2d {
-            radius: 100.0,
+            radius: 150.0,
             intensity: 3.0,
             falloff: 10.0,
             ..default()

@@ -1,3 +1,5 @@
+use crate::game::world::wall::{BreakWallEvent, WallCollider};
+
 use super::super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::super::states::GameState;
 use super::super::{asset::GameAssets, audio::play_se};
@@ -88,6 +90,8 @@ pub fn update_bullet(
     mut bookshelf_query: Query<&mut BookShelf>,
     assets: Res<GameAssets>,
     mut collision_events: EventReader<CollisionEvent>,
+    wall_collider_query: Query<Entity, With<WallCollider>>,
+    mut break_wall_events: EventWriter<BreakWallEvent>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
@@ -111,6 +115,8 @@ pub fn update_bullet(
                     &mut despownings,
                     &a,
                     &b,
+                    &wall_collider_query,
+                    &mut break_wall_events,
                 ) {
                     process_bullet_event(
                         &mut commands,
@@ -121,6 +127,8 @@ pub fn update_bullet(
                         &mut despownings,
                         &b,
                         &a,
+                        &wall_collider_query,
+                        &mut break_wall_events,
                     );
                 }
             }
@@ -138,6 +146,8 @@ fn process_bullet_event(
     respownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
+    wall_collider_query: &Query<Entity, With<WallCollider>>,
+    break_wall_events: &mut EventWriter<BreakWallEvent>,
 ) -> bool {
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
@@ -160,8 +170,12 @@ fn process_bullet_event(
                 // でも破壊したときの効果が物体によって異なるのでまとめられない？
                 bookshelf.life -= bullet.damage;
                 play_se(&mut commands, assets.dageki.clone());
+            } else if let Ok(_) = wall_collider_query.get(*b) {
+                // 弾丸が壁に衝突したとき
+                let position = bullet_transform.translation.truncate();
+                break_wall_events.send(BreakWallEvent { position });
+                play_se(&mut commands, assets.shibafu.clone());
             } else {
-                // 弾丸が衝突したのが壁などの破壊不能エンティティのとき
                 play_se(&mut commands, assets.shibafu.clone());
             }
             true

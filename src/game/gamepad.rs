@@ -71,10 +71,19 @@ pub fn get_direction(
             }
         }
         None => Vec2::ZERO,
-    }
-    .normalize_or_zero();
+    };
 
-    (key_direction + gamepad_direction).normalize_or_zero()
+    let merged = key_direction
+        + if 0.2 < gamepad_direction.length() {
+            gamepad_direction
+        } else {
+            gamepad_direction.normalize_or_zero()
+        };
+    if 1.0 < merged.length() {
+        merged.normalize_or_zero()
+    } else {
+        merged
+    }
 }
 
 pub fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCode) -> f32 {
