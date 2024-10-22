@@ -38,6 +38,7 @@ use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::PerfUiPlugin;
+use wall::WallPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -106,6 +107,7 @@ pub fn run_game() {
         .add_plugins(BookshelfPlugin)
         .add_plugins(GamepadPlugin)
         .add_plugins(PointerPlugin)
+        .add_plugins(WallPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています

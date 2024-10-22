@@ -8,6 +8,8 @@ pub enum GameState {
     // カメラの初期化を StartUp スケジュールで実行することはできません
     // このため、初期化専用の Setupステートを設けています
     // https://bevyengine.org/learn/migration-guides/0-13-to-0-14/#onenter-state-schedules-now-run-before-startup-schedules
+    //
+    // また、bevy_asset_loader の読み込み中を表すステートとしても Setup は必要です
     #[default]
     Setup,
 
@@ -21,5 +23,7 @@ pub enum GameState {
 pub enum MainMenuPhase {
     #[default]
     Active,
+
+    /// スタートボタンを押してフェードアウトしている最中
     Paused,
 }

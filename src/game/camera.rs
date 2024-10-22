@@ -26,12 +26,12 @@ pub fn setup_camera(mut commands: Commands) {
         CameraScaleFactor(initial_scale_factor),
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
-        // AmbientLight2d {
-        //     // color: Color::hsl(250.0, 0.8, 0.5),
-        //     brightness: BLIGHTNESS_IN_GAME,
-        //     // brightness: 1.,
-        //     ..default()
-        // },
+        AmbientLight2d {
+            // color: Color::hsl(250.0, 0.8, 0.5),
+            brightness: BLIGHTNESS_IN_GAME,
+            // brightness: 1.,
+            ..default()
+        },
     ));
 }
 

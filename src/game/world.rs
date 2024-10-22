@@ -12,7 +12,6 @@ use super::entity::player::Player;
 use super::entity::GameEntity;
 use super::hud::overlay::OverlayNextState;
 use super::states::GameState;
-use super::world::ceil::get_ceil_tile_indices;
 use super::world::ceil::spawn_roof_tiles;
 use super::world::map::image_to_tilemap;
 use super::world::map::TileMapChunk;
@@ -21,39 +20,54 @@ use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
-use bevy_rapier2d::prelude::*;
-use wall::get_wall_collisions;
+use wall::respawn_wall_collisions;
+use wall::WallCollider;
 
 fn setup_world(
     mut commands: Commands,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
+    collider_query: Query<Entity, With<WallCollider>>,
+    world_tile: Query<Entity, With<WorldTile>>,
 ) {
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
-
-    let asset_aseprite = level_aseprites.get(assets.asset.id()).unwrap();
-    let asset_image = images.get(asset_aseprite.atlas_image.id()).unwrap();
-
     let chunk = image_to_tilemap(&level_image);
-
-    spawn_world_tilemap(&mut commands, assets, asset_aseprite, asset_image, &chunk);
-
-    spawn_wall_collisions(&mut commands, &chunk);
+    respawn_world(
+        &mut commands,
+        level_aseprites,
+        &assets,
+        collider_query,
+        &chunk,
+        &world_tile,
+    );
+    spawn_entities(&mut commands, &assets, &chunk);
 }
 
-fn spawn_world_tilemap(
+fn respawn_world(
     mut commands: &mut Commands,
-    assets: Res<GameAssets>,
-    asset_aseprite: &Aseprite,
-    asset_image: &Image,
+    level_aseprites: Res<Assets<Aseprite>>,
+    assets: &Res<GameAssets>,
+    collider_query: Query<Entity, With<WallCollider>>,
     chunk: &TileMapChunk,
+    world_tile: &Query<Entity, With<WorldTile>>,
 ) {
-    let stone_tile_slice_index =
-        slice_to_tile_texture_index(asset_aseprite, asset_image, "stone tile");
+    let asset_aseprite = level_aseprites.get(assets.asset.id()).unwrap();
+    respawn_world_tilemap(&mut commands, &assets, asset_aseprite, &chunk, &world_tile);
+    respawn_wall_collisions(&mut commands, &collider_query, &chunk);
+}
 
-    let ceil_tile_indices = get_ceil_tile_indices(&asset_aseprite, &asset_image);
+fn respawn_world_tilemap(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    asset_aseprite: &Aseprite,
+    chunk: &TileMapChunk,
+    world_tile: &Query<Entity, With<WorldTile>>,
+) {
+    for entity in world_tile.iter() {
+        commands.entity(entity).despawn();
+    }
 
     let floor_map_size = TilemapSize {
         x: chunk.width as u32,
@@ -68,30 +82,16 @@ fn spawn_world_tilemap(
     let floor_layer_entity = TilemapId(commands.spawn_empty().id());
     let roof_layer_entity = TilemapId(commands.spawn_empty().id());
 
-    let mut floor_layer_storage = TileStorage::empty(floor_map_size);
-    let mut ceil_layer_storage = TileStorage::empty(ceil_map_size);
+    let floor_layer_storage = TileStorage::empty(floor_map_size);
+    let ceil_layer_storage = TileStorage::empty(ceil_map_size);
 
     // 床と壁の生成
     for y in 0..chunk.height as i32 {
         for x in 0..chunk.width as i32 {
-            let floor_tile_pos = TilePos {
-                x: x as u32,
-                y: floor_map_size.y - (y as u32) - 1,
-            };
-
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
-                    // floor_layer_storage.set(
-                    //     &floor_tile_pos,
-                    //     spawn_floor_tile(
-                    //         &mut commands,
-                    //         floor_tile_pos,
-                    //         floor_layer_entity,
-                    //         stone_tile_slice_index,
-                    //     ),
-                    // );
-
                     commands.spawn((
+                        WorldTile,
                         Name::new("stone_tile"),
                         StateScoped(GameState::InGame),
                         AsepriteSliceBundle {
@@ -114,6 +114,7 @@ fn spawn_world_tilemap(
                     // 壁
                     if chunk.get_tile(x as i32, y as i32 + 1) != Tile::Wall {
                         commands.spawn((
+                            WorldTile,
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
                             AsepriteSliceBundle {
@@ -137,32 +138,10 @@ fn spawn_world_tilemap(
                         || chunk.is_empty(x + 0, y + 1)
                         || chunk.is_empty(x + 1, y + 1)
                     {
-                        spawn_roof_tiles(
-                            commands,
-                            floor_map_size.y as i32,
-                            &mut ceil_layer_storage,
-                            roof_layer_entity,
-                            &ceil_tile_indices,
-                            x,
-                            y,
-                        )
+                        spawn_roof_tiles(commands, assets, x, y)
                     }
                 }
                 _ => {}
-            }
-        }
-    }
-
-    // エンティティの生成
-    for (entity, x, y) in &chunk.entities {
-        let tx = TILE_SIZE * *x as f32;
-        let ty = TILE_SIZE * -*y as f32;
-        match entity {
-            GameEntity::BookShelf => {
-                spawn_book_shelf(&mut commands, assets.asset.clone(), tx, ty);
-            }
-            GameEntity::Chest => {
-                spawn_chest(&mut commands, assets.asset.clone(), tx, ty);
             }
         }
     }
@@ -221,44 +200,20 @@ fn spawn_world_tilemap(
     ));
 }
 
-fn spawn_wall_collisions(commands: &mut Commands, chunk: &TileMapChunk) {
-    // 衝突形状の生成
-    for rect in get_wall_collisions(&chunk) {
-        let w = TILE_HALF * (rect.width() + 1.0);
-        let h = TILE_HALF * (rect.height() + 1.0);
-        let x = rect.min.x as f32 * TILE_SIZE + w - TILE_HALF;
-        let y = rect.min.y as f32 * -TILE_SIZE - h + TILE_HALF;
-        commands.spawn((
-            Name::new("wall collider"),
-            StateScoped(GameState::InGame),
-            Transform::from_translation(Vec3::new(x, y, 0.0)),
-            GlobalTransform::default(),
-            // todo: merge colliders
-            Collider::cuboid(w, h),
-            RigidBody::Fixed,
-            Friction::new(1.0),
-            CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
-        ));
+fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: &TileMapChunk) {
+    // エンティティの生成
+    for (entity, x, y) in &chunk.entities {
+        let tx = TILE_SIZE * *x as f32;
+        let ty = TILE_SIZE * -*y as f32;
+        match entity {
+            GameEntity::BookShelf => {
+                spawn_book_shelf(&mut commands, assets.asset.clone(), tx, ty);
+            }
+            GameEntity::Chest => {
+                spawn_chest(&mut commands, assets.asset.clone(), tx, ty);
+            }
+        }
     }
-}
-
-fn spawn_floor_tile(
-    commands: &mut Commands,
-    tile_pos: TilePos,
-    tilemap_id: TilemapId,
-    texture_index: TileTextureIndex,
-) -> Entity {
-    commands
-        .spawn((
-            Name::new("stone_tile"),
-            TileBundle {
-                position: tile_pos,
-                tilemap_id,
-                texture_index,
-                ..default()
-            },
-        ))
-        .id()
 }
 
 fn update_world(
@@ -285,6 +240,7 @@ impl Plugin for WorldPlugin {
 }
 
 /// スライス名からタイルマップのインデックスを計算します
+#[allow(dead_code)]
 pub fn slice_to_tile_texture_index(
     asset_aseprite: &Aseprite,
     asset_atlas: &Image,

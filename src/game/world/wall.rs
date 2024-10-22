@@ -1,6 +1,13 @@
-use super::map::TileMapChunk;
-use crate::game::world::tile::Tile;
+use super::{
+    map::TileMapChunk, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, PLAYER_GROUP,
+    TILE_HALF, TILE_SIZE, WALL_GROUP,
+};
+use crate::game::{asset::GameAssets, audio::play_se, states::GameState, world::tile::Tile};
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::Aseprite;
+use bevy_rapier2d::prelude::{
+    CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
+};
 use std::collections::HashMap;
 
 /// 壁タイルから衝突矩形を計算します
@@ -80,4 +87,136 @@ pub fn get_wall_collisions(chunk: &TileMapChunk) -> Vec<Rect> {
     }
 
     wall_rects
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
+pub struct WallCollider;
+
+pub fn respawn_wall_collisions(
+    commands: &mut Commands,
+    collider_query: &Query<Entity, With<WallCollider>>,
+    chunk: &TileMapChunk,
+) {
+    // 既存の壁コライダーを削除
+    for entity in collider_query.iter() {
+        commands.entity(entity).despawn();
+    }
+
+    // 衝突形状の生成
+    for rect in get_wall_collisions(&chunk) {
+        let w = TILE_HALF * (rect.width() + 1.0);
+        let h = TILE_HALF * (rect.height() + 1.0);
+        let x = rect.min.x as f32 * TILE_SIZE + w - TILE_HALF;
+        let y = rect.min.y as f32 * -TILE_SIZE - h + TILE_HALF;
+        commands.spawn((
+            WallCollider,
+            Name::new("wall collider"),
+            StateScoped(GameState::InGame),
+            Transform::from_translation(Vec3::new(x, y, 0.0)),
+            GlobalTransform::default(),
+            // todo: merge colliders
+            Collider::cuboid(w, h),
+            RigidBody::Fixed,
+            Friction {
+                coefficient: 0.0,
+                combine_rule: CoefficientCombineRule::Min,
+            },
+            CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
+        ));
+    }
+
+    commands.insert_resource(chunk.clone());
+}
+
+#[derive(Event)]
+pub struct BreakWallEvent {
+    /// 破壊の起点となった座標
+    /// 例えば弾丸の当たった位置など
+    pub position: Vec2,
+}
+
+fn process_break_wall_event(
+    mut break_wall_events: EventReader<BreakWallEvent>,
+    mut commands: Commands,
+    level_aseprites: Res<Assets<Aseprite>>,
+    assets: Res<GameAssets>,
+    collider_query: Query<Entity, With<WallCollider>>,
+    mut chunk: ResMut<TileMapChunk>,
+    world_tile: Query<Entity, With<WorldTile>>,
+) {
+    let mut rebuild = false;
+
+    for event in break_wall_events.read() {
+        rebuild = true;
+
+        // 格子点との距離をXとYそれぞれで計算し、どちらの方向が壁なのかを判定して、
+        // 壁のあるほうを破壊します
+        // TODO 壁が壊せないときがあって、このあたりのコードがおかしい
+        // let x = event.position.x / TILE_SIZE;
+        // let y = -event.position.y / TILE_SIZE;
+        // let near_x = (x - x.round()).abs();
+        // let near_y = (y - y.round()).abs();
+        // if near_x < near_y {
+        //     chunk.set_tile(x.round() as i32 - 1, y.floor() as i32 + 0, Tile::StoneTile);
+        //     chunk.set_tile(x.round() as i32 + 0, y.floor() as i32 + 0, Tile::StoneTile);
+        // } else {
+        //     chunk.set_tile(x.floor() as i32 + 1, y.round() as i32 - 1, Tile::StoneTile);
+        //     chunk.set_tile(x.floor() as i32 + 1, y.round() as i32 + 0, Tile::StoneTile);
+        // }
+
+        // 仕方ないので、弾丸の周囲の壁のうち最も近いものを破壊する
+        let x = event.position.x / TILE_SIZE as f32;
+        let y = -event.position.y / TILE_SIZE as f32;
+        let mut tile_list = Vec::<Vec2>::new();
+        for dy in 0..3 {
+            for dx in 0..3 {
+                let tx = (x + dx as f32) as i32;
+                let ty = (y + dy as f32) as i32;
+                let tile = chunk.get_tile(tx, ty);
+                if tile == Tile::Wall {
+                    tile_list.push(Vec2::new(
+                        TILE_SIZE * tx as f32 + TILE_HALF,
+                        TILE_SIZE * ty as f32 + TILE_HALF,
+                    ));
+                }
+            }
+        }
+        if !tile_list.is_empty() {
+            tile_list.sort_by(|a, b| {
+                let dist_a = (*a - event.position).length_squared();
+                let dist_b = (*b - event.position).length_squared();
+                dist_a.partial_cmp(&dist_b).unwrap()
+            });
+            let rx = tile_list[0].x / TILE_SIZE as f32;
+            let ry = tile_list[0].y / TILE_SIZE as f32;
+            chunk.set_tile(rx as i32, ry as i32, Tile::StoneTile);
+        }
+    }
+
+    break_wall_events.clear();
+
+    // 壁のダメージ蓄積を実装するまでは確率的に壊れるようにする
+    if rebuild {
+        respawn_world(
+            &mut commands,
+            level_aseprites,
+            &assets,
+            collider_query,
+            &chunk,
+            &world_tile,
+        );
+
+        play_se(&mut commands, assets.kuzureru.clone());
+    }
+}
+
+pub struct WallPlugin;
+
+impl Plugin for WallPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<BreakWallEvent>().add_systems(
+            FixedUpdate,
+            process_break_wall_event.run_if(in_state(GameState::InGame)),
+        );
+    }
 }

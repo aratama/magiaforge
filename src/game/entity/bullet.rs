@@ -1,3 +1,5 @@
+use crate::game::world::wall::{BreakWallEvent, WallCollider};
+
 use super::super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::super::states::GameState;
 use super::super::{asset::GameAssets, audio::play_se};
@@ -62,12 +64,11 @@ pub fn add_bullet(
             RigidBody::KinematicVelocityBased,
             Collider::ball(5.0),
             GravityScale(0.0),
-            Sensor,
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
             ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
             ActiveEvents::COLLISION_EVENTS,
             Sleeping::disabled(),
-            Ccd::enabled(),
+            // Ccd::enabled(),
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
             CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ENEMY_GROUP),
         ),
@@ -87,7 +88,13 @@ pub fn update_bullet(
     mut enemy_query: Query<(&mut Enemy, &mut ExternalImpulse)>,
     mut bookshelf_query: Query<&mut BookShelf>,
     assets: Res<GameAssets>,
+
     mut collision_events: EventReader<CollisionEvent>,
+
+    wall_collider_query: Query<Entity, With<WallCollider>>,
+    mut break_wall_events: EventWriter<BreakWallEvent>,
+
+    rapier_context: Res<RapierContext>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
@@ -111,6 +118,9 @@ pub fn update_bullet(
                     &mut despownings,
                     &a,
                     &b,
+                    &wall_collider_query,
+                    &mut break_wall_events,
+                    &rapier_context,
                 ) {
                     process_bullet_event(
                         &mut commands,
@@ -121,6 +131,9 @@ pub fn update_bullet(
                         &mut despownings,
                         &b,
                         &a,
+                        &wall_collider_query,
+                        &mut break_wall_events,
+                        &rapier_context,
                     );
                 }
             }
@@ -138,8 +151,34 @@ fn process_bullet_event(
     respownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
+    wall_collider_query: &Query<Entity, With<WallCollider>>,
+    break_wall_events: &mut EventWriter<BreakWallEvent>,
+    rapier_context: &Res<RapierContext>,
 ) -> bool {
+    // for contact_pair in rapier_context.contact_pairs_with(*a) {
+    //     println!(
+    //         "has_any_active_contact {:?}",
+    //         contact_pair.has_any_active_contact()
+    //     );
+    // }
+    // for contact_pair in rapier_context.contact_pairs_with(*b) {
+    //     println!(
+    //         "has_any_active_contact {:?}",
+    //         contact_pair.has_any_active_contact()
+    //     );
+    // }
+    // false
+    // if let Some(contact_pair) = rapier_context.intersection_pair(*b, *a) {
+    //     for manifold in contact_pair.manifolds() {
+    //         if let Some(contact_view) = manifold.point(0) {
+    //             println!("dist: {:?}", contact_view.dist());
+    //         }
+    //     }
+    // }
+
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
+        let bullet_position = bullet_transform.translation.truncate();
+
         // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
         // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
         // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
@@ -147,7 +186,7 @@ fn process_bullet_event(
         if !respownings.contains(&bullet_entity) {
             respownings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn();
-            spawn_particle_system(&mut commands, bullet_transform.translation.truncate());
+            spawn_particle_system(&mut commands, bullet_position);
             if let Ok((mut enemy, mut impilse)) = enemies.get_mut(*b) {
                 // 弾丸が敵に衝突したとき
                 enemy.life -= bullet.damage;
@@ -160,8 +199,33 @@ fn process_bullet_event(
                 // でも破壊したときの効果が物体によって異なるのでまとめられない？
                 bookshelf.life -= bullet.damage;
                 play_se(&mut commands, assets.dageki.clone());
+            } else if let Ok(_) = wall_collider_query.get(*b) {
+                // 弾丸が壁に衝突したとき
+
+                // TODO
+                // 衝突した点を取得しようとしたものの、なぜか正確な値が取得できない
+                // 壁が壊せないときがあって、このあたりのコードがおかしい
+                // https://rapier.rs/docs/user_guides/bevy_plugin/advanced_collision_detection#the-contact-graph
+                // if let Some(item) = rapier_context.contact_pair(bullet_entity, *b) {
+                //     if let Some((contact_view, _)) = item.find_deepest_contact() {
+                //         let local_p1 = contact_view.point(0).unwrap().local_p1();
+                //         let local_p2 = contact_view.point(0).unwrap().local_p2();
+                //         let body1 = contact_view.rigid_body1().unwrap();
+                //         let position = if body1.index() == bullet_entity.index() {
+                //             bullet_position + local_p1
+                //         } else {
+                //             bullet_position + local_p2
+                //         };
+                //         break_wall_events.send(BreakWallEvent { position });
+                //         play_se(&mut commands, assets.shibafu.clone());
+                //     }
+                // }
+
+                // 仕方ないので、弾丸の位置から近い壁を破壊する方法で凌ぐ
+                break_wall_events.send(BreakWallEvent {
+                    position: bullet_position,
+                });
             } else {
-                // 弾丸が衝突したのが壁などの破壊不能エンティティのとき
                 play_se(&mut commands, assets.shibafu.clone());
             }
             true

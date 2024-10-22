@@ -1,7 +1,7 @@
 use super::super::{entity::GameEntity, world::tile::Tile};
-use bevy::prelude::Image;
+use bevy::prelude::{Image, Resource};
 
-#[derive(Clone)]
+#[derive(Clone, Resource)]
 pub struct TileMapChunk {
     tiles: Vec<Tile>,
     pub width: i32,
@@ -16,6 +16,14 @@ impl TileMapChunk {
         }
         let i = (y * self.width + x) as usize;
         return self.tiles[i];
+    }
+
+    pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
+        if x < 0 || x >= self.width || y < 0 || y >= self.height {
+            return;
+        }
+        let i = (y * self.width + x) as usize;
+        self.tiles[i] = tile;
     }
 
     pub fn is_empty(&self, x: i32, y: i32) -> bool {

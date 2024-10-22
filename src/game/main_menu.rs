@@ -4,7 +4,7 @@ use super::{
     states::{GameState, MainMenuPhase},
 };
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{Animation, AnimationRepeat, AsepriteAnimationBundle};
+use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 
 pub fn setup_main_menu(
     mut commands: Commands,
@@ -65,19 +65,14 @@ pub fn setup_main_menu(
         });
 
     commands.spawn((
-        Name::new("title image"),
         StateScoped(GameState::MainMenu),
-        AsepriteAnimationBundle {
+        ImageBundle {
+            z_index: ZIndex::Global(-1000),
+            ..default()
+        },
+        AsepriteSliceUiBundle {
+            slice: "all".into(),
             aseprite: assets.title.clone(),
-            transform: Transform::from_translation(Vec3::new(-320.0, 180., 10.))
-                .with_scale(Vec3::splat(0.5)),
-            animation: Animation::default()
-                .with_tag("default")
-                .with_repeat(AnimationRepeat::Loop),
-            sprite: Sprite {
-                anchor: bevy::sprite::Anchor::TopLeft,
-                ..default()
-            },
             ..default()
         },
     ));
