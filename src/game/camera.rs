@@ -1,4 +1,4 @@
-use super::player::*;
+use super::entity::player::*;
 use super::{serialize::PlayerData, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;

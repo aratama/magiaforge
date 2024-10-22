@@ -1,4 +1,5 @@
-use super::{enemy::Enemy, set::GameSet, states::GameState};
+use super::super::entity::enemy::Enemy;
+use super::super::{set::GameSet, states::GameState};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},

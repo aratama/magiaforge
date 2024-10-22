@@ -1,8 +1,35 @@
-use super::{constant::TILE_SIZE, gamepad::MyGamepad, player::Player, states::GameState};
+use super::{
+    super::{asset::GameAssets, constant::TILE_SIZE, gamepad::MyGamepad, states::GameState},
+    Player,
+};
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 
 #[derive(Component)]
-pub struct Pointer;
+struct Pointer;
+
+fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
+    commands.spawn((
+        Pointer,
+        StateScoped(GameState::InGame),
+        ImageBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(0.0),
+                left: Val::Px(0.0),
+                width: Val::Px(13.0 * 2.0),
+                height: Val::Px(13.0 * 2.0),
+                ..default()
+            },
+            ..default()
+        },
+        AsepriteSliceUiBundle {
+            slice: "pointer".into(),
+            aseprite: assets.asset.clone(),
+            ..default()
+        },
+    ));
+}
 
 fn update_pointer_image_by_angle(
     player_query: Query<(&Player, &GlobalTransform)>,
@@ -80,19 +107,20 @@ pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            update_pointer_image_by_angle.run_if(in_state(GameState::InGame)),
-        )
-        .add_systems(
-            Update,
-            update_pointer_by_mouse.run_if(in_state(GameState::InGame)),
-        )
-        .add_systems(
-            Update,
-            update_pointer_by_gamepad
-                .run_if(in_state(GameState::InGame))
-                .after(update_pointer_by_mouse),
-        );
+        app.add_systems(OnEnter(GameState::InGame), setup_pointer)
+            .add_systems(
+                Update,
+                update_pointer_image_by_angle.run_if(in_state(GameState::InGame)),
+            )
+            .add_systems(
+                Update,
+                update_pointer_by_mouse.run_if(in_state(GameState::InGame)),
+            )
+            .add_systems(
+                Update,
+                update_pointer_by_gamepad
+                    .run_if(in_state(GameState::InGame))
+                    .after(update_pointer_by_mouse),
+            );
     }
 }

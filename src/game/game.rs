@@ -1,21 +1,20 @@
 use super::asset::GameAssets;
 use super::bgm::BGMPlugin;
-use super::bullet::BulletPlugin;
 use super::camera::*;
-use super::client::GameClientPlugin;
 use super::close_on_esc::close_on_esc;
 use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
 use super::embedded::EmbeddedAssetPlugin;
-use super::enemy::EnemyPlugin;
 use super::entity::book_shelf::BookshelfPlugin;
+use super::entity::bullet::BulletPlugin;
+use super::entity::enemy::EnemyPlugin;
+use super::entity::player::*;
 use super::gamepad::GamepadPlugin;
+use super::hud::life_bar::LifeBarPlugin;
+use super::hud::overlay::*;
+use super::hud::pointer::PointerPlugin;
 use super::hud::*;
-use super::life_bar::LifeBarPlugin;
 use super::main_menu::*;
-use super::overlay::*;
-use super::player::*;
-use super::pointer::PointerPlugin;
 use super::serialize::*;
 use super::states::*;
 use super::world::*;
@@ -105,7 +104,6 @@ pub fn run_game() {
         .add_plugins(BGMPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(BookshelfPlugin)
-        .add_plugins(GameClientPlugin)
         .add_plugins(GamepadPlugin)
         .add_plugins(PointerPlugin)
         //

@@ -1,8 +1,8 @@
-use super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
+use super::super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
+use super::super::states::GameState;
+use super::super::{asset::GameAssets, audio::play_se};
+use super::book_shelf::BookShelf;
 use super::enemy::Enemy;
-use super::entity::book_shelf::BookShelf;
-use super::states::GameState;
-use super::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
 use bevy_light_2d::light::PointLight2d;

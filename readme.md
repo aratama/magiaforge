@@ -43,7 +43,7 @@ https://aratama.github.io/bevy-wasm-example/ (**Desktop Chrome only** for now)
 - https://github.com/rustwasm/wasm-pack/issues/1434 Windows で trunk 0.21.1 をインストールしようとするとビルドエラーになる
 - https://cloud.google.com/blog/products/serverless/cloud-run-gets-websockets-http-2-and-grpc-bidirectional-streams?hl=en
 
-### Assets
+### Asset credits
 
 - 芝生の上を歩く https://soundeffect-lab.info/sound/various/
 - ひよこの鳴き声 https://soundeffect-lab.info/sound/animal/

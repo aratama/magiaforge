@@ -1,8 +1,7 @@
+use super::super::world::slice_to_tile_texture_index;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_ecs_tilemap::prelude::*;
-
-use super::world::slice_to_tile_texture_index;
 
 pub fn get_ceil_tile_indices(
     asset_aseprite: &Aseprite,

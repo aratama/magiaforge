@@ -1,4 +1,5 @@
-use super::{map::TileMapChunk, tile::*};
+use super::map::TileMapChunk;
+use crate::game::world::tile::Tile;
 use bevy::prelude::*;
 use std::collections::HashMap;
 

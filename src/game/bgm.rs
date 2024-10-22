@@ -1,6 +1,6 @@
 use super::asset::GameAssets;
 use super::states::GameState;
-use bevy::audio::Volume;
+use bevy::audio::{PlaybackMode, Volume};
 use bevy::prelude::*;
 
 #[cfg(not(feature = "debug"))]
@@ -20,6 +20,7 @@ fn setup_world_bgm(mut commands: Commands, asset: Res<GameAssets>, bgm: Query<&B
                 source: asset.they.clone(),
                 settings: PlaybackSettings {
                     volume: Volume::new(BGM_VOLUME),
+                    mode: PlaybackMode::Loop,
                     ..default()
                 },
             },

@@ -1,23 +1,28 @@
+pub mod ceil;
+pub mod map;
+pub mod tile;
+pub mod wall;
+
 use super::asset::GameAssets;
-use super::ceil::get_ceil_tile_indices;
-use super::ceil::spawn_roof_tiles;
 use super::constant::*;
-use super::enemy;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
+use super::entity::enemy::Enemy;
+use super::entity::player::Player;
 use super::entity::GameEntity;
-use super::map::image_to_tilemap;
-use super::map::TileMapChunk;
-use super::overlay::OverlayNextState;
-use super::player::Player;
+use super::hud::overlay::OverlayNextState;
 use super::states::GameState;
-use super::tile::*;
-use super::wall::*;
+use super::world::ceil::get_ceil_tile_indices;
+use super::world::ceil::spawn_roof_tiles;
+use super::world::map::image_to_tilemap;
+use super::world::map::TileMapChunk;
+use super::world::tile::*;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
+use wall::get_wall_collisions;
 
 fn setup_world(
     mut commands: Commands,
@@ -243,7 +248,7 @@ fn spawn_floor_tile(
 
 fn update_world(
     player_query: Query<&Player>,
-    enemy_query: Query<&enemy::Enemy>,
+    enemy_query: Query<&Enemy>,
     mut overlay_next_state: ResMut<OverlayNextState>,
 ) {
     let player = player_query.get_single();

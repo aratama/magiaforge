@@ -1,9 +1,11 @@
-use super::player::*;
-use super::pointer::Pointer;
+pub mod life_bar;
+pub mod overlay;
+pub mod pointer;
+
+use super::constant::HUD_Z_INDEX;
+use super::entity::player::*;
 use super::states::GameState;
-use super::{asset::GameAssets, constant::HUD_Z_INDEX};
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
 
@@ -24,7 +26,7 @@ pub struct PlayerDamageBar;
 #[derive(Component)]
 pub struct PlayerLifeText;
 
-fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
+fn setup_hud(mut commands: Commands) {
     let mut root = commands.spawn((
         StateScoped(GameState::InGame),
         NodeBundle {
@@ -107,26 +109,6 @@ fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
             HUD,
         ));
     });
-
-    commands.spawn((
-        Pointer,
-        ImageBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(0.0),
-                left: Val::Px(0.0),
-                width: Val::Px(13.0 * 2.0),
-                height: Val::Px(13.0 * 2.0),
-                ..default()
-            },
-            ..default()
-        },
-        AsepriteSliceUiBundle {
-            slice: "pointer".into(),
-            aseprite: assets.asset.clone(),
-            ..default()
-        },
-    ));
 
     #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());

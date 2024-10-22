@@ -1,6 +1,5 @@
+use super::super::{entity::GameEntity, world::tile::Tile};
 use bevy::prelude::Image;
-
-use super::{entity::GameEntity, tile::Tile};
 
 #[derive(Clone)]
 pub struct TileMapChunk {

@@ -1,5 +1,5 @@
 use super::constant::TILE_SIZE;
-use super::player::Player;
+use super::entity::player::Player;
 use bevy::{
     prelude::*,
     time::{Time, Timer},

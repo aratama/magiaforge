@@ -1,12 +1,7 @@
-use super::constant::*;
-use super::{
-    asset::GameAssets,
-    audio::play_se,
-    life_bar::{spawn_life_bar, LifeBarResource},
-    player::Player,
-    set::GameSet,
-    states::GameState,
-};
+use super::super::constant::*;
+use super::super::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use super::super::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
+use super::player::Player;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

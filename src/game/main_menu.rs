@@ -1,6 +1,6 @@
+use super::hud::overlay::OverlayNextState;
 use super::{
     asset::GameAssets,
-    overlay::OverlayNextState,
     states::{GameState, MainMenuPhase},
 };
 use bevy::prelude::*;
