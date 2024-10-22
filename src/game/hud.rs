@@ -6,6 +6,8 @@ use super::constant::HUD_Z_INDEX;
 use super::entity::player::*;
 use super::states::GameState;
 use bevy::prelude::*;
+use bevy::transform::commands;
+use git_version::git_version;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
 
@@ -143,5 +145,31 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_hud);
         app.add_systems(Update, update_hud.run_if(in_state(GameState::InGame)));
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn((
+                Name::new("Git Version"),
+                TextBundle {
+                    text: Text::from_section(
+                        format!("Version: {}", git_version!()),
+                        TextStyle {
+                            color: Color::srgba(1.0, 1.0, 1.0, 0.3),
+                            font_size: 12.0,
+                            ..default()
+                        },
+                    ),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        left: Val::Px(10.0),
+                        top: Val::Px(700.0),
+
+                        ..default()
+                    },
+
+                    ..default()
+                },
+                HUD,
+            ));
+        });
     }
 }
