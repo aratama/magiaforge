@@ -1,6 +1,9 @@
 use crate::game::{asset::GameAssets, states::GameState};
 
-use super::{super::world::slice_to_tile_texture_index, WorldTile, TILE_HALF, TILE_SIZE};
+use super::{
+    super::world::slice_to_tile_texture_index, map::TileMapChunk, Tile, WorldTile, TILE_HALF,
+    TILE_SIZE,
+};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
 use bevy_ecs_tilemap::prelude::*;
@@ -21,11 +24,76 @@ pub fn get_ceil_tile_indices(
     return ceil_tile_indices;
 }
 
-pub fn spawn_roof_tiles(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
-    spawn_roof_tile(commands, assets, x, y, 0, 0, 0);
-    spawn_roof_tile(commands, assets, x, y, 1, 0, 3);
-    spawn_roof_tile(commands, assets, x, y, 0, 1, 12);
-    spawn_roof_tile(commands, assets, x, y, 1, 1, 15);
+pub fn spawn_roof_tiles(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    chunk: &TileMapChunk,
+    x: i32,
+    y: i32,
+) {
+    let left_top = match (
+        chunk.equals(x - 1, y - 1, Tile::Wall),
+        chunk.equals(x + 0, y - 1, Tile::Wall),
+        chunk.equals(x - 1, y + 0, Tile::Wall),
+    ) {
+        (false, false, false) => 0,
+        (false, false, true) => 1, // 2
+        (false, true, false) => 4, // 8
+        (false, true, true) => 10,
+        (true, false, false) => 0,
+        (true, false, true) => 1, // 2
+        (true, true, false) => 4, // 8
+        (true, true, true) => 16,
+    };
+    spawn_roof_tile(commands, assets, x, y, 0, 0, left_top);
+
+    let right_top = match (
+        chunk.equals(x + 0, y - 1, Tile::Wall),
+        chunk.equals(x + 1, y - 1, Tile::Wall),
+        chunk.equals(x + 1, y + 0, Tile::Wall),
+    ) {
+        (false, false, false) => 3,
+        (false, false, true) => 1, // 2
+        (false, true, false) => 3,
+        (false, true, true) => 1,  // 2
+        (true, false, false) => 7, // 11
+        (true, false, true) => 9,
+        (true, true, false) => 7, // 11
+        (true, true, true) => 16,
+    };
+    spawn_roof_tile(commands, assets, x, y, 1, 0, right_top);
+
+    let left_bottom = match (
+        chunk.equals(x - 1, y + 0, Tile::Wall),
+        chunk.equals(x - 1, y + 1, Tile::Wall),
+        chunk.equals(x + 0, y + 1, Tile::Wall),
+    ) {
+        (false, false, false) => 12,
+        (false, false, true) => 4, // 8
+        (false, true, false) => 12,
+        (false, true, true) => 4,   // 8
+        (true, false, false) => 13, // 14
+        (true, false, true) => 6,
+        (true, true, false) => 13, // 14
+        (true, true, true) => 16,
+    };
+    spawn_roof_tile(commands, assets, x, y, 0, 1, left_bottom);
+
+    let right_bottom = match (
+        chunk.equals(x + 1, y + 0, Tile::Wall),
+        chunk.equals(x + 0, y + 1, Tile::Wall),
+        chunk.equals(x + 1, y + 1, Tile::Wall),
+    ) {
+        (false, false, false) => 15,
+        (false, false, true) => 15,
+        (false, true, false) => 7,  // 11
+        (false, true, true) => 7,   // 11
+        (true, false, false) => 13, // 14
+        (true, false, true) => 13,  // 14
+        (true, true, false) => 5,
+        (true, true, true) => 16,
+    };
+    spawn_roof_tile(commands, assets, x, y, 1, 1, right_bottom);
 }
 
 fn spawn_roof_tile(

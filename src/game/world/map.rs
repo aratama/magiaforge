@@ -24,6 +24,16 @@ impl TileMapChunk {
         return self.tiles[i].tile;
     }
 
+    /// 指定した位置のタイルが、指定したタイルと同じ種類かどうかを返します
+    /// 範囲外を指定した場合は、trueを返します
+    pub fn equals(&self, x: i32, y: i32, tile: Tile) -> bool {
+        if x < 0 || x >= self.width || y < 0 || y >= self.height {
+            return true;
+        }
+        let i = (y * self.width + x) as usize;
+        return self.tiles[i].tile == tile;
+    }
+
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
         if x < 0 || x >= self.width || y < 0 || y >= self.height {
             return;

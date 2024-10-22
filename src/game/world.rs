@@ -138,7 +138,7 @@ fn respawn_world_tilemap(
                         || chunk.is_empty(x + 0, y + 1)
                         || chunk.is_empty(x + 1, y + 1)
                     {
-                        spawn_roof_tiles(commands, assets, x, y)
+                        spawn_roof_tiles(commands, assets, &chunk, x, y)
                     }
                 }
                 _ => {}
