@@ -1,3 +1,4 @@
+use super::bgm::BGM;
 use super::hud::overlay::OverlayNextState;
 use super::{
     asset::GameAssets,
@@ -91,6 +92,7 @@ pub fn update_main_menu(
     menu_current_state: Res<State<MainMenuPhase>>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
     mut overlay_next_state: ResMut<OverlayNextState>,
+    mut next_bgm: ResMut<BGM>,
 ) {
     for (interaction, mut color, mut visibility) in &mut interaction_query {
         *visibility = if *menu_current_state == MainMenuPhase::Paused {
@@ -102,6 +104,7 @@ pub fn update_main_menu(
             Interaction::Pressed => {
                 menu_next_state.set(MainMenuPhase::Paused);
                 *overlay_next_state = OverlayNextState(Some(GameState::InGame));
+                *next_bgm = BGM(None);
             }
             Interaction::Hovered => {
                 *color = Color::hsl(0.0, 0.0, 0.5).into();
