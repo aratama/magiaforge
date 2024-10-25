@@ -29,6 +29,6 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
             ..default()
         },
         Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-        CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
+        CollisionGroups::new(WALL_GROUP, ENEMY_GROUP | BULLET_GROUP),
     ));
 }

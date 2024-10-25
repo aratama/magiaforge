@@ -1,6 +1,6 @@
 use super::{
-    map::LevelTileMap, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, PLAYER_GROUP,
-    TILE_HALF, TILE_SIZE, WALL_GROUP,
+    map::LevelTileMap, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, TILE_HALF, TILE_SIZE,
+    WALL_GROUP,
 };
 use crate::game::{asset::GameAssets, audio::play_se, states::GameState, world::tile::Tile};
 use bevy::prelude::*;
@@ -120,7 +120,7 @@ pub fn respawn_wall_collisions(
                 coefficient: 0.0,
                 combine_rule: CoefficientCombineRule::Min,
             },
-            CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
+            CollisionGroups::new(WALL_GROUP, ENEMY_GROUP | BULLET_GROUP),
         ));
     }
 

@@ -30,8 +30,6 @@ pub const CRATE_NAME: &str = "my_bevy_game";
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
 pub const INITIAL_STATE: GameState = GameState::InGame;
 
-pub const PLAYER_GROUP: Group = Group::GROUP_3;
-
 pub const ENEMY_GROUP: Group = Group::GROUP_4;
 
 pub const WALL_GROUP: Group = Group::GROUP_1;

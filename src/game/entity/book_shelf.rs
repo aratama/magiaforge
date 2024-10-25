@@ -42,7 +42,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         },
         RigidBody::Fixed,
         Collider::cuboid(BOOKSHELF_ENTITY_WIDTH, BOOKSHELF_ENTITY_HEIGHT),
-        CollisionGroups::new(WALL_GROUP, PLAYER_GROUP | ENEMY_GROUP | BULLET_GROUP),
+        CollisionGroups::new(WALL_GROUP, ENEMY_GROUP | BULLET_GROUP),
     ));
 }
 

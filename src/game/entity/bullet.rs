@@ -1,11 +1,9 @@
-use crate::game::actor::enemy::Enemy;
-use crate::game::world::wall::{BreakWallEvent, WallCollider};
-
 use super::super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::super::states::GameState;
 use super::super::{asset::GameAssets, audio::play_se};
 use super::actor::Actor;
 use super::book_shelf::BookShelf;
+use crate::game::world::wall::{BreakWallEvent, WallCollider};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
 use bevy_light_2d::light::PointLight2d;
@@ -14,6 +12,7 @@ use bevy_particle_systems::{
 };
 use bevy_rapier2d::prelude::*;
 use std::collections::HashSet;
+use uuid::Uuid;
 
 const SLICE_NAME: &str = "bullet";
 
@@ -21,11 +20,19 @@ static BULLET_Z: f32 = 10.0;
 
 static BULLET_IMPULSE: f32 = 20000.0;
 
+pub const BULLET_RADIUS: f32 = 10.0;
+
+// 弾丸発射時の、キャラクターと弾丸の間隔
+// 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
+// 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
+pub const BULLET_SPAWNING_MARGIN: f32 = 4.0;
+
 #[derive(Component, Reflect)]
 pub struct Bullet {
     life: u32,
     damage: i32,
     impulse: f32,
+    owner: Option<Uuid>,
 }
 
 #[derive(Bundle)]
@@ -40,6 +47,7 @@ pub fn add_bullet(
     aseprite: Handle<Aseprite>,
     position: Vec2,
     velocity: Vec2,
+    owner: Option<Uuid>,
 ) {
     commands.spawn((
         Name::new("bullet"),
@@ -48,6 +56,7 @@ pub fn add_bullet(
             life: 240,
             damage: 1,
             impulse: BULLET_IMPULSE,
+            owner,
         },
         AsepriteSliceBundle {
             aseprite,
@@ -64,7 +73,7 @@ pub fn add_bullet(
             KinematicCharacterController::default(),
             RigidBody::KinematicVelocityBased,
             // 弾丸が大きくなると衝突時の位置の精度が悪化するので小さくしてあります
-            Collider::ball(1.0),
+            Collider::ball(BULLET_RADIUS),
             GravityScale(0.0),
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
             ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
@@ -87,7 +96,7 @@ pub fn add_bullet(
 pub fn update_bullet(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    mut enemy_query: Query<(&mut Actor, &mut ExternalImpulse), With<Enemy>>,
+    mut enemy_query: Query<(&mut Actor, &mut ExternalImpulse)>,
     mut bookshelf_query: Query<&mut BookShelf>,
     assets: Res<GameAssets>,
 
@@ -149,7 +158,7 @@ fn process_bullet_event(
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
 
     // TODO プレイヤーキャラくらーにもダメージが入るようにする
-    enemies: &mut Query<(&mut Actor, &mut ExternalImpulse), With<Enemy>>,
+    actors: &mut Query<(&mut Actor, &mut ExternalImpulse)>,
     bookshelf_query: &mut Query<&mut BookShelf>,
     respownings: &mut HashSet<Entity>,
     a: &Entity,
@@ -190,11 +199,16 @@ fn process_bullet_event(
             respownings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn();
             spawn_particle_system(&mut commands, bullet_position);
-            if let Ok((mut enemy, mut impilse)) = enemies.get_mut(*b) {
-                // 弾丸が敵に衝突したとき
-                enemy.life -= bullet.damage;
-                impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
-                play_se(&mut commands, assets.dageki.clone());
+
+            if let Ok((mut actor, mut impilse)) = actors.get_mut(*b) {
+                // 弾丸がアクターに衝突したとき
+                // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
+                // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
+                if bullet.owner == None || Some(actor.uuid) != bullet.owner {
+                    actor.life -= bullet.damage;
+                    impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
+                    play_se(&mut commands, assets.dageki.clone());
+                }
             } else if let Ok(mut bookshelf) = bookshelf_query.get_mut(*b) {
                 // 弾丸が本棚に衝突したとき
                 // TODO: この調子で破壊可能オブジェクトを増やすと、システムの引数やifの分岐が増えてしまう

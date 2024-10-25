@@ -3,9 +3,9 @@ use super::super::constant::*;
 use super::super::gamepad::{get_direction, get_fire_trigger, MyGamepad};
 use super::super::states::GameState;
 use super::remote::RemoteMessage;
-use crate::game::config::{GameConfig, GameConfigPlugin};
 use crate::game::entity::actor::Actor;
-use crate::game::entity::bullet::add_bullet;
+use crate::game::entity::bullet::{add_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
+use crate::game::entity::witch::WITCH_COLLIDER_RADIUS;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_websocket_sync::ClientMessage;
@@ -86,39 +86,31 @@ fn update_player(
                 for _ in 0..BULLETS_PER_FIRE {
                     let angle_with_random = angle + (random::<f32>() - 0.5) * BULLET_SCATTERING;
                     let direction = Vec2::from_angle(angle_with_random);
+                    let range = WITCH_COLLIDER_RADIUS + BULLET_RADIUS + BULLET_SPAWNING_MARGIN;
+                    let bullet_position =
+                        player_transform.translation.truncate() + range * normalized;
                     add_bullet(
                         &mut commands,
                         assets.asset.clone(),
-                        player_transform.translation.truncate() + normalized * 10.0,
+                        bullet_position,
                         direction * BULLET_SPEED,
+                        Some(player.uuid),
                     );
+                    let serialized = bincode::serialize(&RemoteMessage::Fire {
+                        uuid: player.uuid,
+                        x: bullet_position.x,
+                        y: bullet_position.y,
+                        vx: direction.x * BULLET_SPEED,
+                        vy: direction.y * BULLET_SPEED,
+                    })
+                    .unwrap();
+                    writer.send(ClientMessage::Binary(serialized));
                 }
 
                 player.cooltime = BULLET_COOLTIME;
-
-                writer.send(ClientMessage::String("fire".to_string()));
             } else {
                 player.cooltime = (player.cooltime - 1).max(0);
             }
-        }
-    }
-}
-
-fn sync(
-    query: Query<(&Actor, &GlobalTransform)>,
-    mut writer: EventWriter<ClientMessage>,
-    config: Res<GameConfig>,
-) {
-    if config.online {
-        if let Ok((actor, transform)) = query.get_single() {
-            // let translation = transform.translation();
-            // let value = RemoteMessage::Ping {
-            //     uuid: actor.uuid,
-            //     x: translation.x,
-            //     y: translation.y,
-            // };
-            // let message = bincode::serialize(&value).unwrap();
-            // writer.send(ClientMessage::Binary(message));
         }
     }
 }
@@ -131,7 +123,5 @@ impl Plugin for PlayerPlugin {
             FixedUpdate,
             update_player.run_if(in_state(GameState::InGame)),
         );
-
-        app.add_systems(FixedUpdate, sync.run_if(in_state(GameState::InGame)));
     }
 }

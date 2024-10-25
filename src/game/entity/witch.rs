@@ -11,6 +11,8 @@ use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
+pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
+
 pub enum WitchType {
     PlayerWitch,
     RemoteWitch,
@@ -49,7 +51,7 @@ pub fn spawn_witch(
             ..default()
         },
         RigidBody::Dynamic,
-        Collider::ball(5.0),
+        Collider::ball(WITCH_COLLIDER_RADIUS),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,
         Damping {
@@ -58,7 +60,7 @@ pub fn spawn_witch(
         },
         ExternalForce::default(),
         ExternalImpulse::default(),
-        CollisionGroups::new(PLAYER_GROUP, ENEMY_GROUP | WALL_GROUP),
+        CollisionGroups::new(ENEMY_GROUP, ENEMY_GROUP | WALL_GROUP | BULLET_GROUP),
         PointLight2d {
             radius: 150.0,
             intensity: 3.0,

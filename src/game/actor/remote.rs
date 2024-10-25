@@ -9,6 +9,7 @@ use crate::game::{
     config::GameConfig,
     entity::{
         actor::Actor,
+        bullet::add_bullet,
         witch::{spawn_witch, WitchType},
     },
     states::GameState,
@@ -24,8 +25,18 @@ pub struct RemotePlayer {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum RemoteMessage {
-    Ping { uuid: Uuid, x: f32, y: f32 },
-    Fire { uuid: Uuid, x: f32, y: f32 },
+    Ping {
+        uuid: Uuid,
+        x: f32,
+        y: f32,
+    },
+    Fire {
+        uuid: Uuid,
+        x: f32,
+        y: f32,
+        vx: f32,
+        vy: f32,
+    },
 }
 
 fn send_player_states(
@@ -99,8 +110,14 @@ fn receive_events(
                             info!("Remote player {} spawned", uuid);
                         }
                     }
-                    RemoteMessage::Fire { uuid, x, y } => {
-                        info!("Received fire message: {:?} {} {}", uuid, x, y);
+                    RemoteMessage::Fire { uuid, x, y, vx, vy } => {
+                        add_bullet(
+                            &mut commands,
+                            assets.asset.clone(),
+                            Vec2::new(x, y),
+                            Vec2::new(vx, vy),
+                            Some(uuid),
+                        );
                     }
                 }
             }
