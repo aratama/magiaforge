@@ -1,5 +1,5 @@
 use bevy::{core::FrameCount, prelude::*};
-use bevy_websocket_sync::{ClientMessage, ServerMessage};
+use bevy_websocket_sync::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -32,17 +32,20 @@ fn send_player_states(
     mut writer: EventWriter<ClientMessage>,
     player_query: Query<(&Actor, &GlobalTransform), With<Player>>,
     config: Res<GameConfig>,
+    state: Res<WebSocketState>,
 ) {
     if config.online {
         if let Ok((player, transform)) = player_query.get_single() {
-            let translate = transform.translation();
-            let command = RemoteMessage::Ping {
-                uuid: player.uuid,
-                x: translate.x,
-                y: translate.y,
-            };
-            let serialized = bincode::serialize(&command).unwrap();
-            writer.send(ClientMessage::Binary(serialized));
+            if state.ready_state == ReadyState::OPEN {
+                let translate = transform.translation();
+                let command = RemoteMessage::Ping {
+                    uuid: player.uuid,
+                    x: translate.x,
+                    y: translate.y,
+                };
+                let serialized = bincode::serialize(&command).unwrap();
+                writer.send(ClientMessage::Binary(serialized));
+            }
         }
     }
 }
