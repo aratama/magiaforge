@@ -7,7 +7,7 @@ pub struct GameConfig {
 
 impl Default for GameConfig {
     fn default() -> Self {
-        Self { online: false }
+        Self { online: true }
     }
 }
 

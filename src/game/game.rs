@@ -1,5 +1,6 @@
 use super::actor::enemy::EnemyPlugin;
 use super::actor::player::PlayerPlugin;
+use super::actor::remote::RemotePlayerPlugin;
 use super::asset::GameAssets;
 use super::bgm::BGMPlugin;
 use super::camera::*;
@@ -60,11 +61,12 @@ pub fn run_game() {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
+                        position: WindowPosition::Centered(MonitorSelection::Current),
                         cursor: Cursor {
                             // visible: false,
                             ..default()
                         },
-                        title: "Magna Magia 0.1".to_string(),
+                        title: "Magia Boost 0.1".to_string(),
                         resizable: false,
                         enabled_buttons: EnabledButtons {
                             close: true,
@@ -126,6 +128,7 @@ pub fn run_game() {
         .add_plugins(WallPlugin)
         .add_plugins(WebSocketPlugin)
         .add_plugins(GameConfigPlugin)
+        .add_plugins(RemotePlayerPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています

@@ -3,24 +3,33 @@ use super::super::constant::*;
 use super::super::states::GameState;
 use super::actor::Actor;
 use crate::game::actor::player::Player;
+use crate::game::actor::remote::RemotePlayer;
+use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
+pub enum WitchType {
+    PlayerWitch,
+    RemoteWitch,
+}
+
 pub fn spawn_witch(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    playable: bool,
     x: f32,
     y: f32,
+    uuid: Uuid,
+    witch_type: WitchType,
+    frame_count: FrameCount,
 ) {
     let mut entity = commands.spawn((
         Name::new("player"),
         StateScoped(GameState::InGame),
         Actor {
-            uuid: Uuid::new_v4(),
+            uuid,
             cooltime: 0,
             life: 250,
             max_life: 250,
@@ -58,7 +67,10 @@ pub fn spawn_witch(
         },
     ));
 
-    if playable {
-        entity.insert(Player {});
-    }
+    match witch_type {
+        WitchType::PlayerWitch => entity.insert(Player {}),
+        WitchType::RemoteWitch => entity.insert(RemotePlayer {
+            last_update: frame_count,
+        }),
+    };
 }

@@ -12,19 +12,22 @@ use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
 use super::entity::slime::spawn_slime;
 use super::entity::witch::spawn_witch;
+use super::entity::witch::WitchType;
 use super::entity::GameEntity;
 use super::hud::life_bar::LifeBarResource;
 use super::hud::overlay::OverlayNextState;
-use super::serialize::PlayerData;
 use super::states::GameState;
 use super::world::ceil::spawn_roof_tiles;
 use super::world::map::image_to_tilemap;
 use super::world::map::LevelTileMap;
 use super::world::tile::*;
 use bevy::asset::*;
+use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_inspector_egui::egui::frame;
 use map::image_to_empty_tiles;
+use uuid::Uuid;
 use wall::respawn_wall_collisions;
 use wall::WallCollider;
 
@@ -36,8 +39,8 @@ fn setup_world(
     collider_query: Query<Entity, With<WallCollider>>,
     world_tile: Query<Entity, With<WorldTile>>,
     life_bar_res: Res<LifeBarResource>,
-
     mut camera: Query<&mut Transform, With<Camera2d>>,
+    frame_count: Res<FrameCount>,
 ) {
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
@@ -56,7 +59,15 @@ fn setup_world(
         camera.translation.y = player_y;
     }
 
-    spawn_witch(&mut commands, &assets, true, player_x, player_y);
+    spawn_witch(
+        &mut commands,
+        &assets,
+        player_x,
+        player_y,
+        Uuid::new_v4(),
+        WitchType::PlayerWitch,
+        *frame_count,
+    );
 
     spawn_slime(
         &mut commands,
