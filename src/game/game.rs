@@ -19,25 +19,27 @@ use super::serialize::*;
 use super::states::*;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
+use bevy::prelude::*;
+use bevy::window::Cursor;
+use bevy::window::EnabledButtons;
+use bevy_aseprite_ultra::BevySprityPlugin;
+use bevy_asset_loader::prelude::*;
+use bevy_light_2d::plugin::Light2dPlugin;
+use bevy_particle_systems::ParticleSystemPlugin;
+use bevy_rapier2d::prelude::*;
+use bevy_websocket_sync::WebSocketPlugin;
+use wall::WallPlugin;
+
 #[cfg(feature = "debug")]
 use bevy::diagnostic::EntityCountDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
-use bevy::prelude::*;
-use bevy::window::Cursor;
-use bevy::window::EnabledButtons;
-use bevy_aseprite_ultra::BevySprityPlugin;
-use bevy_asset_loader::prelude::*;
 #[cfg(feature = "debug")]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_light_2d::plugin::Light2dPlugin;
-use bevy_particle_systems::ParticleSystemPlugin;
-use bevy_rapier2d::prelude::*;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::PerfUiPlugin;
-use wall::WallPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -80,6 +82,19 @@ pub fn run_game() {
             // })
         )
         .add_plugins(EmbeddedAssetPlugin)
+        // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
+        // そうしないと警告が出る
+        .insert_resource(RapierConfiguration {
+            gravity: Vect::ZERO,
+            physics_pipeline_active: true,
+            query_pipeline_active: true,
+            timestep_mode: TimestepMode::Fixed {
+                dt: 0.016666668,
+                substeps: 1,
+            },
+            scaled_shape_subdivision: 10,
+            force_update_from_transform_changes: false,
+        })
         .add_plugins(
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER)
                 // .with_length_unit(PIXELS_PER_METER)
@@ -108,6 +123,7 @@ pub fn run_game() {
         .add_plugins(GamepadPlugin)
         .add_plugins(PointerPlugin)
         .add_plugins(WallPlugin)
+        .add_plugins(WebSocketPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
