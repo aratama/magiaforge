@@ -73,7 +73,6 @@ fn update_player(
             // プレイヤーの向き
             let angle = player.pointer.to_angle();
 
-            // println!("angle: {}", angle);
             if angle < -PI * 0.5 || PI * 0.5 < angle {
                 player_sprite.flip_x = true;
             } else {

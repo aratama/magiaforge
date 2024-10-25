@@ -53,7 +53,7 @@ fn send_player_states(
 fn on_enter(config: Res<GameConfig>, mut writer: EventWriter<ClientMessage>) {
     if config.online {
         let url = dotenv!("url");
-        println!("Connecting to {}", url);
+        info!("Connecting to {}", url);
         writer.send(ClientMessage::Open(url.to_string()));
     }
 }
@@ -74,7 +74,7 @@ fn receive_events(
     for message in reader.read() {
         match message {
             ServerMessage::String(text) => {
-                println!("Received text message: {}", text);
+                info!("Received text message: {}", text);
             }
             ServerMessage::Binary(bin) => {
                 let command: RemoteMessage =
@@ -96,11 +96,11 @@ fn receive_events(
                                 WitchType::RemoteWitch,
                                 *frame_count,
                             );
-                            println!("Remote player {} spawned", uuid);
+                            info!("Remote player {} spawned", uuid);
                         }
                     }
                     RemoteMessage::Fire { uuid, x, y } => {
-                        println!("Received fire message: {:?} {} {}", uuid, x, y);
+                        info!("Received fire message: {:?} {} {}", uuid, x, y);
                     }
                 }
             }
@@ -117,7 +117,7 @@ fn despown_no_contact_remotes(
 ) {
     for (entity, actor, remote) in remotes.iter_mut() {
         if 60 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
-            println!("Remote player {} despowned", actor.uuid);
+            info!("Remote player {} despowned", actor.uuid);
             commands.entity(entity).despawn();
         }
     }

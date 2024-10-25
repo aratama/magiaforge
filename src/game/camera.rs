@@ -12,7 +12,6 @@ static BLIGHTNESS_IN_GAME: f32 = 1.0;
 static BLIGHTNESS_IN_GAME: f32 = 0.01;
 
 pub fn setup_camera(mut commands: Commands) {
-    // println!("setup_camera");
     let initial_scale_factor = -1.0;
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される

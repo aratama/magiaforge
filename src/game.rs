@@ -5,7 +5,6 @@ mod bgm;
 mod camera;
 mod close_on_esc;
 mod config;
-mod console;
 mod constant;
 mod embedded;
 mod entity;
