@@ -50,6 +50,8 @@ fn update_player(
     my_gamepad: Option<Res<MyGamepad>>,
     axes: Res<Axis<GamepadAxis>>,
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
+
+    mut writer: EventWriter<ClientMessage>,
 ) {
     let force = 50000.0;
 
@@ -94,6 +96,8 @@ fn update_player(
                 }
 
                 player.cooltime = BULLET_COOLTIME;
+
+                writer.send(ClientMessage::String("fire".to_string()));
             } else {
                 player.cooltime = (player.cooltime - 1).max(0);
             }
@@ -108,14 +112,14 @@ fn sync(
 ) {
     if config.online {
         if let Ok((actor, transform)) = query.get_single() {
-            let translation = transform.translation();
-            let value = RemoteMessage::Ping {
-                uuid: actor.uuid,
-                x: translation.x,
-                y: translation.y,
-            };
-            let message = bincode::serialize(&value).unwrap();
-            writer.send(ClientMessage::Binary(message));
+            // let translation = transform.translation();
+            // let value = RemoteMessage::Ping {
+            //     uuid: actor.uuid,
+            //     x: translation.x,
+            //     y: translation.y,
+            // };
+            // let message = bincode::serialize(&value).unwrap();
+            // writer.send(ClientMessage::Binary(message));
         }
     }
 }
