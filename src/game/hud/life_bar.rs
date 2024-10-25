@@ -1,5 +1,5 @@
-use super::super::entity::enemy::Enemy;
 use super::super::{set::GameSet, states::GameState};
+use crate::game::{actor::enemy::Enemy, entity::actor::Actor};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
@@ -66,7 +66,7 @@ pub fn update_life_bar(
         // TODO: ここでなぜ Withoutが必要なのかよく理解できていない
         (With<LifeBarBackground>, Without<LifeBar>),
     >,
-    enemy_query: Query<&Enemy, With<Enemy>>,
+    enemy_query: Query<&Actor, With<Enemy>>,
 ) {
     for (life_bar_parent, mut transform, mut visibility) in query.iter_mut() {
         let enemy = enemy_query.get(life_bar_parent.get()).unwrap();

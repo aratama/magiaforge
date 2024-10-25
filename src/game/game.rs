@@ -1,14 +1,15 @@
+use super::actor::enemy::EnemyPlugin;
+use super::actor::player::PlayerPlugin;
 use super::asset::GameAssets;
 use super::bgm::BGMPlugin;
 use super::camera::*;
 use super::close_on_esc::close_on_esc;
+use super::config::GameConfigPlugin;
 use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
 use super::embedded::EmbeddedAssetPlugin;
 use super::entity::book_shelf::BookshelfPlugin;
 use super::entity::bullet::BulletPlugin;
-use super::entity::enemy::EnemyPlugin;
-use super::entity::player::*;
 use super::gamepad::GamepadPlugin;
 use super::hud::life_bar::LifeBarPlugin;
 use super::hud::overlay::*;
@@ -124,6 +125,7 @@ pub fn run_game() {
         .add_plugins(PointerPlugin)
         .add_plugins(WallPlugin)
         .add_plugins(WebSocketPlugin)
+        .add_plugins(GameConfigPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています

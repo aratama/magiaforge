@@ -1,10 +1,11 @@
+use crate::game::actor::enemy::Enemy;
 use crate::game::world::wall::{BreakWallEvent, WallCollider};
 
 use super::super::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use super::super::states::GameState;
 use super::super::{asset::GameAssets, audio::play_se};
+use super::actor::Actor;
 use super::book_shelf::BookShelf;
-use super::enemy::Enemy;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
 use bevy_light_2d::light::PointLight2d;
@@ -86,7 +87,7 @@ pub fn add_bullet(
 pub fn update_bullet(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    mut enemy_query: Query<(&mut Enemy, &mut ExternalImpulse)>,
+    mut enemy_query: Query<(&mut Actor, &mut ExternalImpulse), With<Enemy>>,
     mut bookshelf_query: Query<&mut BookShelf>,
     assets: Res<GameAssets>,
 
@@ -146,7 +147,9 @@ fn process_bullet_event(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    enemies: &mut Query<(&mut Enemy, &mut ExternalImpulse)>,
+
+    // TODO プレイヤーキャラくらーにもダメージが入るようにする
+    enemies: &mut Query<(&mut Actor, &mut ExternalImpulse), With<Enemy>>,
     bookshelf_query: &mut Query<&mut BookShelf>,
     respownings: &mut HashSet<Entity>,
     a: &Entity,

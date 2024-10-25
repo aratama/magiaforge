@@ -2,11 +2,11 @@ pub mod life_bar;
 pub mod overlay;
 pub mod pointer;
 
+use super::actor::player::Player;
 use super::constant::HUD_Z_INDEX;
-use super::entity::player::*;
+use super::entity::actor::Actor;
 use super::states::GameState;
 use bevy::prelude::*;
-use bevy::transform::commands;
 use git_version::git_version;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
@@ -117,7 +117,7 @@ fn setup_hud(mut commands: Commands) {
 }
 
 fn update_hud(
-    player_query: Query<&Player, Without<Camera2d>>,
+    player_query: Query<&Actor, (With<Player>, Without<Camera2d>)>,
     mut player_life_bar_query: Query<&mut Style, With<PlayerLifeBar>>,
     mut player_damage_bar_query: Query<&mut Style, (With<PlayerDamageBar>, Without<PlayerLifeBar>)>,
     mut player_life_query: Query<&mut Text, With<PlayerLifeText>>,

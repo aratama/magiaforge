@@ -4389,6 +4389,9 @@ dependencies = [
  "bevy_particle_systems",
  "bevy_rapier2d",
  "bevy_websocket_sync",
+ "bincode",
+ "dotenvy",
+ "dotenvy_macro",
  "ewebsock",
  "git-version",
  "iyes_perf_ui",
@@ -4396,6 +4399,7 @@ dependencies = [
  "serde",
  "serde_json",
  "trunk",
+ "uuid",
  "wasm-bindgen",
  "web-sys",
 ]

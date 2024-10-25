@@ -1,5 +1,4 @@
-use super::entity::player::*;
-use super::{serialize::PlayerData, set::GameSet, states::GameState};
+use super::{actor::player::Player, serialize::PlayerData, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
 
@@ -35,17 +34,6 @@ pub fn setup_camera(mut commands: Commands) {
     ));
 }
 
-fn on_enter_camera(
-    mut camera_query: Query<&mut Transform, (With<Camera2d>, Without<Player>)>,
-    player_data: Res<PlayerData>,
-) {
-    // println!("on_enter_camera");
-    if let Ok(mut camera) = camera_query.get_single_mut() {
-        camera.translation.x = player_data.x;
-        camera.translation.y = player_data.y;
-    }
-}
-
 fn update_camera(
     player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
     mut camera_query: Query<
@@ -58,20 +46,21 @@ fn update_camera(
     >,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    let player = player_query.single();
-    if let Ok((mut camera, mut ortho, mut scale_factor)) = camera_query.get_single_mut() {
-        let t = 0.001;
-        camera.translation.x += (player.translation.x - camera.translation.x) * t;
-        camera.translation.y += (player.translation.y - camera.translation.y) * t;
+    if let Ok(player) = player_query.get_single() {
+        if let Ok((mut camera, mut ortho, mut scale_factor)) = camera_query.get_single_mut() {
+            let t = 0.001;
+            camera.translation.x += (player.translation.x - camera.translation.x) * t;
+            camera.translation.y += (player.translation.y - camera.translation.y) * t;
 
-        if keys.just_pressed(KeyCode::KeyR) {
-            *scale_factor = CameraScaleFactor(scale_factor.0 - 1.0);
+            if keys.just_pressed(KeyCode::KeyR) {
+                *scale_factor = CameraScaleFactor(scale_factor.0 - 1.0);
+            }
+            if keys.just_pressed(KeyCode::KeyF) {
+                *scale_factor = CameraScaleFactor(scale_factor.0 + 1.0);
+            }
+            let s = ortho.scale.log2();
+            ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.2);
         }
-        if keys.just_pressed(KeyCode::KeyF) {
-            *scale_factor = CameraScaleFactor(scale_factor.0 + 1.0);
-        }
-        let s = ortho.scale.log2();
-        ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.2);
     }
 }
 
@@ -91,7 +80,6 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::InGame), on_enter_camera);
         app.add_systems(
             FixedUpdate,
             update_camera

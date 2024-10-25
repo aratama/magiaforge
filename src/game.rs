@@ -1,8 +1,10 @@
+mod actor;
 mod asset;
 mod audio;
 mod bgm;
 mod camera;
 mod close_on_esc;
+mod config;
 mod console;
 mod constant;
 mod embedded;

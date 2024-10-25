@@ -3,14 +3,19 @@ pub mod map;
 pub mod tile;
 pub mod wall;
 
+use super::actor::enemy::Enemy;
+use super::actor::player::Player;
 use super::asset::GameAssets;
 use super::constant::*;
+use super::entity::actor::Actor;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
-use super::entity::enemy::Enemy;
-use super::entity::player::Player;
+use super::entity::slime::spawn_slime;
+use super::entity::witch::spawn_witch;
 use super::entity::GameEntity;
+use super::hud::life_bar::LifeBarResource;
 use super::hud::overlay::OverlayNextState;
+use super::serialize::PlayerData;
 use super::states::GameState;
 use super::world::ceil::spawn_roof_tiles;
 use super::world::map::image_to_tilemap;
@@ -19,6 +24,7 @@ use super::world::tile::*;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use map::image_to_empty_tiles;
 use wall::respawn_wall_collisions;
 use wall::WallCollider;
 
@@ -29,12 +35,42 @@ fn setup_world(
     assets: Res<GameAssets>,
     collider_query: Query<Entity, With<WallCollider>>,
     world_tile: Query<Entity, With<WorldTile>>,
+    life_bar_res: Res<LifeBarResource>,
+
+    mut camera: Query<&mut Transform, With<Camera2d>>,
 ) {
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
     let chunk = image_to_tilemap(&level_image);
+    let empties = image_to_empty_tiles(&level_image);
     respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
     spawn_entities(&mut commands, &assets, &chunk);
+
+    let position = empties[(rand::random::<usize>() % empties.len()) as usize];
+
+    let player_x = TILE_SIZE * position.0 as f32;
+    let player_y = -TILE_SIZE * position.1 as f32;
+
+    if let Ok(mut camera) = camera.get_single_mut() {
+        camera.translation.x = player_x;
+        camera.translation.y = player_y;
+    }
+
+    spawn_witch(&mut commands, &assets, true, player_x, player_y);
+
+    spawn_slime(
+        &mut commands,
+        assets.slime.clone(),
+        Vec2::new(TILE_SIZE * 8.0, TILE_SIZE * -10.0),
+        &life_bar_res,
+    );
+
+    spawn_slime(
+        &mut commands,
+        assets.slime.clone(),
+        Vec2::new(TILE_SIZE * 13.0, TILE_SIZE * -10.0),
+        &life_bar_res,
+    );
 }
 
 fn respawn_world(
@@ -151,7 +187,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
 }
 
 fn update_world(
-    player_query: Query<&Player>,
+    player_query: Query<&Actor, With<Player>>,
     enemy_query: Query<&Enemy>,
     mut overlay_next_state: ResMut<OverlayNextState>,
 ) {

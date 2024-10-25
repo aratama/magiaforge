@@ -1,7 +1,6 @@
-use super::{
-    super::{asset::GameAssets, constant::TILE_SIZE, gamepad::MyGamepad, states::GameState},
-    Player,
-};
+use crate::game::{actor::player::Player, entity::actor::Actor};
+
+use super::super::{asset::GameAssets, constant::TILE_SIZE, gamepad::MyGamepad, states::GameState};
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 
@@ -32,7 +31,7 @@ fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
 }
 
 fn update_pointer_image_by_angle(
-    player_query: Query<(&Player, &GlobalTransform)>,
+    player_query: Query<(&Actor, &GlobalTransform), With<Player>>,
     mut pointer_query: Query<&mut Style, With<Pointer>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
 ) {
@@ -55,7 +54,7 @@ fn update_pointer_image_by_angle(
 }
 
 fn update_pointer_by_mouse(
-    mut player_query: Query<(&mut Player, &GlobalTransform)>,
+    mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
 ) {
@@ -76,7 +75,7 @@ fn update_pointer_by_mouse(
 }
 
 fn update_pointer_by_gamepad(
-    mut player_query: Query<&mut Player>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     axes: Res<Axis<GamepadAxis>>,
     my_gamepad: Option<Res<MyGamepad>>,
 ) {
