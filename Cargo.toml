@@ -92,3 +92,6 @@ lto = true
 [features]
 debug = []
 default = []
+
+[build-dependencies]
+embed-resource = "2.5"
