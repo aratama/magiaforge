@@ -17,8 +17,6 @@ pub const FLOOR_LAYER_Z: f32 = 0.0;
 
 pub const ENTITY_LAYER_Z: f32 = 3.0;
 
-pub const ROOF_LAYER_Z: f32 = 6.0;
-
 pub const Z_ORDER_SCALE: f32 = 0.001;
 
 pub const CAMERA_SPEED: f32 = 0.1;

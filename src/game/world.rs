@@ -25,7 +25,6 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_inspector_egui::egui::frame;
 use map::image_to_empty_tiles;
 use uuid::Uuid;
 use wall::respawn_wall_collisions;
@@ -111,7 +110,7 @@ fn respawn_world_tilemap(
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
                     commands.spawn((
-                        WorldTile((x, y)),
+                        WorldTile,
                         Name::new("stone_tile"),
                         StateScoped(GameState::InGame),
                         AsepriteSliceBundle {
@@ -134,7 +133,7 @@ fn respawn_world_tilemap(
                     // 壁
                     if chunk.get_tile(x as i32, y as i32 + 1) != Tile::Wall {
                         commands.spawn((
-                            WorldTile((x, y)),
+                            WorldTile,
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
                             AsepriteSliceBundle {

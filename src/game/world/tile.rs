@@ -8,4 +8,4 @@ pub enum Tile {
 }
 
 #[derive(Component)]
-pub struct WorldTile(pub (i32, i32));
+pub struct WorldTile;

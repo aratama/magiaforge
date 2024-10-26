@@ -1,4 +1,4 @@
-use super::{actor::player::Player, serialize::PlayerData, set::GameSet, states::GameState};
+use super::{actor::player::Player, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
 

@@ -86,7 +86,7 @@ fn spawn_roof_tile(
     roof_index: i32,
 ) {
     commands.spawn((
-        WorldTile((x, y)),
+        WorldTile,
         Name::new("ceil"),
         StateScoped(GameState::InGame),
         AsepriteSliceBundle {

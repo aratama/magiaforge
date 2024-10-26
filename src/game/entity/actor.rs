@@ -19,5 +19,5 @@ pub struct Actor {
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, _app: &mut App) {}
 }
