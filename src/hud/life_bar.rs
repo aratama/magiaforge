@@ -1,5 +1,5 @@
-use super::super::{set::GameSet, states::GameState};
-use crate::game::{actor::enemy::Enemy, entity::actor::Actor};
+use crate::{set::GameSet, states::GameState};
+use crate::{actor::enemy::Enemy, entity::actor::Actor};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},

@@ -1,4 +1,4 @@
-use super::super::{constant::OVERLAY_Z_INDEX, states::GameState};
+use crate::{constant::OVERLAY_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
 #[derive(Component)]

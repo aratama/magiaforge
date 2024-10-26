@@ -1,7 +1,7 @@
-use super::super::constant::*;
-use super::super::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
 use super::player::Player;
-use crate::game::entity::actor::Actor;
+use crate::constant::*;
+use crate::entity::actor::Actor;
+use crate::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

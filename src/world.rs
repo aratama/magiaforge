@@ -3,7 +3,6 @@ pub mod map;
 pub mod tile;
 pub mod wall;
 
-use super::actor::enemy::Enemy;
 use super::actor::player::Player;
 use super::asset::GameAssets;
 use super::constant::*;

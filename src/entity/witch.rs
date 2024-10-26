@@ -1,9 +1,9 @@
-use super::super::asset::GameAssets;
-use super::super::constant::*;
-use super::super::states::GameState;
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::states::GameState;
 use super::actor::Actor;
-use crate::game::actor::player::Player;
-use crate::game::actor::remote::RemotePlayer;
+use crate::actor::player::Player;
+use crate::actor::remote::RemotePlayer;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;

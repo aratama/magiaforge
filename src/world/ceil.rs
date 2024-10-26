@@ -1,4 +1,4 @@
-use crate::game::{asset::GameAssets, states::GameState};
+use crate::{asset::GameAssets, states::GameState};
 
 use super::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
 use bevy::prelude::*;

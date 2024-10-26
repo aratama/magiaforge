@@ -1,7 +1,7 @@
 use super::hover_color::HoverColor;
 use super::on_press::OnPress;
-use crate::game::asset::GameAssets;
-use crate::game::states::GameState;
+use crate::asset::GameAssets;
+use crate::states::GameState;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 

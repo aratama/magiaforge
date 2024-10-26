@@ -2,7 +2,7 @@ use super::{
     map::LevelTileMap, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, TILE_HALF, TILE_SIZE,
     WALL_GROUP,
 };
-use crate::game::{asset::GameAssets, audio::play_se, states::GameState, world::tile::Tile};
+use crate::{asset::GameAssets, audio::play_se, states::GameState, world::Tile};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,

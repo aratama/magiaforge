@@ -1,4 +1,4 @@
-use super::super::{constant::*, states::GameState};
+use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

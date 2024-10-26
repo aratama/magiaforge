@@ -1,11 +1,11 @@
-use super::super::asset::GameAssets;
-use super::super::constant::*;
-use super::super::gamepad::{get_direction, get_fire_trigger, MyGamepad};
-use super::super::states::GameState;
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::gamepad::{get_direction, get_fire_trigger, MyGamepad};
+use crate::states::GameState;
 use super::remote::RemoteMessage;
-use crate::game::entity::actor::Actor;
-use crate::game::entity::bullet::{add_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
-use crate::game::entity::witch::WITCH_COLLIDER_RADIUS;
+use crate::entity::actor::Actor;
+use crate::entity::bullet::{add_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
+use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_websocket_sync::ClientMessage;

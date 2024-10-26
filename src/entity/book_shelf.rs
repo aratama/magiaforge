@@ -1,5 +1,5 @@
-use super::super::{constant::*, states::GameState};
-use crate::game::{asset::GameAssets, audio::play_se};
+use crate::{constant::*, states::GameState};
+use crate::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

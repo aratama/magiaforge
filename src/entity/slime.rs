@@ -1,8 +1,8 @@
-use super::super::constant::*;
-use super::super::hud::life_bar::{spawn_life_bar, LifeBarResource};
-use super::super::states::GameState;
+use crate::constant::*;
+use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use crate::states::GameState;
 use super::actor::Actor;
-use crate::game::actor::enemy::Enemy;
+use crate::actor::enemy::Enemy;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

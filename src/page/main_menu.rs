@@ -1,13 +1,13 @@
-use super::super::bgm::BGM;
-use super::super::hud::overlay::OverlayNextState;
-use super::super::ui::button::button;
-use super::super::ui::on_press::OnPress;
-use super::super::{
+use crate::audio::play_se;
+use crate::bgm::BGM;
+use crate::constant::GAME_MENU_Z_INDEX;
+use crate::hud::overlay::OverlayNextState;
+use crate::ui::button::button;
+use crate::ui::on_press::OnPress;
+use crate::{
     asset::GameAssets,
     states::{GameState, MainMenuPhase},
 };
-use crate::game::audio::play_se;
-use crate::game::constant::GAME_MENU_Z_INDEX;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;

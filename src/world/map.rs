@@ -1,4 +1,4 @@
-use super::super::{entity::GameEntity, world::tile::Tile};
+use crate::{entity::GameEntity, world::tile::Tile};
 use bevy::prelude::{Image, Resource};
 
 const LEVEL_SIZE: i32 = 64;

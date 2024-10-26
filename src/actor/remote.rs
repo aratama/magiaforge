@@ -4,7 +4,7 @@ use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::game::{
+use crate::{
     asset,
     config::GameConfig,
     entity::{
