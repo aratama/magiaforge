@@ -8,7 +8,6 @@ use super::close_on_esc::close_on_esc;
 use super::config::GameConfigPlugin;
 use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
-use super::embedded::EmbeddedAssetPlugin;
 use super::entity::book_shelf::BookshelfPlugin;
 use super::entity::bullet::BulletPlugin;
 use super::entity::witch::WitchPlugin;
@@ -89,7 +88,6 @@ pub fn run_game() {
                 }),
             //
         )
-        .add_plugins(EmbeddedAssetPlugin)
         // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
         // そうしないと警告が出る
         .insert_resource(RapierConfiguration {

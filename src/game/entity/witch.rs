@@ -114,7 +114,6 @@ pub struct WitchPlugin;
 
 impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
-        println!("WitchPlugin");
         app.add_systems(Update, follow_light.run_if(in_state(GameState::InGame)));
     }
 }
