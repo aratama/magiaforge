@@ -5,6 +5,9 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
+    #[asset(path = "DotGothic16-Regular.ttf")]
+    pub dotgothic: Handle<Font>,
+
     #[asset(path = "asset.aseprite")]
     pub asset: Handle<Aseprite>,
 
@@ -31,6 +34,9 @@ pub struct GameAssets {
 
     #[asset(path = "audio/kuzureru.ogg")]
     pub kuzureru: Handle<AudioSource>,
+
+    #[asset(path = "audio/kettei.ogg")]
+    pub kettei: Handle<AudioSource>,
 
     #[asset(path = "bgm/They.ogg")]
     pub they: Handle<AudioSource>,

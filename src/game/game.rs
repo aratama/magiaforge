@@ -1,10 +1,15 @@
+use crate::game::page::config::ConfigPagePlugin;
+use crate::game::page::main_menu::MainMenuPlugin;
+use crate::game::ui::game_menu::GameMenuPlugin;
+use crate::game::ui::hover_color::HoverColorPlugin;
+use crate::game::ui::on_press::OnPressPlugin;
+
 use super::actor::enemy::EnemyPlugin;
 use super::actor::player::PlayerPlugin;
 use super::actor::remote::RemotePlayerPlugin;
 use super::asset::GameAssets;
 use super::bgm::BGMPlugin;
 use super::camera::*;
-use super::close_on_esc::close_on_esc;
 use super::config::GameConfigPlugin;
 use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
@@ -16,7 +21,6 @@ use super::hud::life_bar::LifeBarPlugin;
 use super::hud::overlay::*;
 use super::hud::pointer::PointerPlugin;
 use super::hud::*;
-use super::main_menu::*;
 use super::serialize::*;
 use super::states::*;
 use super::world::*;
@@ -83,7 +87,7 @@ pub fn run_game() {
                     ..default()
                 })
                 .set(LogPlugin {
-                    level: Level::DEBUG,
+                    level: Level::INFO,
                     ..default()
                 }),
             //
@@ -119,10 +123,9 @@ pub fn run_game() {
         .add_plugins(CameraPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(PlayerPlugin)
-        .add_systems(FixedUpdate, close_on_esc)
         .add_plugins(BulletPlugin)
         .add_plugins(EnemyPlugin)
-        .add_plugins(StartPagePlugin)
+        .add_plugins(MainMenuPlugin)
         .add_plugins(BGMPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(BookshelfPlugin)
@@ -133,6 +136,10 @@ pub fn run_game() {
         .add_plugins(GameConfigPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(WitchPlugin)
+        .add_plugins(HoverColorPlugin)
+        .add_plugins(OnPressPlugin)
+        .add_plugins(ConfigPagePlugin)
+        .add_plugins(GameMenuPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています

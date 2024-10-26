@@ -100,7 +100,7 @@ fn respawn_world_tilemap(
     chunk: &LevelTileMap,
     world_tile: &Query<Entity, With<WorldTile>>,
 ) {
-    for entity in world_tile.iter() {
+    for entity in world_tile {
         commands.entity(entity).despawn();
     }
 
@@ -198,11 +198,10 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
 
 fn update_world(
     player_query: Query<&Actor, With<Player>>,
-    enemy_query: Query<&Enemy>,
     mut overlay_next_state: ResMut<OverlayNextState>,
 ) {
     let player = player_query.get_single();
-    if enemy_query.is_empty() || player.is_ok_and(|p| p.life == 0) {
+    if player.is_ok_and(|p| p.life == 0) {
         *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
     }
 }

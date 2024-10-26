@@ -15,6 +15,8 @@ pub enum GameState {
 
     MainMenu,
 
+    Config,
+
     InGame,
 }
 
@@ -26,4 +28,13 @@ pub enum MainMenuPhase {
 
     /// スタートボタンを押してフェードアウトしている最中
     Paused,
+}
+
+#[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+#[source(GameState = GameState::InGame)]
+pub enum GameMenuState {
+    Close,
+
+    #[default]
+    Open,
 }

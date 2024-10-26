@@ -97,7 +97,7 @@ pub fn respawn_wall_collisions(
     chunk: &LevelTileMap,
 ) {
     // 既存の壁コライダーを削除
-    for entity in collider_query.iter() {
+    for entity in collider_query {
         commands.entity(entity).despawn();
     }
 
