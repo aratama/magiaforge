@@ -24,7 +24,7 @@ pub const Z_ORDER_SCALE: f32 = 0.001;
 pub const CAMERA_SPEED: f32 = 0.1;
 
 #[allow(dead_code)]
-pub const CRATE_NAME: &str = "my_bevy_game";
+pub const CRATE_NAME: &str = "magiaboost";
 
 // Setupステートでの初期化が完了した直後に遷移する先のステート
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています

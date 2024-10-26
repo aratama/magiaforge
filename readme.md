@@ -1,4 +1,4 @@
-# bevy-wasm-example
+# magiaboost
 
 ![screenshot](screenshot.png)
 

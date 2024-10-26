@@ -7,16 +7,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'my_bevy_game'",
+      "name": "Debug executable 'magiaboost'",
       "cargo": {
         "args": [
           "build",
-          "--bin=my_bevy_game",
-          "--package=my_bevy_game",
+          "--bin=magiaboost",
+          "--package=magiaboost",
           "--features=debug"
         ],
         "filter": {
-          "name": "my_bevy_game",
+          "name": "magiaboost",
           "kind": "bin"
         }
       },
@@ -28,16 +28,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'my_bevy_game'",
+      "name": "Debug unit tests in executable 'magiaboost'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=my_bevy_game",
-          "--package=my_bevy_game"
+          "--bin=magiaboost",
+          "--package=magiaboost"
         ],
         "filter": {
-          "name": "my_bevy_game",
+          "name": "magiaboost",
           "kind": "bin"
         }
       },
