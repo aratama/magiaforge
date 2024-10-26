@@ -11,6 +11,7 @@ use super::constant::PIXELS_PER_METER;
 use super::embedded::EmbeddedAssetPlugin;
 use super::entity::book_shelf::BookshelfPlugin;
 use super::entity::bullet::BulletPlugin;
+use super::entity::witch::WitchPlugin;
 use super::gamepad::GamepadPlugin;
 use super::hud::life_bar::LifeBarPlugin;
 use super::hud::overlay::*;
@@ -21,6 +22,8 @@ use super::serialize::*;
 use super::states::*;
 use super::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
+use bevy::log::Level;
+use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
@@ -45,6 +48,8 @@ use iyes_perf_ui::PerfUiPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
+
+    println!("main");
 
     app
         //
@@ -77,12 +82,12 @@ pub fn run_game() {
                         ..default()
                     }),
                     ..default()
+                })
+                .set(LogPlugin {
+                    level: Level::DEBUG,
+                    ..default()
                 }),
             //
-            // .set(LogPlugin {
-            //     level: Level::DEBUG,
-            //     ..default()
-            // })
         )
         .add_plugins(EmbeddedAssetPlugin)
         // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
@@ -129,6 +134,7 @@ pub fn run_game() {
         .add_plugins(WebSocketPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(RemotePlayerPlugin)
+        .add_plugins(WitchPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
