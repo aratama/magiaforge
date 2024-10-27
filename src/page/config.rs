@@ -21,7 +21,6 @@ impl FromWorld for ButtonShots {
 }
 
 fn back(
-    mut commands: Commands,
     assets: Res<GameAssets>,
     mut overlay_next_state: ResMut<OverlayNextState>,
     audio: Res<Audio>,

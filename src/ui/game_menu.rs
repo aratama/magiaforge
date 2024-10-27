@@ -21,7 +21,6 @@ impl FromWorld for ButtonShots {
 }
 
 fn exit(
-    mut commands: Commands,
     mut overlay_next_state: ResMut<OverlayNextState>,
     assets: Res<GameAssets>,
     audio: Res<Audio>,

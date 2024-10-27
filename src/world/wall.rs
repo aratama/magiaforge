@@ -143,7 +143,6 @@ fn process_break_wall_event(
     mut chunk: ResMut<LevelTileMap>,
     world_tile: Query<Entity, With<WorldTile>>,
     audio: Res<Audio>,
-    asset_server: Res<AssetServer>,
 ) {
     let mut rebuild = false;
 

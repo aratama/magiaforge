@@ -64,7 +64,6 @@ fn update_enemy(
                                 &mut player,
                                 &player_transform,
                                 &mut player_impulse,
-                                &mut commands,
                                 &assets,
                                 &audio,
                             );
@@ -76,7 +75,6 @@ fn update_enemy(
                                 &mut player,
                                 &player_transform,
                                 &mut player_impulse,
-                                &mut commands,
                                 &assets,
                                 &audio,
                             );
@@ -94,7 +92,6 @@ fn process_attack_event(
     player: &mut Actor,
     player_transform: &GlobalTransform,
     player_impulse: &mut ExternalImpulse,
-    mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     audio: &Res<Audio>,
 ) {

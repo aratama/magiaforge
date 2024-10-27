@@ -31,7 +31,6 @@ impl FromWorld for ButtonShots {
 }
 
 fn start_game(
-    mut commands: Commands,
     assets: Res<GameAssets>,
     mut query: Query<&mut Visibility, With<OnPress>>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
@@ -50,7 +49,6 @@ fn start_game(
 }
 
 fn config_game(
-    mut commands: Commands,
     mut overlay_next_state: ResMut<OverlayNextState>,
     assets: Res<GameAssets>,
     audio: Res<Audio>,
