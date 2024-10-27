@@ -1,6 +1,6 @@
 use bevy::{core::FrameCount, prelude::*};
 use bevy_rapier2d::prelude::Velocity;
-use bevy_websocket_sync::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
+use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

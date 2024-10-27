@@ -35,7 +35,7 @@ use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
-use bevy_websocket_sync::WebSocketPlugin;
+use bevy_simple_websocket::WebSocketPlugin;
 use wall::WallPlugin;
 
 #[cfg(feature = "debug")]

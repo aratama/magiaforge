@@ -8,7 +8,7 @@ use crate::entity::bullet::{add_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy_websocket_sync::ClientMessage;
+use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use std::f32::consts::PI;
 

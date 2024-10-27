@@ -1344,6 +1344,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_simple_websocket"
+version = "0.2.5"
+dependencies = [
+ "bevy",
+ "bevy-tokio-tasks",
+ "bincode",
+ "crossbeam-channel",
+ "dotenvy",
+ "dotenvy_macro",
+ "futures-channel",
+ "futures-util",
+ "js-sys",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-tungstenite 0.24.0",
+ "uuid",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "bevy_sprite"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1513,30 +1537,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.85",
-]
-
-[[package]]
-name = "bevy_websocket_sync"
-version = "0.2.5"
-dependencies = [
- "bevy",
- "bevy-tokio-tasks",
- "bincode",
- "crossbeam-channel",
- "dotenvy",
- "dotenvy_macro",
- "futures-channel",
- "futures-util",
- "js-sys",
- "rand 0.8.5",
- "serde",
- "serde_json",
- "tokio",
- "tokio-tungstenite 0.24.0",
- "uuid",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
 ]
 
 [[package]]
@@ -4099,7 +4099,7 @@ dependencies = [
  "bevy_light_2d",
  "bevy_particle_systems",
  "bevy_rapier2d",
- "bevy_websocket_sync",
+ "bevy_simple_websocket",
  "bincode",
  "dotenvy",
  "dotenvy_macro",
