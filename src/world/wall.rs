@@ -95,7 +95,7 @@ pub fn respawn_wall_collisions(
 ) {
     // 既存の壁コライダーを削除
     for entity in collider_query {
-        commands.entity(entity).despawn();
+        commands.entity(entity).despawn_recursive();
     }
 
     // 衝突形状の生成

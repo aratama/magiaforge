@@ -136,7 +136,7 @@ fn follow_light(
             transform.translation.x = witch_transform.translation.x;
             transform.translation.y = witch_transform.translation.y;
         } else {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

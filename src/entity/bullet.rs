@@ -23,6 +23,10 @@ static BULLET_IMPULSE: f32 = 20000.0;
 
 pub const BULLET_RADIUS: f32 = 10.0;
 
+const BULLET_DAMAGE: i32 = 5;
+
+const BULLET_LIFETIME: u32 = 240;
+
 // 弾丸発射時の、キャラクターと弾丸の間隔
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
 // 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
@@ -43,7 +47,7 @@ pub struct BulletBundle {
     transform: Transform,
 }
 
-pub fn add_bullet(
+pub fn spawn_bullet(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
     position: Vec2,
@@ -54,8 +58,8 @@ pub fn add_bullet(
         Name::new("bullet"),
         StateScoped(GameState::InGame),
         Bullet {
-            life: 240,
-            damage: 1,
+            life: BULLET_LIFETIME,
+            damage: BULLET_DAMAGE,
             impulse: BULLET_IMPULSE,
             owner,
         },
@@ -108,7 +112,7 @@ pub fn update_bullet(
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
         bullet.life -= 1;
         if bullet.life <= 0 {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 
@@ -171,7 +175,7 @@ fn process_bullet_event(
         // https://github.com/bevyengine/bevy/issues/5617
         if !respownings.contains(&bullet_entity) {
             respownings.insert(bullet_entity.clone());
-            commands.entity(bullet_entity).despawn();
+            commands.entity(bullet_entity).despawn_recursive();
             spawn_particle_system(&mut commands, bullet_position);
 
             if let Ok((mut actor, mut impilse)) = actors.get_mut(*b) {
@@ -179,7 +183,7 @@ fn process_bullet_event(
                 // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
                 // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
-                    actor.life -= bullet.damage;
+                    actor.life = (actor.life - bullet.damage).max(0);
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
                     play_se(assets.dageki.clone(), &audio);
                 }

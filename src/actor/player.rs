@@ -2,7 +2,7 @@ use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::actor::Actor;
-use crate::entity::bullet::{add_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
+use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::gamepad::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::GameState;
@@ -97,7 +97,7 @@ fn update_player(
                     let range = WITCH_COLLIDER_RADIUS + BULLET_RADIUS + BULLET_SPAWNING_MARGIN;
                     let bullet_position =
                         player_transform.translation.truncate() + range * normalized;
-                    add_bullet(
+                    spawn_bullet(
                         &mut commands,
                         assets.asset.clone(),
                         bullet_position,

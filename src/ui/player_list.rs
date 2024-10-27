@@ -18,8 +18,6 @@ struct SelfPlayerLabel;
 struct RemotePlayerListItem(Entity);
 
 fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
-    info!("spawn_player_list");
-
     commands
         .spawn((
             StateScoped(GameState::InGame),
@@ -80,7 +78,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
 fn update(
     mut commands: Commands,
     remote_query: Query<(Entity, &RemotePlayer)>,
-    remote_player_items_query: Query<&RemotePlayerListItem>,
+    remote_player_items_query: Query<(Entity, &RemotePlayerListItem)>,
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
     player_query: Query<&Player>,
@@ -102,22 +100,11 @@ fn update(
 
     // ListItemが存在しないRemotePlayerを追加
     for (remote_entity, remote) in remote_query.iter() {
-        if let Some(item) = remote_player_items_query
+        if remote_player_items_query
             .iter()
-            .find(|p| p.0.index() == remote_entity.index())
+            .find(|(_, i)| i.0.index() == remote_entity.index())
+            .is_none()
         {
-            commands.entity(item.0).with_children(|parent| {
-                parent.spawn(TextBundle::from_section(
-                    remote.name.clone(),
-                    TextStyle {
-                        font: assets.dotgothic.clone(),
-                        color: Color::WHITE,
-                        font_size: 20.0,
-                        ..default()
-                    },
-                ));
-            });
-        } else {
             commands.entity(list).with_children(|parent| {
                 parent.spawn((
                     RemotePlayerListItem(remote_entity),
@@ -137,13 +124,9 @@ fn update(
     }
 
     // RemotePlayerが存在しないListItemを削除
-    for item in remote_player_items_query.iter() {
-        if remote_query
-            .iter()
-            .find(|(entity, _)| entity == &item.0)
-            .is_none()
-        {
-            commands.entity(item.0).despawn_recursive();
+    for (item_entity, item) in remote_player_items_query.iter() {
+        if remote_query.get(item.0).is_err() {
+            commands.entity(item_entity).despawn_recursive();
         }
     }
 }

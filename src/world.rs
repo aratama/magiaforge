@@ -101,7 +101,7 @@ fn respawn_world_tilemap(
     world_tile: &Query<Entity, With<WorldTile>>,
 ) {
     for entity in world_tile {
-        commands.entity(entity).despawn();
+        commands.entity(entity).despawn_recursive();
     }
 
     // 床と壁の生成

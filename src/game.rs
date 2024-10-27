@@ -53,8 +53,6 @@ use iyes_perf_ui::PerfUiPlugin;
 pub fn run_game() {
     let mut app = App::new();
 
-    println!("main");
-
     app
         //
         // デフォルトのプラグインや依存しているサードパーティのプラグインなど

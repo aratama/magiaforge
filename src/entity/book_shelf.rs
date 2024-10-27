@@ -55,7 +55,7 @@ fn update_book_shelf(
 ) {
     for (entity, book_shelf) in query.iter() {
         if book_shelf.life <= 0 {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
             play_se(assets.kuzureru.clone(), &audio);
         }
     }

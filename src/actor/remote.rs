@@ -10,7 +10,7 @@ use crate::{
     config::GameConfig,
     entity::{
         actor::Actor,
-        bullet::add_bullet,
+        bullet::spawn_bullet,
         witch::{spawn_witch, WitchType},
     },
     states::GameState,
@@ -147,7 +147,7 @@ fn receive_events(
                         }
                     }
                     RemoteMessage::Fire { uuid, x, y, vx, vy } => {
-                        add_bullet(
+                        spawn_bullet(
                             &mut commands,
                             assets.asset.clone(),
                             Vec2::new(x, y),
@@ -171,7 +171,7 @@ fn despown_no_contact_remotes(
     for (entity, actor, remote) in remotes.iter_mut() {
         if 120 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
             info!("Remote player {} despowned", actor.uuid);
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }
