@@ -23,6 +23,7 @@ use crate::page::main_menu::MainMenuPlugin;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::on_press::OnPressPlugin;
+use crate::ui::player_list::PlayerListPlugin;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::Level;
 use bevy::log::LogPlugin;
@@ -141,6 +142,7 @@ pub fn run_game() {
         .add_plugins(ConfigPagePlugin)
         .add_plugins(GameMenuPlugin)
         .add_plugins(AudioPlugin)
+        .add_plugins(PlayerListPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています

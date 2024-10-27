@@ -102,6 +102,7 @@ pub fn spawn_witch(
         WitchType::RemoteWitch => entity.insert(RemotePlayer {
             name,
             last_update: frame_count,
+            created_at: frame_count,
         }),
     };
 

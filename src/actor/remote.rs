@@ -22,6 +22,7 @@ use super::player::Player;
 #[derive(Component)]
 pub struct RemotePlayer {
     pub name: String,
+    pub created_at: FrameCount,
     pub last_update: FrameCount,
 }
 

@@ -61,7 +61,7 @@ fn setup_game_menu(
                 GameState::InGame,
                 "Back to Main Menu",
                 240.0,
-                8.0,
+                150.0,
                 124.0,
                 16.0,
             );
