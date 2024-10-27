@@ -1,4 +1,5 @@
 use bevy::{core::FrameCount, prelude::*};
+use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
@@ -13,6 +14,7 @@ use crate::{
         bullet::spawn_bullet,
         witch::{spawn_witch, WitchType},
     },
+    hud::life_bar::LifeBarResource,
     states::GameState,
 };
 
@@ -28,6 +30,8 @@ pub struct RemotePlayer {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum RemoteMessage {
+    // 現在位置を通知します
+    // 前回の通知と比較して、位置が変更されたか60フレーム以上経過した場合は再通知します
     Position {
         uuid: Uuid,
         name: String,
@@ -35,13 +39,21 @@ pub enum RemoteMessage {
         y: f32,
         vx: f32,
         vy: f32,
+        life: i32,
+        max_life: i32,
     },
+    // 弾を発射したことを通知します
     Fire {
         uuid: Uuid,
         x: f32,
         y: f32,
         vx: f32,
         vy: f32,
+    },
+    // ダメージを受けたことを通知します
+    Hit {
+        uuid: Uuid,
+        damage: i32,
     },
 }
 
@@ -60,6 +72,8 @@ fn send_player_states(
                 if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
                     || translate.x != player.last_ilde_x
                     || translate.y != player.last_ilde_y
+                    || actor.life != player.last_idle_life
+                    || actor.max_life != player.last_idle_max_life
                 {
                     let command = RemoteMessage::Position {
                         uuid: actor.uuid,
@@ -68,6 +82,8 @@ fn send_player_states(
                         y: translate.y,
                         vx: velocity.linvel.x,
                         vy: velocity.linvel.y,
+                        life: actor.life,
+                        max_life: actor.max_life,
                     };
                     let serialized = bincode::serialize(&command).unwrap();
                     writer.send(ClientMessage::Binary(serialized));
@@ -100,11 +116,15 @@ fn receive_events(
     mut commands: Commands,
     mut reader: EventReader<ServerMessage>,
     mut remotes: Query<
-        (&mut RemotePlayer, &Actor, &mut Transform, &mut Velocity),
+        (&mut RemotePlayer, &mut Actor, &mut Transform, &mut Velocity),
         With<RemotePlayer>,
     >,
     assets: Res<asset::GameAssets>,
     frame_count: Res<FrameCount>,
+
+    life_bar_res: Res<LifeBarResource>,
+
+    audio: Res<Audio>,
 ) {
     for message in reader.read() {
         match message {
@@ -122,16 +142,20 @@ fn receive_events(
                         y,
                         vx,
                         vy,
+                        life,
+                        max_life,
                     } => {
                         let target = remotes
                             .iter_mut()
                             .find(|(_, actor, _, _)| actor.uuid == uuid);
-                        if let Some((mut remote, _, mut transform, mut velocity)) = target {
+                        if let Some((mut remote, mut actor, mut transform, mut velocity)) = target {
                             remote.last_update = *frame_count;
                             transform.translation.x = x;
                             transform.translation.y = y;
                             velocity.linvel.x = vx;
                             velocity.linvel.y = vy;
+                            actor.life = life;
+                            actor.max_life = max_life;
                         } else {
                             spawn_witch(
                                 &mut commands,
@@ -142,6 +166,9 @@ fn receive_events(
                                 WitchType::RemoteWitch,
                                 *frame_count,
                                 name,
+                                life,
+                                max_life,
+                                &life_bar_res,
                             );
                             info!("Remote player {} spawned", uuid);
                         }
@@ -153,7 +180,19 @@ fn receive_events(
                             Vec2::new(x, y),
                             Vec2::new(vx, vy),
                             Some(uuid),
+                            &assets,
+                            &audio,
                         );
+                    }
+                    RemoteMessage::Hit { uuid, damage } => {
+                        let target = remotes
+                            .iter_mut()
+                            .find(|(_, actor, _, _)| actor.uuid == uuid);
+
+                        if let Some((mut remote, mut actor, _, _)) = target {
+                            actor.life -= damage;
+                            remote.last_update = *frame_count;
+                        }
                     }
                 }
             }

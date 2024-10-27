@@ -19,7 +19,7 @@ pub fn button<'a>(
     h: f32,
 ) {
     let hovered = Color::hsla(0.0, 0.0, 1.0, 0.1).into();
-    let none = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
+    let none = Color::hsla(0.0, 0.0, 1.0, 0.05).into();
 
     parent
         .spawn((
@@ -33,15 +33,12 @@ pub fn button<'a>(
                     height: Val::Px(SCALE * h),
                     left: Val::Px(SCALE * x),
                     top: Val::Px(SCALE * y),
-                    border: UiRect::all(Val::Px(4.0)),
                     // horizontally center child text
                     justify_content: JustifyContent::Center,
                     // vertically center child text
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                border_color: Color::hsla(0.0, 1.0, 1.0, 0.1).into(),
-                border_radius: BorderRadius::DEFAULT,
                 background_color: Color::hsla(0.0, 1.0, 1.0, 0.0).into(),
                 ..default()
             },

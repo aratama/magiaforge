@@ -5,9 +5,10 @@ use crate::entity::actor::Actor;
 use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::gamepad::{get_direction, get_fire_trigger, MyGamepad};
-use crate::states::GameState;
+use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
+use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
@@ -36,6 +37,8 @@ pub struct Player {
     pub last_ilde_y: f32,
     pub last_idle_vx: f32,
     pub last_idle_vy: f32,
+    pub last_idle_life: i32,
+    pub last_idle_max_life: i32,
 }
 
 fn update_player(
@@ -50,7 +53,6 @@ fn update_player(
         ),
         (With<Player>, Without<Camera2d>),
     >,
-    mut camera_query: Query<&mut Transform, (With<Camera>, With<Camera2d>, Without<Player>)>,
     mut commands: Commands,
     assets: Res<GameAssets>,
     buttons: Res<ButtonInput<MouseButton>>,
@@ -60,6 +62,10 @@ fn update_player(
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
 
     mut writer: EventWriter<ClientMessage>,
+
+    menu: Res<State<GameMenuState>>,
+
+    audio: Res<Audio>,
 ) {
     let force = 50000.0;
 
@@ -70,13 +76,9 @@ fn update_player(
     {
         player_transform.translation.z =
             ENTITY_LAYER_Z - player_transform.translation.y * Z_ORDER_SCALE;
-        player_force.force = direction * force;
 
-        if let Ok(mut camera_transform) = camera_query.get_single_mut() {
-            camera_transform.translation.x +=
-                (player_transform.translation.x - camera_transform.translation.x) * CAMERA_SPEED;
-            camera_transform.translation.y +=
-                (player_transform.translation.y - camera_transform.translation.y) * CAMERA_SPEED;
+        if *menu == GameMenuState::Close {
+            player_force.force = direction * force;
 
             // プレイヤーの向き
             let angle = player.pointer.to_angle();
@@ -103,6 +105,8 @@ fn update_player(
                         bullet_position,
                         direction * BULLET_SPEED,
                         Some(player.uuid),
+                        &assets,
+                        &audio,
                     );
                     let serialized = bincode::serialize(&RemoteMessage::Fire {
                         uuid: player.uuid,
@@ -119,6 +123,10 @@ fn update_player(
             } else {
                 player.cooltime = (player.cooltime - 1).max(0);
             }
+        } else {
+            player_force.force = Vec2::ZERO;
+
+            player.cooltime = (player.cooltime - 1).max(0);
         }
     }
 }

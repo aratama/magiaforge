@@ -33,9 +33,8 @@ pub enum MainMenuPhase {
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
 #[source(GameState = GameState::InGame)]
 pub enum GameMenuState {
-    #[allow(dead_code)]
-    Close = 0,
-
     #[default]
-    Open = 1,
+    Close,
+
+    Open,
 }

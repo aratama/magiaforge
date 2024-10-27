@@ -18,6 +18,7 @@ use super::hud::*;
 use super::serialize::*;
 use super::states::*;
 use super::world::*;
+use crate::entity::actor::ActorPlugin;
 use crate::page::config::ConfigPagePlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::ui::game_menu::GameMenuPlugin;
@@ -141,6 +142,7 @@ pub fn run_game() {
         .add_plugins(GameMenuPlugin)
         .add_plugins(AudioPlugin)
         .add_plugins(PlayerListPlugin)
+        .add_plugins(ActorPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
@@ -159,6 +161,7 @@ pub fn run_game() {
         //
         .init_state::<GameState>()
         .add_sub_state::<MainMenuPhase>()
+        .add_sub_state::<GameMenuState>()
         .add_loading_state(
             LoadingState::new(GameState::Setup)
                 .continue_to_state(INITIAL_STATE)

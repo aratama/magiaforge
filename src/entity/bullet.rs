@@ -53,7 +53,11 @@ pub fn spawn_bullet(
     position: Vec2,
     velocity: Vec2,
     owner: Option<Uuid>,
+    assets: &Res<GameAssets>,
+    audio: &Res<Audio>,
 ) {
+    play_se(assets.suburi.clone(), audio);
+
     commands.spawn((
         Name::new("bullet"),
         StateScoped(GameState::InGame),

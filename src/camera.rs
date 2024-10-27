@@ -1,3 +1,5 @@
+use crate::constant::CAMERA_SPEED;
+
 use super::{actor::player::Player, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
@@ -47,9 +49,8 @@ fn update_camera(
 ) {
     if let Ok(player) = player_query.get_single() {
         if let Ok((mut camera, mut ortho, mut scale_factor)) = camera_query.get_single_mut() {
-            let t = 0.001;
-            camera.translation.x += (player.translation.x - camera.translation.x) * t;
-            camera.translation.y += (player.translation.y - camera.translation.y) * t;
+            camera.translation.x += (player.translation.x - camera.translation.x) * CAMERA_SPEED;
+            camera.translation.y += (player.translation.y - camera.translation.y) * CAMERA_SPEED;
 
             if keys.just_pressed(KeyCode::KeyR) {
                 *scale_factor = CameraScaleFactor(scale_factor.0 - 1.0);

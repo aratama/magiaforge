@@ -3,6 +3,7 @@ use crate::actor::player::Player;
 use crate::actor::remote::RemotePlayer;
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -32,6 +33,10 @@ pub fn spawn_witch(
     witch_type: WitchType,
     frame_count: FrameCount,
     name: String,
+    life: i32,
+    max_life: i32,
+
+    res: &Res<LifeBarResource>,
 ) {
     let mut entity = commands.spawn((
         Name::new("player"),
@@ -39,8 +44,8 @@ pub fn spawn_witch(
         Actor {
             uuid,
             cooltime: 0,
-            life: 250,
-            max_life: 250,
+            life,
+            max_life,
             latest_damage: 0,
             pointer: Vec2::ZERO,
         },
@@ -70,7 +75,11 @@ pub fn spawn_witch(
         CollisionGroups::new(ENEMY_GROUP, ENEMY_GROUP | WALL_GROUP | BULLET_GROUP),
     ));
 
-    entity.with_children(|spawn_children| {
+    let name_clone = name.clone();
+    let index = entity.id();
+
+    entity.with_children(move |spawn_children| {
+        // リモートプレイヤーの名前
         let mut sections = Vec::new();
         sections.push(TextSection {
             value: name.clone(),
@@ -88,25 +97,30 @@ pub fn spawn_witch(
             transform: Transform::from_xyz(0.0, 20.0, 100.0),
             ..default()
         });
+
+        // リモートプレイヤーのライフバー
+        // spawn_actor_life_bar(spawn_children, &mut meshes, &mut materials);
+
+        spawn_life_bar(spawn_children, &res);
     });
 
     match witch_type {
         WitchType::PlayerWitch => entity.insert(Player {
-            name: name,
+            name: name_clone,
             last_idle_frame_count: frame_count,
             last_ilde_x: x,
             last_ilde_y: y,
             last_idle_vx: 0.0,
             last_idle_vy: 0.0,
+            last_idle_life: life,
+            last_idle_max_life: max_life,
         }),
         WitchType::RemoteWitch => entity.insert(RemotePlayer {
-            name,
+            name: name_clone,
             last_update: frame_count,
             created_at: frame_count,
         }),
     };
-
-    let index = entity.id();
 
     // SpriteBundle に PointLight2d を追加すると、画面外に出た時に Sprite が描画されなくなり、
     // ライトも描画されず不自然になるため、別で追加する

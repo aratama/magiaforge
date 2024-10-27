@@ -1,13 +1,17 @@
+use crate::entity::actor::Actor;
 use crate::{set::GameSet, states::GameState};
-use crate::{actor::enemy::Enemy, entity::actor::Actor};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
-static LIFE_BAR_WIDTH: f32 = 16.0;
+const LIFE_BAR_WIDTH: f32 = 16.0;
 
-static LIFE_BAR_HEIGHT: f32 = 2.0;
+const LIFE_BAR_HEIGHT: f32 = 2.0;
+
+const LIFE_BAR_Y: f32 = -8.0;
+
+const LIFE_BAR_Z: f32 = 100.0;
 
 #[derive(Component)]
 pub struct LifeBar;
@@ -43,7 +47,7 @@ pub fn spawn_life_bar(child_builder: &mut ChildBuilder, res: &Res<LifeBarResourc
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(res.shape.clone()),
             material: res.material_life.clone(),
-            transform: Transform::from_xyz(0.0, 10.0, 1.0),
+            transform: Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z + 1.0),
             visibility: Visibility::Hidden,
             ..default()
         },
@@ -53,7 +57,7 @@ pub fn spawn_life_bar(child_builder: &mut ChildBuilder, res: &Res<LifeBarResourc
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(res.shape.clone()),
             material: res.material_background.clone(),
-            transform: Transform::from_xyz(0.0, 10.0, 0.0),
+            transform: Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z),
             ..default()
         },
     ));
@@ -66,19 +70,22 @@ pub fn update_life_bar(
         // TODO: ここでなぜ Withoutが必要なのかよく理解できていない
         (With<LifeBarBackground>, Without<LifeBar>),
     >,
-    enemy_query: Query<&Actor, With<Enemy>>,
+    enemy_query: Query<&Actor>,
 ) {
     for (life_bar_parent, mut transform, mut visibility) in query.iter_mut() {
-        let enemy = enemy_query.get(life_bar_parent.get()).unwrap();
-        let ratio = enemy.life as f32 / enemy.max_life as f32;
-        *visibility = if ratio < 1.0 {
-            Visibility::Visible
-        } else {
-            Visibility::Hidden
-        };
+        if let Ok(enemy) = enemy_query.get(life_bar_parent.get()) {
+            let ratio = enemy.life as f32 / enemy.max_life as f32;
+            *visibility = if ratio < 1.0 {
+                Visibility::Visible
+            } else {
+                Visibility::Hidden
+            };
 
-        transform.scale.x = ratio;
-        transform.translation.x = (ratio * LIFE_BAR_WIDTH - LIFE_BAR_WIDTH) * 0.5;
+            transform.scale.x = ratio;
+            transform.translation.x = (ratio * LIFE_BAR_WIDTH - LIFE_BAR_WIDTH) * 0.5;
+        } else {
+            warn!("enemy not found in update_life_bar");
+        }
     }
     for (life_bar_parent, mut visibility) in background_query.iter_mut() {
         let enemy = enemy_query.get(life_bar_parent.get()).unwrap();
