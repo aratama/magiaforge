@@ -6,6 +6,7 @@ use crate::world::wall::{BreakWallEvent, WallCollider};
 use crate::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
+use bevy_kira_audio::Audio;
 use bevy_light_2d::light::PointLight2d;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
@@ -102,6 +103,7 @@ pub fn update_bullet(
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut break_wall_events: EventWriter<BreakWallEvent>,
+    audio: Res<Audio>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
@@ -127,6 +129,7 @@ pub fn update_bullet(
                     &b,
                     &wall_collider_query,
                     &mut break_wall_events,
+                    &audio,
                 ) {
                     process_bullet_event(
                         &mut commands,
@@ -139,6 +142,7 @@ pub fn update_bullet(
                         &a,
                         &wall_collider_query,
                         &mut break_wall_events,
+                        &audio,
                     );
                 }
             }
@@ -160,6 +164,7 @@ fn process_bullet_event(
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
     break_wall_events: &mut EventWriter<BreakWallEvent>,
+    audio: &Res<Audio>,
 ) -> bool {
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
@@ -180,7 +185,7 @@ fn process_bullet_event(
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     actor.life -= bullet.damage;
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
-                    play_se(&mut commands, assets.dageki.clone());
+                    play_se(assets.dageki.clone(), &audio);
                 }
             } else if let Ok(mut bookshelf) = bookshelf_query.get_mut(*b) {
                 // 弾丸が本棚に衝突したとき
@@ -188,7 +193,7 @@ fn process_bullet_event(
                 // Breakableコンポーネントにしてまとめる？
                 // でも破壊したときの効果が物体によって異なるのでまとめられない？
                 bookshelf.life -= bullet.damage;
-                play_se(&mut commands, assets.dageki.clone());
+                play_se(assets.dageki.clone(), &audio);
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 // 弾丸が壁に衝突したとき
                 // 衝突した点を取得しようとしたものの、正確な値がうまく取得できない
@@ -199,7 +204,7 @@ fn process_bullet_event(
                     position: bullet_position,
                 });
             } else {
-                play_se(&mut commands, assets.shibafu.clone());
+                play_se(assets.shibafu.clone(), &audio);
             }
             true
         } else {

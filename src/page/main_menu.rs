@@ -11,6 +11,7 @@ use crate::{
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
+use bevy_kira_audio::Audio;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -36,6 +37,7 @@ fn start_game(
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
     mut overlay_next_state: ResMut<OverlayNextState>,
     mut next_bgm: ResMut<BGM>,
+    audio: Res<Audio>,
 ) {
     for mut visibility in &mut query {
         *visibility = Visibility::Hidden;
@@ -44,16 +46,17 @@ fn start_game(
     *overlay_next_state = OverlayNextState(Some(GameState::InGame));
     *next_bgm = BGM(None);
 
-    play_se(&mut commands, assets.kettei.clone());
+    play_se(assets.kettei.clone(), &audio);
 }
 
 fn config_game(
     mut commands: Commands,
     mut overlay_next_state: ResMut<OverlayNextState>,
     assets: Res<GameAssets>,
+    audio: Res<Audio>,
 ) {
     *overlay_next_state = OverlayNextState(Some(GameState::Config));
-    play_se(&mut commands, assets.kettei.clone());
+    play_se(assets.kettei.clone(), &audio);
 }
 
 fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {

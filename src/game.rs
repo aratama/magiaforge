@@ -31,6 +31,7 @@ use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
+use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
 use bevy_rapier2d::prelude::*;
@@ -139,6 +140,7 @@ pub fn run_game() {
         .add_plugins(OnPressPlugin)
         .add_plugins(ConfigPagePlugin)
         .add_plugins(GameMenuPlugin)
+        .add_plugins(AudioPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
