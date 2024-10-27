@@ -1,9 +1,9 @@
-use crate::asset::GameAssets;
-use crate::constant::*;
-use crate::states::GameState;
 use super::actor::Actor;
 use crate::actor::player::Player;
 use crate::actor::remote::RemotePlayer;
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -56,6 +56,7 @@ pub fn spawn_witch(
             ..default()
         },
         RigidBody::Dynamic,
+        Velocity::default(),
         Collider::ball(WITCH_COLLIDER_RADIUS),
         GravityScale(0.0),
         LockedAxes::ROTATION_LOCKED,

@@ -1,4 +1,5 @@
 use bevy::{core::FrameCount, prelude::*};
+use bevy_rapier2d::prelude::Velocity;
 use bevy_websocket_sync::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
@@ -29,6 +30,8 @@ pub enum RemoteMessage {
         uuid: Uuid,
         x: f32,
         y: f32,
+        vx: f32,
+        vy: f32,
     },
     Fire {
         uuid: Uuid,
@@ -41,22 +44,26 @@ pub enum RemoteMessage {
 
 fn send_player_states(
     mut writer: EventWriter<ClientMessage>,
-    player_query: Query<(&Actor, &GlobalTransform), With<Player>>,
+    player_query: Query<(&Actor, &GlobalTransform, &Velocity), With<Player>>,
     config: Res<GameConfig>,
     state: Res<WebSocketState>,
 ) {
     if config.online {
-        if let Ok((player, transform)) = player_query.get_single() {
+        if let Ok((player, transform, velocity)) = player_query.get_single() {
             if state.ready_state == ReadyState::OPEN {
                 let translate = transform.translation();
                 let command = RemoteMessage::Ping {
                     uuid: player.uuid,
                     x: translate.x,
                     y: translate.y,
+                    vx: velocity.linvel.x,
+                    vy: velocity.linvel.y,
                 };
                 let serialized = bincode::serialize(&command).unwrap();
                 writer.send(ClientMessage::Binary(serialized));
             }
+        } else {
+            warn!("player not found");
         }
     }
 }
@@ -78,7 +85,10 @@ fn on_exit(config: Res<GameConfig>, mut writer: EventWriter<ClientMessage>) {
 fn receive_events(
     mut commands: Commands,
     mut reader: EventReader<ServerMessage>,
-    mut remotes: Query<(&mut RemotePlayer, &Actor, &mut Transform), With<RemotePlayer>>,
+    mut remotes: Query<
+        (&mut RemotePlayer, &Actor, &mut Transform, &mut Velocity),
+        With<RemotePlayer>,
+    >,
     assets: Res<asset::GameAssets>,
     frame_count: Res<FrameCount>,
 ) {
@@ -91,12 +101,16 @@ fn receive_events(
                 let command: RemoteMessage =
                     bincode::deserialize(bin).expect("Failed to deserialize");
                 match command {
-                    RemoteMessage::Ping { uuid, x, y } => {
-                        let target = remotes.iter_mut().find(|(_, actor, _)| actor.uuid == uuid);
-                        if let Some((mut remote, _, mut transform)) = target {
+                    RemoteMessage::Ping { uuid, x, y, vx, vy } => {
+                        let target = remotes
+                            .iter_mut()
+                            .find(|(_, actor, _, _)| actor.uuid == uuid);
+                        if let Some((mut remote, _, mut transform, mut velocity)) = target {
                             remote.last_update = *frame_count;
                             transform.translation.x = x;
                             transform.translation.y = y;
+                            velocity.linvel.x = vx;
+                            velocity.linvel.y = vy;
                         } else {
                             spawn_witch(
                                 &mut commands,
