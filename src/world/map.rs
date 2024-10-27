@@ -6,7 +6,6 @@ const LEVEL_SIZE: i32 = 64;
 #[derive(Clone, Copy)]
 struct LevelTileMapile {
     tile: Tile,
-    life: i32,
 }
 
 #[derive(Clone, Resource)]
@@ -36,29 +35,13 @@ impl LevelTileMap {
         return self.tiles[i].tile == tile;
     }
 
+    #[allow(dead_code)]
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
         if x < 0 || x >= self.width || y < 0 || y >= self.height {
             return;
         }
         let i = (y * self.width + x) as usize;
         self.tiles[i].tile = tile;
-        self.tiles[i].life = 4;
-    }
-
-    pub fn get_life(&self, x: i32, y: i32) -> i32 {
-        if x < 0 || x >= self.width || y < 0 || y >= self.height {
-            return 0;
-        }
-        let i = (y * self.width + x) as usize;
-        return self.tiles[i].life;
-    }
-
-    pub fn set_life(&mut self, x: i32, y: i32, life: i32) {
-        if x < 0 || x >= self.width || y < 0 || y >= self.height {
-            return;
-        }
-        let i = (y * self.width + x) as usize;
-        self.tiles[i].life = life;
     }
 
     pub fn is_empty(&self, x: i32, y: i32) -> bool {
@@ -80,44 +63,29 @@ pub fn image_to_tilemap(level_image: &Image) -> LevelTileMap {
             let b = level_image.data[i + 2];
             let a = level_image.data[i + 3];
 
-            let life = if x == 0 || y == 0 || x == width - 1 || y == height - 1 {
-                std::i32::MAX
-            } else {
-                4
-            };
-
             match (r, g, b, a) {
                 (203, 219, 252, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
-                        life,
                     });
                 }
                 (82, 75, 36, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Wall,
-                        life,
-                    });
+                    tiles.push(LevelTileMapile { tile: Tile::Wall });
                 }
                 (118, 66, 138, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
-                        life,
                     });
                     entities.push((GameEntity::BookShelf, x, y));
                 }
                 (251, 242, 54, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
-                        life,
                     });
                     entities.push((GameEntity::Chest, x, y));
                 }
                 _ => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Blank,
-                        life,
-                    });
+                    tiles.push(LevelTileMapile { tile: Tile::Blank });
                 }
             }
         }

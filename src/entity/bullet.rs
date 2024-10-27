@@ -2,7 +2,7 @@ use super::actor::Actor;
 use super::book_shelf::BookShelf;
 use crate::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use crate::states::GameState;
-use crate::world::wall::{BreakWallEvent, WallCollider};
+use crate::world::wall::WallCollider;
 use crate::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
@@ -102,7 +102,6 @@ pub fn update_bullet(
     assets: Res<GameAssets>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
-    mut break_wall_events: EventWriter<BreakWallEvent>,
     audio: Res<Audio>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
@@ -128,7 +127,6 @@ pub fn update_bullet(
                     &a,
                     &b,
                     &wall_collider_query,
-                    &mut break_wall_events,
                     &audio,
                 ) {
                     process_bullet_event(
@@ -141,7 +139,6 @@ pub fn update_bullet(
                         &b,
                         &a,
                         &wall_collider_query,
-                        &mut break_wall_events,
                         &audio,
                     );
                 }
@@ -163,7 +160,6 @@ fn process_bullet_event(
     a: &Entity,
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
-    break_wall_events: &mut EventWriter<BreakWallEvent>,
     audio: &Res<Audio>,
 ) -> bool {
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
@@ -195,14 +191,7 @@ fn process_bullet_event(
                 bookshelf.life -= bullet.damage;
                 play_se(assets.dageki.clone(), &audio);
             } else if let Ok(_) = wall_collider_query.get(*b) {
-                // 弾丸が壁に衝突したとき
-                // 衝突した点を取得しようとしたものの、正確な値がうまく取得できない
-                // 弾丸が速くなると接触位置が数ピクセルずれることがある
-                // https://rapier.rs/docs/user_guides/bevy_plugin/advanced_collision_detection#the-contact-graph
-                // 仕方ないので、弾丸の位置から近い壁を破壊する方法で凌ぐ
-                break_wall_events.send(BreakWallEvent {
-                    position: bullet_position,
-                });
+                play_se(assets.dageki.clone(), &audio);
             } else {
                 play_se(assets.shibafu.clone(), &audio);
             }

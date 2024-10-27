@@ -1,10 +1,6 @@
-use super::{
-    map::LevelTileMap, respawn_world, WorldTile, BULLET_GROUP, ENEMY_GROUP, TILE_HALF, TILE_SIZE,
-    WALL_GROUP,
-};
-use crate::{asset::GameAssets, audio::play_se, states::GameState, world::Tile};
+use super::{map::LevelTileMap, BULLET_GROUP, ENEMY_GROUP, TILE_HALF, TILE_SIZE, WALL_GROUP};
+use crate::{states::GameState, world::Tile};
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
@@ -128,82 +124,8 @@ pub fn respawn_wall_collisions(
     commands.insert_resource(chunk.clone());
 }
 
-#[derive(Event)]
-pub struct BreakWallEvent {
-    /// 破壊の起点となった座標
-    /// 例えば弾丸の当たった位置など
-    pub position: Vec2,
-}
-
-fn process_break_wall_event(
-    mut break_wall_events: EventReader<BreakWallEvent>,
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    collider_query: Query<Entity, With<WallCollider>>,
-    mut chunk: ResMut<LevelTileMap>,
-    world_tile: Query<Entity, With<WorldTile>>,
-    audio: Res<Audio>,
-) {
-    let mut rebuild = false;
-
-    for event in break_wall_events.read() {
-        // 仕方ないので、弾丸の周囲の壁のうち最も近いものを破壊する
-        let x = event.position.x / TILE_SIZE as f32;
-        let y = -event.position.y / TILE_SIZE as f32;
-        let mut tile_list = Vec::<Vec2>::new();
-        for dy in 0..3 {
-            for dx in 0..3 {
-                let tx = (x - 1.0 + dx as f32) as i32;
-                let ty = (y - 1.0 + dy as f32) as i32;
-                let tile = chunk.get_tile(tx, ty);
-                if tile == Tile::Wall {
-                    tile_list.push(Vec2::new(
-                        TILE_SIZE * tx as f32 + TILE_HALF,
-                        TILE_SIZE * ty as f32 + TILE_HALF,
-                    ));
-                }
-            }
-        }
-        if !tile_list.is_empty() {
-            tile_list.sort_by(|a, b| {
-                let dist_a = (*a - event.position).length_squared();
-                let dist_b = (*b - event.position).length_squared();
-                dist_a.partial_cmp(&dist_b).unwrap()
-            });
-
-            // 魔法が当たったとみなされた壁タイルの位置
-            let rx = (tile_list[0].x / TILE_SIZE as f32) as i32;
-            let ry = (tile_list[0].y / TILE_SIZE as f32) as i32;
-            let life = chunk.get_life(rx, ry);
-            if 0 < life {
-                chunk.set_life(rx as i32, ry as i32, life - 1);
-
-                play_se(assets.dageki.clone(), &audio);
-            } else {
-                chunk.set_tile(rx as i32, ry as i32, Tile::StoneTile);
-                rebuild = true;
-            }
-        } else {
-            warn!("No wall to break");
-        }
-    }
-
-    break_wall_events.clear();
-
-    if rebuild {
-        respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
-
-        play_se(assets.kuzureru.clone(), &audio);
-    }
-}
-
 pub struct WallPlugin;
 
 impl Plugin for WallPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<BreakWallEvent>().add_systems(
-            FixedUpdate,
-            process_break_wall_event.run_if(in_state(GameState::InGame)),
-        );
-    }
+    fn build(&self, _app: &mut App) {}
 }
