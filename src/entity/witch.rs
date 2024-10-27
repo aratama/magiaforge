@@ -70,7 +70,13 @@ pub fn spawn_witch(
     ));
 
     match witch_type {
-        WitchType::PlayerWitch => entity.insert(Player {}),
+        WitchType::PlayerWitch => entity.insert(Player {
+            last_idle_frame_count: frame_count,
+            last_ilde_x: x,
+            last_ilde_y: y,
+            last_idle_vx: 0.0,
+            last_idle_vy: 0.0,
+        }),
         WitchType::RemoteWitch => entity.insert(RemotePlayer {
             last_update: frame_count,
         }),

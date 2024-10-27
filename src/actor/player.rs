@@ -1,11 +1,12 @@
+use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::gamepad::{get_direction, get_fire_trigger, MyGamepad};
-use crate::states::GameState;
-use super::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::bullet::{add_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
+use crate::gamepad::{get_direction, get_fire_trigger, MyGamepad};
+use crate::states::GameState;
+use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
@@ -28,7 +29,13 @@ const BULLETS_PER_FIRE: u32 = 1;
 
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component)]
-pub struct Player {}
+pub struct Player {
+    pub last_idle_frame_count: FrameCount,
+    pub last_ilde_x: f32,
+    pub last_ilde_y: f32,
+    pub last_idle_vx: f32,
+    pub last_idle_vy: f32,
+}
 
 fn update_player(
     keys: Res<ButtonInput<KeyCode>>,

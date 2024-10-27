@@ -26,7 +26,7 @@ pub struct RemotePlayer {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum RemoteMessage {
-    Ping {
+    Position {
         uuid: Uuid,
         x: f32,
         y: f32,
@@ -44,26 +44,36 @@ pub enum RemoteMessage {
 
 fn send_player_states(
     mut writer: EventWriter<ClientMessage>,
-    player_query: Query<(&Actor, &GlobalTransform, &Velocity), With<Player>>,
+    mut query: Query<(&mut Player, &Actor, &GlobalTransform, &Velocity)>,
     config: Res<GameConfig>,
     state: Res<WebSocketState>,
+    frame_count: Res<FrameCount>,
 ) {
     if config.online {
-        if let Ok((player, transform, velocity)) = player_query.get_single() {
+        if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
             if state.ready_state == ReadyState::OPEN {
                 let translate = transform.translation();
-                let command = RemoteMessage::Ping {
-                    uuid: player.uuid,
-                    x: translate.x,
-                    y: translate.y,
-                    vx: velocity.linvel.x,
-                    vy: velocity.linvel.y,
-                };
-                let serialized = bincode::serialize(&command).unwrap();
-                writer.send(ClientMessage::Binary(serialized));
+
+                if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
+                    || translate.x != player.last_ilde_x
+                    || translate.y != player.last_ilde_y
+                {
+                    let command = RemoteMessage::Position {
+                        uuid: actor.uuid,
+                        x: translate.x,
+                        y: translate.y,
+                        vx: velocity.linvel.x,
+                        vy: velocity.linvel.y,
+                    };
+                    let serialized = bincode::serialize(&command).unwrap();
+                    writer.send(ClientMessage::Binary(serialized));
+                    player.last_idle_frame_count = frame_count.clone();
+                    player.last_ilde_x = translate.x;
+                    player.last_ilde_y = translate.y;
+                    player.last_idle_vx = velocity.linvel.x;
+                    player.last_idle_vy = velocity.linvel.y;
+                }
             }
-        } else {
-            warn!("player not found");
         }
     }
 }
@@ -101,7 +111,7 @@ fn receive_events(
                 let command: RemoteMessage =
                     bincode::deserialize(bin).expect("Failed to deserialize");
                 match command {
-                    RemoteMessage::Ping { uuid, x, y, vx, vy } => {
+                    RemoteMessage::Position { uuid, x, y, vx, vy } => {
                         let target = remotes
                             .iter_mut()
                             .find(|(_, actor, _, _)| actor.uuid == uuid);
@@ -140,14 +150,14 @@ fn receive_events(
     }
 }
 
-/// 最終の Ping から60フレーム以上経過したリモートプレイヤーを削除します
+/// 最終の Ping から120フレーム以上経過したリモートプレイヤーを削除します
 fn despown_no_contact_remotes(
     mut commands: Commands,
     mut remotes: Query<(Entity, &Actor, &RemotePlayer)>,
     frame_count: Res<FrameCount>,
 ) {
     for (entity, actor, remote) in remotes.iter_mut() {
-        if 60 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
+        if 120 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
             info!("Remote player {} despowned", actor.uuid);
             commands.entity(entity).despawn();
         }

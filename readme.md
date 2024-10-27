@@ -30,7 +30,7 @@ $ trunk build
 
 ### Demo
 
-https://aratama.github.io/bevy-wasm-example/ (**Desktop Chrome only** for now)
+https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 
 ### Notes
 
