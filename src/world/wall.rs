@@ -4,6 +4,7 @@ use super::{
 };
 use crate::{asset::GameAssets, audio::play_se, states::GameState, world::Tile};
 use bevy::prelude::*;
+use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
 };
@@ -141,6 +142,8 @@ fn process_break_wall_event(
     collider_query: Query<Entity, With<WallCollider>>,
     mut chunk: ResMut<LevelTileMap>,
     world_tile: Query<Entity, With<WorldTile>>,
+    audio: Res<Audio>,
+    asset_server: Res<AssetServer>,
 ) {
     let mut rebuild = false;
 
@@ -176,7 +179,7 @@ fn process_break_wall_event(
             if 0 < life {
                 chunk.set_life(rx as i32, ry as i32, life - 1);
 
-                play_se(&mut commands, assets.dageki.clone());
+                play_se(assets.dageki.clone(), &audio);
             } else {
                 chunk.set_tile(rx as i32, ry as i32, Tile::StoneTile);
                 rebuild = true;
@@ -191,7 +194,7 @@ fn process_break_wall_event(
     if rebuild {
         respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
 
-        play_se(&mut commands, assets.kuzureru.clone());
+        play_se(assets.kuzureru.clone(), &audio);
     }
 }
 

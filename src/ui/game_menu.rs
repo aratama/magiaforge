@@ -5,6 +5,7 @@ use crate::ui::button::button;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
+use bevy_kira_audio::Audio;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -23,9 +24,10 @@ fn exit(
     mut commands: Commands,
     mut overlay_next_state: ResMut<OverlayNextState>,
     assets: Res<GameAssets>,
+    audio: Res<Audio>,
 ) {
     *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
-    play_se(&mut commands, assets.kettei.clone());
+    play_se(assets.kettei.clone(), &audio);
 }
 
 fn setup_game_menu(

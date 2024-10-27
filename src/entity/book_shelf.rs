@@ -1,7 +1,8 @@
-use crate::{constant::*, states::GameState};
 use crate::{asset::GameAssets, audio::play_se};
+use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 
 // Asepriteのスライス名
@@ -50,11 +51,12 @@ fn update_book_shelf(
     mut commands: Commands,
     query: Query<(Entity, &BookShelf)>,
     assets: Res<GameAssets>,
+    audio: Res<Audio>,
 ) {
     for (entity, book_shelf) in query.iter() {
         if book_shelf.life <= 0 {
             commands.entity(entity).despawn();
-            play_se(&mut commands, assets.kuzureru.clone());
+            play_se(assets.kuzureru.clone(), &audio);
         }
     }
 }

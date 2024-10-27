@@ -1,19 +1,6 @@
-use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl, AudioSource};
 
-pub fn play_se(commands: &mut Commands, source: Handle<AudioSource>) {
-    commands.spawn((
-        Name::new(format!(
-            "se:{}",
-            source.path().map_or("".to_string(), |p| p.to_string())
-        )),
-        AudioBundle {
-            source,
-            settings: PlaybackSettings {
-                mode: PlaybackMode::Despawn,
-                ..default()
-            },
-            ..default()
-        },
-    ));
+pub fn play_se(source: Handle<AudioSource>, audio: &Res<Audio>) {
+    audio.play(source.clone());
 }

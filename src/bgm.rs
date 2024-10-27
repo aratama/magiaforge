@@ -1,67 +1,67 @@
+use std::time::Duration;
+
 use super::asset::GameAssets;
 use super::states::GameState;
-use bevy::audio::{PlaybackMode, Volume};
 use bevy::prelude::*;
+use bevy_kira_audio::{
+    prelude::Volume, Audio, AudioControl, AudioEasing, AudioInstance, AudioSource, AudioTween,
+};
 
 #[cfg(not(feature = "debug"))]
-const BGM_VOLUME: f32 = 0.2;
+const BGM_VOLUME: f64 = 0.2;
 
 #[cfg(feature = "debug")]
 const BGM_VOLUME: f32 = 0.0;
 
-#[derive(Component)]
-struct BGMAudioBundle;
+/// 次に再生するBGMを表すリソース
+#[derive(Resource, Default)]
+pub struct BGM(pub Option<Handle<AudioSource>>);
 
-fn update_bgm(
-    mut commands: Commands,
-    bgm_query: Query<(Entity, &AudioSink, &Handle<AudioSource>), With<BGMAudioBundle>>,
-    bgm_resource: ResMut<BGM>,
-) {
-    let BGM(ref bgm_or_none) = *bgm_resource;
-
-    if let Ok((audio, sink, source)) = bgm_query.get_single() {
-        let volume = (sink.volume() - 0.002).max(0.0);
-
-        if let Some(ref bgm_audio_source) = *bgm_or_none {
-            if bgm_audio_source != source {
-                if volume <= 0.0 {
-                    commands.entity(audio).despawn();
-                    commands.spawn((
-                        Name::new("bgm"),
-                        BGMAudioBundle,
-                        AudioBundle {
-                            source: bgm_audio_source.clone(),
-                            settings: PlaybackSettings {
-                                volume: Volume::new(BGM_VOLUME),
-                                mode: PlaybackMode::Loop,
-                                ..default()
-                            },
-                        },
-                    ));
-                } else {
-                    sink.set_volume(volume);
-                }
-            }
-        } else {
-            sink.set_volume(volume);
-        }
-    } else if let Some(ref next) = *bgm_or_none {
-        commands.spawn((
-            BGMAudioBundle,
-            AudioBundle {
-                source: next.clone(),
-                settings: PlaybackSettings {
-                    volume: Volume::new(BGM_VOLUME),
-                    mode: PlaybackMode::Loop,
-                    ..default()
-                },
-            },
-        ));
-    }
+struct SourceAndInstance {
+    instance: Handle<AudioInstance>,
+    source: Handle<AudioSource>,
 }
 
 #[derive(Resource, Default)]
-pub struct BGM(pub Option<Handle<AudioSource>>);
+struct CurrentBGM(Option<SourceAndInstance>);
+
+fn update_bgm(
+    mut current_bgm: ResMut<CurrentBGM>,
+    next_bgm: ResMut<BGM>,
+    audio: Res<Audio>,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
+) {
+    let BGM(ref next_bgm_or_none) = *next_bgm;
+
+    if let Some(ref mut current_handle) = &mut current_bgm.0 {
+        if let Some(ref next) = *next_bgm_or_none {
+            if current_handle.source.id() != next.id() {
+                if let Some(instance) = audio_instances.get_mut(&current_handle.instance) {
+                    instance.stop(AudioTween::new(Duration::from_secs(1), AudioEasing::Linear));
+                }
+                let instance = audio
+                    .play(next.clone())
+                    .with_volume(Volume::Amplitude(BGM_VOLUME))
+                    .looped()
+                    .handle();
+                current_bgm.0 = Some(SourceAndInstance {
+                    instance: instance.clone(),
+                    source: next.clone(),
+                });
+            }
+        }
+    } else if let Some(ref next) = *next_bgm_or_none {
+        let instance = audio
+            .play(next.clone())
+            .with_volume(Volume::Amplitude(BGM_VOLUME))
+            .looped()
+            .handle();
+        current_bgm.0 = Some(SourceAndInstance {
+            instance: instance.clone(),
+            source: next.clone(),
+        });
+    }
+}
 
 pub struct BGMPlugin;
 
@@ -69,6 +69,7 @@ impl Plugin for BGMPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(FixedUpdate, update_bgm);
         app.init_resource::<BGM>();
+        app.init_resource::<CurrentBGM>();
 
         app.add_systems(
             OnEnter(GameState::InGame),

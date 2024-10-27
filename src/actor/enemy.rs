@@ -3,6 +3,7 @@ use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
 use bevy::prelude::*;
+use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 
 /// 自動操作でプレイヤーに襲い掛かってくる敵を表します
@@ -27,6 +28,7 @@ fn update_enemy(
         (With<Player>, Without<Enemy>),
     >,
     mut collision_events: EventReader<CollisionEvent>,
+    audio: Res<Audio>,
 ) {
     if let Ok((player_entity, mut player, player_transform, mut player_impulse)) =
         player_query.get_single_mut()
@@ -44,7 +46,7 @@ fn update_enemy(
             // ライフが0以下になったら消滅
             if enemy.life <= 0 {
                 commands.entity(entity).despawn_recursive();
-                play_se(&mut commands, assets.hiyoko.clone());
+                play_se(assets.hiyoko.clone(), &audio);
             }
 
             // z を設定
@@ -64,6 +66,7 @@ fn update_enemy(
                                 &mut player_impulse,
                                 &mut commands,
                                 &assets,
+                                &audio,
                             );
                         };
                     } else if *b == player_entity {
@@ -75,6 +78,7 @@ fn update_enemy(
                                 &mut player_impulse,
                                 &mut commands,
                                 &assets,
+                                &audio,
                             );
                         };
                     }
@@ -92,6 +96,7 @@ fn process_attack_event(
     player_impulse: &mut ExternalImpulse,
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
+    audio: &Res<Audio>,
 ) {
     if player.life <= 0 {
         return;
@@ -103,7 +108,7 @@ fn process_attack_event(
     player.life = (player.life - damage).max(0);
     player.latest_damage = damage;
 
-    play_se(&mut commands, assets.dageki.clone());
+    play_se(assets.dageki.clone(), &audio);
 }
 
 pub struct EnemyPlugin;
