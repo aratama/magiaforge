@@ -34,7 +34,7 @@ pub struct GameAssets {
     pub kuzureru: Handle<AudioSource>,
     #[asset(path = "audio/kettei.ogg")]
     pub kettei: Handle<AudioSource>,
-    #[asset(path = "bgm/they.ogg")]
+    #[asset(path = "bgm/they_bgm.ogg")]
     pub they: Handle<AudioSource>,
     #[asset(path = "bgm/realm.ogg")]
     pub gods_realm: Handle<AudioSource>,
