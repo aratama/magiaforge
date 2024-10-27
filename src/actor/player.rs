@@ -30,6 +30,7 @@ const BULLETS_PER_FIRE: u32 = 1;
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component)]
 pub struct Player {
+    pub name: String,
     pub last_idle_frame_count: FrameCount,
     pub last_ilde_x: f32,
     pub last_ilde_y: f32,

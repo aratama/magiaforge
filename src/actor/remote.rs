@@ -21,6 +21,7 @@ use super::player::Player;
 /// オンライン対戦でリモート操作されているキャラクターを表します
 #[derive(Component)]
 pub struct RemotePlayer {
+    pub name: String,
     pub last_update: FrameCount,
 }
 
@@ -28,6 +29,7 @@ pub struct RemotePlayer {
 pub enum RemoteMessage {
     Position {
         uuid: Uuid,
+        name: String,
         x: f32,
         y: f32,
         vx: f32,
@@ -60,6 +62,7 @@ fn send_player_states(
                 {
                     let command = RemoteMessage::Position {
                         uuid: actor.uuid,
+                        name: player.name.clone(),
                         x: translate.x,
                         y: translate.y,
                         vx: velocity.linvel.x,
@@ -111,7 +114,14 @@ fn receive_events(
                 let command: RemoteMessage =
                     bincode::deserialize(bin).expect("Failed to deserialize");
                 match command {
-                    RemoteMessage::Position { uuid, x, y, vx, vy } => {
+                    RemoteMessage::Position {
+                        uuid,
+                        name,
+                        x,
+                        y,
+                        vx,
+                        vy,
+                    } => {
                         let target = remotes
                             .iter_mut()
                             .find(|(_, actor, _, _)| actor.uuid == uuid);
@@ -130,6 +140,7 @@ fn receive_events(
                                 uuid,
                                 WitchType::RemoteWitch,
                                 *frame_count,
+                                name,
                             );
                             info!("Remote player {} spawned", uuid);
                         }

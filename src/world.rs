@@ -65,6 +65,7 @@ fn setup_world(
         Uuid::new_v4(),
         WitchType::PlayerWitch,
         *frame_count,
+        "player".to_string(),
     );
 
     spawn_slime(

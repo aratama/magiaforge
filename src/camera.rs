@@ -9,7 +9,7 @@ pub struct CameraScaleFactor(f32);
 static BLIGHTNESS_IN_GAME: f32 = 1.0;
 
 #[cfg(not(feature = "debug"))]
-static BLIGHTNESS_IN_GAME: f32 = 0.01;
+static BLIGHTNESS_IN_GAME: f32 = 0.05;
 
 pub fn setup_camera(mut commands: Commands) {
     let initial_scale_factor = -1.0;

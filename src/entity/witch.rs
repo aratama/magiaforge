@@ -31,6 +31,7 @@ pub fn spawn_witch(
     uuid: Uuid,
     witch_type: WitchType,
     frame_count: FrameCount,
+    name: String,
 ) {
     let mut entity = commands.spawn((
         Name::new("player"),
@@ -69,8 +70,29 @@ pub fn spawn_witch(
         CollisionGroups::new(ENEMY_GROUP, ENEMY_GROUP | WALL_GROUP | BULLET_GROUP),
     ));
 
+    entity.with_children(|spawn_children| {
+        let mut sections = Vec::new();
+        sections.push(TextSection {
+            value: name.clone(),
+            style: TextStyle {
+                color: Color::hsla(120.0, 1.0, 0.5, 0.3),
+                font_size: 10.0,
+                ..default()
+            },
+        });
+        spawn_children.spawn(Text2dBundle {
+            text: Text {
+                sections,
+                ..default()
+            },
+            transform: Transform::from_xyz(0.0, 20.0, 100.0),
+            ..default()
+        });
+    });
+
     match witch_type {
         WitchType::PlayerWitch => entity.insert(Player {
+            name: name,
             last_idle_frame_count: frame_count,
             last_ilde_x: x,
             last_ilde_y: y,
@@ -78,6 +100,7 @@ pub fn spawn_witch(
             last_idle_vy: 0.0,
         }),
         WitchType::RemoteWitch => entity.insert(RemotePlayer {
+            name,
             last_update: frame_count,
         }),
     };
