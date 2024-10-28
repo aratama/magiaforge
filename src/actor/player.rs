@@ -1,5 +1,6 @@
 use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
@@ -66,6 +67,7 @@ fn update_player(
     menu: Res<State<GameMenuState>>,
 
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     let force = 50000.0;
 
@@ -107,6 +109,7 @@ fn update_player(
                         Some(player.uuid),
                         &assets,
                         &audio,
+                        &config,
                     );
                     let serialized = bincode::serialize(&RemoteMessage::Fire {
                         uuid: player.uuid,

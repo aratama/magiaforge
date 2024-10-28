@@ -121,10 +121,9 @@ fn receive_events(
     >,
     assets: Res<asset::GameAssets>,
     frame_count: Res<FrameCount>,
-
     life_bar_res: Res<LifeBarResource>,
-
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     for message in reader.read() {
         match message {
@@ -182,6 +181,7 @@ fn receive_events(
                             Some(uuid),
                             &assets,
                             &audio,
+                            &config,
                         );
                     }
                     RemoteMessage::Hit { uuid, damage } => {

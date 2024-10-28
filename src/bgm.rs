@@ -11,7 +11,7 @@ use bevy_kira_audio::{
 const BGM_VOLUME: f64 = 0.2;
 
 #[cfg(feature = "debug")]
-const BGM_VOLUME: f32 = 0.0;
+const BGM_VOLUME: f64 = 0.0;
 
 /// 次に再生するBGMを表すリソース
 #[derive(Resource, Default)]

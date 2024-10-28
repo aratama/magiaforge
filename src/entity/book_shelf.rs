@@ -1,3 +1,4 @@
+use crate::config::GameConfig;
 use crate::{asset::GameAssets, audio::play_se};
 use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
@@ -52,11 +53,12 @@ fn update_book_shelf(
     query: Query<(Entity, &BookShelf)>,
     assets: Res<GameAssets>,
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     for (entity, book_shelf) in query.iter() {
         if book_shelf.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            play_se(assets.kuzureru.clone(), &audio);
+            play_se(&audio, &config, assets.kuzureru.clone());
         }
     }
 }

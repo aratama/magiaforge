@@ -1,6 +1,15 @@
 use bevy::prelude::*;
-use bevy_kira_audio::{Audio, AudioControl, AudioSource};
+use bevy_kira_audio::{prelude::Volume, Audio, AudioControl, AudioInstance, AudioSource};
 
-pub fn play_se(source: Handle<AudioSource>, audio: &Res<Audio>) {
-    audio.play(source.clone());
+use crate::config::GameConfig;
+
+pub fn play_se(
+    audio: &Res<Audio>,
+    config: &GameConfig,
+    source: Handle<AudioSource>,
+) -> Handle<AudioInstance> {
+    audio
+        .play(source.clone())
+        .with_volume(Volume::Amplitude(config.se_volume as f64))
+        .handle()
 }

@@ -1,9 +1,11 @@
 use crate::asset::GameAssets;
 use crate::audio::play_se;
+use crate::config::GameConfig;
 use crate::hud::overlay::OverlayNextState;
 use crate::states::GameState;
 use crate::ui::button::button;
 use bevy::ecs::system::SystemId;
+use bevy::gizmos::config;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 
@@ -24,9 +26,10 @@ fn back(
     assets: Res<GameAssets>,
     mut overlay_next_state: ResMut<OverlayNextState>,
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
-    play_se(assets.kettei.clone(), &audio);
+    play_se(&audio, &config, assets.kettei.clone());
 }
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>, shots: Res<ButtonShots>) {

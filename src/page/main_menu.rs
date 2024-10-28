@@ -1,5 +1,6 @@
 use crate::audio::play_se;
 use crate::bgm::BGM;
+use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayNextState;
 use crate::ui::button::button;
@@ -9,6 +10,7 @@ use crate::{
     states::{GameState, MainMenuPhase},
 };
 use bevy::ecs::system::SystemId;
+use bevy::gizmos::config;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 use bevy_kira_audio::Audio;
@@ -37,6 +39,7 @@ fn start_game(
     mut overlay_next_state: ResMut<OverlayNextState>,
     mut next_bgm: ResMut<BGM>,
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     for mut visibility in &mut query {
         *visibility = Visibility::Hidden;
@@ -45,16 +48,17 @@ fn start_game(
     *overlay_next_state = OverlayNextState(Some(GameState::InGame));
     *next_bgm = BGM(None);
 
-    play_se(assets.kettei.clone(), &audio);
+    play_se(&audio, &config, assets.kettei.clone());
 }
 
 fn config_game(
     mut overlay_next_state: ResMut<OverlayNextState>,
     assets: Res<GameAssets>,
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     *overlay_next_state = OverlayNextState(Some(GameState::Config));
-    play_se(assets.kettei.clone(), &audio);
+    play_se(&audio, &config, assets.kettei.clone());
 }
 
 fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {

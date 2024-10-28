@@ -1,4 +1,5 @@
 use super::player::Player;
+use crate::config::GameConfig;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
@@ -29,6 +30,7 @@ fn update_enemy(
     >,
     mut collision_events: EventReader<CollisionEvent>,
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     if let Ok((player_entity, mut player, player_transform, mut player_impulse)) =
         player_query.get_single_mut()
@@ -46,7 +48,7 @@ fn update_enemy(
             // ライフが0以下になったら消滅
             if enemy.life <= 0 {
                 commands.entity(entity).despawn_recursive();
-                play_se(assets.hiyoko.clone(), &audio);
+                play_se(&audio, &config, assets.hiyoko.clone());
             }
 
             // z を設定
@@ -66,6 +68,7 @@ fn update_enemy(
                                 &mut player_impulse,
                                 &assets,
                                 &audio,
+                                &config,
                             );
                         };
                     } else if *b == player_entity {
@@ -77,6 +80,7 @@ fn update_enemy(
                                 &mut player_impulse,
                                 &assets,
                                 &audio,
+                                &config,
                             );
                         };
                     }
@@ -94,6 +98,7 @@ fn process_attack_event(
     player_impulse: &mut ExternalImpulse,
     assets: &Res<GameAssets>,
     audio: &Res<Audio>,
+    config: &GameConfig,
 ) {
     if player.life <= 0 {
         return;
@@ -105,7 +110,7 @@ fn process_attack_event(
     player.life = (player.life - damage).max(0);
     player.latest_damage = damage;
 
-    play_se(assets.dageki.clone(), &audio);
+    play_se(&audio, config, assets.dageki.clone());
 }
 
 pub struct EnemyPlugin;

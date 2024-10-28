@@ -1,4 +1,5 @@
 use crate::audio::play_se;
+use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
 use crate::gamepad::MyGamepad;
 use crate::hud::overlay::OverlayNextState;
@@ -27,18 +28,24 @@ impl FromWorld for ButtonShots {
     }
 }
 
-fn close(mut state: ResMut<NextState<GameMenuState>>, assets: Res<GameAssets>, audio: Res<Audio>) {
+fn close(
+    mut state: ResMut<NextState<GameMenuState>>,
+    assets: Res<GameAssets>,
+    audio: Res<Audio>,
+    config: Res<GameConfig>,
+) {
     state.set(GameMenuState::Close);
-    play_se(assets.kettei.clone(), &audio);
+    play_se(&audio, &config, assets.kettei.clone());
 }
 
 fn exit(
     mut overlay_next_state: ResMut<OverlayNextState>,
     assets: Res<GameAssets>,
     audio: Res<Audio>,
+    config: Res<GameConfig>,
 ) {
     *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
-    play_se(assets.kettei.clone(), &audio);
+    play_se(&audio, &config, assets.kettei.clone());
 }
 
 fn setup_game_menu(

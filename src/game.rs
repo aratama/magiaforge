@@ -15,7 +15,6 @@ use super::hud::life_bar::LifeBarPlugin;
 use super::hud::overlay::*;
 use super::hud::pointer::PointerPlugin;
 use super::hud::*;
-use super::serialize::*;
 use super::states::*;
 use super::world::*;
 use crate::entity::actor::ActorPlugin;
@@ -118,8 +117,6 @@ pub fn run_game() {
         //
         .add_plugins(HudPlugin)
         .add_plugins(OverlayPlugin)
-        .add_systems(Startup, setup_autosave_timer)
-        .add_systems(FixedUpdate, spawn_autosave_timer)
         .add_plugins(CameraPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(PlayerPlugin)
@@ -143,19 +140,6 @@ pub fn run_game() {
         .add_plugins(AudioPlugin)
         .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
-        //
-        // 全体の初期化をするsystem
-        // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
-        //
-        .add_systems(OnEnter(GameState::Setup), |mut commands: Commands| {
-            // セーブデータの選択
-            // 現在はデバッグ用
-            let player_data = restore_player();
-            commands.insert_resource(player_data);
-
-            // カメラの初期化
-            setup_camera(commands);
-        })
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

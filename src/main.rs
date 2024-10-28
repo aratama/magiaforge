@@ -14,7 +14,6 @@ mod game;
 mod gamepad;
 mod hud;
 mod page;
-mod serialize;
 mod set;
 mod states;
 mod ui;
