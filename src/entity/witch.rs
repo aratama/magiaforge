@@ -39,7 +39,7 @@ pub fn spawn_witch(
     res: &Res<LifeBarResource>,
 ) {
     let mut entity = commands.spawn((
-        Name::new("player"),
+        Name::new("witch"),
         StateScoped(GameState::InGame),
         Actor {
             uuid,
@@ -118,7 +118,6 @@ pub fn spawn_witch(
         WitchType::RemoteWitch => entity.insert(RemotePlayer {
             name: name_clone,
             last_update: frame_count,
-            created_at: frame_count,
         }),
     };
 

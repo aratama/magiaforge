@@ -52,5 +52,6 @@ https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 - 決定ボタンを押す 48 https://soundeffect-lab.info/sound/button/
 - They https://dova-s.jp/bgm/play21009.html
 - God's realm https://dova-s.jp/bgm/play20967.html
+- 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
 - 建物が少し崩れる 1 https://soundeffect-lab.info/sound/battle/
 - DotGothic16 https://fonts.google.com/share?selection.family=DotGothic16
