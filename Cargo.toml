@@ -1,84 +1,16 @@
 [package]
-name = "magiaboost"
+name = "test"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy_aseprite_ultra = "0.2.4"
-bevy_asset_loader = "0.21.0"
-rand = "0.8.5"
 bevy-inspector-egui = "0.27.0"
 iyes_perf_ui = "0.3.0"
-
-
-[dependencies.bevy]
-version = "0.14.2"
-# Disable the default features if there are any that you do not want
-default-features = false
-# https://docs.rs/crate/bevy/latest/features
-features = [
-    # "android_shared_stdcxx",
-    "animation",
-    "bevy_asset",
-    # "bevy_audio",
-    "bevy_color",
-    "bevy_core_pipeline",
-    "bevy_gilrs",
-    # "bevy_gizmos",
-    # "bevy_gltf",
-    # "bevy_pbr",
-    "bevy_render",
-    "bevy_scene",
-    "bevy_sprite",
-    "bevy_state",
-    "bevy_text",
-    "bevy_ui",
-    "bevy_winit",
-    "default_font",
-    # "hdr",
-    # "multi_threaded",
-    "png",
-    # "smaa_luts",
-    "sysinfo_plugin",
-    # "tonemapping_luts",
-    # "vorbis",
-    # "webgl2",
-
-    # bevy_light_2dはデスクトップではwebgl2でも動きますが、wasmではwebgpuでないと実行時エラーで動きません
-    # https://bevyengine.org/news/bevy-webgpu/
-    # https://github.com/bevyengine/bevy/tree/main/examples#webgl2-and-webgpu
-    # https://github.com/jgayfer/bevy_light_2d/pull/7
-    "webgpu",
-
-    # "x11",
-]
-
-[dependencies.web-sys]
-version = "0.3.70"
-features = ["console", "Window", "Storage"]
+bevy = "0.14.2"
 
 [dependencies.bevy_rapier2d]
 version = "0.27.0"
 features = ["debug-render-2d"]
 
 [profile.dev.package.bevy_rapier2d]
-# https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
 opt-level = 3
-
-[dev-dependencies]
-trunk = "*"
-
-[profile.release]
-codegen-units = 1
-# wasmターゲットの場合は以下のオプションでサイズに対して最適化したい
-opt-level = "z"
-# https://bevy-cheatbook.github.io/platforms/wasm/size-opt.html
-# lto = "thin"
-lto = true
-
-[features]
-debug = []
-default = []
-
-[build-dependencies]
-embed-resource = "2.5"
