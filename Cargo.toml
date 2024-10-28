@@ -22,6 +22,8 @@ uuid = "1.11.0"
 # 以下の二つはデバッグ用
 bevy-inspector-egui = "0.27.0"
 iyes_perf_ui = "0.3.0"
+bevy_pkv = "0.11.1"
+bevy_blur_regions = "0.5.0"
 
 
 [dependencies.bevy]
@@ -49,7 +51,7 @@ features = [
     "bevy_winit",
     "default_font",
     # "hdr",
-    # "multi_threaded",
+    "multi_threaded",
     "png",
     # "smaa_luts",
     "sysinfo_plugin",

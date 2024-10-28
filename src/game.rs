@@ -1,40 +1,41 @@
-use super::actor::enemy::EnemyPlugin;
-use super::actor::player::PlayerPlugin;
-use super::actor::remote::RemotePlayerPlugin;
-use super::asset::GameAssets;
-use super::bgm::BGMPlugin;
-use super::camera::*;
-use super::config::GameConfigPlugin;
-use super::constant::INITIAL_STATE;
-use super::constant::PIXELS_PER_METER;
-use super::entity::book_shelf::BookshelfPlugin;
-use super::entity::bullet::BulletPlugin;
-use super::entity::witch::WitchPlugin;
-use super::gamepad::GamepadPlugin;
-use super::hud::life_bar::LifeBarPlugin;
-use super::hud::overlay::*;
-use super::hud::pointer::PointerPlugin;
-use super::hud::*;
-use super::states::*;
-use super::world::*;
+use crate::actor::enemy::EnemyPlugin;
+use crate::actor::player::PlayerPlugin;
+use crate::actor::remote::RemotePlayerPlugin;
+use crate::asset::GameAssets;
+use crate::bgm::BGMPlugin;
+use crate::camera::*;
+use crate::config::GameConfigPlugin;
+use crate::constant::INITIAL_STATE;
+use crate::constant::PIXELS_PER_METER;
 use crate::entity::actor::ActorPlugin;
+use crate::entity::book_shelf::BookshelfPlugin;
+use crate::entity::bullet::BulletPlugin;
+use crate::entity::witch::WitchPlugin;
+use crate::hud::life_bar::LifeBarPlugin;
+use crate::hud::overlay::*;
+use crate::hud::pointer::PointerPlugin;
+use crate::hud::*;
+use crate::input::GamepadPlugin;
 use crate::page::config::ConfigPagePlugin;
 use crate::page::main_menu::MainMenuPlugin;
+use crate::states::*;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::player_list::PlayerListPlugin;
+use crate::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
-use bevy::log::Level;
-use bevy::log::LogPlugin;
+use bevy::log::*;
 use bevy::prelude::*;
 use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
+use bevy_blur_regions::prelude::*;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
+use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::WebSocketPlugin;
 use wall::WallPlugin;
@@ -140,6 +141,8 @@ pub fn run_game() {
         .add_plugins(AudioPlugin)
         .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
+        .insert_resource(PkvStore::new("magiaboost", "magiaboost"))
+        .add_plugins(BlurRegionsPlugin::default())
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
@@ -158,7 +161,7 @@ pub fn run_game() {
 
     //
     // 以下はデバッグ用のプラグインなど
-    // 無くてもゲーム事態は動作します
+    // 無くてもゲーム自体は動作します
     //
     #[cfg(feature = "debug")]
     app.add_plugins(PerfUiPlugin)

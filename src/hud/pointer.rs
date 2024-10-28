@@ -1,6 +1,6 @@
 use crate::{actor::player::Player, entity::actor::Actor};
 
-use crate::{asset::GameAssets, constant::TILE_SIZE, gamepad::MyGamepad, states::GameState};
+use crate::{asset::GameAssets, constant::TILE_SIZE, input::MyGamepad, states::GameState};
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 

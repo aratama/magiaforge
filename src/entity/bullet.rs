@@ -5,7 +5,6 @@ use crate::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
 use crate::{asset::GameAssets, audio::play_se};
-use bevy::gizmos::config;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
 use bevy_kira_audio::Audio;
@@ -23,7 +22,7 @@ static BULLET_Z: f32 = 10.0;
 
 static BULLET_IMPULSE: f32 = 20000.0;
 
-pub const BULLET_RADIUS: f32 = 10.0;
+pub const BULLET_RADIUS: f32 = 5.0;
 
 const BULLET_DAMAGE: i32 = 5;
 
@@ -206,7 +205,7 @@ fn process_bullet_event(
                 bookshelf.life -= bullet.damage;
                 play_se(&audio, config, assets.dageki.clone());
             } else if let Ok(_) = wall_collider_query.get(*b) {
-                play_se(&audio, config, assets.dageki.clone());
+                play_se(&audio, config, assets.asphalt.clone());
             } else {
                 play_se(&audio, config, assets.shibafu.clone());
             }

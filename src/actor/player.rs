@@ -5,7 +5,7 @@ use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
-use crate::gamepad::{get_direction, get_fire_trigger, MyGamepad};
+use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;

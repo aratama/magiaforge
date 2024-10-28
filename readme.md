@@ -49,8 +49,11 @@ https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 - ひよこの鳴き声 https://soundeffect-lab.info/sound/animal/
 - 打撃 1 https://soundeffect-lab.info/sound/battle/
 - パンチ素振り https://soundeffect-lab.info/sound/battle/
+- 革靴で歩く https://soundeffect-lab.info/sound/various/
+- アスファルトの上を歩く 2 https://soundeffect-lab.info/sound/various/
 - 決定ボタンを押す 48 https://soundeffect-lab.info/sound/button/
 - They https://dova-s.jp/bgm/play21009.html
 - God's realm https://dova-s.jp/bgm/play20967.html
+- 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
 - 建物が少し崩れる 1 https://soundeffect-lab.info/sound/battle/
 - DotGothic16 https://fonts.google.com/share?selection.family=DotGothic16

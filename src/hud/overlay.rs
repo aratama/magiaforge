@@ -1,6 +1,8 @@
 use crate::{constant::OVERLAY_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
+const SPEED: f32 = 0.04;
+
 #[derive(Component)]
 struct Overlay;
 
@@ -35,12 +37,11 @@ fn update_overlay(
 ) {
     let mut background = query.single_mut();
     let a = background.0.alpha();
-    let speed = 0.005;
 
     let next = overlay_next_state.0.clone();
     let updated = (1.0_f32).min((0.0_f32).max(match next {
-        Option::None => a - speed,
-        _ => a + speed,
+        Option::None => a - SPEED,
+        _ => a + SPEED,
     }));
 
     let current = background.0.alpha();

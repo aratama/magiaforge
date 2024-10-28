@@ -2,6 +2,7 @@ use crate::constant::CAMERA_SPEED;
 
 use super::{actor::player::Player, set::GameSet, states::GameState};
 use bevy::prelude::*;
+use bevy_blur_regions::BlurRegionsCamera;
 use bevy_light_2d::light::AmbientLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
 
@@ -22,6 +23,9 @@ fn setup_camera(mut commands: Commands) {
     let mut camera_bundle = Camera2dBundle::default();
     camera_bundle.projection.scale = 2.0_f32.powf(initial_scale_factor);
 
+    let mut blur = BlurRegionsCamera::default();
+    blur.circle_of_confusion = 20.0;
+
     commands.spawn((
         camera_bundle,
         CameraScaleFactor(initial_scale_factor),
@@ -33,6 +37,7 @@ fn setup_camera(mut commands: Commands) {
             // brightness: 1.,
             ..default()
         },
+        blur,
     ));
 }
 

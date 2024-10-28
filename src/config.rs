@@ -1,4 +1,5 @@
-use bevy::prelude::Resource;
+use bevy::prelude::*;
+use bevy_pkv::PkvStore;
 
 #[derive(Resource, Clone, Debug)]
 pub struct GameConfig {
@@ -17,10 +18,32 @@ impl Default for GameConfig {
     }
 }
 
+fn startup(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
+    if let Ok(v) = pkv.get::<f32>("bgm_volume") {
+        config.bgm_volume = v;
+    }
+    if let Ok(v) = pkv.get::<f32>("sfx_volume") {
+        config.se_volume = v;
+    };
+}
+
+fn on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
+    if config.is_changed() {
+        if let Err(err) = pkv.set::<f32>("bgm_volume", &config.bgm_volume) {
+            warn!("Failed to save bgm volume: {}", err);
+        }
+        if let Err(err) = pkv.set::<f32>("sfx_volume", &config.se_volume) {
+            warn!("Failed to save bgm volume: {}", err);
+        }
+    }
+}
+
 pub struct GameConfigPlugin;
 
 impl bevy::app::Plugin for GameConfigPlugin {
-    fn build(&self, app: &mut bevy::app::App) {
+    fn build(&self, app: &mut App) {
         app.insert_resource(GameConfig::default());
+        app.add_systems(Startup, startup);
+        app.add_systems(Update, on_change);
     }
 }

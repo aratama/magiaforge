@@ -44,14 +44,13 @@ fn setup_world(
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
     let chunk = image_to_tilemap(&level_image);
-    let empties = image_to_empty_tiles(&level_image);
+    let mut empties = image_to_empty_tiles(&level_image);
     respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
     spawn_entities(&mut commands, &assets, &chunk);
 
-    let position = empties[(rand::random::<usize>() % empties.len()) as usize];
-
-    let player_x = TILE_SIZE * position.0 as f32;
-    let player_y = -TILE_SIZE * position.1 as f32;
+    let player_position = random_select(&mut empties);
+    let player_x = TILE_SIZE * player_position.0 as f32;
+    let player_y = -TILE_SIZE * player_position.1 as f32;
 
     if let Ok(mut camera) = camera.get_single_mut() {
         camera.translation.x = player_x;
@@ -67,24 +66,27 @@ fn setup_world(
         WitchType::PlayerWitch,
         *frame_count,
         format!("player_{}", &Uuid::new_v4().to_string()[..4].to_string()),
-        30,
+        150,
         150,
         &life_bar_res,
     );
 
-    spawn_slime(
-        &mut commands,
-        assets.slime.clone(),
-        Vec2::new(TILE_SIZE * 8.0, TILE_SIZE * -10.0),
-        &life_bar_res,
-    );
+    for _ in 0..4 {
+        let (x, y) = random_select(&mut empties);
+        spawn_slime(
+            &mut commands,
+            assets.slime.clone(),
+            Vec2::new(
+                TILE_SIZE * x as f32 + TILE_HALF,
+                TILE_SIZE * -y as f32 - TILE_HALF,
+            ),
+            &life_bar_res,
+        );
+    }
+}
 
-    spawn_slime(
-        &mut commands,
-        assets.slime.clone(),
-        Vec2::new(TILE_SIZE * 13.0, TILE_SIZE * -10.0),
-        &life_bar_res,
-    );
+fn random_select<T: Copy>(xs: &mut Vec<T>) -> T {
+    xs.remove((rand::random::<usize>() % xs.len()) as usize)
 }
 
 fn respawn_world(
