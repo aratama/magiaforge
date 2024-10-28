@@ -2,6 +2,7 @@ use bevy::{
     input::gamepad::{GamepadConnection, GamepadEvent},
     prelude::*,
 };
+use bevy_rapier2d::plugin::PhysicsSet;
 
 #[derive(Resource)]
 pub struct MyGamepad(pub Gamepad);
@@ -114,6 +115,9 @@ pub struct GamepadPlugin;
 
 impl Plugin for GamepadPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, gamepad_connections);
+        app.add_systems(
+            FixedUpdate,
+            gamepad_connections.before(PhysicsSet::SyncBackend),
+        );
     }
 }

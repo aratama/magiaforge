@@ -139,8 +139,13 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            // FixedUpdateでスケジュールされたシステムには、before(PhysicsSet::SyncBackend) でスケジュールをする必要があります
+            // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
+            // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
-            update_player.run_if(in_state(GameState::InGame)),
+            update_player
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

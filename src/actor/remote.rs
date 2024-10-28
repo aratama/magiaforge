@@ -1,6 +1,6 @@
 use bevy::{core::FrameCount, prelude::*};
 use bevy_kira_audio::Audio;
-use bevy_rapier2d::prelude::Velocity;
+use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
@@ -219,7 +219,10 @@ pub struct RemotePlayerPlugin;
 
 impl Plugin for RemotePlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, send_player_states);
+        app.add_systems(
+            FixedUpdate,
+            send_player_states.before(PhysicsSet::SyncBackend),
+        );
 
         app.add_systems(OnEnter(GameState::InGame), on_enter);
 
@@ -227,12 +230,16 @@ impl Plugin for RemotePlayerPlugin {
 
         app.add_systems(
             FixedUpdate,
-            receive_events.run_if(in_state(GameState::InGame)),
+            receive_events
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
 
         app.add_systems(
             FixedUpdate,
-            despown_no_contact_remotes.run_if(in_state(GameState::InGame)),
+            despown_no_contact_remotes
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

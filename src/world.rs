@@ -24,6 +24,7 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_rapier2d::plugin::PhysicsSet;
 use map::image_to_empty_tiles;
 use uuid::Uuid;
 use wall::respawn_wall_collisions;
@@ -216,7 +217,9 @@ impl Plugin for WorldPlugin {
         app.add_systems(OnEnter(GameState::InGame), setup_world);
         app.add_systems(
             FixedUpdate,
-            update_world.run_if(in_state(GameState::InGame)),
+            update_world
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

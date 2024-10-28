@@ -121,7 +121,8 @@ impl Plugin for EnemyPlugin {
             FixedUpdate,
             update_enemy
                 .run_if(in_state(GameState::InGame))
-                .in_set(GameSet),
+                .in_set(GameSet)
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

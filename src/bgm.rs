@@ -6,6 +6,7 @@ use bevy::prelude::*;
 use bevy_kira_audio::{
     prelude::Volume, Audio, AudioControl, AudioEasing, AudioInstance, AudioSource, AudioTween,
 };
+use bevy_rapier2d::plugin::PhysicsSet;
 
 #[cfg(not(feature = "debug"))]
 const BGM_VOLUME: f64 = 0.2;
@@ -67,7 +68,7 @@ pub struct BGMPlugin;
 
 impl Plugin for BGMPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, update_bgm);
+        app.add_systems(FixedUpdate, update_bgm.before(PhysicsSet::SyncBackend));
         app.init_resource::<BGM>();
         app.init_resource::<CurrentBGM>();
 

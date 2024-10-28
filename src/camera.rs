@@ -3,6 +3,7 @@ use crate::constant::CAMERA_SPEED;
 use super::{actor::player::Player, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
+use bevy_rapier2d::plugin::PhysicsSet;
 
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
@@ -84,10 +85,14 @@ impl Plugin for CameraPlugin {
             FixedUpdate,
             update_camera
                 .run_if(in_state(GameState::InGame))
-                .in_set(GameSet),
+                .in_set(GameSet)
+                .before(PhysicsSet::SyncBackend),
         );
 
-        app.add_systems(FixedUpdate, update_camera_brightness);
+        app.add_systems(
+            FixedUpdate,
+            update_camera_brightness.before(PhysicsSet::SyncBackend),
+        );
 
         app.add_systems(OnEnter(GameState::Setup), setup_camera);
     }

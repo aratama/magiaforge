@@ -22,6 +22,6 @@ pub struct OnPressPlugin;
 
 impl Plugin for OnPressPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, interaction);
+        app.add_systems(Update, interaction);
     }
 }
