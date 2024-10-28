@@ -1,11 +1,8 @@
 use bevy::prelude::*;
-use uuid::Uuid;
 
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
 pub struct Actor {
-    pub uuid: Uuid,
-
     /// 次の魔法を発射できるまでのクールタイム
     pub cooltime: i32,
     pub life: i32,

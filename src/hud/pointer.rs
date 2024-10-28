@@ -1,6 +1,6 @@
 use crate::{actor::player::Player, entity::actor::Actor};
 
-use crate::{asset::GameAssets, constant::TILE_SIZE, gamepad::MyGamepad, states::GameState};
+use crate::{asset::GameAssets, constant::TILE_SIZE, states::GameState};
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 
@@ -74,34 +74,6 @@ fn update_pointer_by_mouse(
     }
 }
 
-fn update_pointer_by_gamepad(
-    mut player_query: Query<&mut Actor, With<Player>>,
-    axes: Res<Axis<GamepadAxis>>,
-    my_gamepad: Option<Res<MyGamepad>>,
-) {
-    if let Ok(mut player) = player_query.get_single_mut() {
-        match my_gamepad.as_deref() {
-            Some(&MyGamepad(gamepad)) => {
-                let axis_lx = GamepadAxis {
-                    gamepad,
-                    axis_type: GamepadAxisType::RightStickX,
-                };
-                let axis_ly = GamepadAxis {
-                    gamepad,
-                    axis_type: GamepadAxisType::RightStickY,
-                };
-                if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
-                    let normalized = Vec2::new(x, y).normalize_or_zero();
-                    if 0.2 < normalized.length() {
-                        player.pointer = normalized * TILE_SIZE * 4.0;
-                    }
-                }
-            }
-            None => {}
-        }
-    }
-}
-
 pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
@@ -114,12 +86,6 @@ impl Plugin for PointerPlugin {
             .add_systems(
                 Update,
                 update_pointer_by_mouse.run_if(in_state(GameState::InGame)),
-            )
-            .add_systems(
-                Update,
-                update_pointer_by_gamepad
-                    .run_if(in_state(GameState::InGame))
-                    .after(update_pointer_by_mouse),
             );
     }
 }

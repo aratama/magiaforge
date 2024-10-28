@@ -1,30 +1,15 @@
-use super::actor::enemy::EnemyPlugin;
 use super::actor::player::PlayerPlugin;
-use super::actor::remote::RemotePlayerPlugin;
 use super::asset::GameAssets;
-use super::bgm::BGMPlugin;
 use super::camera::*;
-use super::config::GameConfigPlugin;
 use super::constant::INITIAL_STATE;
 use super::constant::PIXELS_PER_METER;
-use super::entity::book_shelf::BookshelfPlugin;
 use super::entity::bullet::BulletPlugin;
 use super::entity::witch::WitchPlugin;
-use super::gamepad::GamepadPlugin;
-use super::hud::life_bar::LifeBarPlugin;
-use super::hud::overlay::*;
 use super::hud::pointer::PointerPlugin;
 use super::hud::*;
-use super::serialize::*;
 use super::states::*;
 use super::world::*;
 use crate::entity::actor::ActorPlugin;
-use crate::page::config::ConfigPagePlugin;
-use crate::page::main_menu::MainMenuPlugin;
-use crate::ui::game_menu::GameMenuPlugin;
-use crate::ui::hover_color::HoverColorPlugin;
-use crate::ui::on_press::OnPressPlugin;
-use crate::ui::player_list::PlayerListPlugin;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::Level;
 use bevy::log::LogPlugin;
@@ -33,23 +18,8 @@ use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
-use bevy_kira_audio::AudioPlugin;
-use bevy_light_2d::plugin::Light2dPlugin;
-use bevy_particle_systems::ParticleSystemPlugin;
-use bevy_rapier2d::prelude::*;
-use bevy_simple_websocket::WebSocketPlugin;
-use wall::WallPlugin;
-
-#[cfg(feature = "debug")]
-use bevy::diagnostic::EntityCountDiagnosticsPlugin;
-#[cfg(feature = "debug")]
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
-#[cfg(feature = "debug")]
-use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
-#[cfg(feature = "debug")]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-#[cfg(feature = "debug")]
-use iyes_perf_ui::PerfUiPlugin;
+use bevy_rapier2d::prelude::*;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -111,48 +81,21 @@ pub fn run_game() {
                 .in_fixed_schedule(),
         )
         .add_plugins(BevySprityPlugin)
-        .add_plugins(ParticleSystemPlugin)
-        .add_plugins(Light2dPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //
-        .add_plugins(HudPlugin)
-        .add_plugins(OverlayPlugin)
-        .add_systems(Startup, setup_autosave_timer)
-        .add_systems(FixedUpdate, spawn_autosave_timer)
         .add_plugins(CameraPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(BulletPlugin)
-        .add_plugins(EnemyPlugin)
-        .add_plugins(MainMenuPlugin)
-        .add_plugins(BGMPlugin)
-        .add_plugins(LifeBarPlugin)
-        .add_plugins(BookshelfPlugin)
-        .add_plugins(GamepadPlugin)
         .add_plugins(PointerPlugin)
-        .add_plugins(WallPlugin)
-        .add_plugins(WebSocketPlugin)
-        .add_plugins(GameConfigPlugin)
-        .add_plugins(RemotePlayerPlugin)
         .add_plugins(WitchPlugin)
-        .add_plugins(HoverColorPlugin)
-        .add_plugins(OnPressPlugin)
-        .add_plugins(ConfigPagePlugin)
-        .add_plugins(GameMenuPlugin)
-        .add_plugins(AudioPlugin)
-        .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
         //
         // 全体の初期化をするsystem
         // カメラなど、最初の画面に関わらず必要な初期化はここで行っています
         //
         .add_systems(OnEnter(GameState::Setup), |mut commands: Commands| {
-            // セーブデータの選択
-            // 現在はデバッグ用
-            let player_data = restore_player();
-            commands.insert_resource(player_data);
-
             // カメラの初期化
             setup_camera(commands);
         })
@@ -160,8 +103,6 @@ pub fn run_game() {
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
         .init_state::<GameState>()
-        .add_sub_state::<MainMenuPhase>()
-        .add_sub_state::<GameMenuState>()
         .add_loading_state(
             LoadingState::new(GameState::Setup)
                 .continue_to_state(INITIAL_STATE)
@@ -176,15 +117,11 @@ pub fn run_game() {
     // 以下はデバッグ用のプラグインなど
     // 無くてもゲーム事態は動作します
     //
-    #[cfg(feature = "debug")]
-    app.add_plugins(PerfUiPlugin)
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
-        .add_plugins(EntityCountDiagnosticsPlugin)
-        .add_plugins(SystemInformationDiagnosticsPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
+
+    app.add_plugins(WorldInspectorPlugin::new())
         .add_plugins(RapierDebugRenderPlugin {
             enabled: true,
-            mode: DebugRenderMode::COLLIDER_SHAPES,
+            mode: DebugRenderMode::COLLIDER_SHAPES | DebugRenderMode::COLLIDER_AABBS,
             ..default()
         });
 

@@ -4,20 +4,13 @@
 
 mod actor;
 mod asset;
-mod audio;
-mod bgm;
 mod camera;
-mod config;
 mod constant;
 mod entity;
 mod game;
 mod gamepad;
 mod hud;
-mod page;
-mod serialize;
-mod set;
 mod states;
-mod ui;
 mod world;
 
 use game::run_game;
