@@ -798,15 +798,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_blur_regions"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bda4a9fa4e4185645a73a03314110609fd957226d140a78e8e018a74543656ae"
-dependencies = [
- "bevy",
-]
-
-[[package]]
 name = "bevy_color"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4122,7 +4113,6 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_aseprite_ultra",
  "bevy_asset_loader",
- "bevy_blur_regions",
  "bevy_kira_audio",
  "bevy_light_2d",
  "bevy_particle_systems",

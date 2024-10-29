@@ -31,7 +31,6 @@ use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
-use bevy_blur_regions::prelude::*;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
@@ -142,7 +141,6 @@ pub fn run_game() {
         .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
         .insert_resource(PkvStore::new("magiaboost", "magiaboost"))
-        .add_plugins(BlurRegionsPlugin::default())
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

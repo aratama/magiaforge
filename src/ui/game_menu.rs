@@ -4,13 +4,11 @@ use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayNextState;
 use crate::input::MyGamepad;
 use crate::states::GameMenuState;
-use crate::ui::button::button;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
-use bevy_blur_regions::BlurRegion;
 use bevy_kira_audio::Audio;
 
 #[derive(Resource)]
@@ -95,7 +93,6 @@ fn setup_game_menu(
             GameMenuRoot,
             StateScoped(GameState::InGame),
             Name::new("main menu"),
-            BlurRegion,
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
@@ -110,7 +107,7 @@ fn setup_game_menu(
                     row_gap: Val::Px(10.0),
                     ..Default::default()
                 },
-                background_color: Color::hsla(0.0, 0.0, 0.0, 0.4).into(),
+                background_color: Color::hsla(0.0, 0.0, 0.1, 0.9).into(),
                 z_index: ZIndex::Global(GAME_MENU_Z_INDEX),
                 visibility: Visibility::Hidden,
                 ..default()
