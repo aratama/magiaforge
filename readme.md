@@ -1,6 +1,12 @@
 # magiaboost
 
+Online Battle Royale Twin-stick Shooter.
+
 ![screenshot](screenshot.png)
+
+### Demo
+
+https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 
 ### Usage
 
@@ -27,10 +33,6 @@ To build and publish on GitHub Pages:
 ```bash
 $ trunk build
 ```
-
-### Demo
-
-https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 
 ### Notes
 
