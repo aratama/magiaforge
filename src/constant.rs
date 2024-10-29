@@ -38,7 +38,7 @@ pub const BULLET_GROUP: Group = Group::GROUP_2;
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
 pub const PIXELS_PER_METER: f32 = 16.0;
 
-// z_index
+// UI階層
 pub const HUD_Z_INDEX: i32 = 10000;
 
 pub const GAME_MENU_Z_INDEX: i32 = 500;

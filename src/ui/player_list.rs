@@ -1,6 +1,6 @@
 use crate::{
-    actor::{player::Player, remote::RemotePlayer},
     asset::GameAssets,
+    controller::{player::Player, remote::RemotePlayer},
     states::GameState,
 };
 use bevy::prelude::*;

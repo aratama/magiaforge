@@ -5,7 +5,6 @@ use crate::hud::overlay::OverlayNextState;
 use crate::states::GameState;
 use crate::ui::button::button;
 use bevy::ecs::system::SystemId;
-use bevy::gizmos::config;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 

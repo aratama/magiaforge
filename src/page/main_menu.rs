@@ -10,7 +10,6 @@ use crate::{
     states::{GameState, MainMenuPhase},
 };
 use bevy::ecs::system::SystemId;
-use bevy::gizmos::config;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 use bevy_kira_audio::Audio;

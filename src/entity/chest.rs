@@ -3,11 +3,9 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-const SLICE_NAME: &str = "chest";
+const ENTITY_WIDTH: f32 = 8.0;
 
-static ENTITY_WIDTH: f32 = 8.0;
-
-static ENTITY_HEIGHT: f32 = 8.0;
+const ENTITY_HEIGHT: f32 = 8.0;
 
 #[derive(Default, Component)]
 struct Chest;
@@ -24,7 +22,7 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
         Chest,
         AsepriteSliceBundle {
             aseprite: aseprite,
-            slice: SLICE_NAME.into(),
+            slice: "chest".into(),
             transform: Transform::from_translation(Vec3::new(tx, ty, tz)),
             ..default()
         },

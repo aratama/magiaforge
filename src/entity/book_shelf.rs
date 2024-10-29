@@ -6,13 +6,9 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 
-// Asepriteのスライス名
-// スライスの原点はAsepriteのpivotで指定します
-const SLICE_NAME: &str = "book_shelf";
+const ENTITY_WIDTH: f32 = 16.0;
 
-static BOOKSHELF_ENTITY_WIDTH: f32 = 16.0;
-
-static BOOKSHELF_ENTITY_HEIGHT: f32 = 8.0;
+const ENTITY_HEIGHT: f32 = 8.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct BookShelf {
@@ -26,9 +22,9 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
     commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        BookShelf { life: 8 },
+        BookShelf { life: 25 },
         AsepriteSliceBundle {
-            slice: SLICE_NAME.into(),
+            slice: "book_shelf".into(),
             aseprite: aseprite,
             sprite: Sprite {
                 // ここでanchorを設定しても反映されないことに注意
@@ -43,7 +39,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
             ..default()
         },
         RigidBody::Fixed,
-        Collider::cuboid(BOOKSHELF_ENTITY_WIDTH, BOOKSHELF_ENTITY_HEIGHT),
+        Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
         CollisionGroups::new(WALL_GROUP, ENEMY_GROUP | BULLET_GROUP),
     ));
 }

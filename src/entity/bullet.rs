@@ -104,7 +104,7 @@ pub fn spawn_bullet(
     ));
 }
 
-pub fn update_bullet(
+fn update_bullet(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut enemy_query: Query<(&mut Actor, &mut ExternalImpulse)>,

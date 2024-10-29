@@ -1,12 +1,11 @@
-use crate::actor::enemy::EnemyPlugin;
-use crate::actor::player::PlayerPlugin;
-use crate::actor::remote::RemotePlayerPlugin;
 use crate::asset::GameAssets;
 use crate::bgm::BGMPlugin;
 use crate::camera::*;
 use crate::config::GameConfigPlugin;
-use crate::constant::INITIAL_STATE;
-use crate::constant::PIXELS_PER_METER;
+use crate::constant::*;
+use crate::controller::enemy::EnemyPlugin;
+use crate::controller::player::PlayerPlugin;
+use crate::controller::remote::RemotePlayerPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::bullet::BulletPlugin;
@@ -31,11 +30,14 @@ use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
+#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::EmbeddedAssetPlugin;
+#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::PluginMode;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
+#[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
 use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::WebSocketPlugin;
@@ -55,10 +57,16 @@ use iyes_perf_ui::PerfUiPlugin;
 pub fn run_game() {
     let mut app = App::new();
 
-    #[cfg_attr(not(debug_assertions), cfg(not(target_arch = "wasm32")))]
+    // アセットの埋め込みはリリースモードでのビルドのみで有効にしています
+    #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
     app.add_plugins(EmbeddedAssetPlugin {
         mode: PluginMode::ReplaceDefault,
     });
+
+    // bevy_pkv を使うとセーブファイルがロックされるため、複数のインスタンスを同時に起動できなくなります
+    // 開発時に不便なので、フィーチャーフラグで開発時は無効にしておきます
+    #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+    app.insert_resource(PkvStore::new("magiaboost", "magiaboost"));
 
     app
         //
@@ -147,7 +155,6 @@ pub fn run_game() {
         .add_plugins(AudioPlugin)
         .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
-        .insert_resource(PkvStore::new("magiaboost", "magiaboost"))
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

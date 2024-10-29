@@ -3,6 +3,33 @@ name = "magiaboost"
 version = "0.1.0"
 edition = "2021"
 
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+
+# This is used by trunk as it doesn't support custom profiles: https://github.com/trunk-rs/trunk/issues/605
+# xbuild also uses this profile for building android AABs because I couldn't find a configuration for it
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+
+# Profile for distribution
+[profile.dist]
+inherits = "release"
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[features]
+debug = []
+save = []
+default = []
+
 [dependencies]
 bevy_aseprite_ultra = "0.2.4"
 bevy_asset_loader = "0.21.0"
@@ -75,24 +102,8 @@ features = ["console", "Window", "Storage"]
 version = "0.27.0"
 features = ["debug-render-2d"]
 
-[profile.dev.package.bevy_rapier2d]
-# https://rapier.rs/docs/user_guides/bevy_plugin/common_mistakes#my-local-build-of-rapier-is-slower-than-the-online-demos
-opt-level = 3
-
 [dev-dependencies]
 trunk = "*"
-
-[profile.release]
-codegen-units = 1
-# wasmターゲットの場合は以下のオプションでサイズに対して最適化したい
-opt-level = "z"
-# https://bevy-cheatbook.github.io/platforms/wasm/size-opt.html
-# lto = "thin"
-lto = true
-
-[features]
-debug = []
-default = []
 
 [build-dependencies]
 embed-resource = "2.5"

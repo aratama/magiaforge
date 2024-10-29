@@ -2,8 +2,8 @@ pub mod life_bar;
 pub mod overlay;
 pub mod pointer;
 
-use super::actor::player::Player;
 use super::constant::HUD_Z_INDEX;
+use super::controller::player::Player;
 use super::entity::actor::Actor;
 use super::states::GameState;
 use bevy::prelude::*;

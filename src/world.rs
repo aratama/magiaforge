@@ -3,15 +3,14 @@ pub mod map;
 pub mod tile;
 pub mod wall;
 
-use super::actor::player::Player;
 use super::asset::GameAssets;
 use super::constant::*;
+use super::controller::player::Player;
 use super::entity::actor::Actor;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
 use super::entity::slime::spawn_slime;
 use super::entity::witch::spawn_witch;
-use super::entity::witch::WitchType;
 use super::entity::GameEntity;
 use super::hud::life_bar::LifeBarResource;
 use super::hud::overlay::OverlayNextState;
@@ -57,18 +56,29 @@ fn setup_world(
         camera.translation.y = player_y;
     }
 
+    let name = format!("player_{}", &Uuid::new_v4().to_string()[..4].to_string());
+    let life = 150;
+    let max_life = 150;
     spawn_witch(
         &mut commands,
         &assets,
-        player_x,
-        player_y,
+        Vec2::new(player_x, player_y),
+        0.0,
         Uuid::new_v4(),
-        WitchType::PlayerWitch,
-        *frame_count,
-        format!("player_{}", &Uuid::new_v4().to_string()[..4].to_string()),
-        150,
-        150,
+        name.clone(),
+        life,
+        max_life,
         &life_bar_res,
+        Player {
+            name,
+            last_idle_frame_count: *frame_count,
+            last_ilde_x: player_x,
+            last_ilde_y: player_y,
+            last_idle_vx: 0.0,
+            last_idle_vy: 0.0,
+            last_idle_life: life,
+            last_idle_max_life: max_life,
+        },
     );
 
     for _ in 0..4 {

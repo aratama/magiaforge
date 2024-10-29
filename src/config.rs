@@ -18,6 +18,7 @@ impl Default for GameConfig {
     }
 }
 
+#[allow(dead_code)]
 fn startup(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
     if let Ok(v) = pkv.get::<f32>("bgm_volume") {
         config.bgm_volume = v;
@@ -27,6 +28,7 @@ fn startup(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
     };
 }
 
+#[allow(dead_code)]
 fn on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
     if config.is_changed() {
         if let Err(err) = pkv.set::<f32>("bgm_volume", &config.bgm_volume) {
@@ -43,7 +45,9 @@ pub struct GameConfigPlugin;
 impl bevy::app::Plugin for GameConfigPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GameConfig::default());
+        #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
         app.add_systems(Startup, startup);
+        #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
         app.add_systems(Update, on_change);
     }
 }

@@ -31,7 +31,9 @@ $ trunk serve --features debug
 To build and publish on GitHub Pages:
 
 ```bash
-$ trunk build
+$ trunk build # for Web
+
+$ cargo build --profile dist # for Desktop
 ```
 
 ### Notes

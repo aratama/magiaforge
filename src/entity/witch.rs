@@ -1,11 +1,8 @@
 use super::actor::Actor;
-use crate::actor::player::Player;
-use crate::actor::remote::RemotePlayer;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
-use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
@@ -14,29 +11,22 @@ use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
-pub enum WitchType {
-    PlayerWitch,
-    RemoteWitch,
-}
-
 #[derive(Component)]
 pub struct LightWithWitch {
     owner: Entity,
 }
 
-pub fn spawn_witch(
+pub fn spawn_witch<T: Component>(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    x: f32,
-    y: f32,
+    position: Vec2,
+    angle: f32,
     uuid: Uuid,
-    witch_type: WitchType,
-    frame_count: FrameCount,
     name: String,
     life: i32,
     max_life: i32,
-
     res: &Res<LifeBarResource>,
+    controller: T,
 ) {
     let mut entity = commands.spawn((
         Name::new("witch"),
@@ -47,11 +37,12 @@ pub fn spawn_witch(
             life,
             max_life,
             latest_damage: 0,
-            pointer: Vec2::ZERO,
+            pointer: Vec2::from_angle(angle),
         },
+        controller,
         AsepriteAnimationBundle {
             aseprite: assets.player.clone(),
-            transform: Transform::from_xyz(x, y, 1.0),
+            transform: Transform::from_translation(position.extend(1.0)),
             animation: Animation::default().with_tag("idle").with_speed(0.2),
             sprite: Sprite {
                 // flip_x: true,
@@ -75,14 +66,13 @@ pub fn spawn_witch(
         CollisionGroups::new(ENEMY_GROUP, ENEMY_GROUP | WALL_GROUP | BULLET_GROUP),
     ));
 
-    let name_clone = name.clone();
     let index = entity.id();
 
     entity.with_children(move |spawn_children| {
         // リモートプレイヤーの名前
         let mut sections = Vec::new();
         sections.push(TextSection {
-            value: name.clone(),
+            value: name,
             style: TextStyle {
                 color: Color::hsla(120.0, 1.0, 0.5, 0.3),
                 font_size: 10.0,
@@ -104,30 +94,13 @@ pub fn spawn_witch(
         spawn_life_bar(spawn_children, &res);
     });
 
-    match witch_type {
-        WitchType::PlayerWitch => entity.insert(Player {
-            name: name_clone,
-            last_idle_frame_count: frame_count,
-            last_ilde_x: x,
-            last_ilde_y: y,
-            last_idle_vx: 0.0,
-            last_idle_vy: 0.0,
-            last_idle_life: life,
-            last_idle_max_life: max_life,
-        }),
-        WitchType::RemoteWitch => entity.insert(RemotePlayer {
-            name: name_clone,
-            last_update: frame_count,
-        }),
-    };
-
     // SpriteBundle に PointLight2d を追加すると、画面外に出た時に Sprite が描画されなくなり、
     // ライトも描画されず不自然になるため、別で追加する
     // https://github.com/jgayfer/bevy_light_2d/issues/26
     entity.commands().spawn((
         LightWithWitch { owner: index },
         PointLight2dBundle {
-            transform: Transform::from_xyz(x, y, 2.0),
+            transform: Transform::from_translation(position.extend(2.0)),
             point_light: PointLight2d {
                 radius: 150.0,
                 intensity: 3.0,
