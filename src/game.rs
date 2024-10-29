@@ -31,6 +31,8 @@ use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
+use bevy_embedded_assets::EmbeddedAssetPlugin;
+use bevy_embedded_assets::PluginMode;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_particle_systems::ParticleSystemPlugin;
@@ -52,6 +54,11 @@ use iyes_perf_ui::PerfUiPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
+
+    #[cfg_attr(not(debug_assertions), cfg(not(target_arch = "wasm32")))]
+    app.add_plugins(EmbeddedAssetPlugin {
+        mode: PluginMode::ReplaceDefault,
+    });
 
     app
         //
