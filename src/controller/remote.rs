@@ -25,8 +25,11 @@ pub struct RemotePlayer {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum RemoteMessage {
+    /// このプレイヤーが参加を開始したことを通知し、他のプレイヤーの自己紹介を促します
+    Join,
     // 現在位置を通知します
-    // 前回の通知と比較して、位置が変更されたか60フレーム以上経過した場合は再通知します
+    // 前回の通知と比較して、位置が変更されたか60フレーム以上経過した場合、
+    // 他のプレイヤーから Join が送られたときは再通知します
     Position {
         uuid: Uuid,
         name: String,
@@ -131,6 +134,7 @@ fn receive_events(
                 let command: RemoteMessage =
                     bincode::deserialize(bin).expect("Failed to deserialize");
                 match command {
+                    RemoteMessage::Join => {}
                     RemoteMessage::Position {
                         uuid,
                         name,
