@@ -44,7 +44,7 @@ fn start_game(
         *visibility = Visibility::Hidden;
     }
     menu_next_state.set(MainMenuPhase::Paused);
-    *overlay_next_state = OverlayNextState(Some(GameState::InGame));
+    *overlay_next_state = OverlayNextState(Some(GameState::NameInput));
     *next_bgm = BGM(None);
 
     play_se(&audio, &config, assets.kettei.clone());

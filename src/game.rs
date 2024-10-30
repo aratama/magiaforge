@@ -17,6 +17,7 @@ use crate::hud::*;
 use crate::input::GamepadPlugin;
 use crate::page::config::ConfigPagePlugin;
 use crate::page::main_menu::MainMenuPlugin;
+use crate::page::name_input::NameInputPagePlugin;
 use crate::states::*;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
@@ -40,6 +41,7 @@ use bevy_particle_systems::ParticleSystemPlugin;
 #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
 use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
+use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
 use wall::WallPlugin;
 
@@ -127,6 +129,7 @@ pub fn run_game() {
         .add_plugins(BevySprityPlugin)
         .add_plugins(ParticleSystemPlugin)
         .add_plugins(Light2dPlugin)
+        .add_plugins(TextInputPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //
@@ -155,6 +158,7 @@ pub fn run_game() {
         .add_plugins(AudioPlugin)
         .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
+        .add_plugins(NameInputPagePlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

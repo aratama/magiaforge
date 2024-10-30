@@ -17,6 +17,8 @@ pub enum GameState {
 
     Config,
 
+    NameInput,
+
     InGame,
 }
 

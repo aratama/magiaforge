@@ -93,7 +93,11 @@ fn update(
     // 自分の名前を更新
     if let Ok(player) = player_query.get_single() {
         let mut self_player_label = self_player_query.get_single_mut().unwrap();
-        self_player_label.sections[0].value = player.name.clone();
+        self_player_label.sections[0].value = if player.name.is_empty() {
+            "(no name)".to_string()
+        } else {
+            player.name.clone()
+        };
     }
 
     let list = list_query.get_single_mut().unwrap();
@@ -109,7 +113,11 @@ fn update(
                 parent.spawn((
                     RemotePlayerListItem(remote_entity),
                     TextBundle::from_section(
-                        remote.name.clone(),
+                        if remote.name.is_empty() {
+                            "(no name)".to_string()
+                        } else {
+                            remote.name.clone()
+                        },
                         TextStyle {
                             font: assets.dotgothic.clone(),
                             color: Color::WHITE,

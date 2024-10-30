@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 // Setupステートでの初期化が完了した直後に遷移する先のステート
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
-pub const INITIAL_STATE: GameState = GameState::InGame;
+pub const INITIAL_STATE: GameState = GameState::MainMenu;
 
 /// 1タイルのサイズのピクセル数
 /// タイルサイズは意味合いとしてゃ u32 ですが、f32 で扱うことが多いので f32 にしています

@@ -3,6 +3,8 @@ pub mod map;
 pub mod tile;
 pub mod wall;
 
+use crate::config::GameConfig;
+
 use super::asset::GameAssets;
 use super::constant::*;
 use super::controller::player::Player;
@@ -39,6 +41,7 @@ fn setup_world(
     life_bar_res: Res<LifeBarResource>,
     mut camera: Query<&mut Transform, With<Camera2d>>,
     frame_count: Res<FrameCount>,
+    config: Res<GameConfig>,
 ) {
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
@@ -56,7 +59,6 @@ fn setup_world(
         camera.translation.y = player_y;
     }
 
-    let name = format!("player_{}", &Uuid::new_v4().to_string()[..4].to_string());
     let life = 150;
     let max_life = 150;
     spawn_witch(
@@ -65,12 +67,12 @@ fn setup_world(
         Vec2::new(player_x, player_y),
         0.0,
         Uuid::new_v4(),
-        name.clone(),
+        None,
         life,
         max_life,
         &life_bar_res,
         Player {
-            name,
+            name: config.player_name.clone(),
             last_idle_frame_count: *frame_count,
             last_ilde_x: player_x,
             last_ilde_y: player_y,

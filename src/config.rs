@@ -6,6 +6,7 @@ pub struct GameConfig {
     pub online: bool,
     pub bgm_volume: f32,
     pub se_volume: f32,
+    pub player_name: String,
 }
 
 impl Default for GameConfig {
@@ -14,6 +15,7 @@ impl Default for GameConfig {
             online: true,
             bgm_volume: 0.5,
             se_volume: 0.5,
+            player_name: "".to_string(),
         }
     }
 }

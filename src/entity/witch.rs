@@ -22,7 +22,7 @@ pub fn spawn_witch<T: Component>(
     position: Vec2,
     angle: f32,
     uuid: Uuid,
-    name: String,
+    name: Option<String>,
     life: i32,
     max_life: i32,
     res: &Res<LifeBarResource>,
@@ -70,23 +70,26 @@ pub fn spawn_witch<T: Component>(
 
     entity.with_children(move |spawn_children| {
         // リモートプレイヤーの名前
-        let mut sections = Vec::new();
-        sections.push(TextSection {
-            value: name,
-            style: TextStyle {
-                color: Color::hsla(120.0, 1.0, 0.5, 0.3),
-                font_size: 10.0,
+        // 自分のプレイヤーキャラクターは名前を表示しません
+        if let Some(name) = name {
+            let mut sections = Vec::new();
+            sections.push(TextSection {
+                value: name,
+                style: TextStyle {
+                    color: Color::hsla(120.0, 1.0, 0.5, 0.3),
+                    font_size: 10.0,
+                    ..default()
+                },
+            });
+            spawn_children.spawn(Text2dBundle {
+                text: Text {
+                    sections,
+                    ..default()
+                },
+                transform: Transform::from_xyz(0.0, 20.0, 100.0),
                 ..default()
-            },
-        });
-        spawn_children.spawn(Text2dBundle {
-            text: Text {
-                sections,
-                ..default()
-            },
-            transform: Transform::from_xyz(0.0, 20.0, 100.0),
-            ..default()
-        });
+            });
+        }
 
         // リモートプレイヤーのライフバー
         // spawn_actor_life_bar(spawn_children, &mut meshes, &mut materials);

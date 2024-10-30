@@ -161,7 +161,7 @@ fn receive_events(
                                 Vec2::new(x, y),
                                 angle,
                                 uuid,
-                                name.clone(),
+                                Some(name.clone()),
                                 life,
                                 max_life,
                                 &life_bar_res,
