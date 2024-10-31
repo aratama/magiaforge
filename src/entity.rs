@@ -2,6 +2,7 @@ pub mod actor;
 pub mod book_shelf;
 pub mod bullet;
 pub mod chest;
+pub mod magic_circle;
 pub mod slime;
 pub mod witch;
 
@@ -9,4 +10,5 @@ pub mod witch;
 pub enum GameEntity {
     Chest,
     BookShelf,
+    MagicCircle,
 }

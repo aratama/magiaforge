@@ -9,6 +9,7 @@ use crate::controller::remote::RemotePlayerPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::bullet::BulletPlugin;
+use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
@@ -159,6 +160,7 @@ pub fn run_game() {
         .add_plugins(PlayerListPlugin)
         .add_plugins(ActorPlugin)
         .add_plugins(NameInputPagePlugin)
+        .add_plugins(MagicCirclePlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

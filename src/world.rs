@@ -3,8 +3,6 @@ pub mod map;
 pub mod tile;
 pub mod wall;
 
-use crate::config::GameConfig;
-
 use super::asset::GameAssets;
 use super::constant::*;
 use super::controller::player::Player;
@@ -21,6 +19,8 @@ use super::world::ceil::spawn_roof_tiles;
 use super::world::map::image_to_tilemap;
 use super::world::map::LevelTileMap;
 use super::world::tile::*;
+use crate::config::GameConfig;
+use crate::entity::magic_circle::spawn_magic_circle;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -51,8 +51,12 @@ fn setup_world(
     spawn_entities(&mut commands, &assets, &chunk);
 
     let player_position = random_select(&mut empties);
-    let player_x = TILE_SIZE * player_position.0 as f32;
-    let player_y = -TILE_SIZE * player_position.1 as f32;
+    let mut player_x = TILE_SIZE * player_position.0 as f32;
+    let mut player_y = -TILE_SIZE * player_position.1 as f32;
+
+    // デバッグ用
+    player_x = TILE_SIZE * 9.0;
+    player_y = -TILE_SIZE * 11.0;
 
     if let Ok(mut camera) = camera.get_single_mut() {
         camera.translation.x = player_x;
@@ -204,6 +208,14 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             }
             GameEntity::Chest => {
                 spawn_chest(
+                    &mut commands,
+                    assets.asset.clone(),
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                );
+            }
+            GameEntity::MagicCircle => {
+                spawn_magic_circle(
                     &mut commands,
                     assets.asset.clone(),
                     tx + TILE_HALF,

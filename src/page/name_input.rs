@@ -64,6 +64,7 @@ fn setup(
                     height: Val::Percent(100.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
+
                     ..default()
                 },
                 ..default()
@@ -76,6 +77,7 @@ fn setup(
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         flex_direction: FlexDirection::Column,
+                        row_gap: Val::Px(10.0),
                         ..default()
                     },
                     ..default()
@@ -98,6 +100,7 @@ fn setup(
                                 height: Val::Percent(100.0),
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
+                                column_gap: Val::Px(10.0),
                                 ..default()
                             },
                             ..default()
@@ -128,7 +131,7 @@ fn setup(
                                     .with_value(config.player_name.clone()),
                             ));
 
-                            menu_button(parent, &assets, shots.start, "Start", 120.0, 50.0);
+                            menu_button(parent, &assets, shots.start, "Start", 160.0, 60.0);
                         });
                 });
         });

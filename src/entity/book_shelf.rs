@@ -1,3 +1,4 @@
+use super::actor::get_entity_z;
 use crate::config::GameConfig;
 use crate::{asset::GameAssets, audio::play_se};
 use crate::{constant::*, states::GameState};
@@ -18,7 +19,6 @@ pub struct BookShelf {
 /// 指定した位置に本棚を生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
-    let z = 3.0 + (-y * Z_ORDER_SCALE);
     commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
@@ -35,7 +35,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
                 // anchor: bevy::sprite::Anchor::Center,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(x, y, z)),
+            transform: Transform::from_translation(Vec3::new(x, y, get_entity_z(y))),
             ..default()
         },
         RigidBody::Fixed,

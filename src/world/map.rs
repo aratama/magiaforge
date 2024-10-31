@@ -84,6 +84,12 @@ pub fn image_to_tilemap(level_image: &Image) -> LevelTileMap {
                     });
                     entities.push((GameEntity::Chest, x, y));
                 }
+                (48, 96, 130, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                    });
+                    entities.push((GameEntity::MagicCircle, x, y));
+                }
                 _ => {
                     tiles.push(LevelTileMapile { tile: Tile::Blank });
                 }

@@ -1,3 +1,4 @@
+use super::actor::get_entity_z;
 use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -15,7 +16,7 @@ struct Chest;
 pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
     let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
     let ty = y - ENTITY_HEIGHT + TILE_SIZE / 2.0;
-    let tz = 3.0 + (-ty * Z_ORDER_SCALE);
+    let tz = get_entity_z(y);
     commands.spawn((
         Name::new("chest"),
         StateScoped(GameState::InGame),
