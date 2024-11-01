@@ -12,9 +12,6 @@ use std::collections::HashMap;
 /// でもエンティティが個別に削除されることも多そうなので、その場合はエンティティは別のほうがいいかも
 /// https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/walls.rs
 pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
-    let width = chunk.width;
-    let height = chunk.height;
-
     /// Represents a wide wall that is 1 tile tall
     /// Used to spawn wall collisions
     #[derive(Clone, Eq, PartialEq, Debug, Default, Hash)]
@@ -26,12 +23,12 @@ pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
     // combine wall tiles into flat "plates" in each individual row
     let mut plate_stack: Vec<Vec<Plate>> = Vec::new();
 
-    for y in 0..height {
+    for y in chunk.min_y..chunk.max_y {
         let mut row_plates: Vec<Plate> = Vec::new();
         let mut plate_start = None;
 
         // + 1 to the width so the algorithm "terminates" plates that touch the right edge
-        for x in 0..width + 1 {
+        for x in chunk.min_x..(chunk.max_x + 1) {
             match (
                 plate_start,
                 chunk.get_tile(x as i32, y as i32) == Tile::Wall,

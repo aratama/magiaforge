@@ -19,6 +19,7 @@ use crate::input::GamepadPlugin;
 use crate::page::config::ConfigPagePlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
+use crate::page::warp::WarpPagePlugin;
 use crate::states::*;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
@@ -161,6 +162,7 @@ pub fn run_game() {
         .add_plugins(ActorPlugin)
         .add_plugins(NameInputPagePlugin)
         .add_plugins(MagicCirclePlugin)
+        .add_plugins(WarpPagePlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

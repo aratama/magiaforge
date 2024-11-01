@@ -1,6 +1,6 @@
 use crate::{
     asset::GameAssets, audio::play_se, config::GameConfig, constant::*, controller::player::Player,
-    hud::overlay::OverlayNextState, states::GameState,
+    hud::overlay::OverlayNextState, states::GameState, world::NextLevel,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -10,24 +10,34 @@ use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGr
 
 const MAX_POWER: i32 = 300;
 
-#[derive(Default, Component)]
+const MIN_RADIUS_ON: f32 = 100.0;
+const MIN_INTENSITY_ON: f32 = 1.0;
+const MIN_FALLOFF_ON: f32 = 10.0;
+
+const MAX_INTENSITY_ON: f32 = 40.0;
+const MAX_RADIUS_ON: f32 = 60.0;
+const MAX_FALLOFF_ON: f32 = 40.0;
+
+#[derive(Component)]
 pub struct MagicCircle {
     players: i32,
-    power: i32,
-
-    sleep_to_close: i32,
-    warped: bool,
+    step: i32,
+    light: Entity,
 }
 
+#[derive(Component)]
+pub struct MagicCircleLight;
+
 pub fn spawn_magic_circle(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
+    let light_entity = commands.spawn_empty().id();
+
     commands.spawn((
         Name::new("magic_circle"),
         StateScoped(GameState::InGame),
         MagicCircle {
             players: 0,
-            power: 0,
-            sleep_to_close: 0,
-            warped: false,
+            step: 0,
+            light: light_entity,
         },
         AsepriteSliceBundle {
             aseprite: aseprite,
@@ -46,16 +56,17 @@ pub fn spawn_magic_circle(commands: &mut Commands, aseprite: Handle<Aseprite>, x
     ));
 
     // 光源をスプライトの子にすると、画面外に出た時に光が消えてしまうことに注意
-    commands.spawn((
+    commands.entity(light_entity).insert((
         Name::new("magic_circle_light"),
+        MagicCircleLight,
         StateScoped(GameState::InGame),
         PointLight2dBundle {
             transform: Transform::from_xyz(x, y, 0.0),
             point_light: PointLight2d {
                 color: Color::hsla(240.0, 1.0, 0.5, 1.0),
-                radius: 100.0,
-                intensity: 1.0,
-                falloff: 10.0,
+                radius: MIN_RADIUS_ON,
+                intensity: MIN_INTENSITY_ON,
+                falloff: MIN_FALLOFF_ON,
                 ..default()
             },
             ..default()
@@ -96,45 +107,60 @@ fn warp(
     audio: Res<Audio>,
     config: Res<GameConfig>,
     assets: Res<GameAssets>,
+    mut next: ResMut<NextLevel>,
 ) {
     for mut circle in circle_query.iter_mut() {
-        if 0 < circle.players {
-            circle.power += 1;
-        } else {
-            circle.power = (circle.power - 4).max(0);
-        }
-
-        if let Ok(entity) = player_query.get_single_mut() {
-            if MAX_POWER <= circle.power {
-                circle.warped = true;
-                circle.sleep_to_close = 0;
-                circle.power = 0;
+        if circle.step < MAX_POWER {
+            if 0 < circle.players {
+                circle.step += 1;
+            } else {
+                circle.step = (circle.step - 4).max(0);
+            }
+        } else if circle.step == MAX_POWER {
+            if let Ok(entity) = player_query.get_single_mut() {
                 play_se(&audio, &config, assets.warp.clone());
                 commands.entity(entity).despawn_recursive();
-            }
-        }
 
-        if circle.warped && player_query.is_empty() {
-            circle.sleep_to_close += 1;
-            if 180 <= circle.sleep_to_close {
-                *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
+                next.0 = match &next.0 {
+                    None => Some(1),
+                    Some(next) => Some((next + 1) % LEVELS),
+                };
+
+                info!("next level: {:?}", next.0);
             }
+            circle.step += 1;
+        } else if circle.step == MAX_POWER + 120 {
+            *overlay_next_state = OverlayNextState(Some(GameState::Warp));
+        } else {
+            circle.step += 1;
         }
     }
 }
 
-fn update_circle_color(mut circle_query: Query<(&MagicCircle, &mut Sprite)>) {
+fn update_circle_color(
+    mut circle_query: Query<(&MagicCircle, &mut Sprite)>,
+    mut light_query: Query<&mut PointLight2d, With<MagicCircleLight>>,
+) {
     for (circle, mut sprite) in circle_query.iter_mut() {
-        let satulation = if 0 < circle.power { 1.0 } else { 0.0 };
-
-        let lightness = 0.25
-            + if 0 < circle.power {
-                0.25 + 0.5 * (circle.power as f32 / MAX_POWER as f32).min(1.0)
+        if let Ok(mut light) = light_query.get_mut(circle.light) {
+            if circle.step == 0 {
+                light.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
+                sprite.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
+            } else if circle.step < MAX_POWER {
+                let t = circle.step as f32 / MAX_POWER as f32;
+                light.radius = MIN_RADIUS_ON + (MAX_RADIUS_ON - MIN_RADIUS_ON) * t;
+                light.intensity = MIN_INTENSITY_ON + (MAX_INTENSITY_ON - MIN_INTENSITY_ON) * t;
+                light.falloff = MIN_FALLOFF_ON + (MAX_FALLOFF_ON - MIN_FALLOFF_ON) * t;
+                light.color = Color::hsla(240.0, 0.0, 1.0, 1.0);
+                sprite.color = Color::hsla(240.0, 0.0, 1.0, 1.0);
             } else {
-                0.5
-            };
-
-        sprite.color = Color::hsla(240.0, satulation, lightness, 1.0)
+                light.radius = MIN_RADIUS_ON;
+                light.intensity = MIN_INTENSITY_ON;
+                light.falloff = MIN_FALLOFF_ON;
+                light.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
+                sprite.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
+            }
+        }
     }
 }
 

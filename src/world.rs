@@ -31,7 +31,43 @@ use uuid::Uuid;
 use wall::respawn_wall_collisions;
 use wall::WallCollider;
 
+#[derive(Resource, Debug, Clone, Default)]
+pub struct NextLevel(pub Option<i32>);
+
 fn setup_world(
+    commands: Commands,
+    level_aseprites: Res<Assets<Aseprite>>,
+    images: Res<Assets<Image>>,
+    assets: Res<GameAssets>,
+    collider_query: Query<Entity, With<WallCollider>>,
+    world_tile: Query<Entity, With<WorldTile>>,
+    life_bar_res: Res<LifeBarResource>,
+    camera: Query<&mut Transform, With<Camera2d>>,
+    frame_count: Res<FrameCount>,
+    config: Res<GameConfig>,
+    next: Res<NextLevel>,
+) {
+    let level = match &next.0 {
+        None => 0,
+        Some(level) => level % LEVELS,
+    };
+
+    spawn_level(
+        commands,
+        level_aseprites,
+        images,
+        assets,
+        collider_query,
+        world_tile,
+        life_bar_res,
+        camera,
+        frame_count,
+        config,
+        level,
+    );
+}
+
+fn spawn_level(
     mut commands: Commands,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
@@ -42,11 +78,31 @@ fn setup_world(
     mut camera: Query<&mut Transform, With<Camera2d>>,
     frame_count: Res<FrameCount>,
     config: Res<GameConfig>,
+    level: i32,
 ) {
+    info!("spawn_level {}", level);
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
-    let chunk = image_to_tilemap(&level_image);
-    let mut empties = image_to_empty_tiles(&level_image);
+    let slice = level_aseprite
+        .slices
+        .get(&format!("level{}", level))
+        .unwrap();
+
+    info!(
+        "bounds min_x:{} max_x:{} min_y:{} max_y:{}",
+        slice.rect.min.x, slice.rect.max.x, slice.rect.min.y, slice.rect.max.y
+    );
+
+    let chunk = image_to_tilemap(
+        &level_image,
+        slice.rect.min.x as i32,
+        slice.rect.max.x as i32,
+        slice.rect.min.y as i32,
+        slice.rect.max.y as i32,
+    );
+
+    let mut empties = image_to_empty_tiles(&chunk);
+
     respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
     spawn_entities(&mut commands, &assets, &chunk);
 
@@ -55,12 +111,16 @@ fn setup_world(
     let mut player_y = -TILE_SIZE * player_position.1 as f32;
 
     // デバッグ用
-    player_x = TILE_SIZE * 9.0;
-    player_y = -TILE_SIZE * 11.0;
+    player_x = TILE_SIZE * (chunk.min_x as f32 + 9.0);
+    player_y = -TILE_SIZE * (chunk.min_y as f32 + 11.0);
 
     if let Ok(mut camera) = camera.get_single_mut() {
         camera.translation.x = player_x;
         camera.translation.y = player_y;
+        info!(
+            "camera x:{} y:{}",
+            camera.translation.x, camera.translation.y
+        );
     }
 
     let life = 150;
@@ -87,7 +147,7 @@ fn setup_world(
         },
     );
 
-    for _ in 0..4 {
+    for _ in 0..10 {
         let (x, y) = random_select(&mut empties);
         spawn_slime(
             &mut commands,
@@ -127,8 +187,8 @@ fn respawn_world_tilemap(
     }
 
     // 床と壁の生成
-    for y in 0..chunk.height as i32 {
-        for x in 0..chunk.width as i32 {
+    for y in chunk.min_y..chunk.max_y as i32 {
+        for x in chunk.min_x..chunk.max_x as i32 {
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
                     commands.spawn((
@@ -241,11 +301,14 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_world);
+
         app.add_systems(
             FixedUpdate,
             update_world
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );
+
+        app.init_resource::<NextLevel>();
     }
 }

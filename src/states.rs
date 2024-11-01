@@ -20,6 +20,10 @@ pub enum GameState {
     NameInput,
 
     InGame,
+
+    /// 魔法陣でのワープ中を表すステート
+    /// いったん画面上のエンティティをすべて削除するため、別ステートに切り替えています
+    Warp,
 }
 
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]

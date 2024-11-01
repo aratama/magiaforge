@@ -8,10 +8,6 @@ use bevy_rapier2d::plugin::PhysicsSet;
 #[derive(Component)]
 pub struct CameraScaleFactor(f32);
 
-#[cfg(feature = "debug")]
-static BLIGHTNESS_IN_GAME: f32 = 1.0;
-
-#[cfg(not(feature = "debug"))]
 static BLIGHTNESS_IN_GAME: f32 = 0.05;
 
 fn setup_camera(mut commands: Commands) {

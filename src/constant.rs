@@ -5,6 +5,9 @@ use bevy_rapier2d::prelude::*;
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
 pub const INITIAL_STATE: GameState = GameState::InGame;
 
+/// level.aseprite のスライスの最大値 - 1
+pub const LEVELS: i32 = 3;
+
 /// 1タイルのサイズのピクセル数
 /// タイルサイズは意味合いとしてゃ u32 ですが、f32 で扱うことが多いので f32 にしています
 pub const TILE_SIZE: f32 = 16.0;
