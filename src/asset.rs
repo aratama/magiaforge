@@ -47,6 +47,12 @@ pub struct GameAssets {
     #[asset(path = "audio/アスファルトの上を歩く2.ogg")]
     pub asphalt: Handle<AudioSource>,
 
+    #[asset(path = "audio/メニューを開く2.ogg")]
+    pub menu_open: Handle<AudioSource>,
+
+    #[asset(path = "audio/ワープ.ogg")]
+    pub warp: Handle<AudioSource>,
+
     #[asset(path = "bgm/they_bgm.ogg")]
     pub they: Handle<AudioSource>,
 

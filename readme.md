@@ -61,3 +61,5 @@ $ cargo build --profile dist # for Desktop
 - 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
 - 建物が少し崩れる 1 https://soundeffect-lab.info/sound/battle/
 - DotGothic16 https://fonts.google.com/share?selection.family=DotGothic16
+- メニューを開く 2 https://soundeffect-lab.info/sound/battle/
+- ワープ https://soundeffect-lab.info/sound/battle/
