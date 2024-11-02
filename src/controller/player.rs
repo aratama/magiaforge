@@ -6,6 +6,7 @@ use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN}
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
+use crate::world::CurrentLevel;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
@@ -60,6 +61,8 @@ fn update_player(
 
     audio: Res<Audio>,
     config: Res<GameConfig>,
+
+    current: Res<CurrentLevel>,
 ) {
     let force = 50000.0;
 
@@ -91,15 +94,19 @@ fn update_player(
                         &audio,
                         &config,
                     );
-                    let serialized = bincode::serialize(&RemoteMessage::Fire {
-                        uuid: player.uuid,
-                        x: bullet_position.x,
-                        y: bullet_position.y,
-                        vx: direction.x * BULLET_SPEED,
-                        vy: direction.y * BULLET_SPEED,
-                    })
-                    .unwrap();
-                    writer.send(ClientMessage::Binary(serialized));
+
+                    if let Some(level) = current.0 {
+                        let serialized = bincode::serialize(&RemoteMessage::Fire {
+                            uuid: player.uuid,
+                            level,
+                            x: bullet_position.x,
+                            y: bullet_position.y,
+                            vx: direction.x * BULLET_SPEED,
+                            vy: direction.y * BULLET_SPEED,
+                        })
+                        .unwrap();
+                        writer.send(ClientMessage::Binary(serialized));
+                    }
                 }
 
                 player.cooltime = BULLET_COOLTIME;

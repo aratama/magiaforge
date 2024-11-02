@@ -53,8 +53,8 @@ pub struct GameAssets {
     #[asset(path = "audio/ワープ.ogg")]
     pub warp: Handle<AudioSource>,
 
-    #[asset(path = "bgm/they_bgm.ogg")]
-    pub they: Handle<AudioSource>,
+    // #[asset(path = "bgm/they_bgm.ogg")]
+    // pub they: Handle<AudioSource>,
 
     // #[asset(path = "bgm/realm.ogg")]
     // pub gods_realm: Handle<AudioSource>,

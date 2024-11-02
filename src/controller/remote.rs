@@ -1,3 +1,12 @@
+use super::player::Player;
+use crate::{
+    asset,
+    config::GameConfig,
+    entity::{actor::Actor, bullet::spawn_bullet, witch::spawn_witch},
+    hud::life_bar::LifeBarResource,
+    states::GameState,
+    world::CurrentLevel,
+};
 use bevy::{core::FrameCount, prelude::*};
 use bevy_kira_audio::Audio;
 use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
@@ -5,16 +14,6 @@ use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketS
 use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::{
-    asset,
-    config::GameConfig,
-    entity::{actor::Actor, bullet::spawn_bullet, witch::spawn_witch},
-    hud::life_bar::LifeBarResource,
-    states::GameState,
-};
-
-use super::player::Player;
 
 /// オンライン対戦でリモート操作されているキャラクターを表します
 #[derive(Component)]
@@ -33,6 +32,7 @@ pub enum RemoteMessage {
     Position {
         uuid: Uuid,
         name: String,
+        level: i32,
         x: f32,
         y: f32,
         vx: f32,
@@ -44,6 +44,7 @@ pub enum RemoteMessage {
     // 弾を発射したことを通知します
     Fire {
         uuid: Uuid,
+        level: i32,
         x: f32,
         y: f32,
         vx: f32,
@@ -62,36 +63,40 @@ fn send_player_states(
     config: Res<GameConfig>,
     state: Res<WebSocketState>,
     frame_count: Res<FrameCount>,
+    current: Res<CurrentLevel>,
 ) {
     if config.online {
-        if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
-            if state.ready_state == ReadyState::OPEN {
-                let translate = transform.translation();
+        if let Some(level) = current.0 {
+            if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
+                if state.ready_state == ReadyState::OPEN {
+                    let translate = transform.translation();
 
-                if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
-                    || translate.x != player.last_ilde_x
-                    || translate.y != player.last_ilde_y
-                    || actor.life != player.last_idle_life
-                    || actor.max_life != player.last_idle_max_life
-                {
-                    let command = RemoteMessage::Position {
-                        uuid: actor.uuid,
-                        name: player.name.clone(),
-                        x: translate.x,
-                        y: translate.y,
-                        vx: velocity.linvel.x,
-                        vy: velocity.linvel.y,
-                        life: actor.life,
-                        max_life: actor.max_life,
-                        angle: actor.pointer.to_angle(),
-                    };
-                    let serialized = bincode::serialize(&command).unwrap();
-                    writer.send(ClientMessage::Binary(serialized));
-                    player.last_idle_frame_count = frame_count.clone();
-                    player.last_ilde_x = translate.x;
-                    player.last_ilde_y = translate.y;
-                    player.last_idle_vx = velocity.linvel.x;
-                    player.last_idle_vy = velocity.linvel.y;
+                    if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
+                        || translate.x != player.last_ilde_x
+                        || translate.y != player.last_ilde_y
+                        || actor.life != player.last_idle_life
+                        || actor.max_life != player.last_idle_max_life
+                    {
+                        let command = RemoteMessage::Position {
+                            uuid: actor.uuid,
+                            name: player.name.clone(),
+                            level,
+                            x: translate.x,
+                            y: translate.y,
+                            vx: velocity.linvel.x,
+                            vy: velocity.linvel.y,
+                            life: actor.life,
+                            max_life: actor.max_life,
+                            angle: actor.pointer.to_angle(),
+                        };
+                        let serialized = bincode::serialize(&command).unwrap();
+                        writer.send(ClientMessage::Binary(serialized));
+                        player.last_idle_frame_count = frame_count.clone();
+                        player.last_ilde_x = translate.x;
+                        player.last_ilde_y = translate.y;
+                        player.last_idle_vx = velocity.linvel.x;
+                        player.last_idle_vy = velocity.linvel.y;
+                    }
                 }
             }
         }
@@ -124,6 +129,7 @@ fn receive_events(
     life_bar_res: Res<LifeBarResource>,
     audio: Res<Audio>,
     config: Res<GameConfig>,
+    current: Res<CurrentLevel>,
 ) {
     for message in reader.read() {
         match message {
@@ -138,6 +144,7 @@ fn receive_events(
                     RemoteMessage::Position {
                         uuid,
                         name,
+                        level,
                         x,
                         y,
                         vx,
@@ -146,48 +153,65 @@ fn receive_events(
                         max_life,
                         angle,
                     } => {
-                        let target = remotes
-                            .iter_mut()
-                            .find(|(_, actor, _, _)| actor.uuid == uuid);
-                        if let Some((mut remote, mut actor, mut transform, mut velocity)) = target {
-                            remote.last_update = *frame_count;
-                            transform.translation.x = x;
-                            transform.translation.y = y;
-                            velocity.linvel.x = vx;
-                            velocity.linvel.y = vy;
-                            actor.life = life;
-                            actor.max_life = max_life;
-                            actor.pointer = Vec2::from_angle(angle);
-                        } else {
-                            spawn_witch(
-                                &mut commands,
-                                &assets,
-                                Vec2::new(x, y),
-                                angle,
-                                uuid,
-                                Some(name.clone()),
-                                life,
-                                max_life,
-                                &life_bar_res,
-                                RemotePlayer {
-                                    name,
-                                    last_update: *frame_count,
-                                },
-                            );
-                            info!("Remote player {} spawned", uuid);
+                        if let Some(current_level) = current.0 {
+                            if current_level == level {
+                                let target = remotes
+                                    .iter_mut()
+                                    .find(|(_, actor, _, _)| actor.uuid == uuid);
+                                if let Some((mut remote, mut actor, mut transform, mut velocity)) =
+                                    target
+                                {
+                                    remote.last_update = *frame_count;
+                                    transform.translation.x = x;
+                                    transform.translation.y = y;
+                                    velocity.linvel.x = vx;
+                                    velocity.linvel.y = vy;
+                                    actor.life = life;
+                                    actor.max_life = max_life;
+                                    actor.pointer = Vec2::from_angle(angle);
+                                } else {
+                                    spawn_witch(
+                                        &mut commands,
+                                        &assets,
+                                        Vec2::new(x, y),
+                                        angle,
+                                        uuid,
+                                        Some(name.clone()),
+                                        life,
+                                        max_life,
+                                        &life_bar_res,
+                                        RemotePlayer {
+                                            name,
+                                            last_update: *frame_count,
+                                        },
+                                    );
+                                    info!("Remote player {} spawned", uuid);
+                                }
+                            }
                         }
                     }
-                    RemoteMessage::Fire { uuid, x, y, vx, vy } => {
-                        spawn_bullet(
-                            &mut commands,
-                            assets.asset.clone(),
-                            Vec2::new(x, y),
-                            Vec2::new(vx, vy),
-                            Some(uuid),
-                            &assets,
-                            &audio,
-                            &config,
-                        );
+                    RemoteMessage::Fire {
+                        uuid,
+                        level,
+                        x,
+                        y,
+                        vx,
+                        vy,
+                    } => {
+                        if let Some(current_level) = current.0 {
+                            if current_level == level {
+                                spawn_bullet(
+                                    &mut commands,
+                                    assets.asset.clone(),
+                                    Vec2::new(x, y),
+                                    Vec2::new(vx, vy),
+                                    Some(uuid),
+                                    &assets,
+                                    &audio,
+                                    &config,
+                                );
+                            }
+                        }
                     }
                     RemoteMessage::Hit { uuid, damage } => {
                         let target = remotes

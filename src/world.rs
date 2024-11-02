@@ -32,6 +32,9 @@ use wall::respawn_wall_collisions;
 use wall::WallCollider;
 
 #[derive(Resource, Debug, Clone, Default)]
+pub struct CurrentLevel(pub Option<i32>);
+
+#[derive(Resource, Debug, Clone, Default)]
 pub struct NextLevel(pub Option<i32>);
 
 fn setup_world(
@@ -45,12 +48,15 @@ fn setup_world(
     camera: Query<&mut Transform, With<Camera2d>>,
     frame_count: Res<FrameCount>,
     config: Res<GameConfig>,
+    mut current: ResMut<CurrentLevel>,
     next: Res<NextLevel>,
 ) {
     let level = match &next.0 {
         None => 0,
         Some(level) => level % LEVELS,
     };
+
+    current.0 = Some(level);
 
     spawn_level(
         commands,
@@ -309,6 +315,7 @@ impl Plugin for WorldPlugin {
                 .before(PhysicsSet::SyncBackend),
         );
 
+        app.init_resource::<CurrentLevel>();
         app.init_resource::<NextLevel>();
     }
 }

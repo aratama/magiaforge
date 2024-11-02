@@ -4,6 +4,10 @@ use crate::{
     states::GameState,
 };
 use bevy::prelude::*;
+use bevy_simple_websocket::{ReadyState, WebSocketState};
+
+#[derive(Component)]
+struct ReadyStateLabel;
 
 #[derive(Component)]
 struct PlayerList;
@@ -34,6 +38,19 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
             },
         ))
         .with_children(|parent| {
+            parent.spawn((
+                ReadyStateLabel,
+                TextBundle::from_section(
+                    "Offline",
+                    TextStyle {
+                        font: assets.dotgothic.clone(),
+                        color: Color::WHITE,
+                        font_size: 20.0,
+                        ..default()
+                    },
+                ),
+            ));
+
             parent.spawn((
                 PlayersLabel,
                 TextBundle::from_section(
@@ -75,34 +92,16 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
         });
 }
 
-fn update(
+fn update_player_list(
     mut commands: Commands,
     remote_query: Query<(Entity, &RemotePlayer)>,
     remote_player_items_query: Query<(Entity, &RemotePlayerListItem)>,
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
-    player_query: Query<&Player>,
-
-    mut self_player_query: Query<&mut Text, With<SelfPlayerLabel>>,
-    mut players_label_query: Query<(&mut Text, &PlayersLabel), Without<SelfPlayerLabel>>,
 ) {
-    // プレイヤー数を更新
-    let mut label = players_label_query.get_single_mut().unwrap();
-    label.0.sections[0].value = format!("Players ({})", 1 + remote_query.iter().count());
-
-    // 自分の名前を更新
-    if let Ok(player) = player_query.get_single() {
-        let mut self_player_label = self_player_query.get_single_mut().unwrap();
-        self_player_label.sections[0].value = if player.name.is_empty() {
-            "(no name)".to_string()
-        } else {
-            player.name.clone()
-        };
-    }
-
-    let list = list_query.get_single_mut().unwrap();
-
+    // プレイヤーリストを更新
     // ListItemが存在しないRemotePlayerを追加
+    let list = list_query.single_mut();
     for (remote_entity, remote) in remote_query.iter() {
         if remote_player_items_query
             .iter()
@@ -139,11 +138,63 @@ fn update(
     }
 }
 
+/// プレイヤーリストの自分の名前を更新
+fn update_self_label(
+    player_query: Query<&Player>,
+    mut self_player_query: Query<&mut Text, With<SelfPlayerLabel>>,
+) {
+    if let Ok(player) = player_query.get_single() {
+        let mut self_player_label = self_player_query.single_mut();
+        self_player_label.sections[0].value = if player.name.is_empty() {
+            "(no name)".to_string()
+        } else {
+            player.name.clone()
+        };
+    }
+}
+
+fn update_players(
+    remote_query: Query<(Entity, &RemotePlayer)>,
+    mut players_label_query: Query<&mut Text, With<PlayersLabel>>,
+) {
+    // プレイヤー数を更新
+    let mut players_label = players_label_query.single_mut();
+    players_label.sections[0].value = format!("Players ({})", 1 + remote_query.iter().count(),);
+}
+
+/// WebSocketの状態のラベルテキストを更新
+fn update_ready_state_label(
+    mut ready_state_label_query: Query<&mut Text, With<ReadyStateLabel>>,
+    state: Res<WebSocketState>,
+) {
+    let mut ready_state_label = ready_state_label_query.single_mut();
+    ready_state_label.sections[0].value = format!(
+        "{}",
+        if state.ready_state == ReadyState::OPEN {
+            "Online"
+        } else {
+            "Offline"
+        }
+    );
+}
+
 pub struct PlayerListPlugin;
 
 impl Plugin for PlayerListPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), spawn_player_list);
-        app.add_systems(Update, update.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            Update,
+            update_player_list.run_if(in_state(GameState::InGame)),
+        );
+        app.add_systems(
+            Update,
+            update_ready_state_label.run_if(in_state(GameState::InGame)),
+        );
+        app.add_systems(Update, update_players.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            Update,
+            update_self_label.run_if(in_state(GameState::InGame)),
+        );
     }
 }

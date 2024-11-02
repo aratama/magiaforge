@@ -10,46 +10,16 @@ https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 
 ### Usage
 
-To run locally (as native) with [cargo-watch](https://github.com/watchexec/cargo-watch):
+- `cargo run` to launch app locally
+- `cargo build --profile dist` to build desktop app in release mode. (Note `cargo build` is for WASM build)
+- `trunk serve` to run locally on browser with [trunk](https://trunkrs.dev/)
+- `trunk build` to build web app and publish on GitHub Pages
 
-```bash
-$ cargo install cargo-watch --locked
-
-$ cargo watch -x 'run'
-```
-
-To run locally on browser with [trunk](https://trunkrs.dev/):
-
-```bash
-$ rustup target install wasm32-unknown-unknown
-
-$ cargo install --locked trunk
-
-$ trunk serve --features debug
-```
-
-To build and publish on GitHub Pages:
-
-```bash
-$ trunk build # for Web
-
-$ cargo build --profile dist # for Desktop
-```
-
-### Notes
-
-- https://trunkrs.dev/
-- https://bevy-cheatbook.github.io/platforms/wasm.html
-- https://gist.github.com/nakedible/f6a0d4bcbea1df7768e9ed425f6f33db
-- Linux 用 Windows サブシステム で Linux GUI アプリを実行する https://learn.microsoft.com/ja-jp/windows/wsl/tutorials/gui-apps
-- https://github.com/jgayfer/bevy_light_2d
-- https://github.com/zaycev/bevy-magic-light-2d
-- https://github.com/rustwasm/wasm-pack/issues/1434 Windows で trunk 0.21.1 をインストールしようとするとビルドエラーになる
-- https://cloud.google.com/blog/products/serverless/cloud-run-gets-websockets-http-2-and-grpc-bidirectional-streams?hl=en
+Add `--features debug` to launch app in debug mode.
 
 ### Asset credits
 
-#### 効果音
+#### Sound Effects
 
 - 芝生の上を歩く https://soundeffect-lab.info/sound/various/
 - ひよこの鳴き声 https://soundeffect-lab.info/sound/animal/
@@ -62,13 +32,13 @@ $ cargo build --profile dist # for Desktop
 - メニューを開く 2 https://soundeffect-lab.info/sound/battle/
 - ワープ https://soundeffect-lab.info/sound/battle/
 
-#### BGM
+#### BGMs
 
 - They https://dova-s.jp/bgm/play21009.html
 - God's realm https://dova-s.jp/bgm/play20967.html
 - 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
 - 荒れ地の先へ https://dova-s.jp/bgm/play17195.html
 
-#### フォント
+#### Fonts
 
 - DotGothic16 https://fonts.google.com/share?selection.family=DotGothic16
