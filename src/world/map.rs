@@ -106,8 +106,8 @@ pub fn image_to_tilemap(
     return LevelTileMap {
         tiles,
         min_x,
-        min_y,
         max_x,
+        min_y,
         max_y,
         entities,
     };

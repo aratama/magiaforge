@@ -56,7 +56,7 @@ pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
     // an extra empty row so the algorithm "finishes" the rects that touch the top edge
     plate_stack.push(Vec::new());
 
-    for (y, current_row) in plate_stack.into_iter().enumerate() {
+    for (plate_index, current_row) in plate_stack.into_iter().enumerate() {
         for prev_plate in &prev_row {
             if !current_row.contains(prev_plate) {
                 // remove the finished rect so that the same plate in the future starts a new rect
@@ -65,6 +65,9 @@ pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
                 }
             }
         }
+
+        let y = chunk.min_y + plate_index as i32;
+
         for plate in &current_row {
             rect_builder
                 .entry(plate.clone())

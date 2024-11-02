@@ -7,7 +7,6 @@ use super::controller::player::Player;
 use super::entity::actor::Actor;
 use super::states::GameState;
 use bevy::prelude::*;
-use git_version::git_version;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
 
@@ -58,6 +57,7 @@ fn setup_hud(mut commands: Commands) {
                     ..default()
                 },
                 background_color: Color::srgba(0., 0.7, 0., 0.9).into(),
+                z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
         ));
@@ -74,6 +74,7 @@ fn setup_hud(mut commands: Commands) {
                     ..default()
                 },
                 background_color: Color::srgba(0.7, 0., 0., 0.9).into(),
+                z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
         ));
@@ -91,6 +92,7 @@ fn setup_hud(mut commands: Commands) {
                 },
                 background_color: Color::srgba(0., 0., 0., 0.5).into(),
                 border_color: Color::WHITE.into(),
+                z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
         ));
@@ -106,6 +108,7 @@ fn setup_hud(mut commands: Commands) {
                     top: Val::Px(PLAYER_LIFE_BAR_TOP - 2.0),
                     ..default()
                 },
+                z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
             HUD,
@@ -145,31 +148,5 @@ impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_hud);
         app.add_systems(Update, update_hud.run_if(in_state(GameState::InGame)));
-
-        app.add_systems(Startup, |mut commands: Commands| {
-            commands.spawn((
-                Name::new("Git Version"),
-                TextBundle {
-                    text: Text::from_section(
-                        format!("Version: {}", git_version!()),
-                        TextStyle {
-                            color: Color::srgba(1.0, 1.0, 1.0, 0.3),
-                            font_size: 12.0,
-                            ..default()
-                        },
-                    ),
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        left: Val::Px(10.0),
-                        top: Val::Px(700.0),
-
-                        ..default()
-                    },
-
-                    ..default()
-                },
-                HUD,
-            ));
-        });
     }
 }

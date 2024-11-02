@@ -53,8 +53,8 @@ pub const BULLET_GROUP: Group = Group::GROUP_2;
 pub const PIXELS_PER_METER: f32 = 16.0;
 
 // UI階層
-pub const HUD_Z_INDEX: i32 = 10000;
+pub const OVERLAY_Z_INDEX: i32 = 10000;
+
+pub const HUD_Z_INDEX: i32 = 1000;
 
 pub const GAME_MENU_Z_INDEX: i32 = 500;
-
-pub const OVERLAY_Z_INDEX: i32 = 1000;

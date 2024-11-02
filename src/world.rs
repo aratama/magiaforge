@@ -213,7 +213,7 @@ fn respawn_world_tilemap(
                     let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
 
                     // 壁
-                    if chunk.get_tile(x as i32, y as i32 + 1) != Tile::Wall {
+                    if !chunk.equals(x as i32, y as i32 + 1, Tile::Wall) {
                         commands.spawn((
                             WorldTile,
                             Name::new("wall"),

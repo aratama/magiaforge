@@ -1,7 +1,7 @@
 use crate::audio::play_se;
 use crate::bgm::BGM;
 use crate::config::GameConfig;
-use crate::constant::GAME_MENU_Z_INDEX;
+use crate::constant::{GAME_MENU_Z_INDEX, HUD_Z_INDEX};
 use crate::hud::overlay::OverlayNextState;
 use crate::ui::button::button;
 use crate::ui::on_press::OnPress;
@@ -13,6 +13,7 @@ use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 use bevy_kira_audio::Audio;
+use git_version::git_version;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -146,6 +147,30 @@ fn setup_main_menu(
         AsepriteSliceUiBundle {
             slice: "all".into(),
             aseprite: assets.title.clone(),
+            ..default()
+        },
+    ));
+
+    commands.spawn((
+        StateScoped(GameState::MainMenu),
+        Name::new("Git Version"),
+        TextBundle {
+            text: Text::from_section(
+                format!("Version: {}", git_version!()),
+                TextStyle {
+                    color: Color::srgba(1.0, 1.0, 1.0, 0.3),
+                    font_size: 12.0,
+                    ..default()
+                },
+            ),
+            style: Style {
+                position_type: PositionType::Absolute,
+                left: Val::Px(10.0),
+                top: Val::Px(700.0),
+                ..default()
+            },
+            z_index: ZIndex::Global(HUD_Z_INDEX),
+
             ..default()
         },
     ));
