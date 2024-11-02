@@ -46,7 +46,6 @@ fn setup_hud(mut commands: Commands) {
     root.with_children(|parent| {
         parent.spawn((
             PlayerLifeBar,
-            StateScoped(GameState::InGame),
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
@@ -63,7 +62,6 @@ fn setup_hud(mut commands: Commands) {
         ));
         parent.spawn((
             PlayerDamageBar,
-            StateScoped(GameState::InGame),
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
@@ -78,28 +76,24 @@ fn setup_hud(mut commands: Commands) {
                 ..default()
             },
         ));
-        parent.spawn((
-            StateScoped(GameState::InGame),
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    top: Val::Px(PLAYER_LIFE_BAR_TOP),
-                    left: Val::Px(PLAYER_LIFE_BAR_LEFT),
-                    width: Val::Px(PLAYER_LIFE_BAR_WIDTH),
-                    height: Val::Px(PLAYER_LIFE_BAR_HEIGHT),
-                    border: UiRect::all(Val::Px(1.)),
-                    ..default()
-                },
-                background_color: Color::srgba(0., 0., 0., 0.5).into(),
-                border_color: Color::WHITE.into(),
-                z_index: ZIndex::Global(HUD_Z_INDEX),
+        parent.spawn((NodeBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(PLAYER_LIFE_BAR_TOP),
+                left: Val::Px(PLAYER_LIFE_BAR_LEFT),
+                width: Val::Px(PLAYER_LIFE_BAR_WIDTH),
+                height: Val::Px(PLAYER_LIFE_BAR_HEIGHT),
+                border: UiRect::all(Val::Px(1.)),
                 ..default()
             },
-        ));
+            background_color: Color::srgba(0., 0., 0., 0.5).into(),
+            border_color: Color::WHITE.into(),
+            z_index: ZIndex::Global(HUD_Z_INDEX),
+            ..default()
+        },));
         parent.spawn((
             PlayerLifeText,
             Name::new("hitpoint"),
-            StateScoped(GameState::InGame),
             TextBundle {
                 text: Text::from_section("", TextStyle::default()),
                 style: Style {

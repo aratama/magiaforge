@@ -1,7 +1,6 @@
 use super::hover_color::HoverColor;
 use super::on_press::OnPress;
 use crate::asset::GameAssets;
-use crate::states::GameState;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 
@@ -11,7 +10,6 @@ pub fn button<'a>(
     parent: &mut ChildBuilder,
     assets: &Res<GameAssets>,
     button_type: SystemId,
-    scope: GameState,
     text: impl Into<String>,
     x: f32,
     y: f32,
@@ -25,7 +23,6 @@ pub fn button<'a>(
         .spawn((
             HoverColor { hovered, none },
             OnPress(button_type),
-            StateScoped(scope),
             ButtonBundle {
                 style: Style {
                     position_type: PositionType::Absolute,

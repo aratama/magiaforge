@@ -101,7 +101,6 @@ fn setup_main_menu(
                 parent,
                 &assets,
                 shots.start,
-                GameState::MainMenu,
                 "Start Game",
                 30.0,
                 96.0,
@@ -113,24 +112,13 @@ fn setup_main_menu(
                 parent,
                 &assets,
                 shots.config,
-                GameState::MainMenu,
                 "Config",
                 30.0,
                 123.0,
                 84.0,
                 16.0,
             );
-            button(
-                parent,
-                &assets,
-                shots.exit,
-                GameState::MainMenu,
-                "Exit",
-                30.0,
-                142.0,
-                84.0,
-                16.0,
-            );
+            button(parent, &assets, shots.exit, "Exit", 30.0, 142.0, 84.0, 16.0);
         });
 
     commands.spawn((

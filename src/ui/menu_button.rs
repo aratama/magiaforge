@@ -1,7 +1,6 @@
 use super::hover_color::HoverColor;
 use super::on_press::OnPress;
 use crate::asset::GameAssets;
-use crate::states::GameState;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 
@@ -20,7 +19,6 @@ pub fn menu_button<'a>(
         .spawn((
             HoverColor { hovered, none },
             OnPress(button_type),
-            StateScoped(GameState::InGame),
             ButtonBundle {
                 style: Style {
                     width: Val::Px(w),

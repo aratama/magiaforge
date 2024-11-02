@@ -115,19 +115,16 @@ fn setup_game_menu(
         ))
         .with_children(|parent| {
             parent
-                .spawn((
-                    StateScoped(GameState::InGame),
-                    ButtonBundle {
-                        style: Style {
-                            width: Val::Percent(100.0),
-                            height: Val::Px(80.0),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            ..default()
-                        },
+                .spawn((ButtonBundle {
+                    style: Style {
+                        width: Val::Percent(100.0),
+                        height: Val::Px(80.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
-                ))
+                    ..default()
+                },))
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
                         "Menu".to_string(),
