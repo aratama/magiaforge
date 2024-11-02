@@ -90,7 +90,7 @@ impl Plugin for BGMPlugin {
         app.add_systems(
             OnEnter(GameState::InGame),
             |mut next: ResMut<BGM>, assets: Res<GameAssets>| {
-                *next = BGM(Some(assets.they.clone()));
+                *next = BGM(Some(assets.arechi.clone()));
             },
         );
 

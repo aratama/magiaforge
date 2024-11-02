@@ -60,4 +60,7 @@ pub struct GameAssets {
     // pub gods_realm: Handle<AudioSource>,
     #[asset(path = "bgm/茫漠たる庭.ogg")]
     pub boubaku: Handle<AudioSource>,
+
+    #[asset(path = "bgm/荒れ地の先へ.ogg")]
+    pub arechi: Handle<AudioSource>,
 }
