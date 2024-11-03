@@ -291,6 +291,18 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     ty - TILE_HALF,
                 );
             }
+            GameEntity::Usage => {
+                commands.spawn(AsepriteSliceBundle {
+                    aseprite: assets.asset.clone(),
+                    slice: "usage".into(),
+                    transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
+                    sprite: Sprite {
+                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
+                        ..default()
+                    },
+                    ..default()
+                });
+            }
         }
     }
 }

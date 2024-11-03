@@ -24,6 +24,7 @@ pub enum GameEntity {
     BookShelf,
     MagicCircle,
     BrokenMagicCircle,
+    Usage,
 }
 
 #[derive(Component)]

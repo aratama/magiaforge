@@ -1,6 +1,7 @@
 use crate::{entity::GameEntity, world::tile::Tile};
 use bevy::{
     a11y::accesskit::Vec2,
+    log::warn,
     prelude::{Image, Resource},
 };
 
@@ -109,8 +110,15 @@ pub fn image_to_tilemap(
                     entry_point = Vec2::new(x as f64, y as f64);
                     entities.push((GameEntity::BrokenMagicCircle, x, y));
                 }
+                (255, 0, 255, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                    });
+                    entities.push((GameEntity::Usage, x, y));
+                }
                 _ => {
                     tiles.push(LevelTileMapile { tile: Tile::Blank });
+                    warn!("Unknown color: ({}, {}, {}, {})", r, g, b, a);
                 }
             }
         }
