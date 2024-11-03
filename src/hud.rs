@@ -27,6 +27,9 @@ pub struct PlayerDamageBar;
 #[derive(Component)]
 pub struct PlayerLifeText;
 
+#[derive(Component)]
+pub struct PlayerGold;
+
 fn setup_hud(mut commands: Commands) {
     let mut root = commands.spawn((
         StateScoped(GameState::InGame),
@@ -107,6 +110,23 @@ fn setup_hud(mut commands: Commands) {
             },
             HUD,
         ));
+
+        parent.spawn((
+            PlayerGold,
+            Name::new("golds"),
+            TextBundle {
+                text: Text::from_section("", TextStyle::default()),
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(PLAYER_LIFE_BAR_LEFT + 8.0),
+                    top: Val::Px(PLAYER_LIFE_BAR_TOP + 24.0),
+                    ..default()
+                },
+                z_index: ZIndex::Global(HUD_Z_INDEX),
+                ..default()
+            },
+            HUD,
+        ));
     });
 
     #[cfg(feature = "debug")]
@@ -114,25 +134,29 @@ fn setup_hud(mut commands: Commands) {
 }
 
 fn update_hud(
-    player_query: Query<&Actor, (With<Player>, Without<Camera2d>)>,
+    player_query: Query<(&Player, &Actor), Without<Camera2d>>,
     mut player_life_bar_query: Query<&mut Style, With<PlayerLifeBar>>,
     mut player_damage_bar_query: Query<&mut Style, (With<PlayerDamageBar>, Without<PlayerLifeBar>)>,
     mut player_life_query: Query<&mut Text, With<PlayerLifeText>>,
+    mut player_gold_query: Query<&mut Text, (With<PlayerGold>, Without<PlayerLifeText>)>,
 ) {
-    if let Ok(player) = player_query.get_single() {
+    if let Ok((player, actor)) = player_query.get_single() {
         let mut player_life = player_life_query.single_mut();
         let mut player_life_bar = player_life_bar_query.single_mut();
         let mut player_damage_bar = player_damage_bar_query.single_mut();
+        let mut player_gold = player_gold_query.single_mut();
 
-        player_life.sections[0].value = format!("{} / {}", player.life, player.max_life);
+        player_life.sections[0].value = format!("{} / {}", actor.life, actor.max_life);
 
-        let life_bar_width = (player.life as f32 / player.max_life as f32) * PLAYER_LIFE_BAR_WIDTH;
+        let life_bar_width = (actor.life as f32 / actor.max_life as f32) * PLAYER_LIFE_BAR_WIDTH;
         let damage_bar_width =
-            (player.latest_damage as f32 / player.max_life as f32) * PLAYER_LIFE_BAR_WIDTH;
+            (actor.latest_damage as f32 / actor.max_life as f32) * PLAYER_LIFE_BAR_WIDTH;
 
         player_life_bar.width = Val::Px(life_bar_width);
         player_damage_bar.width = Val::Px(damage_bar_width);
         player_damage_bar.left = Val::Px(PLAYER_LIFE_BAR_LEFT + life_bar_width);
+
+        player_gold.sections[0].value = format!("{} GOLDS", player.golds);
     }
 }
 

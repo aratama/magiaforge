@@ -1,4 +1,5 @@
 use super::actor::Actor;
+use super::EntityDepth;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
@@ -27,6 +28,7 @@ pub fn spawn_slime(
                 latest_damage: 0,
                 pointer: Vec2::ZERO,
             },
+            EntityDepth,
             AsepriteAnimationBundle {
                 aseprite: aseprite,
                 transform: Transform::from_translation(position.extend(5.0)),
@@ -44,7 +46,7 @@ pub fn spawn_slime(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(ENEMY_GROUP, Group::ALL),
+            CollisionGroups::new(ACTOR_GROUP, Group::ALL),
         ))
         .with_children(|mut parent| {
             spawn_life_bar(&mut parent, &life_bar_locals);

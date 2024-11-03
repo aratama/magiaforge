@@ -42,11 +42,15 @@ pub const CAMERA_SPEED: f32 = 0.1;
 #[allow(dead_code)]
 pub const CRATE_NAME: &str = "magiaboost";
 
-pub const ENEMY_GROUP: Group = Group::GROUP_4;
+// 衝突グループ
 
-pub const WALL_GROUP: Group = Group::GROUP_1;
+pub const ENTITY_GROUP: Group = Group::GROUP_1;
 
-pub const BULLET_GROUP: Group = Group::GROUP_2;
+pub const ACTOR_GROUP: Group = Group::GROUP_2;
+
+pub const WALL_GROUP: Group = Group::GROUP_3;
+
+pub const BULLET_GROUP: Group = Group::GROUP_4;
 
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています

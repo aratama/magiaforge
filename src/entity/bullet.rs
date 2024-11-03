@@ -1,7 +1,9 @@
 use super::actor::Actor;
-use super::book_shelf::BookShelf;
+use super::breakable::Breakable;
+use super::EntityDepth;
 use crate::config::GameConfig;
-use crate::constant::{BULLET_GROUP, ENEMY_GROUP, WALL_GROUP};
+use crate::constant::{ACTOR_GROUP, BULLET_GROUP, WALL_GROUP};
+use crate::controller::remote::RemotePlayer;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
 use crate::{asset::GameAssets, audio::play_se};
@@ -69,6 +71,7 @@ pub fn spawn_bullet(
             impulse: BULLET_IMPULSE,
             owner,
         },
+        EntityDepth,
         AsepriteSliceBundle {
             aseprite,
             slice: SLICE_NAME.into(),
@@ -92,7 +95,7 @@ pub fn spawn_bullet(
             Sleeping::disabled(),
             Ccd::enabled(),
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ENEMY_GROUP),
+            CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ACTOR_GROUP),
         ),
         PointLight2d {
             radius: 50.0,
@@ -104,16 +107,9 @@ pub fn spawn_bullet(
     ));
 }
 
-fn update_bullet(
+fn despawn_bullet_by_lifetime(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    mut enemy_query: Query<(&mut Actor, &mut ExternalImpulse)>,
-    mut bookshelf_query: Query<&mut BookShelf>,
-    assets: Res<GameAssets>,
-    mut collision_events: EventReader<CollisionEvent>,
-    wall_collider_query: Query<Entity, With<WallCollider>>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
     for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
@@ -122,7 +118,23 @@ fn update_bullet(
             commands.entity(entity).despawn_recursive();
         }
     }
+}
 
+fn bullet_collision(
+    mut commands: Commands,
+    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
+    mut actor_query: Query<(&mut Actor, &mut ExternalImpulse), Without<RemotePlayer>>,
+    mut breakable_query: Query<&mut Breakable>,
+    assets: Res<GameAssets>,
+    mut collision_events: EventReader<CollisionEvent>,
+    wall_collider_query: Query<Entity, With<WallCollider>>,
+    audio: Res<Audio>,
+    config: Res<GameConfig>,
+) {
+    // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
+    // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
+    // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
+    // https://github.com/bevyengine/bevy/issues/5617
     let mut despownings: HashSet<Entity> = HashSet::new();
 
     for collision_event in collision_events.read() {
@@ -132,8 +144,8 @@ fn update_bullet(
                     &mut commands,
                     &assets,
                     &mut bullet_query,
-                    &mut enemy_query,
-                    &mut bookshelf_query,
+                    &mut actor_query,
+                    &mut breakable_query,
                     &mut despownings,
                     &a,
                     &b,
@@ -145,8 +157,8 @@ fn update_bullet(
                         &mut commands,
                         &assets,
                         &mut bullet_query,
-                        &mut enemy_query,
-                        &mut bookshelf_query,
+                        &mut actor_query,
+                        &mut breakable_query,
                         &mut despownings,
                         &b,
                         &a,
@@ -165,10 +177,8 @@ fn process_bullet_event(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-
-    // TODO プレイヤーキャラくらーにもダメージが入るようにする
-    actors: &mut Query<(&mut Actor, &mut ExternalImpulse)>,
-    bookshelf_query: &mut Query<&mut BookShelf>,
+    actors: &mut Query<(&mut Actor, &mut ExternalImpulse), Without<RemotePlayer>>,
+    breakabke_query: &mut Query<&mut Breakable>,
     respownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
@@ -179,10 +189,6 @@ fn process_bullet_event(
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
 
-        // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
-        // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
-        // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
-        // https://github.com/bevyengine/bevy/issues/5617
         if !respownings.contains(&bullet_entity) {
             respownings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
@@ -192,17 +198,14 @@ fn process_bullet_event(
                 // 弾丸がアクターに衝突したとき
                 // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
                 // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
+                // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     actor.life = (actor.life - bullet.damage).max(0);
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
                     play_se(&audio, config, assets.dageki.clone());
                 }
-            } else if let Ok(mut bookshelf) = bookshelf_query.get_mut(*b) {
-                // 弾丸が本棚に衝突したとき
-                // TODO: この調子で破壊可能オブジェクトを増やすと、システムの引数やifの分岐が増えてしまう
-                // Breakableコンポーネントにしてまとめる？
-                // でも破壊したときの効果が物体によって異なるのでまとめられない？
-                bookshelf.life -= bullet.damage;
+            } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
+                breakabke.life -= bullet.damage;
                 play_se(&audio, config, assets.dageki.clone());
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 play_se(&audio, config, assets.asphalt.clone());
@@ -262,7 +265,7 @@ impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            update_bullet.run_if(in_state(GameState::InGame)),
+            (despawn_bullet_by_lifetime, bullet_collision).run_if(in_state(GameState::InGame)),
         );
         app.register_type::<Bullet>();
     }

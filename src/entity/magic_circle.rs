@@ -14,7 +14,7 @@ const MIN_RADIUS_ON: f32 = 100.0;
 const MIN_INTENSITY_ON: f32 = 1.0;
 const MIN_FALLOFF_ON: f32 = 10.0;
 
-const MAX_INTENSITY_ON: f32 = 40.0;
+const MAX_INTENSITY_ON: f32 = 20.0;
 const MAX_RADIUS_ON: f32 = 60.0;
 const MAX_FALLOFF_ON: f32 = 40.0;
 
@@ -51,7 +51,7 @@ pub fn spawn_magic_circle(commands: &mut Commands, aseprite: Handle<Aseprite>, x
         },
         Collider::cuboid(TILE_HALF, TILE_HALF),
         Sensor,
-        CollisionGroups::new(WALL_GROUP, ENEMY_GROUP),
+        CollisionGroups::new(WALL_GROUP, ACTOR_GROUP),
         ActiveEvents::COLLISION_EVENTS,
     ));
 

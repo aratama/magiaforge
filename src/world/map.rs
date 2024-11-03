@@ -1,5 +1,8 @@
 use crate::{entity::GameEntity, world::tile::Tile};
-use bevy::prelude::{Image, Resource};
+use bevy::{
+    a11y::accesskit::Vec2,
+    prelude::{Image, Resource},
+};
 
 #[derive(Clone, Copy)]
 struct LevelTileMapile {
@@ -14,6 +17,7 @@ pub struct LevelTileMap {
     pub max_x: i32,
     pub max_y: i32,
     pub entities: Vec<(GameEntity, i32, i32)>,
+    pub entry_point: Vec2,
 }
 
 impl LevelTileMap {
@@ -62,6 +66,7 @@ pub fn image_to_tilemap(
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
+    let mut entry_point = Vec2::new(0.0, 0.0);
     for y in min_y..max_y {
         for x in min_x..max_x {
             let i = 4 * (y * texture_width as i32 + x) as usize;
@@ -97,6 +102,12 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::MagicCircle, x, y));
                 }
+                (255, 0, 0, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                    });
+                    entry_point = Vec2::new(x as f64, y as f64);
+                }
                 _ => {
                     tiles.push(LevelTileMapile { tile: Tile::Blank });
                 }
@@ -110,6 +121,7 @@ pub fn image_to_tilemap(
         min_y,
         max_y,
         entities,
+        entry_point,
     };
 }
 

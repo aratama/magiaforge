@@ -53,6 +53,9 @@ pub struct GameAssets {
     #[asset(path = "audio/ワープ.ogg")]
     pub warp: Handle<AudioSource>,
 
+    #[asset(path = "audio/キャンセル9.ogg")]
+    pub cancel: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 

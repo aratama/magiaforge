@@ -1,4 +1,6 @@
-use super::{map::LevelTileMap, BULLET_GROUP, ENEMY_GROUP, TILE_HALF, TILE_SIZE, WALL_GROUP};
+use super::{
+    map::LevelTileMap, ACTOR_GROUP, BULLET_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE, WALL_GROUP,
+};
 use crate::{states::GameState, world::Tile};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
@@ -117,7 +119,7 @@ pub fn respawn_wall_collisions(
                 coefficient: 0.0,
                 combine_rule: CoefficientCombineRule::Min,
             },
-            CollisionGroups::new(WALL_GROUP, ENEMY_GROUP | BULLET_GROUP),
+            CollisionGroups::new(WALL_GROUP, ENTITY_GROUP | ACTOR_GROUP | BULLET_GROUP),
         ));
     }
 

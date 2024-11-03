@@ -1,4 +1,5 @@
 use super::actor::Actor;
+use super::EntityDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
@@ -40,6 +41,7 @@ pub fn spawn_witch<T: Component>(
             pointer: Vec2::from_angle(angle),
         },
         controller,
+        EntityDepth,
         AsepriteAnimationBundle {
             aseprite: assets.player.clone(),
             transform: Transform::from_translation(position.extend(1.0)),
@@ -63,7 +65,10 @@ pub fn spawn_witch<T: Component>(
         },
         ExternalForce::default(),
         ExternalImpulse::default(),
-        CollisionGroups::new(ENEMY_GROUP, ENEMY_GROUP | WALL_GROUP | BULLET_GROUP),
+        CollisionGroups::new(
+            ACTOR_GROUP,
+            ENTITY_GROUP | ACTOR_GROUP | WALL_GROUP | BULLET_GROUP,
+        ),
     ));
 
     let index = entity.id();

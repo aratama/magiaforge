@@ -1,8 +1,11 @@
+use std::collections::HashSet;
+
 use super::player::Player;
 use crate::{
-    asset,
+    asset::GameAssets,
+    audio::play_se,
     config::GameConfig,
-    entity::{actor::Actor, bullet::spawn_bullet, witch::spawn_witch},
+    entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
     hud::life_bar::LifeBarResource,
     states::GameState,
     world::CurrentLevel,
@@ -19,6 +22,7 @@ use uuid::Uuid;
 #[derive(Component)]
 pub struct RemotePlayer {
     pub name: String,
+    pub golds: i32,
     pub last_update: FrameCount,
 }
 
@@ -32,6 +36,7 @@ pub enum RemoteMessage {
     Position {
         uuid: Uuid,
         name: String,
+        golds: i32,
         level: i32,
         x: f32,
         y: f32,
@@ -55,6 +60,9 @@ pub enum RemoteMessage {
         uuid: Uuid,
         damage: i32,
     },
+    Die {
+        uuid: Uuid,
+    },
 }
 
 fn send_player_states(
@@ -68,6 +76,10 @@ fn send_player_states(
     if config.online {
         if let Some(level) = current.0 {
             if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
+                if actor.life <= 0 {
+                    return;
+                }
+
                 if state.ready_state == ReadyState::OPEN {
                     let translate = transform.translation();
 
@@ -80,6 +92,7 @@ fn send_player_states(
                         let command = RemoteMessage::Position {
                             uuid: actor.uuid,
                             name: player.name.clone(),
+                            golds: player.golds,
                             level,
                             x: translate.x,
                             y: translate.y,
@@ -121,16 +134,27 @@ fn receive_events(
     mut commands: Commands,
     mut reader: EventReader<ServerMessage>,
     mut remotes: Query<
-        (&mut RemotePlayer, &mut Actor, &mut Transform, &mut Velocity),
+        (
+            Entity,
+            &mut RemotePlayer,
+            &mut Actor,
+            &mut Transform,
+            &mut Velocity,
+        ),
         With<RemotePlayer>,
     >,
-    assets: Res<asset::GameAssets>,
+    assets: Res<GameAssets>,
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
     audio: Res<Audio>,
     config: Res<GameConfig>,
     current: Res<CurrentLevel>,
 ) {
+    // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
+    // 1フレームに複数のメッセージが届くことがあるため、
+    // 1フレームに複数のキャラクターが生成されないようにセットで管理します
+    let mut spawned_players = HashSet::new();
+
     for message in reader.read() {
         match message {
             ServerMessage::String(text) => {
@@ -144,6 +168,7 @@ fn receive_events(
                     RemoteMessage::Position {
                         uuid,
                         name,
+                        golds,
                         level,
                         x,
                         y,
@@ -157,11 +182,17 @@ fn receive_events(
                             if current_level == level {
                                 let target = remotes
                                     .iter_mut()
-                                    .find(|(_, actor, _, _)| actor.uuid == uuid);
-                                if let Some((mut remote, mut actor, mut transform, mut velocity)) =
-                                    target
+                                    .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+                                if let Some((
+                                    _,
+                                    mut remote,
+                                    mut actor,
+                                    mut transform,
+                                    mut velocity,
+                                )) = target
                                 {
                                     remote.last_update = *frame_count;
+                                    remote.golds = golds;
                                     transform.translation.x = x;
                                     transform.translation.y = y;
                                     velocity.linvel.x = vx;
@@ -169,7 +200,8 @@ fn receive_events(
                                     actor.life = life;
                                     actor.max_life = max_life;
                                     actor.pointer = Vec2::from_angle(angle);
-                                } else {
+                                } else if !spawned_players.contains(&uuid) {
+                                    spawned_players.insert(uuid);
                                     spawn_witch(
                                         &mut commands,
                                         &assets,
@@ -182,10 +214,11 @@ fn receive_events(
                                         &life_bar_res,
                                         RemotePlayer {
                                             name,
+                                            golds,
                                             last_update: *frame_count,
                                         },
                                     );
-                                    info!("Remote player {} spawned", uuid);
+                                    info!("Remote player spawned: {}", uuid);
                                 }
                             }
                         }
@@ -216,11 +249,31 @@ fn receive_events(
                     RemoteMessage::Hit { uuid, damage } => {
                         let target = remotes
                             .iter_mut()
-                            .find(|(_, actor, _, _)| actor.uuid == uuid);
+                            .find(|(_, _, actor, _, _)| actor.uuid == uuid);
 
-                        if let Some((mut remote, mut actor, _, _)) = target {
+                        if let Some((_, mut remote, mut actor, _, _)) = target {
                             actor.life -= damage;
                             remote.last_update = *frame_count;
+                        }
+                    }
+                    RemoteMessage::Die { uuid } => {
+                        let target = remotes
+                            .iter_mut()
+                            .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+
+                        if let Some((entity, _, _, transform, _)) = target {
+                            play_se(&audio, &config, assets.hiyoko.clone());
+
+                            commands.entity(entity).despawn_recursive();
+
+                            for _ in 0..20 {
+                                spawn_gold(
+                                    &mut commands,
+                                    &assets,
+                                    transform.translation.x,
+                                    transform.translation.y,
+                                );
+                            }
                         }
                     }
                 }
@@ -248,25 +301,17 @@ pub struct RemotePlayerPlugin;
 
 impl Plugin for RemotePlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            send_player_states.before(PhysicsSet::SyncBackend),
-        );
-
         app.add_systems(OnEnter(GameState::InGame), on_enter);
 
         app.add_systems(OnExit(GameState::InGame), on_exit);
 
         app.add_systems(
             FixedUpdate,
-            receive_events
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
-
-        app.add_systems(
-            FixedUpdate,
-            despown_no_contact_remotes
+            (
+                send_player_states,
+                receive_events,
+                despown_no_contact_remotes,
+            )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

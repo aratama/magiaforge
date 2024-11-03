@@ -1,4 +1,5 @@
-use super::actor::get_entity_z;
+use super::breakable::Breakable;
+use super::EntityDepth;
 use crate::config::GameConfig;
 use crate::{asset::GameAssets, audio::play_se};
 use crate::{constant::*, states::GameState};
@@ -12,9 +13,7 @@ const ENTITY_WIDTH: f32 = 16.0;
 const ENTITY_HEIGHT: f32 = 8.0;
 
 #[derive(Default, Component, Reflect)]
-pub struct BookShelf {
-    pub life: i32,
-}
+pub struct Bookshelf;
 
 /// 指定した位置に本棚を生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
@@ -22,7 +21,9 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
     commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        BookShelf { life: 25 },
+        Breakable { life: 25 },
+        Bookshelf,
+        EntityDepth,
         AsepriteSliceBundle {
             slice: "book_shelf".into(),
             aseprite: aseprite,
@@ -35,24 +36,24 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
                 // anchor: bevy::sprite::Anchor::Center,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(x, y, get_entity_z(y))),
+            transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
             ..default()
         },
         RigidBody::Fixed,
         Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-        CollisionGroups::new(WALL_GROUP, ENEMY_GROUP | BULLET_GROUP),
+        CollisionGroups::new(WALL_GROUP, ENTITY_GROUP | ACTOR_GROUP | BULLET_GROUP),
     ));
 }
 
-fn update_book_shelf(
+fn break_book_shelf(
     mut commands: Commands,
-    query: Query<(Entity, &BookShelf)>,
+    query: Query<(Entity, &Breakable), With<Bookshelf>>,
     assets: Res<GameAssets>,
     audio: Res<Audio>,
     config: Res<GameConfig>,
 ) {
-    for (entity, book_shelf) in query.iter() {
-        if book_shelf.life <= 0 {
+    for (entity, breakabke) in query.iter() {
+        if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
             play_se(&audio, &config, assets.kuzureru.clone());
         }
@@ -66,8 +67,8 @@ impl Plugin for BookshelfPlugin {
         // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
         app.add_systems(
             FixedUpdate,
-            update_book_shelf.run_if(in_state(GameState::InGame)),
+            break_book_shelf.run_if(in_state(GameState::InGame)),
         );
-        app.register_type::<BookShelf>();
+        app.register_type::<Bookshelf>();
     }
 }

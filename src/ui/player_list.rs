@@ -19,7 +19,7 @@ struct PlayersLabel;
 struct SelfPlayerLabel;
 
 #[derive(Component)]
-struct RemotePlayerListItem(Entity);
+struct RemotePlayerListItem;
 
 fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
     commands
@@ -29,7 +29,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
                 style: Style {
                     position_type: PositionType::Absolute,
                     top: Val::Px(20.0),
-                    left: Val::Px(1180.0),
+                    left: Val::Px(1100.0),
                     flex_direction: FlexDirection::Column,
                     align_items: AlignItems::Start,
                     ..default()
@@ -54,7 +54,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
             parent.spawn((
                 PlayersLabel,
                 TextBundle::from_section(
-                    "Players (1)",
+                    "[ 1 Players ]",
                     TextStyle {
                         font: assets.dotgothic.clone(),
                         color: Color::WHITE,
@@ -62,20 +62,6 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
                         ..default()
                     },
                 ),
-            ));
-
-            parent.spawn((
-                SelfPlayerLabel,
-                TextBundle::from_section(
-                    "",
-                    TextStyle {
-                        font: assets.dotgothic.clone(),
-                        color: Color::hsl(120.0, 1.0, 0.5),
-                        font_size: 20.0,
-                        ..default()
-                    },
-                ),
-                Label,
             ));
 
             parent.spawn((
@@ -92,31 +78,44 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
         });
 }
 
+/// プレイヤーリストを更新
 fn update_player_list(
     mut commands: Commands,
+    player_query: Query<&Player>,
     remote_query: Query<(Entity, &RemotePlayer)>,
-    remote_player_items_query: Query<(Entity, &RemotePlayerListItem)>,
+    mut remote_player_items_query: Query<(Entity, &RemotePlayerListItem, &mut Text)>,
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
 ) {
-    // プレイヤーリストを更新
-    // ListItemが存在しないRemotePlayerを追加
-    let list = list_query.single_mut();
-    for (remote_entity, remote) in remote_query.iter() {
-        if remote_player_items_query
-            .iter()
-            .find(|(_, i)| i.0.index() == remote_entity.index())
-            .is_none()
-        {
-            commands.entity(list).with_children(|parent| {
+    let parent = list_query.single_mut();
+
+    let mut players = Vec::<(String, i32, Color)>::new();
+    if let Ok(player) = player_query.get_single() {
+        players.push((
+            player.name.clone(),
+            player.golds,
+            Color::hsl(120.0, 1.0, 0.5),
+        ));
+    }
+    for (_, remote_player) in remote_query.iter() {
+        players.push((
+            remote_player.name.clone(),
+            remote_player.golds,
+            Color::WHITE,
+        ));
+    }
+
+    players.sort_by(|a, b| b.1.cmp(&a.1));
+
+    // 必要な個数だけListItemを生成
+    let diff = players.len() as i32 - remote_player_items_query.iter().len() as i32;
+    if 0 < diff {
+        for _ in 0..diff {
+            commands.entity(parent).with_children(|parent| {
                 parent.spawn((
-                    RemotePlayerListItem(remote_entity),
+                    RemotePlayerListItem,
                     TextBundle::from_section(
-                        if remote.name.is_empty() {
-                            "(no name)".to_string()
-                        } else {
-                            remote.name.clone()
-                        },
+                        "(anonymous)".to_string(),
                         TextStyle {
                             font: assets.dotgothic.clone(),
                             color: Color::WHITE,
@@ -128,28 +127,26 @@ fn update_player_list(
                 ));
             });
         }
-    }
-
-    // RemotePlayerが存在しないListItemを削除
-    for (item_entity, item) in remote_player_items_query.iter() {
-        if remote_query.get(item.0).is_err() {
-            commands.entity(item_entity).despawn_recursive();
+    } else if diff < 0 {
+        for i in players.len()..remote_player_items_query.iter().len() {
+            if let Some((item_entity, _, _)) = remote_player_items_query.iter().nth(i) {
+                commands.entity(item_entity).despawn_recursive();
+            }
+        }
+    } else {
+        for (i, (name, golds, color)) in players.iter().enumerate() {
+            let (_, _, mut text) = remote_player_items_query.iter_mut().nth(i).unwrap();
+            text.sections[0].value = format_remote_player_name(&name, *golds);
+            text.sections[0].style.color = *color;
         }
     }
 }
 
-/// プレイヤーリストの自分の名前を更新
-fn update_self_label(
-    player_query: Query<&Player>,
-    mut self_player_query: Query<&mut Text, With<SelfPlayerLabel>>,
-) {
-    if let Ok(player) = player_query.get_single() {
-        let mut self_player_label = self_player_query.single_mut();
-        self_player_label.sections[0].value = if player.name.is_empty() {
-            "(no name)".to_string()
-        } else {
-            player.name.clone()
-        };
+fn format_remote_player_name(name: &str, golds: i32) -> String {
+    if name.is_empty() {
+        format!("(anonymous) ({})", golds).to_string()
+    } else {
+        format!("{} ({})", name, golds).to_string()
     }
 }
 
@@ -159,7 +156,7 @@ fn update_players(
 ) {
     // プレイヤー数を更新
     let mut players_label = players_label_query.single_mut();
-    players_label.sections[0].value = format!("Players ({})", 1 + remote_query.iter().count(),);
+    players_label.sections[0].value = format!("[ {} Players ]", 1 + remote_query.iter().count(),);
 }
 
 /// WebSocketの状態のラベルテキストを更新
@@ -192,9 +189,5 @@ impl Plugin for PlayerListPlugin {
             update_ready_state_label.run_if(in_state(GameState::InGame)),
         );
         app.add_systems(Update, update_players.run_if(in_state(GameState::InGame)));
-        app.add_systems(
-            Update,
-            update_self_label.run_if(in_state(GameState::InGame)),
-        );
     }
 }

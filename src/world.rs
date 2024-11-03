@@ -6,14 +6,12 @@ pub mod wall;
 use super::asset::GameAssets;
 use super::constant::*;
 use super::controller::player::Player;
-use super::entity::actor::Actor;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
 use super::entity::slime::spawn_slime;
 use super::entity::witch::spawn_witch;
 use super::entity::GameEntity;
 use super::hud::life_bar::LifeBarResource;
-use super::hud::overlay::OverlayNextState;
 use super::states::GameState;
 use super::world::ceil::spawn_roof_tiles;
 use super::world::map::image_to_tilemap;
@@ -25,7 +23,6 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_rapier2d::plugin::PhysicsSet;
 use map::image_to_empty_tiles;
 use uuid::Uuid;
 use wall::respawn_wall_collisions;
@@ -112,13 +109,8 @@ fn spawn_level(
     respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
     spawn_entities(&mut commands, &assets, &chunk);
 
-    let player_position = random_select(&mut empties);
-    let mut player_x = TILE_SIZE * player_position.0 as f32;
-    let mut player_y = -TILE_SIZE * player_position.1 as f32;
-
-    // デバッグ用
-    player_x = TILE_SIZE * (chunk.min_x as f32 + 9.0);
-    player_y = -TILE_SIZE * (chunk.min_y as f32 + 11.0);
+    let player_x = TILE_SIZE * chunk.entry_point.x as f32;
+    let player_y = -TILE_SIZE * chunk.entry_point.y as f32;
 
     if let Ok(mut camera) = camera.get_single_mut() {
         camera.translation.x = player_x;
@@ -143,6 +135,7 @@ fn spawn_level(
         &life_bar_res,
         Player {
             name: config.player_name.clone(),
+            golds: 10,
             last_idle_frame_count: *frame_count,
             last_ilde_x: player_x,
             last_ilde_y: player_y,
@@ -292,29 +285,11 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
     }
 }
 
-fn update_world(
-    player_query: Query<&Actor, With<Player>>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
-) {
-    let player = player_query.get_single();
-    if player.is_ok_and(|p| p.life == 0) {
-        *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
-    }
-}
-
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_world);
-
-        app.add_systems(
-            FixedUpdate,
-            update_world
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
-
         app.init_resource::<CurrentLevel>();
         app.init_resource::<NextLevel>();
     }
