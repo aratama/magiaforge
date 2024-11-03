@@ -1,7 +1,7 @@
 use crate::{entity::GameEntity, world::tile::Tile};
 use bevy::{
     a11y::accesskit::Vec2,
-    log::warn,
+    log::*,
     prelude::{Image, Resource},
 };
 
@@ -115,6 +115,13 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                     });
                     entities.push((GameEntity::Usage, x, y));
+                }
+                (223, 113, 38, 255) => {
+                    info!("StoneLantern: ({}, {})", x, y);
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                    });
+                    entities.push((GameEntity::StoneLantern, x, y));
                 }
                 _ => {
                     tiles.push(LevelTileMapile { tile: Tile::Blank });

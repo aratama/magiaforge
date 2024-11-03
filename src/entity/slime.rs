@@ -27,6 +27,7 @@ pub fn spawn_slime(
                 max_life: 20,
                 latest_damage: 0,
                 pointer: Vec2::ZERO,
+                intensity: 0.0,
             },
             EntityDepth,
             AsepriteAnimationBundle {

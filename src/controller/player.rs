@@ -63,6 +63,17 @@ fn move_player(
     }
 }
 
+fn switch_intensity(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
+) {
+    if keys.just_pressed(KeyCode::KeyQ) {
+        if let Ok(mut actor) = player_query.get_single_mut() {
+            actor.intensity = if actor.intensity == 0.0 { 3.0 } else { 0.0 };
+        }
+    }
+}
+
 /// 魔法の発射
 fn fire_bullet(
     mut player_query: Query<(&mut Actor, &mut Transform), (With<Player>, Without<Camera2d>)>,
@@ -224,7 +235,13 @@ impl Plugin for PlayerPlugin {
             // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
             // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
-            (move_player, fire_bullet, pick_gold, die_player)
+            (
+                move_player,
+                fire_bullet,
+                pick_gold,
+                die_player,
+                switch_intensity,
+            )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

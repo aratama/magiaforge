@@ -20,6 +20,7 @@ use super::world::tile::*;
 use crate::config::GameConfig;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::magic_circle::spawn_magic_circle;
+use crate::entity::stone_lantern::spawn_stone_lantern;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -146,6 +147,7 @@ fn spawn_level(
             last_idle_max_life: max_life,
         },
         false,
+        3.0,
     );
 
     for _ in 0..10 {
@@ -290,6 +292,9 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     tx + TILE_HALF,
                     ty - TILE_HALF,
                 );
+            }
+            GameEntity::StoneLantern => {
+                spawn_stone_lantern(&mut commands, &assets, tx + TILE_HALF, ty - TILE_HALF);
             }
             GameEntity::Usage => {
                 commands.spawn(AsepriteSliceBundle {

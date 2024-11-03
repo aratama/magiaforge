@@ -12,6 +12,7 @@ use crate::entity::bullet::BulletPlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
+use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
@@ -169,6 +170,7 @@ pub fn run_game() {
         .add_plugins(WarpPagePlugin)
         .add_plugins(GoldPlugin)
         .add_plugins(EntityPlugin)
+        .add_plugins(StoneLanternPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
