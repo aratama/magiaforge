@@ -217,6 +217,7 @@ fn receive_events(
                                             golds,
                                             last_update: *frame_count,
                                         },
+                                        true,
                                     );
                                     info!("Remote player spawned: {}", uuid);
                                 }

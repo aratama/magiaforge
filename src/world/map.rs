@@ -107,6 +107,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                     });
                     entry_point = Vec2::new(x as f64, y as f64);
+                    entities.push((GameEntity::BrokenMagicCircle, x, y));
                 }
                 _ => {
                     tiles.push(LevelTileMapile { tile: Tile::Blank });

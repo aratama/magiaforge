@@ -51,7 +51,7 @@ fn break_chest(
             commands.entity(entity).despawn_recursive();
             play_se(&audio, &config, assets.kuzureru.clone());
 
-            for _ in 0..(1 + random::<i32>() % 10) {
+            for _ in 0..(3 + random::<i32>().abs() % 10) {
                 spawn_gold(
                     &mut commands,
                     &assets,

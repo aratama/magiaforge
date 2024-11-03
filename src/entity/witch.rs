@@ -28,6 +28,7 @@ pub fn spawn_witch<T: Component>(
     max_life: i32,
     res: &Res<LifeBarResource>,
     controller: T,
+    life_bar: bool,
 ) {
     let mut entity = commands.spawn((
         Name::new("witch"),
@@ -96,10 +97,9 @@ pub fn spawn_witch<T: Component>(
             });
         }
 
-        // リモートプレイヤーのライフバー
-        // spawn_actor_life_bar(spawn_children, &mut meshes, &mut materials);
-
-        spawn_life_bar(spawn_children, &res);
+        if life_bar {
+            spawn_life_bar(spawn_children, &res);
+        }
     });
 
     // SpriteBundle に PointLight2d を追加すると、画面外に出た時に Sprite が描画されなくなり、

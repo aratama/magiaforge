@@ -16,9 +16,6 @@ struct PlayerList;
 struct PlayersLabel;
 
 #[derive(Component)]
-struct SelfPlayerLabel;
-
-#[derive(Component)]
 struct RemotePlayerListItem;
 
 fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {

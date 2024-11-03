@@ -1,6 +1,7 @@
 pub mod actor;
 pub mod book_shelf;
 pub mod breakable;
+pub mod broken_magic_circle;
 pub mod bullet;
 pub mod chest;
 pub mod gold;
@@ -22,6 +23,7 @@ pub enum GameEntity {
     Chest,
     BookShelf,
     MagicCircle,
+    BrokenMagicCircle,
 }
 
 #[derive(Component)]
