@@ -20,6 +20,14 @@ pub struct Actor {
     pub pointer: Vec2,
 
     pub intensity: f32,
+
+    pub state: ActorState,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum ActorState {
+    Idle,
+    Run,
 }
 
 fn update_actor_z(mut query: Query<(&Actor, &mut Sprite)>) {

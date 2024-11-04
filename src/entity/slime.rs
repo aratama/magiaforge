@@ -1,4 +1,4 @@
-use super::actor::Actor;
+use super::actor::{Actor, ActorState};
 use super::EntityDepth;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
@@ -28,6 +28,7 @@ pub fn spawn_slime(
                 latest_damage: 0,
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
+                state: ActorState::Idle,
             },
             EntityDepth,
             AsepriteAnimationBundle {

@@ -1,7 +1,7 @@
 use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
-use crate::entity::actor::Actor;
+use crate::entity::actor::{Actor, ActorState};
 use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
@@ -45,18 +45,24 @@ pub struct Player {
 /// プレイヤーの移動
 fn move_player(
     keys: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<&mut ExternalForce, (With<Player>, Without<Camera2d>)>,
+    mut player_query: Query<(&mut Actor, &mut ExternalForce), (With<Player>, Without<Camera2d>)>,
     my_gamepad: Option<Res<MyGamepad>>,
     axes: Res<Axis<GamepadAxis>>,
     menu: Res<State<GameMenuState>>,
 ) {
     let force = 50000.0;
     let direction = get_direction(keys, axes, &my_gamepad);
-    if let Ok(mut player_force) = player_query.get_single_mut() {
+    if let Ok((mut actor, mut player_force)) = player_query.get_single_mut() {
         if *menu == GameMenuState::Closed {
             player_force.force = direction * force;
+            actor.state = if 0.0 < player_force.force.length() {
+                ActorState::Run
+            } else {
+                ActorState::Idle
+            };
         } else {
             player_force.force = Vec2::ZERO;
+            actor.state = ActorState::Idle;
         }
     }
 }

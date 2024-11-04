@@ -1,4 +1,4 @@
-use super::actor::Actor;
+use super::actor::{Actor, ActorState};
 use super::EntityDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
@@ -10,6 +10,9 @@ use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
+
+#[derive(Default, Component, Reflect)]
+pub struct Wand;
 
 pub fn spawn_witch<T: Component>(
     commands: &mut Commands,
@@ -36,13 +39,14 @@ pub fn spawn_witch<T: Component>(
             latest_damage: 0,
             pointer: Vec2::from_angle(angle),
             intensity,
+            state: super::actor::ActorState::Idle,
         },
         controller,
         EntityDepth,
         AsepriteAnimationBundle {
             aseprite: assets.player.clone(),
             transform: Transform::from_translation(position.extend(1.0)),
-            animation: Animation::default().with_tag("idle").with_speed(0.2),
+            animation: Animation::default().with_tag("idle"),
             sprite: Sprite {
                 // flip_x: true,
                 // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
@@ -51,24 +55,35 @@ pub fn spawn_witch<T: Component>(
             },
             ..default()
         },
-        RigidBody::Dynamic,
-        Velocity::default(),
-        Collider::ball(WITCH_COLLIDER_RADIUS),
-        GravityScale(0.0),
-        LockedAxes::ROTATION_LOCKED,
-        Damping {
-            linear_damping: 6.0,
-            angular_damping: 1.0,
-        },
-        ExternalForce::default(),
-        ExternalImpulse::default(),
-        CollisionGroups::new(
-            ACTOR_GROUP,
-            ENTITY_GROUP | ACTOR_GROUP | WALL_GROUP | BULLET_GROUP,
+        (
+            RigidBody::Dynamic,
+            Velocity::default(),
+            Collider::ball(WITCH_COLLIDER_RADIUS),
+            GravityScale(0.0),
+            LockedAxes::ROTATION_LOCKED,
+            Damping {
+                linear_damping: 6.0,
+                angular_damping: 1.0,
+            },
+            ExternalForce::default(),
+            ExternalImpulse::default(),
+            CollisionGroups::new(
+                ACTOR_GROUP,
+                ENTITY_GROUP | ACTOR_GROUP | WALL_GROUP | BULLET_GROUP,
+            ),
         ),
     ));
 
     entity.with_children(move |spawn_children| {
+        spawn_children.spawn((
+            Wand,
+            AsepriteSliceBundle {
+                aseprite: assets.asset.clone(),
+                slice: "wand".into(),
+                ..default()
+            },
+        ));
+
         // リモートプレイヤーの名前
         // 自分のプレイヤーキャラクターは名前を表示しません
         if let Some(name) = name {
@@ -97,8 +112,46 @@ pub fn spawn_witch<T: Component>(
     });
 }
 
+fn update_animation(mut query: Query<(&Actor, &mut Animation)>) {
+    for (actor, mut animation) in query.iter_mut() {
+        match actor.state {
+            ActorState::Idle => {
+                if animation.tag != Some("idle".to_string()) {
+                    // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
+                    // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
+                    animation.play("idle", AnimationRepeat::Loop);
+                }
+            }
+            ActorState::Run => {
+                if animation.tag != Some("run".to_string()) {
+                    animation.play("run", AnimationRepeat::Loop);
+                }
+            }
+        }
+    }
+}
+
+fn update_wand(
+    actor_query: Query<&Actor>,
+    mut query: Query<(&Parent, &mut Transform), With<Wand>>,
+) {
+    for (parent, mut transform) in query.iter_mut() {
+        if let Ok(actor) = actor_query.get(parent.get()) {
+            let direction = actor.pointer;
+            let angle = direction.to_angle();
+            transform.rotation = Quat::from_rotation_z(angle);
+            transform.translation = Vec3::new(0.0, 6.0, -0.01);
+        }
+    }
+}
+
 pub struct WitchPlugin;
 
 impl Plugin for WitchPlugin {
-    fn build(&self, _app: &mut App) {}
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (update_animation, update_wand).run_if(in_state(GameState::InGame)),
+        );
+    }
 }

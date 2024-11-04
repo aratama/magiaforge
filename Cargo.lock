@@ -1385,7 +1385,7 @@ dependencies = [
 
 [[package]]
 name = "bevy_simple_websocket"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "bevy",
  "bevy-tokio-tasks",
