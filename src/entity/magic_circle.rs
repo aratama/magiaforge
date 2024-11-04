@@ -1,10 +1,9 @@
 use crate::{
-    asset::GameAssets, audio::play_se, config::GameConfig, constant::*, controller::player::Player,
-    hud::overlay::OverlayNextState, states::GameState, world::NextLevel,
+    constant::*, controller::player::Player, command::GameCommand, states::GameState,
+    world::NextLevel,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_kira_audio::Audio;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor};
 
@@ -78,9 +77,7 @@ fn power_on_circle(
     player_query: Query<&Player>,
     mut circle_query: Query<&mut MagicCircle>,
     mut events: EventReader<CollisionEvent>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
-    assets: Res<GameAssets>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for event in events.read() {
         match event {
@@ -88,7 +85,7 @@ fn power_on_circle(
                 if process_collision_start_event(a, b, &player_query, &mut circle_query)
                     || process_collision_start_event(b, a, &player_query, &mut circle_query)
                 {
-                    play_se(&audio, &config, assets.menu_open.clone());
+                    writer.send(GameCommand::SEMenuOpen);
                 }
             }
             CollisionEvent::Stopped(a, b, _) => {
@@ -103,11 +100,8 @@ fn warp(
     mut commands: Commands,
     mut player_query: Query<Entity, With<Player>>,
     mut circle_query: Query<&mut MagicCircle>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
-    assets: Res<GameAssets>,
     mut next: ResMut<NextLevel>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for mut circle in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
@@ -118,7 +112,7 @@ fn warp(
             }
         } else if circle.step == MAX_POWER {
             if let Ok(entity) = player_query.get_single_mut() {
-                play_se(&audio, &config, assets.warp.clone());
+                writer.send(GameCommand::SEWarp);
                 commands.entity(entity).despawn_recursive();
 
                 next.0 = match &next.0 {
@@ -130,7 +124,7 @@ fn warp(
             }
             circle.step += 1;
         } else if circle.step == MAX_POWER + 120 {
-            *overlay_next_state = OverlayNextState(Some(GameState::Warp));
+            writer.send(GameCommand::StateWarp);
         } else {
             circle.step += 1;
         }

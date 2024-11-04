@@ -1,15 +1,13 @@
 use super::actor::Actor;
 use super::breakable::Breakable;
 use super::EntityDepth;
-use crate::config::GameConfig;
+use crate::command::GameCommand;
 use crate::constant::{ACTOR_GROUP, BULLET_GROUP, WALL_GROUP};
 use crate::controller::remote::RemotePlayer;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
-use crate::{asset::GameAssets, audio::play_se};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
-use bevy_kira_audio::Audio;
 use bevy_light_2d::light::PointLight2d;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
@@ -56,11 +54,9 @@ pub fn spawn_bullet(
     position: Vec2,
     velocity: Vec2,
     owner: Option<Uuid>,
-    assets: &Res<GameAssets>,
-    audio: &Res<Audio>,
-    config: &Res<GameConfig>,
+    writer: &mut EventWriter<GameCommand>,
 ) {
-    play_se(audio, config, assets.suburi.clone());
+    writer.send(GameCommand::SESuburi);
 
     commands.spawn((
         Name::new("bullet"),
@@ -125,11 +121,9 @@ fn bullet_collision(
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut actor_query: Query<(&mut Actor, &mut ExternalImpulse), Without<RemotePlayer>>,
     mut breakable_query: Query<&mut Breakable>,
-    assets: Res<GameAssets>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
     // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
@@ -142,7 +136,6 @@ fn bullet_collision(
             CollisionEvent::Started(a, b, _) => {
                 if !process_bullet_event(
                     &mut commands,
-                    &assets,
                     &mut bullet_query,
                     &mut actor_query,
                     &mut breakable_query,
@@ -150,12 +143,10 @@ fn bullet_collision(
                     &a,
                     &b,
                     &wall_collider_query,
-                    &audio,
-                    &config,
+                    &mut writer,
                 ) {
                     process_bullet_event(
                         &mut commands,
-                        &assets,
                         &mut bullet_query,
                         &mut actor_query,
                         &mut breakable_query,
@@ -163,8 +154,7 @@ fn bullet_collision(
                         &b,
                         &a,
                         &wall_collider_query,
-                        &audio,
-                        &config,
+                        &mut writer,
                     );
                 }
             }
@@ -175,7 +165,6 @@ fn bullet_collision(
 
 fn process_bullet_event(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     actors: &mut Query<(&mut Actor, &mut ExternalImpulse), Without<RemotePlayer>>,
     breakabke_query: &mut Query<&mut Breakable>,
@@ -183,8 +172,7 @@ fn process_bullet_event(
     a: &Entity,
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
-    audio: &Res<Audio>,
-    config: &Res<GameConfig>,
+    writer: &mut EventWriter<GameCommand>,
 ) -> bool {
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
@@ -202,15 +190,15 @@ fn process_bullet_event(
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     actor.life = (actor.life - bullet.damage).max(0);
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
-                    play_se(&audio, config, assets.dageki.clone());
+                    writer.send(GameCommand::SEDageki);
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
                 breakabke.life -= bullet.damage;
-                play_se(&audio, config, assets.dageki.clone());
+                writer.send(GameCommand::SEDageki);
             } else if let Ok(_) = wall_collider_query.get(*b) {
-                play_se(&audio, config, assets.asphalt.clone());
+                writer.send(GameCommand::SEAsphalt);
             } else {
-                play_se(&audio, config, assets.shibafu.clone());
+                writer.send(GameCommand::SEShibafu);
             }
             true
         } else {

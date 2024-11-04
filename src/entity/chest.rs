@@ -1,10 +1,7 @@
 use super::{breakable::Breakable, gold::spawn_gold, EntityDepth};
-use crate::{
-    asset::GameAssets, audio::play_se, config::GameConfig, constant::*, states::GameState,
-};
+use crate::{asset::GameAssets, constant::*, command::GameCommand, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 use rand::random;
 
@@ -43,13 +40,12 @@ fn break_chest(
     mut commands: Commands,
     query: Query<(Entity, &Breakable, &Transform), With<Chest>>,
     assets: Res<GameAssets>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            play_se(&audio, &config, assets.kuzureru.clone());
+            writer.send(GameCommand::SEKuzureru);
 
             for _ in 0..(3 + random::<i32>().abs() % 10) {
                 spawn_gold(

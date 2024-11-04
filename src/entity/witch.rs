@@ -100,5 +100,5 @@ pub fn spawn_witch<T: Component>(
 pub struct WitchPlugin;
 
 impl Plugin for WitchPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, _app: &mut App) {}
 }

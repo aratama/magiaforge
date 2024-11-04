@@ -1,15 +1,15 @@
-use crate::{hud::overlay::OverlayNextState, states::GameState};
+use crate::{command::GameCommand, states::GameState};
 use bevy::prelude::*;
 
 fn on_enter_warp(mut step: Local<i32>) {
     *step = 0;
 }
 
-fn update_warp(mut overlay_next_state: ResMut<OverlayNextState>, mut step: Local<i32>) {
+fn update_warp(mut step: Local<i32>, mut writer: EventWriter<GameCommand>) {
     *step += 1;
     if 60 <= *step {
         *step = 0;
-        *overlay_next_state = OverlayNextState(Some(GameState::InGame));
+        writer.send(GameCommand::StateInGame);
     }
 }
 

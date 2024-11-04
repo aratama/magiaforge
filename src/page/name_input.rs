@@ -1,7 +1,5 @@
-use crate::audio::play_se;
-use crate::bgm::BGM;
 use crate::config::GameConfig;
-use crate::hud::overlay::OverlayNextState;
+use crate::command::GameCommand;
 use crate::ui::menu_button::menu_button;
 use crate::{
     asset::GameAssets,
@@ -9,7 +7,6 @@ use crate::{
 };
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
 use bevy_simple_text_input::{TextInputBundle, TextInputSettings, TextInputValue};
 
 const BORDER_COLOR_ACTIVE: Color = Color::srgb(0.75, 0.52, 0.99);
@@ -30,23 +27,19 @@ impl FromWorld for ButtonShots {
 }
 
 fn start_game(
-    assets: Res<GameAssets>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
-    mut next_bgm: ResMut<BGM>,
-    audio: Res<Audio>,
     mut config: ResMut<GameConfig>,
-
     query: Query<&TextInputValue>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     menu_next_state.set(MainMenuPhase::Paused);
-    *overlay_next_state = OverlayNextState(Some(GameState::InGame));
-    *next_bgm = BGM(None);
+    writer.send(GameCommand::StateInGame);
+    writer.send(GameCommand::BGMNone);
 
     let q = query.single();
     config.player_name = q.0.clone();
 
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
 fn setup(

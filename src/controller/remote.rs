@@ -3,15 +3,14 @@ use std::collections::HashSet;
 use super::player::Player;
 use crate::{
     asset::GameAssets,
-    audio::play_se,
     config::GameConfig,
     entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
+    command::GameCommand,
     hud::life_bar::LifeBarResource,
     states::GameState,
     world::CurrentLevel,
 };
 use bevy::{core::FrameCount, prelude::*};
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
@@ -148,9 +147,8 @@ fn receive_events(
     assets: Res<GameAssets>,
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
     current: Res<CurrentLevel>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -245,9 +243,7 @@ fn receive_events(
                                     Vec2::new(x, y),
                                     Vec2::new(vx, vy),
                                     Some(uuid),
-                                    &assets,
-                                    &audio,
-                                    &config,
+                                    &mut writer,
                                 );
                             }
                         }
@@ -268,7 +264,7 @@ fn receive_events(
                             .find(|(_, _, actor, _, _)| actor.uuid == uuid);
 
                         if let Some((entity, _, _, transform, _)) = target {
-                            play_se(&audio, &config, assets.hiyoko.clone());
+                            writer.send(GameCommand::SEHiyoko);
 
                             commands.entity(entity).despawn_recursive();
 

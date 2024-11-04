@@ -1,7 +1,6 @@
-use crate::audio::play_se;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
-use crate::hud::overlay::OverlayNextState;
+use crate::command::GameCommand;
 use crate::input::MyGamepad;
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
@@ -9,7 +8,6 @@ use crate::ui::range::spawn_range;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -37,44 +35,34 @@ impl FromWorld for ButtonShots {
     }
 }
 
-fn close(
-    mut state: ResMut<NextState<GameMenuState>>,
-    assets: Res<GameAssets>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
-) {
+fn close(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<GameCommand>) {
     state.set(GameMenuState::Close);
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
-fn exit(
-    mut overlay_next_state: ResMut<OverlayNextState>,
-    assets: Res<GameAssets>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
-) {
-    *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
-    play_se(&audio, &config, assets.kettei.clone());
+fn exit(mut writer: EventWriter<GameCommand>) {
+    writer.send(GameCommand::StateMainMenu);
+    writer.send(GameCommand::SEKettei);
 }
 
-fn volume_up(mut config: ResMut<GameConfig>, assets: Res<GameAssets>, audio: Res<Audio>) {
+fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.bgm_volume = (config.bgm_volume + 0.1).min(1.0);
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
-fn volume_down(mut config: ResMut<GameConfig>, assets: Res<GameAssets>, audio: Res<Audio>) {
+fn volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.bgm_volume = (config.bgm_volume - 0.1).max(0.0);
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
-fn se_volume_up(mut config: ResMut<GameConfig>, assets: Res<GameAssets>, audio: Res<Audio>) {
+fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume + 0.1).min(1.0);
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
-fn se_volume_down(mut config: ResMut<GameConfig>, assets: Res<GameAssets>, audio: Res<Audio>) {
+fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume - 0.1).max(0.0);
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
 fn setup_game_menu(

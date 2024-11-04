@@ -1,8 +1,6 @@
-use crate::audio::play_se;
-use crate::bgm::BGM;
 use crate::config::GameConfig;
 use crate::constant::{GAME_MENU_Z_INDEX, HUD_Z_INDEX};
-use crate::hud::overlay::OverlayNextState;
+use crate::command::GameCommand;
 use crate::ui::button::button;
 use crate::ui::on_press::OnPress;
 use crate::{
@@ -12,7 +10,6 @@ use crate::{
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
-use bevy_kira_audio::Audio;
 use git_version::git_version;
 
 #[derive(Resource)]
@@ -33,13 +30,10 @@ impl FromWorld for ButtonShots {
 }
 
 fn start_game(
-    assets: Res<GameAssets>,
     mut query: Query<&mut Visibility, With<OnPress>>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
-    mut next_bgm: ResMut<BGM>,
-    audio: Res<Audio>,
     config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for mut visibility in &mut query {
         *visibility = Visibility::Hidden;
@@ -47,23 +41,18 @@ fn start_game(
     menu_next_state.set(MainMenuPhase::Paused);
 
     if config.player_name.is_empty() {
-        *overlay_next_state = OverlayNextState(Some(GameState::NameInput));
+        writer.send(GameCommand::StateNameInput);
     } else {
-        *overlay_next_state = OverlayNextState(Some(GameState::InGame));
-        *next_bgm = BGM(None);
+        writer.send(GameCommand::StateInGame);
+        writer.send(GameCommand::BGMNone);
     }
 
-    play_se(&audio, &config, assets.kettei.clone());
+    writer.send(GameCommand::SEKettei);
 }
 
-fn config_game(
-    mut overlay_next_state: ResMut<OverlayNextState>,
-    assets: Res<GameAssets>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
-) {
-    *overlay_next_state = OverlayNextState(Some(GameState::Config));
-    play_se(&audio, &config, assets.kettei.clone());
+fn config_game(mut writer: EventWriter<GameCommand>) {
+    writer.send(GameCommand::StateConfig);
+    writer.send(GameCommand::SEKettei);
 }
 
 fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {
@@ -77,7 +66,10 @@ fn setup_main_menu(
     assets: Res<GameAssets>,
     mut camera_query: Query<&mut Transform, With<Camera>>,
     shots: Res<ButtonShots>,
+    mut writer: EventWriter<GameCommand>,
 ) {
+    writer.send(GameCommand::BGMBoubaku);
+
     let mut camera = camera_query.single_mut();
     camera.translation.x = 0.0;
     camera.translation.y = 0.0;

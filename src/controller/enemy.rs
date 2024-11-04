@@ -1,11 +1,10 @@
 use super::player::Player;
-use crate::config::GameConfig;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::gold::spawn_gold;
-use crate::{asset::GameAssets, audio::play_se, set::GameSet, states::GameState};
+use crate::command::GameCommand;
+use crate::{asset::GameAssets, set::GameSet, states::GameState};
 use bevy::prelude::*;
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 use rand::random;
 
@@ -44,13 +43,12 @@ fn dead_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut query: Query<(Entity, &Actor, &Transform), With<Enemy>>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for (entity, enemy, transform) in query.iter_mut() {
         if enemy.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            play_se(&audio, &config, assets.hiyoko.clone());
+            writer.send(GameCommand::SEHiyoko);
 
             for _ in 0..(1 + random::<u32>() % 3) {
                 spawn_gold(
@@ -66,36 +64,19 @@ fn dead_enemy(
 
 /// プレイヤーキャラクターと接触したらダメージを与えます
 fn attack(
-    assets: Res<GameAssets>,
     enemy_query: Query<&mut Transform, (With<Enemy>, Without<Camera2d>)>,
     mut player_query: Query<
         (&mut Actor, &GlobalTransform, &mut ExternalImpulse),
         (With<Player>, Without<Enemy>),
     >,
     mut collision_events: EventReader<CollisionEvent>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
-                let _ = process_attack_event(
-                    &enemy_query,
-                    &mut player_query,
-                    &assets,
-                    &audio,
-                    &config,
-                    a,
-                    b,
-                ) || process_attack_event(
-                    &enemy_query,
-                    &mut player_query,
-                    &assets,
-                    &audio,
-                    &config,
-                    b,
-                    a,
-                );
+                let _ = process_attack_event(&enemy_query, &mut player_query, &mut writer, a, b)
+                    || process_attack_event(&enemy_query, &mut player_query, &mut writer, b, a);
             }
             _ => {}
         }
@@ -108,9 +89,7 @@ fn process_attack_event(
         (&mut Actor, &GlobalTransform, &mut ExternalImpulse),
         (With<Player>, Without<Enemy>),
     >,
-    assets: &Res<GameAssets>,
-    audio: &Res<Audio>,
-    config: &GameConfig,
+    writer: &mut EventWriter<GameCommand>,
     player_entity: &Entity,
     enemy_entity: &Entity,
 ) -> bool {
@@ -128,7 +107,7 @@ fn process_attack_event(
             player.life = (player.life - damage).max(0);
             player.latest_damage = damage;
 
-            play_se(&audio, config, assets.dageki.clone());
+            writer.send(GameCommand::SEDageki);
 
             return true;
         }

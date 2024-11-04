@@ -21,6 +21,7 @@ use crate::config::GameConfig;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::stone_lantern::spawn_stone_lantern;
+use crate::command::GameCommand;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -49,7 +50,11 @@ fn setup_world(
     config: Res<GameConfig>,
     mut current: ResMut<CurrentLevel>,
     next: Res<NextLevel>,
+
+    mut writer: EventWriter<GameCommand>,
 ) {
+    writer.send(GameCommand::BGMArechi);
+
     let level = match &next.0 {
         None => 0,
         Some(level) => level % LEVELS,

@@ -1,17 +1,15 @@
 use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
-use crate::config::GameConfig;
 use crate::entity::actor::Actor;
 use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
-use crate::hud::overlay::OverlayNextState;
+use crate::command::GameCommand;
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
 use crate::world::CurrentLevel;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
-use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
@@ -84,9 +82,8 @@ fn fire_bullet(
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     mut writer: EventWriter<ClientMessage>,
     menu: Res<State<GameMenuState>>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
     current: Res<CurrentLevel>,
+    mut se_writer: EventWriter<GameCommand>,
 ) {
     if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
         if player.life <= 0 {
@@ -111,9 +108,7 @@ fn fire_bullet(
                         bullet_position,
                         direction * BULLET_SPEED,
                         Some(player.uuid),
-                        &assets,
-                        &audio,
-                        &config,
+                        &mut se_writer,
                     );
 
                     if let Some(level) = current.0 {
@@ -145,8 +140,7 @@ fn pick_gold(
     gold_query: Query<Entity, With<Gold>>,
     mut player_query: Query<&mut Player>,
     mut collision_events: EventReader<CollisionEvent>,
-    assets: Res<GameAssets>,
-    audio: Res<Audio>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -155,16 +149,14 @@ fn pick_gold(
                     &mut commands,
                     &gold_query,
                     &mut player_query,
-                    &assets,
-                    &audio,
+                    &mut writer,
                     &a,
                     &b,
                 ) || process_pick_event(
                     &mut commands,
                     &gold_query,
                     &mut player_query,
-                    &assets,
-                    &audio,
+                    &mut writer,
                     &b,
                     &a,
                 );
@@ -178,15 +170,14 @@ fn process_pick_event(
     commands: &mut Commands,
     gold_query: &Query<Entity, With<Gold>>,
     player_query: &mut Query<&mut Player>,
-    assets: &Res<GameAssets>,
-    audio: &Res<Audio>,
+    writer: &mut EventWriter<GameCommand>,
     gold: &Entity,
     player: &Entity,
 ) -> bool {
     if let Ok(gold) = gold_query.get(*gold) {
         if let Ok(mut player) = player_query.get_mut(*player) {
             player.golds += 1;
-            audio.play(assets.cancel.clone());
+            writer.send(GameCommand::SECancel);
             commands.entity(gold).despawn_recursive();
             return true;
         }
@@ -198,17 +189,15 @@ fn die_player(
     mut commands: Commands,
     assets: Res<GameAssets>,
     player_query: Query<(Entity, &Player, &Actor, &Transform)>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
-    audio: Res<Audio>,
     mut writer: EventWriter<ClientMessage>,
+    mut game: EventWriter<GameCommand>,
 ) {
     if let Ok((entity, player, actor, transform)) = player_query.get_single() {
         if actor.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
-            audio.play(assets.hiyoko.clone());
-
-            *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
+            game.send(GameCommand::SEHiyoko);
+            game.send(GameCommand::StateMainMenu);
 
             for _ in 0..player.golds {
                 spawn_gold(

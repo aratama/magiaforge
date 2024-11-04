@@ -1,5 +1,5 @@
 use crate::asset::GameAssets;
-use crate::bgm::BGMPlugin;
+use crate::audio::GameAudioPlugin;
 use crate::camera::*;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
@@ -15,6 +15,7 @@ use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
+use crate::command::GameCommandPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
@@ -147,7 +148,8 @@ pub fn run_game() {
         .add_plugins(BulletPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(MainMenuPlugin)
-        .add_plugins(BGMPlugin)
+        .add_plugins(GameAudioPlugin)
+        .add_plugins(GameCommandPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(ChestPlugin)

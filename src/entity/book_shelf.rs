@@ -1,11 +1,9 @@
 use super::breakable::Breakable;
 use super::EntityDepth;
-use crate::config::GameConfig;
-use crate::{asset::GameAssets, audio::play_se};
+use crate::command::GameCommand;
 use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::prelude::*;
 
 const ENTITY_WIDTH: f32 = 16.0;
@@ -48,14 +46,12 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
 fn break_book_shelf(
     mut commands: Commands,
     query: Query<(Entity, &Breakable), With<Bookshelf>>,
-    assets: Res<GameAssets>,
-    audio: Res<Audio>,
-    config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for (entity, breakabke) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            play_se(&audio, &config, assets.kuzureru.clone());
+            writer.send(GameCommand::SEKuzureru);
         }
     }
 }
