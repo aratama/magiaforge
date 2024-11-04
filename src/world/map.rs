@@ -151,7 +151,6 @@ pub fn image_to_tilemap(
                     entities.push((GameEntity::Usage, x, y));
                 }
                 (223, 113, 38, 255) => {
-                    info!("StoneLantern: ({}, {})", x, y);
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         biome: Biome::SafeZone,

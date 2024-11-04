@@ -40,7 +40,9 @@ pub enum MainMenuPhase {
 #[source(GameState = GameState::InGame)]
 pub enum GameMenuState {
     #[default]
-    Close,
+    Closed,
 
     Open,
+
+    Closing,
 }

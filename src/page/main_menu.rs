@@ -1,6 +1,6 @@
+use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::{GAME_MENU_Z_INDEX, HUD_Z_INDEX};
-use crate::command::GameCommand;
 use crate::ui::button::button;
 use crate::ui::on_press::OnPress;
 use crate::{
@@ -16,6 +16,8 @@ use git_version::git_version;
 struct ButtonShots {
     start: SystemId,
     config: SystemId,
+
+    #[allow(dead_code)]
     exit: SystemId,
 }
 
@@ -110,6 +112,8 @@ fn setup_main_menu(
                 84.0,
                 16.0,
             );
+
+            #[cfg(not(target_arch = "wasm32"))]
             button(parent, &assets, shots.exit, "Exit", 30.0, 142.0, 84.0, 16.0);
         });
 

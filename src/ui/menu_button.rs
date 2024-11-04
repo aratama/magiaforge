@@ -35,7 +35,7 @@ pub fn menu_button<'a>(
             parent.spawn(TextBundle::from_section(
                 text,
                 TextStyle {
-                    font_size: 60.0,
+                    font_size: 40.0,
                     font: assets.dotgothic.clone(),
                     color: Color::srgb(0.9, 0.9, 0.9),
                     ..default()

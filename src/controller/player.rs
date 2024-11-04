@@ -1,10 +1,10 @@
 use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
+use crate::command::GameCommand;
 use crate::entity::actor::Actor;
 use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
-use crate::command::GameCommand;
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
 use crate::world::CurrentLevel;
@@ -53,7 +53,7 @@ fn move_player(
     let force = 50000.0;
     let direction = get_direction(keys, axes, &my_gamepad);
     if let Ok(mut player_force) = player_query.get_single_mut() {
-        if *menu == GameMenuState::Close {
+        if *menu == GameMenuState::Closed {
             player_force.force = direction * force;
         } else {
             player_force.force = Vec2::ZERO;
@@ -90,7 +90,7 @@ fn fire_bullet(
             return;
         }
 
-        if *menu == GameMenuState::Close {
+        if *menu == GameMenuState::Closed {
             // 魔法の発射
 
             if get_fire_trigger(buttons, gamepad_buttons, &my_gamepad) && player.cooltime == 0 {

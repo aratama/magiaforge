@@ -1,11 +1,12 @@
 [build]
 # target = "wasm32-unknown-unknown"
 
-# rustflags = ["--cfg=web_sys_unstable_apis", "-C"]
-
 # bevy_rapier2dが依存しているbevy_eguiがweb_sysのunstable API (bevy_egui::manage_clipboard) を使っているため、
-# 以下のオプションが必要
-rustflags = ["--cfg=web_sys_unstable_apis", "-C", "link-arg=-fuse-ld=lld"]
+# --cfg=web_sys_unstable_apis が必要
+rustflags = ["--cfg=web_sys_unstable_apis"]
 
 # https://github.com/mozilla/sccache
 rustc-wrapper = "sccache.exe"
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
