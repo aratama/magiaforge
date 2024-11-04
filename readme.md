@@ -2,7 +2,7 @@
 
 Online Battle Royale Twin-stick Shooter. WIP.
 
-![screenshot](screenshot.gif)
+https://github.com/user-attachments/assets/5c52aa7c-a037-454f-b36c-d4cbc2d466d5
 
 ### Demo
 
