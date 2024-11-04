@@ -1,14 +1,14 @@
 # magiaboost
 
-Online Battle Royale Twin-stick Shooter.
+Online Battle Royale Twin-stick Shooter. WIP.
 
-![screenshot](screenshot.png)
+![screenshot](screenshot.gif)
 
 ### Demo
 
 https://aratama.github.io/magiaboost/ (**Desktop Chrome only** for now)
 
-### Usage
+### Development
 
 - `cargo run` to launch app locally
 - `cargo build --profile dist` to build desktop app in release mode. (Note `cargo build` is for WASM build)

@@ -25,7 +25,7 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use map::image_to_empty_tiles;
+use map::image_to_spawn_tiles;
 use uuid::Uuid;
 use wall::respawn_wall_collisions;
 use wall::WallCollider;
@@ -86,6 +86,7 @@ fn spawn_level(
     level: i32,
 ) {
     info!("spawn_level {}", level);
+
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
     let slice = level_aseprite
@@ -106,7 +107,7 @@ fn spawn_level(
         slice.rect.max.y as i32,
     );
 
-    let mut empties = image_to_empty_tiles(&chunk);
+    let mut empties = image_to_spawn_tiles(&chunk);
 
     respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
     spawn_entities(&mut commands, &assets, &chunk);
@@ -150,7 +151,7 @@ fn spawn_level(
         3.0,
     );
 
-    for _ in 0..10 {
+    for _ in 0..50 {
         let (x, y) = random_select(&mut empties);
         spawn_slime(
             &mut commands,

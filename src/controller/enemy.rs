@@ -13,9 +13,9 @@ use rand::random;
 #[derive(Component)]
 pub struct Enemy;
 
-const ENEMY_MOVE_FORCE: f32 = 50000.0;
+const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
-const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 5.0;
+const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
 const ENEMY_ATTACK_POINT: i32 = 8;
 

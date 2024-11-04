@@ -6,8 +6,18 @@ use bevy::{
 };
 
 #[derive(Clone, Copy)]
+pub enum Biome {
+    /// モンスターがスポーンしないエリア
+    SafeZone,
+
+    /// モンスターがスポーンするエリア
+    Dungeon,
+}
+
+#[derive(Clone, Copy)]
 struct LevelTileMapile {
     tile: Tile,
+    biome: Biome,
 }
 
 #[derive(Clone, Resource)]
@@ -29,6 +39,15 @@ impl LevelTileMap {
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
         return self.tiles[i].tile;
+    }
+
+    pub fn get_biome(&self, x: i32, y: i32) -> Biome {
+        if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
+            return Biome::SafeZone;
+        }
+        let w = self.max_x - self.min_x;
+        let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
+        return self.tiles[i].biome;
     }
 
     /// 指定した位置のタイルが、指定したタイルと同じ種類かどうかを返します
@@ -80,32 +99,46 @@ pub fn image_to_tilemap(
                 (203, 219, 252, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::Dungeon,
+                    });
+                }
+                (234, 255, 214, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                 }
                 (82, 75, 36, 255) => {
-                    tiles.push(LevelTileMapile { tile: Tile::Wall });
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Wall,
+                        biome: Biome::SafeZone,
+                    });
                 }
                 (118, 66, 138, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                     entities.push((GameEntity::BookShelf, x, y));
                 }
                 (251, 242, 54, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                     entities.push((GameEntity::Chest, x, y));
                 }
                 (48, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                     entities.push((GameEntity::MagicCircle, x, y));
                 }
                 (255, 0, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                     entry_point = Vec2::new(x as f64, y as f64);
                     entities.push((GameEntity::BrokenMagicCircle, x, y));
@@ -113,6 +146,7 @@ pub fn image_to_tilemap(
                 (255, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                     entities.push((GameEntity::Usage, x, y));
                 }
@@ -120,11 +154,15 @@ pub fn image_to_tilemap(
                     info!("StoneLantern: ({}, {})", x, y);
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
                     });
                     entities.push((GameEntity::StoneLantern, x, y));
                 }
                 _ => {
-                    tiles.push(LevelTileMapile { tile: Tile::Blank });
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Blank,
+                        biome: Biome::SafeZone,
+                    });
                     warn!("Unknown color: ({}, {}, {}, {})", r, g, b, a);
                 }
             }
@@ -141,12 +179,12 @@ pub fn image_to_tilemap(
     };
 }
 
-pub fn image_to_empty_tiles(tilemap: &LevelTileMap) -> Vec<(i32, i32)> {
+pub fn image_to_spawn_tiles(tilemap: &LevelTileMap) -> Vec<(i32, i32)> {
     let mut tiles = Vec::new();
     for y in tilemap.min_y..tilemap.max_y {
         for x in tilemap.min_x..tilemap.max_x {
-            match tilemap.get_tile(x, y) {
-                Tile::StoneTile => {
+            match tilemap.get_biome(x, y) {
+                Biome::Dungeon => {
                     tiles.push((x, y));
                 }
                 _ => {}
