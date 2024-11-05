@@ -1,5 +1,5 @@
 use super::{breakable::Breakable, gold::spawn_gold, EntityDepth};
-use crate::{asset::GameAssets, constant::*, command::GameCommand, states::GameState};
+use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -45,7 +45,9 @@ fn break_chest(
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEKuzureru);
+            writer.send(GameCommand::SEKuzureru(Some(
+                transform.translation.truncate(),
+            )));
 
             for _ in 0..(3 + random::<i32>().abs() % 10) {
                 spawn_gold(

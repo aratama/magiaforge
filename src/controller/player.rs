@@ -81,7 +81,7 @@ fn trigger_bullet(
 fn pick_gold(
     mut commands: Commands,
     gold_query: Query<Entity, With<Gold>>,
-    mut player_query: Query<&mut Player>,
+    mut player_query: Query<(&mut Player, &Transform)>,
     mut collision_events: EventReader<CollisionEvent>,
     mut writer: EventWriter<GameCommand>,
 ) {
@@ -112,15 +112,17 @@ fn pick_gold(
 fn process_pick_event(
     commands: &mut Commands,
     gold_query: &Query<Entity, With<Gold>>,
-    player_query: &mut Query<&mut Player>,
+    player_query: &mut Query<(&mut Player, &Transform)>,
     writer: &mut EventWriter<GameCommand>,
     gold: &Entity,
     player: &Entity,
 ) -> bool {
     if let Ok(gold) = gold_query.get(*gold) {
-        if let Ok(mut player) = player_query.get_mut(*player) {
+        if let Ok((mut player, transform)) = player_query.get_mut(*player) {
             player.golds += 1;
-            writer.send(GameCommand::SECancel);
+            writer.send(GameCommand::SECancel(Some(
+                transform.translation.truncate(),
+            )));
             commands.entity(gold).despawn_recursive();
             return true;
         }
@@ -139,7 +141,9 @@ fn die_player(
         if actor.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
-            game.send(GameCommand::SEHiyoko);
+            game.send(GameCommand::SEHiyoko(Some(
+                transform.translation.truncate(),
+            )));
             game.send(GameCommand::StateMainMenu);
 
             for _ in 0..player.golds {

@@ -20,7 +20,7 @@ impl FromWorld for ButtonShots {
 
 fn back(mut writer: EventWriter<GameCommand>) {
     writer.send(GameCommand::StateMainMenu);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>, shots: Res<ButtonShots>) {

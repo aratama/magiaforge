@@ -49,12 +49,12 @@ fn start_game(
         writer.send(GameCommand::BGMNone);
     }
 
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn config_game(mut writer: EventWriter<GameCommand>) {
     writer.send(GameCommand::StateConfig);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {

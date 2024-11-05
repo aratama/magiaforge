@@ -1,5 +1,5 @@
 use crate::{
-    constant::*, controller::player::Player, command::GameCommand, states::GameState,
+    command::GameCommand, constant::*, controller::player::Player, states::GameState,
     world::NextLevel,
 };
 use bevy::prelude::*;
@@ -85,7 +85,7 @@ fn power_on_circle(
                 if process_collision_start_event(a, b, &player_query, &mut circle_query)
                     || process_collision_start_event(b, a, &player_query, &mut circle_query)
                 {
-                    writer.send(GameCommand::SEMenuOpen);
+                    writer.send(GameCommand::SEMenuOpen(None));
                 }
             }
             CollisionEvent::Stopped(a, b, _) => {
@@ -99,11 +99,11 @@ fn power_on_circle(
 fn warp(
     mut commands: Commands,
     mut player_query: Query<Entity, With<Player>>,
-    mut circle_query: Query<&mut MagicCircle>,
+    mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<NextLevel>,
     mut writer: EventWriter<GameCommand>,
 ) {
-    for mut circle in circle_query.iter_mut() {
+    for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
             if 0 < circle.players {
                 circle.step += 1;
@@ -112,7 +112,7 @@ fn warp(
             }
         } else if circle.step == MAX_POWER {
             if let Ok(entity) = player_query.get_single_mut() {
-                writer.send(GameCommand::SEWarp);
+                writer.send(GameCommand::SEWarp(Some(transform.translation.truncate())));
                 commands.entity(entity).despawn_recursive();
 
                 next.0 = match &next.0 {

@@ -60,7 +60,9 @@ fn dead_enemy(
     for (entity, enemy, transform) in query.iter_mut() {
         if enemy.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEHiyoko);
+            writer.send(GameCommand::SEHiyoko(Some(
+                transform.translation.truncate(),
+            )));
 
             for _ in 0..(1 + random::<u32>() % 3) {
                 spawn_gold(

@@ -1,5 +1,5 @@
-use crate::config::GameConfig;
 use crate::command::GameCommand;
+use crate::config::GameConfig;
 use crate::ui::menu_button::menu_button;
 use crate::{
     asset::GameAssets,
@@ -39,7 +39,7 @@ fn start_game(
     let q = query.single();
     config.player_name = q.0.clone();
 
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn setup(

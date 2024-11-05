@@ -45,13 +45,15 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
 
 fn break_book_shelf(
     mut commands: Commands,
-    query: Query<(Entity, &Breakable), With<Bookshelf>>,
+    query: Query<(Entity, &Breakable, &Transform), With<Bookshelf>>,
     mut writer: EventWriter<GameCommand>,
 ) {
-    for (entity, breakabke) in query.iter() {
+    for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEKuzureru);
+            writer.send(GameCommand::SEKuzureru(Some(
+                transform.translation.truncate(),
+            )));
         }
     }
 }

@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
+use crate::command::GameCommandPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
 use crate::controller::enemy::EnemyPlugin;
@@ -15,7 +16,6 @@ use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
-use crate::command::GameCommandPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;

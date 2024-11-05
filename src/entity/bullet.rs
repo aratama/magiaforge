@@ -55,7 +55,7 @@ pub fn spawn_bullet(
     owner: Option<Uuid>,
     writer: &mut EventWriter<GameCommand>,
 ) {
-    writer.send(GameCommand::SESuburi);
+    writer.send(GameCommand::SESuburi(Some(position)));
 
     commands.spawn((
         Name::new("bullet"),
@@ -196,15 +196,15 @@ fn process_bullet_event(
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     actor.life = (actor.life - bullet.damage).max(0);
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
-                    writer.send(GameCommand::SEDageki);
+                    writer.send(GameCommand::SEDageki(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
                 breakabke.life -= bullet.damage;
-                writer.send(GameCommand::SEDageki);
+                writer.send(GameCommand::SEDageki(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
-                writer.send(GameCommand::SEAsphalt);
+                writer.send(GameCommand::SEAsphalt(Some(bullet_position)));
             } else {
-                writer.send(GameCommand::SEShibafu);
+                writer.send(GameCommand::SEShibafu(Some(bullet_position)));
             }
             true
         } else {

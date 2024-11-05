@@ -10,16 +10,16 @@ use bevy_kira_audio::Audio;
 
 #[derive(Event, Clone)]
 pub enum GameCommand {
-    SEDageki,
-    SEShibafu,
-    SEHiyoko,
-    SEKuzureru,
-    SEKettei,
-    SESuburi,
-    SEAsphalt,
-    SEMenuOpen,
-    SEWarp,
-    SECancel,
+    SEDageki(Option<Vec2>),
+    SEShibafu(Option<Vec2>),
+    SEHiyoko(Option<Vec2>),
+    SEKuzureru(Option<Vec2>),
+    SEKettei(Option<Vec2>),
+    SESuburi(Option<Vec2>),
+    SEAsphalt(Option<Vec2>),
+    SEMenuOpen(Option<Vec2>),
+    SEWarp(Option<Vec2>),
+    SECancel(Option<Vec2>),
     BGMNone,
     BGMBoubaku,
     BGMArechi,
@@ -37,38 +37,100 @@ fn process_game_commands(
     mut reader: EventReader<GameCommand>,
     mut overlay_next_state: ResMut<OverlayNextState>,
     mut next_bgm: ResMut<BGM>,
+    camera_query: Query<&Transform, With<Camera2d>>,
 ) {
+    let camera_position = camera_query.single().translation.truncate();
     for event in reader.read() {
         match event {
-            GameCommand::SEDageki => {
-                play_se(&audio, &config, assets.dageki.clone());
+            GameCommand::SEDageki(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.dageki.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEShibafu => {
-                play_se(&audio, &config, assets.shibafu.clone());
+            GameCommand::SEShibafu(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.shibafu.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEHiyoko => {
-                play_se(&audio, &config, assets.hiyoko.clone());
+            GameCommand::SEHiyoko(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.hiyoko.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEKuzureru => {
-                play_se(&audio, &config, assets.kuzureru.clone());
+            GameCommand::SEKuzureru(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.kuzureru.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEKettei => {
-                play_se(&audio, &config, assets.kettei.clone());
+            GameCommand::SEKettei(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.kettei.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SESuburi => {
-                play_se(&audio, &config, assets.suburi.clone());
+            GameCommand::SESuburi(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.suburi.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEAsphalt => {
-                play_se(&audio, &config, assets.asphalt.clone());
+            GameCommand::SEAsphalt(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.asphalt.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEMenuOpen => {
-                play_se(&audio, &config, assets.menu_open.clone());
+            GameCommand::SEMenuOpen(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.menu_open.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SEWarp => {
-                play_se(&audio, &config, assets.warp.clone());
+            GameCommand::SEWarp(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.warp.clone(),
+                    position,
+                    camera_position,
+                );
             }
-            GameCommand::SECancel => {
-                play_se(&audio, &config, assets.cancel.clone());
+            GameCommand::SECancel(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.cancel.clone(),
+                    position,
+                    camera_position,
+                );
             }
             GameCommand::BGMNone => {
                 *next_bgm = BGM(None);

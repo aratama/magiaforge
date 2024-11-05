@@ -1,5 +1,5 @@
 use super::{breakable::Breakable, EntityDepth};
-use crate::{asset::GameAssets, constant::*, command::GameCommand, states::GameState};
+use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
 use bevy::{core::FrameCount, prelude::*, sprite::Anchor};
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
@@ -72,13 +72,15 @@ fn update_lantern(
 
 fn break_stone_lantern(
     mut commands: Commands,
-    query: Query<(Entity, &Breakable), With<StoneLantern>>,
+    query: Query<(Entity, &Breakable, &Transform), With<StoneLantern>>,
     mut writer: EventWriter<GameCommand>,
 ) {
-    for (entity, breakabke) in query.iter() {
+    for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEKuzureru);
+            writer.send(GameCommand::SEKuzureru(Some(
+                transform.translation.truncate(),
+            )));
         }
     }
 }

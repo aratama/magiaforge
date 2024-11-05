@@ -39,32 +39,32 @@ impl FromWorld for ButtonShots {
 
 fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<GameCommand>) {
     state.set(GameMenuState::Closing);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn exit(mut writer: EventWriter<GameCommand>) {
     writer.send(GameCommand::StateMainMenu);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.bgm_volume = (config.bgm_volume + 0.1).min(1.0);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.bgm_volume = (config.bgm_volume - 0.1).max(0.0);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume + 0.1).min(1.0);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume - 0.1).max(0.0);
-    writer.send(GameCommand::SEKettei);
+    writer.send(GameCommand::SEKettei(None));
 }
 
 fn setup_game_menu(
