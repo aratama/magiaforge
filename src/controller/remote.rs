@@ -11,6 +11,7 @@ use crate::{
     world::CurrentLevel,
 };
 use bevy::{core::FrameCount, prelude::*};
+use bevy_kira_audio::Audio;
 use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
@@ -150,6 +151,7 @@ fn receive_events(
     life_bar_res: Res<LifeBarResource>,
     current: Res<CurrentLevel>,
     mut writer: EventWriter<GameCommand>,
+    audio: Res<Audio>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -222,6 +224,7 @@ fn receive_events(
                                         },
                                         true,
                                         3.0,
+                                        &audio,
                                     );
                                     info!("Remote player spawned: {}", uuid);
                                 }

@@ -59,6 +59,9 @@ pub struct GameAssets {
     #[asset(path = "audio/キャンセル9.ogg")]
     pub cancel: Handle<AudioSource>,
 
+    #[asset(path = "audio/体育館で走る.ogg")]
+    pub taiikukan: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 

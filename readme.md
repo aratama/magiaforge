@@ -31,6 +31,7 @@ Add `--features debug` to launch app in debug mode.
 - 建物が少し崩れる 1 https://soundeffect-lab.info/sound/battle/
 - メニューを開く 2 https://soundeffect-lab.info/sound/battle/
 - ワープ https://soundeffect-lab.info/sound/battle/
+- 体育館で走る https://soundeffect-lab.info/sound/various/
 
 #### BGMs
 

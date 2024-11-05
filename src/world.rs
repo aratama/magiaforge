@@ -26,6 +26,7 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_kira_audio::Audio;
 use map::image_to_spawn_tiles;
 use uuid::Uuid;
 use wall::respawn_wall_collisions;
@@ -50,8 +51,8 @@ fn setup_world(
     config: Res<GameConfig>,
     mut current: ResMut<CurrentLevel>,
     next: Res<NextLevel>,
-
     mut writer: EventWriter<GameCommand>,
+    audio: Res<Audio>,
 ) {
     writer.send(GameCommand::BGMArechi);
 
@@ -74,6 +75,7 @@ fn setup_world(
         frame_count,
         config,
         level,
+        &audio,
     );
 }
 
@@ -89,6 +91,7 @@ fn spawn_level(
     frame_count: Res<FrameCount>,
     config: Res<GameConfig>,
     level: i32,
+    audio: &Res<Audio>,
 ) {
     info!("spawn_level {}", level);
 
@@ -150,6 +153,7 @@ fn spawn_level(
         },
         false,
         3.0,
+        &audio,
     );
 
     for _ in 0..20 {

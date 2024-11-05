@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use super::actor::{Actor, ActorFireState, ActorMoveState};
 use super::EntityDepth;
 use crate::asset::GameAssets;
@@ -6,6 +8,7 @@ use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_kira_audio::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
@@ -13,6 +16,9 @@ pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct Wand;
+
+#[derive(Default, Component, Reflect)]
+pub struct Footsteps(Handle<AudioInstance>);
 
 pub fn spawn_witch<T: Component>(
     commands: &mut Commands,
@@ -27,7 +33,17 @@ pub fn spawn_witch<T: Component>(
     controller: T,
     life_bar: bool,
     intensity: f32,
+
+    audio: &Res<Audio>,
 ) {
+    let audio_instance = audio
+        .play(assets.taiikukan.clone())
+        .looped()
+        .with_volume(0.0)
+        // .with_volume(Volume::Amplitude((config.se_volume * volume) as f64))
+        // .with_panning(panning as f64)
+        .handle();
+
     let mut entity = commands.spawn((
         Name::new("witch"),
         StateScoped(GameState::InGame),
@@ -78,6 +94,7 @@ pub fn spawn_witch<T: Component>(
                 ENTITY_GROUP | ACTOR_GROUP | WALL_GROUP | BULLET_GROUP,
             ),
         ),
+        Footsteps(audio_instance),
     ));
 
     entity.with_children(move |spawn_children| {
@@ -118,19 +135,30 @@ pub fn spawn_witch<T: Component>(
     });
 }
 
-fn update_animation(mut query: Query<(&Actor, &mut Animation)>) {
-    for (actor, mut animation) in query.iter_mut() {
+fn update_animation(
+    mut query: Query<(&Actor, &mut Animation, &mut Footsteps)>,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
+) {
+    for (actor, mut animation, footsteps) in query.iter_mut() {
         match actor.move_state {
             ActorMoveState::Idle => {
                 if animation.tag != Some("idle".to_string()) {
                     // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
                     // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
                     animation.play("idle", AnimationRepeat::Loop);
+
+                    if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
+                        instance.set_volume(0.0, AudioTween::linear(Duration::from_millis(200)));
+                    }
                 }
             }
             ActorMoveState::Run => {
                 if animation.tag != Some("run".to_string()) {
                     animation.play("run", AnimationRepeat::Loop);
+
+                    if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
+                        instance.set_volume(0.3, AudioTween::linear(Duration::from_millis(100)));
+                    }
                 }
             }
         }
