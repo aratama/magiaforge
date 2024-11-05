@@ -24,6 +24,8 @@ const BULLET_MAX_COOLTIME: i32 = 1000;
 // 一度に発射する弾丸の数
 const BULLETS_PER_FIRE: u32 = 1;
 
+const BULLET_MANA_COST: i32 = 50;
+
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
 pub struct Actor {
@@ -33,6 +35,12 @@ pub struct Actor {
     pub cooltime: i32,
 
     pub reload_speed: i32,
+
+    pub mana: i32,
+
+    pub max_mana: i32,
+
+    pub latest_mana_cost: i32,
 
     /// 魔法弾の速度
     /// pixels_per_meter が 100.0 に設定されているので、
@@ -82,6 +90,12 @@ fn update_actor_z(mut query: Query<(&Actor, &mut Sprite)>) {
         } else {
             sprite.flip_x = false;
         }
+    }
+}
+
+fn recovery_mana(mut actor_query: Query<(&mut Actor, &Transform), Without<Camera2d>>) {
+    for (mut actor, _) in actor_query.iter_mut() {
+        actor.mana = (actor.mana + 1).min(actor.max_mana);
     }
 }
 
@@ -146,7 +160,12 @@ fn fire_bullet(
             return;
         }
 
-        if actor.fire_state == ActorFireState::Fire && actor.cooltime == 0 {
+        if actor.fire_state == ActorFireState::Fire
+            && actor.cooltime == 0
+            && BULLET_MANA_COST <= actor.mana
+        {
+            actor.mana = (actor.mana - BULLET_MANA_COST).max(0);
+
             let normalized = actor.pointer.normalize();
             let angle = actor.pointer.to_angle();
             for _ in 0..BULLETS_PER_FIRE {
@@ -196,6 +215,9 @@ impl Plugin for ActorPlugin {
             Update,
             (update_actor_z, update_actor_light).run_if(in_state(GameState::InGame)),
         );
-        app.add_systems(FixedUpdate, fire_bullet.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            FixedUpdate,
+            (fire_bullet, recovery_mana).run_if(in_state(GameState::InGame)),
+        );
     }
 }
