@@ -40,8 +40,6 @@ pub struct Actor {
 
     pub max_mana: i32,
 
-    pub latest_mana_cost: i32,
-
     /// 魔法弾の速度
     /// pixels_per_meter が 100.0 に設定されているので、
     /// 200は1フレームに2ピクセル移動する速度です
@@ -51,7 +49,6 @@ pub struct Actor {
 
     pub life: i32,
     pub max_life: i32,
-    pub latest_damage: i32,
 
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,

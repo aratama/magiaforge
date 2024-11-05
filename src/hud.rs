@@ -23,9 +23,6 @@ pub struct HUD;
 pub struct PlayerLifeBar;
 
 #[derive(Component)]
-pub struct PlayerDamageBar;
-
-#[derive(Component)]
 pub struct PlayerLifeText;
 
 #[derive(Component)]
@@ -66,22 +63,6 @@ fn setup_hud(mut commands: Commands) {
                     ..default()
                 },
                 background_color: Color::srgba(0., 0.7, 0., 0.9).into(),
-                z_index: ZIndex::Global(HUD_Z_INDEX),
-                ..default()
-            },
-        ));
-        parent.spawn((
-            PlayerDamageBar,
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    top: Val::Px(PLAYER_LIFE_BAR_TOP),
-                    left: Val::Px(PLAYER_LIFE_BAR_LEFT),
-                    width: Val::Px(0.0),
-                    height: Val::Px(PLAYER_LIFE_BAR_HEIGHT),
-                    ..default()
-                },
-                background_color: Color::srgba(0.7, 0., 0., 0.9).into(),
                 z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
@@ -217,14 +198,7 @@ fn update_hud(
     mut player_mana_text_query: Query<&mut Text, (With<PlayerManaText>, Without<PlayerLifeText>)>,
     mut player_life_bar_query: Query<&mut Style, With<PlayerLifeBar>>,
     mut player_mana_bar_query: Query<&mut Style, (With<PlayerManaBar>, Without<PlayerLifeBar>)>,
-    mut player_damage_bar_query: Query<
-        &mut Style,
-        (
-            With<PlayerDamageBar>,
-            Without<PlayerLifeBar>,
-            Without<PlayerManaBar>,
-        ),
-    >,
+
     mut player_gold_query: Query<
         &mut Text,
         (
@@ -239,7 +213,6 @@ fn update_hud(
         let mut player_mana_text = player_mana_text_query.single_mut();
         let mut player_life_bar = player_life_bar_query.single_mut();
         let mut player_mana_bar = player_mana_bar_query.single_mut();
-        let mut player_damage_bar = player_damage_bar_query.single_mut();
         let mut player_gold = player_gold_query.single_mut();
 
         player_life_text.sections[0].value = format!("{} / {}", actor.life, actor.max_life);
@@ -251,14 +224,8 @@ fn update_hud(
 
         let player_mana_width = (actor.mana as f32 / actor.max_mana as f32) * PLAYER_LIFE_BAR_WIDTH;
 
-        let damage_bar_width =
-            (actor.latest_damage as f32 / actor.max_life as f32) * PLAYER_LIFE_BAR_WIDTH;
-
         player_life_bar.width = Val::Px(life_bar_width);
         player_mana_bar.width = Val::Px(player_mana_width);
-
-        player_damage_bar.width = Val::Px(damage_bar_width);
-        player_damage_bar.left = Val::Px(PLAYER_LIFE_BAR_LEFT + life_bar_width);
 
         player_gold.sections[0].value = format!("{} GOLDS", player.golds);
     }
