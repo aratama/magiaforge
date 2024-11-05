@@ -1,21 +1,17 @@
 use crate::{
-    command::GameCommand, constant::*, controller::player::Player, states::GameState,
-    world::NextLevel,
+    asset::GameAssets, command::GameCommand, constant::*, controller::player::Player,
+    states::GameState, world::NextLevel,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor};
 
-const MAX_POWER: i32 = 300;
+const MAX_POWER: i32 = 360;
 
 const MIN_RADIUS_ON: f32 = 100.0;
 const MIN_INTENSITY_ON: f32 = 1.0;
 const MIN_FALLOFF_ON: f32 = 10.0;
-
-const MAX_INTENSITY_ON: f32 = 20.0;
-const MAX_RADIUS_ON: f32 = 60.0;
-const MAX_FALLOFF_ON: f32 = 40.0;
 
 #[derive(Component)]
 pub struct MagicCircle {
@@ -27,7 +23,7 @@ pub struct MagicCircle {
 #[derive(Component)]
 pub struct MagicCircleLight;
 
-pub fn spawn_magic_circle(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
+pub fn spawn_magic_circle(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: f32) {
     let light_entity = commands.spawn_empty().id();
 
     commands.spawn((
@@ -38,12 +34,12 @@ pub fn spawn_magic_circle(commands: &mut Commands, aseprite: Handle<Aseprite>, x
             step: 0,
             light: light_entity,
         },
-        AsepriteSliceBundle {
-            aseprite: aseprite,
-            slice: "magic_circle".into(),
+        AsepriteAnimationBundle {
+            aseprite: assets.magic_circle.clone(),
+            animation: Animation::default().with_tag("idle"),
             transform: Transform::from_translation(Vec3::new(x, y, PAINT_LAYER_Z)),
             sprite: Sprite {
-                color: Color::hsla(0.0, 1.0, 1.0, 0.3),
+                color: Color::hsla(0.0, 1.0, 1.0, 0.7),
                 ..default()
             },
             ..default()
@@ -75,7 +71,7 @@ pub fn spawn_magic_circle(commands: &mut Commands, aseprite: Handle<Aseprite>, x
 
 fn power_on_circle(
     player_query: Query<&Player>,
-    mut circle_query: Query<&mut MagicCircle>,
+    mut circle_query: Query<(&mut MagicCircle, &mut Animation)>,
     mut events: EventReader<CollisionEvent>,
     mut writer: EventWriter<GameCommand>,
 ) {
@@ -108,7 +104,7 @@ fn warp(
             if 0 < circle.players {
                 circle.step += 1;
             } else {
-                circle.step = (circle.step - 4).max(0);
+                circle.step = 10;
             }
         } else if circle.step == MAX_POWER {
             if let Ok(entity) = player_query.get_single_mut() {
@@ -132,27 +128,17 @@ fn warp(
 }
 
 fn update_circle_color(
-    mut circle_query: Query<(&MagicCircle, &mut Sprite)>,
+    mut circle_query: Query<&MagicCircle>,
     mut light_query: Query<&mut PointLight2d, With<MagicCircleLight>>,
 ) {
-    for (circle, mut sprite) in circle_query.iter_mut() {
+    for circle in circle_query.iter_mut() {
         if let Ok(mut light) = light_query.get_mut(circle.light) {
             if circle.step == 0 {
                 light.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
-                sprite.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
             } else if circle.step < MAX_POWER {
-                let t = circle.step as f32 / MAX_POWER as f32;
-                light.radius = MIN_RADIUS_ON + (MAX_RADIUS_ON - MIN_RADIUS_ON) * t;
-                light.intensity = MIN_INTENSITY_ON + (MAX_INTENSITY_ON - MIN_INTENSITY_ON) * t;
-                light.falloff = MIN_FALLOFF_ON + (MAX_FALLOFF_ON - MIN_FALLOFF_ON) * t;
                 light.color = Color::hsla(240.0, 0.0, 1.0, 1.0);
-                sprite.color = Color::hsla(240.0, 0.0, 1.0, 1.0);
             } else {
-                light.radius = MIN_RADIUS_ON;
-                light.intensity = MIN_INTENSITY_ON;
-                light.falloff = MIN_FALLOFF_ON;
                 light.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
-                sprite.color = Color::hsla(240.0, 1.0, 0.5, 1.0);
             }
         }
     }
@@ -162,12 +148,27 @@ fn process_collision_start_event(
     a: &Entity,
     b: &Entity,
     players: &Query<&Player>,
-    circle_query: &mut Query<&mut MagicCircle>,
+    circle_query: &mut Query<(&mut MagicCircle, &mut Animation)>,
 ) -> bool {
     if players.contains(*a) {
-        if let Ok(mut circle) = circle_query.get_mut(*b) {
-            // info!("player on magic circle");
+        if let Ok((mut circle, mut animation)) = circle_query.get_mut(*b) {
             circle.players += 1;
+
+            if circle.players == 1 {
+                // ひとつのアニメーションが完了すると animation.playing が false になり、
+                // animation.play() を呼んでも animation.playing が true にならないので、
+                // それ以降アニメーションが再生されなくなるというバグがあります
+                // また、current_frame が play の直後に再計算されなかったり、
+                // animation_state.elapsed がゼロに戻らないなど、実装に問題があるため、
+                // bevy_aseprite_ultra の private なフィールドを公開する改造をして凌いでいます
+                // 関係しそうな issue
+                // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
+                animation.play("charge", AnimationRepeat::Count(1));
+                // animation.playing = true;
+                // animation_state.elapsed = Duration::ZERO;
+                // animation_state.current_frame = 2;
+            }
+
             return true;
         }
     }
@@ -178,12 +179,19 @@ fn process_collision_end_event(
     a: &Entity,
     b: &Entity,
     players: &Query<&Player>,
-    circle_query: &mut Query<&mut MagicCircle>,
+    circle_query: &mut Query<(&mut MagicCircle, &mut Animation)>,
 ) -> bool {
     if players.contains(*a) {
-        if let Ok(mut circle) = circle_query.get_mut(*b) {
-            // info!("player out magic circle");
+        if let Ok((mut circle, mut animation)) = circle_query.get_mut(*b) {
             circle.players -= 1;
+
+            if circle.players <= 0 {
+                animation.play("idle", AnimationRepeat::Count(1));
+                // animation.playing = true;
+                // animation_state.elapsed = Duration::ZERO;
+                // animation_state.current_frame = 0;
+            }
+
             return true;
         }
     }

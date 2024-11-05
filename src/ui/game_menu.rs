@@ -5,6 +5,7 @@ use crate::input::MyGamepad;
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
+use crate::world::NextLevel;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
@@ -42,9 +43,10 @@ fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<G
     writer.send(GameCommand::SEKettei(None));
 }
 
-fn exit(mut writer: EventWriter<GameCommand>) {
+fn exit(mut writer: EventWriter<GameCommand>, mut next: ResMut<NextLevel>) {
     writer.send(GameCommand::StateMainMenu);
     writer.send(GameCommand::SEKettei(None));
+    *next = NextLevel(None);
 }
 
 fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {

@@ -31,7 +31,7 @@ save = []
 default = []
 
 [dependencies]
-bevy_aseprite_ultra = "0.2.4"
+bevy_aseprite_ultra = { path = "../bevy_aseprite_ultra" }
 bevy_asset_loader = "0.21.0"
 bevy_kira_audio = { version = "0.20.0", features = ["ogg"] }
 bevy_light_2d = "0.4.2"

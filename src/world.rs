@@ -284,12 +284,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 );
             }
             GameEntity::MagicCircle => {
-                spawn_magic_circle(
-                    &mut commands,
-                    assets.asset.clone(),
-                    tx + TILE_HALF,
-                    ty - TILE_HALF,
-                );
+                spawn_magic_circle(&mut commands, &assets, tx + TILE_HALF, ty - TILE_HALF);
             }
             GameEntity::BrokenMagicCircle => {
                 spawn_broken_magic_circle(
