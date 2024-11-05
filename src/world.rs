@@ -17,11 +17,11 @@ use super::world::ceil::spawn_roof_tiles;
 use super::world::map::image_to_tilemap;
 use super::world::map::LevelTileMap;
 use super::world::tile::*;
+use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::stone_lantern::spawn_stone_lantern;
-use crate::command::GameCommand;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -123,10 +123,6 @@ fn spawn_level(
     if let Ok(mut camera) = camera.get_single_mut() {
         camera.translation.x = player_x;
         camera.translation.y = player_y;
-        info!(
-            "camera x:{} y:{}",
-            camera.translation.x, camera.translation.y
-        );
     }
 
     let life = 150;
@@ -156,7 +152,7 @@ fn spawn_level(
         3.0,
     );
 
-    for _ in 0..50 {
+    for _ in 0..20 {
         let (x, y) = random_select(&mut empties);
         spawn_slime(
             &mut commands,

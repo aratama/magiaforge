@@ -70,14 +70,9 @@ fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCo
 fn setup_game_menu(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut camera_query: Query<&mut Transform, With<Camera>>,
     shots: Res<ButtonShots>,
     config: Res<GameConfig>,
 ) {
-    let mut camera = camera_query.single_mut();
-    camera.translation.x = 0.0;
-    camera.translation.y = 0.0;
-
     commands
         .spawn((
             GameMenuRoot,

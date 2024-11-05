@@ -66,15 +66,10 @@ fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) 
 fn setup_main_menu(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut camera_query: Query<&mut Transform, With<Camera>>,
     shots: Res<ButtonShots>,
     mut writer: EventWriter<GameCommand>,
 ) {
     writer.send(GameCommand::BGMBoubaku);
-
-    let mut camera = camera_query.single_mut();
-    camera.translation.x = 0.0;
-    camera.translation.y = 0.0;
 
     commands
         .spawn((

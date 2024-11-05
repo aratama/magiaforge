@@ -75,22 +75,29 @@ pub fn spawn_bullet(
             ..default()
         },
         (
+            // 衝突にはColliderが必要
+            Collider::ball(BULLET_RADIUS),
+            // 速度ベースで制御するので KinematicVelocityBased
+            RigidBody::KinematicVelocityBased,
+            // KinematicCharacterControllerは不要に見えるが、
+            // これを外すと衝突イベントが起こらない不具合がたまに起こる？
+            KinematicCharacterController::default(),
+            // デフォルトでは KINEMATIC_STATIC が含まれず、KINEMATICである弾丸とSTATICの壁が衝突しないので
+            // KINEMATIC_STATICを追加
+            // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
+            ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
+            // 衝突を発生されるには ActiveEvents も必要
+            ActiveEvents::COLLISION_EVENTS,
+            // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
+            CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ACTOR_GROUP),
+            // そのほかのコンポーネント
             Velocity {
                 linvel: velocity,
                 angvel: 0.0,
             },
-            KinematicCharacterController::default(),
-            RigidBody::KinematicVelocityBased,
-            // 弾丸が大きくなると衝突時の位置の精度が悪化するので小さくしてあります
-            Collider::ball(BULLET_RADIUS),
             GravityScale(0.0),
-            // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#active-collision-types
-            ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_STATIC,
-            ActiveEvents::COLLISION_EVENTS,
             Sleeping::disabled(),
             Ccd::enabled(),
-            // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ACTOR_GROUP),
         ),
         PointLight2d {
             radius: 50.0,
