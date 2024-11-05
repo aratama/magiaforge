@@ -109,17 +109,12 @@ impl Plugin for PointerPlugin {
         app.add_systems(OnEnter(GameState::InGame), setup_pointer)
             .add_systems(
                 Update,
-                update_pointer_image_by_angle.run_if(in_state(GameState::InGame)),
-            )
-            .add_systems(
-                Update,
-                update_pointer_by_mouse.run_if(in_state(GameState::InGame)),
-            )
-            .add_systems(
-                Update,
-                update_pointer_by_gamepad
-                    .run_if(in_state(GameState::InGame))
-                    .after(update_pointer_by_mouse),
+                (
+                    update_pointer_image_by_angle,
+                    update_pointer_by_mouse,
+                    update_pointer_by_gamepad,
+                )
+                    .run_if(in_state(GameState::InGame)),
             );
     }
 }

@@ -1,32 +1,14 @@
 use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
-use crate::entity::actor::{Actor, ActorState};
-use crate::entity::bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN};
+use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
 use crate::entity::gold::{spawn_gold, Gold};
-use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
-use crate::world::CurrentLevel;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
-use rand::random;
-
-// 魔法の拡散
-const BULLET_SCATTERING: f32 = 0.3;
-
-// 魔法弾の速度
-// pixels_per_meter が 100.0 に設定されているので、
-// 200は1フレームに2ピクセル移動する速度です
-const BULLET_SPEED: f32 = 200.0;
-
-// 次の魔法を発射するまでの待機フレーム数
-const BULLET_COOLTIME: i32 = 8;
-
-// 一度に発射する弾丸の数
-const BULLETS_PER_FIRE: u32 = 1;
 
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component)]
@@ -55,14 +37,14 @@ fn move_player(
     if let Ok((mut actor, mut player_force)) = player_query.get_single_mut() {
         if *menu == GameMenuState::Closed {
             player_force.force = direction * force;
-            actor.state = if 0.0 < player_force.force.length() {
-                ActorState::Run
+            actor.move_state = if 0.0 < player_force.force.length() {
+                ActorMoveState::Run
             } else {
-                ActorState::Idle
+                ActorMoveState::Idle
             };
         } else {
             player_force.force = Vec2::ZERO;
-            actor.state = ActorState::Idle;
+            actor.move_state = ActorMoveState::Idle;
         }
     }
 }
@@ -79,64 +61,19 @@ fn switch_intensity(
 }
 
 /// 魔法の発射
-fn fire_bullet(
-    mut player_query: Query<(&mut Actor, &mut Transform), (With<Player>, Without<Camera2d>)>,
-    mut commands: Commands,
-    assets: Res<GameAssets>,
+fn trigger_bullet(
+    mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
-    mut writer: EventWriter<ClientMessage>,
     menu: Res<State<GameMenuState>>,
-    current: Res<CurrentLevel>,
-    mut se_writer: EventWriter<GameCommand>,
 ) {
-    if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
-        if player.life <= 0 {
-            return;
-        }
-
-        if *menu == GameMenuState::Closed {
-            // 魔法の発射
-
-            if get_fire_trigger(buttons, gamepad_buttons, &my_gamepad) && player.cooltime == 0 {
-                let normalized = player.pointer.normalize();
-                let angle = player.pointer.to_angle();
-                for _ in 0..BULLETS_PER_FIRE {
-                    let angle_with_random = angle + (random::<f32>() - 0.5) * BULLET_SCATTERING;
-                    let direction = Vec2::from_angle(angle_with_random);
-                    let range = WITCH_COLLIDER_RADIUS + BULLET_RADIUS + BULLET_SPAWNING_MARGIN;
-                    let bullet_position =
-                        player_transform.translation.truncate() + range * normalized;
-                    spawn_bullet(
-                        &mut commands,
-                        assets.asset.clone(),
-                        bullet_position,
-                        direction * BULLET_SPEED,
-                        Some(player.uuid),
-                        &mut se_writer,
-                    );
-
-                    if let Some(level) = current.0 {
-                        let serialized = bincode::serialize(&RemoteMessage::Fire {
-                            uuid: player.uuid,
-                            level,
-                            x: bullet_position.x,
-                            y: bullet_position.y,
-                            vx: direction.x * BULLET_SPEED,
-                            vy: direction.y * BULLET_SPEED,
-                        })
-                        .unwrap();
-                        writer.send(ClientMessage::Binary(serialized));
-                    }
-                }
-
-                player.cooltime = BULLET_COOLTIME;
-            } else {
-                player.cooltime = (player.cooltime - 1).max(0);
-            }
+    if let Ok(mut player) = player_query.get_single_mut() {
+        if *menu == GameMenuState::Closed && get_fire_trigger(buttons, gamepad_buttons, &my_gamepad)
+        {
+            player.fire_state = ActorFireState::Fire;
         } else {
-            player.cooltime = (player.cooltime - 1).max(0);
+            player.fire_state = ActorFireState::Idle;
         }
     }
 }
@@ -232,7 +169,7 @@ impl Plugin for PlayerPlugin {
             FixedUpdate,
             (
                 move_player,
-                fire_bullet,
+                trigger_bullet,
                 pick_gold,
                 die_player,
                 switch_intensity,

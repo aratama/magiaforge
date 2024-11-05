@@ -1,4 +1,4 @@
-use super::actor::{Actor, ActorState};
+use super::actor::{Actor, ActorFireState, ActorMoveState};
 use super::EntityDepth;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
@@ -23,12 +23,17 @@ pub fn spawn_slime(
             Actor {
                 uuid: Uuid::new_v4(),
                 cooltime: 0,
+                reload_speed: 25,
+                bullet_speed: 60.0,
+                bullet_lifetime: 60,
                 life: 20,
                 max_life: 20,
                 latest_damage: 0,
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
-                state: ActorState::Idle,
+                move_state: ActorMoveState::Idle,
+                fire_state: ActorFireState::Idle,
+                online: false,
             },
             EntityDepth,
             AsepriteAnimationBundle {

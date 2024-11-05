@@ -1,4 +1,4 @@
-use super::actor::{Actor, ActorState};
+use super::actor::{Actor, ActorFireState, ActorMoveState};
 use super::EntityDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
@@ -34,12 +34,17 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             cooltime: 0,
+            reload_speed: 125,
+            bullet_speed: 200.0,
+            bullet_lifetime: 240,
             life,
             max_life,
             latest_damage: 0,
             pointer: Vec2::from_angle(angle),
             intensity,
-            state: super::actor::ActorState::Idle,
+            move_state: ActorMoveState::Idle,
+            fire_state: ActorFireState::Idle,
+            online: true,
         },
         controller,
         EntityDepth,
@@ -114,15 +119,15 @@ pub fn spawn_witch<T: Component>(
 
 fn update_animation(mut query: Query<(&Actor, &mut Animation)>) {
     for (actor, mut animation) in query.iter_mut() {
-        match actor.state {
-            ActorState::Idle => {
+        match actor.move_state {
+            ActorMoveState::Idle => {
                 if animation.tag != Some("idle".to_string()) {
                     // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
                     // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
                     animation.play("idle", AnimationRepeat::Loop);
                 }
             }
-            ActorState::Run => {
+            ActorMoveState::Run => {
                 if animation.tag != Some("run".to_string()) {
                     animation.play("run", AnimationRepeat::Loop);
                 }

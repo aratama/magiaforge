@@ -1,8 +1,8 @@
 use super::player::Player;
-use crate::constant::*;
-use crate::entity::actor::Actor;
-use crate::entity::gold::spawn_gold;
 use crate::command::GameCommand;
+use crate::constant::*;
+use crate::entity::actor::{Actor, ActorFireState};
+use crate::entity::gold::spawn_gold;
 use crate::{asset::GameAssets, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -16,21 +16,33 @@ const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
 const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
-const ENEMY_ATTACK_POINT: i32 = 8;
+const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 5.0;
 
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます
-fn chase_player(
-    mut query: Query<(&mut ExternalForce, &mut Transform), (With<Enemy>, Without<Camera2d>)>,
+/// また、プレイヤーを狙います
+fn chase_and_aim_player(
+    mut query: Query<
+        (&mut ExternalForce, &mut Transform, &mut Actor),
+        (With<Enemy>, Without<Camera2d>),
+    >,
     mut player_query: Query<(&Actor, &GlobalTransform), (With<Player>, Without<Enemy>)>,
 ) {
     if let Ok((player, player_transform)) = player_query.get_single_mut() {
-        for (mut force, enemy_transform) in query.iter_mut() {
-            let diff = player_transform.translation() - enemy_transform.translation;
-            if 0 < player.life && diff.length() < ENEMY_DETECTION_RANGE {
-                let direction = diff.normalize_or_zero();
-                force.force = direction.truncate() * ENEMY_MOVE_FORCE;
-            } else {
-                force.force = Vec2::ZERO;
+        if 0 < player.life {
+            for (mut force, enemy_transform, mut actor) in query.iter_mut() {
+                let diff = player_transform.translation() - enemy_transform.translation;
+                if diff.length() < ENEMY_ATTACK_RANGE {
+                    force.force = Vec2::ZERO;
+                    actor.pointer = diff.truncate();
+                    actor.fire_state = ActorFireState::Fire;
+                } else if diff.length() < ENEMY_DETECTION_RANGE {
+                    let direction = diff.normalize_or_zero();
+                    force.force = direction.truncate() * ENEMY_MOVE_FORCE;
+                    actor.fire_state = ActorFireState::Idle;
+                } else {
+                    force.force = Vec2::ZERO;
+                    actor.fire_state = ActorFireState::Idle;
+                }
             }
         }
     }
@@ -62,67 +74,17 @@ fn dead_enemy(
     }
 }
 
-/// プレイヤーキャラクターと接触したらダメージを与えます
-fn attack(
-    enemy_query: Query<&mut Transform, (With<Enemy>, Without<Camera2d>)>,
-    mut player_query: Query<
-        (&mut Actor, &GlobalTransform, &mut ExternalImpulse),
-        (With<Player>, Without<Enemy>),
-    >,
-    mut collision_events: EventReader<CollisionEvent>,
-    mut writer: EventWriter<GameCommand>,
-) {
-    for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, _) => {
-                let _ = process_attack_event(&enemy_query, &mut player_query, &mut writer, a, b)
-                    || process_attack_event(&enemy_query, &mut player_query, &mut writer, b, a);
-            }
-            _ => {}
-        }
-    }
-}
-
-fn process_attack_event(
-    enemy_query: &Query<&mut Transform, (With<Enemy>, Without<Camera2d>)>,
-    player_query: &mut Query<
-        (&mut Actor, &GlobalTransform, &mut ExternalImpulse),
-        (With<Player>, Without<Enemy>),
-    >,
-    writer: &mut EventWriter<GameCommand>,
-    player_entity: &Entity,
-    enemy_entity: &Entity,
-) -> bool {
-    if let Ok((mut player, player_transform, mut player_impulse)) =
-        player_query.get_mut(*player_entity)
-    {
-        if let Ok(enemy_transform) = enemy_query.get(*enemy_entity) {
-            if player.life <= 0 {
-                return false;
-            }
-            let direction = player_transform.translation() - enemy_transform.translation;
-            let impulse = direction.normalize_or_zero() * 20000.0;
-            let damage = ENEMY_ATTACK_POINT;
-            player_impulse.impulse = impulse.truncate();
-            player.life = (player.life - damage).max(0);
-            player.latest_damage = damage;
-
-            writer.send(GameCommand::SEDageki);
-
-            return true;
-        }
-    }
-
-    false
-}
-
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (chase_player, attack, dead_enemy)
+            (
+                chase_and_aim_player,
+                // attack,
+                dead_enemy,
+            )
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),

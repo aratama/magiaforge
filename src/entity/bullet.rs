@@ -26,8 +26,6 @@ pub const BULLET_RADIUS: f32 = 5.0;
 
 const BULLET_DAMAGE: i32 = 5;
 
-const BULLET_LIFETIME: u32 = 240;
-
 // 弾丸発射時の、キャラクターと弾丸の間隔
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
 // 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
@@ -53,6 +51,7 @@ pub fn spawn_bullet(
     aseprite: Handle<Aseprite>,
     position: Vec2,
     velocity: Vec2,
+    lifetime: u32,
     owner: Option<Uuid>,
     writer: &mut EventWriter<GameCommand>,
 ) {
@@ -62,7 +61,7 @@ pub fn spawn_bullet(
         Name::new("bullet"),
         StateScoped(GameState::InGame),
         Bullet {
-            life: BULLET_LIFETIME,
+            life: lifetime,
             damage: BULLET_DAMAGE,
             impulse: BULLET_IMPULSE,
             owner,
@@ -126,10 +125,10 @@ fn bullet_collision(
     mut writer: EventWriter<GameCommand>,
 ) {
     // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
-    // すでにdespownしたentityに対して再びdespownしてしまうことがあり、
+    // すでにdespawnしたentityに対して再びdespawnしてしまうことがあり、
     // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
     // https://github.com/bevyengine/bevy/issues/5617
-    let mut despownings: HashSet<Entity> = HashSet::new();
+    let mut despawnings: HashSet<Entity> = HashSet::new();
 
     for collision_event in collision_events.read() {
         match collision_event {
@@ -139,7 +138,7 @@ fn bullet_collision(
                     &mut bullet_query,
                     &mut actor_query,
                     &mut breakable_query,
-                    &mut despownings,
+                    &mut despawnings,
                     &a,
                     &b,
                     &wall_collider_query,
@@ -150,7 +149,7 @@ fn bullet_collision(
                         &mut bullet_query,
                         &mut actor_query,
                         &mut breakable_query,
-                        &mut despownings,
+                        &mut despawnings,
                         &b,
                         &a,
                         &wall_collider_query,

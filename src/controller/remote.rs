@@ -3,9 +3,9 @@ use std::collections::HashSet;
 use super::player::Player;
 use crate::{
     asset::GameAssets,
+    command::GameCommand,
     config::GameConfig,
     entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
-    command::GameCommand,
     hud::life_bar::LifeBarResource,
     states::GameState,
     world::CurrentLevel,
@@ -54,6 +54,7 @@ pub enum RemoteMessage {
         y: f32,
         vx: f32,
         vy: f32,
+        bullet_lifetime: u32,
     },
     // ダメージを受けたことを通知します
     Hit {
@@ -234,6 +235,7 @@ fn receive_events(
                         y,
                         vx,
                         vy,
+                        bullet_lifetime,
                     } => {
                         if let Some(current_level) = current.0 {
                             if current_level == level {
@@ -242,6 +244,7 @@ fn receive_events(
                                     assets.asset.clone(),
                                     Vec2::new(x, y),
                                     Vec2::new(vx, vy),
+                                    bullet_lifetime,
                                     Some(uuid),
                                     &mut writer,
                                 );
@@ -286,14 +289,14 @@ fn receive_events(
 }
 
 /// 最終の Ping から120フレーム以上経過したリモートプレイヤーを削除します
-fn despown_no_contact_remotes(
+fn despawn_no_contact_remotes(
     mut commands: Commands,
     mut remotes: Query<(Entity, &Actor, &RemotePlayer)>,
     frame_count: Res<FrameCount>,
 ) {
     for (entity, actor, remote) in remotes.iter_mut() {
         if 120 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
-            info!("Remote player {} despowned", actor.uuid);
+            info!("Remote player {} despawned", actor.uuid);
             commands.entity(entity).despawn_recursive();
         }
     }
@@ -312,7 +315,7 @@ impl Plugin for RemotePlayerPlugin {
             (
                 send_player_states,
                 receive_events,
-                despown_no_contact_remotes,
+                despawn_no_contact_remotes,
             )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
