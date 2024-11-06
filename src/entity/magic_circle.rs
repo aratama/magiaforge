@@ -46,7 +46,7 @@ pub fn spawn_magic_circle(commands: &mut Commands, assets: &Res<GameAssets>, x: 
         },
         Collider::cuboid(TILE_HALF, TILE_HALF),
         Sensor,
-        CollisionGroups::new(WALL_GROUP, ACTOR_GROUP),
+        CollisionGroups::new(WALL_GROUP, WITCH_GROUP),
         ActiveEvents::COLLISION_EVENTS,
     ));
 

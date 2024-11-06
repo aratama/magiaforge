@@ -2,7 +2,7 @@ use super::actor::Actor;
 use super::breakable::Breakable;
 use super::EntityDepth;
 use crate::command::GameCommand;
-use crate::constant::{ACTOR_GROUP, BULLET_GROUP, WALL_GROUP};
+use crate::constant::*;
 use crate::controller::remote::RemotePlayer;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
@@ -54,6 +54,8 @@ pub fn spawn_bullet(
     lifetime: u32,
     owner: Option<Uuid>,
     writer: &mut EventWriter<GameCommand>,
+    group: Group,
+    filter: Group,
 ) {
     writer.send(GameCommand::SESuburi(Some(position)));
 
@@ -78,6 +80,7 @@ pub fn spawn_bullet(
             // 衝突にはColliderが必要
             Collider::ball(BULLET_RADIUS),
             // 速度ベースで制御するので KinematicVelocityBased
+            // これがないと Velocityを設定しても移動しない
             RigidBody::KinematicVelocityBased,
             // KinematicCharacterControllerは不要に見えるが、
             // これを外すと衝突イベントが起こらない不具合がたまに起こる？
@@ -89,8 +92,8 @@ pub fn spawn_bullet(
             // 衝突を発生されるには ActiveEvents も必要
             ActiveEvents::COLLISION_EVENTS,
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(BULLET_GROUP, WALL_GROUP | ACTOR_GROUP),
-            // そのほかのコンポーネント
+            CollisionGroups::new(group, filter),
+            //
             Velocity {
                 linvel: velocity,
                 angvel: 0.0,
@@ -125,8 +128,11 @@ fn despawn_bullet_by_lifetime(
 fn bullet_collision(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    mut actor_query: Query<(&mut Actor, &mut ExternalImpulse), Without<RemotePlayer>>,
-    mut breakable_query: Query<&mut Breakable>,
+    mut actor_query: Query<
+        (&mut Actor, &mut ExternalImpulse, &mut Breakable),
+        Without<RemotePlayer>,
+    >,
+    mut breakable_query: Query<&mut Breakable, Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut writer: EventWriter<GameCommand>,
@@ -172,9 +178,9 @@ fn bullet_collision(
 fn process_bullet_event(
     mut commands: &mut Commands,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    actors: &mut Query<(&mut Actor, &mut ExternalImpulse), Without<RemotePlayer>>,
-    breakabke_query: &mut Query<&mut Breakable>,
-    respownings: &mut HashSet<Entity>,
+    actors: &mut Query<(&mut Actor, &mut ExternalImpulse, &mut Breakable), Without<RemotePlayer>>,
+    breakabke_query: &mut Query<&mut Breakable, Without<Actor>>,
+    despownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
@@ -183,27 +189,42 @@ fn process_bullet_event(
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
 
-        if !respownings.contains(&bullet_entity) {
-            respownings.insert(bullet_entity.clone());
-            commands.entity(bullet_entity).despawn_recursive();
-            spawn_particle_system(&mut commands, bullet_position);
+        if !despownings.contains(&bullet_entity) {
+            if let Ok((mut actor, mut impilse, mut breakable)) = actors.get_mut(*b) {
+                info!("bullet hit actor: {:?}", actor.uuid);
 
-            if let Ok((mut actor, mut impilse)) = actors.get_mut(*b) {
                 // 弾丸がアクターに衝突したとき
                 // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
                 // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
                 // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     actor.life = (actor.life - bullet.damage).max(0);
+                    breakable.amplitude = 6.0;
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
+                    despownings.insert(bullet_entity.clone());
+                    commands.entity(bullet_entity).despawn_recursive();
+                    spawn_particle_system(&mut commands, bullet_position);
                     writer.send(GameCommand::SEDageki(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
+                info!("bullet hit breakable: {:?}", b);
                 breakabke.life -= bullet.damage;
+                breakabke.amplitude = 2.0;
+                despownings.insert(bullet_entity.clone());
+                commands.entity(bullet_entity).despawn_recursive();
+                spawn_particle_system(&mut commands, bullet_position);
                 writer.send(GameCommand::SEDageki(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
+                info!("bullet hit wall: {:?}", b);
+                despownings.insert(bullet_entity.clone());
+                commands.entity(bullet_entity).despawn_recursive();
+                spawn_particle_system(&mut commands, bullet_position);
                 writer.send(GameCommand::SEAsphalt(Some(bullet_position)));
             } else {
+                info!("bullet hit unknown entity: {:?}", b);
+                despownings.insert(bullet_entity.clone());
+                commands.entity(bullet_entity).despawn_recursive();
+                spawn_particle_system(&mut commands, bullet_position);
                 writer.send(GameCommand::SEShibafu(Some(bullet_position)));
             }
             true

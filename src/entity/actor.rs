@@ -4,6 +4,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
+use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use std::f32::consts::PI;
@@ -62,6 +63,10 @@ pub struct Actor {
     /// 弾丸の発射をリモートに通知するかどうか
     /// プレイヤーキャラクターはtrue、敵キャラクターはfalseにします
     pub online: bool,
+
+    pub group: Group,
+
+    pub filter: Group,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -178,6 +183,8 @@ fn fire_bullet(
                     actor.bullet_lifetime,
                     Some(actor.uuid),
                     &mut se_writer,
+                    actor.group,
+                    actor.filter,
                 );
 
                 if actor.online {

@@ -5,6 +5,7 @@ use crate::{
     asset::GameAssets,
     command::GameCommand,
     config::GameConfig,
+    constant::{ENEMY_GROUP, ENTITY_GROUP, WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP},
     entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
     hud::life_bar::LifeBarResource,
     states::GameState,
@@ -250,6 +251,8 @@ fn receive_events(
                                     bullet_lifetime,
                                     Some(uuid),
                                     &mut writer,
+                                    WITCH_BULLET_GROUP,
+                                    WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP,
                                 );
                             }
                         }

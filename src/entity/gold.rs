@@ -41,9 +41,10 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
             angular_damping: 0.8,
         },
         Collider::cuboid(1.5, 2.5),
-        CollisionGroups::new(ENTITY_GROUP, ENTITY_GROUP | ACTOR_GROUP | WALL_GROUP),
-        ActiveCollisionTypes::default(),
-        ActiveEvents::COLLISION_EVENTS,
+        CollisionGroups::new(ENTITY_GROUP, ENTITY_GROUP | WALL_GROUP),
+        // ActiveCollisionTypes::default(),
+        // ActiveEvents::COLLISION_EVENTS,
+        ExternalForce::default(),
     ));
 }
 

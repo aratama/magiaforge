@@ -1,4 +1,5 @@
 use super::actor::{Actor, ActorFireState, ActorMoveState};
+use super::breakable::{Breakable, BreakableSprite};
 use super::EntityDepth;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
@@ -35,28 +36,44 @@ pub fn spawn_slime(
                 move_state: ActorMoveState::Idle,
                 fire_state: ActorFireState::Idle,
                 online: false,
+                group: ENEMY_GROUP,
+                filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
             },
             EntityDepth,
-            AsepriteAnimationBundle {
-                aseprite: aseprite,
-                transform: Transform::from_translation(position.extend(5.0)),
-                animation: Animation::default().with_tag("idle").with_speed(0.2),
-                ..default()
+            Breakable {
+                life: 0,
+                amplitude: 0.0,
             },
-            RigidBody::Dynamic,
-            Collider::ball(8.0),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping {
-                linear_damping: 10.0,
-                angular_damping: 1.0,
-            },
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(ACTOR_GROUP, Group::ALL),
+            Transform::from_translation(position.extend(5.0)),
+            GlobalTransform::default(),
+            (
+                RigidBody::Dynamic,
+                Collider::ball(8.0),
+                GravityScale(0.0),
+                LockedAxes::ROTATION_LOCKED,
+                Damping {
+                    linear_damping: 10.0,
+                    angular_damping: 1.0,
+                },
+                ExternalForce::default(),
+                ExternalImpulse::default(),
+                ActiveEvents::COLLISION_EVENTS,
+                CollisionGroups::new(
+                    ENEMY_GROUP,
+                    ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP,
+                ),
+            ),
         ))
         .with_children(|mut parent| {
+            parent.spawn((
+                BreakableSprite,
+                AsepriteAnimationBundle {
+                    aseprite: aseprite,
+                    animation: Animation::default().with_tag("idle").with_speed(0.2),
+                    ..default()
+                },
+            ));
+
             spawn_life_bar(&mut parent, &life_bar_locals);
         });
 }

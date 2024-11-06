@@ -1,4 +1,7 @@
-use super::{breakable::Breakable, EntityDepth};
+use super::{
+    breakable::{Breakable, BreakableSprite},
+    EntityDepth,
+};
 use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
 use bevy::{core::FrameCount, prelude::*, sprite::Anchor};
 use bevy_aseprite_ultra::prelude::*;
@@ -19,24 +22,38 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
 
     let entity = commands.spawn_empty().id();
 
-    commands.entity(entity).insert((
-        Name::new("stone_lantern"),
-        StateScoped(GameState::InGame),
-        Breakable { life: 50 },
-        StoneLantern,
-        EntityDepth,
-        AsepriteAnimationBundle {
-            aseprite: assets.stone_lantern.clone(),
-            transform: Transform::from_translation(Vec3::new(tx, ty, 0.0)),
-            sprite: Sprite {
-                anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
-                ..default()
+    commands
+        .entity(entity)
+        .insert((
+            Name::new("stone_lantern"),
+            StateScoped(GameState::InGame),
+            Breakable {
+                life: 50,
+                amplitude: 0.0,
             },
-            ..default()
-        },
-        Collider::cuboid(8.0, 8.0),
-        CollisionGroups::new(WALL_GROUP, ACTOR_GROUP | BULLET_GROUP),
-    ));
+            StoneLantern,
+            EntityDepth,
+            Transform::from_translation(Vec3::new(tx, ty, 0.0)),
+            GlobalTransform::default(),
+            Collider::cuboid(8.0, 8.0),
+            CollisionGroups::new(
+                WALL_GROUP,
+                ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+            ),
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                BreakableSprite,
+                AsepriteAnimationBundle {
+                    aseprite: assets.stone_lantern.clone(),
+                    sprite: Sprite {
+                        anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
+                        ..default()
+                    },
+                    ..default()
+                },
+            ));
+        });
 
     commands.spawn((
         LanternParent(entity),

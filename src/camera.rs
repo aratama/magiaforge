@@ -50,10 +50,10 @@ fn update_camera(
             camera.translation.y += (player.translation.y - camera.translation.y) * CAMERA_SPEED;
 
             if keys.just_pressed(KeyCode::KeyR) {
-                *scale_factor = CameraScaleFactor((scale_factor.0 - 1.0).max(-2.0));
+                *scale_factor = CameraScaleFactor((scale_factor.0 - 0.5).max(-2.0));
             }
             if keys.just_pressed(KeyCode::KeyF) {
-                *scale_factor = CameraScaleFactor((scale_factor.0 + 1.0).min(1.0));
+                *scale_factor = CameraScaleFactor((scale_factor.0 + 0.5).min(1.0));
             }
             let s = ortho.scale.log2();
             ortho.scale = (2.0_f32).powf(s + (scale_factor.0 - s) * 0.2);

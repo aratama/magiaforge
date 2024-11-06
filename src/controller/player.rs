@@ -80,54 +80,31 @@ fn trigger_bullet(
 
 fn pick_gold(
     mut commands: Commands,
-    gold_query: Query<Entity, With<Gold>>,
+    mut gold_query: Query<(Entity, &Transform, &mut ExternalForce), With<Gold>>,
     mut player_query: Query<(&mut Player, &Transform)>,
-    mut collision_events: EventReader<CollisionEvent>,
     mut writer: EventWriter<GameCommand>,
 ) {
-    for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, _) => {
-                let _ = process_pick_event(
-                    &mut commands,
-                    &gold_query,
-                    &mut player_query,
-                    &mut writer,
-                    &a,
-                    &b,
-                ) || process_pick_event(
-                    &mut commands,
-                    &gold_query,
-                    &mut player_query,
-                    &mut writer,
-                    &b,
-                    &a,
-                );
-            }
-            _ => {}
-        }
-    }
-}
+    if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
+        let mut got_gold = false;
 
-fn process_pick_event(
-    commands: &mut Commands,
-    gold_query: &Query<Entity, With<Gold>>,
-    player_query: &mut Query<(&mut Player, &Transform)>,
-    writer: &mut EventWriter<GameCommand>,
-    gold: &Entity,
-    player: &Entity,
-) -> bool {
-    if let Ok(gold) = gold_query.get(*gold) {
-        if let Ok((mut player, transform)) = player_query.get_mut(*player) {
-            player.golds += 1;
+        for (gold, gold_transform, mut gold_force) in gold_query.iter_mut() {
+            let diff =
+                player_transform.translation.truncate() - gold_transform.translation.truncate();
+            if diff.length() < 16.0 {
+                player.golds += 1;
+                got_gold = true;
+                commands.entity(gold).despawn_recursive();
+            } else if diff.length() < 48.0 {
+                gold_force.force = diff.normalize() * 1000.0;
+            }
+        }
+
+        if got_gold {
             writer.send(GameCommand::SECancel(Some(
-                transform.translation.truncate(),
+                player_transform.translation.truncate(),
             )));
-            commands.entity(gold).despawn_recursive();
-            return true;
         }
     }
-    false
 }
 
 fn die_player(

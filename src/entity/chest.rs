@@ -1,4 +1,8 @@
-use super::{breakable::Breakable, gold::spawn_gold, EntityDepth};
+use super::{
+    breakable::{Breakable, BreakableSprite},
+    gold::spawn_gold,
+    EntityDepth,
+};
 use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -19,21 +23,34 @@ struct Chest {
 pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
     let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
     let ty = y - ENTITY_HEIGHT + TILE_SIZE / 2.0;
-    commands.spawn((
-        Name::new("chest"),
-        StateScoped(GameState::InGame),
-        Breakable { life: 30 },
-        Chest { golds: 10 },
-        EntityDepth,
-        AsepriteSliceBundle {
-            aseprite: aseprite,
-            slice: "chest".into(),
-            transform: Transform::from_translation(Vec3::new(tx, ty, 0.0)),
-            ..default()
-        },
-        Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-        CollisionGroups::new(WALL_GROUP, ACTOR_GROUP | BULLET_GROUP),
-    ));
+    commands
+        .spawn((
+            Name::new("chest"),
+            StateScoped(GameState::InGame),
+            Breakable {
+                life: 30,
+                amplitude: 0.0,
+            },
+            Chest { golds: 10 },
+            EntityDepth,
+            Transform::from_translation(Vec3::new(tx, ty, 0.0)),
+            GlobalTransform::default(),
+            Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+            CollisionGroups::new(
+                WALL_GROUP,
+                ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+            ),
+        ))
+        .with_children(move |parent| {
+            parent.spawn((
+                BreakableSprite,
+                AsepriteSliceBundle {
+                    aseprite: aseprite,
+                    slice: "chest".into(),
+                    ..default()
+                },
+            ));
+        });
 }
 
 fn break_chest(
@@ -65,7 +82,6 @@ pub struct ChestPlugin;
 
 impl Plugin for ChestPlugin {
     fn build(&self, app: &mut App) {
-        // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
         app.add_systems(FixedUpdate, break_chest.run_if(in_state(GameState::InGame)));
         app.register_type::<Chest>();
     }

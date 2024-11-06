@@ -1,4 +1,4 @@
-use super::breakable::Breakable;
+use super::breakable::{Breakable, BreakableSprite};
 use super::EntityDepth;
 use crate::command::GameCommand;
 use crate::{constant::*, states::GameState};
@@ -16,31 +16,46 @@ pub struct Bookshelf;
 /// 指定した位置に本棚を生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
-    commands.spawn((
+    let aseprite_clone = aseprite.clone();
+
+    let mut parent = commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        Breakable { life: 25 },
+        Breakable {
+            life: 25,
+            amplitude: 0.0,
+        },
         Bookshelf,
         EntityDepth,
-        AsepriteSliceBundle {
-            slice: "book_shelf".into(),
-            aseprite: aseprite,
-            sprite: Sprite {
-                // ここでanchorを設定しても反映されないことに注意
-                // Aseprite側でスライスごとに pivot を設定することができるようになっており、
-                // pivotが指定されている場合はそれが比率に変換されて anchor に設定されます
-                // pivotが指定されていない場合は Center になります
-                // https://github.com/Lommix/bevy_aseprite_ultra/blob/dc57882c8d3023e6879a29332ad42c6ddcf56380/src/loader.rs#L59
-                // anchor: bevy::sprite::Anchor::Center,
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
-            ..default()
-        },
+        Transform::from_translation(Vec3::new(x, y, 0.0)),
+        GlobalTransform::default(),
         RigidBody::Fixed,
         Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-        CollisionGroups::new(WALL_GROUP, ENTITY_GROUP | ACTOR_GROUP | BULLET_GROUP),
+        CollisionGroups::new(
+            WALL_GROUP,
+            ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+        ),
     ));
+
+    parent.with_children(move |parent| {
+        parent.spawn((
+            BreakableSprite,
+            AsepriteSliceBundle {
+                slice: "book_shelf".into(),
+                aseprite: aseprite_clone,
+                sprite: Sprite {
+                    // ここでanchorを設定しても反映されないことに注意
+                    // Aseprite側でスライスごとに pivot を設定することができるようになっており、
+                    // pivotが指定されている場合はそれが比率に変換されて anchor に設定されます
+                    // pivotが指定されていない場合は Center になります
+                    // https://github.com/Lommix/bevy_aseprite_ultra/blob/dc57882c8d3023e6879a29332ad42c6ddcf56380/src/loader.rs#L59
+                    // anchor: bevy::sprite::Anchor::Center,
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+    });
 }
 
 fn break_book_shelf(

@@ -9,6 +9,7 @@ use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
+use crate::entity::breakable::BreakablePlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::gold::GoldPlugin;
@@ -173,6 +174,7 @@ pub fn run_game() {
         .add_plugins(GoldPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(StoneLanternPlugin)
+        .add_plugins(BreakablePlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

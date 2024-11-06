@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use super::actor::{Actor, ActorFireState, ActorMoveState};
+use super::breakable::{Breakable, BreakableSprite};
 use super::EntityDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
@@ -62,21 +63,17 @@ pub fn spawn_witch<T: Component>(
             move_state: ActorMoveState::Idle,
             fire_state: ActorFireState::Idle,
             online: true,
+            group: WITCH_GROUP,
+            filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
         },
         controller,
         EntityDepth,
-        AsepriteAnimationBundle {
-            aseprite: assets.player.clone(),
-            transform: Transform::from_translation(position.extend(1.0)),
-            animation: Animation::default().with_tag("idle"),
-            sprite: Sprite {
-                // flip_x: true,
-                // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
-                // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
-                ..default()
-            },
-            ..default()
+        Breakable {
+            life: 0,
+            amplitude: 0.0,
         },
+        Transform::from_translation(position.extend(1.0)),
+        GlobalTransform::default(),
         (
             RigidBody::Dynamic,
             Velocity::default(),
@@ -90,14 +87,34 @@ pub fn spawn_witch<T: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             CollisionGroups::new(
-                ACTOR_GROUP,
-                ENTITY_GROUP | ACTOR_GROUP | WALL_GROUP | BULLET_GROUP,
+                WITCH_GROUP,
+                ENTITY_GROUP
+                    | WALL_GROUP
+                    | WITCH_GROUP
+                    | WITCH_BULLET_GROUP
+                    | ENEMY_GROUP
+                    | ENEMY_BULLET_GROUP,
             ),
         ),
         Footsteps(audio_instance),
     ));
 
     entity.with_children(move |spawn_children| {
+        spawn_children.spawn((
+            BreakableSprite,
+            AsepriteAnimationBundle {
+                aseprite: assets.player.clone(),
+                animation: Animation::default().with_tag("idle"),
+                sprite: Sprite {
+                    // flip_x: true,
+                    // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
+                    // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+
         spawn_children.spawn((
             Wand,
             AsepriteSliceBundle {
@@ -136,28 +153,33 @@ pub fn spawn_witch<T: Component>(
 }
 
 fn update_animation(
-    mut query: Query<(&Actor, &mut Animation, &mut Footsteps)>,
+    mut witch_query: Query<(&Actor, &mut Footsteps)>,
+    mut witch_animation_query: Query<(&Parent, &mut Animation)>,
     mut audio_instances: ResMut<Assets<AudioInstance>>,
 ) {
-    for (actor, mut animation, footsteps) in query.iter_mut() {
-        match actor.move_state {
-            ActorMoveState::Idle => {
-                if animation.tag != Some("idle".to_string()) {
-                    // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
-                    // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
-                    animation.play("idle", AnimationRepeat::Loop);
+    for (parent, mut animation) in witch_animation_query.iter_mut() {
+        if let Ok((actor, footsteps)) = witch_query.get_mut(**parent) {
+            match actor.move_state {
+                ActorMoveState::Idle => {
+                    if animation.tag != Some("idle".to_string()) {
+                        // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
+                        // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
+                        animation.play("idle", AnimationRepeat::Loop);
 
-                    if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
-                        instance.set_volume(0.0, AudioTween::linear(Duration::from_millis(200)));
+                        if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
+                            instance
+                                .set_volume(0.0, AudioTween::linear(Duration::from_millis(200)));
+                        }
                     }
                 }
-            }
-            ActorMoveState::Run => {
-                if animation.tag != Some("run".to_string()) {
-                    animation.play("run", AnimationRepeat::Loop);
+                ActorMoveState::Run => {
+                    if animation.tag != Some("run".to_string()) {
+                        animation.play("run", AnimationRepeat::Loop);
 
-                    if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
-                        instance.set_volume(0.3, AudioTween::linear(Duration::from_millis(100)));
+                        if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
+                            instance
+                                .set_volume(0.6, AudioTween::linear(Duration::from_millis(100)));
+                        }
                     }
                 }
             }

@@ -1,6 +1,9 @@
 use super::states::GameState;
 use bevy_rapier2d::prelude::*;
 
+#[allow(dead_code)]
+pub const CRATE_NAME: &str = "magiaboost";
+
 // Setupステートでの初期化が完了した直後に遷移する先のステート
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
 pub const INITIAL_STATE: GameState = GameState::InGame;
@@ -39,18 +42,22 @@ pub const Z_ORDER_SCALE: f32 = 0.001;
 
 pub const CAMERA_SPEED: f32 = 0.1;
 
-#[allow(dead_code)]
-pub const CRATE_NAME: &str = "magiaboost";
-
 // 衝突グループ
+// 敵キャラクターが同士討ちしないように、敵キャラクターはグループを分けています
+// WITCH_GROUP は PVP があるため、他のすべてのグループと衝突します
+// それ以外の敵キャラクターグループは、自分のグループの攻撃には衝突しません
 
 pub const ENTITY_GROUP: Group = Group::GROUP_1;
 
-pub const ACTOR_GROUP: Group = Group::GROUP_2;
-
 pub const WALL_GROUP: Group = Group::GROUP_3;
 
-pub const BULLET_GROUP: Group = Group::GROUP_4;
+pub const WITCH_GROUP: Group = Group::GROUP_5;
+
+pub const WITCH_BULLET_GROUP: Group = Group::GROUP_6;
+
+pub const ENEMY_GROUP: Group = Group::GROUP_6;
+
+pub const ENEMY_BULLET_GROUP: Group = Group::GROUP_7;
 
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
