@@ -11,8 +11,6 @@ pub fn button<'a>(
     assets: &Res<GameAssets>,
     button_type: SystemId,
     text: impl Into<String>,
-    x: f32,
-    y: f32,
     w: f32,
     h: f32,
 ) {
@@ -25,11 +23,8 @@ pub fn button<'a>(
             OnPress(button_type),
             ButtonBundle {
                 style: Style {
-                    position_type: PositionType::Absolute,
                     width: Val::Px(SCALE * w),
                     height: Val::Px(SCALE * h),
-                    left: Val::Px(SCALE * x),
-                    top: Val::Px(SCALE * y),
                     // horizontally center child text
                     justify_content: JustifyContent::Center,
                     // vertically center child text

@@ -14,8 +14,8 @@ use git_version::git_version;
 
 #[derive(Resource)]
 struct ButtonShots {
-    start: SystemId,
-    config: SystemId,
+    single: SystemId,
+    multi: SystemId,
 
     #[allow(dead_code)]
     exit: SystemId,
@@ -24,37 +24,47 @@ struct ButtonShots {
 impl FromWorld for ButtonShots {
     fn from_world(world: &mut World) -> Self {
         ButtonShots {
-            start: world.register_system(start_game),
-            config: world.register_system(config_game),
+            single: world.register_system(start_single_player),
+            multi: world.register_system(start_multiplayer),
             exit: world.register_system(exit_game),
         }
     }
 }
 
-fn start_game(
+fn start_single_player(
     mut query: Query<&mut Visibility, With<OnPress>>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    config: Res<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
+    mut config: ResMut<GameConfig>,
+) {
+    for mut visibility in &mut query {
+        *visibility = Visibility::Hidden;
+    }
+    config.online = false;
+    menu_next_state.set(MainMenuPhase::Paused);
+    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::StateInGame);
+    writer.send(GameCommand::BGMNone);
+}
+
+fn start_multiplayer(
+    mut query: Query<&mut Visibility, With<OnPress>>,
+    mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
+    mut config: ResMut<GameConfig>,
     mut writer: EventWriter<GameCommand>,
 ) {
     for mut visibility in &mut query {
         *visibility = Visibility::Hidden;
     }
+    config.online = true;
     menu_next_state.set(MainMenuPhase::Paused);
-
+    writer.send(GameCommand::SEKettei(None));
     if config.player_name.is_empty() {
         writer.send(GameCommand::StateNameInput);
     } else {
         writer.send(GameCommand::StateInGame);
         writer.send(GameCommand::BGMNone);
     }
-
-    writer.send(GameCommand::SEKettei(None));
-}
-
-fn config_game(mut writer: EventWriter<GameCommand>) {
-    writer.send(GameCommand::StateConfig);
-    writer.send(GameCommand::SEKettei(None));
 }
 
 fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {
@@ -77,8 +87,12 @@ fn setup_main_menu(
             Name::new("main menu"),
             NodeBundle {
                 style: Style {
-                    width: Val::Px(1280.0),
-                    height: Val::Px(720.0),
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(400.0),
+                    left: Val::Px(60.0),
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Px(8.0),
                     ..Default::default()
                 },
                 z_index: ZIndex::Global(GAME_MENU_Z_INDEX),
@@ -86,30 +100,12 @@ fn setup_main_menu(
             },
         ))
         .with_children(|parent| {
-            button(
-                parent,
-                &assets,
-                shots.start,
-                "Start Game",
-                30.0,
-                96.0,
-                84.0,
-                16.0,
-            );
+            button(parent, &assets, shots.single, "Single Player", 84.0, 16.0);
 
-            button(
-                parent,
-                &assets,
-                shots.config,
-                "Config",
-                30.0,
-                123.0,
-                84.0,
-                16.0,
-            );
+            button(parent, &assets, shots.multi, "Multiplayer", 84.0, 16.0);
 
             #[cfg(not(target_arch = "wasm32"))]
-            button(parent, &assets, shots.exit, "Exit", 30.0, 142.0, 84.0, 16.0);
+            button(parent, &assets, shots.exit, "Exit", 84.0, 16.0);
         });
 
     commands.spawn((

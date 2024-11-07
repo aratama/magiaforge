@@ -38,7 +38,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, shots: Res<ButtonShots
             },
         ))
         .with_children(|parent| {
-            button(parent, &assets, shots.back, "Back", 10.0, 10.0, 84.0, 16.0);
+            button(parent, &assets, shots.back, "Back", 84.0, 16.0);
         });
 }
 

@@ -25,7 +25,6 @@ pub enum GameCommand {
     BGMArechi,
     StateMainMenu,
     StateNameInput,
-    StateConfig,
     StateInGame,
     StateWarp,
 }
@@ -146,9 +145,6 @@ fn process_game_commands(
             }
             GameCommand::StateNameInput => {
                 *overlay_next_state = OverlayNextState(Some(GameState::NameInput));
-            }
-            GameCommand::StateConfig => {
-                *overlay_next_state = OverlayNextState(Some(GameState::Config));
             }
             GameCommand::StateInGame => {
                 *overlay_next_state = OverlayNextState(Some(GameState::InGame));

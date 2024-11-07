@@ -1,5 +1,6 @@
 use crate::{
     asset::GameAssets,
+    config::GameConfig,
     controller::{player::Player, remote::RemotePlayer},
     states::GameState,
 };
@@ -18,7 +19,11 @@ struct PlayersLabel;
 #[derive(Component)]
 struct RemotePlayerListItem;
 
-fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
+fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig>) {
+    if !config.online {
+        return;
+    }
+
     commands
         .spawn((
             StateScoped(GameState::InGame),
@@ -84,57 +89,57 @@ fn update_player_list(
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
 ) {
-    let parent = list_query.single_mut();
-
-    let mut players = Vec::<(String, i32, Color)>::new();
-    if let Ok(player) = player_query.get_single() {
-        players.push((
-            player.name.clone(),
-            player.golds,
-            Color::hsl(120.0, 1.0, 0.5),
-        ));
-    }
-    for (_, remote_player) in remote_query.iter() {
-        players.push((
-            remote_player.name.clone(),
-            remote_player.golds,
-            Color::WHITE,
-        ));
-    }
-
-    players.sort_by(|a, b| b.1.cmp(&a.1));
-
-    // 必要な個数だけListItemを生成
-    let diff = players.len() as i32 - remote_player_items_query.iter().len() as i32;
-    if 0 < diff {
-        for _ in 0..diff {
-            commands.entity(parent).with_children(|parent| {
-                parent.spawn((
-                    RemotePlayerListItem,
-                    TextBundle::from_section(
-                        "(anonymous)".to_string(),
-                        TextStyle {
-                            font: assets.dotgothic.clone(),
-                            color: Color::WHITE,
-                            font_size: 20.0,
-                            ..default()
-                        },
-                    ),
-                    Label,
-                ));
-            });
+    if let Ok(parent) = list_query.get_single_mut() {
+        let mut players = Vec::<(String, i32, Color)>::new();
+        if let Ok(player) = player_query.get_single() {
+            players.push((
+                player.name.clone(),
+                player.golds,
+                Color::hsl(120.0, 1.0, 0.5),
+            ));
         }
-    } else if diff < 0 {
-        for i in players.len()..remote_player_items_query.iter().len() {
-            if let Some((item_entity, _, _)) = remote_player_items_query.iter().nth(i) {
-                commands.entity(item_entity).despawn_recursive();
+        for (_, remote_player) in remote_query.iter() {
+            players.push((
+                remote_player.name.clone(),
+                remote_player.golds,
+                Color::WHITE,
+            ));
+        }
+
+        players.sort_by(|a, b| b.1.cmp(&a.1));
+
+        // 必要な個数だけListItemを生成
+        let diff = players.len() as i32 - remote_player_items_query.iter().len() as i32;
+        if 0 < diff {
+            for _ in 0..diff {
+                commands.entity(parent).with_children(|parent| {
+                    parent.spawn((
+                        RemotePlayerListItem,
+                        TextBundle::from_section(
+                            "(anonymous)".to_string(),
+                            TextStyle {
+                                font: assets.dotgothic.clone(),
+                                color: Color::WHITE,
+                                font_size: 20.0,
+                                ..default()
+                            },
+                        ),
+                        Label,
+                    ));
+                });
             }
-        }
-    } else {
-        for (i, (name, golds, color)) in players.iter().enumerate() {
-            let (_, _, mut text) = remote_player_items_query.iter_mut().nth(i).unwrap();
-            text.sections[0].value = format_remote_player_name(&name, *golds);
-            text.sections[0].style.color = *color;
+        } else if diff < 0 {
+            for i in players.len()..remote_player_items_query.iter().len() {
+                if let Some((item_entity, _, _)) = remote_player_items_query.iter().nth(i) {
+                    commands.entity(item_entity).despawn_recursive();
+                }
+            }
+        } else {
+            for (i, (name, golds, color)) in players.iter().enumerate() {
+                let (_, _, mut text) = remote_player_items_query.iter_mut().nth(i).unwrap();
+                text.sections[0].value = format_remote_player_name(&name, *golds);
+                text.sections[0].style.color = *color;
+            }
         }
     }
 }
@@ -152,8 +157,10 @@ fn update_players(
     mut players_label_query: Query<&mut Text, With<PlayersLabel>>,
 ) {
     // プレイヤー数を更新
-    let mut players_label = players_label_query.single_mut();
-    players_label.sections[0].value = format!("[ {} Players ]", 1 + remote_query.iter().count(),);
+    if let Ok(mut players_label) = players_label_query.get_single_mut() {
+        players_label.sections[0].value =
+            format!("[ {} Players ]", 1 + remote_query.iter().count());
+    }
 }
 
 /// WebSocketの状態のラベルテキストを更新
@@ -161,15 +168,16 @@ fn update_ready_state_label(
     mut ready_state_label_query: Query<&mut Text, With<ReadyStateLabel>>,
     state: Res<WebSocketState>,
 ) {
-    let mut ready_state_label = ready_state_label_query.single_mut();
-    ready_state_label.sections[0].value = format!(
-        "{}",
-        if state.ready_state == ReadyState::OPEN {
-            "Online"
-        } else {
-            "Offline"
-        }
-    );
+    if let Ok(mut ready_state_label) = ready_state_label_query.get_single_mut() {
+        ready_state_label.sections[0].value = format!(
+            "{}",
+            if state.ready_state == ReadyState::OPEN {
+                "Online"
+            } else {
+                "Offline"
+            }
+        );
+    }
 }
 
 pub struct PlayerListPlugin;
