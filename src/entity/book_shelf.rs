@@ -29,6 +29,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         EntityDepth,
         Transform::from_translation(Vec3::new(x, y, 0.0)),
         GlobalTransform::default(),
+        InheritedVisibility::default(),
         RigidBody::Fixed,
         Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
         CollisionGroups::new(

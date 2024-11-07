@@ -74,6 +74,7 @@ pub fn spawn_witch<T: Component>(
         },
         Transform::from_translation(position.extend(1.0)),
         GlobalTransform::default(),
+        InheritedVisibility::default(),
         (
             RigidBody::Dynamic,
             Velocity::default(),

@@ -35,6 +35,7 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
             EntityDepth,
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
+            InheritedVisibility::default(),
             Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
             CollisionGroups::new(
                 WALL_GROUP,

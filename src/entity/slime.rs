@@ -46,6 +46,7 @@ pub fn spawn_slime(
             },
             Transform::from_translation(position.extend(5.0)),
             GlobalTransform::default(),
+            InheritedVisibility::default(),
             (
                 RigidBody::Dynamic,
                 Collider::ball(8.0),
