@@ -11,6 +11,7 @@ use std::f32::consts::PI;
 use uuid::Uuid;
 
 use super::{
+    breakable::BreakableSprite,
     bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN},
     witch::WITCH_COLLIDER_RADIUS,
 };
@@ -83,14 +84,19 @@ pub enum ActorFireState {
     Fire,
 }
 
-fn update_actor_z(mut query: Query<(&Actor, &mut Sprite)>) {
-    for (actor, mut sprite) in query.iter_mut() {
-        // プレイヤーの向き
-        let angle = actor.pointer.y.atan2(actor.pointer.x);
-        if angle < -PI * 0.5 || PI * 0.5 < angle {
-            sprite.flip_x = true;
-        } else {
-            sprite.flip_x = false;
+fn update_sprite_flip(
+    actor_query: Query<&Actor>,
+    mut sprite_query: Query<(&Parent, &mut Sprite), With<BreakableSprite>>,
+) {
+    for (parent, mut sprite) in sprite_query.iter_mut() {
+        if let Ok(actor) = actor_query.get(parent.get()) {
+            // プレイヤーの向き
+            let angle = actor.pointer.y.atan2(actor.pointer.x);
+            if angle < -PI * 0.5 || PI * 0.5 < angle {
+                sprite.flip_x = true;
+            } else {
+                sprite.flip_x = false;
+            }
         }
     }
 }
@@ -190,6 +196,7 @@ fn fire_bullet(
                 if actor.online {
                     if let Some(level) = current.0 {
                         let serialized = bincode::serialize(&RemoteMessage::Fire {
+                            sender: actor.uuid,
                             uuid: actor.uuid,
                             level,
                             x: bullet_position.x,
@@ -217,7 +224,7 @@ impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_actor_z, update_actor_light).run_if(in_state(GameState::InGame)),
+            (update_sprite_flip, update_actor_light).run_if(in_state(GameState::InGame)),
         );
         app.add_systems(
             FixedUpdate,

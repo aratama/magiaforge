@@ -10,6 +10,8 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 
+const PLAYER_MOVE_FORCE: f32 = 50000.0;
+
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component)]
 pub struct Player {
@@ -26,17 +28,16 @@ pub struct Player {
 
 /// プレイヤーの移動
 fn move_player(
+    mut player_query: Query<(&mut Actor, &mut ExternalForce), With<Player>>,
     keys: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<(&mut Actor, &mut ExternalForce), (With<Player>, Without<Camera2d>)>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    gamepads: Option<Res<MyGamepad>>,
     axes: Res<Axis<GamepadAxis>>,
     menu: Res<State<GameMenuState>>,
 ) {
-    let force = 50000.0;
-    let direction = get_direction(keys, axes, &my_gamepad);
     if let Ok((mut actor, mut player_force)) = player_query.get_single_mut() {
         if *menu == GameMenuState::Closed {
-            player_force.force = direction * force;
+            let direction = get_direction(keys, axes, &gamepads);
+            player_force.force = direction * PLAYER_MOVE_FORCE;
             actor.move_state = if 0.0 < player_force.force.length() {
                 ActorMoveState::Run
             } else {
@@ -133,7 +134,11 @@ fn die_player(
             }
 
             writer.send(ClientMessage::Binary(
-                bincode::serialize(&RemoteMessage::Die { uuid: actor.uuid }).unwrap(),
+                bincode::serialize(&RemoteMessage::Die {
+                    sender: actor.uuid,
+                    uuid: actor.uuid,
+                })
+                .unwrap(),
             ));
         }
     }

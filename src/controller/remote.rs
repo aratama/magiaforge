@@ -11,7 +11,7 @@ use crate::{
     states::GameState,
     world::CurrentLevel,
 };
-use bevy::{core::FrameCount, prelude::*};
+use bevy::{core::FrameCount, prelude::*, utils::HashMap};
 use bevy_kira_audio::Audio;
 use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
@@ -19,7 +19,25 @@ use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// オンライン対戦でリモート操作されているキャラクターを表します
+/// ネットワークに接続したクライアントは、常に互いの位置を送信しあっているため、
+/// プレイヤーキャラクターがどこのレベルにいるのかに関わらず、常にその位置をお互いに把握しています。
+/// また、実際に画面上にスポーンはしないものの、モンスター等の情報も定期的に把握しています。
+///
+/// プレイヤーキャラクターが新たなレベルに到達したとき、
+/// そのレベルに別のプレイヤーがいる場合は、現在までに受信しているそのレベルのモンスターを自分のワールドにスポーンします。
+/// そのレベルに別のプレイヤーがいない場合は、現在受信しているそのレベルのモンスターは無視し、
+/// 新たにレベルとモンスターを生成してプレイを開始します。
+/// なおこのとき、同じレベルに同時にプレイヤーが到達した場合、
+/// 双方が同時にモンスターをスポーンするため、通常の2倍のモンスターが生成されることがあります。
+/// この場合、優先権の高い側のプレイヤーは低い側の通知を無視するため、問題ありません。
+/// 優先権の低い側のプレイヤーには一時的に2倍のモンスターが生成されますが、
+/// ホスト権がないためこの余計なモンスターの情報が他者に通知されることはなく、
+/// タイムアウト後に余計なモンスターは削除されます。
+///
+/// そのレベルの「ホスト」はそのレベルにいる最もUUIDの大きいプレイヤーです。
+/// ホストはモンスターの動きを判定し、他のプレイヤーに通知します。
+/// 自分よりuUIDの小さいユーザーから通知が来た場合、その通知は無視されます。
+///
 #[derive(Component)]
 pub struct RemotePlayer {
     pub name: String,
@@ -29,12 +47,11 @@ pub struct RemotePlayer {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum RemoteMessage {
-    /// このプレイヤーが参加を開始したことを通知し、他のプレイヤーの自己紹介を促します
-    Join,
-    // 現在位置を通知します
+    // エンティティの現在位置を通知します
     // 前回の通知と比較して、位置が変更されたか60フレーム以上経過した場合、
     // 他のプレイヤーから Join が送られたときは再通知します
     Position {
+        sender: Uuid,
         uuid: Uuid,
         name: String,
         golds: i32,
@@ -50,6 +67,7 @@ pub enum RemoteMessage {
     },
     // 弾を発射したことを通知します
     Fire {
+        sender: Uuid,
         uuid: Uuid,
         level: i32,
         x: f32,
@@ -60,10 +78,12 @@ pub enum RemoteMessage {
     },
     // ダメージを受けたことを通知します
     Hit {
+        sender: Uuid,
         uuid: Uuid,
         damage: i32,
     },
     Die {
+        sender: Uuid,
         uuid: Uuid,
     },
 }
@@ -93,6 +113,7 @@ fn send_player_states(
                         || actor.max_life != player.last_idle_max_life
                     {
                         let command = RemoteMessage::Position {
+                            sender: actor.uuid,
                             uuid: actor.uuid,
                             name: player.name.clone(),
                             golds: player.golds,
@@ -134,6 +155,27 @@ fn on_exit(config: Res<GameConfig>, mut writer: EventWriter<ClientMessage>) {
     }
 }
 
+#[allow(dead_code)]
+enum RemoteEntityContent {
+    Witch,
+    Slime,
+    Chest,
+    BookShelf,
+}
+
+#[allow(dead_code)]
+struct RemoteEntity {
+    last_update: FrameCount,
+    content: RemoteEntityContent,
+    position: Vec2,
+    level: i32,
+}
+
+#[allow(dead_code)]
+struct RemoteStates {
+    entities: HashMap<Uuid, RemoteEntity>,
+}
+
 fn receive_events(
     mut commands: Commands,
     mut reader: EventReader<ServerMessage>,
@@ -168,8 +210,8 @@ fn receive_events(
                 let command: RemoteMessage =
                     bincode::deserialize(bin).expect("Failed to deserialize");
                 match command {
-                    RemoteMessage::Join => {}
                     RemoteMessage::Position {
+                        sender: _sender,
                         uuid,
                         name,
                         golds,
@@ -233,6 +275,7 @@ fn receive_events(
                         }
                     }
                     RemoteMessage::Fire {
+                        sender: _sender,
                         uuid,
                         level,
                         x,
@@ -257,7 +300,11 @@ fn receive_events(
                             }
                         }
                     }
-                    RemoteMessage::Hit { uuid, damage } => {
+                    RemoteMessage::Hit {
+                        sender: _sender,
+                        uuid,
+                        damage,
+                    } => {
                         let target = remotes
                             .iter_mut()
                             .find(|(_, _, actor, _, _)| actor.uuid == uuid);
@@ -267,7 +314,10 @@ fn receive_events(
                             remote.last_update = *frame_count;
                         }
                     }
-                    RemoteMessage::Die { uuid } => {
+                    RemoteMessage::Die {
+                        sender: _sender,
+                        uuid,
+                    } => {
                         let target = remotes
                             .iter_mut()
                             .find(|(_, _, actor, _, _)| actor.uuid == uuid);

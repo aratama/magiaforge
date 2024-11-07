@@ -2,7 +2,6 @@ use super::actor::Actor;
 use super::breakable::Breakable;
 use super::EntityDepth;
 use crate::command::GameCommand;
-use crate::constant::*;
 use crate::controller::remote::RemotePlayer;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
