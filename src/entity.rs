@@ -6,7 +6,6 @@ pub mod bullet;
 pub mod chest;
 pub mod gold;
 pub mod magic_circle;
-pub mod slime;
 pub mod stone_lantern;
 pub mod witch;
 

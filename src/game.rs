@@ -7,6 +7,8 @@ use crate::constant::*;
 use crate::controller::enemy::EnemyPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
+use crate::enemy::eyeball::EyeballControlPlugin;
+use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::breakable::BreakablePlugin;
@@ -175,6 +177,8 @@ pub fn run_game() {
         .add_plugins(EntityPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(BreakablePlugin)
+        .add_plugins(SlimeControlPlugin)
+        .add_plugins(EyeballControlPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

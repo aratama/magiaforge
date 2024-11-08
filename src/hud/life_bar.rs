@@ -19,7 +19,7 @@ pub struct LifeBar;
 #[derive(Component)]
 pub struct LifeBarBackground;
 
-#[derive(Resource, Reflect)]
+#[derive(Resource, Reflect, Clone)]
 pub struct LifeBarResource {
     material_life: Handle<ColorMaterial>,
     material_background: Handle<ColorMaterial>,

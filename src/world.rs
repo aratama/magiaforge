@@ -6,9 +6,9 @@ pub mod wall;
 use super::asset::GameAssets;
 use super::constant::*;
 use super::controller::player::Player;
+use super::enemy::slime::spawn_slime;
 use super::entity::book_shelf::spawn_book_shelf;
 use super::entity::chest::spawn_chest;
-use super::entity::slime::spawn_slime;
 use super::entity::witch::spawn_witch;
 use super::entity::GameEntity;
 use super::hud::life_bar::LifeBarResource;
@@ -19,6 +19,7 @@ use super::world::map::LevelTileMap;
 use super::world::tile::*;
 use crate::command::GameCommand;
 use crate::config::GameConfig;
+use crate::enemy::eyeball::spawn_eyeball;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::stone_lantern::spawn_stone_lantern;
@@ -156,11 +157,24 @@ fn spawn_level(
         &audio,
     );
 
-    for _ in 0..20 {
+    for _ in 0..10 {
         let (x, y) = random_select(&mut empties);
         spawn_slime(
             &mut commands,
-            assets.slime.clone(),
+            &assets,
+            Vec2::new(
+                TILE_SIZE * x as f32 + TILE_HALF,
+                TILE_SIZE * -y as f32 - TILE_HALF,
+            ),
+            &life_bar_res,
+        );
+    }
+
+    for _ in 0..10 {
+        let (x, y) = random_select(&mut empties);
+        spawn_eyeball(
+            &mut commands,
+            &assets,
             Vec2::new(
                 TILE_SIZE * x as f32 + TILE_HALF,
                 TILE_SIZE * -y as f32 - TILE_HALF,

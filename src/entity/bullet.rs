@@ -33,6 +33,7 @@ pub const BULLET_SPAWNING_MARGIN: f32 = 4.0;
 pub enum BulletType {
     BlueBullet,
     PurpleBullet,
+    SlimeAttackBullet,
 }
 
 #[derive(Component, Reflect)]
@@ -79,6 +80,7 @@ pub fn spawn_bullet(
             slice: AsepriteSlice::new(match bullet_type {
                 BulletType::BlueBullet => "bullet",
                 BulletType::PurpleBullet => "purple_bullet",
+                BulletType::SlimeAttackBullet => "slime_attack",
             }),
             transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
                 * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)

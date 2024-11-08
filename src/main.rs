@@ -5,12 +5,13 @@
 mod asset;
 mod audio;
 mod camera;
+mod command;
 mod config;
 mod constant;
 mod controller;
+mod enemy;
 mod entity;
 mod game;
-mod command;
 mod hud;
 mod input;
 mod page;
