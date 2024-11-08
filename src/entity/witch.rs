@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::time::Duration;
 
 use super::actor::{Actor, ActorFireState, ActorMoveState};
@@ -192,14 +193,15 @@ fn update_animation(
 
 fn update_wand(
     actor_query: Query<&Actor>,
-    mut query: Query<(&Parent, &mut Transform), With<Wand>>,
+    mut query: Query<(&Parent, &mut Transform, &mut Sprite), With<Wand>>,
 ) {
-    for (parent, mut transform) in query.iter_mut() {
+    for (parent, mut transform, mut sprite) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
             transform.rotation = Quat::from_rotation_z(angle);
-            transform.translation = Vec3::new(0.0, 6.0, -0.01);
+            transform.translation = Vec3::new(0.0, 0.0, -0.01);
+            sprite.flip_y = if angle.abs() < PI / 2.0 { false } else { true };
         }
     }
 }

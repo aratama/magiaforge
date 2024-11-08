@@ -17,7 +17,7 @@ use super::{
 };
 
 // 魔法の拡散
-const BULLET_SCATTERING: f32 = 0.3;
+const BULLET_SCATTERING: f32 = 0.4;
 
 /// 次の魔法を発射するまでの待機時間
 /// この値は全アクター共通で、アクターのreload_speedが上昇すると再発射までの時間が短くなります
