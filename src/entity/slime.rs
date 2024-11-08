@@ -1,5 +1,6 @@
 use super::actor::{Actor, ActorFireState, ActorMoveState};
 use super::breakable::{Breakable, BreakableSprite};
+use super::bullet::BulletType;
 use super::EntityDepth;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
@@ -38,6 +39,7 @@ pub fn spawn_slime(
                 online: false,
                 group: ENEMY_GROUP,
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
+                bullet_type: BulletType::PurpleBullet,
             },
             EntityDepth,
             Breakable {

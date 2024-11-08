@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use super::actor::{Actor, ActorFireState, ActorMoveState};
 use super::breakable::{Breakable, BreakableSprite};
+use super::bullet::BulletType;
 use super::EntityDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
@@ -65,6 +66,7 @@ pub fn spawn_witch<T: Component>(
             online: true,
             group: WITCH_GROUP,
             filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
+            bullet_type: BulletType::BlueBullet,
         },
         controller,
         EntityDepth,

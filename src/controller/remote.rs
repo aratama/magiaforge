@@ -6,7 +6,12 @@ use crate::{
     command::GameCommand,
     config::GameConfig,
     constant::{ENEMY_GROUP, ENTITY_GROUP, WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP},
-    entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
+    entity::{
+        actor::Actor,
+        bullet::{spawn_bullet, BulletType},
+        gold::spawn_gold,
+        witch::spawn_witch,
+    },
     hud::life_bar::LifeBarResource,
     states::GameState,
     world::CurrentLevel,
@@ -75,6 +80,7 @@ pub enum RemoteMessage {
         vx: f32,
         vy: f32,
         bullet_lifetime: u32,
+        bullet_type: BulletType,
     },
     // ダメージを受けたことを通知します
     Hit {
@@ -283,6 +289,7 @@ fn receive_events(
                         vx,
                         vy,
                         bullet_lifetime,
+                        bullet_type,
                     } => {
                         if let Some(current_level) = current.0 {
                             if current_level == level {
@@ -296,6 +303,7 @@ fn receive_events(
                                     &mut writer,
                                     WITCH_BULLET_GROUP,
                                     WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP,
+                                    bullet_type,
                                 );
                             }
                         }

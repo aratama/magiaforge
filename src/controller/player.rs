@@ -8,7 +8,7 @@ use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy_simple_websocket::ClientMessage;
+use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 
 const PLAYER_MOVE_FORCE: f32 = 50000.0;
 
@@ -114,6 +114,7 @@ fn die_player(
     player_query: Query<(Entity, &Player, &Actor, &Transform)>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<GameCommand>,
+    websocket: Res<WebSocketState>,
 ) {
     if let Ok((entity, player, actor, transform)) = player_query.get_single() {
         if actor.life <= 0 {
@@ -133,13 +134,15 @@ fn die_player(
                 );
             }
 
-            writer.send(ClientMessage::Binary(
-                bincode::serialize(&RemoteMessage::Die {
-                    sender: actor.uuid,
-                    uuid: actor.uuid,
-                })
-                .unwrap(),
-            ));
+            if websocket.ready_state == ReadyState::OPEN {
+                writer.send(ClientMessage::Binary(
+                    bincode::serialize(&RemoteMessage::Die {
+                        sender: actor.uuid,
+                        uuid: actor.uuid,
+                    })
+                    .unwrap(),
+                ));
+            }
         }
     }
 }

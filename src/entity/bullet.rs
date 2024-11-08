@@ -6,16 +6,15 @@ use crate::controller::remote::RemotePlayer;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSliceBundle};
+use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
 use bevy_light_2d::light::PointLight2d;
 use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
-
-const SLICE_NAME: &str = "bullet";
 
 static BULLET_Z: f32 = 10.0;
 
@@ -29,6 +28,12 @@ const BULLET_DAMAGE: i32 = 5;
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
 // 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
 pub const BULLET_SPAWNING_MARGIN: f32 = 4.0;
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub enum BulletType {
+    BlueBullet,
+    PurpleBullet,
+}
 
 #[derive(Component, Reflect)]
 pub struct Bullet {
@@ -55,6 +60,7 @@ pub fn spawn_bullet(
     writer: &mut EventWriter<GameCommand>,
     group: Group,
     filter: Group,
+    bullet_type: BulletType,
 ) {
     writer.send(GameCommand::SESuburi(Some(position)));
 
@@ -70,7 +76,10 @@ pub fn spawn_bullet(
         EntityDepth,
         AsepriteSliceBundle {
             aseprite,
-            slice: SLICE_NAME.into(),
+            slice: AsepriteSlice::new(match bullet_type {
+                BulletType::BlueBullet => "bullet",
+                BulletType::PurpleBullet => "purple_bullet",
+            }),
             transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
                 * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
             ..default()
@@ -190,7 +199,7 @@ fn process_bullet_event(
 
         if !despownings.contains(&bullet_entity) {
             if let Ok((mut actor, mut impilse, mut breakable)) = actors.get_mut(*b) {
-                info!("bullet hit actor: {:?}", actor.uuid);
+                trace!("bullet hit actor: {:?}", actor.uuid);
 
                 // 弾丸がアクターに衝突したとき
                 // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
@@ -206,7 +215,7 @@ fn process_bullet_event(
                     writer.send(GameCommand::SEDageki(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
-                info!("bullet hit breakable: {:?}", b);
+                trace!("bullet hit breakable: {:?}", b);
                 breakabke.life -= bullet.damage;
                 breakabke.amplitude = 2.0;
                 despownings.insert(bullet_entity.clone());
@@ -214,13 +223,13 @@ fn process_bullet_event(
                 spawn_particle_system(&mut commands, bullet_position);
                 writer.send(GameCommand::SEDageki(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
-                info!("bullet hit wall: {:?}", b);
+                trace!("bullet hit wall: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position);
                 writer.send(GameCommand::SEAsphalt(Some(bullet_position)));
             } else {
-                info!("bullet hit unknown entity: {:?}", b);
+                trace!("bullet hit unknown entity: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position);

@@ -5,14 +5,14 @@ use crate::{
 use bevy::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
 use bevy_rapier2d::prelude::Group;
-use bevy_simple_websocket::ClientMessage;
+use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use rand::random;
 use std::f32::consts::PI;
 use uuid::Uuid;
 
 use super::{
     breakable::BreakableSprite,
-    bullet::{spawn_bullet, BULLET_RADIUS, BULLET_SPAWNING_MARGIN},
+    bullet::{spawn_bullet, BulletType, BULLET_RADIUS, BULLET_SPAWNING_MARGIN},
     witch::WITCH_COLLIDER_RADIUS,
 };
 
@@ -68,6 +68,8 @@ pub struct Actor {
     pub group: Group,
 
     pub filter: Group,
+
+    pub bullet_type: BulletType,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -162,6 +164,7 @@ fn fire_bullet(
     mut writer: EventWriter<ClientMessage>,
     current: Res<CurrentLevel>,
     mut se_writer: EventWriter<GameCommand>,
+    websocket: Res<WebSocketState>,
 ) {
     for (mut actor, actor_transform) in actor_query.iter_mut() {
         if actor.life <= 0 {
@@ -174,6 +177,8 @@ fn fire_bullet(
         {
             actor.mana = (actor.mana - BULLET_MANA_COST).max(0);
 
+            let bullet_type = actor.bullet_type;
+
             let normalized = actor.pointer.normalize();
             let angle = actor.pointer.to_angle();
             for _ in 0..BULLETS_PER_FIRE {
@@ -181,6 +186,7 @@ fn fire_bullet(
                 let direction = Vec2::from_angle(angle_with_random);
                 let range = WITCH_COLLIDER_RADIUS + BULLET_RADIUS + BULLET_SPAWNING_MARGIN;
                 let bullet_position = actor_transform.translation.truncate() + range * normalized;
+
                 spawn_bullet(
                     &mut commands,
                     assets.asset.clone(),
@@ -191,9 +197,10 @@ fn fire_bullet(
                     &mut se_writer,
                     actor.group,
                     actor.filter,
+                    bullet_type,
                 );
 
-                if actor.online {
+                if actor.online && websocket.ready_state == ReadyState::OPEN {
                     if let Some(level) = current.0 {
                         let serialized = bincode::serialize(&RemoteMessage::Fire {
                             sender: actor.uuid,
@@ -204,6 +211,7 @@ fn fire_bullet(
                             vx: direction.x * actor.bullet_speed,
                             vy: direction.y * actor.bullet_speed,
                             bullet_lifetime: actor.bullet_lifetime,
+                            bullet_type: bullet_type,
                         })
                         .unwrap();
                         writer.send(ClientMessage::Binary(serialized));
