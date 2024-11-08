@@ -17,7 +17,7 @@ const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
 const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
-const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 5.0;
+const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 8.0;
 
 pub fn spawn_eyeball(
     mut commands: &mut Commands,
@@ -33,7 +33,8 @@ pub fn spawn_eyeball(
         EyeballControl,
         "eyeball",
         BulletType::PurpleBullet,
-        120,
+        200,
+        10,
     );
 }
 

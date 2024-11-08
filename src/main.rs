@@ -18,6 +18,7 @@ mod page;
 mod set;
 mod states;
 mod ui;
+mod wand;
 mod world;
 
 use game::run_game;

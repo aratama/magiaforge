@@ -1,6 +1,3 @@
-use std::f32::consts::PI;
-use std::time::Duration;
-
 use super::actor::{Actor, ActorFireState, ActorMoveState};
 use super::breakable::{Breakable, BreakableSprite};
 use super::bullet::BulletType;
@@ -9,19 +6,27 @@ use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
+use crate::wand::{Spell, Wand};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_kira_audio::prelude::*;
 use bevy_rapier2d::prelude::*;
+use std::f32::consts::PI;
+use std::time::Duration;
 use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
 #[derive(Default, Component, Reflect)]
-pub struct Wand;
+pub struct WandSprite;
 
 #[derive(Default, Component, Reflect)]
 pub struct Footsteps(Handle<AudioInstance>);
+
+#[derive(Component)]
+pub struct Witch {
+    pub wands: Vec<Option<Wand>>,
+}
 
 pub fn spawn_witch<T: Component>(
     commands: &mut Commands,
@@ -37,9 +42,10 @@ pub fn spawn_witch<T: Component>(
     life_bar: bool,
     intensity: f32,
 
-    audio: &Res<Audio>,
+    // 足音のオーディオインスタンス
+    footstep_audio: &Res<Audio>,
 ) {
-    let audio_instance = audio
+    let audio_instance = footstep_audio
         .play(assets.taiikukan.clone())
         .looped()
         .with_volume(0.0)
@@ -68,6 +74,18 @@ pub fn spawn_witch<T: Component>(
             group: WITCH_GROUP,
             filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
             bullet_type: BulletType::BlueBullet,
+        },
+        Witch {
+            wands: vec![
+                Some(Wand {
+                    slots: vec![Some(Spell::MagicBolt), None, None, None],
+                }),
+                Some(Wand {
+                    slots: vec![Some(Spell::MagicBolt), None, None, None],
+                }),
+                None,
+                None,
+            ],
         },
         controller,
         EntityDepth,
@@ -120,7 +138,7 @@ pub fn spawn_witch<T: Component>(
         ));
 
         spawn_children.spawn((
-            Wand,
+            WandSprite,
             AsepriteSliceBundle {
                 aseprite: assets.asset.clone(),
                 slice: "wand".into(),
@@ -193,7 +211,7 @@ fn update_animation(
 
 fn update_wand(
     actor_query: Query<&Actor>,
-    mut query: Query<(&Parent, &mut Transform, &mut Sprite), With<Wand>>,
+    mut query: Query<(&Parent, &mut Transform, &mut Sprite), With<WandSprite>>,
 ) {
     for (parent, mut transform, mut sprite) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {

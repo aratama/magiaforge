@@ -34,6 +34,7 @@ pub fn spawn_slime(
         "slime",
         BulletType::SlimeAttackBullet,
         10,
+        25,
     );
 }
 

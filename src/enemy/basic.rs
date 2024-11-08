@@ -21,6 +21,7 @@ pub fn spawn_basic_enemy<T: Component>(
     name: &str,
     bullet_type: BulletType,
     bullet_lifetime: u32,
+    reload_speed: i32,
 ) {
     commands
         .spawn((
@@ -31,7 +32,7 @@ pub fn spawn_basic_enemy<T: Component>(
             Actor {
                 uuid: Uuid::new_v4(),
                 cooltime: 0,
-                reload_speed: 25,
+                reload_speed,
                 mana: 1000,
                 max_mana: 1000,
                 bullet_speed: 60.0,
