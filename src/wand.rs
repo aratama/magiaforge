@@ -30,12 +30,14 @@ pub struct WandList;
 #[derive(Component)]
 pub struct WandSlot;
 
-pub fn setup(mut commands: Commands) {
-    commands.spawn((
+pub fn spawn_wand_list(parent: &mut ChildBuilder) {
+    parent.spawn((
         WandList,
         NodeBundle {
             style: Style {
                 display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(4.),
                 ..default()
             },
             ..default()
@@ -54,14 +56,54 @@ fn update(
         let (wand_list, _) = wand_list_query.single_mut();
         for _ in wand_slots_query.iter().count()..witch.wands.len() {
             commands.entity(wand_list).with_children(|parent| {
-                parent.spawn((
-                    WandSlot,
-                    AsepriteSliceUiBundle {
-                        aseprite: assets.asset.clone(),
-                        slice: "wand".into(),
+                parent
+                    .spawn(NodeBundle {
+                        style: Style {
+                            display: Display::Flex,
+                            flex_direction: FlexDirection::Row,
+                            column_gap: Val::Px(2.),
+                            ..default()
+                        },
                         ..default()
-                    },
-                ));
+                    })
+                    .with_children(|parent| {
+                        parent.spawn((
+                            WandSlot,
+                            ImageBundle {
+                                style: Style {
+                                    width: Val::Px(64.),
+                                    height: Val::Px(32.),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            AsepriteSliceUiBundle {
+                                aseprite: assets.asset.clone(),
+                                slice: "wand".into(),
+                                ..default()
+                            },
+                        ));
+
+                        for _ in 0..5 {
+                            parent.spawn((
+                                ImageBundle {
+                                    style: Style {
+                                        width: Val::Px(32.),
+                                        height: Val::Px(32.),
+                                        border: UiRect::all(Val::Px(1.)),
+                                        ..default()
+                                    },
+                                    ..default()
+                                },
+                                BorderColor(Color::WHITE),
+                                AsepriteSliceUiBundle {
+                                    aseprite: assets.asset.clone(),
+                                    slice: "bullet".into(),
+                                    ..default()
+                                },
+                            ));
+                        }
+                    });
             });
         }
         for _ in witch.wands.len()..wand_slots_query.iter().count() {
@@ -76,7 +118,6 @@ pub struct WandListPlugin;
 
 impl Plugin for WandListPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::InGame), setup);
         app.add_systems(Update, update.run_if(in_state(GameState::InGame)));
     }
 }

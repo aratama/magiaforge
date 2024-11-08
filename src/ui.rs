@@ -1,3 +1,4 @@
+pub mod bar;
 pub mod button;
 pub mod game_menu;
 pub mod hover_color;

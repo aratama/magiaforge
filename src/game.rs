@@ -29,6 +29,7 @@ use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::states::*;
+use crate::ui::bar::StatusBarPlugin;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::on_press::OnPressPlugin;
@@ -181,6 +182,7 @@ pub fn run_game() {
         .add_plugins(SlimeControlPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(WandListPlugin)
+        .add_plugins(StatusBarPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
