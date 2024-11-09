@@ -32,7 +32,6 @@ pub fn spawn_eyeball(
         life_bar_locals,
         EyeballControl,
         "eyeball",
-        10,
         Spell::PurpleBolt,
     );
 }

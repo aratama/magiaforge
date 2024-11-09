@@ -56,8 +56,7 @@ pub fn spawn_witch<T: Component>(
         StateScoped(GameState::InGame),
         Actor {
             uuid,
-            cooltime: 0,
-            reload_speed: 125,
+            spell_delay: 0,
             mana: 1000,
             max_mana: 1000,
             life,

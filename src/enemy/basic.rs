@@ -20,7 +20,6 @@ pub fn spawn_basic_enemy<T: Component>(
     life_bar_locals: &Res<LifeBarResource>,
     marker: T,
     name: &str,
-    reload_speed: i32,
     spell: Spell,
 ) {
     commands
@@ -31,8 +30,7 @@ pub fn spawn_basic_enemy<T: Component>(
             marker,
             Actor {
                 uuid: Uuid::new_v4(),
-                cooltime: 0,
-                reload_speed,
+                spell_delay: 0,
                 mana: 1000,
                 max_mana: 1000,
                 life: 20,

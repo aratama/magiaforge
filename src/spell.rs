@@ -33,13 +33,21 @@ pub fn cast_spell(
 ) {
     let props = spell_to_props(spell);
 
-    let cost = props.cost;
-
-    if actor.mana < cost {
+    if actor.mana < props.mana_drain {
         return;
     }
 
-    actor.mana = (actor.mana - cost).max(0);
+    if 0 < actor.spell_delay {
+        return;
+    }
+
+    if spell == Spell::Heal && actor.life == actor.max_life {
+        return;
+    }
+
+    let props = spell_to_props(spell);
+    actor.mana -= props.mana_drain;
+    actor.spell_delay += props.cast_delay as i32;
 
     match spell {
         Spell::MagicBolt => {
@@ -69,8 +77,6 @@ pub fn cast_spell(
             );
         }
         Spell::SlimeCharge => {
-            let props = spell_to_props(spell);
-            actor.mana = (actor.mana - props.cost).max(0);
             spawn_bullets(
                 &mut commands,
                 &assets,
@@ -85,6 +91,10 @@ pub fn cast_spell(
         }
         Spell::Heal => {
             actor.life = (actor.life + 2).min(actor.max_life);
+
+            se_writer.send(GameCommand::SEKaifuku(Some(
+                actor_transform.translation.truncate(),
+            )));
         }
     }
 }

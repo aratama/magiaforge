@@ -32,7 +32,6 @@ pub fn spawn_slime(
         life_bar_locals,
         SlimeControl,
         "slime",
-        25,
         Spell::SlimeCharge,
     );
 }

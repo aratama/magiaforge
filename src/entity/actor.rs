@@ -16,9 +16,7 @@ pub struct Actor {
     pub uuid: Uuid,
 
     /// 次の魔法を発射できるまでのクールタイム
-    pub cooltime: i32,
-
-    pub reload_speed: i32,
+    pub spell_delay: i32,
 
     pub mana: i32,
 
@@ -151,7 +149,7 @@ fn fire_bullet(
 
         if let Some(wand) = &actor.wands[actor.current_wand] {
             if let Some(spell) = wand.slots[0] {
-                if actor.fire_state == ActorFireState::Fire && actor.cooltime == 0 {
+                if actor.fire_state == ActorFireState::Fire {
                     cast_spell(
                         &mut commands,
                         &assets,
@@ -163,11 +161,11 @@ fn fire_bullet(
                         &actor_transform,
                         spell,
                     );
-                } else {
-                    actor.cooltime = (actor.cooltime - actor.reload_speed).max(0);
                 }
             }
         }
+
+        actor.spell_delay = (actor.spell_delay - 1).max(0);
     }
 }
 

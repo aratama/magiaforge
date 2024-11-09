@@ -28,7 +28,7 @@ const BULLET_SCATTERING: f32 = 0.4;
 
 /// 次の魔法を発射するまでの待機時間
 /// この値は全アクター共通で、アクターのreload_speedが上昇すると再発射までの時間が短くなります
-const BULLET_MAX_COOLTIME: i32 = 1000;
+pub const BULLET_MAX_COOLTIME: i32 = 1000;
 
 // 弾丸発射時の、キャラクターと弾丸の間隔
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
@@ -52,6 +52,8 @@ pub struct BulletBundle {
 
 /// 指定した種類の弾丸を発射します
 /// このとき、アクターへのマナ消費、クールタイムの設定、弾丸の生成、リモート通信などを行います
+/// この関数はすでに発射が確定している場合に呼ばれ、発射条件のチェックは行いません
+/// 発射条件やコストの消費などは cast_spell で行います
 pub fn spawn_bullets(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
@@ -105,8 +107,6 @@ pub fn spawn_bullets(
             writer.send(ClientMessage::Binary(serialized));
         }
     }
-
-    actor.cooltime = BULLET_MAX_COOLTIME;
 }
 
 /// 指定された位置、方向、弾丸種別などから実際にエンティティを生成します

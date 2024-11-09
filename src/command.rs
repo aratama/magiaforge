@@ -20,6 +20,7 @@ pub enum GameCommand {
     SEMenuOpen(Option<Vec2>),
     SEWarp(Option<Vec2>),
     SECancel(Option<Vec2>),
+    SEKaifuku(Option<Vec2>),
     BGMNone,
     BGMBoubaku,
     BGMArechi,
@@ -127,6 +128,15 @@ fn process_game_commands(
                     &audio,
                     &config,
                     assets.cancel.clone(),
+                    position,
+                    camera_position,
+                );
+            }
+            GameCommand::SEKaifuku(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.kaifuku1.clone(),
                     position,
                     camera_position,
                 );
