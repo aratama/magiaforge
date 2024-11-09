@@ -2,6 +2,7 @@ pub mod life_bar;
 pub mod overlay;
 pub mod pointer;
 
+use crate::asset::GameAssets;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
 use crate::wand::spawn_wand_list;
 
@@ -25,7 +26,7 @@ pub struct PlayerManaBar;
 #[derive(Component)]
 pub struct PlayerGold;
 
-fn setup_hud(mut commands: Commands) {
+fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
     let mut root = commands.spawn((
         Name::new("hud_root"),
         StateScoped(GameState::InGame),
@@ -87,7 +88,7 @@ fn setup_hud(mut commands: Commands) {
             HUD,
         ));
 
-        spawn_wand_list(&mut parent);
+        spawn_wand_list(&mut parent, &assets);
     });
 
     #[cfg(feature = "debug")]

@@ -1,11 +1,16 @@
 use super::remote::RemoteMessage;
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
+use crate::constant::MAX_WANDS;
 use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
+use crate::entity::bullet::BulletType;
 use crate::entity::gold::{spawn_gold, Gold};
+use crate::entity::witch::{self, Witch};
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
+use crate::wand::Spell;
 use bevy::core::FrameCount;
+use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
@@ -75,6 +80,30 @@ fn trigger_bullet(
             player.fire_state = ActorFireState::Fire;
         } else {
             player.fire_state = ActorFireState::Idle;
+        }
+    }
+}
+
+fn switch_wand(mut witch_query: Query<&mut Witch>, mut wheel: EventReader<MouseWheel>) {
+    for event in wheel.read() {
+        if let Ok(mut witch) = witch_query.get_single_mut() {
+            witch.current_wand = (witch.current_wand as i32 - event.y.signum() as i32)
+                .max(0)
+                .min(MAX_WANDS as i32 - 1) as usize;
+        }
+    }
+}
+
+fn select_bullet_type(mut witch_query: Query<(&Witch, &mut Actor)>) {
+    if let Ok((witch, mut actor)) = witch_query.get_single_mut() {
+        actor.bullet_type = match &witch.wands[witch.current_wand] {
+            None => BulletType::BlueBullet,
+            Some(wand) => match wand.slots[0] {
+                Some(Spell::MagicBolt) => BulletType::BlueBullet,
+                Some(Spell::PurpleBolt) => BulletType::PurpleBullet,
+                Some(Spell::SlimeCharge) => BulletType::SlimeAttackBullet,
+                None => BulletType::BlueBullet,
+            },
         }
     }
 }
@@ -162,6 +191,8 @@ impl Plugin for PlayerPlugin {
                 pick_gold,
                 die_player,
                 switch_intensity,
+                switch_wand,
+                select_bullet_type,
             )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),

@@ -1,5 +1,5 @@
 use crate::states::GameState;
-use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy::prelude::*;
 
 const BAR_HEIGHT: f32 = 16.0;
 

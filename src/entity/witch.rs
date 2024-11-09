@@ -25,7 +25,8 @@ pub struct Footsteps(Handle<AudioInstance>);
 
 #[derive(Component)]
 pub struct Witch {
-    pub wands: Vec<Option<Wand>>,
+    pub current_wand: usize,
+    pub wands: [Option<Wand>; MAX_WANDS],
 }
 
 pub fn spawn_witch<T: Component>(
@@ -76,14 +77,17 @@ pub fn spawn_witch<T: Component>(
             bullet_type: BulletType::BlueBullet,
         },
         Witch {
-            wands: vec![
+            current_wand: 0,
+            wands: [
                 Some(Wand {
-                    slots: vec![Some(Spell::MagicBolt), None, None, None],
+                    slots: vec![Some(Spell::MagicBolt), None, None],
                 }),
                 Some(Wand {
-                    slots: vec![Some(Spell::MagicBolt), None, None, None],
+                    slots: vec![Some(Spell::PurpleBolt), None, None, None],
                 }),
-                None,
+                Some(Wand {
+                    slots: vec![Some(Spell::SlimeCharge), Some(Spell::MagicBolt), None, None],
+                }),
                 None,
             ],
         },

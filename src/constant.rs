@@ -8,6 +8,8 @@ pub const CRATE_NAME: &str = "magiaboost";
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
 pub const INITIAL_STATE: GameState = GameState::InGame;
 
+pub const MAX_WANDS: usize = 4;
+
 /// level.aseprite のスライスの最大値 - 1
 pub const LEVELS: i32 = 3;
 
