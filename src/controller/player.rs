@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
+use crate::bullet_type::BulletType;
 use crate::command::GameCommand;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
-use crate::entity::bullet::BulletType;
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::entity::witch::Witch;
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};

@@ -1,15 +1,11 @@
+use crate::bullet_type::BulletType;
 use crate::controller::player::Player;
 use crate::{
     asset::GameAssets,
     command::GameCommand,
     config::GameConfig,
     constant::{ENEMY_GROUP, ENTITY_GROUP, WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP},
-    entity::{
-        actor::Actor,
-        bullet::{spawn_bullet, BulletType},
-        gold::spawn_gold,
-        witch::spawn_witch,
-    },
+    entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
     hud::life_bar::LifeBarResource,
     states::GameState,
     world::CurrentLevel,

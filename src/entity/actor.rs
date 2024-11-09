@@ -1,11 +1,15 @@
-use crate::entity::{
-    breakable::BreakableSprite,
-    bullet::{spawn_bullet, BulletType, BULLET_RADIUS, BULLET_SPAWNING_MARGIN},
-    witch::WITCH_COLLIDER_RADIUS,
-};
+use crate::bullet_type::bullet_type_to_props;
 use crate::{
     asset::GameAssets, command::GameCommand, controller::remote::RemoteMessage, states::GameState,
     world::CurrentLevel,
+};
+use crate::{
+    bullet_type::BulletType,
+    entity::{
+        breakable::BreakableSprite,
+        bullet::{spawn_bullet, BULLET_SPAWNING_MARGIN},
+        witch::WITCH_COLLIDER_RADIUS,
+    },
 };
 use bevy::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
@@ -25,8 +29,6 @@ const BULLET_MAX_COOLTIME: i32 = 1000;
 // 一度に発射する弾丸の数
 const BULLETS_PER_FIRE: u32 = 1;
 
-const BULLET_MANA_COST: i32 = 50;
-
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
 pub struct Actor {
@@ -40,13 +42,6 @@ pub struct Actor {
     pub mana: i32,
 
     pub max_mana: i32,
-
-    /// 魔法弾の速度
-    /// pixels_per_meter が 100.0 に設定されているので、
-    /// 200は1フレームに2ピクセル移動する速度です
-    pub bullet_speed: f32,
-
-    pub bullet_lifetime: u32,
 
     pub life: i32,
     pub max_life: i32,
@@ -170,11 +165,16 @@ fn fire_bullet(
             return;
         }
 
+        let bullet_props = bullet_type_to_props(actor.bullet_type);
+        let bullet_cost = bullet_props.cost as i32;
+        let bullet_lifetime = bullet_props.lifetime;
+        let bullet_speed = bullet_props.speed;
+
         if actor.fire_state == ActorFireState::Fire
             && actor.cooltime == 0
-            && BULLET_MANA_COST <= actor.mana
+            && bullet_cost <= actor.mana
         {
-            actor.mana = (actor.mana - BULLET_MANA_COST).max(0);
+            actor.mana = (actor.mana - bullet_cost).max(0);
 
             let bullet_type = actor.bullet_type;
 
@@ -183,15 +183,15 @@ fn fire_bullet(
             for _ in 0..BULLETS_PER_FIRE {
                 let angle_with_random = angle + (random::<f32>() - 0.5) * BULLET_SCATTERING;
                 let direction = Vec2::from_angle(angle_with_random);
-                let range = WITCH_COLLIDER_RADIUS + BULLET_RADIUS + BULLET_SPAWNING_MARGIN;
+                let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
                 let bullet_position = actor_transform.translation.truncate() + range * normalized;
 
                 spawn_bullet(
                     &mut commands,
                     assets.asset.clone(),
                     bullet_position,
-                    direction * actor.bullet_speed,
-                    actor.bullet_lifetime,
+                    direction * bullet_speed,
+                    bullet_lifetime,
                     Some(actor.uuid),
                     &mut se_writer,
                     actor.group,
@@ -207,9 +207,9 @@ fn fire_bullet(
                             level,
                             x: bullet_position.x,
                             y: bullet_position.y,
-                            vx: direction.x * actor.bullet_speed,
-                            vy: direction.y * actor.bullet_speed,
-                            bullet_lifetime: actor.bullet_lifetime,
+                            vx: direction.x * bullet_speed,
+                            vy: direction.y * bullet_speed,
+                            bullet_lifetime,
                             bullet_type: bullet_type,
                         })
                         .unwrap();

@@ -1,9 +1,9 @@
+use crate::bullet_type::BulletType;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::ActorMoveState;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
-use crate::entity::bullet::BulletType;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
@@ -35,8 +35,6 @@ pub fn spawn_basic_enemy<T: Component>(
                 reload_speed,
                 mana: 1000,
                 max_mana: 1000,
-                bullet_speed: 60.0,
-                bullet_lifetime,
                 life: 20,
                 max_life: 20,
                 pointer: Vec2::ZERO,

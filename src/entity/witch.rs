@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::bullet_type::BulletType;
 use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
-use crate::entity::bullet::BulletType;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
@@ -63,8 +63,6 @@ pub fn spawn_witch<T: Component>(
             reload_speed: 125,
             mana: 1000,
             max_mana: 1000,
-            bullet_speed: 200.0,
-            bullet_lifetime: 240,
             life,
             max_life,
             pointer: Vec2::from_angle(angle),

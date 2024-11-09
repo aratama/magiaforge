@@ -1,10 +1,11 @@
-use crate::command::GameCommand;
+use crate::bullet_type::bullet_type_to_props;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
 use crate::entity::EntityDepth;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
+use crate::{bullet_type::BulletType, command::GameCommand};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
 use bevy_light_2d::light::PointLight2d;
@@ -12,29 +13,15 @@ use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
-use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
 
 static BULLET_Z: f32 = 10.0;
 
-static BULLET_IMPULSE: f32 = 20000.0;
-
-pub const BULLET_RADIUS: f32 = 5.0;
-
-const BULLET_DAMAGE: i32 = 5;
-
 // 弾丸発射時の、キャラクターと弾丸の間隔
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
 // 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
-pub const BULLET_SPAWNING_MARGIN: f32 = 4.0;
-
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub enum BulletType {
-    BlueBullet,
-    PurpleBullet,
-    SlimeAttackBullet,
-}
+pub const BULLET_SPAWNING_MARGIN: f32 = 9.0;
 
 #[derive(Component, Reflect)]
 pub struct Bullet {
@@ -65,13 +52,15 @@ pub fn spawn_bullet(
 ) {
     writer.send(GameCommand::SESuburi(Some(position)));
 
-    commands.spawn((
+    let props = bullet_type_to_props(bullet_type);
+
+    let mut entity = commands.spawn((
         Name::new("bullet"),
         StateScoped(GameState::InGame),
         Bullet {
             life: lifetime,
-            damage: BULLET_DAMAGE,
-            impulse: BULLET_IMPULSE,
+            damage: props.damage,
+            impulse: props.impulse,
             owner,
         },
         EntityDepth,
@@ -88,7 +77,7 @@ pub fn spawn_bullet(
         },
         (
             // 衝突にはColliderが必要
-            Collider::ball(BULLET_RADIUS),
+            Collider::ball(props.collier_radius),
             // 速度ベースで制御するので KinematicVelocityBased
             // これがないと Velocityを設定しても移動しない
             RigidBody::KinematicVelocityBased,
@@ -112,14 +101,22 @@ pub fn spawn_bullet(
             Sleeping::disabled(),
             Ccd::enabled(),
         ),
-        PointLight2d {
-            radius: 50.0,
-            intensity: 1.0,
-            falloff: 10.0,
-            color: Color::hsl(245.0, 1.0, 0.6),
-            ..default()
-        },
     ));
+
+    if 0.0 < props.light_intensity {
+        entity.insert(PointLight2d {
+            radius: props.light_radius,
+            intensity: props.light_intensity,
+            falloff: 10.0,
+            color: Color::hsla(
+                props.light_color_hlsa[0],
+                props.light_color_hlsa[1],
+                props.light_color_hlsa[2],
+                props.light_color_hlsa[3],
+            ),
+            ..default()
+        });
+    }
 }
 
 fn despawn_bullet_by_lifetime(

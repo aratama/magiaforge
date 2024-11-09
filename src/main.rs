@@ -4,6 +4,7 @@
 
 mod asset;
 mod audio;
+mod bullet_type;
 mod camera;
 mod command;
 mod config;
