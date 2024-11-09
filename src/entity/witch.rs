@@ -1,12 +1,12 @@
 use crate::asset::GameAssets;
-use crate::bullet_type::BulletType;
 use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use crate::spell::Spell;
 use crate::states::GameState;
-use crate::wand::{Spell, Wand};
+use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_kira_audio::prelude::*;
@@ -24,10 +24,7 @@ pub struct WandSprite;
 pub struct Footsteps(Handle<AudioInstance>);
 
 #[derive(Component)]
-pub struct Witch {
-    pub current_wand: usize,
-    pub wands: [Option<Wand>; MAX_WANDS],
-}
+pub struct Witch;
 
 pub fn spawn_witch<T: Component>(
     commands: &mut Commands,
@@ -72,9 +69,6 @@ pub fn spawn_witch<T: Component>(
             online: true,
             group: WITCH_GROUP,
             filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
-            bullet_type: BulletType::BlueBullet,
-        },
-        Witch {
             current_wand: 0,
             wands: [
                 Some(Wand {
@@ -84,11 +78,12 @@ pub fn spawn_witch<T: Component>(
                     slots: vec![Some(Spell::PurpleBolt), None, None, None],
                 }),
                 Some(Wand {
-                    slots: vec![Some(Spell::SlimeCharge), Some(Spell::MagicBolt), None, None],
+                    slots: vec![Some(Spell::Heal)],
                 }),
                 None,
             ],
         },
+        Witch,
         controller,
         EntityDepth,
         Breakable {

@@ -1,33 +1,14 @@
-use crate::bullet_type::bullet_type_to_props;
-use crate::{
-    asset::GameAssets, command::GameCommand, controller::remote::RemoteMessage, states::GameState,
-    world::CurrentLevel,
-};
-use crate::{
-    bullet_type::BulletType,
-    entity::{
-        breakable::BreakableSprite,
-        bullet::{spawn_bullet, BULLET_SPAWNING_MARGIN},
-        witch::WITCH_COLLIDER_RADIUS,
-    },
-};
+use crate::constant::MAX_WANDS;
+use crate::entity::breakable::BreakableSprite;
+use crate::spell::cast_spell;
+use crate::wand::Wand;
+use crate::{asset::GameAssets, command::GameCommand, states::GameState, world::CurrentLevel};
 use bevy::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
 use bevy_rapier2d::prelude::Group;
-use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
-use rand::random;
+use bevy_simple_websocket::{ClientMessage, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
-
-// 魔法の拡散
-const BULLET_SCATTERING: f32 = 0.4;
-
-/// 次の魔法を発射するまでの待機時間
-/// この値は全アクター共通で、アクターのreload_speedが上昇すると再発射までの時間が短くなります
-const BULLET_MAX_COOLTIME: i32 = 1000;
-
-// 一度に発射する弾丸の数
-const BULLETS_PER_FIRE: u32 = 1;
 
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
@@ -63,7 +44,9 @@ pub struct Actor {
 
     pub filter: Group,
 
-    pub bullet_type: BulletType,
+    pub current_wand: usize,
+
+    pub wands: [Option<Wand>; MAX_WANDS],
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -151,6 +134,7 @@ fn update_actor_light(
     }
 }
 
+/// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
     mut actor_query: Query<(&mut Actor, &mut Transform), Without<Camera2d>>,
     mut commands: Commands,
@@ -165,62 +149,24 @@ fn fire_bullet(
             return;
         }
 
-        let bullet_props = bullet_type_to_props(actor.bullet_type);
-        let bullet_cost = bullet_props.cost as i32;
-        let bullet_lifetime = bullet_props.lifetime;
-        let bullet_speed = bullet_props.speed;
-
-        if actor.fire_state == ActorFireState::Fire
-            && actor.cooltime == 0
-            && bullet_cost <= actor.mana
-        {
-            actor.mana = (actor.mana - bullet_cost).max(0);
-
-            let bullet_type = actor.bullet_type;
-
-            let normalized = actor.pointer.normalize();
-            let angle = actor.pointer.to_angle();
-            for _ in 0..BULLETS_PER_FIRE {
-                let angle_with_random = angle + (random::<f32>() - 0.5) * BULLET_SCATTERING;
-                let direction = Vec2::from_angle(angle_with_random);
-                let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
-                let bullet_position = actor_transform.translation.truncate() + range * normalized;
-
-                spawn_bullet(
-                    &mut commands,
-                    assets.asset.clone(),
-                    bullet_position,
-                    direction * bullet_speed,
-                    bullet_lifetime,
-                    Some(actor.uuid),
-                    &mut se_writer,
-                    actor.group,
-                    actor.filter,
-                    bullet_type,
-                );
-
-                if actor.online && websocket.ready_state == ReadyState::OPEN {
-                    if let Some(level) = current.0 {
-                        let serialized = bincode::serialize(&RemoteMessage::Fire {
-                            sender: actor.uuid,
-                            uuid: actor.uuid,
-                            level,
-                            x: bullet_position.x,
-                            y: bullet_position.y,
-                            vx: direction.x * bullet_speed,
-                            vy: direction.y * bullet_speed,
-                            bullet_lifetime,
-                            bullet_type: bullet_type,
-                        })
-                        .unwrap();
-                        writer.send(ClientMessage::Binary(serialized));
-                    }
+        if let Some(wand) = &actor.wands[actor.current_wand] {
+            if let Some(spell) = wand.slots[0] {
+                if actor.fire_state == ActorFireState::Fire && actor.cooltime == 0 {
+                    cast_spell(
+                        &mut commands,
+                        &assets,
+                        &mut writer,
+                        &current,
+                        &mut se_writer,
+                        &websocket,
+                        &mut actor,
+                        &actor_transform,
+                        spell,
+                    );
+                } else {
+                    actor.cooltime = (actor.cooltime - actor.reload_speed).max(0);
                 }
             }
-
-            actor.cooltime = BULLET_MAX_COOLTIME;
-        } else {
-            actor.cooltime = (actor.cooltime - actor.reload_speed).max(0);
         }
     }
 }

@@ -1,10 +1,13 @@
+use super::witch::WITCH_COLLIDER_RADIUS;
+use crate::asset::GameAssets;
 use crate::bullet_type::bullet_type_to_props;
-use crate::controller::remote::RemotePlayer;
+use crate::controller::remote::{RemoteMessage, RemotePlayer};
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
 use crate::entity::EntityDepth;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
+use crate::world::CurrentLevel;
 use crate::{bullet_type::BulletType, command::GameCommand};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
@@ -13,10 +16,19 @@ use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
+use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
+use rand::random;
 use std::collections::HashSet;
 use uuid::Uuid;
 
 static BULLET_Z: f32 = 10.0;
+
+// 魔法の拡散
+const BULLET_SCATTERING: f32 = 0.4;
+
+/// 次の魔法を発射するまでの待機時間
+/// この値は全アクター共通で、アクターのreload_speedが上昇すると再発射までの時間が短くなります
+const BULLET_MAX_COOLTIME: i32 = 1000;
 
 // 弾丸発射時の、キャラクターと弾丸の間隔
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
@@ -38,6 +50,66 @@ pub struct BulletBundle {
     transform: Transform,
 }
 
+/// 指定した種類の弾丸を発射します
+/// このとき、アクターへのマナ消費、クールタイムの設定、弾丸の生成、リモート通信などを行います
+pub fn spawn_bullets(
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    writer: &mut EventWriter<ClientMessage>,
+    current: &Res<CurrentLevel>,
+    mut se_writer: &mut EventWriter<GameCommand>,
+    websocket: &Res<WebSocketState>,
+
+    actor: &mut Actor,
+    actor_transform: &Transform,
+    bullet_type: BulletType,
+) {
+    let bullet_props = bullet_type_to_props(bullet_type);
+    let bullet_lifetime = bullet_props.lifetime;
+    let bullet_speed = bullet_props.speed;
+
+    let normalized = actor.pointer.normalize();
+    let angle = actor.pointer.to_angle();
+    let angle_with_random = angle + (random::<f32>() - 0.5) * BULLET_SCATTERING;
+    let direction = Vec2::from_angle(angle_with_random);
+    let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
+    let bullet_position = actor_transform.translation.truncate() + range * normalized;
+
+    spawn_bullet(
+        &mut commands,
+        assets.asset.clone(),
+        bullet_position,
+        direction * bullet_speed,
+        bullet_lifetime,
+        Some(actor.uuid),
+        &mut se_writer,
+        actor.group,
+        actor.filter,
+        bullet_type,
+    );
+
+    if actor.online && websocket.ready_state == ReadyState::OPEN {
+        if let Some(level) = current.0 {
+            let serialized = bincode::serialize(&RemoteMessage::Fire {
+                sender: actor.uuid,
+                uuid: actor.uuid,
+                level,
+                x: bullet_position.x,
+                y: bullet_position.y,
+                vx: direction.x * bullet_speed,
+                vy: direction.y * bullet_speed,
+                bullet_lifetime,
+                bullet_type: bullet_type,
+            })
+            .unwrap();
+            writer.send(ClientMessage::Binary(serialized));
+        }
+    }
+
+    actor.cooltime = BULLET_MAX_COOLTIME;
+}
+
+/// 指定された位置、方向、弾丸種別などから実際にエンティティを生成します
 pub fn spawn_bullet(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
@@ -66,11 +138,7 @@ pub fn spawn_bullet(
         EntityDepth,
         AsepriteSliceBundle {
             aseprite,
-            slice: AsepriteSlice::new(match bullet_type {
-                BulletType::BlueBullet => "bullet",
-                BulletType::PurpleBullet => "purple_bullet",
-                BulletType::SlimeAttackBullet => "slime_attack",
-            }),
+            slice: AsepriteSlice::new(props.slice),
             transform: Transform::from_xyz(position.x, position.y, BULLET_Z)
                 * Transform::from_rotation(Quat::from_rotation_z(velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
             ..default()

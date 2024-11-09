@@ -1,15 +1,12 @@
-use crate::{asset::GameAssets, constant::MAX_WANDS, entity::witch::Witch, states::GameState};
+use crate::{
+    asset::GameAssets, constant::MAX_WANDS, controller::player::Player, entity::actor::Actor,
+    spell::Spell, spell_props::spell_to_props, states::GameState,
+};
 use bevy::{
     prelude::*,
     ui::{Display, Style},
 };
 use bevy_aseprite_ultra::prelude::*;
-
-pub enum Spell {
-    MagicBolt,
-    PurpleBolt,
-    SlimeCharge,
-}
 
 pub enum WandType {
     CypressWand,
@@ -123,36 +120,36 @@ fn spawn_bullet_slot(
         BorderColor(Color::WHITE),
         AsepriteSliceUiBundle {
             aseprite: assets.asset.clone(),
-            slice: "bullet".into(),
+            slice: "empty".into(),
             ..default()
         },
     ));
 }
 
 fn update_wand_slot_visibility(
-    player_query: Query<&Witch>,
+    player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSlot, &mut BackgroundColor, &mut BorderColor)>,
 ) {
-    if let Ok(witch) = player_query.get_single() {
+    if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut background, mut border) in sprite_query.iter_mut() {
-            if wand_sprite.wand_index == witch.current_wand {
+            if wand_sprite.wand_index == actor.current_wand {
                 *background = Color::hsla(0.0, 0.0, 1.0, 0.2).into();
-                *border = BorderColor(Color::WHITE);
+                *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.5));
             } else {
                 *background = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
-                *border = BorderColor(Color::hsla(0.0, 0.0, 0.0, 0.0));
+                *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.1));
             };
         }
     }
 }
 
 fn update_wand_sprite(
-    player_query: Query<&Witch>,
+    player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSprite, &mut AsepriteSlice)>,
 ) {
-    if let Ok(witch) = player_query.get_single() {
+    if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut aseprite) in sprite_query.iter_mut() {
-            *aseprite = match witch.wands[wand_sprite.wand_index] {
+            *aseprite = match actor.wands[wand_sprite.wand_index] {
                 Some(_) => AsepriteSlice::new("wand"),
                 None => AsepriteSlice::new("empty"),
             }
@@ -161,32 +158,34 @@ fn update_wand_sprite(
 }
 
 fn update_spell_sprite(
-    player_query: Query<&Witch>,
-    mut sprite_query: Query<(&SpellSprite, &mut AsepriteSlice), Changed<SpellSprite>>,
+    player_query: Query<&Actor, With<Player>>,
+    mut sprite_query: Query<
+        (&SpellSprite, &mut AsepriteSlice, &mut BorderColor),
+        Changed<SpellSprite>,
+    >,
 ) {
-    if let Ok(witch) = player_query.get_single() {
-        for (spell_sprite, mut aseprite) in sprite_query.iter_mut() {
-            if let Some(wand) = &witch.wands[spell_sprite.wand_index] {
+    if let Ok(actor) = player_query.get_single() {
+        for (spell_sprite, mut aseprite, mut border) in sprite_query.iter_mut() {
+            if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
                 if spell_sprite.spell_index < wand.slots.len() {
                     match wand.slots[spell_sprite.spell_index] {
-                        Some(Spell::MagicBolt) => {
-                            *aseprite = AsepriteSlice::new("bullet");
-                        }
-                        Some(Spell::PurpleBolt) => {
-                            *aseprite = AsepriteSlice::new("purple_bullet");
-                        }
-                        Some(Spell::SlimeCharge) => {
-                            *aseprite = AsepriteSlice::new("slime_attack");
+                        Some(spell) => {
+                            let props = spell_to_props(spell);
+                            *aseprite = AsepriteSlice::new(props.slice);
+                            *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.1));
                         }
                         None => {
                             *aseprite = AsepriteSlice::new("empty");
+                            *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0));
                         }
                     }
                 } else {
                     *aseprite = AsepriteSlice::new("empty");
+                    *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0));
                 }
             } else {
                 *aseprite = AsepriteSlice::new("empty");
+                *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0));
             }
         }
     }

@@ -1,11 +1,11 @@
 use crate::asset::GameAssets;
-use crate::bullet_type::BulletType;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::GameSet;
+use crate::spell::Spell;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -32,9 +32,8 @@ pub fn spawn_eyeball(
         life_bar_locals,
         EyeballControl,
         "eyeball",
-        BulletType::PurpleBullet,
-        200,
         10,
+        Spell::PurpleBolt,
     );
 }
 

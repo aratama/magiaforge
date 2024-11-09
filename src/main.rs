@@ -17,6 +17,8 @@ mod hud;
 mod input;
 mod page;
 mod set;
+mod spell;
+mod spell_props;
 mod states;
 mod ui;
 mod wand;

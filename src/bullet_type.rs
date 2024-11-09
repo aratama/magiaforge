@@ -16,7 +16,6 @@ pub struct BulletProps {
     /// 200は1フレームに2ピクセル移動する速度です
     pub speed: f32,
     pub lifetime: u32,
-    pub cost: u32,
     pub damage: i32,
     pub impulse: f32,
 
@@ -26,11 +25,10 @@ pub struct BulletProps {
 }
 
 pub const MAGIC_BOLT_PROPS: BulletProps = BulletProps {
-    slice: "bullet",
+    slice: "bullet_magic_bolt",
     collier_radius: 5.0,
     speed: 200.0,
     lifetime: 240,
-    cost: 50,
     damage: 5,
     impulse: 20000.0,
 
@@ -40,11 +38,10 @@ pub const MAGIC_BOLT_PROPS: BulletProps = BulletProps {
 };
 
 pub const PURPLE_BULLET_PROPS: BulletProps = BulletProps {
-    slice: "purple_bullet",
+    slice: "bullet_purple",
     collier_radius: 5.0,
     speed: 50.0,
     lifetime: 500,
-    cost: 50,
     damage: 5,
     impulse: 10000.0,
 
@@ -54,11 +51,10 @@ pub const PURPLE_BULLET_PROPS: BulletProps = BulletProps {
 };
 
 pub const SLIME_CHARGE_PROPS: BulletProps = BulletProps {
-    slice: "slime_attack",
+    slice: "bullet_slime_charge",
     collier_radius: 5.0,
     speed: 2.0,
     lifetime: 5,
-    cost: 50,
     damage: 10,
     impulse: 40000.0,
 

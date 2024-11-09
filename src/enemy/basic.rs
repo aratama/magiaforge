@@ -1,4 +1,3 @@
-use crate::bullet_type::BulletType;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::ActorMoveState;
@@ -6,7 +5,9 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use crate::spell::Spell;
 use crate::states::GameState;
+use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -19,9 +20,8 @@ pub fn spawn_basic_enemy<T: Component>(
     life_bar_locals: &Res<LifeBarResource>,
     marker: T,
     name: &str,
-    bullet_type: BulletType,
-    bullet_lifetime: u32,
     reload_speed: i32,
+    spell: Spell,
 ) {
     commands
         .spawn((
@@ -44,7 +44,15 @@ pub fn spawn_basic_enemy<T: Component>(
                 online: false,
                 group: ENEMY_GROUP,
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
-                bullet_type,
+                current_wand: 0,
+                wands: [
+                    Some(Wand {
+                        slots: vec![Some(spell)],
+                    }),
+                    None,
+                    None,
+                    None,
+                ],
             },
             EntityDepth,
             Breakable {
