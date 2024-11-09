@@ -1,4 +1,4 @@
-use super::{
+use crate::world::{
     map::LevelTileMap, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE,
     WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
 };

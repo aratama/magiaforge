@@ -1,6 +1,4 @@
-use std::collections::HashSet;
-
-use super::player::Player;
+use crate::controller::player::Player;
 use crate::{
     asset::GameAssets,
     command::GameCommand,
@@ -22,6 +20,7 @@ use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use uuid::Uuid;
 
 /// ネットワークに接続したクライアントは、常に互いの位置を送信しあっているため、

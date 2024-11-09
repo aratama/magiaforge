@@ -1,17 +1,9 @@
+use crate::{asset::GameAssets, constant::MAX_WANDS, entity::witch::Witch, states::GameState};
 use bevy::{
-    ecs::query,
     prelude::*,
     ui::{Display, Style},
 };
 use bevy_aseprite_ultra::prelude::*;
-
-use crate::{
-    asset::GameAssets,
-    constant::MAX_WANDS,
-    controller::player::{self, Player},
-    entity::{actor::Actor, witch::Witch},
-    states::GameState,
-};
 
 pub enum Spell {
     MagicBolt,

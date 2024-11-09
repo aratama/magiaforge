@@ -1,6 +1,6 @@
-use super::breakable::{Breakable, BreakableSprite};
-use super::EntityDepth;
 use crate::command::GameCommand;
+use crate::entity::breakable::{Breakable, BreakableSprite};
+use crate::entity::EntityDepth;
 use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;

@@ -3,13 +3,12 @@ pub mod overlay;
 pub mod pointer;
 
 use crate::asset::GameAssets;
+use crate::constant::HUD_Z_INDEX;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
 use crate::wand::spawn_wand_list;
-
-use super::constant::HUD_Z_INDEX;
-use super::controller::player::Player;
-use super::entity::actor::Actor;
-use super::states::GameState;
 use bevy::prelude::*;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;

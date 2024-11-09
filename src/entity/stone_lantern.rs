@@ -1,4 +1,4 @@
-use super::{
+use crate::entity::{
     breakable::{Breakable, BreakableSprite},
     EntityDepth,
 };

@@ -1,9 +1,9 @@
-use super::actor::{Actor, ActorFireState, ActorMoveState};
-use super::breakable::{Breakable, BreakableSprite};
-use super::bullet::BulletType;
-use super::EntityDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
+use crate::entity::breakable::{Breakable, BreakableSprite};
+use crate::entity::bullet::BulletType;
+use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
 use crate::wand::{Spell, Wand};

@@ -1,4 +1,4 @@
-use super::states::GameState;
+use crate::states::GameState;
 use bevy_rapier2d::prelude::*;
 
 #[allow(dead_code)]

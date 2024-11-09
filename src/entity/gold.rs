@@ -1,11 +1,10 @@
-use std::f32::consts::PI;
-
-use super::EntityDepth;
+use crate::entity::EntityDepth;
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::random;
+use std::f32::consts::PI;
 
 #[derive(Default, Component)]
 pub struct Gold;
