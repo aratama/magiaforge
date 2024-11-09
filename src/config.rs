@@ -13,8 +13,8 @@ pub struct GameConfig {
 impl Default for GameConfig {
     fn default() -> Self {
         Self {
-            online: true,
-            bgm_volume: 0.0,
+            online: false,
+            bgm_volume: 0.3,
             se_volume: 0.8,
             player_name: "".to_string(),
         }

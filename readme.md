@@ -32,6 +32,8 @@ Add `--features debug` to launch app in debug mode.
 - メニューを開く 2 https://soundeffect-lab.info/sound/battle/
 - ワープ https://soundeffect-lab.info/sound/battle/
 - 体育館で走る https://soundeffect-lab.info/sound/various/
+- 回復魔法 1 https://soundeffect-lab.info/sound/battle/
+- カーソル移動 2 https://soundeffect-lab.info/sound/button/
 
 #### BGMs
 

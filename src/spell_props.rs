@@ -14,7 +14,7 @@ const MAGIC_BOLT: SpellProps = SpellProps {
 
 const PURPLE_BOLT: SpellProps = SpellProps {
     mana_drain: 100,
-    cast_delay: 20,
+    cast_delay: 120,
     slice: "bullet_purple",
 };
 

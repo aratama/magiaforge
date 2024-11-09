@@ -11,7 +11,7 @@ pub const INITIAL_STATE: GameState = GameState::InGame;
 pub const MAX_WANDS: usize = 4;
 
 /// level.aseprite のスライスの最大値 - 1
-pub const LEVELS: i32 = 3;
+pub const LEVELS: i32 = 4;
 
 /// 1タイルのサイズのピクセル数
 /// タイルサイズは意味合いとしてゃ u32 ですが、f32 で扱うことが多いので f32 にしています

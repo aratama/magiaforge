@@ -55,7 +55,7 @@ fn setup_world(
     mut writer: EventWriter<GameCommand>,
     audio: Res<Audio>,
 ) {
-    writer.send(GameCommand::BGMArechi);
+    writer.send(GameCommand::BGMDokutsu);
 
     let level = match &next.0 {
         None => 0,
@@ -157,30 +157,32 @@ fn spawn_level(
         &audio,
     );
 
-    for _ in 0..10 {
-        let (x, y) = random_select(&mut empties);
-        spawn_slime(
-            &mut commands,
-            &assets,
-            Vec2::new(
-                TILE_SIZE * x as f32 + TILE_HALF,
-                TILE_SIZE * -y as f32 - TILE_HALF,
-            ),
-            &life_bar_res,
-        );
-    }
+    if 20 < empties.len() {
+        for _ in 0..10 {
+            let (x, y) = random_select(&mut empties);
+            spawn_slime(
+                &mut commands,
+                &assets,
+                Vec2::new(
+                    TILE_SIZE * x as f32 + TILE_HALF,
+                    TILE_SIZE * -y as f32 - TILE_HALF,
+                ),
+                &life_bar_res,
+            );
+        }
 
-    for _ in 0..10 {
-        let (x, y) = random_select(&mut empties);
-        spawn_eyeball(
-            &mut commands,
-            &assets,
-            Vec2::new(
-                TILE_SIZE * x as f32 + TILE_HALF,
-                TILE_SIZE * -y as f32 - TILE_HALF,
-            ),
-            &life_bar_res,
-        );
+        for _ in 0..10 {
+            let (x, y) = random_select(&mut empties);
+            spawn_eyeball(
+                &mut commands,
+                &assets,
+                Vec2::new(
+                    TILE_SIZE * x as f32 + TILE_HALF,
+                    TILE_SIZE * -y as f32 - TILE_HALF,
+                ),
+                &life_bar_res,
+            );
+        }
     }
 }
 

@@ -84,12 +84,17 @@ fn trigger_bullet(
 fn switch_wand(
     mut witch_query: Query<&mut Actor, With<Player>>,
     mut wheel: EventReader<MouseWheel>,
+    mut writer: EventWriter<GameCommand>,
 ) {
     for event in wheel.read() {
         if let Ok(mut actor) = witch_query.get_single_mut() {
-            actor.current_wand = (actor.current_wand as i32 - event.y.signum() as i32)
+            let next = (actor.current_wand as i32 - event.y.signum() as i32)
                 .max(0)
                 .min(MAX_WANDS as i32 - 1) as usize;
+            if next != actor.current_wand {
+                actor.current_wand = next;
+                writer.send(GameCommand::SECursor2(None));
+            }
         }
     }
 }

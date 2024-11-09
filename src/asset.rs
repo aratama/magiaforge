@@ -71,6 +71,9 @@ pub struct GameAssets {
     #[asset(path = "audio/回復魔法1.ogg")]
     pub kaifuku1: Handle<AudioSource>,
 
+    #[asset(path = "audio/カーソル移動2.ogg")]
+    pub cursor2: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 
@@ -81,4 +84,7 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/荒れ地の先へ.ogg")]
     pub arechi: Handle<AudioSource>,
+
+    #[asset(path = "bgm/水のしたたる洞窟.ogg")]
+    pub dokutsu: Handle<AudioSource>,
 }

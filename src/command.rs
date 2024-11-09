@@ -21,9 +21,11 @@ pub enum GameCommand {
     SEWarp(Option<Vec2>),
     SECancel(Option<Vec2>),
     SEKaifuku(Option<Vec2>),
+    SECursor2(Option<Vec2>),
     BGMNone,
     BGMBoubaku,
     BGMArechi,
+    BGMDokutsu,
     StateMainMenu,
     StateNameInput,
     StateInGame,
@@ -141,6 +143,15 @@ fn process_game_commands(
                     camera_position,
                 );
             }
+            GameCommand::SECursor2(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.cursor2.clone(),
+                    position,
+                    camera_position,
+                );
+            }
             GameCommand::BGMNone => {
                 *next_bgm = BGM(None);
             }
@@ -149,6 +160,9 @@ fn process_game_commands(
             }
             GameCommand::BGMArechi => {
                 *next_bgm = BGM(Some(assets.arechi.clone()));
+            }
+            GameCommand::BGMDokutsu => {
+                *next_bgm = BGM(Some(assets.dokutsu.clone()));
             }
             GameCommand::StateMainMenu => {
                 *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
