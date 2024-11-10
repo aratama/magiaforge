@@ -86,7 +86,7 @@ fn spawn_wand_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, wand_ind
                     ..default()
                 },
                 AsepriteSliceUiBundle {
-                    aseprite: assets.asset.clone(),
+                    aseprite: assets.atlas.clone(),
                     slice: "empty".into(),
                     ..default()
                 },
@@ -120,7 +120,7 @@ fn spawn_bullet_slot(
         },
         BorderColor(Color::WHITE),
         AsepriteSliceUiBundle {
-            aseprite: assets.asset.clone(),
+            aseprite: assets.atlas.clone(),
             slice: "empty".into(),
             ..default()
         },

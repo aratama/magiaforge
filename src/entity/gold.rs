@@ -21,7 +21,7 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
         Gold,
         EntityDepth,
         AsepriteSliceBundle {
-            aseprite: assets.asset.clone(),
+            aseprite: assets.atlas.clone(),
             slice: "gold".into(),
             transform: Transform::from_translation(Vec3::new(
                 tx + (random::<f32>() - 0.5) * 16.0,

@@ -26,8 +26,7 @@ pub enum GameEntity {
     MultiPlayArenaMagicCircle,
     BrokenMagicCircle,
     Usage,
-    SinglePlay,
-    MultiPlayArena,
+    Routes,
     StoneLantern,
 }
 

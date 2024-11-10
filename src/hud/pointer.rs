@@ -24,7 +24,7 @@ fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
         },
         AsepriteSliceUiBundle {
             slice: "pointer".into(),
-            aseprite: assets.asset.clone(),
+            aseprite: assets.atlas.clone(),
             ..default()
         },
     ));

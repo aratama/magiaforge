@@ -142,7 +142,7 @@ pub fn spawn_witch<T: Component>(
         spawn_children.spawn((
             WandSprite,
             AsepriteSliceBundle {
-                aseprite: assets.asset.clone(),
+                aseprite: assets.atlas.clone(),
                 slice: "wand".into(),
                 ..default()
             },

@@ -269,7 +269,7 @@ fn receive_events(
                     } => {
                         spawn_bullet(
                             &mut commands,
-                            assets.asset.clone(),
+                            assets.atlas.clone(),
                             Vec2::new(x, y),
                             Vec2::new(vx, vy),
                             bullet_lifetime,

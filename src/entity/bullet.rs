@@ -72,7 +72,7 @@ pub fn spawn_bullets(
 
     spawn_bullet(
         &mut commands,
-        assets.asset.clone(),
+        assets.atlas.clone(),
         bullet_position,
         direction * bullet_speed,
         bullet_lifetime,

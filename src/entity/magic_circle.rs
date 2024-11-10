@@ -54,7 +54,7 @@ pub fn spawn_magic_circle(
                 destination,
             },
             AsepriteSliceBundle {
-                aseprite: assets.asset.clone(),
+                aseprite: assets.atlas.clone(),
                 slice: "magic_circle0".into(),
                 transform: Transform::from_translation(Vec3::new(x, y, PAINT_LAYER_Z)),
                 sprite: Sprite {
@@ -74,7 +74,7 @@ pub fn spawn_magic_circle(
                 StateScoped(GameState::InGame),
                 MagicStar,
                 AsepriteSliceBundle {
-                    aseprite: assets.asset.clone(),
+                    aseprite: assets.atlas.clone(),
                     slice: "magic_star0".into(),
                     sprite: Sprite {
                         color: Color::hsla(0.0, 1.0, 1.0, 0.7),

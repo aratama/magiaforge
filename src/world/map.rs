@@ -28,7 +28,7 @@ pub struct LevelTileMap {
     pub max_x: i32,
     pub max_y: i32,
     pub entities: Vec<(GameEntity, i32, i32)>,
-    pub entry_point: Vec2,
+    pub entry_points: Vec<Vec2>,
 }
 
 impl LevelTileMap {
@@ -86,7 +86,7 @@ pub fn image_to_tilemap(
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
-    let mut entry_point = Vec2::new(0.0, 0.0);
+    let mut entry_points = Vec::new();
     for y in min_y..max_y {
         for x in min_x..max_x {
             let i = 4 * (y * texture_width as i32 + x) as usize;
@@ -147,7 +147,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                         biome: Biome::SafeZone,
                     });
-                    entry_point = Vec2::new(x as f64, y as f64);
+                    entry_points.push(Vec2::new(x as f64, y as f64));
                     entities.push((GameEntity::BrokenMagicCircle, x, y));
                 }
                 (255, 0, 255, 255) => {
@@ -162,14 +162,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                         biome: Biome::SafeZone,
                     });
-                    entities.push((GameEntity::SinglePlay, x, y));
-                }
-                (253, 0, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        biome: Biome::SafeZone,
-                    });
-                    entities.push((GameEntity::MultiPlayArena, x, y));
+                    entities.push((GameEntity::Routes, x, y));
                 }
                 (223, 113, 38, 255) => {
                     tiles.push(LevelTileMapile {
@@ -195,7 +188,7 @@ pub fn image_to_tilemap(
         min_y,
         max_y,
         entities,
-        entry_point,
+        entry_points,
     };
 }
 

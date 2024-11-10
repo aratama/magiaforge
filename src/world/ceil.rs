@@ -92,7 +92,7 @@ fn spawn_roof_tile(
         Name::new("ceil"),
         StateScoped(GameState::InGame),
         AsepriteSliceBundle {
-            aseprite: assets.asset.clone(),
+            aseprite: assets.atlas.clone(),
             slice: AsepriteSlice::new(format!("roof{:?}", roof_index).as_str()),
             transform: Transform::from_xyz(x, y, z),
             ..default()

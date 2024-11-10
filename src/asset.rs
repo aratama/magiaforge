@@ -9,8 +9,8 @@ pub struct GameAssets {
     #[asset(path = "DotGothic16-Regular.ttf")]
     pub dotgothic: Handle<Font>,
 
-    #[asset(path = "image/asset.aseprite")]
-    pub asset: Handle<Aseprite>,
+    #[asset(path = "image/atlas.aseprite")]
+    pub atlas: Handle<Aseprite>,
 
     #[asset(path = "image/level.aseprite")]
     pub level: Handle<Aseprite>,

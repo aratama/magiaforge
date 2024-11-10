@@ -117,7 +117,7 @@ fn spawn_level(
         slice.rect.min.x, slice.rect.max.x, slice.rect.min.y, slice.rect.max.y
     );
 
-    let chunk = image_to_tilemap(
+    let mut chunk = image_to_tilemap(
         &level_image,
         slice.rect.min.x as i32,
         slice.rect.max.x as i32,
@@ -130,8 +130,10 @@ fn spawn_level(
     respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
     spawn_entities(&mut commands, &assets, &chunk);
 
-    let player_x = TILE_SIZE * chunk.entry_point.x as f32 + TILE_HALF;
-    let player_y = -TILE_SIZE * chunk.entry_point.y as f32 - TILE_HALF;
+    let entry_point = random_select(&mut chunk.entry_points);
+
+    let player_x = TILE_SIZE * entry_point.x as f32 + TILE_HALF;
+    let player_y = -TILE_SIZE * entry_point.y as f32 - TILE_HALF;
 
     if let Ok(mut camera) = camera.get_single_mut() {
         camera.translation.x = player_x;
@@ -230,7 +232,7 @@ fn respawn_world_tilemap(
                         Name::new("stone_tile"),
                         StateScoped(GameState::InGame),
                         AsepriteSliceBundle {
-                            aseprite: assets.asset.clone(),
+                            aseprite: assets.atlas.clone(),
                             slice: "stone tile".into(),
                             transform: Transform::from_translation(Vec3::new(
                                 x as f32 * TILE_SIZE,
@@ -253,7 +255,7 @@ fn respawn_world_tilemap(
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
                             AsepriteSliceBundle {
-                                aseprite: assets.asset.clone(),
+                                aseprite: assets.atlas.clone(),
                                 slice: "stone wall".into(),
                                 transform: Transform::from_translation(Vec3::new(
                                     tx,
@@ -295,7 +297,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             GameEntity::BookShelf => {
                 spawn_book_shelf(
                     &mut commands,
-                    assets.asset.clone(),
+                    assets.atlas.clone(),
                     tx + TILE_SIZE,
                     ty - TILE_HALF,
                 );
@@ -303,7 +305,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             GameEntity::Chest => {
                 spawn_chest(
                     &mut commands,
-                    assets.asset.clone(),
+                    assets.atlas.clone(),
                     tx + TILE_HALF,
                     ty - TILE_HALF,
                 );
@@ -329,7 +331,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             GameEntity::BrokenMagicCircle => {
                 spawn_broken_magic_circle(
                     &mut commands,
-                    assets.asset.clone(),
+                    assets.atlas.clone(),
                     tx + TILE_HALF,
                     ty - TILE_HALF,
                 );
@@ -339,7 +341,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             }
             GameEntity::Usage => {
                 commands.spawn(AsepriteSliceBundle {
-                    aseprite: assets.asset.clone(),
+                    aseprite: assets.atlas.clone(),
                     slice: "usage".into(),
                     transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
                     sprite: Sprite {
@@ -349,22 +351,10 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     ..default()
                 });
             }
-            GameEntity::SinglePlay => {
+            GameEntity::Routes => {
                 commands.spawn(AsepriteSliceBundle {
-                    aseprite: assets.asset.clone(),
-                    slice: "single_play".into(),
-                    transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
-                    sprite: Sprite {
-                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
-                        ..default()
-                    },
-                    ..default()
-                });
-            }
-            GameEntity::MultiPlayArena => {
-                commands.spawn(AsepriteSliceBundle {
-                    aseprite: assets.asset.clone(),
-                    slice: "multiplay_arena".into(),
+                    aseprite: assets.atlas.clone(),
+                    slice: "routes".into(),
                     transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
                     sprite: Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),
