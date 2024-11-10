@@ -53,6 +53,8 @@ pub const ENTITY_GROUP: Group = Group::GROUP_1;
 
 pub const WALL_GROUP: Group = Group::GROUP_3;
 
+/// プレイヤーキャラクターのグループ
+/// 自分の生成した弾丸に衝突します
 pub const WITCH_GROUP: Group = Group::GROUP_5;
 
 pub const WITCH_BULLET_GROUP: Group = Group::GROUP_6;
@@ -60,6 +62,8 @@ pub const WITCH_BULLET_GROUP: Group = Group::GROUP_6;
 pub const ENEMY_GROUP: Group = Group::GROUP_6;
 
 pub const ENEMY_BULLET_GROUP: Group = Group::GROUP_7;
+
+pub const MAGIC_CIRCLE_GROUP: Group = Group::GROUP_8;
 
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
