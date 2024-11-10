@@ -83,7 +83,12 @@ pub struct ChestPlugin;
 
 impl Plugin for ChestPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, break_chest.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            FixedUpdate,
+            break_chest
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
+        );
         app.register_type::<Chest>();
     }
 }

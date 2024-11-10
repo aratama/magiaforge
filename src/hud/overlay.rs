@@ -3,11 +3,18 @@ use bevy::prelude::*;
 
 const SPEED: f32 = 0.04;
 
-#[derive(Component)]
-struct Overlay;
+#[derive(Event)]
+pub enum OverlayEvent {
+    Close(GameState),
+}
 
-#[derive(Resource, Clone, PartialEq, Eq, Debug)]
-pub struct OverlayNextState(pub Option<GameState>);
+#[derive(Component)]
+struct Overlay {
+    open: bool,
+    alpha: f32,
+    next: Option<GameState>,
+    wait: i32,
+}
 
 fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
     let window = window.single();
@@ -16,7 +23,12 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
 
     commands.spawn((
         Name::new("overlay"),
-        Overlay,
+        Overlay {
+            open: true,
+            alpha: 1.0,
+            next: None,
+            wait: 0,
+        },
         NodeBundle {
             style: Style {
                 width: Val::Px(width),
@@ -30,29 +42,47 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
     ));
 }
 
-fn update_overlay(
-    mut query: Query<&mut BackgroundColor, With<Overlay>>,
-    mut state: ResMut<NextState<GameState>>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
-) {
-    let mut background = query.single_mut();
-    let a = background.0.alpha();
+fn read_overlay_event(mut query: Query<&mut Overlay>, mut reader: EventReader<OverlayEvent>) {
+    let mut overlay = query.single_mut();
 
-    let next = overlay_next_state.0.clone();
-    let updated = (1.0_f32).min((0.0_f32).max(match next {
-        Option::None => a - SPEED,
-        _ => a + SPEED,
+    for event in reader.read() {
+        match event {
+            OverlayEvent::Close(next) => {
+                overlay.open = false;
+                overlay.next = Some(*next);
+                overlay.wait = 30;
+            }
+        }
+    }
+}
+
+fn update_overlay(
+    mut query: Query<(&mut Overlay, &mut BackgroundColor)>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    let (mut overlay, mut background) = query.single_mut();
+
+    let current = overlay.alpha;
+
+    let updated = (1.0_f32).min((0.0_f32).max(if overlay.open {
+        current - SPEED
+    } else {
+        current + SPEED
     }));
 
-    let current = background.0.alpha();
+    overlay.alpha = updated;
 
     background.0.set_alpha(updated);
 
-    if current < 1.0 && updated == 1.0 {
-        match next {
-            Option::Some(next_state) => {
-                state.set(next_state);
-                *overlay_next_state = OverlayNextState(Option::None);
+    if updated == 1.0 {
+        overlay.wait -= 1;
+    }
+
+    if overlay.wait == 0 {
+        match overlay.next {
+            Some(next) => {
+                next_state.set(next);
+                overlay.open = true;
             }
             _ => {}
         }
@@ -64,7 +94,10 @@ pub struct OverlayPlugin;
 impl Plugin for OverlayPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_overlay);
-        app.add_systems(Update, update_overlay);
-        app.insert_resource::<OverlayNextState>(OverlayNextState(Option::None));
+        app.add_systems(
+            Update,
+            (read_overlay_event, update_overlay.after(read_overlay_event)),
+        );
+        app.add_event::<OverlayEvent>();
     }
 }

@@ -5,7 +5,8 @@ use crate::wand::Wand;
 use crate::{asset::GameAssets, command::GameCommand, states::GameState, world::CurrentLevel};
 use bevy::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
-use bevy_rapier2d::prelude::Group;
+use bevy_rapier2d::plugin::PhysicsSet;
+use bevy_rapier2d::prelude::{ExternalForce, Group};
 use bevy_simple_websocket::{ClientMessage, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
@@ -30,7 +31,16 @@ pub struct Actor {
 
     pub intensity: f32,
 
-    pub move_state: ActorMoveState,
+    /// アクターが移動しようとしている方向を表します
+    /// この値と各アクターの移動力係数の積が、実際の ExternalForce になります
+    /// プレイヤーキャラクターの場合はキーボードやゲームパッドの方向キーの入力、
+    /// 敵キャラクターの場合は Enemy によって決定された移動方向を表します
+    /// また、このベクトルがゼロでないときは歩行アニメーションになります
+    pub move_direction: Vec2,
+
+    /// 種族や装備によって決まる移動速度係数
+    /// あとで修正する
+    pub move_force: f32,
 
     pub fire_state: ActorFireState,
 
@@ -45,12 +55,6 @@ pub struct Actor {
     pub current_wand: usize,
 
     pub wands: [Option<Wand>; MAX_WANDS],
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum ActorMoveState {
-    Idle,
-    Run,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -169,6 +173,13 @@ fn fire_bullet(
     }
 }
 
+/// actor.move_direction の値に従って、アクターに外力を適用します
+fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
+    for (actor, mut force) in player_query.iter_mut() {
+        force.force = actor.move_direction * actor.move_force;
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -179,7 +190,9 @@ impl Plugin for ActorPlugin {
         );
         app.add_systems(
             FixedUpdate,
-            (fire_bullet, recovery_mana).run_if(in_state(GameState::InGame)),
+            (apply_external_force, fire_bullet, recovery_mana)
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

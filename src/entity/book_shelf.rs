@@ -81,7 +81,9 @@ impl Plugin for BookshelfPlugin {
         // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
         app.add_systems(
             FixedUpdate,
-            break_book_shelf.run_if(in_state(GameState::InGame)),
+            break_book_shelf
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
         app.register_type::<Bookshelf>();
     }

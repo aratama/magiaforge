@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
+#[derive(States, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum GameState {
     // #[default]をつけたstateが最初のステートになります
     // どの画面から起動したとしても、カメラの設定は最初に行わなければなりませんが、

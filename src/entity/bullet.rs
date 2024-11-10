@@ -26,10 +26,6 @@ static BULLET_Z: f32 = 10.0;
 // 魔法の拡散
 const BULLET_SCATTERING: f32 = 0.4;
 
-/// 次の魔法を発射するまでの待機時間
-/// この値は全アクター共通で、アクターのreload_speedが上昇すると再発射までの時間が短くなります
-pub const BULLET_MAX_COOLTIME: i32 = 1000;
-
 // 弾丸発射時の、キャラクターと弾丸の間隔
 // 小さすぎると、キャラクターの移動時に発射したときに自分自身が衝突してしまうが、
 // 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
@@ -355,7 +351,9 @@ impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (despawn_bullet_by_lifetime, bullet_collision).run_if(in_state(GameState::InGame)),
+            (despawn_bullet_by_lifetime, bullet_collision)
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
         app.register_type::<Bullet>();
     }

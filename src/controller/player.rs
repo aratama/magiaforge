@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::command::GameCommand;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::RemoteMessage;
-use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
+use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::states::{GameMenuState, GameState};
@@ -11,8 +11,6 @@ use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
-
-const PLAYER_MOVE_FORCE: f32 = 50000.0;
 
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component)]
@@ -29,25 +27,19 @@ pub struct Player {
 }
 
 /// プレイヤーの移動
+/// ここではまだ ExternalForce へはアクセスしません
 fn move_player(
-    mut player_query: Query<(&mut Actor, &mut ExternalForce), With<Player>>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     keys: Res<ButtonInput<KeyCode>>,
     gamepads: Option<Res<MyGamepad>>,
     axes: Res<Axis<GamepadAxis>>,
     menu: Res<State<GameMenuState>>,
 ) {
-    if let Ok((mut actor, mut player_force)) = player_query.get_single_mut() {
+    if let Ok(mut actor) = player_query.get_single_mut() {
         if *menu == GameMenuState::Closed {
-            let direction = get_direction(keys, axes, &gamepads);
-            player_force.force = direction * PLAYER_MOVE_FORCE;
-            actor.move_state = if 0.0 < player_force.force.length() {
-                ActorMoveState::Run
-            } else {
-                ActorMoveState::Idle
-            };
+            actor.move_direction = get_direction(keys, axes, &gamepads);
         } else {
-            player_force.force = Vec2::ZERO;
-            actor.move_state = ActorMoveState::Idle;
+            actor.move_direction = Vec2::ZERO;
         }
     }
 }

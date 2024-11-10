@@ -2,13 +2,14 @@ use crate::{
     asset::GameAssets,
     audio::{play_se, BGM},
     config::GameConfig,
-    hud::overlay::OverlayNextState,
+    hud::overlay::OverlayEvent,
     states::GameState,
 };
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
+use bevy_rapier2d::plugin::PhysicsSet;
 
-#[derive(Event, Clone)]
+#[derive(Event, Clone, Copy, Debug)]
 pub enum GameCommand {
     SEDageki(Option<Vec2>),
     SEShibafu(Option<Vec2>),
@@ -32,17 +33,26 @@ pub enum GameCommand {
     StateWarp,
 }
 
+#[derive(Resource, Default)]
+struct CommandState {
+    next: Option<GameState>,
+}
+
 fn process_game_commands(
     assets: Res<GameAssets>,
     audio: Res<Audio>,
     config: Res<GameConfig>,
     mut reader: EventReader<GameCommand>,
-    mut overlay_next_state: ResMut<OverlayNextState>,
     mut next_bgm: ResMut<BGM>,
     camera_query: Query<&Transform, With<Camera2d>>,
+    mut overlay_event_writer: EventWriter<OverlayEvent>,
+    mut next: ResMut<CommandState>,
 ) {
     let camera_position = camera_query.single().translation.truncate();
+
     for event in reader.read() {
+        info!("commands: {:?}", event);
+
         match event {
             GameCommand::SEDageki(position) => {
                 play_se(
@@ -165,16 +175,17 @@ fn process_game_commands(
                 *next_bgm = BGM(Some(assets.dokutsu.clone()));
             }
             GameCommand::StateMainMenu => {
-                *overlay_next_state = OverlayNextState(Some(GameState::MainMenu));
+                overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
             }
             GameCommand::StateNameInput => {
-                *overlay_next_state = OverlayNextState(Some(GameState::NameInput));
+                overlay_event_writer.send(OverlayEvent::Close(GameState::NameInput));
             }
             GameCommand::StateInGame => {
-                *overlay_next_state = OverlayNextState(Some(GameState::InGame));
+                overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
             }
             GameCommand::StateWarp => {
-                *overlay_next_state = OverlayNextState(Some(GameState::Warp));
+                next.next = Some(GameState::Warp);
+                overlay_event_writer.send(OverlayEvent::Close(GameState::Warp));
             }
         }
     }
@@ -184,9 +195,12 @@ pub struct GameCommandPlugin;
 
 impl Plugin for GameCommandPlugin {
     fn build(&self, app: &mut App) {
+        app.init_resource::<CommandState>();
         app.add_event::<GameCommand>().add_systems(
             FixedUpdate,
-            process_game_commands.run_if(resource_exists::<GameAssets>),
+            (process_game_commands)
+                .run_if(resource_exists::<GameAssets>)
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

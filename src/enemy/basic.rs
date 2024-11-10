@@ -1,6 +1,5 @@
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
-use crate::entity::actor::ActorMoveState;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
@@ -21,6 +20,7 @@ pub fn spawn_basic_enemy<T: Component>(
     marker: T,
     name: &str,
     spell: Spell,
+    move_force: f32,
 ) {
     commands
         .spawn((
@@ -37,7 +37,8 @@ pub fn spawn_basic_enemy<T: Component>(
                 max_life: 20,
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
-                move_state: ActorMoveState::Idle,
+                move_direction: Vec2::ZERO,
+                move_force: move_force,
                 fire_state: ActorFireState::Idle,
                 online: false,
                 group: ENEMY_GROUP,

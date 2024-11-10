@@ -78,7 +78,6 @@ fn update_lantern(
     mut child_query: Query<(Entity, &LanternParent, &mut PointLight2d)>,
     frame_count: Res<FrameCount>,
 ) {
-    // info!("update_lantern");
     for (entity, child, mut light) in child_query.iter_mut() {
         light.intensity = 1.0 + ((frame_count.0 as f32 * 0.5).cos()) * 0.1;
 
@@ -110,7 +109,9 @@ impl Plugin for StoneLanternPlugin {
         app.add_systems(Update, update_lantern.run_if(in_state(GameState::InGame)));
         app.add_systems(
             FixedUpdate,
-            break_stone_lantern.run_if(in_state(GameState::InGame)),
+            break_stone_lantern
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
         app.register_type::<StoneLantern>();
     }

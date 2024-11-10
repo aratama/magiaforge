@@ -9,6 +9,7 @@ use crate::world::NextLevel;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
+use bevy_rapier2d::plugin::PhysicsSet;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -255,7 +256,9 @@ impl Plugin for GameMenuPlugin {
         );
         app.add_systems(
             FixedUpdate,
-            closing_to_closed.run_if(in_state(GameState::InGame)),
+            closing_to_closed
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
         app.init_resource::<ButtonShots>();
     }

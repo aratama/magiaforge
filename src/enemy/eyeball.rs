@@ -33,6 +33,7 @@ pub fn spawn_eyeball(
         EyeballControl,
         "eyeball",
         Spell::PurpleBolt,
+        ENEMY_MOVE_FORCE,
     );
 }
 

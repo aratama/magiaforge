@@ -33,29 +33,29 @@ pub fn spawn_slime(
         SlimeControl,
         "slime",
         Spell::SlimeCharge,
+        ENEMY_MOVE_FORCE,
     );
 }
 
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます
 /// また、プレイヤーを狙います
 fn control_slime(
-    mut enemy_query: Query<(&mut Actor, &mut ExternalForce, &mut Transform), With<SlimeControl>>,
+    mut enemy_query: Query<(&mut Actor, &mut Transform), With<SlimeControl>>,
     mut player_query: Query<(&Actor, &GlobalTransform), (With<Player>, Without<SlimeControl>)>,
 ) {
     if let Ok((player, player_transform)) = player_query.get_single_mut() {
         if 0 < player.life {
-            for (mut actor, mut force, enemy_transform) in enemy_query.iter_mut() {
+            for (mut actor, enemy_transform) in enemy_query.iter_mut() {
                 let diff = player_transform.translation() - enemy_transform.translation;
                 if diff.length() < ENEMY_ATTACK_RANGE {
-                    force.force = Vec2::ZERO;
+                    actor.move_direction = Vec2::ZERO;
                     actor.pointer = diff.truncate();
                     actor.fire_state = ActorFireState::Fire;
                 } else if diff.length() < ENEMY_DETECTION_RANGE {
-                    let direction = diff.normalize_or_zero();
-                    force.force = direction.truncate() * ENEMY_MOVE_FORCE;
+                    actor.move_direction = diff.normalize_or_zero().truncate();
                     actor.fire_state = ActorFireState::Idle;
                 } else {
-                    force.force = Vec2::ZERO;
+                    actor.move_direction = Vec2::ZERO;
                     actor.fire_state = ActorFireState::Idle;
                 }
             }

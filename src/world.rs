@@ -55,6 +55,8 @@ fn setup_world(
     mut writer: EventWriter<GameCommand>,
     audio: Res<Audio>,
 ) {
+    info!("setup_world {:?}", next.0);
+
     writer.send(GameCommand::BGMDokutsu);
 
     let level = match &next.0 {

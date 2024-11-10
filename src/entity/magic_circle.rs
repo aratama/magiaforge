@@ -121,6 +121,7 @@ fn warp(
             circle.step += 1;
         } else if circle.step == MAX_POWER + 120 {
             writer.send(GameCommand::StateWarp);
+            circle.step += 1;
         } else {
             circle.step += 1;
         }
@@ -204,9 +205,8 @@ impl Plugin for MagicCirclePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            power_on_circle.run_if(in_state(GameState::InGame)),
+            (power_on_circle, warp).run_if(in_state(GameState::InGame)),
         );
-        app.add_systems(FixedUpdate, warp.run_if(in_state(GameState::InGame)));
         app.add_systems(
             Update,
             update_circle_color.run_if(in_state(GameState::InGame)),

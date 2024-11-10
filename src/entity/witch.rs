@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::entity::actor::{Actor, ActorFireState, ActorMoveState};
+use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
@@ -16,6 +16,8 @@ use std::time::Duration;
 use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
+
+pub const PLAYER_MOVE_FORCE: f32 = 50000.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct WandSprite;
@@ -63,7 +65,8 @@ pub fn spawn_witch<T: Component>(
             max_life,
             pointer: Vec2::from_angle(angle),
             intensity,
-            move_state: ActorMoveState::Idle,
+            move_direction: Vec2::ZERO,
+            move_force: PLAYER_MOVE_FORCE,
             fire_state: ActorFireState::Idle,
             online: true,
             group: WITCH_GROUP,
@@ -178,27 +181,22 @@ fn update_animation(
 ) {
     for (parent, mut animation) in witch_animation_query.iter_mut() {
         if let Ok((actor, footsteps)) = witch_query.get_mut(**parent) {
-            match actor.move_state {
-                ActorMoveState::Idle => {
-                    if animation.tag != Some("idle".to_string()) {
-                        // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
-                        // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
-                        animation.play("idle", AnimationRepeat::Loop);
+            if actor.move_direction.length() < 0.01 {
+                if animation.tag != Some("idle".to_string()) {
+                    // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
+                    // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
+                    animation.play("idle", AnimationRepeat::Loop);
 
-                        if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
-                            instance
-                                .set_volume(0.0, AudioTween::linear(Duration::from_millis(200)));
-                        }
+                    if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
+                        instance.set_volume(0.0, AudioTween::linear(Duration::from_millis(200)));
                     }
                 }
-                ActorMoveState::Run => {
-                    if animation.tag != Some("run".to_string()) {
-                        animation.play("run", AnimationRepeat::Loop);
+            } else {
+                if animation.tag != Some("run".to_string()) {
+                    animation.play("run", AnimationRepeat::Loop);
 
-                        if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
-                            instance
-                                .set_volume(0.6, AudioTween::linear(Duration::from_millis(100)));
-                        }
+                    if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
+                        instance.set_volume(0.6, AudioTween::linear(Duration::from_millis(100)));
                     }
                 }
             }
