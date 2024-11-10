@@ -31,7 +31,6 @@ save = []
 default = []
 
 [dependencies]
-bevy_aseprite_ultra = { path = "../bevy_aseprite_ultra" }
 bevy_asset_loader = "0.21.0"
 bevy_kira_audio = { version = "0.20.0", features = ["ogg"] }
 bevy_light_2d = "0.4.2"
@@ -51,6 +50,7 @@ bevy_embedded_assets = "0.11.0"
 bevy-inspector-egui = "0.27.0"
 iyes_perf_ui = "0.3.0"
 bevy_simple_text_input = "0.9.2"
+bevy_aseprite_ultra = "0.2.4"
 
 
 [dependencies.bevy]

@@ -347,9 +347,9 @@ dependencies = [
 
 [[package]]
 name = "aseprite-loader"
-version = "0.3.1"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "158a3db4d506be483674e360c045b0bd95f107a1fe9a8a043c84239e64562f88"
+checksum = "4609c38dc71dd644a55d1a7ae71f214801d60d9323eb1b5727ff3f469a713802"
 dependencies = [
  "bitflags 2.6.0",
  "flate2",
@@ -721,6 +721,8 @@ dependencies = [
 [[package]]
 name = "bevy_aseprite_ultra"
 version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7349b713bb75c014d5ba33a338af8dd726e30b21cca4a02f203616af0557f89"
 dependencies = [
  "anyhow",
  "aseprite-loader",
