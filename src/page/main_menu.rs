@@ -1,88 +1,25 @@
 use crate::command::GameCommand;
-use crate::config::GameConfig;
-use crate::constant::{GAME_MENU_Z_INDEX, HUD_Z_INDEX};
-use crate::ui::button::button;
+use crate::constant::HUD_Z_INDEX;
 use crate::ui::on_press::OnPress;
 use crate::{
     asset::GameAssets,
     states::{GameState, MainMenuPhase},
 };
-use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 use git_version::git_version;
 
-#[derive(Resource)]
-struct ButtonShots {
-    single: SystemId,
-
-    #[allow(dead_code)]
-    exit: SystemId,
-}
-
-impl FromWorld for ButtonShots {
-    fn from_world(world: &mut World) -> Self {
-        ButtonShots {
-            single: world.register_system(start_single_player),
-            exit: world.register_system(exit_game),
-        }
-    }
-}
-
-fn start_single_player(
-    mut query: Query<&mut Visibility, With<OnPress>>,
-    mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    mut writer: EventWriter<GameCommand>,
-    mut config: ResMut<GameConfig>,
-) {
-    for mut visibility in &mut query {
-        *visibility = Visibility::Hidden;
-    }
-    config.online = false;
-    menu_next_state.set(MainMenuPhase::Paused);
-    writer.send(GameCommand::SEKettei(None));
-    writer.send(GameCommand::StateInGame);
-    writer.send(GameCommand::BGMNone);
-}
-
-fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {
-    for window in window_query.iter() {
-        commands.entity(window).despawn();
-    }
+#[derive(Event, PartialEq, Eq, Debug, Clone, Copy)]
+enum Events {
+    Start,
 }
 
 fn setup_main_menu(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    shots: Res<ButtonShots>,
     mut writer: EventWriter<GameCommand>,
 ) {
     writer.send(GameCommand::BGMBoubaku);
-
-    commands
-        .spawn((
-            StateScoped(GameState::MainMenu),
-            Name::new("main menu"),
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    top: Val::Px(400.0),
-                    left: Val::Px(60.0),
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Px(8.0),
-                    ..Default::default()
-                },
-                z_index: ZIndex::Global(GAME_MENU_Z_INDEX),
-                ..Default::default()
-            },
-        ))
-        .with_children(|parent| {
-            button(parent, &assets, shots.single, "Start", 84.0, 16.0);
-
-            #[cfg(not(target_arch = "wasm32"))]
-            button(parent, &assets, shots.exit, "Exit", 84.0, 16.0);
-        });
 
     commands.spawn((
         StateScoped(GameState::MainMenu),
@@ -127,11 +64,42 @@ fn setup_main_menu(
     ));
 }
 
+fn on_click(buttons: Res<ButtonInput<MouseButton>>, mut writer: EventWriter<Events>) {
+    if buttons.any_just_pressed(vec![MouseButton::Left, MouseButton::Right]) {
+        writer.send(Events::Start);
+    }
+}
+
+fn read_events(
+    mut query: Query<&mut Visibility, With<OnPress>>,
+    mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
+    mut writer: EventWriter<GameCommand>,
+    mut reader: EventReader<Events>,
+) {
+    for event in reader.read() {
+        match event {
+            Events::Start => {
+                for mut visibility in &mut query {
+                    *visibility = Visibility::Hidden;
+                }
+                menu_next_state.set(MainMenuPhase::Paused);
+                writer.send(GameCommand::SEKettei(None));
+                writer.send(GameCommand::StateInGame);
+                writer.send(GameCommand::BGMNone);
+            }
+        }
+    }
+}
+
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<Events>();
         app.add_systems(OnEnter(GameState::MainMenu), setup_main_menu);
-        app.init_resource::<ButtonShots>();
+        app.add_systems(
+            Update,
+            (on_click, read_events).run_if(in_state(GameState::MainMenu)),
+        );
     }
 }
