@@ -13,6 +13,7 @@ pub enum WandType {
 }
 
 pub struct Wand {
+    pub wand_type: WandType,
     pub slots: Vec<Option<Spell>>,
 }
 

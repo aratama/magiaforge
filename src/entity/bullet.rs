@@ -7,7 +7,6 @@ use crate::entity::breakable::Breakable;
 use crate::entity::EntityDepth;
 use crate::states::GameState;
 use crate::world::wall::WallCollider;
-use crate::world::CurrentLevel;
 use crate::{bullet_type::BulletType, command::GameCommand};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
@@ -16,7 +15,7 @@ use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
-use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
+use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -54,13 +53,11 @@ pub fn spawn_bullets(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     writer: &mut EventWriter<ClientMessage>,
-    current: &Res<CurrentLevel>,
     mut se_writer: &mut EventWriter<GameCommand>,
-    websocket: &Res<WebSocketState>,
-
     actor: &mut Actor,
     actor_transform: &Transform,
     bullet_type: BulletType,
+    online: bool,
 ) {
     let bullet_props = bullet_type_to_props(bullet_type);
     let bullet_lifetime = bullet_props.lifetime;
@@ -86,22 +83,19 @@ pub fn spawn_bullets(
         bullet_type,
     );
 
-    if actor.online && websocket.ready_state == ReadyState::OPEN {
-        if let Some(level) = current.0 {
-            let serialized = bincode::serialize(&RemoteMessage::Fire {
-                sender: actor.uuid,
-                uuid: actor.uuid,
-                level,
-                x: bullet_position.x,
-                y: bullet_position.y,
-                vx: direction.x * bullet_speed,
-                vy: direction.y * bullet_speed,
-                bullet_lifetime,
-                bullet_type: bullet_type,
-            })
-            .unwrap();
-            writer.send(ClientMessage::Binary(serialized));
-        }
+    if online {
+        let serialized = bincode::serialize(&RemoteMessage::Fire {
+            sender: actor.uuid,
+            uuid: actor.uuid,
+            x: bullet_position.x,
+            y: bullet_position.y,
+            vx: direction.x * bullet_speed,
+            vy: direction.y * bullet_speed,
+            bullet_lifetime,
+            bullet_type: bullet_type,
+        })
+        .unwrap();
+        writer.send(ClientMessage::Binary(serialized));
     }
 }
 

@@ -23,8 +23,11 @@ pub enum GameEntity {
     Chest,
     BookShelf,
     MagicCircle,
+    MultiPlayArenaMagicCircle,
     BrokenMagicCircle,
     Usage,
+    SinglePlay,
+    MultiPlayArena,
     StoneLantern,
 }
 

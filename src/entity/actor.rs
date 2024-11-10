@@ -1,13 +1,14 @@
+use crate::config::GameConfig;
 use crate::constant::MAX_WANDS;
 use crate::entity::breakable::BreakableSprite;
 use crate::spell::cast_spell;
 use crate::wand::Wand;
-use crate::{asset::GameAssets, command::GameCommand, states::GameState, world::CurrentLevel};
+use crate::{asset::GameAssets, command::GameCommand, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
 use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::{ExternalForce, Group};
-use bevy_simple_websocket::{ClientMessage, WebSocketState};
+use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
 
@@ -43,10 +44,6 @@ pub struct Actor {
     pub move_force: f32,
 
     pub fire_state: ActorFireState,
-
-    /// 弾丸の発射をリモートに通知するかどうか
-    /// プレイヤーキャラクターはtrue、敵キャラクターはfalseにします
-    pub online: bool,
 
     pub group: Group,
 
@@ -142,10 +139,12 @@ fn fire_bullet(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut writer: EventWriter<ClientMessage>,
-    current: Res<CurrentLevel>,
     mut se_writer: EventWriter<GameCommand>,
     websocket: Res<WebSocketState>,
+    config: Res<GameConfig>,
 ) {
+    let online = config.online && websocket.ready_state == ReadyState::OPEN;
+
     for (mut actor, actor_transform) in actor_query.iter_mut() {
         if actor.life <= 0 {
             return;
@@ -158,12 +157,11 @@ fn fire_bullet(
                         &mut commands,
                         &assets,
                         &mut writer,
-                        &current,
                         &mut se_writer,
-                        &websocket,
                         &mut actor,
                         &actor_transform,
                         spell,
+                        online,
                     );
                 }
             }

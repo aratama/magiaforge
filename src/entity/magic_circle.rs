@@ -1,11 +1,13 @@
 use crate::{
-    asset::GameAssets, command::GameCommand, constant::*, controller::player::Player,
-    states::GameState, world::NextLevel,
+    asset::GameAssets, command::GameCommand, config::GameConfig, constant::*,
+    controller::player::Player, states::GameState, world::NextLevel,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor};
+use bevy_simple_websocket::ClientMessage;
+use dotenvy_macro::dotenv;
 
 const MAX_POWER: i32 = 360;
 
@@ -13,18 +15,33 @@ const MIN_RADIUS_ON: f32 = 100.0;
 const MIN_INTENSITY_ON: f32 = 1.0;
 const MIN_FALLOFF_ON: f32 = 10.0;
 
+#[derive(Debug, Clone, Copy)]
+pub enum MagicCircleDestination {
+    NextLevel,
+    MultiplayArena,
+}
+
 #[derive(Component)]
 pub struct MagicCircle {
     players: i32,
     step: i32,
     light: Entity,
+    destination: MagicCircleDestination,
 }
 
 #[derive(Component)]
 pub struct MagicCircleLight;
 
-pub fn spawn_magic_circle(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: f32) {
+pub fn spawn_magic_circle(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    x: f32,
+    y: f32,
+    destination: MagicCircleDestination,
+) {
     let light_entity = commands.spawn_empty().id();
+
+    info!("spawn cirlce to {:?}", destination);
 
     commands.spawn((
         Name::new("magic_circle"),
@@ -33,6 +50,7 @@ pub fn spawn_magic_circle(commands: &mut Commands, assets: &Res<GameAssets>, x: 
             players: 0,
             step: 0,
             light: light_entity,
+            destination,
         },
         AsepriteAnimationBundle {
             aseprite: assets.magic_circle.clone(),
@@ -98,6 +116,7 @@ fn warp(
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<NextLevel>,
     mut writer: EventWriter<GameCommand>,
+    mut config: ResMut<GameConfig>,
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
@@ -111,12 +130,24 @@ fn warp(
                 writer.send(GameCommand::SEWarp(Some(transform.translation.truncate())));
                 commands.entity(entity).despawn_recursive();
 
-                next.0 = match &next.0 {
-                    None => Some(1),
-                    Some(next) => Some((next + 1) % LEVELS),
-                };
+                info!("circle.destination {:?}", circle.destination);
 
-                info!("next level: {:?}", next.0);
+                match circle.destination {
+                    MagicCircleDestination::NextLevel => {
+                        *next = match *next {
+                            NextLevel::None => NextLevel::Level(1),
+                            NextLevel::Level(level) => NextLevel::Level((level + 1) % LEVELS),
+                            NextLevel::MultiPlayArena => NextLevel::Level(1),
+                        };
+                        config.online = false;
+                        info!("next level: {:?}", *next);
+                    }
+                    MagicCircleDestination::MultiplayArena => {
+                        *next = NextLevel::MultiPlayArena;
+                        config.online = true;
+                        info!("next level: {:?}", *next);
+                    }
+                }
             }
             circle.step += 1;
         } else if circle.step == MAX_POWER + 120 {

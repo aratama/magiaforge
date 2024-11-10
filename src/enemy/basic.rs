@@ -6,7 +6,7 @@ use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::Spell;
 use crate::states::GameState;
-use crate::wand::Wand;
+use crate::wand::{Wand, WandType};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -40,12 +40,12 @@ pub fn spawn_basic_enemy<T: Component>(
                 move_direction: Vec2::ZERO,
                 move_force: move_force,
                 fire_state: ActorFireState::Idle,
-                online: false,
                 group: ENEMY_GROUP,
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
                 wands: [
                     Some(Wand {
+                        wand_type: WandType::CypressWand,
                         slots: vec![Some(spell)],
                     }),
                     None,

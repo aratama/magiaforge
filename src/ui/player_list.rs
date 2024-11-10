@@ -8,6 +8,9 @@ use bevy::prelude::*;
 use bevy_simple_websocket::{ReadyState, WebSocketState};
 
 #[derive(Component)]
+struct PlayerListRoot;
+
+#[derive(Component)]
 struct ReadyStateLabel;
 
 #[derive(Component)]
@@ -20,12 +23,9 @@ struct PlayersLabel;
 struct RemotePlayerListItem;
 
 fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig>) {
-    if !config.online {
-        return;
-    }
-
     commands
         .spawn((
+            PlayerListRoot,
             StateScoped(GameState::InGame),
             NodeBundle {
                 style: Style {
@@ -34,6 +34,11 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Re
                     left: Val::Px(1100.0),
                     flex_direction: FlexDirection::Column,
                     align_items: AlignItems::Start,
+                    display: if config.online {
+                        Display::Flex
+                    } else {
+                        Display::None
+                    },
                     ..default()
                 },
                 ..default()
@@ -83,13 +88,21 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Re
 /// プレイヤーリストを更新
 fn update_player_list(
     mut commands: Commands,
+    mut player_list_query: Query<&mut Style, With<PlayerListRoot>>,
     player_query: Query<&Player>,
     remote_query: Query<(Entity, &RemotePlayer)>,
     mut remote_player_items_query: Query<(Entity, &RemotePlayerListItem, &mut Text)>,
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
+
+    config: Res<GameConfig>,
 ) {
-    if let Ok(parent) = list_query.get_single_mut() {
+    let mut player_list_root = player_list_query.single_mut();
+
+    if config.online {
+        player_list_root.display = Display::Flex;
+
+        let parent = list_query.single_mut();
         let mut players = Vec::<(String, i32, Color)>::new();
         if let Ok(player) = player_query.get_single() {
             players.push((
@@ -141,6 +154,8 @@ fn update_player_list(
                 text.sections[0].style.color = *color;
             }
         }
+    } else {
+        player_list_root.display = Display::None;
     }
 }
 

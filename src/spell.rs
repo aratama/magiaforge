@@ -4,10 +4,9 @@ use crate::{
     command::GameCommand,
     entity::{actor::Actor, bullet::spawn_bullets},
     spell_props::spell_to_props,
-    world::CurrentLevel,
 };
 use bevy::prelude::*;
-use bevy_simple_websocket::{ClientMessage, WebSocketState};
+use bevy_simple_websocket::ClientMessage;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Spell {
@@ -23,13 +22,11 @@ pub fn cast_spell(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     mut writer: &mut EventWriter<ClientMessage>,
-    current: &Res<CurrentLevel>,
     mut se_writer: &mut EventWriter<GameCommand>,
-    websocket: &Res<WebSocketState>,
-
     mut actor: &mut Actor,
     actor_transform: &Transform,
     spell: Spell,
+    online: bool,
 ) {
     let props = spell_to_props(spell);
 
@@ -55,12 +52,11 @@ pub fn cast_spell(
                 &mut commands,
                 &assets,
                 &mut writer,
-                &current,
                 &mut se_writer,
-                &websocket,
                 &mut actor,
                 &actor_transform,
                 BulletType::BlueBullet,
+                online,
             );
         }
         Spell::PurpleBolt => {
@@ -68,12 +64,11 @@ pub fn cast_spell(
                 &mut commands,
                 &assets,
                 &mut writer,
-                &current,
                 &mut se_writer,
-                &websocket,
                 &mut actor,
                 &actor_transform,
                 BulletType::PurpleBullet,
+                online,
             );
         }
         Spell::SlimeCharge => {
@@ -81,12 +76,11 @@ pub fn cast_spell(
                 &mut commands,
                 &assets,
                 &mut writer,
-                &current,
                 &mut se_writer,
-                &websocket,
                 &mut actor,
                 &actor_transform,
                 BulletType::SlimeAttackBullet,
+                online,
             );
         }
         Spell::Heal => {

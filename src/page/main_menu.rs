@@ -15,7 +15,6 @@ use git_version::git_version;
 #[derive(Resource)]
 struct ButtonShots {
     single: SystemId,
-    multi: SystemId,
 
     #[allow(dead_code)]
     exit: SystemId,
@@ -25,7 +24,6 @@ impl FromWorld for ButtonShots {
     fn from_world(world: &mut World) -> Self {
         ButtonShots {
             single: world.register_system(start_single_player),
-            multi: world.register_system(start_multiplayer),
             exit: world.register_system(exit_game),
         }
     }
@@ -45,26 +43,6 @@ fn start_single_player(
     writer.send(GameCommand::SEKettei(None));
     writer.send(GameCommand::StateInGame);
     writer.send(GameCommand::BGMNone);
-}
-
-fn start_multiplayer(
-    mut query: Query<&mut Visibility, With<OnPress>>,
-    mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    mut config: ResMut<GameConfig>,
-    mut writer: EventWriter<GameCommand>,
-) {
-    for mut visibility in &mut query {
-        *visibility = Visibility::Hidden;
-    }
-    config.online = true;
-    menu_next_state.set(MainMenuPhase::Paused);
-    writer.send(GameCommand::SEKettei(None));
-    if config.player_name.is_empty() {
-        writer.send(GameCommand::StateNameInput);
-    } else {
-        writer.send(GameCommand::StateInGame);
-        writer.send(GameCommand::BGMNone);
-    }
 }
 
 fn exit_game(mut commands: Commands, window_query: Query<Entity, With<Window>>) {
@@ -100,9 +78,7 @@ fn setup_main_menu(
             },
         ))
         .with_children(|parent| {
-            button(parent, &assets, shots.single, "Single Player", 84.0, 16.0);
-
-            button(parent, &assets, shots.multi, "Multiplayer", 84.0, 16.0);
+            button(parent, &assets, shots.single, "Start", 84.0, 16.0);
 
             #[cfg(not(target_arch = "wasm32"))]
             button(parent, &assets, shots.exit, "Exit", 84.0, 16.0);

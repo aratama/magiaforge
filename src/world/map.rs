@@ -135,6 +135,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::MagicCircle, x, y));
                 }
+                (47, 96, 130, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::MultiPlayArenaMagicCircle, x, y));
+                }
                 (255, 0, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
@@ -149,6 +156,20 @@ pub fn image_to_tilemap(
                         biome: Biome::SafeZone,
                     });
                     entities.push((GameEntity::Usage, x, y));
+                }
+                (254, 0, 255, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::SinglePlay, x, y));
+                }
+                (253, 0, 255, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::MultiPlayArena, x, y));
                 }
                 (223, 113, 38, 255) => {
                     tiles.push(LevelTileMapile {

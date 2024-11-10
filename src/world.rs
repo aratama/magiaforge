@@ -14,6 +14,7 @@ use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::magic_circle::spawn_magic_circle;
+use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
@@ -36,8 +37,14 @@ use wall::WallCollider;
 #[derive(Resource, Debug, Clone, Default)]
 pub struct CurrentLevel(pub Option<i32>);
 
-#[derive(Resource, Debug, Clone, Default)]
-pub struct NextLevel(pub Option<i32>);
+#[derive(Resource, Debug, Clone, Copy, Default)]
+
+pub enum NextLevel {
+    #[default]
+    None,
+    Level(i32),
+    MultiPlayArena,
+}
 
 fn setup_world(
     commands: Commands,
@@ -55,16 +62,21 @@ fn setup_world(
     mut writer: EventWriter<GameCommand>,
     audio: Res<Audio>,
 ) {
-    info!("setup_world {:?}", next.0);
+    info!("setup_world {:?}", next);
 
     writer.send(GameCommand::BGMDokutsu);
 
-    let level = match &next.0 {
-        None => 0,
-        Some(level) => level % LEVELS,
+    let level_slice = match *next {
+        NextLevel::None => "level0",
+        NextLevel::Level(level) => &format!("level{}", level % LEVELS),
+        NextLevel::MultiPlayArena => "multiplay_arena",
     };
 
-    current.0 = Some(level);
+    current.0 = match *next {
+        NextLevel::None => None,
+        NextLevel::Level(level) => Some(level % LEVELS),
+        NextLevel::MultiPlayArena => None,
+    };
 
     spawn_level(
         commands,
@@ -77,8 +89,8 @@ fn setup_world(
         camera,
         frame_count,
         config,
-        level,
         &audio,
+        level_slice,
     );
 }
 
@@ -93,17 +105,12 @@ fn spawn_level(
     mut camera: Query<&mut Transform, With<Camera2d>>,
     frame_count: Res<FrameCount>,
     config: Res<GameConfig>,
-    level: i32,
     audio: &Res<Audio>,
+    level_slice: &str,
 ) {
-    info!("spawn_level {}", level);
-
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
-    let slice = level_aseprite
-        .slices
-        .get(&format!("level{}", level))
-        .unwrap();
+    let slice = level_aseprite.slices.get(level_slice).unwrap();
 
     info!(
         "bounds min_x:{} max_x:{} min_y:{} max_y:{}",
@@ -302,7 +309,22 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 );
             }
             GameEntity::MagicCircle => {
-                spawn_magic_circle(&mut commands, &assets, tx + TILE_HALF, ty - TILE_HALF);
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    MagicCircleDestination::NextLevel,
+                );
+            }
+            GameEntity::MultiPlayArenaMagicCircle => {
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    MagicCircleDestination::MultiplayArena,
+                );
             }
             GameEntity::BrokenMagicCircle => {
                 spawn_broken_magic_circle(
@@ -319,6 +341,30 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 commands.spawn(AsepriteSliceBundle {
                     aseprite: assets.asset.clone(),
                     slice: "usage".into(),
+                    transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
+                    sprite: Sprite {
+                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
+                        ..default()
+                    },
+                    ..default()
+                });
+            }
+            GameEntity::SinglePlay => {
+                commands.spawn(AsepriteSliceBundle {
+                    aseprite: assets.asset.clone(),
+                    slice: "single_play".into(),
+                    transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
+                    sprite: Sprite {
+                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
+                        ..default()
+                    },
+                    ..default()
+                });
+            }
+            GameEntity::MultiPlayArena => {
+                commands.spawn(AsepriteSliceBundle {
+                    aseprite: assets.asset.clone(),
+                    slice: "multiplay_arena".into(),
                     transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
                     sprite: Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),

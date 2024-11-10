@@ -10,6 +10,7 @@ use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy_rapier2d::plugin::PhysicsSet;
+use bevy_simple_websocket::ClientMessage;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -44,10 +45,20 @@ fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<G
     writer.send(GameCommand::SEKettei(None));
 }
 
-fn exit(mut writer: EventWriter<GameCommand>, mut next: ResMut<NextLevel>) {
+fn exit(
+    mut writer: EventWriter<GameCommand>,
+    mut next: ResMut<NextLevel>,
+    mut config: ResMut<GameConfig>,
+    mut websocket: EventWriter<ClientMessage>,
+) {
     writer.send(GameCommand::StateMainMenu);
     writer.send(GameCommand::SEKettei(None));
-    *next = NextLevel(None);
+    *next = NextLevel::None;
+
+    if config.online {
+        websocket.send(ClientMessage::Close);
+        config.online = false;
+    }
 }
 
 fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {

@@ -51,7 +51,7 @@ fn process_game_commands(
     let camera_position = camera_query.single().translation.truncate();
 
     for event in reader.read() {
-        info!("commands: {:?}", event);
+        // info!("commands: {:?}", event);
 
         match event {
             GameCommand::SEDageki(position) => {
