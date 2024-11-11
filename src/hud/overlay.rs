@@ -1,7 +1,7 @@
 use crate::{constant::OVERLAY_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
-const SPEED: f32 = 0.04;
+const SPEED: f32 = 0.02;
 
 #[derive(Event)]
 pub enum OverlayEvent {
@@ -96,7 +96,14 @@ impl Plugin for OverlayPlugin {
         app.add_systems(Startup, setup_overlay);
         app.add_systems(
             Update,
-            (read_overlay_event, update_overlay.after(read_overlay_event)),
+            (
+                read_overlay_event,
+                update_overlay.after(read_overlay_event).run_if(
+                    in_state(GameState::InGame)
+                        .or_else(in_state(GameState::MainMenu))
+                        .or_else(in_state(GameState::NameInput).or_else(in_state(GameState::Warp))),
+                ),
+            ),
         );
         app.add_event::<OverlayEvent>();
     }

@@ -5,9 +5,27 @@ use crate::{
     asset::GameAssets,
     states::{GameState, MainMenuPhase},
 };
+use bevy::core::FrameCount;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
+use bevy_aseprite_ultra::prelude::{AsepriteAnimationUiBundle, AsepriteSliceUiBundle};
 use git_version::git_version;
+
+const SCALE: f32 = 4.0;
+
+#[derive(Component)]
+struct WitchAnimation;
+
+#[derive(Component)]
+struct CloudAnimation0;
+
+#[derive(Component)]
+struct CloudAnimation1;
+
+#[derive(Component)]
+struct CloudAnimation2;
+
+#[derive(Component)]
+struct CloudAnimation3;
 
 #[derive(Event, PartialEq, Eq, Debug, Clone, Copy)]
 enum Events {
@@ -39,6 +57,72 @@ fn setup_main_menu(
         },
     ));
 
+    spawn_cloud(&mut commands, &assets, CloudAnimation0, -950);
+    spawn_cloud(&mut commands, &assets, CloudAnimation1, -950);
+    spawn_cloud(&mut commands, &assets, CloudAnimation2, -900);
+    spawn_cloud(&mut commands, &assets, CloudAnimation3, -900);
+
+    commands.spawn((
+        WitchAnimation,
+        StateScoped(GameState::MainMenu),
+        ImageBundle {
+            z_index: ZIndex::Global(-800),
+            style: Style {
+                left: Val::Px(800.0),
+                top: Val::Px(0.0),
+                width: Val::Px(96.0 * SCALE),
+                height: Val::Px(96.0 * SCALE),
+                ..default()
+            },
+            ..default()
+        },
+        AsepriteAnimationUiBundle {
+            aseprite: assets.title_witch.clone(),
+            animation: "default".into(),
+            ..default()
+        },
+    ));
+
+    commands.spawn((
+        StateScoped(GameState::MainMenu),
+        ImageBundle {
+            z_index: ZIndex::Global(-700),
+            style: Style {
+                left: Val::Px(400.0),
+                top: Val::Px(300.0),
+                width: Val::Px(128.0 * SCALE),
+                height: Val::Px(48.0 * SCALE),
+                ..default()
+            },
+            ..default()
+        },
+        AsepriteSliceUiBundle {
+            aseprite: assets.atlas.clone(),
+            slice: "title_logo".into(),
+            ..default()
+        },
+    ));
+
+    commands.spawn((
+        StateScoped(GameState::MainMenu),
+        ImageBundle {
+            z_index: ZIndex::Global(-700),
+            style: Style {
+                left: Val::Px(540.0),
+                top: Val::Px(640.0),
+                width: Val::Px(64.0 * SCALE),
+                height: Val::Px(16.0 * SCALE),
+                ..default()
+            },
+            ..default()
+        },
+        AsepriteSliceUiBundle {
+            aseprite: assets.atlas.clone(),
+            slice: "click_to_start".into(),
+            ..default()
+        },
+    ));
+
     commands.spawn((
         StateScoped(GameState::MainMenu),
         Name::new("Git Version"),
@@ -59,6 +143,34 @@ fn setup_main_menu(
             },
             z_index: ZIndex::Global(HUD_Z_INDEX),
 
+            ..default()
+        },
+    ));
+}
+
+fn spawn_cloud<T: Component>(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    marker: T,
+    z_index: i32,
+) {
+    commands.spawn((
+        marker,
+        StateScoped(GameState::MainMenu),
+        ImageBundle {
+            z_index: ZIndex::Global(z_index),
+            style: Style {
+                left: Val::Px(0.0),
+                top: Val::Px(0.0),
+                width: Val::Px(1024.0 * SCALE),
+                height: Val::Px(180.0 * SCALE),
+                ..default()
+            },
+            ..default()
+        },
+        AsepriteAnimationUiBundle {
+            aseprite: assets.title_cloud.clone(),
+            animation: "default".into(),
             ..default()
         },
     ));
@@ -91,6 +203,56 @@ fn read_events(
     }
 }
 
+fn witch_animation(
+    frame_count: Res<FrameCount>,
+    mut query: Query<&mut Style, With<WitchAnimation>>,
+) {
+    for mut style in &mut query.iter_mut() {
+        style.left = Val::Px(800.0 + (frame_count.0 as f32 * 0.007).sin() * 40.0);
+        style.top = Val::Px(0.0 + (frame_count.0 as f32 * 0.02).cos() * 10.0);
+    }
+}
+
+fn cloud_animation0(
+    frame_count: Res<FrameCount>,
+    mut query: Query<&mut Style, With<CloudAnimation0>>,
+) {
+    for mut style in &mut query.iter_mut() {
+        style.left = Val::Px(0.0 - (frame_count.0 as f32 * 0.0003).fract() * 1024.0 * SCALE);
+    }
+}
+
+fn cloud_animation1(
+    frame_count: Res<FrameCount>,
+    mut query: Query<&mut Style, With<CloudAnimation1>>,
+) {
+    for mut style in &mut query.iter_mut() {
+        style.left =
+            Val::Px(1024.0 * SCALE - (frame_count.0 as f32 * 0.0003).fract() * 1024.0 * SCALE);
+    }
+}
+
+fn cloud_animation2(
+    frame_count: Res<FrameCount>,
+    mut query: Query<&mut Style, With<CloudAnimation2>>,
+) {
+    for mut style in &mut query.iter_mut() {
+        style.left =
+            Val::Px(0.0 - (frame_count.0 as f32 * 0.0001).fract() * 1024.0 * SCALE - 600.0);
+    }
+}
+
+fn cloud_animation3(
+    frame_count: Res<FrameCount>,
+    mut query: Query<&mut Style, With<CloudAnimation3>>,
+) {
+    for mut style in &mut query.iter_mut() {
+        style.left = Val::Px(
+            1024.0 * SCALE - (frame_count.0 as f32 * 0.0001).fract() * 1024.0 * SCALE - 600.0,
+        );
+    }
+}
+
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
@@ -99,7 +261,16 @@ impl Plugin for MainMenuPlugin {
         app.add_systems(OnEnter(GameState::MainMenu), setup_main_menu);
         app.add_systems(
             Update,
-            (on_click, read_events).run_if(in_state(GameState::MainMenu)),
+            (
+                on_click,
+                read_events,
+                witch_animation,
+                cloud_animation0,
+                cloud_animation1,
+                cloud_animation2,
+                cloud_animation3,
+            )
+                .run_if(in_state(GameState::MainMenu)),
         );
     }
 }
