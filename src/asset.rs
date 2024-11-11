@@ -24,6 +24,9 @@ pub struct GameAssets {
     #[asset(path = "image/title_cloud.aseprite")]
     pub title_cloud: Handle<Aseprite>,
 
+    #[asset(path = "image/title_cloud2.aseprite")]
+    pub title_cloud2: Handle<Aseprite>,
+
     #[asset(path = "entity/player.aseprite")]
     pub player: Handle<Aseprite>,
 

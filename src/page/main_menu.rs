@@ -7,7 +7,7 @@ use crate::{
 };
 use bevy::core::FrameCount;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AsepriteAnimationUiBundle, AsepriteSliceUiBundle};
+use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteAnimationUiBundle, AsepriteSliceUiBundle};
 use git_version::git_version;
 
 const SCALE: f32 = 4.0;
@@ -57,10 +57,10 @@ fn setup_main_menu(
         },
     ));
 
-    spawn_cloud(&mut commands, &assets, CloudAnimation0, -950);
-    spawn_cloud(&mut commands, &assets, CloudAnimation1, -950);
-    spawn_cloud(&mut commands, &assets, CloudAnimation2, -900);
-    spawn_cloud(&mut commands, &assets, CloudAnimation3, -900);
+    spawn_cloud(&mut commands, &assets.title_cloud, CloudAnimation0, -950);
+    spawn_cloud(&mut commands, &assets.title_cloud, CloudAnimation1, -950);
+    spawn_cloud(&mut commands, &assets.title_cloud2, CloudAnimation2, -900);
+    spawn_cloud(&mut commands, &assets.title_cloud2, CloudAnimation3, -900);
 
     commands.spawn((
         WitchAnimation,
@@ -108,7 +108,7 @@ fn setup_main_menu(
         ImageBundle {
             z_index: ZIndex::Global(-700),
             style: Style {
-                left: Val::Px(540.0),
+                left: Val::Px(520.0),
                 top: Val::Px(640.0),
                 width: Val::Px(64.0 * SCALE),
                 height: Val::Px(16.0 * SCALE),
@@ -150,7 +150,7 @@ fn setup_main_menu(
 
 fn spawn_cloud<T: Component>(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    aseprite: &Handle<Aseprite>,
     marker: T,
     z_index: i32,
 ) {
@@ -164,12 +164,13 @@ fn spawn_cloud<T: Component>(
                 top: Val::Px(0.0),
                 width: Val::Px(1024.0 * SCALE),
                 height: Val::Px(180.0 * SCALE),
+
                 ..default()
             },
             ..default()
         },
         AsepriteAnimationUiBundle {
-            aseprite: assets.title_cloud.clone(),
+            aseprite: aseprite.clone(),
             animation: "default".into(),
             ..default()
         },
@@ -208,8 +209,8 @@ fn witch_animation(
     mut query: Query<&mut Style, With<WitchAnimation>>,
 ) {
     for mut style in &mut query.iter_mut() {
-        style.left = Val::Px(800.0 + (frame_count.0 as f32 * 0.007).sin() * 40.0);
-        style.top = Val::Px(0.0 + (frame_count.0 as f32 * 0.02).cos() * 10.0);
+        style.left = Val::Px(750.0 + (frame_count.0 as f32 * 0.007).sin() * 100.0);
+        style.top = Val::Px(0.0 + (frame_count.0 as f32 * 0.02).cos() * 50.0);
     }
 }
 

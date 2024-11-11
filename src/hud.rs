@@ -8,7 +8,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
-use crate::wand::spawn_wand_list;
+use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
 #[cfg(feature = "debug")]
 use iyes_perf_ui::entries::PerfUiBundle;
@@ -52,46 +52,65 @@ fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
     ));
 
     root.with_children(|mut parent| {
-        spawn_status_bar(
-            &mut parent,
-            PlayerLifeBar,
-            0,
-            0,
-            Color::hsla(110., 0.5, 0.4, 0.9),
-        );
-
-        spawn_status_bar(
-            &mut parent,
-            PlayerManaBar,
-            0,
-            0,
-            Color::hsla(240., 0.5, 0.4, 0.9),
-        );
-
-        parent.spawn((
-            PlayerGold,
-            Name::new("golds"),
-            TextBundle {
-                text: Text::from_section(
-                    "",
-                    TextStyle {
-                        color: Color::hsla(0.0, 0.0, 1.0, 0.35),
-                        font_size: 18.0,
-                        ..default()
-                    },
-                ),
-                style: Style { ..default() },
-                z_index: ZIndex::Global(HUD_Z_INDEX),
-                ..default()
-            },
-            HUD,
-        ));
-
+        spawn_status_bars(&mut parent);
         spawn_wand_list(&mut parent, &assets);
     });
 
     #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());
+}
+
+fn spawn_status_bars(mut parent: &mut ChildBuilder) {
+    parent
+        .spawn(NodeBundle {
+            style: Style {
+                display: Display::Flex,
+                justify_content: JustifyContent::Start,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Start,
+                row_gap: Val::Px(4.),
+                height: Val::Percent(100.),
+                width: Val::Percent(100.),
+                ..default()
+            },
+            ..default()
+        })
+        .with_children(|mut parent| {
+            spawn_status_bar(
+                &mut parent,
+                PlayerLifeBar,
+                0,
+                0,
+                Color::hsla(110., 0.5, 0.4, 0.9),
+            );
+
+            spawn_status_bar(
+                &mut parent,
+                PlayerManaBar,
+                0,
+                0,
+                Color::hsla(240., 0.5, 0.4, 0.9),
+            );
+
+            parent.spawn((
+                PlayerGold,
+                Name::new("golds"),
+                TextBundle {
+                    text: Text::from_section(
+                        "",
+                        TextStyle {
+                            color: Color::hsla(0.0, 0.0, 1.0, 0.35),
+                            font_size: 18.0,
+                            ..default()
+                        },
+                    ),
+                    style: Style { ..default() },
+                    z_index: ZIndex::Global(HUD_Z_INDEX),
+                    ..default()
+                },
+                HUD,
+            ));
+        });
 }
 
 fn update_hud(

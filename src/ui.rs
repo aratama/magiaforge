@@ -6,3 +6,4 @@ pub mod menu_button;
 pub mod on_press;
 pub mod player_list;
 pub mod range;
+pub mod wand_list;
