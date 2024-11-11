@@ -7,16 +7,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'magiaboost'",
+      "name": "Debug executable 'magiacircle'",
       "cargo": {
         "args": [
           "build",
-          "--bin=magiaboost",
-          "--package=magiaboost",
+          "--bin=magiacircle",
+          "--package=magiacircle",
           "--features=debug"
         ],
         "filter": {
-          "name": "magiaboost",
+          "name": "magiacircle",
           "kind": "bin"
         }
       },
@@ -28,16 +28,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'magiaboost'",
+      "name": "Debug unit tests in executable 'magiacircle'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=magiaboost",
-          "--package=magiaboost"
+          "--bin=magiacircle",
+          "--package=magiacircle"
         ],
         "filter": {
-          "name": "magiaboost",
+          "name": "magiacircle",
           "kind": "bin"
         }
       },

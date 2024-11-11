@@ -2,7 +2,7 @@ use crate::states::GameState;
 use bevy_rapier2d::prelude::*;
 
 #[allow(dead_code)]
-pub const CRATE_NAME: &str = "magiaboost";
+pub const CRATE_NAME: &str = "magiacircle";
 
 // Setupステートでの初期化が完了した直後に遷移する先のステート
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています

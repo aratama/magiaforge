@@ -80,7 +80,7 @@ pub fn run_game() {
     // bevy_pkv を使うとセーブファイルがロックされるため、複数のインスタンスを同時に起動できなくなります
     // 開発時に不便なので、フィーチャーフラグで開発時は無効にしておきます
     #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
-    app.insert_resource(PkvStore::new("magiaboost", "magiaboost"));
+    app.insert_resource(PkvStore::new("magiacircle", "magiacircle"));
 
     app
         //
@@ -102,7 +102,7 @@ pub fn run_game() {
                             // visible: false,
                             ..default()
                         },
-                        title: "Magia Boost 0.1".to_string(),
+                        title: "magiacircle 0.1".to_string(),
                         resizable: false,
                         enabled_buttons: EnabledButtons {
                             close: true,
