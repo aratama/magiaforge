@@ -39,8 +39,8 @@ use crate::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::*;
 use bevy::prelude::*;
-use bevy::window::Cursor;
 use bevy::window::EnabledButtons;
+use bevy::window::{Cursor, WindowMode};
 use bevy_aseprite_ultra::BevySprityPlugin;
 use bevy_asset_loader::prelude::*;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
@@ -145,6 +145,7 @@ pub fn run_game() {
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //
+        .add_systems(Update, toggle_fullscreen)
         .add_plugins(HudPlugin)
         .add_plugins(OverlayPlugin)
         .add_plugins(CameraPlugin)
@@ -216,4 +217,16 @@ pub fn run_game() {
         });
 
     app.run();
+}
+
+fn toggle_fullscreen(mut window_query: Query<&mut Window>, keys: Res<ButtonInput<KeyCode>>) {
+    if keys.just_pressed(KeyCode::F11) {
+        let mut window = window_query.single_mut();
+        window.mode = match window.mode {
+            WindowMode::Windowed => WindowMode::SizedFullscreen,
+            WindowMode::BorderlessFullscreen => WindowMode::Windowed,
+            WindowMode::SizedFullscreen => WindowMode::Windowed,
+            WindowMode::Fullscreen => WindowMode::Windowed,
+        };
+    }
 }
