@@ -39,12 +39,13 @@ fn move_player(
     menu: Res<State<GameMenuState>>,
     wand_editor_visible_query: Query<&Visibility, With<WandEditorRoot>>,
 ) {
-    let mut actor = player_query.single_mut();
-    let wand_editor_visible = wand_editor_visible_query.single();
-    if *menu == GameMenuState::Closed && *wand_editor_visible == Visibility::Hidden {
-        actor.move_direction = get_direction(keys, axes, &gamepads);
-    } else {
-        actor.move_direction = Vec2::ZERO;
+    if let Ok(mut actor) = player_query.get_single_mut() {
+        let wand_editor_visible = wand_editor_visible_query.single();
+        if *menu == GameMenuState::Closed && *wand_editor_visible == Visibility::Hidden {
+            actor.move_direction = get_direction(keys, axes, &gamepads);
+        } else {
+            actor.move_direction = Vec2::ZERO;
+        }
     }
 }
 
@@ -69,14 +70,15 @@ fn trigger_bullet(
     wand_editor_visible_query: Query<&Visibility, With<WandEditorRoot>>,
 ) {
     let wand_editor_visible = wand_editor_visible_query.single();
-    let mut player = player_query.single_mut();
-    if *menu == GameMenuState::Closed
-        && *wand_editor_visible == Visibility::Hidden
-        && get_fire_trigger(buttons, gamepad_buttons, &my_gamepad)
-    {
-        player.fire_state = ActorFireState::Fire;
-    } else {
-        player.fire_state = ActorFireState::Idle;
+    if let Ok(mut player) = player_query.get_single_mut() {
+        if *menu == GameMenuState::Closed
+            && *wand_editor_visible == Visibility::Hidden
+            && get_fire_trigger(buttons, gamepad_buttons, &my_gamepad)
+        {
+            player.fire_state = ActorFireState::Fire;
+        } else {
+            player.fire_state = ActorFireState::Idle;
+        }
     }
 }
 

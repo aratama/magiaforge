@@ -20,7 +20,7 @@ pub struct InventoryItemFloating(pub Option<InventoryItemFloatingContent>);
 pub fn spawn_inventory_floating(commands: &mut Commands, assets: &Res<GameAssets>) {
     commands.spawn((
         InventoryItemFloating(None),
-        StateScoped(GameState::MainMenu),
+        StateScoped(GameState::InGame),
         Interaction::default(),
         ImageBundle {
             style: Style {
