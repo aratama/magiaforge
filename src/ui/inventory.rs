@@ -39,42 +39,36 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                     // column_gap: Val::Px(2.0),
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.2)),
+                // background_color: BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.2)),
                 ..default()
             },
         ))
         .with_children(|builder| {
             for i in 0..MAX_ITEMS_IN_INVENTORY {
-                builder
-                    .spawn(NodeBundle {
+                builder.spawn((
+                    InventoryItemSlot(i),
+                    StateScoped(GameState::MainMenu),
+                    Interaction::default(),
+                    ImageBundle {
                         style: Style {
-                            display: Display::Grid,
-                            // padding: UiRect::all(Val::Px(3.0)),
+                            width: Val::Px(32.0),
+                            height: Val::Px(32.0),
                             ..default()
                         },
-                        background_color: BackgroundColor(Color::BLACK.into()),
+                        // background_color: BackgroundColor(Color::hsla(
+                        //     0.0,
+                        //     0.0,
+                        //     0.5,
+                        //     if i % 2 == 0 { 0.8 } else { 0.8 },
+                        // )),
                         ..default()
-                    })
-                    .with_children(|builder| {
-                        builder.spawn((
-                            InventoryItemSlot(i),
-                            StateScoped(GameState::MainMenu),
-                            Interaction::default(),
-                            ImageBundle {
-                                style: Style {
-                                    width: Val::Px(32.0),
-                                    height: Val::Px(32.0),
-                                    ..default()
-                                },
-                                ..default()
-                            },
-                            AsepriteSliceUiBundle {
-                                aseprite: assets.atlas.clone(),
-                                slice: "empty".into(),
-                                ..default()
-                            },
-                        ));
-                    });
+                    },
+                    AsepriteSliceUiBundle {
+                        aseprite: assets.atlas.clone(),
+                        slice: "empty".into(),
+                        ..default()
+                    },
+                ));
             }
         });
 }
@@ -169,7 +163,7 @@ fn interaction(
                 }
             }
             Interaction::Hovered => {
-                *color = Color::hsla(0.0, 0.0, 0.5, 0.4).into();
+                *color = Color::hsla(0.0, 0.0, 0.5, 0.95).into();
                 let mut spell_info = spell_info_query.single_mut();
                 if let Ok((player, _)) = player_query.get_single() {
                     let item = player.inventory[slot.0];
@@ -183,10 +177,16 @@ fn interaction(
                 }
             }
             Interaction::None => {
-                *color = Color::hsla(0.0, 0.0, 0.5, 0.1).into();
+                *color = get_background(slot.0);
             }
         }
     }
+}
+
+fn get_background(index: usize) -> BackgroundColor {
+    let x = index % 8;
+    let y = index / 8;
+    Color::hsla(0.0, 0.0, if (x + y) % 2 == 0 { 0.2 } else { 0.3 }, 0.95).into()
 }
 
 pub struct InventoryPlugin;

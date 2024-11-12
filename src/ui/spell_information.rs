@@ -33,7 +33,7 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
                     flex_direction: FlexDirection::Column,
                     ..default()
                 },
-                background_color: Color::hsla(0.0, 0.0, 0.5, 0.8).into(),
+                background_color: Color::hsla(0.0, 0.0, 0.2, 0.95).into(),
                 ..default()
             },
         ))
