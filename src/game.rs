@@ -30,6 +30,7 @@ use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
+use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
@@ -188,6 +189,7 @@ pub fn run_game() {
         .add_plugins(StatusBarPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(WandEditorPlugin)
+        .add_plugins(InventoryItemFloatingPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

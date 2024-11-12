@@ -22,6 +22,9 @@ pub fn spawn_basic_enemy<T: Component>(
     spell: SpellType,
     move_force: f32,
 ) {
+    let mut slots = [None; MAX_SPELLS_IN_WAND];
+    slots[0] = Some(spell);
+
     commands
         .spawn((
             Name::new(name.to_string()),
@@ -46,7 +49,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,
-                        slots: vec![Some(spell)],
+                        slots,
                     }),
                     None,
                     None,

@@ -1,7 +1,7 @@
 use crate::config::GameConfig;
 use crate::constant::MAX_WANDS;
 use crate::entity::breakable::BreakableSprite;
-use crate::spell::cast_spell;
+use crate::spell::{cast_spell, SpellType};
 use crate::wand::Wand;
 use crate::{asset::GameAssets, command::GameCommand, states::GameState};
 use bevy::prelude::*;
@@ -52,6 +52,15 @@ pub struct Actor {
     pub current_wand: usize,
 
     pub wands: [Option<Wand>; MAX_WANDS],
+}
+
+impl Actor {
+    pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<SpellType> {
+        if let Some(wand) = self.wands[wand_index] {
+            return wand.slots[spell_index];
+        }
+        None
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]

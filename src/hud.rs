@@ -8,7 +8,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
-use crate::ui::inventory::spawn_inventory_floating;
+use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
@@ -66,7 +66,7 @@ fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
     commands.spawn(PerfUiBundle::default());
 }
 
-fn spawn_status_bars(mut parent: &mut ChildBuilder) {
+fn spawn_status_bars(parent: &mut ChildBuilder) {
     parent
         .spawn(NodeBundle {
             style: Style {

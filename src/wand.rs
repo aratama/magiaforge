@@ -1,13 +1,14 @@
-use crate::spell::SpellType;
+use crate::{constant::MAX_SPELLS_IN_WAND, spell::SpellType};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WandType {
     CypressWand,
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Wand {
     pub wand_type: WandType,
-    pub slots: Vec<Option<SpellType>>,
+    pub slots: [Option<SpellType>; MAX_SPELLS_IN_WAND],
 }
 
 pub struct WandProps {
