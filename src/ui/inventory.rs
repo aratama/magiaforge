@@ -1,3 +1,4 @@
+use crate::spell::SpellType;
 use crate::ui::floating::{InventoryItemFloating, InventoryItemFloatingContent};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
@@ -6,6 +7,8 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
+
+use super::spell_information::SpellInformation;
 
 #[derive(Component)]
 struct InventoryItemSlot(usize);
@@ -103,7 +106,7 @@ fn update_inventory(
                 }
                 Some(InventoryItem::Spell(spell)) => {
                     let props = spell_to_props(*spell);
-                    props.slice
+                    props.icon
                 }
             };
             *aseprite = slice.into();
@@ -118,6 +121,8 @@ fn interaction(
     >,
     mut floating_query: Query<&mut InventoryItemFloating>,
     mut player_query: Query<(&mut Player, &mut Actor)>,
+
+    mut spell_info_query: Query<&mut SpellInformation>,
 ) {
     for (slot, interaction, mut color) in &mut interaction_query {
         match *interaction {
@@ -165,6 +170,17 @@ fn interaction(
             }
             Interaction::Hovered => {
                 *color = Color::hsla(0.0, 0.0, 0.5, 0.4).into();
+                let mut spell_info = spell_info_query.single_mut();
+                if let Ok((player, _)) = player_query.get_single() {
+                    let item = player.inventory[slot.0];
+                    *spell_info = SpellInformation(match item {
+                        None => None,
+                        Some(InventoryItem::Wand(_)) => None,
+                        Some(InventoryItem::Spell(spell)) => Some(spell),
+                    });
+                } else {
+                    *spell_info = SpellInformation(None);
+                }
             }
             Interaction::None => {
                 *color = Color::hsla(0.0, 0.0, 0.5, 0.1).into();

@@ -19,6 +19,7 @@ mod inventory_item;
 mod page;
 mod set;
 mod spell;
+mod spell_commands;
 mod spell_props;
 mod states;
 mod ui;

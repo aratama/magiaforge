@@ -52,6 +52,7 @@ pub struct Actor {
     pub current_wand: usize,
 
     pub wands: [Option<Wand>; MAX_WANDS],
+    // pub queue: Vec,
 }
 
 impl Actor {

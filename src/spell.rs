@@ -14,6 +14,9 @@ pub enum SpellType {
     PurpleBolt,
     SlimeCharge,
     Heal,
+    BulletSpeedUp,
+    // HeavyShot,
+    // CriticalUp,
 }
 
 /// スペルを唱えます
@@ -89,6 +92,9 @@ pub fn cast_spell(
             se_writer.send(GameCommand::SEKaifuku(Some(
                 actor_transform.translation.truncate(),
             )));
+        }
+        SpellType::BulletSpeedUp => {
+            //
         }
     }
 }

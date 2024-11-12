@@ -1,7 +1,7 @@
 use crate::{asset::GameAssets, constant::WAND_EDITOR_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
-use super::inventory::spawn_inventory;
+use super::{inventory::spawn_inventory, spell_information::spawn_spell_information};
 
 #[derive(Component)]
 pub struct WandEditorRoot;
@@ -14,10 +14,10 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
-                    top: Val::Px(100.0),
-                    left: Val::Px(100.0),
+                    left: Val::Px(300.0),
+                    top: Val::Px(200.0),
                     display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
+                    flex_direction: FlexDirection::Row,
                     ..default()
                 },
                 z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
@@ -27,6 +27,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
         ))
         .with_children(|mut parent| {
             spawn_inventory(&mut parent, &assets);
+
+            spawn_spell_information(&mut parent, &assets);
         });
 }
 

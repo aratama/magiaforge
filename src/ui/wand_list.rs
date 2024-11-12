@@ -188,7 +188,7 @@ fn update_spell_sprite(
                                     && spell_index == spell_sprite.spell_index => {}
                                 _ => {
                                     let props = spell_to_props(spell);
-                                    *aseprite = AsepriteSlice::new(props.slice);
+                                    *aseprite = AsepriteSlice::new(props.icon);
                                     continue;
                                 }
                             }

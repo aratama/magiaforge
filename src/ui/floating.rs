@@ -90,7 +90,7 @@ fn switch_floating_slice(
                     }
                     Some(InventoryItem::Spell(spell)) => {
                         let props = spell_to_props(spell);
-                        Some(props.slice)
+                        Some(props.icon)
                     }
                 };
                 if let Some(slice) = slice {
@@ -104,7 +104,7 @@ fn switch_floating_slice(
                 Some(wand) => match wand.slots[spell_index] {
                     Some(spell) => {
                         let props = spell_to_props(spell);
-                        *floating_slice = props.slice.into();
+                        *floating_slice = props.icon.into();
                     }
                     _ => {
                         *floating_slice = "empty".into();

@@ -8,5 +8,6 @@ pub mod menu_button;
 pub mod on_press;
 pub mod player_list;
 pub mod range;
+pub mod spell_information;
 pub mod wand_editor;
 pub mod wand_list;

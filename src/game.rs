@@ -36,6 +36,7 @@ use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::player_list::PlayerListPlugin;
+use crate::ui::spell_information::SpellInformationPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::world::*;
@@ -190,6 +191,7 @@ pub fn run_game() {
         .add_plugins(InventoryPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(InventoryItemFloatingPlugin)
+        .add_plugins(SpellInformationPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //
