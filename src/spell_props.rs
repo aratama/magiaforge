@@ -1,4 +1,4 @@
-use crate::spell::Spell;
+use crate::spell::SpellType;
 
 pub struct SpellProps {
     pub mana_drain: i32,
@@ -30,11 +30,11 @@ const HEAL: SpellProps = SpellProps {
     slice: "spell_heal",
 };
 
-pub fn spell_to_props(spell: Spell) -> SpellProps {
+pub fn spell_to_props(spell: SpellType) -> SpellProps {
     match spell {
-        Spell::MagicBolt => MAGIC_BOLT,
-        Spell::PurpleBolt => PURPLE_BOLT,
-        Spell::SlimeCharge => SLIME_CHARGE,
-        Spell::Heal => HEAL,
+        SpellType::MagicBolt => MAGIC_BOLT,
+        SpellType::PurpleBolt => PURPLE_BOLT,
+        SpellType::SlimeCharge => SLIME_CHARGE,
+        SpellType::Heal => HEAL,
     }
 }

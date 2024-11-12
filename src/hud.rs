@@ -8,6 +8,8 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
+use crate::ui::inventory::spawn_inventory_floating;
+use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
 #[cfg(feature = "debug")]
@@ -55,6 +57,10 @@ fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
         spawn_status_bars(&mut parent);
         spawn_wand_list(&mut parent, &assets);
     });
+
+    spawn_wand_editor(&mut commands, &assets);
+
+    spawn_inventory_floating(&mut commands, &assets);
 
     #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());

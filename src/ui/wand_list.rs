@@ -1,6 +1,10 @@
 use crate::{
-    asset::GameAssets, constant::MAX_WANDS, controller::player::Player, entity::actor::Actor,
-    spell_props::spell_to_props, states::GameState,
+    asset::GameAssets,
+    constant::{MAX_SPELLS_IN_WAND, MAX_WANDS},
+    controller::player::Player,
+    entity::actor::Actor,
+    spell_props::spell_to_props,
+    states::GameState,
 };
 use bevy::{
     prelude::*,
@@ -83,7 +87,7 @@ fn spawn_wand_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, wand_ind
                 },
             ));
 
-            for spell_index in 0..MAX_WANDS {
+            for spell_index in 0..MAX_SPELLS_IN_WAND {
                 spawn_bullet_slot(&mut parent, &assets, wand_index, spell_index);
             }
         });
@@ -164,20 +168,16 @@ fn update_spell_sprite(
                         Some(spell) => {
                             let props = spell_to_props(spell);
                             *aseprite = AsepriteSlice::new(props.slice);
-                            *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.1));
                         }
                         None => {
                             *aseprite = AsepriteSlice::new("empty");
-                            *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0));
                         }
                     }
                 } else {
                     *aseprite = AsepriteSlice::new("empty");
-                    *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0));
                 }
             } else {
                 *aseprite = AsepriteSlice::new("empty");
-                *border = BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0));
             }
         }
     }

@@ -4,7 +4,7 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
-use crate::spell::Spell;
+use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
 use bevy::prelude::*;
@@ -74,15 +74,15 @@ pub fn spawn_witch<T: Component>(
             wands: [
                 Some(Wand {
                     wand_type: WandType::CypressWand,
-                    slots: vec![Some(Spell::MagicBolt), None, None],
+                    slots: vec![Some(SpellType::MagicBolt), None, None],
                 }),
                 Some(Wand {
                     wand_type: WandType::CypressWand,
-                    slots: vec![Some(Spell::PurpleBolt), None, None, None],
+                    slots: vec![Some(SpellType::PurpleBolt), None, None, None],
                 }),
                 Some(Wand {
                     wand_type: WandType::CypressWand,
-                    slots: vec![Some(Spell::Heal)],
+                    slots: vec![Some(SpellType::Heal)],
                 }),
                 None,
             ],

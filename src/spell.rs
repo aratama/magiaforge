@@ -9,7 +9,7 @@ use bevy::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Spell {
+pub enum SpellType {
     MagicBolt,
     PurpleBolt,
     SlimeCharge,
@@ -25,7 +25,7 @@ pub fn cast_spell(
     mut se_writer: &mut EventWriter<GameCommand>,
     mut actor: &mut Actor,
     actor_transform: &Transform,
-    spell: Spell,
+    spell: SpellType,
     online: bool,
 ) {
     let props = spell_to_props(spell);
@@ -38,7 +38,7 @@ pub fn cast_spell(
         return;
     }
 
-    if spell == Spell::Heal && actor.life == actor.max_life {
+    if spell == SpellType::Heal && actor.life == actor.max_life {
         return;
     }
 
@@ -47,7 +47,7 @@ pub fn cast_spell(
     actor.spell_delay += props.cast_delay as i32;
 
     match spell {
-        Spell::MagicBolt => {
+        SpellType::MagicBolt => {
             spawn_bullets(
                 &mut commands,
                 &assets,
@@ -59,7 +59,7 @@ pub fn cast_spell(
                 online,
             );
         }
-        Spell::PurpleBolt => {
+        SpellType::PurpleBolt => {
             spawn_bullets(
                 &mut commands,
                 &assets,
@@ -71,7 +71,7 @@ pub fn cast_spell(
                 online,
             );
         }
-        Spell::SlimeCharge => {
+        SpellType::SlimeCharge => {
             spawn_bullets(
                 &mut commands,
                 &assets,
@@ -83,7 +83,7 @@ pub fn cast_spell(
                 online,
             );
         }
-        Spell::Heal => {
+        SpellType::Heal => {
             actor.life = (actor.life + 2).min(actor.max_life);
 
             se_writer.send(GameCommand::SEKaifuku(Some(

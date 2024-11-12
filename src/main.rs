@@ -15,6 +15,7 @@ mod entity;
 mod game;
 mod hud;
 mod input;
+mod inventory_item;
 mod page;
 mod set;
 mod spell;

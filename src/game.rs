@@ -32,8 +32,10 @@ use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::game_menu::GameMenuPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
+use crate::ui::inventory::InventoryPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::player_list::PlayerListPlugin;
+use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
@@ -184,6 +186,8 @@ pub fn run_game() {
         .add_plugins(EyeballControlPlugin)
         .add_plugins(WandListPlugin)
         .add_plugins(StatusBarPlugin)
+        .add_plugins(InventoryPlugin)
+        .add_plugins(WandEditorPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

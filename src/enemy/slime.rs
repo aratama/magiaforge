@@ -5,7 +5,7 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::GameSet;
-use crate::spell::Spell;
+use crate::spell::SpellType;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -32,7 +32,7 @@ pub fn spawn_slime(
         life_bar_locals,
         SlimeControl,
         "slime",
-        Spell::SlimeCharge,
+        SpellType::SlimeCharge,
         ENEMY_MOVE_FORCE,
     );
 }

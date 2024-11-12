@@ -19,7 +19,11 @@ use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::hud::life_bar::LifeBarResource;
+use crate::inventory_item::Inventory;
+use crate::inventory_item::InventoryItem;
+use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::ui::inventory;
 use crate::world::ceil::spawn_roof_tiles;
 use crate::world::map::image_to_tilemap;
 use crate::world::map::LevelTileMap;
@@ -140,6 +144,12 @@ fn spawn_level(
         camera.translation.y = player_y;
     }
 
+    let mut inventory: Inventory = [None; MAX_ITEMS_IN_INVENTORY];
+    inventory[0] = Some(InventoryItem::Spell(SpellType::MagicBolt));
+    inventory[1] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
+    inventory[2] = Some(InventoryItem::Spell(SpellType::SlimeCharge));
+    inventory[3] = Some(InventoryItem::Spell(SpellType::Heal));
+
     let life = 150;
     let max_life = 150;
     spawn_witch(
@@ -162,6 +172,7 @@ fn spawn_level(
             last_idle_vy: 0.0,
             last_idle_life: life,
             last_idle_max_life: max_life,
+            inventory,
         },
         false,
         3.0,

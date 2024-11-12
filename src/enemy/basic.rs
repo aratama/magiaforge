@@ -4,7 +4,7 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
-use crate::spell::Spell;
+use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
 use bevy::prelude::*;
@@ -19,7 +19,7 @@ pub fn spawn_basic_enemy<T: Component>(
     life_bar_locals: &Res<LifeBarResource>,
     marker: T,
     name: &str,
-    spell: Spell,
+    spell: SpellType,
     move_force: f32,
 ) {
     commands
