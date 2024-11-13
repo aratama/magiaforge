@@ -23,6 +23,7 @@ use crate::inventory_item::Inventory;
 use crate::inventory_item::InventoryItem;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::wand::WandType;
 use crate::world::ceil::spawn_roof_tiles;
 use crate::world::map::image_to_tilemap;
 use crate::world::map::LevelTileMap;
@@ -157,6 +158,9 @@ fn spawn_level(
     inventory[10] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
     inventory[11] = Some(InventoryItem::Spell(SpellType::DualCast));
     inventory[12] = Some(InventoryItem::Spell(SpellType::TripleCast));
+
+    inventory[16] = Some(InventoryItem::Wand(WandType::CypressWand));
+    inventory[24] = Some(InventoryItem::Wand(WandType::KeyWand));
 
     let life = 150;
     let max_life = 150;

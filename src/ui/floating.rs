@@ -1,7 +1,7 @@
 use crate::{
     asset::GameAssets, constant::WAND_EDITOR_FLOATING_Z_INDEX, controller::player::Player,
     entity::actor::Actor, inventory_item::InventoryItem, spell_props::spell_to_props,
-    states::GameState, wand::wand_to_props,
+    states::GameState, wand_props::wand_to_props,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};

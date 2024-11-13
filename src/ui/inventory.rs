@@ -1,8 +1,9 @@
 use crate::ui::floating::{InventoryItemFloating, InventoryItemFloatingContent};
+use crate::wand_props::wand_to_props;
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
     entity::actor::Actor, inventory_item::InventoryItem, spell_props::spell_to_props,
-    states::GameState, wand::wand_to_props,
+    states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
@@ -129,16 +130,20 @@ fn interaction(
                             ));
                         }
                         Some(InventoryItemFloatingContent::FromInventory(index)) => {
-                            match player.inventory[slot.0] {
-                                None => {
-                                    *floating = InventoryItemFloating(None);
-                                    player.inventory[slot.0] = player.inventory[index];
-                                    player.inventory[index] = None;
-                                }
-                                Some(_) => {
-                                    let spell = player.inventory[slot.0];
-                                    player.inventory[slot.0] = player.inventory[index];
-                                    player.inventory[index] = spell;
+                            if index == slot.0 {
+                                *floating = InventoryItemFloating(None);
+                            } else {
+                                match player.inventory[slot.0] {
+                                    None => {
+                                        *floating = InventoryItemFloating(None);
+                                        player.inventory[slot.0] = player.inventory[index];
+                                        player.inventory[index] = None;
+                                    }
+                                    Some(_) => {
+                                        let spell = player.inventory[slot.0];
+                                        player.inventory[slot.0] = player.inventory[index];
+                                        player.inventory[index] = spell;
+                                    }
                                 }
                             }
                         }
@@ -166,11 +171,7 @@ fn interaction(
                 let mut spell_info = spell_info_query.single_mut();
                 if let Ok((player, _)) = player_query.get_single() {
                     let item = player.inventory[slot.0];
-                    *spell_info = SpellInformation(match item {
-                        None => None,
-                        Some(InventoryItem::Wand(_)) => None,
-                        Some(InventoryItem::Spell(spell)) => Some(spell),
-                    });
+                    *spell_info = SpellInformation(item);
                 } else {
                     *spell_info = SpellInformation(None);
                 }

@@ -24,6 +24,7 @@ mod spell_props;
 mod states;
 mod ui;
 mod wand;
+mod wand_props;
 mod world;
 
 use game::run_game;

@@ -7,6 +7,7 @@ use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
+use crate::wand_props::wand_to_props;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_kira_audio::prelude::*;
@@ -20,7 +21,7 @@ pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 pub const PLAYER_MOVE_FORCE: f32 = 50000.0;
 
 #[derive(Default, Component, Reflect)]
-pub struct WandSprite;
+pub struct WitchWandSprite;
 
 #[derive(Default, Component, Reflect)]
 pub struct Footsteps(Handle<AudioInstance>);
@@ -101,7 +102,7 @@ pub fn spawn_witch<T: Component>(
                     ],
                 }),
                 Some(Wand {
-                    wand_type: WandType::CypressWand,
+                    wand_type: WandType::KeyWand,
                     slots: [
                         Some(SpellType::Heal),
                         None,
@@ -169,10 +170,10 @@ pub fn spawn_witch<T: Component>(
         ));
 
         spawn_children.spawn((
-            WandSprite,
+            WitchWandSprite,
             AsepriteSliceBundle {
                 aseprite: assets.atlas.clone(),
-                slice: "wand".into(),
+                slice: "wand_cypress".into(),
                 ..default()
             },
         ));
@@ -237,15 +238,25 @@ fn update_animation(
 
 fn update_wand(
     actor_query: Query<&Actor>,
-    mut query: Query<(&Parent, &mut Transform, &mut Sprite), With<WandSprite>>,
+    mut query: Query<
+        (&Parent, &mut Transform, &mut Sprite, &mut AsepriteSlice),
+        With<WitchWandSprite>,
+    >,
 ) {
-    for (parent, mut transform, mut sprite) in query.iter_mut() {
+    for (parent, mut transform, mut sprite, mut slice) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
             transform.rotation = Quat::from_rotation_z(angle);
             transform.translation = Vec3::new(0.0, 0.0, -0.01);
             sprite.flip_y = if angle.abs() < PI / 2.0 { false } else { true };
+
+            if let Some(wand) = &actor.wands[actor.current_wand] {
+                let props = wand_to_props(wand.wand_type);
+                *slice = AsepriteSlice::new(props.slice);
+            } else {
+                *slice = AsepriteSlice::new("empty");
+            }
         }
     }
 }

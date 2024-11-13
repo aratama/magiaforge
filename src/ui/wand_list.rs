@@ -7,9 +7,11 @@ use crate::{
     inventory_item::InventoryItem,
     spell_props::spell_to_props,
     states::{GameMenuState, GameState},
+    wand_props::wand_to_props,
 };
 use bevy::{
     prelude::*,
+    render::view::visibility,
     ui::{Display, Style},
 };
 use bevy_aseprite_ultra::prelude::*;
@@ -148,7 +150,10 @@ fn update_wand_sprite(
     if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut aseprite) in sprite_query.iter_mut() {
             *aseprite = match actor.wands[wand_sprite.wand_index] {
-                Some(_) => AsepriteSlice::new("wand"),
+                Some(wand) => {
+                    let props = wand_to_props(wand.wand_type);
+                    AsepriteSlice::new(props.slice)
+                }
                 None => AsepriteSlice::new("empty"),
             }
         }
@@ -157,11 +162,17 @@ fn update_wand_sprite(
 
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice)>,
+    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut Visibility)>,
     floating_query: Query<&InventoryItemFloating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (spell_sprite, mut aseprite) in sprite_query.iter_mut() {
+        for (spell_sprite, mut aseprite, mut visibility) in sprite_query.iter_mut() {
+            if let Some(_) = actor.wands[spell_sprite.wand_index] {
+                *visibility = Visibility::Inherited;
+            } else {
+                *visibility = Visibility::Hidden;
+            }
+
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
                 if spell_sprite.spell_index < wand.slots.len() {
                     match wand.slots[spell_sprite.spell_index] {
