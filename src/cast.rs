@@ -40,10 +40,10 @@ pub fn cast_spell(
         let props = spell_to_props(spell);
 
         if actor.mana < props.mana_drain {
-            info!(
-                "not enough mana, current:{}, required:{}",
-                actor.mana, props.mana_drain
-            );
+            // info!(
+            //     "not enough mana, current:{}, required:{}",
+            //     actor.mana, props.mana_drain
+            // );
             actor.spell_index += 1;
             return 0;
         }

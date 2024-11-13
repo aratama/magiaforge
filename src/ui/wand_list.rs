@@ -67,9 +67,10 @@ fn spawn_wand_and_spell_slot(
                     display: Display::Flex,
                     flex_direction: FlexDirection::Row,
                     column_gap: Val::Px(1.),
+                    border: UiRect::all(Val::Px(1.)),
                     ..default()
                 },
-                background_color: Color::hsla(0.0, 0.0, 1.0, 0.2).into(),
+                border_color: Color::hsla(0.0, 0.0, 1.0, 0.0).into(),
                 ..default()
             },
         ))
@@ -113,12 +114,10 @@ fn spawn_wand_spell_slot(
             style: Style {
                 width: Val::Px(32.),
                 height: Val::Px(32.),
-                border: UiRect::all(Val::Px(1.)),
                 ..default()
             },
             ..default()
         },
-        BorderColor(Color::WHITE),
         AsepriteSliceUiBundle {
             aseprite: assets.atlas.clone(),
             slice: "empty".into(),
@@ -129,14 +128,14 @@ fn spawn_wand_spell_slot(
 
 fn update_wand_slot_visibility(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSlot, &mut BackgroundColor)>,
+    mut sprite_query: Query<(&WandSlot, &mut BorderColor)>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (wand_sprite, mut background) in sprite_query.iter_mut() {
+        for (wand_sprite, mut border) in sprite_query.iter_mut() {
             if wand_sprite.wand_index == actor.current_wand {
-                *background = Color::hsla(0.0, 0.0, 1.0, 0.2).into();
+                *border = Color::hsla(0.0, 0.0, 1.0, 0.2).into();
             } else {
-                *background = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
+                *border = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
             };
         }
     }
@@ -158,18 +157,11 @@ fn update_wand_sprite(
 
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut BorderColor)>,
+    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice)>,
     floating_query: Query<&InventoryItemFloating>,
-    state: Res<State<GameMenuState>>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (spell_sprite, mut aseprite, mut border) in sprite_query.iter_mut() {
-            *border = if *state.get() == GameMenuState::WandEditOpen {
-                BorderColor(Color::hsla(0.0, 0.0, 0.0, 0.0))
-            } else {
-                BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.5))
-            };
-
+        for (spell_sprite, mut aseprite) in sprite_query.iter_mut() {
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
                 if spell_sprite.spell_index < wand.slots.len() {
                     match wand.slots[spell_sprite.spell_index] {
@@ -331,13 +323,26 @@ fn interaction_spell_sprite(
                     *color = Color::hsla(0.0, 0.0, 0.5, 0.2).into();
                 }
                 Interaction::None => {
-                    *color = Color::hsla(0.0, 0.0, 0.5, 0.1).into();
+                    *color = slot_color(slot.wand_index, slot.spell_index).into();
                 }
             }
         } else {
-            *color = Color::hsla(0.0, 0.0, 0.5, 0.1).into();
+            *color = slot_color(slot.wand_index, slot.spell_index).into();
         }
     }
+}
+
+fn slot_color(wand_index: usize, spell_index: usize) -> Color {
+    return Color::hsla(
+        0.0,
+        0.0,
+        0.4,
+        if (wand_index + spell_index) % 2 == 0 {
+            0.1
+        } else {
+            0.15
+        },
+    );
 }
 
 pub struct WandListPlugin;
