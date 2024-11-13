@@ -15,6 +15,7 @@ use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
+use crate::entity::spell::spawn_spell_entity;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
@@ -382,6 +383,15 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     },
                     ..default()
                 });
+            }
+            GameEntity::Spell => {
+                spawn_spell_entity(
+                    &mut commands,
+                    &assets,
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    SpellType::MagicBolt,
+                );
             }
         }
     }

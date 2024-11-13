@@ -6,6 +6,7 @@ pub mod bullet;
 pub mod chest;
 pub mod gold;
 pub mod magic_circle;
+pub mod spell;
 pub mod stone_lantern;
 pub mod witch;
 
@@ -28,6 +29,7 @@ pub enum GameEntity {
     Usage,
     Routes,
     StoneLantern,
+    Spell,
 }
 
 #[derive(Component)]

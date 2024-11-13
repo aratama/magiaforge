@@ -44,7 +44,7 @@ fn handle_e_key(
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
 ) {
-    if keys.just_pressed(KeyCode::KeyE) {
+    if keys.just_pressed(KeyCode::Tab) {
         match state.get() {
             GameMenuState::Closed => {
                 next.set(GameMenuState::WandEditOpen);
