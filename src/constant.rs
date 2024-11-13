@@ -82,4 +82,6 @@ pub const WAND_EDITOR_FLOATING_Z_INDEX: i32 = 1600;
 
 pub const WAND_EDITOR_Z_INDEX: i32 = 1500;
 
+pub const POINTER_Z_INDEX: i32 = 1100;
+
 pub const HUD_Z_INDEX: i32 = 1000;

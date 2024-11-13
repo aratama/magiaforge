@@ -7,11 +7,12 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
 pub enum InventoryItemFloatingContent {
-    FromInventory(usize),
-    FromWand {
+    InventoryItem(usize),
+    WandSpell {
         wand_index: usize,
         spell_index: usize,
     },
+    Wand(usize),
 }
 
 #[derive(Component)]
@@ -81,7 +82,7 @@ fn switch_floating_slice(
     if let Ok((player, actor)) = player_query.get_single() {
         let (floating, mut floating_slice) = floating_query.single_mut();
         match floating.0 {
-            Some(InventoryItemFloatingContent::FromInventory(slot)) => {
+            Some(InventoryItemFloatingContent::InventoryItem(slot)) => {
                 let slice = match player.inventory[slot] {
                     None => None,
                     Some(InventoryItem::Wand(wand)) => {
@@ -97,7 +98,7 @@ fn switch_floating_slice(
                     *floating_slice = slice.into();
                 }
             }
-            Some(InventoryItemFloatingContent::FromWand {
+            Some(InventoryItemFloatingContent::WandSpell {
                 wand_index,
                 spell_index,
             }) => match &actor.wands[wand_index] {
@@ -114,6 +115,17 @@ fn switch_floating_slice(
                     *floating_slice = "empty".into();
                 }
             },
+            Some(InventoryItemFloatingContent::Wand(wand_index)) => {
+                match &actor.wands[wand_index] {
+                    Some(wand) => {
+                        let props = wand_to_props(wand.wand_type);
+                        *floating_slice = props.slice.into();
+                    }
+                    None => {
+                        *floating_slice = "empty".into();
+                    }
+                }
+            }
             None => {
                 *floating_slice = "empty".into();
             }

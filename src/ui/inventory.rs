@@ -82,7 +82,7 @@ fn update_inventory(
         let floating = floating_query.single();
         for (slot, mut aseprite) in slot_query.iter_mut() {
             match floating.0 {
-                Some(InventoryItemFloatingContent::FromInventory(index)) => {
+                Some(InventoryItemFloatingContent::InventoryItem(index)) => {
                     if index == slot.0 {
                         *aseprite = "empty".into();
                         continue;
@@ -126,10 +126,10 @@ fn interaction(
                     match floating.0 {
                         None => {
                             *floating = InventoryItemFloating(Some(
-                                InventoryItemFloatingContent::FromInventory(slot.0),
+                                InventoryItemFloatingContent::InventoryItem(slot.0),
                             ));
                         }
-                        Some(InventoryItemFloatingContent::FromInventory(index)) => {
+                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
                             if index == slot.0 {
                                 *floating = InventoryItemFloating(None);
                             } else {
@@ -147,7 +147,7 @@ fn interaction(
                                 }
                             }
                         }
-                        Some(InventoryItemFloatingContent::FromWand {
+                        Some(InventoryItemFloatingContent::WandSpell {
                             wand_index,
                             spell_index,
                         }) => match actor.wands[wand_index] {
@@ -163,6 +163,7 @@ fn interaction(
                                 *floating = InventoryItemFloating(None);
                             }
                         },
+                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {}
                     }
                 }
             }

@@ -1,3 +1,4 @@
+use crate::constant::POINTER_Z_INDEX;
 use crate::states::GameMenuState;
 use crate::{asset::GameAssets, constant::TILE_SIZE, input::MyGamepad, states::GameState};
 use crate::{controller::player::Player, entity::actor::Actor};
@@ -18,8 +19,10 @@ fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
                 left: Val::Px(0.0),
                 width: Val::Px(13.0 * 2.0),
                 height: Val::Px(13.0 * 2.0),
+
                 ..default()
             },
+            z_index: ZIndex::Global(POINTER_Z_INDEX),
             ..default()
         },
         AsepriteSliceUiBundle {
