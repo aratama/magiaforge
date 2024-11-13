@@ -4,7 +4,7 @@ use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 use crate::{
     asset::GameAssets,
     spell::SpellType,
-    spell_props::{spell_to_props, SpellCategory},
+    spell_props::{spell_to_props, SpellCast},
     states::GameState,
 };
 
@@ -133,7 +133,7 @@ fn update_spell_description(
         let props = spell_to_props(*info);
 
         let appendix = match props.category {
-            SpellCategory::Bullet {
+            SpellCast::Bullet {
                 slice: _,
                 collier_radius,
                 speed,
@@ -155,10 +155,10 @@ fn update_spell_description(
                     scattering
                 )
             }
-            SpellCategory::Heal => {
+            SpellCast::Heal => {
                 format!("回復:{}", 10)
             }
-            SpellCategory::BulletSpeedUp => format!(""),
+            SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
         };
 
         text.sections[0].value = format!(

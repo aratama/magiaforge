@@ -1,7 +1,8 @@
+use crate::cast::cast_spell;
 use crate::config::GameConfig;
 use crate::constant::{MAX_SPELLS_IN_WAND, MAX_WANDS};
 use crate::entity::breakable::BreakableSprite;
-use crate::spell::{cast_spell, SpellType};
+use crate::spell::SpellType;
 use crate::wand::Wand;
 use crate::{asset::GameAssets, command::GameCommand, states::GameState};
 use bevy::prelude::*;

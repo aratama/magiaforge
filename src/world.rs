@@ -151,7 +151,10 @@ fn spawn_level(
     inventory[4] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
     inventory[5] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
     inventory[6] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory[7] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
+    inventory[7] = Some(InventoryItem::Spell(SpellType::BulletSpeedDoown));
+    inventory[8] = Some(InventoryItem::Spell(SpellType::BulletSpeedDoown));
+    inventory[9] = Some(InventoryItem::Spell(SpellType::BulletSpeedDoown));
+    inventory[10] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
 
     let life = 150;
     let max_life = 150;

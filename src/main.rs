@@ -5,6 +5,7 @@
 mod asset;
 mod audio;
 mod camera;
+mod cast;
 mod command;
 mod config;
 mod constant;

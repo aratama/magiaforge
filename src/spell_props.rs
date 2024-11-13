@@ -1,6 +1,9 @@
 use crate::spell::SpellType;
 
-pub enum SpellCategory {
+/// 呪文を詠唱したときの動作を表します
+/// 弾丸系魔法は Bullet にまとめられており、
+/// そのほかの魔法も動作の種別によって分類されています
+pub enum SpellCast {
     Bullet {
         slice: &'static str,
 
@@ -22,18 +25,19 @@ pub enum SpellCategory {
         light_color_hlsa: [f32; 4],
     },
     Heal,
-    BulletSpeedUp,
+    BulletSpeedUpDown {
+        delta: f32,
+    },
 }
 
+/// 呪文の基礎情報
 pub struct SpellProps {
     pub name: &'static str,
     pub description: &'static str,
-
     pub mana_drain: i32,
     pub cast_delay: u32,
     pub icon: &'static str,
-
-    pub category: SpellCategory,
+    pub category: SpellCast,
 }
 
 const MAGIC_BOLT: SpellProps = SpellProps {
@@ -42,7 +46,7 @@ const MAGIC_BOLT: SpellProps = SpellProps {
     mana_drain: 50,
     cast_delay: 10,
     icon: "bullet_magic_bolt",
-    category: SpellCategory::Bullet {
+    category: SpellCast::Bullet {
         slice: "bullet_magic_bolt",
         collier_radius: 5.0,
         speed: 100.0,
@@ -63,7 +67,7 @@ const PURPLE_BOLT: SpellProps = SpellProps {
     mana_drain: 10,
     cast_delay: 120,
     icon: "bullet_purple",
-    category: SpellCategory::Bullet {
+    category: SpellCast::Bullet {
         slice: "bullet_purple",
         collier_radius: 5.0,
         speed: 50.0,
@@ -83,7 +87,7 @@ const SLIME_CHARGE: SpellProps = SpellProps {
     mana_drain: 200,
     cast_delay: 30,
     icon: "bullet_slime_charge",
-    category: SpellCategory::Bullet {
+    category: SpellCast::Bullet {
         slice: "bullet_slime_charge",
         collier_radius: 5.0,
         speed: 2.0,
@@ -103,16 +107,25 @@ const HEAL: SpellProps = SpellProps {
     mana_drain: 20,
     cast_delay: 120,
     icon: "spell_heal",
-    category: SpellCategory::Heal,
+    category: SpellCast::Heal,
 };
 
 const BULLET_SPEED_UP: SpellProps = SpellProps {
     name: "加速",
-    description: "次に発射する魔法の弾速を25%上昇させます。",
+    description: "次に発射する魔法の弾速を50%上昇させます。",
     mana_drain: 20,
     cast_delay: 0,
     icon: "bullet_speed_up",
-    category: SpellCategory::BulletSpeedUp,
+    category: SpellCast::BulletSpeedUpDown { delta: 0.5 },
+};
+
+const BULLET_SPEED_DOWN: SpellProps = SpellProps {
+    name: "減速",
+    description: "次に発射する魔法の弾速を50%低下させます。",
+    mana_drain: 20,
+    cast_delay: 0,
+    icon: "bullet_speed_down",
+    category: SpellCast::BulletSpeedUpDown { delta: -0.5 },
 };
 
 pub fn spell_to_props(spell: SpellType) -> SpellProps {
@@ -122,5 +135,6 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
         SpellType::SlimeCharge => SLIME_CHARGE,
         SpellType::Heal => HEAL,
         SpellType::BulletSpeedUp => BULLET_SPEED_UP,
+        SpellType::BulletSpeedDoown => BULLET_SPEED_DOWN,
     }
 }
