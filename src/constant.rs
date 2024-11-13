@@ -76,10 +76,10 @@ pub const PIXELS_PER_METER: f32 = 16.0;
 // UI階層
 pub const OVERLAY_Z_INDEX: i32 = 10000;
 
+pub const GAME_MENU_Z_INDEX: i32 = 2000;
+
 pub const WAND_EDITOR_FLOATING_Z_INDEX: i32 = 1600;
 
 pub const WAND_EDITOR_Z_INDEX: i32 = 1500;
 
 pub const HUD_Z_INDEX: i32 = 1000;
-
-pub const GAME_MENU_Z_INDEX: i32 = 500;

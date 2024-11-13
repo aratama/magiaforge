@@ -1,4 +1,8 @@
-use crate::{asset::GameAssets, constant::WAND_EDITOR_Z_INDEX, states::GameState};
+use crate::{
+    asset::GameAssets,
+    constant::WAND_EDITOR_Z_INDEX,
+    states::{GameMenuState, GameState},
+};
 use bevy::prelude::*;
 
 use super::{inventory::spawn_inventory, spell_information::spawn_spell_information};
@@ -38,8 +42,9 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
 fn toggle_wand_editor_visible(
     keys: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Visibility, With<WandEditorRoot>>,
+    state: Res<State<GameMenuState>>,
 ) {
-    if keys.just_pressed(KeyCode::KeyE) {
+    if *state == GameMenuState::Closed && keys.just_pressed(KeyCode::KeyE) {
         for mut visibility in query.iter_mut() {
             *visibility = match *visibility {
                 Visibility::Visible => Visibility::Hidden,

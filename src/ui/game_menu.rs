@@ -9,8 +9,11 @@ use crate::world::NextLevel;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
-use bevy_rapier2d::plugin::PhysicsSet;
+use bevy_rapier2d::plugin::{PhysicsSet, RapierConfiguration};
 use bevy_simple_websocket::ClientMessage;
+
+use super::inventory;
+use super::wand_editor::WandEditorRoot;
 
 #[derive(Resource)]
 struct ButtonShots {
@@ -41,7 +44,7 @@ impl FromWorld for ButtonShots {
 }
 
 fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<GameCommand>) {
-    state.set(GameMenuState::Closing);
+    state.set(GameMenuState::GameMenuClosing);
     writer.send(GameCommand::SEKettei(None));
 }
 
@@ -176,24 +179,14 @@ fn update_game_menu(
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
     mut query: Query<&mut Visibility, With<GameMenuRoot>>,
-
-    keys: Res<ButtonInput<KeyCode>>,
-
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
 ) {
     let mut visibility = query.single_mut();
     *visibility = match state.get() {
-        GameMenuState::Open => Visibility::Visible,
+        GameMenuState::GameMenuOpen => Visibility::Visible,
         _ => Visibility::Hidden,
     };
-
-    if keys.just_pressed(KeyCode::Escape) {
-        next.set(match state.get() {
-            GameMenuState::Closed => GameMenuState::Open,
-            _ => GameMenuState::Closing,
-        });
-    }
 
     if let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() {
         if gamepad_buttons.just_pressed(GamepadButton {
@@ -201,9 +194,41 @@ fn update_game_menu(
             button_type: GamepadButtonType::Start,
         }) {
             next.set(match state.get() {
-                GameMenuState::Closed => GameMenuState::Open,
-                _ => GameMenuState::Closing,
+                GameMenuState::Closed => GameMenuState::GameMenuOpen,
+                _ => GameMenuState::GameMenuClosing,
             });
+        }
+    }
+}
+
+fn handle_escape_key(
+    state: Res<State<GameMenuState>>,
+    mut next: ResMut<NextState<GameMenuState>>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mut wand_edit_query: Query<&mut Visibility, With<WandEditorRoot>>,
+    mut rapier_state: ResMut<RapierConfiguration>,
+) {
+    if keys.just_pressed(KeyCode::Escape) {
+        let mut wand_edit = wand_edit_query.single_mut();
+
+        match *wand_edit {
+            Visibility::Hidden => {
+                next.set(match state.get() {
+                    GameMenuState::Closed => {
+                        rapier_state.physics_pipeline_active = false;
+                        rapier_state.query_pipeline_active = false;
+                        GameMenuState::GameMenuOpen
+                    }
+                    _ => {
+                        rapier_state.physics_pipeline_active = true;
+                        rapier_state.query_pipeline_active = true;
+                        GameMenuState::GameMenuClosing
+                    }
+                });
+            }
+            _ => {
+                *wand_edit = Visibility::Hidden;
+            }
         }
     }
 }
@@ -238,10 +263,10 @@ fn closing_to_closed(
     mut res: ResMut<ButtonShots>,
 ) {
     match state.get() {
-        GameMenuState::Open => {
+        GameMenuState::GameMenuOpen => {
             res.wait = 20;
         }
-        GameMenuState::Closing => {
+        GameMenuState::GameMenuClosing => {
             res.wait = (res.wait - 1).max(0);
             if res.wait <= 0 {
                 next.set(GameMenuState::Closed);
@@ -262,6 +287,7 @@ impl Plugin for GameMenuPlugin {
                 update_game_menu,
                 update_se_volume_label,
                 update_bgm_volume_label,
+                handle_escape_key,
             )
                 .run_if(in_state(GameState::InGame)),
         );
