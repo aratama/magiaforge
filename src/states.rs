@@ -42,7 +42,9 @@ pub enum GameMenuState {
     #[default]
     Closed,
 
-    GameMenuOpen,
+    PauseMenuOpen,
 
-    GameMenuClosing,
+    PauseMenuClosing,
+
+    WandEditOpen,
 }

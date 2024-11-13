@@ -1,11 +1,11 @@
 pub mod bar;
 pub mod button;
 pub mod floating;
-pub mod game_menu;
 pub mod hover_color;
 pub mod inventory;
 pub mod menu_button;
 pub mod on_press;
+pub mod pause_menu;
 pub mod player_list;
 pub mod range;
 pub mod spell_information;

@@ -1,7 +1,6 @@
-use crate::ui::wand_editor::WandEditorRoot;
-use crate::{controller::player::Player, entity::actor::Actor};
-
+use crate::states::GameMenuState;
 use crate::{asset::GameAssets, constant::TILE_SIZE, input::MyGamepad, states::GameState};
+use crate::{controller::player::Player, entity::actor::Actor};
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::AsepriteSliceUiBundle;
 
@@ -58,7 +57,7 @@ fn update_pointer_by_mouse(
     mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    wand_editor_visible_query: Query<&Visibility, With<WandEditorRoot>>,
+    state: Res<State<GameMenuState>>,
 ) {
     if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
         if let Ok(window) = q_window.get_single() {
@@ -67,8 +66,7 @@ fn update_pointer_by_mouse(
                     if let Some(mouse_in_world) =
                         camera.viewport_to_world(camera_global_transform, cursor_in_screen)
                     {
-                        let wand_editor_visible = wand_editor_visible_query.single();
-                        if *wand_editor_visible == Visibility::Hidden {
+                        if *state.get() == GameMenuState::Closed {
                             player.pointer = mouse_in_world.origin.truncate()
                                 - player_transform.translation().truncate();
                         }

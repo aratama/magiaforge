@@ -1,3 +1,4 @@
+use super::floating::{InventoryItemFloating, InventoryItemFloatingContent};
 use crate::{
     asset::GameAssets,
     constant::{MAX_SPELLS_IN_WAND, MAX_WANDS},
@@ -5,18 +6,13 @@ use crate::{
     entity::actor::Actor,
     inventory_item::InventoryItem,
     spell_props::spell_to_props,
-    states::GameState,
+    states::{GameMenuState, GameState},
 };
 use bevy::{
     prelude::*,
     ui::{Display, Style},
 };
 use bevy_aseprite_ultra::prelude::*;
-
-use super::{
-    floating::{InventoryItemFloating, InventoryItemFloatingContent},
-    wand_editor::WandEditorRoot,
-};
 
 #[derive(Component)]
 pub struct WandList;
@@ -164,15 +160,14 @@ fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut BorderColor)>,
     floating_query: Query<&InventoryItemFloating>,
-    wand_editor_query: Query<&Visibility, With<WandEditorRoot>>,
+    state: Res<State<GameMenuState>>,
 ) {
-    let wand_editor = wand_editor_query.single();
-
     if let Ok(actor) = player_query.get_single() {
         for (spell_sprite, mut aseprite, mut border) in sprite_query.iter_mut() {
-            *border = match wand_editor {
-                Visibility::Hidden => BorderColor(Color::hsla(0.0, 0.0, 0.0, 0.0)),
-                _ => BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.5)),
+            *border = if *state.get() == GameMenuState::WandEditOpen {
+                BorderColor(Color::hsla(0.0, 0.0, 0.0, 0.0))
+            } else {
+                BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.5))
             };
 
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
@@ -210,11 +205,10 @@ fn interaction_spell_sprite(
     >,
     mut player_query: Query<(&mut Player, &mut Actor)>,
     mut floating_query: Query<&mut InventoryItemFloating>,
-    wand_editor_query: Query<&Visibility, With<WandEditorRoot>>,
+    state: Res<State<GameMenuState>>,
 ) {
     for (slot, interaction, mut color) in &mut interaction_query {
-        let wand_editor = wand_editor_query.single();
-        if wand_editor == Visibility::Visible {
+        if *state.get() == GameMenuState::WandEditOpen {
             match *interaction {
                 Interaction::Pressed => {
                     if let Ok((mut player, mut actor)) = player_query.get_single_mut() {

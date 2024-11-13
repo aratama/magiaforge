@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use super::{inventory::spawn_inventory, spell_information::spawn_spell_information};
 
 #[derive(Component)]
-pub struct WandEditorRoot;
+struct WandEditorRoot;
 
 pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
     commands
@@ -39,19 +39,33 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
         });
 }
 
-fn toggle_wand_editor_visible(
+fn handle_e_key(
     keys: Res<ButtonInput<KeyCode>>,
+    state: Res<State<GameMenuState>>,
+    mut next: ResMut<NextState<GameMenuState>>,
+) {
+    if keys.just_pressed(KeyCode::KeyE) {
+        match state.get() {
+            GameMenuState::Closed => {
+                next.set(GameMenuState::WandEditOpen);
+            }
+            GameMenuState::WandEditOpen => {
+                next.set(GameMenuState::Closed);
+            }
+            _ => {}
+        }
+    }
+}
+
+fn apply_wand_editor_visible(
     mut query: Query<&mut Visibility, With<WandEditorRoot>>,
     state: Res<State<GameMenuState>>,
 ) {
-    if *state == GameMenuState::Closed && keys.just_pressed(KeyCode::KeyE) {
-        for mut visibility in query.iter_mut() {
-            *visibility = match *visibility {
-                Visibility::Visible => Visibility::Hidden,
-                Visibility::Hidden => Visibility::Visible,
-                Visibility::Inherited => Visibility::Visible,
-            };
-        }
+    for mut visibility in query.iter_mut() {
+        *visibility = match state.get() {
+            GameMenuState::WandEditOpen => Visibility::Visible,
+            _ => Visibility::Hidden,
+        };
     }
 }
 
@@ -61,7 +75,7 @@ impl Plugin for WandEditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            toggle_wand_editor_visible.run_if(in_state(GameState::InGame)),
+            (handle_e_key, apply_wand_editor_visible).run_if(in_state(GameState::InGame)),
         );
     }
 }

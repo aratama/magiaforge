@@ -7,7 +7,6 @@ use crate::entity::gold::{spawn_gold, Gold};
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::inventory_item::InventoryItem;
 use crate::states::{GameMenuState, GameState};
-use crate::ui::wand_editor::WandEditorRoot;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
@@ -37,14 +36,15 @@ fn move_player(
     gamepads: Option<Res<MyGamepad>>,
     axes: Res<Axis<GamepadAxis>>,
     menu: Res<State<GameMenuState>>,
-    wand_editor_visible_query: Query<&Visibility, With<WandEditorRoot>>,
 ) {
     if let Ok(mut actor) = player_query.get_single_mut() {
-        let wand_editor_visible = wand_editor_visible_query.single();
-        if *menu == GameMenuState::Closed && *wand_editor_visible == Visibility::Hidden {
-            actor.move_direction = get_direction(keys, axes, &gamepads);
-        } else {
-            actor.move_direction = Vec2::ZERO;
+        match *menu.get() {
+            GameMenuState::Closed => {
+                actor.move_direction = get_direction(keys, axes, &gamepads);
+            }
+            _ => {
+                actor.move_direction = Vec2::ZERO;
+            }
         }
     }
 }
@@ -67,17 +67,19 @@ fn trigger_bullet(
     my_gamepad: Option<Res<MyGamepad>>,
     gamepad_buttons: Res<ButtonInput<GamepadButton>>,
     menu: Res<State<GameMenuState>>,
-    wand_editor_visible_query: Query<&Visibility, With<WandEditorRoot>>,
 ) {
-    let wand_editor_visible = wand_editor_visible_query.single();
     if let Ok(mut player) = player_query.get_single_mut() {
-        if *menu == GameMenuState::Closed
-            && *wand_editor_visible == Visibility::Hidden
-            && get_fire_trigger(buttons, gamepad_buttons, &my_gamepad)
-        {
-            player.fire_state = ActorFireState::Fire;
-        } else {
-            player.fire_state = ActorFireState::Idle;
+        match *menu.get() {
+            GameMenuState::Closed => {
+                if get_fire_trigger(buttons, gamepad_buttons, &my_gamepad) {
+                    player.fire_state = ActorFireState::Fire;
+                } else {
+                    player.fire_state = ActorFireState::Idle;
+                }
+            }
+            _ => {
+                player.fire_state = ActorFireState::Idle;
+            }
         }
     }
 }
