@@ -19,7 +19,7 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Row,
                     column_gap: Val::Px(8.0),
-                    padding: UiRect::all(Val::Px(64.0)),
+                    padding: UiRect::all(Val::Px(24.0)),
                     ..default()
                 },
                 background_color: Color::hsla(0.0, 0.0, 0.0, 0.8).into(),

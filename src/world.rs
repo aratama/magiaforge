@@ -145,9 +145,13 @@ fn spawn_level(
 
     let mut inventory: Inventory = [None; MAX_ITEMS_IN_INVENTORY];
     inventory[0] = Some(InventoryItem::Spell(SpellType::MagicBolt));
-    inventory[1] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
+    inventory[1] = Some(InventoryItem::Spell(SpellType::MagicBolt));
     inventory[2] = Some(InventoryItem::Spell(SpellType::SlimeCharge));
     inventory[3] = Some(InventoryItem::Spell(SpellType::Heal));
+    inventory[4] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
+    inventory[5] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
+    inventory[6] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
+    inventory[7] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
 
     let life = 150;
     let max_life = 150;

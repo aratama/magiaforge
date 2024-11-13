@@ -1,5 +1,5 @@
-use crate::bullet_type::BulletType;
 use crate::controller::player::Player;
+use crate::entity::bullet::SpawnBulletProps;
 use crate::{
     asset::GameAssets,
     command::GameCommand,
@@ -72,7 +72,13 @@ pub enum RemoteMessage {
         vx: f32,
         vy: f32,
         bullet_lifetime: u32,
-        bullet_type: BulletType,
+        damage: i32,
+        impulse: f32,
+        slice: String,
+        collier_radius: f32,
+        light_intensity: f32,
+        light_radius: f32,
+        light_color_hlsa: [f32; 4],
     },
     // ダメージを受けたことを通知します
     Hit {
@@ -265,19 +271,33 @@ fn receive_events(
                         vx,
                         vy,
                         bullet_lifetime,
-                        bullet_type,
+                        damage,
+                        impulse,
+                        slice,
+                        collier_radius,
+                        light_intensity,
+                        light_radius,
+                        light_color_hlsa,
                     } => {
                         spawn_bullet(
                             &mut commands,
                             assets.atlas.clone(),
-                            Vec2::new(x, y),
-                            Vec2::new(vx, vy),
-                            bullet_lifetime,
-                            Some(uuid),
                             &mut writer,
-                            WITCH_BULLET_GROUP,
-                            WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP,
-                            bullet_type,
+                            &SpawnBulletProps {
+                                position: Vec2::new(x, y),
+                                velocity: Vec2::new(vx, vy),
+                                lifetime: bullet_lifetime,
+                                owner: Some(uuid),
+                                group: WITCH_BULLET_GROUP,
+                                filter: WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP,
+                                damage,
+                                impulse,
+                                slice: slice.to_string(),
+                                collier_radius,
+                                light_intensity,
+                                light_radius,
+                                light_color_hlsa,
+                            },
                         );
                     }
                     RemoteMessage::Hit {

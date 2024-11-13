@@ -59,6 +59,7 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             spell_delay: 0,
+            spell_index: 0,
             mana: 1000,
             max_mana: 1000,
             life,
@@ -71,6 +72,7 @@ pub fn spawn_witch<T: Component>(
             group: WITCH_GROUP,
             filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
             current_wand: 0,
+            bullet_speed_buff_factor: 0.0,
             wands: [
                 Some(Wand {
                     wand_type: WandType::CypressWand,

@@ -1,5 +1,5 @@
 use crate::config::GameConfig;
-use crate::constant::MAX_WANDS;
+use crate::constant::{MAX_SPELLS_IN_WAND, MAX_WANDS};
 use crate::entity::breakable::BreakableSprite;
 use crate::spell::{cast_spell, SpellType};
 use crate::wand::Wand;
@@ -16,6 +16,8 @@ use uuid::Uuid;
 #[derive(Component)]
 pub struct Actor {
     pub uuid: Uuid,
+
+    pub spell_index: usize,
 
     /// 次の魔法を発射できるまでのクールタイム
     pub spell_delay: i32,
@@ -53,6 +55,7 @@ pub struct Actor {
 
     pub wands: [Option<Wand>; MAX_WANDS],
     // pub queue: Vec,
+    pub bullet_speed_buff_factor: f32,
 }
 
 impl Actor {
@@ -160,9 +163,11 @@ fn fire_bullet(
             return;
         }
 
-        if let Some(wand) = &actor.wands[actor.current_wand] {
-            if let Some(spell) = wand.slots[0] {
-                if actor.fire_state == ActorFireState::Fire {
+        if actor.fire_state == ActorFireState::Fire {
+            while actor.spell_delay <= 0 {
+                if let Some(spell) =
+                    actor.wands[actor.current_wand].and_then(|wand| wand.slots[actor.spell_index])
+                {
                     cast_spell(
                         &mut commands,
                         &assets,
@@ -173,6 +178,14 @@ fn fire_bullet(
                         spell,
                         online,
                     );
+                }
+
+                actor.spell_index += 1;
+
+                if MAX_SPELLS_IN_WAND <= actor.spell_index {
+                    actor.spell_index = 0;
+                    actor.spell_delay += 10;
+                    break;
                 }
             }
         }

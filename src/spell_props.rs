@@ -2,6 +2,8 @@ use crate::spell::SpellType;
 
 pub enum SpellCategory {
     Bullet {
+        slice: &'static str,
+
         collier_radius: f32,
 
         /// 魔法弾の速度
@@ -13,12 +15,14 @@ pub enum SpellCategory {
         damage: i32,
         impulse: f32,
 
+        scattering: f32,
+
         light_intensity: f32,
         light_radius: f32,
         light_color_hlsa: [f32; 4],
     },
     Heal,
-    Buff,
+    BulletSpeedUp,
 }
 
 pub struct SpellProps {
@@ -39,11 +43,13 @@ const MAGIC_BOLT: SpellProps = SpellProps {
     cast_delay: 10,
     icon: "bullet_magic_bolt",
     category: SpellCategory::Bullet {
+        slice: "bullet_magic_bolt",
         collier_radius: 5.0,
-        speed: 200.0,
+        speed: 100.0,
         lifetime: 240,
         damage: 5,
         impulse: 20000.0,
+        scattering: 0.4,
         light_intensity: 1.0,
         light_radius: 50.0,
         light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
@@ -58,11 +64,13 @@ const PURPLE_BOLT: SpellProps = SpellProps {
     cast_delay: 120,
     icon: "bullet_purple",
     category: SpellCategory::Bullet {
+        slice: "bullet_purple",
         collier_radius: 5.0,
         speed: 50.0,
         lifetime: 500,
         damage: 3,
         impulse: 10000.0,
+        scattering: 0.6,
         light_intensity: 0.0,
         light_radius: 0.0,
         light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
@@ -76,11 +84,13 @@ const SLIME_CHARGE: SpellProps = SpellProps {
     cast_delay: 30,
     icon: "bullet_slime_charge",
     category: SpellCategory::Bullet {
+        slice: "bullet_slime_charge",
         collier_radius: 5.0,
         speed: 2.0,
         lifetime: 5,
         damage: 10,
         impulse: 40000.0,
+        scattering: 0.0,
         light_intensity: 0.0,
         light_radius: 0.0,
         light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
@@ -101,8 +111,8 @@ const BULLET_SPEED_UP: SpellProps = SpellProps {
     description: "次に発射する魔法の弾速を25%上昇させます。",
     mana_drain: 20,
     cast_delay: 0,
-    icon: "empty",
-    category: SpellCategory::Buff,
+    icon: "bullet_speed_up",
+    category: SpellCategory::BulletSpeedUp,
 };
 
 pub fn spell_to_props(spell: SpellType) -> SpellProps {

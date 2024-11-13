@@ -1,12 +1,16 @@
 use crate::{
     asset::GameAssets,
-    bullet_type::BulletType,
     command::GameCommand,
-    entity::{actor::Actor, bullet::spawn_bullets},
-    spell_props::spell_to_props,
+    entity::{
+        actor::Actor,
+        bullet::{spawn_bullets, SpawnBulletProps, BULLET_SPAWNING_MARGIN},
+        witch::WITCH_COLLIDER_RADIUS,
+    },
+    spell_props::{spell_to_props, SpellCategory},
 };
 use bevy::prelude::*;
 use bevy_simple_websocket::ClientMessage;
+use rand::random;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum SpellType {
@@ -22,11 +26,11 @@ pub enum SpellType {
 /// スペルを唱えます
 /// マナが不足している場合は不発になる場合もあります
 pub fn cast_spell(
-    mut commands: &mut Commands,
+    commands: &mut Commands,
     assets: &Res<GameAssets>,
-    mut writer: &mut EventWriter<ClientMessage>,
-    mut se_writer: &mut EventWriter<GameCommand>,
-    mut actor: &mut Actor,
+    writer: &mut EventWriter<ClientMessage>,
+    se_writer: &mut EventWriter<GameCommand>,
+    actor: &mut Actor,
     actor_transform: &Transform,
     spell: SpellType,
     online: bool,
@@ -45,56 +49,68 @@ pub fn cast_spell(
         return;
     }
 
+    info!("cast {:?} ", spell);
+
     let props = spell_to_props(spell);
     actor.mana -= props.mana_drain;
     actor.spell_delay += props.cast_delay as i32;
 
-    match spell {
-        SpellType::MagicBolt => {
+    match props.category {
+        SpellCategory::Bullet {
+            slice,
+            collier_radius,
+            speed,
+            lifetime,
+            damage,
+            impulse,
+            scattering,
+            light_intensity,
+            light_radius,
+            light_color_hlsa,
+        } => {
+            let normalized = actor.pointer.normalize();
+            let angle = actor.pointer.to_angle();
+            let angle_with_random = angle + (random::<f32>() - 0.5) * scattering;
+            let direction = Vec2::from_angle(angle_with_random);
+            let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
+            let bullet_position = actor_transform.translation.truncate() + range * normalized;
+
             spawn_bullets(
-                &mut commands,
-                &assets,
-                &mut writer,
-                &mut se_writer,
-                &mut actor,
-                &actor_transform,
-                BulletType::BlueBullet,
+                commands,
+                assets,
+                writer,
+                se_writer,
+                actor.uuid,
                 online,
+                SpawnBulletProps {
+                    position: bullet_position,
+                    velocity: direction * speed * (1.0 + actor.bullet_speed_buff_factor),
+                    lifetime: lifetime,
+                    owner: Some(actor.uuid),
+                    group: actor.group,
+                    filter: actor.filter,
+                    damage,
+                    impulse,
+                    slice: slice.to_string(),
+                    collier_radius,
+                    light_intensity,
+                    light_radius,
+                    light_color_hlsa,
+                },
             );
+
+            actor.bullet_speed_buff_factor = 0.0;
         }
-        SpellType::PurpleBolt => {
-            spawn_bullets(
-                &mut commands,
-                &assets,
-                &mut writer,
-                &mut se_writer,
-                &mut actor,
-                &actor_transform,
-                BulletType::PurpleBullet,
-                online,
-            );
+        SpellCategory::BulletSpeedUp => {
+            actor.bullet_speed_buff_factor =
+                (actor.bullet_speed_buff_factor + 0.5).max(-0.9).min(3.0);
         }
-        SpellType::SlimeCharge => {
-            spawn_bullets(
-                &mut commands,
-                &assets,
-                &mut writer,
-                &mut se_writer,
-                &mut actor,
-                &actor_transform,
-                BulletType::SlimeAttackBullet,
-                online,
-            );
-        }
-        SpellType::Heal => {
+        SpellCategory::Heal => {
             actor.life = (actor.life + 2).min(actor.max_life);
 
             se_writer.send(GameCommand::SEKaifuku(Some(
                 actor_transform.translation.truncate(),
             )));
-        }
-        SpellType::BulletSpeedUp => {
-            //
         }
     }
 }

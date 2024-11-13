@@ -1,4 +1,3 @@
-use crate::spell::SpellType;
 use crate::ui::floating::{InventoryItemFloating, InventoryItemFloatingContent};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
@@ -186,7 +185,7 @@ fn interaction(
 fn get_background(index: usize) -> BackgroundColor {
     let x = index % 8;
     let y = index / 8;
-    Color::hsla(0.0, 0.0, if (x + y) % 2 == 0 { 0.2 } else { 0.3 }, 0.95).into()
+    Color::hsla(0.0, 0.0, if (x + y) % 2 == 0 { 0.2 } else { 0.24 }, 0.95).into()
 }
 
 pub struct InventoryPlugin;

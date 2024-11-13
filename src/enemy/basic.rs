@@ -34,6 +34,7 @@ pub fn spawn_basic_enemy<T: Component>(
             Actor {
                 uuid: Uuid::new_v4(),
                 spell_delay: 0,
+                spell_index: 0,
                 mana: 1000,
                 max_mana: 1000,
                 life: 20,
@@ -46,6 +47,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 group: ENEMY_GROUP,
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
+                bullet_speed_buff_factor: 0.0,
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,

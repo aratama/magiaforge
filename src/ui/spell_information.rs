@@ -134,28 +134,31 @@ fn update_spell_description(
 
         let appendix = match props.category {
             SpellCategory::Bullet {
+                slice: _,
                 collier_radius,
                 speed,
                 lifetime,
                 damage,
                 impulse,
+                scattering,
                 light_intensity: _,
                 light_radius: _,
                 light_color_hlsa: _,
             } => {
                 format!(
-                    "大きさ:{}\nダメージ:{}\n射出速度:{}\n持続時間:{}\nノックバック:{}",
+                    "大きさ:{}\nダメージ:{}\n射出速度:{}\n持続時間:{}\nノックバック:{}\n拡散:{}",
                     collier_radius,
                     damage,
                     speed,
                     lifetime,
-                    impulse * 0.001
+                    impulse * 0.001,
+                    scattering
                 )
             }
             SpellCategory::Heal => {
                 format!("回復:{}", 10)
             }
-            SpellCategory::Buff => format!(""),
+            SpellCategory::BulletSpeedUp => format!(""),
         };
 
         text.sections[0].value = format!(

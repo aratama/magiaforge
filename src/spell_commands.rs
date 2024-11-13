@@ -1,4 +1,9 @@
-use crate::{spell::SpellType, wand::Wand};
+// use crate::{
+//     entity::bullet::SpawnBulletProps,
+//     spell::SpellType,
+//     spell_props::{spell_to_props, SpellCategory},
+//     wand::Wand,
+// };
 
 // pub struct SpellCommand {
 //     /// スペルの種類
@@ -14,28 +19,26 @@ use crate::{spell::SpellType, wand::Wand};
 //     pub description: &'static str,
 // }
 
-pub struct SpellContext {
-    /// スプライトのスライス名
-    slice: &'static str,
+// pub struct SpellContext {
+//     /// スプライトのスライス名
+//     slice: &'static str,
 
-    /// 威力
-    damage: i32,
+//     /// 威力
+//     damage_or_heal_factor: i32,
 
-    /// 弾速
-    /// スペル本来の弾速と speed_factor の積が実際の弾速になります
-    speed_factor: f32,
+//     /// 弾速
+//     /// スペル本来の弾速と speed_factor の積が実際の弾速になります
+//     speed_factor: f32,
 
-    /// ホーミングの強さ
-    homing: f32,
+//     /// ホーミングの強さ
+//     homing: f32,
 
-    /// 弾丸の生存時間
-    lifetime: usize,
+//     /// 弾丸の生存時間
+//     lifetime_factor: usize,
 
-    /// 拡散(ラジアン)
-    scattering: f32,
-
-    heal: i32,
-}
+//     /// 拡散(ラジアン)
+//     scattering: f32,
+// }
 
 // pub fn interplet_wand(wand: Wand) -> Vec<SpellCommand> {
 //     let mut commands = Vec::new();
@@ -50,23 +53,39 @@ pub struct SpellContext {
 //     return commands;
 // }
 
-// pub fn interplet_spell(spell: SpellType) -> SpellCommand {
-//     match spell {
-//         SpellType::MagicBolt => SpellCommand {
-//             action: SpellAction::FireBullet {
-//                 slice: "blue_bullet",
-//                 damage: 1,
-//                 speed: 1.0,
-//                 homing: 0.0,
-//                 lifetime: 60,
-//                 scattering: 0.0,
-//             },
-//             cooltime: 10,
-//             mana_drain: 1,
-//             description: "青い弾を発射します",
-//         },
-//         SpellType::PurpleBolt => {}
-//         SpellType::SlimeCharge => {}
-//         SpellType::Heal => {}
+// fn interplet_spell(context: SpellContext, spell: SpellType) {
+//     let props = spell_to_props(spell);
+
+//     match props.category {
+//         SpellCategory::Bullet {
+//             collier_radius,
+//             speed,
+//             lifetime,
+//             damage,
+//             impulse,
+//             slice,
+//             scattering,
+//             light_intensity,
+//             light_radius,
+//             light_color_hlsa,
+//         } => {
+//             // spawn_bullets(
+//             //     &mut commands,
+//             //     &assets,
+//             //     &mut writer,
+//             //     &mut se_writer,
+//             //     &mut actor,
+//             //     &actor_transform,
+//             //     bullet_type:
+//             //     online
+//             // );
+//             todo!();
+//         }
+//         SpellCategory::Buff => {
+//             todo!();
+//         }
+//         SpellCategory::Heal => {
+//             todo!();
+//         }
 //     }
 // }
