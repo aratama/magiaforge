@@ -28,6 +28,9 @@ pub enum SpellCast {
     BulletSpeedUpDown {
         delta: f32,
     },
+    MultipleCast {
+        amount: u32,
+    },
 }
 
 /// 呪文の基礎情報
@@ -37,7 +40,7 @@ pub struct SpellProps {
     pub mana_drain: i32,
     pub cast_delay: u32,
     pub icon: &'static str,
-    pub category: SpellCast,
+    pub cast: SpellCast,
 }
 
 const MAGIC_BOLT: SpellProps = SpellProps {
@@ -46,7 +49,7 @@ const MAGIC_BOLT: SpellProps = SpellProps {
     mana_drain: 50,
     cast_delay: 10,
     icon: "bullet_magic_bolt",
-    category: SpellCast::Bullet {
+    cast: SpellCast::Bullet {
         slice: "bullet_magic_bolt",
         collier_radius: 5.0,
         speed: 100.0,
@@ -67,7 +70,7 @@ const PURPLE_BOLT: SpellProps = SpellProps {
     mana_drain: 10,
     cast_delay: 120,
     icon: "bullet_purple",
-    category: SpellCast::Bullet {
+    cast: SpellCast::Bullet {
         slice: "bullet_purple",
         collier_radius: 5.0,
         speed: 50.0,
@@ -87,7 +90,7 @@ const SLIME_CHARGE: SpellProps = SpellProps {
     mana_drain: 200,
     cast_delay: 30,
     icon: "bullet_slime_charge",
-    category: SpellCast::Bullet {
+    cast: SpellCast::Bullet {
         slice: "bullet_slime_charge",
         collier_radius: 5.0,
         speed: 2.0,
@@ -107,7 +110,7 @@ const HEAL: SpellProps = SpellProps {
     mana_drain: 20,
     cast_delay: 120,
     icon: "spell_heal",
-    category: SpellCast::Heal,
+    cast: SpellCast::Heal,
 };
 
 const BULLET_SPEED_UP: SpellProps = SpellProps {
@@ -116,7 +119,7 @@ const BULLET_SPEED_UP: SpellProps = SpellProps {
     mana_drain: 20,
     cast_delay: 0,
     icon: "bullet_speed_up",
-    category: SpellCast::BulletSpeedUpDown { delta: 0.5 },
+    cast: SpellCast::BulletSpeedUpDown { delta: 0.5 },
 };
 
 const BULLET_SPEED_DOWN: SpellProps = SpellProps {
@@ -125,7 +128,25 @@ const BULLET_SPEED_DOWN: SpellProps = SpellProps {
     mana_drain: 20,
     cast_delay: 0,
     icon: "bullet_speed_down",
-    category: SpellCast::BulletSpeedUpDown { delta: -0.5 },
+    cast: SpellCast::BulletSpeedUpDown { delta: -0.5 },
+};
+
+const DUAL_CAST: SpellProps = SpellProps {
+    name: "二重呪文",
+    description: "ふたつの呪文を同時に詠唱します。",
+    mana_drain: 20,
+    cast_delay: 0,
+    icon: "spell_dual_cast",
+    cast: SpellCast::MultipleCast { amount: 2 },
+};
+
+const TRIPLE_CAST: SpellProps = SpellProps {
+    name: "三重呪文",
+    description: "みっつの呪文を同時に詠唱します。",
+    mana_drain: 20,
+    cast_delay: 0,
+    icon: "spell_triple_cast",
+    cast: SpellCast::MultipleCast { amount: 3 },
 };
 
 pub fn spell_to_props(spell: SpellType) -> SpellProps {
@@ -136,5 +157,39 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
         SpellType::Heal => HEAL,
         SpellType::BulletSpeedUp => BULLET_SPEED_UP,
         SpellType::BulletSpeedDoown => BULLET_SPEED_DOWN,
+        SpellType::DualCast => DUAL_CAST,
+        SpellType::TripleCast => TRIPLE_CAST,
+    }
+}
+
+pub fn get_spell_appendix(cast: SpellCast) -> String {
+    match cast {
+        SpellCast::Bullet {
+            slice: _,
+            collier_radius,
+            speed,
+            lifetime,
+            damage,
+            impulse,
+            scattering,
+            light_intensity: _,
+            light_radius: _,
+            light_color_hlsa: _,
+        } => {
+            format!(
+                "大きさ:{}\nダメージ:{}\n射出速度:{}\n持続時間:{}\nノックバック:{}\n拡散:{}",
+                collier_radius,
+                damage,
+                speed,
+                lifetime,
+                impulse * 0.001,
+                scattering
+            )
+        }
+        SpellCast::Heal => {
+            format!("回復:{}", 10)
+        }
+        SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
+        SpellCast::MultipleCast { amount: _ } => format!(""),
     }
 }

@@ -13,6 +13,8 @@ use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
 
+use super::bullet::SpawnBulletProps;
+
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
 pub struct Actor {
@@ -57,6 +59,8 @@ pub struct Actor {
     pub wands: [Option<Wand>; MAX_WANDS],
     // pub queue: Vec,
     pub bullet_speed_buff_factor: f32,
+    // マルチキャストで待機中の弾丸
+    // pub multicasts: Vec<SpawnBulletProps>,
 }
 
 impl Actor {
@@ -165,23 +169,18 @@ fn fire_bullet(
         }
 
         if actor.fire_state == ActorFireState::Fire {
-            while actor.spell_delay <= 0 {
-                if let Some(spell) =
-                    actor.wands[actor.current_wand].and_then(|wand| wand.slots[actor.spell_index])
-                {
-                    cast_spell(
-                        &mut commands,
-                        &assets,
-                        &mut writer,
-                        &mut se_writer,
-                        &mut actor,
-                        &actor_transform,
-                        spell,
-                        online,
-                    );
-                }
+            while actor.spell_delay == 0 {
+                let delay = cast_spell(
+                    &mut commands,
+                    &assets,
+                    &mut writer,
+                    &mut se_writer,
+                    &mut actor,
+                    &actor_transform,
+                    online,
+                );
 
-                actor.spell_index += 1;
+                actor.spell_delay += delay;
 
                 if MAX_SPELLS_IN_WAND <= actor.spell_index {
                     actor.spell_index = 0;

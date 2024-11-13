@@ -5,6 +5,7 @@ pub enum SpellType {
     SlimeCharge,
     Heal,
     BulletSpeedUp,
-    BulletSpeedDoown, // HeavyShot,
-                      // CriticalUp,
+    BulletSpeedDoown,
+    DualCast,
+    TripleCast,
 }

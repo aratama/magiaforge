@@ -4,7 +4,7 @@ use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 use crate::{
     asset::GameAssets,
     spell::SpellType,
-    spell_props::{spell_to_props, SpellCast},
+    spell_props::{get_spell_appendix, spell_to_props, SpellCast},
     states::GameState,
 };
 
@@ -131,36 +131,7 @@ fn update_spell_description(
     let spell_info = spell_info.single();
     if let SpellInformation(Some(info)) = spell_info {
         let props = spell_to_props(*info);
-
-        let appendix = match props.category {
-            SpellCast::Bullet {
-                slice: _,
-                collier_radius,
-                speed,
-                lifetime,
-                damage,
-                impulse,
-                scattering,
-                light_intensity: _,
-                light_radius: _,
-                light_color_hlsa: _,
-            } => {
-                format!(
-                    "大きさ:{}\nダメージ:{}\n射出速度:{}\n持続時間:{}\nノックバック:{}\n拡散:{}",
-                    collier_radius,
-                    damage,
-                    speed,
-                    lifetime,
-                    impulse * 0.001,
-                    scattering
-                )
-            }
-            SpellCast::Heal => {
-                format!("回復:{}", 10)
-            }
-            SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
-        };
-
+        let appendix = get_spell_appendix(props.cast);
         text.sections[0].value = format!(
             "{}\nマナ消費:{}\n詠唱遅延:{}\n{}",
             props.description, props.mana_drain, props.cast_delay, appendix
