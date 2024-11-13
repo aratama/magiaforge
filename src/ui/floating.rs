@@ -75,20 +75,16 @@ fn switch_floating_visibility(mut query: Query<(&InventoryItemFloating, &mut Vis
 fn switch_floating_slice(
     player_query: Query<(&Player, &Actor)>,
     mut floating_query: Query<
-        (&InventoryItemFloating, &mut AsepriteSlice),
+        (&InventoryItemFloating, &mut AsepriteSlice, &mut Style),
         With<InventoryItemFloating>,
     >,
 ) {
     if let Ok((player, actor)) = player_query.get_single() {
-        let (floating, mut floating_slice) = floating_query.single_mut();
+        let (floating, mut floating_slice, mut style) = floating_query.single_mut();
         match floating.0 {
             Some(InventoryItemFloatingContent::InventoryItem(slot)) => {
                 let slice = match player.inventory[slot] {
                     None => None,
-                    Some(InventoryItem::Wand(wand)) => {
-                        let props = wand_to_props(wand);
-                        Some(props.slice)
-                    }
                     Some(InventoryItem::Spell(spell)) => {
                         let props = spell_to_props(spell);
                         Some(props.icon)
@@ -96,6 +92,7 @@ fn switch_floating_slice(
                 };
                 if let Some(slice) = slice {
                     *floating_slice = slice.into();
+                    style.width = Val::Px(32.0);
                 }
             }
             Some(InventoryItemFloatingContent::WandSpell {
@@ -106,6 +103,7 @@ fn switch_floating_slice(
                     Some(spell) => {
                         let props = spell_to_props(spell);
                         *floating_slice = props.icon.into();
+                        style.width = Val::Px(32.0);
                     }
                     _ => {
                         *floating_slice = "empty".into();
@@ -120,6 +118,7 @@ fn switch_floating_slice(
                     Some(wand) => {
                         let props = wand_to_props(wand.wand_type);
                         *floating_slice = props.slice.into();
+                        style.width = Val::Px(64.0);
                     }
                     None => {
                         *floating_slice = "empty".into();

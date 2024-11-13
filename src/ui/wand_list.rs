@@ -1,4 +1,7 @@
-use super::floating::{InventoryItemFloating, InventoryItemFloatingContent};
+use super::{
+    floating::{self, InventoryItemFloating, InventoryItemFloatingContent},
+    spell_information::{self, SpellInformation, SpellInformationItem},
+};
 use crate::{
     asset::GameAssets,
     constant::{MAX_SPELLS_IN_WAND, MAX_WANDS},
@@ -117,10 +120,12 @@ fn spawn_wand_spell_slot(
             style: Style {
                 width: Val::Px(32.),
                 height: Val::Px(32.),
+                border: UiRect::all(Val::Px(1.0)),
                 ..default()
             },
             ..default()
         },
+        BorderColor(Color::hsla(0.0, 0.0, 0.0, 0.0)),
         AsepriteSliceUiBundle {
             aseprite: assets.atlas.clone(),
             slice: "empty".into(),
@@ -131,10 +136,21 @@ fn spawn_wand_spell_slot(
 
 fn update_wand_slot_visibility(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSlot, &mut BorderColor)>,
+    mut sprite_query: Query<(&WandSlot, &mut BorderColor, &mut Visibility)>,
+    floating_query: Query<&InventoryItemFloating>,
 ) {
+    let floating = floating_query.single();
     if let Ok(actor) = player_query.get_single() {
-        for (wand_sprite, mut border) in sprite_query.iter_mut() {
+        for (wand_sprite, mut border, mut visibility) in sprite_query.iter_mut() {
+            *visibility = match floating.0 {
+                Some(InventoryItemFloatingContent::Wand(index))
+                    if index == wand_sprite.wand_index =>
+                {
+                    Visibility::Hidden
+                }
+                _ => Visibility::Inherited,
+            };
+
             if wand_sprite.wand_index == actor.current_wand {
                 *border = Color::hsla(0.0, 0.0, 1.0, 0.2).into();
             } else {
@@ -159,7 +175,7 @@ fn update_wand_sprite(
                 {
                     AsepriteSlice::new("empty")
                 }
-                _ => match actor.wands[wand_sprite.wand_index] {
+                _ => match &actor.wands[wand_sprite.wand_index] {
                     Some(wand) => {
                         let props = wand_to_props(wand.wand_type);
                         AsepriteSlice::new(props.slice)
@@ -173,18 +189,37 @@ fn update_wand_sprite(
 
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut Visibility)>,
+    mut sprite_query: Query<(
+        &WandSpellSprite,
+        &mut AsepriteSlice,
+        &mut Visibility,
+        &mut BorderColor,
+    )>,
     floating_query: Query<&InventoryItemFloating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (spell_sprite, mut aseprite, mut visibility) in sprite_query.iter_mut() {
-            if let Some(_) = actor.wands[spell_sprite.wand_index] {
-                *visibility = Visibility::Inherited;
-            } else {
-                *visibility = Visibility::Hidden;
-            }
-
+        for (spell_sprite, mut aseprite, mut visibility, mut border) in sprite_query.iter_mut() {
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
+                *border = BorderColor(Color::hsla(
+                    0.0,
+                    0.0,
+                    1.0,
+                    if wand.index == spell_sprite.spell_index
+                        && actor.current_wand == spell_sprite.wand_index
+                    {
+                        0.2
+                    } else {
+                        0.0
+                    },
+                ));
+
+                let props = wand_to_props(wand.wand_type);
+                *visibility = if spell_sprite.spell_index < props.capacity {
+                    Visibility::Inherited
+                } else {
+                    Visibility::Hidden
+                };
+
                 if spell_sprite.spell_index < wand.slots.len() {
                     match wand.slots[spell_sprite.spell_index] {
                         Some(spell) => {
@@ -205,6 +240,8 @@ fn update_spell_sprite(
                         None => {}
                     }
                 }
+            } else {
+                *visibility = Visibility::Hidden;
             }
 
             *aseprite = AsepriteSlice::new("empty");
@@ -269,7 +306,8 @@ fn interaction_spell_sprite(
                                                         wand_from.slots[spell_index].clone();
                                                     wand_from.slots[slot.spell_index] = spell;
                                                     wand_from.slots[spell_index] = None;
-                                                    actor.wands[wand_index] = Some(*wand_from);
+                                                    actor.wands[wand_index] =
+                                                        Some(wand_from.clone());
                                                     *floating = InventoryItemFloating(None);
                                                 }
                                                 Some(existing) => {
@@ -277,7 +315,8 @@ fn interaction_spell_sprite(
                                                         wand_from.slots[spell_index].clone();
                                                     wand_from.slots[slot.spell_index] = spell;
                                                     wand_from.slots[spell_index] = Some(existing);
-                                                    actor.wands[wand_index] = Some(*wand_from);
+                                                    actor.wands[wand_index] =
+                                                        Some(wand_from.clone());
                                                 }
                                             }
                                         }
@@ -290,15 +329,19 @@ fn interaction_spell_sprite(
                                     }
                                 }
                             } else {
-                                match (actor.wands[wand_index], actor.wands[slot.wand_index]) {
+                                match (
+                                    actor.wands[wand_index].clone(),
+                                    actor.wands[slot.wand_index].clone(),
+                                ) {
                                     (Some(ref mut wand_from), Some(ref mut wand_to)) => {
                                         match wand_to.slots[slot.spell_index] {
                                             None => {
                                                 let spell = wand_from.slots[spell_index].clone();
                                                 wand_to.slots[slot.spell_index] = spell;
                                                 wand_from.slots[spell_index] = None;
-                                                actor.wands[wand_index] = Some(*wand_from);
-                                                actor.wands[slot.wand_index] = Some(*wand_to);
+                                                actor.wands[wand_index] = Some(wand_from.clone());
+                                                actor.wands[slot.wand_index] =
+                                                    Some(wand_to.clone());
                                                 *floating = InventoryItemFloating(None);
                                             }
                                             Some(existing) => {
@@ -306,8 +349,9 @@ fn interaction_spell_sprite(
                                                 let spell = wand_from.slots[spell_index].clone();
                                                 wand_to.slots[slot.spell_index] = spell;
                                                 wand_from.slots[spell_index] = Some(existing);
-                                                actor.wands[wand_index] = Some(*wand_from);
-                                                actor.wands[slot.wand_index] = Some(*wand_to);
+                                                actor.wands[wand_index] = Some(wand_from.clone());
+                                                actor.wands[slot.wand_index] =
+                                                    Some(wand_to.clone());
                                             }
                                         }
                                     }
@@ -379,17 +423,21 @@ fn interact_wand_sprite(
                 if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
-                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
-                            match player.inventory[index] {
-                                Some(InventoryItem::Wand(wand)) => {}
-                                _ => {}
-                            }
-                        }
+                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {}
                         Some(InventoryItemFloatingContent::WandSpell {
                             wand_index,
                             spell_index,
                         }) => {}
-                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {}
+                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {
+                            if wand_index == slot.wand_index {
+                                *floating = InventoryItemFloating(None);
+                            } else {
+                                let wand = actor.wands[slot.wand_index].clone();
+                                actor.wands[slot.wand_index] = actor.wands[wand_index].clone();
+                                actor.wands[wand_index] = wand;
+                                *floating = InventoryItemFloating(None);
+                            }
+                        }
                         None => {
                             if let Some(_) = actor.wands[slot.wand_index] {
                                 *floating = InventoryItemFloating(Some(
@@ -397,6 +445,31 @@ fn interact_wand_sprite(
                                 ));
                             }
                         }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+fn update_wand_information(
+    mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
+    mut player_query: Query<&Actor>,
+    mut spell_information_query: Query<&mut SpellInformation>,
+    state: Res<State<GameMenuState>>,
+) {
+    if *state.get() != GameMenuState::WandEditOpen {
+        return;
+    }
+
+    for (slot, interaction) in &mut interaction_query {
+        match *interaction {
+            Interaction::Hovered => {
+                if let Ok(actor) = player_query.get_single_mut() {
+                    if let Some(ref wand) = actor.wands[slot.wand_index] {
+                        let mut info = spell_information_query.single_mut();
+                        *info = SpellInformation(Some(SpellInformationItem::Wand(wand.wand_type)));
                     }
                 }
             }
@@ -431,6 +504,7 @@ impl Plugin for WandListPlugin {
                 interaction_spell_sprite,
                 update_spell_sprite_background,
                 interact_wand_sprite,
+                update_wand_information,
             )
                 .run_if(in_state(GameState::InGame)),
         );

@@ -18,8 +18,6 @@ use uuid::Uuid;
 pub struct Actor {
     pub uuid: Uuid,
 
-    pub spell_index: usize,
-
     /// 次の魔法を発射できるまでのクールタイム
     pub spell_delay: i32,
 
@@ -63,7 +61,7 @@ pub struct Actor {
 
 impl Actor {
     pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<SpellType> {
-        if let Some(wand) = self.wands[wand_index] {
+        if let Some(ref wand) = self.wands[wand_index] {
             return wand.slots[spell_index];
         }
         None
@@ -178,13 +176,7 @@ fn fire_bullet(
                     online,
                 );
 
-                actor.spell_delay += delay;
-
-                if MAX_SPELLS_IN_WAND <= actor.spell_index {
-                    actor.spell_index = 0;
-                    actor.spell_delay += 10;
-                    break;
-                }
+                actor.spell_delay += delay.max(1);
             }
         }
 

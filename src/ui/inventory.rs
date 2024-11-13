@@ -8,7 +8,7 @@ use crate::{
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
-use super::spell_information::SpellInformation;
+use super::spell_information::{SpellInformation, SpellInformationItem};
 
 #[derive(Component)]
 struct InventoryItemSlot(usize);
@@ -94,10 +94,6 @@ fn update_inventory(
             let item = &player.inventory[slot.0];
             let slice: &'static str = match item {
                 None => "empty",
-                Some(InventoryItem::Wand(wand)) => {
-                    let props = wand_to_props(*wand);
-                    props.slice
-                }
                 Some(InventoryItem::Spell(spell)) => {
                     let props = spell_to_props(*spell);
                     props.icon
@@ -154,12 +150,12 @@ fn interaction(
                             None => {
                                 *floating = InventoryItemFloating(None);
                             }
-                            Some(mut wand) => {
+                            Some(ref mut wand) => {
                                 let spell = wand.slots[spell_index];
                                 player.inventory[slot.0] =
                                     spell.and_then(|s| Some(InventoryItem::Spell(s)));
                                 wand.slots[spell_index] = None;
-                                actor.wands[wand_index] = Some(wand);
+                                actor.wands[wand_index] = Some(wand.clone());
                                 *floating = InventoryItemFloating(None);
                             }
                         },
@@ -171,8 +167,15 @@ fn interaction(
                 *color = Color::hsla(0.0, 0.0, 0.5, 0.95).into();
                 let mut spell_info = spell_info_query.single_mut();
                 if let Ok((player, _)) = player_query.get_single() {
-                    let item = player.inventory[slot.0];
-                    *spell_info = SpellInformation(item);
+                    match player.inventory[slot.0] {
+                        Some(InventoryItem::Spell(spell)) => {
+                            *spell_info =
+                                SpellInformation(Some(SpellInformationItem::Spell(spell)));
+                        }
+                        _ => {
+                            *spell_info = SpellInformation(None);
+                        }
+                    }
                 } else {
                     *spell_info = SpellInformation(None);
                 }

@@ -60,7 +60,6 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             spell_delay: 0,
-            spell_index: 0,
             mana: 1000,
             max_mana: 1000,
             life,
@@ -87,6 +86,7 @@ pub fn spawn_witch<T: Component>(
                         None,
                         None,
                     ],
+                    index: 0,
                 }),
                 Some(Wand {
                     wand_type: WandType::CypressWand,
@@ -100,6 +100,7 @@ pub fn spawn_witch<T: Component>(
                         None,
                         None,
                     ],
+                    index: 0,
                 }),
                 Some(Wand {
                     wand_type: WandType::KeyWand,
@@ -113,6 +114,7 @@ pub fn spawn_witch<T: Component>(
                         None,
                         None,
                     ],
+                    index: 0,
                 }),
                 None,
             ],

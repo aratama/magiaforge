@@ -7,11 +7,17 @@ use crate::{
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
     states::GameState,
+    wand::WandType,
     wand_props::wand_to_props,
 };
 
+pub enum SpellInformationItem {
+    Spell(SpellType),
+    Wand(WandType),
+}
+
 #[derive(Component)]
-pub struct SpellInformation(pub Option<InventoryItem>);
+pub struct SpellInformation(pub Option<SpellInformationItem>);
 
 #[derive(Component)]
 struct SpellIcon;
@@ -104,11 +110,11 @@ fn update_spell_icon(
     let mut slice = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
-        SpellInformation(Some(InventoryItem::Spell(spell))) => {
+        SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
             let props = spell_to_props(*spell);
             *slice = AsepriteSlice::new(props.icon);
         }
-        SpellInformation(Some(InventoryItem::Wand(wand))) => {
+        SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
             *slice = AsepriteSlice::new(props.slice);
         }
@@ -125,11 +131,11 @@ fn update_spell_name(
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
-        SpellInformation(Some(InventoryItem::Spell(spell))) => {
+        SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
             let props = spell_to_props(*spell);
             text.sections[0].value = props.name.to_string();
         }
-        SpellInformation(Some(InventoryItem::Wand(wand))) => {
+        SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
             text.sections[0].value = props.name.to_string();
         }
@@ -146,7 +152,7 @@ fn update_spell_description(
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
-        SpellInformation(Some(InventoryItem::Spell(spell))) => {
+        SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
             let props = spell_to_props(*spell);
             let appendix = get_spell_appendix(props.cast);
             text.sections[0].value = format!(
@@ -155,7 +161,7 @@ fn update_spell_description(
             )
             .to_string();
         }
-        SpellInformation(Some(InventoryItem::Wand(wand))) => {
+        SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
             text.sections[0].value = props.description.to_string();
         }

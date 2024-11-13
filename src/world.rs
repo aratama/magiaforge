@@ -159,9 +159,6 @@ fn spawn_level(
     inventory[11] = Some(InventoryItem::Spell(SpellType::DualCast));
     inventory[12] = Some(InventoryItem::Spell(SpellType::TripleCast));
 
-    inventory[16] = Some(InventoryItem::Wand(WandType::CypressWand));
-    inventory[24] = Some(InventoryItem::Wand(WandType::KeyWand));
-
     let life = 150;
     let max_life = 150;
     spawn_witch(
