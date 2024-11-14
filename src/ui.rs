@@ -2,6 +2,7 @@ pub mod bar;
 pub mod floating;
 pub mod hover_color;
 pub mod inventory;
+pub mod label;
 pub mod menu_button;
 pub mod on_press;
 pub mod pause_menu;

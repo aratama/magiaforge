@@ -32,7 +32,7 @@ pub fn spawn_spell_entity(
     let props = spell_to_props(spell);
     commands
         .spawn((
-            Name::new(format!("spell {}", props.name)),
+            Name::new(format!("spell {}", props.name.en)),
             StateScoped(GameState::InGame),
             SpellEntity {
                 spell,

@@ -34,6 +34,8 @@ use crate::ui::bar::StatusBarPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
+use crate::ui::label::LabelPlugin;
+use crate::ui::menu_button::MenuButtonPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::pause_menu::GameMenuPlugin;
 use crate::ui::player_list::PlayerListPlugin;
@@ -172,9 +174,11 @@ pub fn run_game() {
         .add_plugins(HudPlugin)
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
+        .add_plugins(LabelPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(MagicCirclePlugin)
         .add_plugins(MainMenuPlugin)
+        .add_plugins(MenuButtonPlugin)
         .add_plugins(NameInputPagePlugin)
         .add_plugins(OnPressPlugin)
         .add_plugins(OverlayPlugin)

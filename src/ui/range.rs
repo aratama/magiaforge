@@ -1,16 +1,19 @@
+use crate::language::Dict;
 use crate::ui::menu_button::menu_button;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 
+use super::label::spawn_label;
+
 pub fn spawn_range<T: Component>(
     child_builder: &mut ChildBuilder,
     assets: &Res<GameAssets>,
     marker: T,
-    label: &str,
     value: u32,
     up: SystemId,
     down: SystemId,
+    label: Dict,
 ) {
     child_builder
         .spawn((
@@ -30,16 +33,18 @@ pub fn spawn_range<T: Component>(
             },
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                label,
-                TextStyle {
-                    font_size: 40.0,
-                    font: assets.dotgothic.clone(),
-                    color: Color::srgba(0.9, 0.9, 0.9, 0.4),
-                    ..default()
+            spawn_label(parent, assets, label);
+
+            menu_button(
+                parent,
+                &assets,
+                down,
+                40.0,
+                40.0,
+                Dict {
+                    ja: "▼", en: "▼"
                 },
-            ));
-            menu_button(parent, &assets, down, "▼", 40.0, 40.0);
+            );
             parent.spawn((
                 marker,
                 TextBundle::from_section(
@@ -52,6 +57,15 @@ pub fn spawn_range<T: Component>(
                     },
                 ),
             ));
-            menu_button(parent, &assets, up, "▲", 40.0, 40.0);
+            menu_button(
+                parent,
+                &assets,
+                up,
+                40.0,
+                40.0,
+                Dict {
+                    ja: "▲", en: "▲"
+                },
+            );
         });
 }

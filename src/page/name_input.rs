@@ -1,5 +1,6 @@
 use crate::command::GameCommand;
 use crate::config::GameConfig;
+use crate::language::Dict;
 use crate::ui::menu_button::menu_button;
 use crate::{
     asset::GameAssets,
@@ -124,7 +125,17 @@ fn setup(
                                     .with_value(config.player_name.clone()),
                             ));
 
-                            menu_button(parent, &assets, shots.start, "Start", 160.0, 60.0);
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.start,
+                                160.0,
+                                60.0,
+                                Dict {
+                                    ja: "スタート",
+                                    en: "Start",
+                                },
+                            );
                         });
                 });
         });

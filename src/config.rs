@@ -1,3 +1,4 @@
+use crate::language::*;
 use bevy::prelude::*;
 use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
@@ -8,6 +9,7 @@ pub struct GameConfig {
     pub bgm_volume: f32,
     pub se_volume: f32,
     pub player_name: String,
+    pub language: Languages,
 }
 
 impl Default for GameConfig {
@@ -17,6 +19,7 @@ impl Default for GameConfig {
             bgm_volume: 0.0,
             se_volume: 0.8,
             player_name: "".to_string(),
+            language: Languages::Ja,
         }
     }
 }

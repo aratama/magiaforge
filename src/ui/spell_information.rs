@@ -3,6 +3,7 @@ use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
 use crate::{
     asset::GameAssets,
+    config::GameConfig,
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
     states::GameState,
@@ -126,13 +127,14 @@ fn update_spell_icon(
 fn update_spell_name(
     mut query: Query<&mut Text, With<SpellName>>,
     spell_info: Query<&SpellInformation>,
+    config: Res<GameConfig>,
 ) {
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
         SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
             let props = spell_to_props(*spell);
-            text.sections[0].value = props.name.to_string();
+            text.sections[0].value = props.name.get(config.language).to_string();
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
@@ -147,6 +149,7 @@ fn update_spell_name(
 fn update_spell_description(
     mut query: Query<&mut Text, With<SpellDescription>>,
     spell_info: Query<&SpellInformation>,
+    config: Res<GameConfig>,
 ) {
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
@@ -156,7 +159,10 @@ fn update_spell_description(
             let appendix = get_spell_appendix(props.cast);
             text.sections[0].value = format!(
                 "{}\nマナ消費:{}\n詠唱遅延:{}\n{}",
-                props.description, props.mana_drain, props.cast_delay, appendix
+                props.description.get(config.language),
+                props.mana_drain,
+                props.cast_delay,
+                appendix
             )
             .to_string();
         }

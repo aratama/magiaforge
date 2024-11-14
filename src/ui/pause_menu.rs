@@ -2,6 +2,7 @@ use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
 use crate::input::MyGamepad;
+use crate::language::{Dict, Languages};
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
@@ -12,6 +13,8 @@ use bevy::prelude::*;
 use bevy_rapier2d::plugin::{PhysicsSet, RapierConfiguration};
 use bevy_simple_websocket::ClientMessage;
 
+use super::label::spawn_label;
+
 #[derive(Resource)]
 struct ButtonShots {
     close: SystemId,
@@ -20,11 +23,19 @@ struct ButtonShots {
     bgm_volume_down: SystemId,
     se_volume_up: SystemId,
     se_volume_down: SystemId,
+    ja: SystemId,
+    en: SystemId,
     wait: i32,
 }
 
 #[derive(Component)]
 struct PauseMenuRoot;
+
+#[derive(Component)]
+struct BGMVolumeLabel;
+
+#[derive(Component)]
+struct SEVolumeLabel;
 
 impl FromWorld for ButtonShots {
     fn from_world(world: &mut World) -> Self {
@@ -35,6 +46,8 @@ impl FromWorld for ButtonShots {
             bgm_volume_down: world.register_system(volume_down),
             se_volume_up: world.register_system(se_volume_up),
             se_volume_down: world.register_system(se_volume_down),
+            ja: world.register_system(ja),
+            en: world.register_system(en),
             wait: 0,
         }
     }
@@ -78,6 +91,16 @@ fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameComm
 
 fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume - 0.1).max(0.0);
+    writer.send(GameCommand::SEKettei(None));
+}
+
+fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+    config.language = Languages::Ja;
+    writer.send(GameCommand::SEKettei(None));
+}
+
+fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+    config.language = Languages::En;
     writer.send(GameCommand::SEKettei(None));
 }
 
@@ -126,37 +149,92 @@ fn setup_game_menu(
                     ..default()
                 })
                 .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(
-                        "Paused".to_string(),
-                        TextStyle {
-                            font_size: 40.0,
-                            font: assets.dotgothic.clone(),
-                            color: Color::srgba(0.9, 0.9, 0.9, 0.4),
-                            ..default()
+                    spawn_label(
+                        parent,
+                        &assets,
+                        Dict {
+                            ja: "ポーズ中",
+                            en: "Paused",
                         },
-                    ));
+                    );
+
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                column_gap: Val::Px(4.0),
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            spawn_label(
+                                parent,
+                                &assets,
+                                Dict {
+                                    ja: "言語/Language",
+                                    en: "言語/Language",
+                                },
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.ja,
+                                120.0,
+                                40.0,
+                                Dict {
+                                    ja: "日本語",
+                                    en: "日本語",
+                                },
+                            );
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.en,
+                                80.0,
+                                40.0,
+                                Dict { ja: "En", en: "En" },
+                            );
+                        });
 
                     spawn_range(
                         parent,
                         &assets,
                         BGMVolumeLabel,
-                        "BGM Volume",
                         (10.0 * config.bgm_volume).round() as u32,
                         shots.bgm_volume_up,
                         shots.bgm_volume_down,
+                        Dict {
+                            ja: "BGM音量",
+                            en: "BGM Volume",
+                        },
                     );
 
                     spawn_range(
                         parent,
                         &assets,
                         SEVolumeLabel,
-                        "SFX Volume",
                         (10.0 * config.se_volume).round() as u32,
                         shots.se_volume_up,
                         shots.se_volume_down,
+                        Dict {
+                            ja: "効果音量",
+                            en: "SFX Volume",
+                        },
                     );
 
-                    menu_button(parent, &assets, shots.close, "Resume", 280.0, 60.0);
+                    menu_button(
+                        parent,
+                        &assets,
+                        shots.close,
+                        280.0,
+                        60.0,
+                        Dict {
+                            ja: "再開",
+                            en: "Resume",
+                        },
+                    );
 
                     parent.spawn(NodeBundle {
                         style: Style {
@@ -167,7 +245,17 @@ fn setup_game_menu(
                         ..default()
                     });
 
-                    menu_button(parent, &assets, shots.exit, "Quit", 280.0, 60.0);
+                    menu_button(
+                        parent,
+                        &assets,
+                        shots.exit,
+                        280.0,
+                        60.0,
+                        Dict {
+                            ja: "タイトルに戻る",
+                            en: "Return to Title",
+                        },
+                    );
                 });
         });
 }
@@ -233,9 +321,6 @@ fn switch_physics_activation(
     }
 }
 
-#[derive(Component)]
-struct BGMVolumeLabel;
-
 fn update_bgm_volume_label(
     config: Res<GameConfig>,
     mut query: Query<&mut Text, With<BGMVolumeLabel>>,
@@ -244,9 +329,6 @@ fn update_bgm_volume_label(
         text.sections[0].value = format!("{}", (10.0 * config.bgm_volume).round() as u32);
     }
 }
-
-#[derive(Component)]
-struct SEVolumeLabel;
 
 fn update_se_volume_label(
     config: Res<GameConfig>,

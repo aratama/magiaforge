@@ -17,6 +17,7 @@ mod hud;
 mod input;
 mod interaction_sensor;
 mod inventory_item;
+mod language;
 mod page;
 mod set;
 mod spell;
