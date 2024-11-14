@@ -28,7 +28,6 @@ pub enum GameCommand {
     BGMArechi,
     BGMDokutsu,
     StateMainMenu,
-    StateNameInput,
     StateInGame,
     StateWarp,
 }
@@ -177,9 +176,6 @@ fn process_game_commands(
             }
             GameCommand::StateMainMenu => {
                 overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
-            }
-            GameCommand::StateNameInput => {
-                overlay_event_writer.send(OverlayEvent::Close(GameState::NameInput));
             }
             GameCommand::StateInGame => {
                 overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
