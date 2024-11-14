@@ -68,8 +68,6 @@ fn setup_world(
 ) {
     info!("setup_world {:?}", next);
 
-    writer.send(GameCommand::BGMDokutsu);
-
     let level_slice = match *next {
         NextLevel::None => "level0",
         NextLevel::Level(level) => &format!("level{}", level % LEVELS),
@@ -81,6 +79,12 @@ fn setup_world(
         NextLevel::Level(level) => Some(level % LEVELS),
         NextLevel::MultiPlayArena => None,
     };
+
+    writer.send(match *next {
+        NextLevel::None => GameCommand::BGMDokutsu,
+        NextLevel::Level(0) => GameCommand::BGMDokutsu,
+        _ => GameCommand::BGMArechi,
+    });
 
     spawn_level(
         commands,

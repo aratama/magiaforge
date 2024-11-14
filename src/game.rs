@@ -16,6 +16,7 @@ use crate::entity::bullet::BulletPlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
+use crate::entity::spell::SpellEntityPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
@@ -185,6 +186,7 @@ pub fn run_game() {
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(SlimeControlPlugin)
         .add_plugins(SpellInformationPlugin)
+        .add_plugins(SpellEntityPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(WallPlugin)

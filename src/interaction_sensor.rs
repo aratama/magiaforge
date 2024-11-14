@@ -1,4 +1,5 @@
 use crate::{
+    command::GameCommand,
     constant::{ENTITY_GROUP, PLAYER_INTERACTION_SENSOR_GROUP},
     controller::player::Player,
     entity::{actor::Actor, spell::SpellEntity, witch::Witch},
@@ -55,13 +56,10 @@ fn interaction(
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, _) => {
-                info!("CollisionEvent::Started");
-
                 let _ = process_started_event(&mut sensor_query, &spell_entity_query, a, b)
                     || process_started_event(&mut sensor_query, &spell_entity_query, b, a);
             }
             CollisionEvent::Stopped(a, b, _) => {
-                info!("CollisionEvent::Stopped");
                 let _ = process_stopped_event(&mut sensor_query, &spell_entity_query, a, b)
                     || process_stopped_event(&mut sensor_query, &spell_entity_query, b, a);
             }
@@ -77,7 +75,6 @@ fn process_started_event(
 ) -> bool {
     match (sensor_query.get_mut(*a), spell_entity_query.get(*b)) {
         (Ok(mut sensor), Ok((spell_entity, _))) => {
-            println!("spell_entity: {:?}", spell_entity);
             sensor.entities.insert(spell_entity);
             true
         }
@@ -100,21 +97,62 @@ fn process_stopped_event(
     }
 }
 
+// インタラクションセンサーで発見されているエンティティのうち、
+// プレイヤーに最も近いものに対してインタラクションマーカーを表示します
+fn update_interaction_marker_visible(
+    player_query: Query<&Transform, With<Player>>,
+    interaction_sensor_query: Query<&InteractionSensor>,
+    mut spell_query: Query<(Entity, &Transform, &mut SpellEntity)>,
+) {
+    // ひとまず全てのマーカーを非表示にする
+    for (_, _, mut spell) in spell_query.iter_mut() {
+        spell.interaction_marker = false;
+    }
+
+    // プレイヤーに最も近いスペルエンティティに対してマーカーを表示する
+    if let Ok(sensor) = interaction_sensor_query.get_single() {
+        if let Ok(player) = player_query.get_single() {
+            // センサーに含まれるすべてのエンティティを抽出
+            let mut spells = Vec::new();
+            for entity in sensor.entities.iter() {
+                if let Ok((spell, transform, _)) = spell_query.get(*entity) {
+                    spells.push((spell, transform));
+                }
+            }
+
+            // ソートしてプレイヤーに最も近いエンティティを取得
+            spells.sort_by(|(_, a), (_, b)| {
+                let a = a.translation.distance(player.translation);
+                let b = b.translation.distance(player.translation);
+                a.total_cmp(&b)
+            });
+
+            if let Some((nearest, _)) = spells.first() {
+                if let Ok((_, _, mut spell)) = spell_query.get_mut(*nearest) {
+                    spell.interaction_marker = true;
+                }
+            }
+        }
+    }
+}
+
 fn pick_up(
     mut sensor_query: Query<&InteractionSensor>,
     mut player_query: Query<&mut Player>,
     spell_query: Query<&SpellEntity>,
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
+    mut global: EventWriter<GameCommand>,
 ) {
     if keys.just_pressed(KeyCode::KeyE) {
         let sensor = sensor_query.single_mut();
         if let Ok(mut player) = player_query.get_single_mut() {
             for entity in &sensor.entities {
-                if let Ok(SpellEntity(spell)) = spell_query.get(*entity) {
+                if let Ok(SpellEntity { spell, .. }) = spell_query.get(*entity) {
                     if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
                         player.inventory[index] = Some(InventoryItem::Spell(*spell));
                         commands.entity(*entity).despawn_recursive();
+                        global.send(GameCommand::SECancel(None));
 
                         // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
                         // ここで削除する必要はない
@@ -136,7 +174,11 @@ impl Plugin for EntityPickerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_interaction_sensor_transform,).run_if(in_state(GameState::InGame)),
+            (
+                update_interaction_sensor_transform,
+                update_interaction_marker_visible,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
         app.add_systems(
             FixedUpdate,
