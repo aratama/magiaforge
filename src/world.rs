@@ -24,7 +24,6 @@ use crate::inventory_item::Inventory;
 use crate::inventory_item::InventoryItem;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::WandType;
 use crate::world::ceil::spawn_roof_tiles;
 use crate::world::map::image_to_tilemap;
 use crate::world::map::LevelTileMap;
@@ -187,6 +186,7 @@ fn spawn_level(
         false,
         3.0,
         &audio,
+        true,
     );
 
     if 20 < empties.len() {

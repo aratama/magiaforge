@@ -4,6 +4,7 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use crate::interaction_sensor::spawn_interaction_sensor;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
@@ -45,6 +46,8 @@ pub fn spawn_witch<T: Component>(
 
     // 足音のオーディオインスタンス
     footstep_audio: &Res<Audio>,
+
+    interaction: bool,
 ) {
     let audio_instance = footstep_audio
         .play(assets.taiikukan.clone())
@@ -155,7 +158,11 @@ pub fn spawn_witch<T: Component>(
         Footsteps(audio_instance),
     ));
 
-    entity.with_children(move |spawn_children| {
+    entity.with_children(move |mut spawn_children| {
+        if interaction {
+            spawn_interaction_sensor(&mut spawn_children);
+        }
+
         spawn_children.spawn((
             BreakableSprite,
             AsepriteAnimationBundle {

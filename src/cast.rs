@@ -1,7 +1,6 @@
 use crate::{
     asset::GameAssets,
     command::GameCommand,
-    constant::MAX_SPELLS_IN_WAND,
     entity::{
         actor::Actor,
         bullet::{spawn_bullets, SpawnBulletProps, BULLET_SPAWNING_MARGIN},
@@ -9,8 +8,6 @@ use crate::{
     },
     spell::SpellType,
     spell_props::{spell_to_props, SpellCast},
-    wand::Wand,
-    wand_props::wand_to_props,
 };
 use bevy::prelude::*;
 use bevy_simple_websocket::ClientMessage;
@@ -29,8 +26,6 @@ pub fn cast_spell(
     online: bool,
 ) -> i32 {
     if let Some(ref mut wand) = &mut actor.wands[actor.current_wand] {
-        let props = wand_to_props(wand.wand_type);
-
         if 0 < actor.spell_delay {
             return 0;
         }

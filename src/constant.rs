@@ -55,6 +55,8 @@ pub const CAMERA_SPEED: f32 = 0.1;
 
 pub const ENTITY_GROUP: Group = Group::GROUP_1;
 
+pub const PLAYER_INTERACTION_SENSOR_GROUP: Group = Group::GROUP_2;
+
 pub const WALL_GROUP: Group = Group::GROUP_3;
 
 /// プレイヤーキャラクターのグループ

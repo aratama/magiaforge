@@ -3,7 +3,6 @@ use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
 use crate::{
     asset::GameAssets,
-    inventory_item::InventoryItem,
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
     states::GameState,

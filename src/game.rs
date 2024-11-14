@@ -24,6 +24,7 @@ use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GamepadPlugin;
+use crate::interaction_sensor::EntityPickerPlugin;
 use crate::page::config::ConfigPagePlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
@@ -160,6 +161,7 @@ pub fn run_game() {
         .add_plugins(ChestPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
+        .add_plugins(EntityPickerPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GameCommandPlugin)

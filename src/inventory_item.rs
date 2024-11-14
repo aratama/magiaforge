@@ -1,4 +1,4 @@
-use crate::{constant::MAX_ITEMS_IN_INVENTORY, spell::SpellType, wand::WandType};
+use crate::{constant::MAX_ITEMS_IN_INVENTORY, spell::SpellType};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InventoryItem {

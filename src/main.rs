@@ -15,6 +15,7 @@ mod entity;
 mod game;
 mod hud;
 mod input;
+mod interaction_sensor;
 mod inventory_item;
 mod page;
 mod set;

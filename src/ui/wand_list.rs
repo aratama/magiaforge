@@ -1,6 +1,6 @@
 use super::{
-    floating::{self, InventoryItemFloating, InventoryItemFloatingContent},
-    spell_information::{self, SpellInformation, SpellInformationItem},
+    floating::{InventoryItemFloating, InventoryItemFloatingContent},
+    spell_information::{SpellInformation, SpellInformationItem},
 };
 use crate::{
     asset::GameAssets,
@@ -14,7 +14,6 @@ use crate::{
 };
 use bevy::{
     prelude::*,
-    render::view::visibility,
     ui::{Display, Style},
 };
 use bevy_aseprite_ultra::prelude::*;
@@ -364,7 +363,7 @@ fn interaction_spell_sprite(
                                 }
                             }
                         }
-                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {}
+                        Some(InventoryItemFloatingContent::Wand(_)) => {}
                         None => {
                             if let Some(_) = actor.get_spell(slot.wand_index, slot.spell_index) {
                                 *floating = InventoryItemFloating(Some(
@@ -409,7 +408,7 @@ fn update_spell_sprite_background(
 
 fn interact_wand_sprite(
     mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
-    mut player_query: Query<(&mut Player, &mut Actor)>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut floating_query: Query<&mut InventoryItemFloating>,
     state: Res<State<GameMenuState>>,
 ) {
@@ -420,14 +419,11 @@ fn interact_wand_sprite(
     for (slot, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
+                if let Ok(mut actor) = player_query.get_single_mut() {
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
-                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {}
-                        Some(InventoryItemFloatingContent::WandSpell {
-                            wand_index,
-                            spell_index,
-                        }) => {}
+                        Some(InventoryItemFloatingContent::InventoryItem(_)) => {}
+                        Some(InventoryItemFloatingContent::WandSpell { .. }) => {}
                         Some(InventoryItemFloatingContent::Wand(wand_index)) => {
                             if wand_index == slot.wand_index {
                                 *floating = InventoryItemFloating(None);

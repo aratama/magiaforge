@@ -259,6 +259,7 @@ fn receive_events(
                                 true,
                                 3.0,
                                 &audio,
+                                false,
                             );
                             info!("Remote player spawned: {}", uuid);
                         }
