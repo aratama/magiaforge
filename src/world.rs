@@ -13,6 +13,7 @@ use crate::enemy::slime::spawn_slime;
 use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
+use crate::entity::chest::ChestType;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::spell::spawn_spell_entity;
@@ -333,6 +334,16 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     assets.atlas.clone(),
                     tx + TILE_HALF,
                     ty - TILE_HALF,
+                    ChestType::Chest,
+                );
+            }
+            GameEntity::Crate => {
+                spawn_chest(
+                    &mut commands,
+                    assets.atlas.clone(),
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    ChestType::Crate,
                 );
             }
             GameEntity::MagicCircle => {

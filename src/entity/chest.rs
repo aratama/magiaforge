@@ -13,14 +13,28 @@ const ENTITY_WIDTH: f32 = 8.0;
 
 const ENTITY_HEIGHT: f32 = 8.0;
 
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default)]
+pub enum ChestType {
+    #[default]
+    Chest,
+    Crate,
+}
+
 #[derive(Default, Component, Reflect)]
 struct Chest {
+    pub chest_type: ChestType,
     pub golds: i32,
 }
 
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
+pub fn spawn_chest(
+    commands: &mut Commands,
+    aseprite: Handle<Aseprite>,
+    x: f32,
+    y: f32,
+    chest_type: ChestType,
+) {
     let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
     let ty = y - ENTITY_HEIGHT + TILE_SIZE / 2.0;
     commands
@@ -31,7 +45,13 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
                 life: 30,
                 amplitude: 0.0,
             },
-            Chest { golds: 10 },
+            Chest {
+                chest_type,
+                golds: match chest_type {
+                    ChestType::Chest => 10,
+                    ChestType::Crate => 0,
+                },
+            },
             EntityDepth,
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
@@ -47,7 +67,11 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
                 BreakableSprite,
                 AsepriteSliceBundle {
                     aseprite: aseprite,
-                    slice: "chest".into(),
+                    slice: match chest_type {
+                        ChestType::Chest => "chest",
+                        ChestType::Crate => "crate",
+                    }
+                    .into(),
                     ..default()
                 },
             ));
@@ -56,24 +80,26 @@ pub fn spawn_chest(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, 
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(Entity, &Breakable, &Transform), With<Chest>>,
+    query: Query<(Entity, &Breakable, &Transform, &Chest)>,
     assets: Res<GameAssets>,
     mut writer: EventWriter<GameCommand>,
 ) {
-    for (entity, breakabke, transform) in query.iter() {
+    for (entity, breakabke, transform, chest) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
             writer.send(GameCommand::SEKuzureru(Some(
                 transform.translation.truncate(),
             )));
 
-            for _ in 0..(3 + random::<i32>().abs() % 10) {
-                spawn_gold(
-                    &mut commands,
-                    &assets,
-                    transform.translation.x,
-                    transform.translation.y,
-                );
+            if chest.chest_type == ChestType::Chest {
+                for _ in 0..(3 + random::<i32>().abs() % 10) {
+                    spawn_gold(
+                        &mut commands,
+                        &assets,
+                        transform.translation.x,
+                        transform.translation.y,
+                    );
+                }
             }
         }
     }
