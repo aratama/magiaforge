@@ -26,7 +26,6 @@ use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GamepadPlugin;
 use crate::interaction_sensor::EntityPickerPlugin;
-use crate::page::config::ConfigPagePlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
@@ -158,7 +157,6 @@ pub fn run_game() {
         .add_plugins(BreakablePlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(CameraPlugin)
-        .add_plugins(ConfigPagePlugin)
         .add_plugins(ChestPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)

@@ -13,17 +13,21 @@ pub enum GameState {
     #[default]
     Setup,
 
+    /// タイトル画面
     MainMenu,
 
-    Config,
-
-    NameInput,
-
+    /// 通常のプレイ画面
     InGame,
 
     /// 魔法陣でのワープ中を表すステート
     /// いったん画面上のエンティティをすべて削除するため、別ステートに切り替えています
+    /// また、オンラインの場合はすぐ次のレベルに行くのではなく名前入力画面に遷移しますが、
+    /// その場合の条件分岐もこのステートで行っています
     Warp,
+
+    // 名前入力画面
+    // 名前入力が完了したらオンラインアリーナのレベルへ移動します
+    NameInput,
 }
 
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
