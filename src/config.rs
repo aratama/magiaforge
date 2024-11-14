@@ -10,6 +10,7 @@ pub struct GameConfig {
     pub se_volume: f32,
     pub player_name: String,
     pub language: Languages,
+    pub fullscreen: bool,
 }
 
 impl Default for GameConfig {
@@ -20,6 +21,7 @@ impl Default for GameConfig {
             se_volume: 0.8,
             player_name: "".to_string(),
             language: Languages::Ja,
+            fullscreen: false,
         }
     }
 }

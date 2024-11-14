@@ -10,6 +10,7 @@ use crate::world::NextLevel;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
+use bevy::window::WindowMode;
 use bevy_rapier2d::plugin::{PhysicsSet, RapierConfiguration};
 use bevy_simple_websocket::ClientMessage;
 
@@ -25,6 +26,8 @@ struct ButtonShots {
     se_volume_down: SystemId,
     ja: SystemId,
     en: SystemId,
+    fullscreen_on: SystemId,
+    fullscreen_off: SystemId,
     wait: i32,
 }
 
@@ -48,6 +51,8 @@ impl FromWorld for ButtonShots {
             se_volume_down: world.register_system(se_volume_down),
             ja: world.register_system(ja),
             en: world.register_system(en),
+            fullscreen_on: world.register_system(fullscreen_on),
+            fullscreen_off: world.register_system(fullscreen_off),
             wait: 0,
         }
     }
@@ -102,6 +107,28 @@ fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
 fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.language = Languages::En;
     writer.send(GameCommand::SEKettei(None));
+}
+
+fn fullscreen_on(
+    mut config: ResMut<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
+    mut window_query: Query<&mut Window>,
+) {
+    let mut window = window_query.single_mut();
+    window.mode = WindowMode::SizedFullscreen;
+    writer.send(GameCommand::SEKettei(None));
+    config.fullscreen = true;
+}
+
+fn fullscreen_off(
+    mut config: ResMut<GameConfig>,
+    mut writer: EventWriter<GameCommand>,
+    mut window_query: Query<&mut Window>,
+) {
+    let mut window = window_query.single_mut();
+    window.mode = WindowMode::Windowed;
+    writer.send(GameCommand::SEKettei(None));
+    config.fullscreen = false;
 }
 
 fn setup_game_menu(
@@ -195,6 +222,50 @@ fn setup_game_menu(
                                 80.0,
                                 40.0,
                                 Dict { ja: "En", en: "En" },
+                            );
+                        });
+
+                    #[cfg(not(target_arch = "wasm32"))]
+                    parent
+                        .spawn(NodeBundle {
+                            style: Style {
+                                column_gap: Val::Px(4.0),
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            spawn_label(
+                                parent,
+                                &assets,
+                                Dict {
+                                    ja: "フルスクリーン",
+                                    en: "Full Screen",
+                                },
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.fullscreen_on,
+                                80.0,
+                                40.0,
+                                Dict {
+                                    ja: "オン",
+                                    en: "On",
+                                },
+                            );
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.fullscreen_off,
+                                80.0,
+                                40.0,
+                                Dict {
+                                    ja: "オフ",
+                                    en: "Off",
+                                },
                             );
                         });
 
