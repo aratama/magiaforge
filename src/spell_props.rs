@@ -45,7 +45,7 @@ pub struct SpellProps {
 
 const MAGIC_BOLT: SpellProps = SpellProps {
     name: "マジックボルト",
-    description: "魔力の塊を発射する、最も基本的な魔法です。",
+    description: "魔力の塊を発射する、最も基本的な攻撃魔法です。",
     mana_drain: 50,
     cast_delay: 10,
     icon: "bullet_magic_bolt",
@@ -64,9 +64,9 @@ const MAGIC_BOLT: SpellProps = SpellProps {
 };
 
 const PURPLE_BOLT: SpellProps = SpellProps {
-    name: "スライム弾",
+    name: "魔力の塊",
     description:
-        "紫色のエネルギー弾を発射します。動きは遅く威力も低いですが、少ない魔力でも発射できます。",
+        "紫色のエネルギー弾を発射します。動きは遅く威力も低いですが、少ない魔力で発射できます。",
     mana_drain: 10,
     cast_delay: 120,
     icon: "bullet_purple",
@@ -85,8 +85,8 @@ const PURPLE_BOLT: SpellProps = SpellProps {
 };
 
 const SLIME_CHARGE: SpellProps = SpellProps {
-    name: "スライムチャージ",
-    description: "ぷにぷにとした塊で殴りつけます。やわらかいのであまり痛くありませんが、相手を大きく吹き飛ばします。",
+    name: "スライムの塊",
+    description: "ぷにぷにとした塊で殴りつけます。痛くはありませんが、相手を大きく吹き飛ばします。",
     mana_drain: 200,
     cast_delay: 30,
     icon: "bullet_slime_charge",
@@ -95,7 +95,7 @@ const SLIME_CHARGE: SpellProps = SpellProps {
         collier_radius: 5.0,
         speed: 2.0,
         lifetime: 5,
-        damage: 10,
+        damage: 1,
         impulse: 40000.0,
         scattering: 0.0,
         light_intensity: 0.0,

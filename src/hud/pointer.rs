@@ -1,5 +1,4 @@
 use crate::constant::POINTER_Z_INDEX;
-use crate::states::GameMenuState;
 use crate::{asset::GameAssets, constant::TILE_SIZE, input::MyGamepad, states::GameState};
 use crate::{controller::player::Player, entity::actor::Actor};
 use bevy::{prelude::*, window::PrimaryWindow};
@@ -11,17 +10,7 @@ struct Pointer;
 fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
     commands.spawn((
         Pointer,
-        StateScoped(GameState::InGame),
         ImageBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(0.0),
-                left: Val::Px(0.0),
-                width: Val::Px(13.0 * 2.0),
-                height: Val::Px(13.0 * 2.0),
-
-                ..default()
-            },
             z_index: ZIndex::Global(POINTER_Z_INDEX),
             ..default()
         },
@@ -34,33 +23,30 @@ fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
 }
 
 fn update_pointer_image_by_angle(
-    player_query: Query<(&Actor, &GlobalTransform), With<Player>>,
     mut pointer_query: Query<&mut Style, With<Pointer>>,
-    camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
 ) {
-    if let Ok((player, player_transform)) = player_query.get_single() {
-        if let Ok(mut pointer_style) = pointer_query.get_single_mut() {
-            if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
-                let pointer_in_world = player_transform.translation().truncate() + player.pointer;
-
-                if let Some(pointer_in_screen) =
-                    camera.world_to_viewport(camera_global_transform, pointer_in_world.extend(0.0))
-                {
-                    // AsepriteSliceUiBundle に Aseprite のアンカーは効かないことに注意
-                    // スライスのサイズは 13ピクセルで、それを２倍に拡大してその半分だけずらして中央ぞろえするので -13
-                    pointer_style.left = Val::Px(pointer_in_screen.x - 13.0);
-                    pointer_style.top = Val::Px(pointer_in_screen.y - 13.0);
-                }
+    if let Ok(mut pointer_style) = pointer_query.get_single_mut() {
+        if let Ok(window) = q_window.get_single() {
+            if let Some(cursor_in_screen) = window.cursor_position() {
+                // AsepriteSliceUiBundle に Aseprite のアンカーは効かないことに注意
+                // スライスのサイズは 13ピクセルで、それを２倍に拡大してその半分だけずらして中央ぞろえするので -13
+                pointer_style.left = Val::Px((cursor_in_screen.x - 13.0).floor());
+                pointer_style.top = Val::Px((cursor_in_screen.y - 13.0).floor());
+                pointer_style.display = Display::default();
+            } else {
+                pointer_style.display = Display::None;
             }
         }
     }
 }
 
+/// マウスポインタの位置を参照してプレイヤーアクターのポインターを設定します
+/// この関数はプレイヤーのモジュールに移動する？
 fn update_pointer_by_mouse(
     mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    state: Res<State<GameMenuState>>,
 ) {
     if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
         if let Ok(window) = q_window.get_single() {
@@ -69,10 +55,8 @@ fn update_pointer_by_mouse(
                     if let Some(mouse_in_world) =
                         camera.viewport_to_world(camera_global_transform, cursor_in_screen)
                     {
-                        if *state.get() == GameMenuState::Closed {
-                            player.pointer = mouse_in_world.origin.truncate()
-                                - player_transform.translation().truncate();
-                        }
+                        player.pointer = mouse_in_world.origin.truncate()
+                            - player_transform.translation().truncate();
                     }
                 }
             }
@@ -112,7 +96,7 @@ pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::InGame), setup_pointer)
+        app.add_systems(OnExit(GameState::Setup), setup_pointer)
             .add_systems(
                 Update,
                 (
@@ -120,7 +104,9 @@ impl Plugin for PointerPlugin {
                     update_pointer_by_mouse,
                     update_pointer_by_gamepad,
                 )
-                    .run_if(in_state(GameState::InGame)),
+                    .run_if(in_state(GameState::InGame).or_else(
+                        in_state(GameState::MainMenu).or_else(in_state(GameState::NameInput)),
+                    )),
             );
     }
 }

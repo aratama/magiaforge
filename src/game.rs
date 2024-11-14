@@ -104,7 +104,7 @@ pub fn run_game() {
                     primary_window: Some(Window {
                         position: WindowPosition::Centered(MonitorSelection::Current),
                         cursor: Cursor {
-                            // visible: false,
+                            visible: false,
                             ..default()
                         },
                         title: "magiacircle 0.1".to_string(),
