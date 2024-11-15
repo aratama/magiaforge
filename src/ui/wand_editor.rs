@@ -1,5 +1,7 @@
 use super::{
-    command_button::command_button, floating::InventoryItemFloating, inventory::spawn_inventory,
+    command_button::{command_button, CommandButton},
+    floating::InventoryItemFloating,
+    inventory::spawn_inventory,
     spell_information::spawn_spell_information,
 };
 use crate::{
@@ -23,7 +25,12 @@ use bevy_rapier2d::plugin::PhysicsSet;
 struct WandEditorRoot;
 
 #[derive(Component)]
+struct SortButton;
+
+#[derive(Component)]
 struct ItemDropButton;
+
+const MENU_THEME_COLOR: Color = Color::hsla(63.0, 0.12, 0.5, 0.95);
 
 pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
     commands
@@ -43,7 +50,7 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: Color::hsla(0.0, 0.0, 0.5, 0.8).into(),
+                background_color: MENU_THEME_COLOR.into(),
                 z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
                 visibility: Visibility::Hidden,
                 ..default()
@@ -69,18 +76,58 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                     spawn_spell_information(&mut parent, &assets);
                 });
 
-            command_button(
-                parent,
-                assets,
-                ItemDropButton,
-                280.0,
-                60.0,
-                Dict {
-                    ja: "アイテムを置く",
-                    en: "Drop Item",
-                },
-            );
+            parent
+                .spawn((
+                    StateScoped(GameState::InGame),
+                    NodeBundle {
+                        style: Style {
+                            display: Display::Flex,
+                            flex_direction: FlexDirection::Row,
+                            column_gap: Val::Px(8.0),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                ))
+                .with_children(|parent| {
+                    command_button(
+                        parent,
+                        assets,
+                        SortButton,
+                        280.0,
+                        60.0,
+                        false,
+                        Dict {
+                            ja: "整理",
+                            en: "Sort Items",
+                        },
+                    );
+
+                    command_button(
+                        parent,
+                        assets,
+                        ItemDropButton,
+                        280.0,
+                        60.0,
+                        true,
+                        Dict {
+                            ja: "アイテムを置く",
+                            en: "Drop Item",
+                        },
+                    );
+                });
         });
+}
+
+fn switch_item_drop_button_disabled(
+    floating_query: Query<&InventoryItemFloating, Changed<InventoryItemFloating>>,
+    mut query: Query<&mut CommandButton, With<ItemDropButton>>,
+) {
+    for InventoryItemFloating(floating) in floating_query.iter() {
+        if let Ok(mut button) = query.get_single_mut() {
+            button.disabled = floating.is_none();
+        }
+    }
 }
 
 fn handle_e_key(
@@ -196,7 +243,12 @@ impl Plugin for WandEditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (handle_e_key, apply_wand_editor_visible).run_if(in_state(GameState::InGame)),
+            (
+                handle_e_key,
+                apply_wand_editor_visible,
+                switch_item_drop_button_disabled,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
         app.add_systems(
             FixedUpdate,

@@ -4,6 +4,7 @@ use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 use crate::{
     asset::GameAssets,
     config::GameConfig,
+    language::Dict,
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
     states::GameState,
@@ -158,9 +159,19 @@ fn update_spell_description(
             let props = spell_to_props(*spell);
             let appendix = get_spell_appendix(props.cast);
             text.sections[0].value = format!(
-                "{}\nマナ消費:{}\n詠唱遅延:{}\n{}",
+                "{}\n{}:{}  {}:{}\n{}",
                 props.description.get(config.language),
+                (Dict {
+                    ja: "マナ消費",
+                    en: "Mana Drain",
+                })
+                .get(config.language),
                 props.mana_drain,
+                (Dict {
+                    ja: "詠唱遅延",
+                    en: "Cast Delay",
+                })
+                .get(config.language),
                 props.cast_delay,
                 appendix
             )

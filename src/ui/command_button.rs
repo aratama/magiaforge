@@ -6,12 +6,17 @@ use crate::ui::hover_color::HoverColor;
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct CommandButton;
+pub struct CommandButton {
+    pub text: Dict,
+    pub disabled: bool,
+}
 
 #[derive(Component)]
-struct MenuButtonText {
-    text: Dict,
-}
+struct MenuButtonText;
+
+const HOVERED: Color = Color::hsla(0.0, 0.0, 1.0, 0.1);
+const NONE: Color = Color::hsla(0.0, 0.0, 1.0, 0.05);
+const DISABLED: Color = Color::hsla(0.0, 0.0, 1.0, 0.01);
 
 pub fn command_button<'a, T: Component>(
     parent: &mut ChildBuilder,
@@ -19,16 +24,17 @@ pub fn command_button<'a, T: Component>(
     marker: T,
     w: f32,
     h: f32,
+    disabled: bool,
     text: Dict,
 ) {
-    let hovered = Color::hsla(0.0, 0.0, 1.0, 0.1).into();
-    let none = Color::hsla(0.0, 0.0, 1.0, 0.05).into();
-
     parent
         .spawn((
-            CommandButton,
+            CommandButton { text, disabled },
             marker,
-            HoverColor { hovered, none },
+            HoverColor {
+                hovered: if disabled { DISABLED } else { HOVERED },
+                none: if disabled { DISABLED } else { NONE },
+            },
             ButtonBundle {
                 style: Style {
                     width: Val::Px(w),
@@ -43,7 +49,7 @@ pub fn command_button<'a, T: Component>(
         ))
         .with_children(|parent| {
             parent.spawn((
-                MenuButtonText { text },
+                MenuButtonText,
                 TextBundle::from_section(
                     "".to_string(),
                     TextStyle {
@@ -57,11 +63,32 @@ pub fn command_button<'a, T: Component>(
         });
 }
 
-fn update_text(config: Res<GameConfig>, mut query: Query<(&mut Text, &MenuButtonText)>) {
+fn update_text(
+    config: Res<GameConfig>,
+    button_query: Query<&CommandButton>,
+    mut text_query: Query<(&Parent, &mut Text), With<MenuButtonText>>,
+) {
     if config.is_changed() {
-        for (mut text, label) in query.iter_mut() {
-            text.sections[0].value = label.text.get(config.language).to_string();
+        for (parent, mut text) in text_query.iter_mut() {
+            let button = button_query.get(parent.get()).unwrap();
+            text.sections[0].value = button.text.get(config.language).to_string();
         }
+    }
+}
+
+fn update_color(
+    mut button_query: Query<(&CommandButton, &mut HoverColor)>,
+    mut text_color: Query<(&Parent, &mut Text), With<MenuButtonText>>,
+) {
+    for (parent, mut text) in text_color.iter_mut() {
+        let (button, mut hover) = button_query.get_mut(parent.get()).unwrap();
+        text.sections[0].style.color = if button.disabled {
+            Color::hsla(0.0, 0.0, 1.0, 0.2)
+        } else {
+            Color::WHITE
+        };
+        hover.none = if button.disabled { DISABLED } else { NONE };
+        hover.hovered = if button.disabled { DISABLED } else { HOVERED };
     }
 }
 
@@ -78,7 +105,10 @@ pub struct CommandButtonPlugin;
 
 impl Plugin for CommandButtonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_text.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            Update,
+            (update_text, update_color).run_if(in_state(GameState::InGame)),
+        );
         app.add_systems(OnEnter(GameState::InGame), update_text_on_enter);
     }
 }

@@ -215,13 +215,13 @@ pub fn get_spell_appendix(cast: SpellCast) -> String {
             light_color_hlsa: _,
         } => {
             format!(
-                "大きさ:{}\nダメージ:{}\n射出速度:{}\n持続時間:{}\nノックバック:{}\n拡散:{}",
-                collier_radius,
+                "ダメージ:{}  ノックバック:{}\n射出速度:{}  持続時間:{}\n拡散:{}  大きさ:{}",
                 damage,
+                impulse * 0.001,
                 speed,
                 lifetime,
-                impulse * 0.001,
-                scattering
+                scattering,
+                collier_radius,
             )
         }
         SpellCast::Heal => {

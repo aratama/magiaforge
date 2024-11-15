@@ -18,21 +18,23 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
             StateScoped(GameState::InGame),
             NodeBundle {
                 style: Style {
+                    width: Val::Px(32.0 * 8.0),
+                    height: Val::Px(32.0 * 8.0),
                     // Make the height of the node fill its parent
-                    height: Val::Percent(100.0),
+                    // height: Val::Percent(100.0),
                     // Make the grid have a 1:1 aspect ratio meaning it will scale as an exact square
                     // As the height is set explicitly, this means the width will adjust to match the height
-                    aspect_ratio: Some(1.0),
+                    // aspect_ratio: Some(1.0),
                     // Use grid layout for this node
-                    display: Display::Grid,
+                    // display: Display::Grid,
                     // Add 24px of padding around the grid
-                    padding: UiRect::all(Val::Px(2.0)),
+                    // padding: UiRect::all(Val::Px(0.0)),
                     // Set the grid to have 4 columns all with sizes minmax(0, 1fr)
                     // This creates 4 exactly evenly sized columns
-                    grid_template_columns: RepeatedGridTrack::flex(8, 1.0),
+                    // grid_template_columns: RepeatedGridTrack::flex(8, 1.0),
                     // Set the grid to have 4 rows all with sizes minmax(0, 1fr)
                     // This creates 4 exactly evenly sized rows
-                    grid_template_rows: RepeatedGridTrack::flex(8, 1.0),
+                    // grid_template_rows: RepeatedGridTrack::flex(8, 1.0),
                     // Set a 12px gap/gutter between rows and columns
                     // row_gap: Val::Px(2.0),
                     // column_gap: Val::Px(2.0),
@@ -52,14 +54,13 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                         style: Style {
                             width: Val::Px(32.0),
                             height: Val::Px(32.0),
+                            // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
+                            // Absoluteでずれないようにする
+                            position_type: PositionType::Absolute,
+                            left: Val::Px((i % 8) as f32 * 32.0),
+                            top: Val::Px((i / 8) as f32 * 32.0),
                             ..default()
                         },
-                        // background_color: BackgroundColor(Color::hsla(
-                        //     0.0,
-                        //     0.0,
-                        //     0.5,
-                        //     if i % 2 == 0 { 0.8 } else { 0.8 },
-                        // )),
                         ..default()
                     },
                     AsepriteSliceUiBundle {
