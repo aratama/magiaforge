@@ -253,6 +253,7 @@ fn interaction_spell_sprite(
     mut player_query: Query<(&mut Player, &mut Actor)>,
     mut floating_query: Query<&mut InventoryItemFloating>,
     state: Res<State<GameMenuState>>,
+    mut spell_info_query: Query<&mut SpellInformation>,
 ) {
     if *state.get() != GameMenuState::WandEditOpen {
         return;
@@ -374,6 +375,20 @@ fn interaction_spell_sprite(
                                 ));
                             }
                         }
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                if let Ok((_, actor)) = player_query.get_single() {
+                    match actor.wands[slot.wand_index] {
+                        Some(ref wand) => {
+                            if let Some(spell) = wand.slots[slot.spell_index] {
+                                let mut spell_info = spell_info_query.single_mut();
+                                *spell_info =
+                                    SpellInformation(Some(SpellInformationItem::Spell(spell)));
+                            }
+                        }
+                        None => {}
                     }
                 }
             }

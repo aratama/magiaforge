@@ -98,8 +98,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                         60.0,
                         false,
                         Dict {
-                            ja: "整理",
-                            en: "Sort Items",
+                            ja: "並び替え",
+                            en: "Sort",
                         },
                     );
 
@@ -111,8 +111,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                         60.0,
                         true,
                         Dict {
-                            ja: "アイテムを置く",
-                            en: "Drop Item",
+                            ja: "置く",
+                            en: "Drop",
                         },
                     );
                 });

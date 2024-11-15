@@ -12,6 +12,8 @@ use crate::{
     wand_props::wand_to_props,
 };
 
+use super::floating::InventoryItemFloating;
+
 pub enum SpellInformationItem {
     Spell(SpellType),
     Wand(WandType),
@@ -107,7 +109,13 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
 fn update_spell_icon(
     mut query: Query<&mut AsepriteSlice, With<SpellIcon>>,
     spell_info: Query<&SpellInformation>,
+    floating_query: Query<&InventoryItemFloating>,
 ) {
+    let InventoryItemFloating(floating) = floating_query.single();
+    if floating.is_some() {
+        return;
+    }
+
     let mut slice = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
@@ -129,7 +137,13 @@ fn update_spell_name(
     mut query: Query<&mut Text, With<SpellName>>,
     spell_info: Query<&SpellInformation>,
     config: Res<GameConfig>,
+    floating_query: Query<&InventoryItemFloating>,
 ) {
+    let InventoryItemFloating(floating) = floating_query.single();
+    if floating.is_some() {
+        return;
+    }
+
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
@@ -151,7 +165,13 @@ fn update_spell_description(
     mut query: Query<&mut Text, With<SpellDescription>>,
     spell_info: Query<&SpellInformation>,
     config: Res<GameConfig>,
+    floating_query: Query<&InventoryItemFloating>,
 ) {
+    let InventoryItemFloating(floating) = floating_query.single();
+    if floating.is_some() {
+        return;
+    }
+
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
