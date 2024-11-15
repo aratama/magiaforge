@@ -379,13 +379,13 @@ fn switch_physics_activation(
 ) {
     if state.is_changed() {
         match *state.get() {
-            GameMenuState::Closed => {
-                rapier_state.physics_pipeline_active = true;
-                rapier_state.query_pipeline_active = true;
-            }
-            _ => {
+            GameMenuState::PauseMenuOpen => {
                 rapier_state.physics_pipeline_active = false;
                 rapier_state.query_pipeline_active = false;
+            }
+            _ => {
+                rapier_state.physics_pipeline_active = true;
+                rapier_state.query_pipeline_active = true;
             }
         }
     }
