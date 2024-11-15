@@ -102,7 +102,7 @@ pub fn spawn_bullet(
     writer: &mut EventWriter<GameCommand>,
     spawning: &SpawnBulletProps,
 ) {
-    writer.send(GameCommand::SESuburi(Some(spawning.position)));
+    writer.send(GameCommand::SEFire(Some(spawning.position)));
 
     let mut entity = commands.spawn((
         Name::new("bullet"),
@@ -257,7 +257,7 @@ fn process_bullet_event(
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position);
-                    writer.send(GameCommand::SEDageki(Some(bullet_position)));
+                    writer.send(GameCommand::SEDamage(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
                 trace!("bullet hit breakable: {:?}", b);
@@ -266,19 +266,19 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position);
-                writer.send(GameCommand::SEDageki(Some(bullet_position)));
+                writer.send(GameCommand::SEDamage(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position);
-                writer.send(GameCommand::SEAsphalt(Some(bullet_position)));
+                writer.send(GameCommand::SESteps(Some(bullet_position)));
             } else {
                 trace!("bullet hit unknown entity: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position);
-                writer.send(GameCommand::SEShibafu(Some(bullet_position)));
+                writer.send(GameCommand::SENoDamage(Some(bullet_position)));
             }
             true
         } else {

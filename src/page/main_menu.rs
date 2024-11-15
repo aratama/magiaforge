@@ -196,7 +196,7 @@ fn read_events(
                     *visibility = Visibility::Hidden;
                 }
                 menu_next_state.set(MainMenuPhase::Paused);
-                writer.send(GameCommand::SEKettei(None));
+                writer.send(GameCommand::SEClick(None));
                 writer.send(GameCommand::StateInGame);
                 writer.send(GameCommand::BGMNone);
             }

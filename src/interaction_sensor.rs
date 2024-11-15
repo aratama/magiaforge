@@ -152,7 +152,7 @@ fn pick_up(
                     if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
                         player.inventory[index] = Some(InventoryItem::Spell(*spell));
                         commands.entity(*entity).despawn_recursive();
-                        global.send(GameCommand::SECancel(None));
+                        global.send(GameCommand::SEPickUp(None));
 
                         // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
                         // ここで削除する必要はない

@@ -60,7 +60,7 @@ const MAGIC_BOLT: SpellProps = SpellProps {
         collier_radius: 5.0,
         speed: 100.0,
         lifetime: 240,
-        damage: 5,
+        damage: 8,
         impulse: 20000.0,
         scattering: 0.4,
         light_intensity: 1.0,
@@ -76,7 +76,7 @@ const PURPLE_BOLT: SpellProps = SpellProps {
     },
     description: Dict {
         ja:
-            "紫色のエネルギー弾を発射します。動きは遅く威力も低いですが、少ない魔力で発射できます。",
+            "邪悪な魔力を帯びた視線です。浴びせられると少し嫌な気持ちになります。",
         en: "Fires a slow-moving purple energy bolt. It is weak but consumes little mana.",
     },
     mana_drain: 10,
@@ -88,7 +88,7 @@ const PURPLE_BOLT: SpellProps = SpellProps {
         speed: 50.0,
         lifetime: 500,
         damage: 3,
-        impulse: 10000.0,
+        impulse: 0.0,
         scattering: 0.6,
         light_intensity: 0.0,
         light_radius: 0.0,

@@ -1,7 +1,12 @@
 use crate::{
-    asset::GameAssets, constant::WAND_EDITOR_FLOATING_Z_INDEX, controller::player::Player,
-    entity::actor::Actor, inventory_item::InventoryItem, spell_props::spell_to_props,
-    states::GameState, wand_props::wand_to_props,
+    asset::GameAssets,
+    constant::WAND_EDITOR_FLOATING_Z_INDEX,
+    controller::player::Player,
+    entity::actor::Actor,
+    inventory_item::InventoryItem,
+    spell_props::spell_to_props,
+    states::{GameMenuState, GameState},
+    wand_props::wand_to_props,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
@@ -132,6 +137,18 @@ fn switch_floating_slice(
     }
 }
 
+fn cancel_on_close(
+    state: Res<State<GameMenuState>>,
+    mut floating_query: Query<&mut InventoryItemFloating>,
+) {
+    if state.is_changed() {
+        if *state.get() == GameMenuState::Closed {
+            let mut floating = floating_query.single_mut();
+            *floating = InventoryItemFloating(None);
+        }
+    }
+}
+
 pub struct InventoryItemFloatingPlugin;
 
 impl Plugin for InventoryItemFloatingPlugin {
@@ -142,6 +159,7 @@ impl Plugin for InventoryItemFloatingPlugin {
                 update_inventory_floaing,
                 switch_floating_visibility,
                 switch_floating_slice,
+                cancel_on_close,
             )
                 .run_if(in_state(GameState::InGame)),
         );

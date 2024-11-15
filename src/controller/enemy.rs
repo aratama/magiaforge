@@ -22,7 +22,7 @@ fn dead_enemy(
     for (entity, enemy, transform) in query.iter_mut() {
         if enemy.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEHiyoko(Some(
+            writer.send(GameCommand::SECry(Some(
                 transform.translation.truncate(),
             )));
 

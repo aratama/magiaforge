@@ -96,7 +96,7 @@ fn switch_wand(
                 .min(MAX_WANDS as i32 - 1) as usize;
             if next != actor.current_wand {
                 actor.current_wand = next;
-                writer.send(GameCommand::SECursor2(None));
+                writer.send(GameCommand::SESwitch(None));
             }
         }
     }
@@ -124,7 +124,7 @@ fn pick_gold(
         }
 
         if got_gold {
-            writer.send(GameCommand::SECancel(Some(
+            writer.send(GameCommand::SEPickUp(Some(
                 player_transform.translation.truncate(),
             )));
         }
@@ -143,9 +143,7 @@ fn die_player(
         if actor.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
-            game.send(GameCommand::SEHiyoko(Some(
-                transform.translation.truncate(),
-            )));
+            game.send(GameCommand::SECry(Some(transform.translation.truncate())));
             game.send(GameCommand::StateMainMenu);
 
             for _ in 0..player.golds {

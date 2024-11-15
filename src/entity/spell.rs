@@ -1,6 +1,7 @@
 use crate::entity::EntityDepth;
 use crate::spell::SpellType;
 use crate::spell_props::spell_to_props;
+use crate::wand::WandType;
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -19,6 +20,11 @@ struct SpellSprites;
 
 #[derive(Component)]
 struct InteractionMarker;
+
+enum DroppedItemType {
+    Spell(SpellType),
+    Wand(WandType),
+}
 
 pub fn spawn_spell_entity(
     commands: &mut Commands,

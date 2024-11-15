@@ -111,7 +111,7 @@ pub fn cast_spell(
                     }
 
                     actor.life = (actor.life + 2).min(actor.max_life);
-                    se_writer.send(GameCommand::SEKaifuku(Some(
+                    se_writer.send(GameCommand::SEHeal(Some(
                         actor_transform.translation.truncate(),
                     )));
 

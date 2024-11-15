@@ -40,7 +40,7 @@ fn start_game(
     let q = query.single();
     config.player_name = q.0.clone();
 
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn setup(

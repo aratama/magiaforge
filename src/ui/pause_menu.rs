@@ -60,7 +60,7 @@ impl FromWorld for ButtonShots {
 
 fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<GameCommand>) {
     state.set(GameMenuState::PauseMenuClosing);
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn exit(
@@ -70,7 +70,7 @@ fn exit(
     mut websocket: EventWriter<ClientMessage>,
 ) {
     writer.send(GameCommand::StateMainMenu);
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
     *next = NextLevel::None;
 
     if config.online {
@@ -81,32 +81,32 @@ fn exit(
 
 fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.bgm_volume = (config.bgm_volume + 0.1).min(1.0);
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.bgm_volume = (config.bgm_volume - 0.1).max(0.0);
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume + 0.1).min(1.0);
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.se_volume = (config.se_volume - 0.1).max(0.0);
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.language = Languages::Ja;
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
     config.language = Languages::En;
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
 }
 
 fn fullscreen_on(
@@ -116,7 +116,7 @@ fn fullscreen_on(
 ) {
     let mut window = window_query.single_mut();
     window.mode = WindowMode::SizedFullscreen;
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
     config.fullscreen = true;
 }
 
@@ -127,7 +127,7 @@ fn fullscreen_off(
 ) {
     let mut window = window_query.single_mut();
     window.mode = WindowMode::Windowed;
-    writer.send(GameCommand::SEKettei(None));
+    writer.send(GameCommand::SEClick(None));
     config.fullscreen = false;
 }
 

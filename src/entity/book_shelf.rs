@@ -67,9 +67,7 @@ fn break_book_shelf(
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEKuzureru(Some(
-                transform.translation.truncate(),
-            )));
+            writer.send(GameCommand::SEBreak(Some(transform.translation.truncate())));
         }
     }
 }

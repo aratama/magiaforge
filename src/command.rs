@@ -11,18 +11,18 @@ use bevy_rapier2d::plugin::PhysicsSet;
 
 #[derive(Event, Clone, Copy, Debug)]
 pub enum GameCommand {
-    SEDageki(Option<Vec2>),
-    SEShibafu(Option<Vec2>),
-    SEHiyoko(Option<Vec2>),
-    SEKuzureru(Option<Vec2>),
-    SEKettei(Option<Vec2>),
-    SESuburi(Option<Vec2>),
-    SEAsphalt(Option<Vec2>),
-    SEMenuOpen(Option<Vec2>),
+    SEDamage(Option<Vec2>),
+    SENoDamage(Option<Vec2>),
+    SECry(Option<Vec2>),
+    SEBreak(Option<Vec2>),
+    SEClick(Option<Vec2>),
+    SEFire(Option<Vec2>),
+    SESteps(Option<Vec2>),
+    SETurnOn(Option<Vec2>),
     SEWarp(Option<Vec2>),
-    SECancel(Option<Vec2>),
-    SEKaifuku(Option<Vec2>),
-    SECursor2(Option<Vec2>),
+    SEPickUp(Option<Vec2>),
+    SEHeal(Option<Vec2>),
+    SESwitch(Option<Vec2>),
     BGMNone,
     BGMBoubaku,
     BGMArechi,
@@ -53,7 +53,7 @@ fn process_game_commands(
         // info!("commands: {:?}", event);
 
         match event {
-            GameCommand::SEDageki(position) => {
+            GameCommand::SEDamage(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -62,7 +62,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEShibafu(position) => {
+            GameCommand::SENoDamage(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -71,7 +71,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEHiyoko(position) => {
+            GameCommand::SECry(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -80,7 +80,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEKuzureru(position) => {
+            GameCommand::SEBreak(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -89,7 +89,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEKettei(position) => {
+            GameCommand::SEClick(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -98,7 +98,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SESuburi(position) => {
+            GameCommand::SEFire(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -107,7 +107,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEAsphalt(position) => {
+            GameCommand::SESteps(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -116,7 +116,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEMenuOpen(position) => {
+            GameCommand::SETurnOn(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -134,7 +134,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SECancel(position) => {
+            GameCommand::SEPickUp(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -143,7 +143,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SEKaifuku(position) => {
+            GameCommand::SEHeal(position) => {
                 play_se(
                     &audio,
                     &config,
@@ -152,7 +152,7 @@ fn process_game_commands(
                     camera_position,
                 );
             }
-            GameCommand::SECursor2(position) => {
+            GameCommand::SESwitch(position) => {
                 play_se(
                     &audio,
                     &config,

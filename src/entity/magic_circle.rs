@@ -116,7 +116,7 @@ fn power_on_circle(
                 if process_collision_start_event(a, b, &player_query, &mut circle_query)
                     || process_collision_start_event(b, a, &player_query, &mut circle_query)
                 {
-                    writer.send(GameCommand::SEMenuOpen(None));
+                    writer.send(GameCommand::SETurnOn(None));
                 }
             }
             CollisionEvent::Stopped(a, b, _) => {

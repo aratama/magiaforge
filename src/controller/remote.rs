@@ -324,9 +324,7 @@ fn receive_events(
                             .find(|(_, _, actor, _, _)| actor.uuid == uuid);
 
                         if let Some((entity, _, _, transform, _)) = target {
-                            writer.send(GameCommand::SEHiyoko(Some(
-                                transform.translation.truncate(),
-                            )));
+                            writer.send(GameCommand::SECry(Some(transform.translation.truncate())));
 
                             commands.entity(entity).despawn_recursive();
 

@@ -95,7 +95,7 @@ fn break_stone_lantern(
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEKuzureru(Some(
+            writer.send(GameCommand::SEBreak(Some(
                 transform.translation.truncate(),
             )));
         }

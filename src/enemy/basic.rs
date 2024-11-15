@@ -36,7 +36,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 spell_delay: 0,
                 mana: 1000,
                 max_mana: 1000,
-                life: 20,
+                life: 15,
                 max_life: 20,
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
