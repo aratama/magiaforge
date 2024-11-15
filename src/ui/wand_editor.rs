@@ -12,7 +12,7 @@ use crate::{
         actor::Actor,
         dropped_item::{spawn_dropped_item, DroppedItemType},
     },
-    inventory_item::InventoryItem,
+    inventory_item::{sort_inventory, InventoryItem},
     language::Dict,
     set::GameSet,
     states::{GameMenuState, GameState},
@@ -119,6 +119,25 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
         });
 }
 
+fn switch_sort_button_disabled(
+    floating_query: Query<&InventoryItemFloating>,
+    mut query: Query<&mut CommandButton, With<SortButton>>,
+    player_query: Query<&Player>,
+) {
+    let InventoryItemFloating(floating) = floating_query.single();
+    if let Ok(mut button) = query.get_single_mut() {
+        if floating.is_some() {
+            button.disabled = true;
+            return;
+        }
+        if let Ok(player) = player_query.get_single() {
+            let mut cloned = player.inventory.clone();
+            sort_inventory(&mut cloned);
+            button.disabled = cloned == player.inventory;
+        }
+    }
+}
+
 fn switch_item_drop_button_disabled(
     floating_query: Query<&InventoryItemFloating, Changed<InventoryItemFloating>>,
     mut query: Query<&mut CommandButton, With<ItemDropButton>>,
@@ -160,7 +179,7 @@ fn apply_wand_editor_visible(
     }
 }
 
-fn interact(
+fn item_drop_button_pressed(
     interaction_query: Query<&Interaction, (With<ItemDropButton>, Changed<Interaction>)>,
     mut floating_query: Query<&mut InventoryItemFloating>,
     mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
@@ -237,6 +256,22 @@ fn interact(
     }
 }
 
+fn sort_button_pressed(
+    interaction_query: Query<&Interaction, (With<SortButton>, Changed<Interaction>)>,
+    mut player_query: Query<&mut Player>,
+) {
+    if let Ok(mut player) = player_query.get_single_mut() {
+        for interaction in interaction_query.iter() {
+            match interaction {
+                Interaction::Pressed => {
+                    sort_inventory(&mut player.inventory);
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 pub struct WandEditorPlugin;
 
 impl Plugin for WandEditorPlugin {
@@ -247,12 +282,14 @@ impl Plugin for WandEditorPlugin {
                 handle_e_key,
                 apply_wand_editor_visible,
                 switch_item_drop_button_disabled,
+                sort_button_pressed,
+                switch_sort_button_disabled,
             )
                 .run_if(in_state(GameState::InGame)),
         );
         app.add_systems(
             FixedUpdate,
-            interact
+            item_drop_button_pressed
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),
