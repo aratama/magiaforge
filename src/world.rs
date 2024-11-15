@@ -14,9 +14,10 @@ use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestType;
+use crate::entity::dropped_item::spawn_dropped_item;
+use crate::entity::dropped_item::DroppedItemType;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
-use crate::entity::spell::spawn_spell_entity;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
@@ -25,6 +26,7 @@ use crate::inventory_item::Inventory;
 use crate::inventory_item::InventoryItem;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::wand::WandType;
 use crate::world::ceil::spawn_roof_tiles;
 use crate::world::map::image_to_tilemap;
 use crate::world::map::LevelTileMap;
@@ -400,12 +402,21 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 });
             }
             GameEntity::Spell => {
-                spawn_spell_entity(
+                spawn_dropped_item(
                     &mut commands,
                     &assets,
                     tx + TILE_HALF,
                     ty - TILE_HALF,
-                    SpellType::MagicBolt,
+                    DroppedItemType::Spell(SpellType::MagicBolt),
+                );
+            }
+            GameEntity::Wand => {
+                spawn_dropped_item(
+                    &mut commands,
+                    &assets,
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    DroppedItemType::Wand(WandType::CypressWand),
                 );
             }
         }

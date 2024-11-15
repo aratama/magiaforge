@@ -122,7 +122,7 @@ fn switch_floating_slice(
                 match &actor.wands[wand_index] {
                     Some(wand) => {
                         let props = wand_to_props(wand.wand_type);
-                        *floating_slice = props.slice.into();
+                        *floating_slice = props.icon.into();
                         style.width = Val::Px(64.0);
                     }
                     None => {

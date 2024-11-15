@@ -1,3 +1,4 @@
+use super::label::spawn_label;
 use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
@@ -13,8 +14,6 @@ use bevy::prelude::*;
 use bevy::window::WindowMode;
 use bevy_rapier2d::plugin::{PhysicsSet, RapierConfiguration};
 use bevy_simple_websocket::ClientMessage;
-
-use super::label::spawn_label;
 
 #[derive(Resource)]
 struct ButtonShots {

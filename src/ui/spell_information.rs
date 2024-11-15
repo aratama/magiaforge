@@ -138,7 +138,7 @@ fn update_spell_name(
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
-            text.sections[0].value = props.name.to_string();
+            text.sections[0].value = props.name.get(config.language).to_string();
         }
         _ => {
             text.sections[0].value = "".to_string();
@@ -168,7 +168,7 @@ fn update_spell_description(
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
-            text.sections[0].value = props.description.to_string();
+            text.sections[0].value = props.description.get(config.language).to_string();
         }
         _ => {
             text.sections[0].value = "".to_string();

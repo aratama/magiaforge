@@ -71,6 +71,8 @@ pub const ENEMY_BULLET_GROUP: Group = Group::GROUP_7;
 
 pub const MAGIC_CIRCLE_GROUP: Group = Group::GROUP_8;
 
+pub const DROPPED_ITEM_GROUP: Group = Group::GROUP_9;
+
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
 pub const PIXELS_PER_METER: f32 = 16.0;

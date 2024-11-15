@@ -1,11 +1,16 @@
 use crate::{
     command::GameCommand,
-    constant::{ENTITY_GROUP, PLAYER_INTERACTION_SENSOR_GROUP},
+    constant::{DROPPED_ITEM_GROUP, MAX_SPELLS_IN_WAND, PLAYER_INTERACTION_SENSOR_GROUP},
     controller::player::Player,
-    entity::{actor::Actor, spell::SpellEntity, witch::Witch},
+    entity::{
+        actor::Actor,
+        dropped_item::{DroppedItemEntity, DroppedItemType},
+        witch::Witch,
+    },
     inventory_item::InventoryItem,
     set::GameSet,
     states::GameState,
+    wand::Wand,
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -28,7 +33,7 @@ pub fn spawn_interaction_sensor(builder: &mut ChildBuilder) {
         RigidBody::Fixed,
         Sensor,
         Collider::cuboid(8.0, 8.0),
-        CollisionGroups::new(PLAYER_INTERACTION_SENSOR_GROUP, ENTITY_GROUP),
+        CollisionGroups::new(PLAYER_INTERACTION_SENSOR_GROUP, DROPPED_ITEM_GROUP),
         ActiveEvents::COLLISION_EVENTS,
         ActiveCollisionTypes::STATIC_STATIC,
     ));
@@ -50,7 +55,7 @@ fn update_interaction_sensor_transform(
 
 fn interaction(
     mut sensor_query: Query<&mut InteractionSensor>,
-    spell_entity_query: Query<(Entity, &SpellEntity)>,
+    spell_entity_query: Query<(Entity, &DroppedItemEntity)>,
     mut collision_events: EventReader<CollisionEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -69,7 +74,7 @@ fn interaction(
 
 fn process_started_event(
     sensor_query: &mut Query<&mut InteractionSensor>,
-    spell_entity_query: &Query<(Entity, &SpellEntity)>,
+    spell_entity_query: &Query<(Entity, &DroppedItemEntity)>,
     a: &Entity,
     b: &Entity,
 ) -> bool {
@@ -84,7 +89,7 @@ fn process_started_event(
 
 fn process_stopped_event(
     sensor_query: &mut Query<&mut InteractionSensor>,
-    spell_entity_query: &Query<(Entity, &SpellEntity)>,
+    spell_entity_query: &Query<(Entity, &DroppedItemEntity)>,
     a: &Entity,
     b: &Entity,
 ) -> bool {
@@ -102,7 +107,7 @@ fn process_stopped_event(
 fn update_interaction_marker_visible(
     player_query: Query<&Transform, With<Player>>,
     interaction_sensor_query: Query<&InteractionSensor>,
-    mut spell_query: Query<(Entity, &Transform, &mut SpellEntity)>,
+    mut spell_query: Query<(Entity, &Transform, &mut DroppedItemEntity)>,
 ) {
     // ひとまず全てのマーカーを非表示にする
     for (_, _, mut spell) in spell_query.iter_mut() {
@@ -138,27 +143,47 @@ fn update_interaction_marker_visible(
 
 fn pick_up(
     mut sensor_query: Query<&InteractionSensor>,
-    mut player_query: Query<&mut Player>,
-    spell_query: Query<&SpellEntity>,
+    mut player_query: Query<(&mut Player, &mut Actor)>,
+    spell_query: Query<&DroppedItemEntity>,
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     mut global: EventWriter<GameCommand>,
 ) {
     if keys.just_pressed(KeyCode::KeyE) {
         let sensor = sensor_query.single_mut();
-        if let Ok(mut player) = player_query.get_single_mut() {
+        if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
             for entity in &sensor.entities {
-                if let Ok(SpellEntity { spell, .. }) = spell_query.get(*entity) {
-                    if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
-                        player.inventory[index] = Some(InventoryItem::Spell(*spell));
-                        commands.entity(*entity).despawn_recursive();
-                        global.send(GameCommand::SEPickUp(None));
+                if let Ok(DroppedItemEntity {
+                    item_type: item, ..
+                }) = spell_query.get(*entity)
+                {
+                    match item {
+                        DroppedItemType::Spell(spell) => {
+                            if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
+                                player.inventory[index] = Some(InventoryItem::Spell(*spell));
+                                commands.entity(*entity).despawn_recursive();
+                                global.send(GameCommand::SEPickUp(None));
 
-                        // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
-                        // ここで削除する必要はない
-                        // entities.remove(entity);
-                    } else {
-                        warn!("Inventory is full");
+                                // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
+                                // ここで削除する必要はない
+                                // entities.remove(entity);
+                            } else {
+                                warn!("Inventory is full");
+                            }
+                        }
+                        DroppedItemType::Wand(wand) => {
+                            if let Some(i) = actor.wands.iter().position(|w| w.is_none()) {
+                                actor.wands[i] = Some(Wand {
+                                    wand_type: *wand,
+                                    slots: [None; MAX_SPELLS_IN_WAND],
+                                    index: 0,
+                                });
+                                commands.entity(*entity).despawn_recursive();
+                                global.send(GameCommand::SEPickUp(None));
+                            } else {
+                                warn!("Wand is full");
+                            }
+                        }
                     }
                 } else {
                     warn!("SpellEntity not found");

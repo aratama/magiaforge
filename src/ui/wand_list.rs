@@ -177,7 +177,7 @@ fn update_wand_sprite(
                 _ => match &actor.wands[wand_sprite.wand_index] {
                     Some(wand) => {
                         let props = wand_to_props(wand.wand_type);
-                        AsepriteSlice::new(props.slice)
+                        AsepriteSlice::new(props.icon)
                     }
                     None => AsepriteSlice::new("empty"),
                 },

@@ -178,6 +178,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::Spell, x, y));
                 }
+                (0, 255, 0, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::Wand, x, y));
+                }
                 (102, 57, 49, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,

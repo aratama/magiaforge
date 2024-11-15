@@ -1,4 +1,5 @@
 pub mod bar;
+pub mod command_button;
 pub mod floating;
 pub mod hover_color;
 pub mod inventory;

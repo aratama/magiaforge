@@ -4,9 +4,9 @@ pub mod breakable;
 pub mod broken_magic_circle;
 pub mod bullet;
 pub mod chest;
+pub mod dropped_item;
 pub mod gold;
 pub mod magic_circle;
-pub mod spell;
 pub mod stone_lantern;
 pub mod witch;
 
@@ -30,6 +30,7 @@ pub enum GameEntity {
     Routes,
     StoneLantern,
     Spell,
+    Wand,
     Crate,
 }
 

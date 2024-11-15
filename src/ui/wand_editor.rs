@@ -1,14 +1,29 @@
+use super::{
+    command_button::command_button, floating::InventoryItemFloating, inventory::spawn_inventory,
+    spell_information::spawn_spell_information,
+};
 use crate::{
     asset::GameAssets,
     constant::WAND_EDITOR_Z_INDEX,
+    controller::player::Player,
+    entity::{
+        actor::Actor,
+        dropped_item::{spawn_dropped_item, DroppedItemType},
+    },
+    inventory_item::InventoryItem,
+    language::Dict,
+    set::GameSet,
     states::{GameMenuState, GameState},
+    ui::floating::InventoryItemFloatingContent,
 };
 use bevy::prelude::*;
-
-use super::{inventory::spawn_inventory, spell_information::spawn_spell_information};
+use bevy_rapier2d::plugin::PhysicsSet;
 
 #[derive(Component)]
 struct WandEditorRoot;
+
+#[derive(Component)]
+struct ItemDropButton;
 
 pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
     commands
@@ -19,23 +34,52 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                 style: Style {
                     position_type: PositionType::Absolute,
                     left: Val::Px(300.0),
-                    top: Val::Px(200.0),
+                    top: Val::Px(100.0),
                     display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    column_gap: Val::Px(8.0),
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Px(8.0),
                     padding: UiRect::all(Val::Px(24.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: Color::hsla(0.0, 0.0, 0.0, 0.8).into(),
+                background_color: Color::hsla(0.0, 0.0, 0.5, 0.8).into(),
                 z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
                 visibility: Visibility::Hidden,
                 ..default()
             },
         ))
-        .with_children(|mut parent| {
-            spawn_inventory(&mut parent, &assets);
+        .with_children(|parent| {
+            parent
+                .spawn((
+                    StateScoped(GameState::InGame),
+                    NodeBundle {
+                        style: Style {
+                            display: Display::Flex,
+                            flex_direction: FlexDirection::Row,
+                            column_gap: Val::Px(8.0),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                ))
+                .with_children(|mut parent| {
+                    spawn_inventory(&mut parent, &assets);
 
-            spawn_spell_information(&mut parent, &assets);
+                    spawn_spell_information(&mut parent, &assets);
+                });
+
+            command_button(
+                parent,
+                assets,
+                ItemDropButton,
+                280.0,
+                60.0,
+                Dict {
+                    ja: "アイテムを置く",
+                    en: "Drop Item",
+                },
+            );
         });
 }
 
@@ -69,6 +113,83 @@ fn apply_wand_editor_visible(
     }
 }
 
+fn interact(
+    interaction_query: Query<&Interaction, (With<ItemDropButton>, Changed<Interaction>)>,
+    mut floating_query: Query<&mut InventoryItemFloating>,
+    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+) {
+    if let Ok((mut player, mut actor, transform)) = player_query.get_single_mut() {
+        for interaction in interaction_query.iter() {
+            match interaction {
+                Interaction::Pressed => {
+                    let mut floating = floating_query.single_mut();
+                    match floating.0 {
+                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                            if let Some(InventoryItem::Spell(spell)) = player.inventory[index] {
+                                spawn_dropped_item(
+                                    &mut commands,
+                                    &assets,
+                                    transform.translation.x,
+                                    transform.translation.y,
+                                    DroppedItemType::Spell(spell),
+                                );
+                                player.inventory[index] = None;
+                                *floating = InventoryItemFloating(None);
+                            }
+                        }
+                        Some(InventoryItemFloatingContent::Wand(index)) => {
+                            if let Some(ref wand) = actor.wands[index] {
+                                for slot in wand.slots {
+                                    if let Some(spell) = slot {
+                                        spawn_dropped_item(
+                                            &mut commands,
+                                            &assets,
+                                            transform.translation.x,
+                                            transform.translation.y,
+                                            DroppedItemType::Spell(spell),
+                                        );
+                                    }
+                                }
+                                spawn_dropped_item(
+                                    &mut commands,
+                                    &assets,
+                                    transform.translation.x,
+                                    transform.translation.y,
+                                    DroppedItemType::Wand(wand.wand_type),
+                                );
+                                actor.wands[index] = None;
+                                *floating = InventoryItemFloating(None);
+                            }
+                        }
+                        Some(InventoryItemFloatingContent::WandSpell {
+                            wand_index,
+                            spell_index,
+                        }) => {
+                            if let Some(ref mut wand) = actor.wands[wand_index] {
+                                if let Some(spell) = wand.slots[spell_index] {
+                                    spawn_dropped_item(
+                                        &mut commands,
+                                        &assets,
+                                        transform.translation.x,
+                                        transform.translation.y,
+                                        DroppedItemType::Spell(spell),
+                                    );
+                                    wand.slots[spell_index] = None;
+                                    *floating = InventoryItemFloating(None);
+                                }
+                            }
+                        }
+                        None => {}
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 pub struct WandEditorPlugin;
 
 impl Plugin for WandEditorPlugin {
@@ -76,6 +197,13 @@ impl Plugin for WandEditorPlugin {
         app.add_systems(
             Update,
             (handle_e_key, apply_wand_editor_visible).run_if(in_state(GameState::InGame)),
+        );
+        app.add_systems(
+            FixedUpdate,
+            interact
+                .run_if(in_state(GameState::InGame))
+                .in_set(GameSet)
+                .before(PhysicsSet::SyncBackend),
         );
     }
 }

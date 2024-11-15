@@ -14,9 +14,9 @@ use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::breakable::BreakablePlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::chest::ChestPlugin;
+use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
-use crate::entity::spell::SpellEntityPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
@@ -31,6 +31,7 @@ use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
+use crate::ui::command_button::CommandButtonPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
@@ -160,6 +161,7 @@ pub fn run_game() {
         .add_plugins(BulletPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(ChestPlugin)
+        .add_plugins(CommandButtonPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(EntityPickerPlugin)
