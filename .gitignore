@@ -2,3 +2,4 @@
 /dist
 .stage
 .env
+docs
