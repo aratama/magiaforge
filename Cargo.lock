@@ -1386,6 +1386,7 @@ dependencies = [
 [[package]]
 name = "bevy_simple_websocket"
 version = "0.2.6"
+source = "git+https://github.com/aratama/bevy_simple_websocket#00403e7b9ecb36d5b45ebbb84a188dc8bd698ff7"
 dependencies = [
  "bevy",
  "bevy-tokio-tasks",
