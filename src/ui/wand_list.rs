@@ -70,7 +70,7 @@ fn spawn_wand_and_spell_slot(
                 style: Style {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Row,
-                    column_gap: Val::Px(1.),
+                    // column_gap: Val::Px(1.),
                     border: UiRect::all(Val::Px(1.)),
                     ..default()
                 },
@@ -117,14 +117,14 @@ fn spawn_wand_spell_slot(
         Interaction::default(),
         ImageBundle {
             style: Style {
+                position_type: PositionType::Absolute,
+                left: Val::Px(64.0 + 32. * (spell_index as f32)),
                 width: Val::Px(32.),
                 height: Val::Px(32.),
-                border: UiRect::all(Val::Px(1.0)),
                 ..default()
             },
             ..default()
         },
-        BorderColor(Color::hsla(0.0, 0.0, 0.0, 0.0)),
         AsepriteSliceUiBundle {
             aseprite: assets.atlas.clone(),
             slice: "empty".into(),
@@ -151,7 +151,7 @@ fn update_wand_slot_visibility(
             };
 
             if wand_sprite.wand_index == actor.current_wand {
-                *border = Color::hsla(0.0, 0.0, 1.0, 0.2).into();
+                *border = Color::hsla(0.0, 0.0, 1.0, 0.3).into();
             } else {
                 *border = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
             };
@@ -188,30 +188,12 @@ fn update_wand_sprite(
 
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(
-        &WandSpellSprite,
-        &mut AsepriteSlice,
-        &mut Visibility,
-        &mut BorderColor,
-    )>,
+    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut Visibility)>,
     floating_query: Query<&InventoryItemFloating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (spell_sprite, mut aseprite, mut visibility, mut border) in sprite_query.iter_mut() {
+        for (spell_sprite, mut aseprite, mut visibility) in sprite_query.iter_mut() {
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
-                *border = BorderColor(Color::hsla(
-                    0.0,
-                    0.0,
-                    1.0,
-                    if wand.index == spell_sprite.spell_index
-                        && actor.current_wand == spell_sprite.wand_index
-                    {
-                        0.2
-                    } else {
-                        0.0
-                    },
-                ));
-
                 let props = wand_to_props(wand.wand_type);
                 *visibility = if spell_sprite.spell_index < props.capacity {
                     Visibility::Inherited
@@ -497,7 +479,7 @@ fn slot_color(wand_index: usize, spell_index: usize) -> Color {
         if (wand_index + spell_index) % 2 == 0 {
             0.1
         } else {
-            0.15
+            0.12
         },
     );
 }

@@ -40,7 +40,7 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
-                    left: Val::Px(300.0),
+                    left: Val::Px(20.0),
                     top: Val::Px(100.0),
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
@@ -56,25 +56,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                 ..default()
             },
         ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    StateScoped(GameState::InGame),
-                    NodeBundle {
-                        style: Style {
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Row,
-                            column_gap: Val::Px(8.0),
-                            ..default()
-                        },
-                        ..default()
-                    },
-                ))
-                .with_children(|mut parent| {
-                    spawn_inventory(&mut parent, &assets);
-
-                    spawn_spell_information(&mut parent, &assets);
-                });
+        .with_children(|mut parent| {
+            spawn_inventory(&mut parent, &assets);
 
             parent
                 .spawn((
@@ -94,8 +77,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                         parent,
                         assets,
                         SortButton,
-                        280.0,
-                        60.0,
+                        160.0,
+                        40.0,
                         false,
                         Dict {
                             ja: "並び替え",
@@ -107,8 +90,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                         parent,
                         assets,
                         ItemDropButton,
-                        280.0,
-                        60.0,
+                        160.0,
+                        40.0,
                         true,
                         Dict {
                             ja: "置く",
@@ -116,6 +99,33 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                         },
                     );
                 });
+        });
+
+    commands
+        .spawn((
+            StateScoped(GameState::InGame),
+            WandEditorRoot,
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(900.0),
+                    top: Val::Px(100.0),
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Px(8.0),
+                    padding: UiRect::all(Val::Px(24.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: MENU_THEME_COLOR.into(),
+                z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
+                visibility: Visibility::Hidden,
+                ..default()
+            },
+        ))
+        .with_children(|mut parent| {
+            spawn_spell_information(&mut parent, &assets);
         });
 }
 

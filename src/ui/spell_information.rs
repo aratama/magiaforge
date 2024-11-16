@@ -39,7 +39,8 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
             NodeBundle {
                 style: Style {
                     padding: UiRect::all(Val::Px(8.0)),
-                    width: Val::Px(500.0),
+                    width: Val::Px(300.0),
+                    height: Val::Px(500.0),
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
                     ..default()
