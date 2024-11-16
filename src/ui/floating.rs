@@ -3,7 +3,7 @@ use crate::{
     constant::WAND_EDITOR_FLOATING_Z_INDEX,
     controller::player::Player,
     entity::actor::Actor,
-    equipment::{self, equipment_to_props},
+    equipment::equipment_to_props,
     inventory_item::{inventory_item_to_props, InventoryItem},
     spell_props::spell_to_props,
     states::{GameMenuState, GameState},

@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::ui::floating::{Floating, FloatingContent};
 use crate::{
@@ -5,6 +7,7 @@ use crate::{
     entity::actor::Actor, inventory_item::InventoryItem, states::GameState,
 };
 use bevy::prelude::*;
+use bevy::render::view::visibility;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
 use super::item_information::{SpellInformation, SpellInformationItem};
@@ -97,35 +100,46 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 
 fn update_inventory_slot(
     query: Query<&Player>,
-    mut slot_query: Query<(&InventoryItemSlot, &mut AsepriteSlice, &mut Style)>,
+    mut slot_query: Query<(
+        &InventoryItemSlot,
+        &mut AsepriteSlice,
+        &mut Style,
+        &mut Visibility,
+    )>,
     floating_query: Query<&Floating>,
 ) {
     if let Ok(player) = query.get_single() {
         let floating = floating_query.single();
-        for (slot, mut aseprite, mut style) in slot_query.iter_mut() {
-            match floating.0 {
-                Some(FloatingContent::Inventory(index)) => {
-                    if index == slot.0 {
-                        *aseprite = "empty".into();
-                        continue;
-                    }
-                }
-                _ => {}
-            }
 
+        let mut hidden: HashSet<usize> = HashSet::new();
+
+        for (slot, mut aseprite, mut style, mut visibility) in slot_query.iter_mut() {
             let item = player.inventory.get(slot.0);
-            let slice: &'static str = match item {
-                Some(item) => item.get_icon(),
-                None => "empty",
-            };
-            *aseprite = slice.into();
 
-            style.width = Val::Px(
-                32.0 * match item {
-                    Some(InventoryItem::Wand(_)) => 2.0,
-                    _ => 1.0,
-                },
-            );
+            if let Some(item) = item {
+                let width = item.get_width();
+                *aseprite = match floating.0 {
+                    Some(FloatingContent::Inventory(index)) if index == slot.0 => "empty".into(),
+                    _ => item.get_icon().into(),
+                };
+
+                style.width = Val::Px(32.0 * width as f32);
+                *visibility = Visibility::Inherited;
+                for d in 1..width {
+                    hidden.insert(slot.0 + d);
+                }
+            } else {
+                style.width = Val::Px(32.0);
+                *aseprite = "empty".into();
+            }
+        }
+
+        for (sprite, _, _, mut visibility) in slot_query.iter_mut() {
+            *visibility = if hidden.contains(&sprite.0) {
+                Visibility::Hidden
+            } else {
+                Visibility::Inherited
+            };
         }
     }
 }

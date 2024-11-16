@@ -34,6 +34,7 @@ pub fn spawn_wand_sprite_in_list(
                 height: Val::Px(32.),
                 ..default()
             },
+            background_color: Color::hsla(0.0, 0.0, 0.5, 0.1).into(),
             ..default()
         },
         AsepriteSliceUiBundle {

@@ -114,7 +114,7 @@ fn interact(
                         }
                         _ => {}
                     },
-                    Some(FloatingContent::Wand(index)) => {}
+                    Some(FloatingContent::Wand(_)) => {}
                     Some(FloatingContent::WandSpell { .. }) => {}
                     Some(FloatingContent::Equipment(index)) => {
                         player.equipments.swap(index, sprite.index);
