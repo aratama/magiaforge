@@ -85,11 +85,7 @@ pub fn spawn_dropped_item(
             Collider::cuboid(collider_width, 8.0),
             CollisionGroups::new(
                 DROPPED_ITEM_GROUP,
-                ENTITY_GROUP
-                    | WALL_GROUP
-                    | PLAYER_INTERACTION_SENSOR_GROUP
-                    | WITCH_GROUP
-                    | DROPPED_ITEM_GROUP,
+                ENTITY_GROUP | WALL_GROUP | PLAYER_INTERACTION_SENSOR_GROUP | DROPPED_ITEM_GROUP,
             ),
             Damping {
                 linear_damping: 10.0,

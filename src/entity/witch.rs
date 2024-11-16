@@ -152,8 +152,7 @@ pub fn spawn_witch<T: Component>(
                     | WITCH_BULLET_GROUP
                     | ENEMY_GROUP
                     | ENEMY_BULLET_GROUP
-                    | MAGIC_CIRCLE_GROUP
-                    | DROPPED_ITEM_GROUP,
+                    | MAGIC_CIRCLE_GROUP,
             ),
         ),
         Footsteps(audio_instance),
