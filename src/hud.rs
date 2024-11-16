@@ -8,6 +8,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
+use crate::ui::equipment_list::spawn_equipment_list;
 use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
@@ -28,35 +29,57 @@ pub struct PlayerManaBar;
 pub struct PlayerGold;
 
 fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
-    let mut root = commands.spawn((
-        Name::new("hud_root"),
-        StateScoped(GameState::InGame),
-        NodeBundle {
-            style: Style {
-                display: Display::Flex,
-                justify_content: JustifyContent::Start,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Start,
-                row_gap: Val::Px(4.),
-                height: Val::Percent(100.),
-                width: Val::Percent(100.),
-                padding: UiRect {
-                    left: Val::Px(8.),
-                    right: Val::Px(8.),
-                    top: Val::Px(8.),
-                    bottom: Val::Px(8.),
+    commands
+        .spawn((
+            Name::new("hud_root"),
+            StateScoped(GameState::InGame),
+            NodeBundle {
+                style: Style {
+                    display: Display::Flex,
+                    justify_content: JustifyContent::Start,
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Start,
+                    row_gap: Val::Px(4.),
+                    height: Val::Percent(100.),
+                    width: Val::Percent(100.),
+                    padding: UiRect {
+                        left: Val::Px(8.),
+                        right: Val::Px(8.),
+                        top: Val::Px(8.),
+                        bottom: Val::Px(8.),
+                    },
+                    ..default()
                 },
+                z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
-            z_index: ZIndex::Global(HUD_Z_INDEX),
-            ..default()
-        },
-    ));
+        ))
+        .with_children(|mut parent| {
+            // 左上
+            spawn_status_bars(&mut parent);
 
-    root.with_children(|mut parent| {
-        spawn_status_bars(&mut parent);
-        spawn_wand_list(&mut parent, &assets);
-    });
+            // 左下
+            parent
+                .spawn((
+                    StateScoped(GameState::InGame),
+                    NodeBundle {
+                        z_index: ZIndex::Global(HUD_Z_INDEX),
+                        style: Style {
+                            display: Display::Flex,
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Start,
+                            row_gap: Val::Px(4.),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                ))
+                .with_children(|mut parent| {
+                    spawn_wand_list(&mut parent, &assets);
+
+                    spawn_equipment_list(&mut parent, &assets);
+                });
+        });
 
     spawn_wand_editor(&mut commands, &assets);
 
@@ -68,19 +91,22 @@ fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
 
 fn spawn_status_bars(parent: &mut ChildBuilder) {
     parent
-        .spawn(NodeBundle {
-            style: Style {
-                display: Display::Flex,
-                justify_content: JustifyContent::Start,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Start,
-                row_gap: Val::Px(4.),
-                height: Val::Percent(100.),
-                width: Val::Percent(100.),
+        .spawn((
+            StateScoped(GameState::InGame),
+            NodeBundle {
+                style: Style {
+                    display: Display::Flex,
+                    justify_content: JustifyContent::Start,
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Start,
+                    row_gap: Val::Px(4.),
+                    height: Val::Percent(100.),
+                    width: Val::Percent(100.),
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        })
+        ))
         .with_children(|mut parent| {
             spawn_status_bar(
                 &mut parent,

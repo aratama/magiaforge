@@ -7,7 +7,7 @@ use crate::{
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
-use super::spell_information::{SpellInformation, SpellInformationItem};
+use super::item_information::{SpellInformation, SpellInformationItem};
 
 #[derive(Component)]
 struct InventoryItemSlot(usize);

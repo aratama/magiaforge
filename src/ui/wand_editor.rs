@@ -2,7 +2,7 @@ use super::{
     command_button::{command_button, CommandButton},
     floating::InventoryItemFloating,
     inventory::spawn_inventory,
-    spell_information::spawn_spell_information,
+    item_information::spawn_spell_information,
 };
 use crate::{
     asset::GameAssets,

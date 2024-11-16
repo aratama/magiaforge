@@ -32,17 +32,20 @@ use crate::page::warp::WarpPagePlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::command_button::CommandButtonPlugin;
+use crate::ui::equipment_list::EquipmentListPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
+use crate::ui::item_information::SpellInformationPlugin;
 use crate::ui::label::LabelPlugin;
 use crate::ui::menu_button::MenuButtonPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::pause_menu::GameMenuPlugin;
 use crate::ui::player_list::PlayerListPlugin;
-use crate::ui::spell_information::SpellInformationPlugin;
+use crate::ui::spell_in_wand::SpellInWandPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
+use crate::ui::wand_sprite::WandSpritePlugin;
 use crate::world::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::*;
@@ -166,6 +169,7 @@ pub fn run_game() {
         .add_plugins(EntityPlugin)
         .add_plugins(EntityPickerPlugin)
         .add_plugins(EnemyPlugin)
+        .add_plugins(EquipmentListPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GameCommandPlugin)
         .add_plugins(GameConfigPlugin)
@@ -191,11 +195,13 @@ pub fn run_game() {
         .add_plugins(SlimeControlPlugin)
         .add_plugins(SpellInformationPlugin)
         .add_plugins(SpellEntityPlugin)
+        .add_plugins(SpellInWandPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(WallPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)
+        .add_plugins(WandSpritePlugin)
         .add_plugins(WarpPagePlugin)
         .add_plugins(WebSocketPlugin)
         .add_plugins(WitchPlugin)
