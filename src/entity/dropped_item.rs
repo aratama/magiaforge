@@ -1,8 +1,6 @@
 use crate::entity::EntityDepth;
 use crate::inventory_item::InventoryItem;
-use crate::spell::SpellType;
 use crate::spell_props::spell_to_props;
-use crate::wand::WandType;
 use crate::wand_props::wand_to_props;
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::core::FrameCount;
@@ -11,25 +9,9 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::random;
 
-pub enum DroppedItemType {
-    Spell(SpellType),
-    Wand(WandType),
-    Lantern,
-}
-
-impl DroppedItemType {
-    pub fn to_inventory_item(&self) -> InventoryItem {
-        match self {
-            DroppedItemType::Spell(spell) => InventoryItem::Spell(*spell),
-            DroppedItemType::Lantern => InventoryItem::Lantern,
-            DroppedItemType::Wand(wand) => InventoryItem::Wand(*wand),
-        }
-    }
-}
-
 #[derive(Component)]
 pub struct DroppedItemEntity {
-    pub item_type: DroppedItemType,
+    pub item_type: InventoryItem,
     pub interaction_marker: bool,
 }
 
@@ -46,45 +28,45 @@ pub fn spawn_dropped_item(
     assets: &Res<GameAssets>,
     x: f32,
     y: f32,
-    item_type: DroppedItemType,
+    item_type: InventoryItem,
 ) {
     let tx = x;
     let ty = y;
     let icon = match item_type {
-        DroppedItemType::Spell(spell) => {
+        InventoryItem::Spell(spell) => {
             let props = spell_to_props(spell);
             props.icon
         }
-        DroppedItemType::Wand(wand) => {
+        InventoryItem::Wand(wand) => {
             let props = wand_to_props(wand);
             props.icon
         }
-        DroppedItemType::Lantern => "lantern",
+        InventoryItem::Lantern => "lantern",
     };
     let name = match item_type {
-        DroppedItemType::Spell(spell) => {
+        InventoryItem::Spell(spell) => {
             let props = spell_to_props(spell);
             props.name.en
         }
-        DroppedItemType::Wand(wand) => {
+        InventoryItem::Wand(wand) => {
             let props = wand_to_props(wand);
             props.name.en
         }
-        DroppedItemType::Lantern => "lantern",
+        InventoryItem::Lantern => "lantern",
     };
     let frame_slice = match item_type {
-        DroppedItemType::Wand(_) => "empty", //"wand_frame",
-        DroppedItemType::Spell(_) => "spell_frame",
-        DroppedItemType::Lantern => "empty",
+        InventoryItem::Wand(_) => "empty", //"wand_frame",
+        InventoryItem::Spell(_) => "spell_frame",
+        InventoryItem::Lantern => "empty",
     };
     let collider_width = match item_type {
-        DroppedItemType::Wand(_) => 16.0,
+        InventoryItem::Wand(_) => 16.0,
         _ => 8.0,
     };
     let swing = match item_type {
-        DroppedItemType::Spell(_) => 2.0,
-        DroppedItemType::Wand(_) => 0.0,
-        DroppedItemType::Lantern => 0.0,
+        InventoryItem::Spell(_) => 2.0,
+        InventoryItem::Wand(_) => 0.0,
+        InventoryItem::Lantern => 0.0,
     };
     commands
         .spawn((

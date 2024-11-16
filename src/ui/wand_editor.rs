@@ -8,10 +8,7 @@ use crate::{
     asset::GameAssets,
     constant::{TILE_SIZE, WAND_EDITOR_Z_INDEX},
     controller::player::Player,
-    entity::{
-        actor::Actor,
-        dropped_item::{spawn_dropped_item, DroppedItemType},
-    },
+    entity::{actor::Actor, dropped_item::spawn_dropped_item},
     inventory_item::{sort_inventory, spawn_inventory_item, InventoryItem},
     language::Dict,
     set::GameSet,
@@ -217,7 +214,7 @@ fn item_drop_button_pressed(
                                                     &assets,
                                                     dest.x,
                                                     dest.y,
-                                                    DroppedItemType::Spell(spell),
+                                                    InventoryItem::Spell(spell),
                                                 );
                                             }
                                         }
@@ -226,7 +223,7 @@ fn item_drop_button_pressed(
                                             &assets,
                                             dest.x,
                                             dest.y,
-                                            DroppedItemType::Wand(wand.wand_type),
+                                            InventoryItem::Wand(wand.wand_type),
                                         );
                                         actor.wands[index] = None;
                                         *floating = InventoryItemFloating(None);
@@ -243,7 +240,7 @@ fn item_drop_button_pressed(
                                                 &assets,
                                                 pointer_in_world.x,
                                                 pointer_in_world.y,
-                                                DroppedItemType::Spell(spell),
+                                                InventoryItem::Spell(spell),
                                             );
                                             wand.slots[spell_index] = None;
                                             *floating = InventoryItemFloating(None);

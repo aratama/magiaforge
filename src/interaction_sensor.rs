@@ -176,7 +176,7 @@ fn pick_up(
                 pick_nearest_drop_item(&mut spells, player_transform.translation.truncate())
             {
                 if let Ok((_, DroppedItemEntity { item_type, .. }, _)) = spell_query.get(nearest) {
-                    if player.insert_inventory_item(item_type.to_inventory_item()) {
+                    if player.insert_inventory_item(*item_type) {
                         commands.entity(nearest).despawn_recursive();
                         global.send(GameCommand::SEPickUp(None));
                         // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、

@@ -66,5 +66,5 @@ fn spawn_equipment_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, ind
 pub struct EquipmentListPlugin;
 
 impl Plugin for EquipmentListPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, _app: &mut App) {}
 }

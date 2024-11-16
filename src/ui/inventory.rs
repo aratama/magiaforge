@@ -1,8 +1,6 @@
-use crate::entity::dropped_item::{spawn_dropped_item, DroppedItemType};
-use crate::inventory_item::spawn_inventory_item;
+use crate::entity::dropped_item::spawn_dropped_item;
 use crate::ui::floating::{InventoryItemFloating, InventoryItemFloatingContent};
 use crate::wand_props::wand_to_props;
-use crate::{asset, command};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
     entity::actor::Actor, inventory_item::InventoryItem, spell_props::spell_to_props,
@@ -228,7 +226,7 @@ fn interaction(
                                         &assets,
                                         player_position.translation.x,
                                         player_position.translation.y,
-                                        DroppedItemType::Spell(spell),
+                                        InventoryItem::Spell(spell),
                                     );
                                 }
 

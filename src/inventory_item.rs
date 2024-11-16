@@ -1,15 +1,14 @@
-use bevy::prelude::*;
-
 use crate::{
     asset::GameAssets,
     constant::MAX_ITEMS_IN_INVENTORY,
-    entity::dropped_item::{spawn_dropped_item, DroppedItemType},
+    entity::dropped_item::spawn_dropped_item,
     language::{Dict, Languages},
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
     wand::WandType,
     wand_props::wand_to_props,
 };
+use bevy::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum InventoryItem {
@@ -31,7 +30,7 @@ pub fn spawn_inventory_item(
                 &assets,
                 position.x,
                 position.y,
-                DroppedItemType::Spell(spell),
+                InventoryItem::Spell(spell),
             );
         }
         InventoryItem::Lantern => {
@@ -40,7 +39,7 @@ pub fn spawn_inventory_item(
                 &assets,
                 position.x,
                 position.y,
-                DroppedItemType::Lantern,
+                InventoryItem::Lantern,
             );
         }
         _ => {}

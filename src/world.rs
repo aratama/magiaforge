@@ -15,7 +15,6 @@ use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestType;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::entity::dropped_item::DroppedItemType;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::stone_lantern::spawn_stone_lantern;
@@ -409,7 +408,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     &assets,
                     tx + TILE_HALF,
                     ty - TILE_HALF,
-                    DroppedItemType::Spell(SpellType::MagicBolt),
+                    InventoryItem::Spell(SpellType::MagicBolt),
                 );
             }
             GameEntity::Wand => {
@@ -418,7 +417,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     &assets,
                     tx + TILE_HALF,
                     ty - TILE_HALF,
-                    DroppedItemType::Wand(WandType::CypressWand),
+                    InventoryItem::Wand(WandType::CypressWand),
                 );
             }
         }
