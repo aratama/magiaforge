@@ -88,7 +88,9 @@ fn switch_floating_slice(
         let (floating, mut floating_slice, mut style) = floating_query.single_mut();
         match floating.0 {
             Some(InventoryItemFloatingContent::InventoryItem(slot)) => {
-                let slice = match player.inventory[slot] {
+                let item = player.inventory[slot];
+
+                let slice = match item {
                     Some(item) => {
                         let props = inventory_item_to_props(item);
                         Some(props.icon)
@@ -98,6 +100,11 @@ fn switch_floating_slice(
                 if let Some(slice) = slice {
                     *floating_slice = slice.into();
                     style.width = Val::Px(32.0);
+                }
+
+                style.width = match item {
+                    Some(InventoryItem::Wand(_)) => Val::Px(64.0),
+                    _ => Val::Px(32.0),
                 }
             }
             Some(InventoryItemFloatingContent::WandSpell {

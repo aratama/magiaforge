@@ -4,9 +4,12 @@ use super::{
 };
 use crate::{
     asset::GameAssets,
+    constant::MAX_SPELLS_IN_WAND,
     controller::player::Player,
     entity::actor::Actor,
+    inventory_item::{spawn_inventory_item, InventoryItem},
     states::{GameMenuState, GameState},
+    wand::Wand,
     wand_props::wand_to_props,
 };
 use bevy::{prelude::*, ui::Style};
@@ -69,8 +72,10 @@ fn update_wand_sprite(
 }
 
 fn interact_wand_sprite(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
     mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
-    mut player_query: Query<&mut Actor, With<Player>>,
+    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
     mut floating_query: Query<&mut InventoryItemFloating>,
     state: Res<State<GameMenuState>>,
 ) {
@@ -81,10 +86,40 @@ fn interact_wand_sprite(
     for (slot, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                if let Ok(mut actor) = player_query.get_single_mut() {
+                if let Ok((mut player, mut actor, player_position)) = player_query.get_single_mut()
+                {
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
-                        Some(InventoryItemFloatingContent::InventoryItem(_)) => {}
+                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                            match player.inventory[index] {
+                                Some(InventoryItem::Wand(wand)) => {
+                                    let current = actor.wands[slot.wand_index].clone();
+
+                                    let not_inserted = match current {
+                                        Some(wand) => player.insert_wand_to_inventory(&wand),
+                                        None => Vec::new(),
+                                    };
+
+                                    for item in not_inserted {
+                                        spawn_inventory_item(
+                                            &mut commands,
+                                            &assets,
+                                            player_position.translation.truncate(),
+                                            item,
+                                        );
+                                    }
+
+                                    actor.wands[slot.wand_index] = Some(Wand {
+                                        wand_type: wand,
+                                        slots: [None; MAX_SPELLS_IN_WAND],
+                                        index: 0,
+                                    });
+                                    *floating = InventoryItemFloating(None);
+                                    player.inventory[index] = None;
+                                }
+                                _ => {}
+                            }
+                        }
                         Some(InventoryItemFloatingContent::WandSpell { .. }) => {}
                         Some(InventoryItemFloatingContent::Wand(wand_index)) => {
                             if wand_index == slot.wand_index {

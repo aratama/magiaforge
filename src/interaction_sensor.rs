@@ -1,16 +1,10 @@
 use crate::{
     command::GameCommand,
-    constant::{DROPPED_ITEM_GROUP, MAX_SPELLS_IN_WAND, PLAYER_INTERACTION_SENSOR_GROUP},
+    constant::{DROPPED_ITEM_GROUP, PLAYER_INTERACTION_SENSOR_GROUP},
     controller::player::Player,
-    entity::{
-        actor::Actor,
-        dropped_item::{DroppedItemEntity, DroppedItemType},
-        witch::Witch,
-    },
-    inventory_item::InventoryItem,
+    entity::{actor::Actor, dropped_item::DroppedItemEntity, witch::Witch},
     set::GameSet,
     states::{GameMenuState, GameState},
-    wand::Wand,
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -158,7 +152,7 @@ pub fn pick_nearest_drop_item(
 
 fn pick_up(
     mut sensor_query: Query<&InteractionSensor>,
-    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
+    mut player_query: Query<(&mut Player, &Transform)>,
     spell_query: Query<(Entity, &DroppedItemEntity, &Transform)>,
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
@@ -167,7 +161,7 @@ fn pick_up(
 ) {
     if keys.just_pressed(KeyCode::KeyE) && *state.get() == GameMenuState::Closed {
         let sensor = sensor_query.single_mut();
-        if let Ok((mut player, mut actor, player_transform)) = player_query.get_single_mut() {
+        if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
             // ソートして最も距離が近いものを選択
 
             // センサーに含まれるすべてのエンティティを抽出
@@ -182,42 +176,14 @@ fn pick_up(
                 pick_nearest_drop_item(&mut spells, player_transform.translation.truncate())
             {
                 if let Ok((_, DroppedItemEntity { item_type, .. }, _)) = spell_query.get(nearest) {
-                    match item_type {
-                        DroppedItemType::Spell(spell) => {
-                            if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
-                                player.inventory[index] = Some(InventoryItem::Spell(*spell));
-                                commands.entity(nearest).despawn_recursive();
-                                global.send(GameCommand::SEPickUp(None));
-
-                                // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
-                                // ここで削除する必要はない
-                                // entities.remove(entity);
-                            } else {
-                                warn!("Inventory is full");
-                            }
-                        }
-                        DroppedItemType::Lantern => {
-                            if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
-                                player.inventory[index] = Some(InventoryItem::Lantern);
-                                commands.entity(nearest).despawn_recursive();
-                                global.send(GameCommand::SEPickUp(None));
-                            } else {
-                                warn!("Inventory is full");
-                            }
-                        }
-                        DroppedItemType::Wand(wand) => {
-                            if let Some(i) = actor.wands.iter().position(|w| w.is_none()) {
-                                actor.wands[i] = Some(Wand {
-                                    wand_type: *wand,
-                                    slots: [None; MAX_SPELLS_IN_WAND],
-                                    index: 0,
-                                });
-                                commands.entity(nearest).despawn_recursive();
-                                global.send(GameCommand::SEPickUp(None));
-                            } else {
-                                warn!("Wand is full");
-                            }
-                        }
+                    if player.insert_inventory_item(item_type.to_inventory_item()) {
+                        commands.entity(nearest).despawn_recursive();
+                        global.send(GameCommand::SEPickUp(None));
+                        // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
+                        // ここで削除する必要はない
+                        // entities.remove(entity);
+                    } else {
+                        warn!("Inventory is full");
                     }
                 }
             }

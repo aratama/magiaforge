@@ -12,7 +12,7 @@ use crate::{
         actor::Actor,
         dropped_item::{spawn_dropped_item, DroppedItemType},
     },
-    inventory_item::{sort_inventory, InventoryItem},
+    inventory_item::{sort_inventory, spawn_inventory_item, InventoryItem},
     language::Dict,
     set::GameSet,
     states::{GameMenuState, GameState},
@@ -195,24 +195,12 @@ fn item_drop_button_pressed(
                             match floating.0 {
                                 Some(InventoryItemFloatingContent::InventoryItem(index)) => {
                                     match player.inventory[index] {
-                                        Some(InventoryItem::Spell(spell)) => {
-                                            spawn_dropped_item(
+                                        Some(item) => {
+                                            spawn_inventory_item(
                                                 &mut commands,
                                                 &assets,
-                                                dest.x,
-                                                dest.y,
-                                                DroppedItemType::Spell(spell),
-                                            );
-                                            player.inventory[index] = None;
-                                            *floating = InventoryItemFloating(None);
-                                        }
-                                        Some(InventoryItem::Lantern) => {
-                                            spawn_dropped_item(
-                                                &mut commands,
-                                                &assets,
-                                                dest.x,
-                                                dest.y,
-                                                DroppedItemType::Lantern,
+                                                dest,
+                                                item,
                                             );
                                             player.inventory[index] = None;
                                             *floating = InventoryItemFloating(None);

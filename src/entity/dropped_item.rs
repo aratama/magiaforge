@@ -1,4 +1,5 @@
 use crate::entity::EntityDepth;
+use crate::inventory_item::InventoryItem;
 use crate::spell::SpellType;
 use crate::spell_props::spell_to_props;
 use crate::wand::WandType;
@@ -14,6 +15,16 @@ pub enum DroppedItemType {
     Spell(SpellType),
     Wand(WandType),
     Lantern,
+}
+
+impl DroppedItemType {
+    pub fn to_inventory_item(&self) -> InventoryItem {
+        match self {
+            DroppedItemType::Spell(spell) => InventoryItem::Spell(*spell),
+            DroppedItemType::Lantern => InventoryItem::Lantern,
+            DroppedItemType::Wand(wand) => InventoryItem::Wand(*wand),
+        }
+    }
 }
 
 #[derive(Component)]

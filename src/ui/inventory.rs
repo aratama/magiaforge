@@ -1,4 +1,8 @@
+use crate::entity::dropped_item::{spawn_dropped_item, DroppedItemType};
+use crate::inventory_item::spawn_inventory_item;
 use crate::ui::floating::{InventoryItemFloating, InventoryItemFloatingContent};
+use crate::wand_props::wand_to_props;
+use crate::{asset, command};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
     entity::actor::Actor, inventory_item::InventoryItem, spell_props::spell_to_props,
@@ -45,6 +49,27 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
             },
         ))
         .with_children(|builder| {
+            builder.spawn((
+                StateScoped(GameState::MainMenu),
+                ImageBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Val::Px(32.0 * 8.0),
+                        height: Val::Px(32.0 * 8.0),
+                        left: Val::Px(0.0),
+                        top: Val::Px(0.0),
+                        ..default()
+                    },
+                    z_index: ZIndex::Local(0),
+                    ..default()
+                },
+                AsepriteSliceUiBundle {
+                    aseprite: assets.atlas.clone(),
+                    slice: "inventory".into(),
+                    ..default()
+                },
+            ));
+
             for i in 0..MAX_ITEMS_IN_INVENTORY {
                 builder.spawn((
                     InventoryItemSlot(i),
@@ -61,6 +86,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                             top: Val::Px((i / 8) as f32 * 32.0),
                             ..default()
                         },
+                        z_index: ZIndex::Local(1),
                         ..default()
                     },
                     AsepriteSliceUiBundle {
@@ -73,14 +99,14 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
         });
 }
 
-fn update_inventory(
+fn update_inventory_slot(
     query: Query<&Player>,
-    mut slot_query: Query<(&InventoryItemSlot, &mut AsepriteSlice)>,
+    mut slot_query: Query<(&InventoryItemSlot, &mut AsepriteSlice, &mut Style)>,
     floating_query: Query<&InventoryItemFloating>,
 ) {
     if let Ok(player) = query.get_single() {
         let floating = floating_query.single();
-        for (slot, mut aseprite) in slot_query.iter_mut() {
+        for (slot, mut aseprite, mut style) in slot_query.iter_mut() {
             match floating.0 {
                 Some(InventoryItemFloatingContent::InventoryItem(index)) => {
                     if index == slot.0 {
@@ -97,10 +123,21 @@ fn update_inventory(
                     let props = spell_to_props(*spell);
                     props.icon
                 }
+                Some(InventoryItem::Wand(wand)) => {
+                    let props = wand_to_props(*wand);
+                    props.icon
+                }
                 Some(InventoryItem::Lantern) => "lantern",
                 None => "empty",
             };
             *aseprite = slice.into();
+
+            style.width = Val::Px(
+                32.0 * match item {
+                    Some(InventoryItem::Wand(_)) => 2.0,
+                    _ => 1.0,
+                },
+            );
         }
     }
 }
@@ -111,14 +148,19 @@ fn interaction(
         Changed<Interaction>,
     >,
     mut floating_query: Query<&mut InventoryItemFloating>,
-    mut player_query: Query<(&mut Player, &mut Actor)>,
+    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
 
     mut spell_info_query: Query<&mut SpellInformation>,
+
+    mut commands: Commands,
+
+    assets: Res<GameAssets>,
 ) {
     for (slot, interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
+                if let Ok((mut player, mut actor, player_position)) = player_query.get_single_mut()
+                {
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
                         None => {
@@ -160,14 +202,57 @@ fn interaction(
                                 *floating = InventoryItemFloating(None);
                             }
                         },
-                        Some(InventoryItemFloatingContent::Wand(_)) => {}
+                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {
+                            if let Some(ref wand) = actor.wands[wand_index] {
+                                let current = player.inventory[slot.0];
+                                player.inventory[slot.0] =
+                                    Some(InventoryItem::Wand(wand.wand_type));
+
+                                // 杖に入っていた呪文はインベントリの空きスロットに入れる
+                                let mut not_inserted = Vec::new();
+                                for slot in wand.slots {
+                                    if let Some(spell) = slot {
+                                        if !player
+                                            .insert_inventory_item(InventoryItem::Spell(spell))
+                                        {
+                                            not_inserted.push(spell);
+                                        }
+                                    }
+                                }
+
+                                // インベントリに入らなかった分は床にばらまかれる
+                                for spell in not_inserted {
+                                    // drop items
+                                    spawn_dropped_item(
+                                        &mut commands,
+                                        &assets,
+                                        player_position.translation.x,
+                                        player_position.translation.y,
+                                        DroppedItemType::Spell(spell),
+                                    );
+                                }
+
+                                actor.wands[wand_index] = None;
+
+                                match current {
+                                    None => {
+                                        *floating = InventoryItemFloating(None);
+                                    }
+                                    Some(_) => {
+                                        *floating = InventoryItemFloating(Some(
+                                            InventoryItemFloatingContent::InventoryItem(slot.0),
+                                        ));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
             Interaction::Hovered => {
                 *color = Color::hsla(0.0, 0.0, 0.5, 0.95).into();
                 let mut spell_info = spell_info_query.single_mut();
-                if let Ok((player, _)) = player_query.get_single() {
+                if let Ok((player, _, _)) = player_query.get_single() {
                     match player.inventory[slot.0] {
                         Some(item) => {
                             *spell_info =
@@ -182,16 +267,10 @@ fn interaction(
                 }
             }
             Interaction::None => {
-                *color = get_background(slot.0);
+                *color = Color::hsla(0.0, 0.0, 0.0, 0.0).into();
             }
         }
     }
-}
-
-fn get_background(index: usize) -> BackgroundColor {
-    let x = index % 8;
-    let y = index / 8;
-    Color::hsla(0.0, 0.0, if (x + y) % 2 == 0 { 0.2 } else { 0.24 }, 0.95).into()
 }
 
 pub struct InventoryPlugin;
@@ -200,7 +279,7 @@ impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_inventory, interaction).run_if(in_state(GameState::InGame)),
+            (update_inventory_slot, interaction).run_if(in_state(GameState::InGame)),
         );
     }
 }

@@ -1,14 +1,50 @@
+use bevy::prelude::*;
+
 use crate::{
+    asset::GameAssets,
     constant::MAX_ITEMS_IN_INVENTORY,
+    entity::dropped_item::{spawn_dropped_item, DroppedItemType},
     language::{Dict, Languages},
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
+    wand::WandType,
+    wand_props::wand_to_props,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum InventoryItem {
     Spell(SpellType),
+    Wand(WandType),
     Lantern,
+}
+
+pub fn spawn_inventory_item(
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    position: Vec2,
+    item: InventoryItem,
+) {
+    match item {
+        InventoryItem::Spell(spell) => {
+            spawn_dropped_item(
+                &mut commands,
+                &assets,
+                position.x,
+                position.y,
+                DroppedItemType::Spell(spell),
+            );
+        }
+        InventoryItem::Lantern => {
+            spawn_dropped_item(
+                &mut commands,
+                &assets,
+                position.x,
+                position.y,
+                DroppedItemType::Lantern,
+            );
+        }
+        _ => {}
+    }
 }
 
 pub struct InventoryItemProps {
@@ -21,6 +57,14 @@ pub fn inventory_item_to_props(item: InventoryItem) -> InventoryItemProps {
     match item {
         InventoryItem::Spell(spell) => {
             let props = spell_to_props(spell);
+            InventoryItemProps {
+                icon: props.icon,
+                name: props.name,
+                description: props.description,
+            }
+        }
+        InventoryItem::Wand(wand) => {
+            let props = wand_to_props(wand);
             InventoryItemProps {
                 icon: props.icon,
                 name: props.name,
