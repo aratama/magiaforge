@@ -30,7 +30,7 @@ pub enum GameState {
     NameInput,
 }
 
-#[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+#[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 #[source(GameState = GameState::MainMenu)]
 pub enum MainMenuPhase {
     #[default]
@@ -40,7 +40,7 @@ pub enum MainMenuPhase {
     Paused,
 }
 
-#[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+#[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 #[source(GameState = GameState::InGame)]
 pub enum GameMenuState {
     #[default]

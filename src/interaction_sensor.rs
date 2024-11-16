@@ -9,7 +9,7 @@ use crate::{
     },
     inventory_item::InventoryItem,
     set::GameSet,
-    states::GameState,
+    states::{GameMenuState, GameState},
     wand::Wand,
 };
 use bevy::prelude::*;
@@ -126,14 +126,11 @@ fn update_interaction_marker_visible(
             }
 
             // ソートしてプレイヤーに最も近いエンティティを取得
-            spells.sort_by(|(_, a), (_, b)| {
-                let a = a.translation.distance(player.translation);
-                let b = b.translation.distance(player.translation);
-                a.total_cmp(&b)
-            });
 
-            if let Some((nearest, _)) = spells.first() {
-                if let Ok((_, _, mut spell)) = spell_query.get_mut(*nearest) {
+            if let Some(nearest) =
+                pick_nearest_drop_item(&mut spells, player.translation.truncate())
+            {
+                if let Ok((_, _, mut spell)) = spell_query.get_mut(nearest) {
                     spell.interaction_marker = true;
                 }
             }
@@ -141,27 +138,55 @@ fn update_interaction_marker_visible(
     }
 }
 
+/// ソートしてプレイヤーに最も近いエンティティを取得
+pub fn pick_nearest_drop_item(
+    entities: &mut Vec<(Entity, &Transform)>,
+    from: Vec2,
+) -> Option<Entity> {
+    entities.sort_by(|(_, a), (_, b)| {
+        let a = a.translation.truncate().distance(from);
+        let b = b.translation.truncate().distance(from);
+        a.total_cmp(&b)
+    });
+
+    if let Some((nearest, _)) = entities.first() {
+        return Some(*nearest);
+    } else {
+        return None;
+    }
+}
+
 fn pick_up(
     mut sensor_query: Query<&InteractionSensor>,
-    mut player_query: Query<(&mut Player, &mut Actor)>,
-    spell_query: Query<&DroppedItemEntity>,
+    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
+    spell_query: Query<(Entity, &DroppedItemEntity, &Transform)>,
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     mut global: EventWriter<GameCommand>,
+    state: Res<State<GameMenuState>>,
 ) {
-    if keys.just_pressed(KeyCode::KeyE) {
+    if keys.just_pressed(KeyCode::KeyE) && *state.get() == GameMenuState::Closed {
         let sensor = sensor_query.single_mut();
-        if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
-            for entity in &sensor.entities {
-                if let Ok(DroppedItemEntity {
-                    item_type: item, ..
-                }) = spell_query.get(*entity)
-                {
-                    match item {
+        if let Ok((mut player, mut actor, player_transform)) = player_query.get_single_mut() {
+            // ソートして最も距離が近いものを選択
+
+            // センサーに含まれるすべてのエンティティを抽出
+            let mut spells = Vec::new();
+            for entity in sensor.entities.iter() {
+                if let Ok((entity, _, transform)) = spell_query.get(*entity) {
+                    spells.push((entity, transform));
+                }
+            }
+
+            if let Some(nearest) =
+                pick_nearest_drop_item(&mut spells, player_transform.translation.truncate())
+            {
+                if let Ok((_, DroppedItemEntity { item_type, .. }, _)) = spell_query.get(nearest) {
+                    match item_type {
                         DroppedItemType::Spell(spell) => {
                             if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
                                 player.inventory[index] = Some(InventoryItem::Spell(*spell));
-                                commands.entity(*entity).despawn_recursive();
+                                commands.entity(nearest).despawn_recursive();
                                 global.send(GameCommand::SEPickUp(None));
 
                                 // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
@@ -178,15 +203,13 @@ fn pick_up(
                                     slots: [None; MAX_SPELLS_IN_WAND],
                                     index: 0,
                                 });
-                                commands.entity(*entity).despawn_recursive();
+                                commands.entity(nearest).despawn_recursive();
                                 global.send(GameCommand::SEPickUp(None));
                             } else {
                                 warn!("Wand is full");
                             }
                         }
                     }
-                } else {
-                    warn!("SpellEntity not found");
                 }
             }
         }
