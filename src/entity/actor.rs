@@ -57,6 +57,7 @@ pub struct Actor {
     pub bullet_speed_buff_factor: f32,
     // マルチキャストで待機中の弾丸
     // pub multicasts: Vec<SpawnBulletProps>,
+    pub homing: f32,
 }
 
 impl Actor {

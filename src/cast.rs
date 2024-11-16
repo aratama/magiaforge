@@ -89,9 +89,11 @@ pub fn cast_spell(
                             light_intensity,
                             light_radius,
                             light_color_hlsa,
+                            homing: actor.homing,
                         },
                     );
                     actor.bullet_speed_buff_factor = 0.0;
+                    actor.homing = 0.0;
                     wand.shift();
 
                     return props.cast_delay as i32;
@@ -132,6 +134,11 @@ pub fn cast_spell(
                         );
                     }
                     return delay;
+                }
+                SpellCast::Homing => {
+                    wand.shift();
+                    actor.homing = (actor.homing + 0.01).max(-0.1).min(0.1);
+                    return props.cast_delay as i32;
                 }
             }
         } else {

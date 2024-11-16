@@ -5,9 +5,8 @@ use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::interaction_sensor::spawn_interaction_sensor;
-use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::{Wand, WandType};
+use crate::wand::Wand;
 use crate::wand_props::wand_to_props;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -48,6 +47,8 @@ pub fn spawn_witch<T: Component>(
     footstep_audio: &Res<Audio>,
 
     interaction: bool,
+
+    wands: [Option<Wand>; 4],
 ) {
     let audio_instance = footstep_audio
         .play(assets.taiikukan.clone())
@@ -76,51 +77,8 @@ pub fn spawn_witch<T: Component>(
             filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
             current_wand: 0,
             bullet_speed_buff_factor: 0.0,
-            wands: [
-                Some(Wand {
-                    wand_type: WandType::CypressWand,
-                    slots: [
-                        Some(SpellType::MagicBolt),
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                    ],
-                    index: 0,
-                }),
-                Some(Wand {
-                    wand_type: WandType::CypressWand,
-                    slots: [
-                        Some(SpellType::PurpleBolt),
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                    ],
-                    index: 0,
-                }),
-                Some(Wand {
-                    wand_type: WandType::KeyWand,
-                    slots: [
-                        Some(SpellType::Heal),
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                    ],
-                    index: 0,
-                }),
-                None,
-            ],
+            homing: 0.0,
+            wands,
         },
         Witch,
         controller,

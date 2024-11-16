@@ -79,6 +79,7 @@ pub enum RemoteMessage {
         light_intensity: f32,
         light_radius: f32,
         light_color_hlsa: [f32; 4],
+        homing: f32,
     },
     // ダメージを受けたことを通知します
     Hit {
@@ -257,6 +258,7 @@ fn receive_events(
                                 3.0,
                                 &audio,
                                 false,
+                                [None, None, None, None],
                             );
                             info!("Remote player spawned: {}", uuid);
                         }
@@ -276,6 +278,7 @@ fn receive_events(
                         light_intensity,
                         light_radius,
                         light_color_hlsa,
+                        homing,
                     } => {
                         spawn_bullet(
                             &mut commands,
@@ -295,6 +298,7 @@ fn receive_events(
                                 light_intensity,
                                 light_radius,
                                 light_color_hlsa,
+                                homing,
                             },
                         );
                     }

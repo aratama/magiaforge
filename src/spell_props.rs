@@ -31,6 +31,7 @@ pub enum SpellCast {
     MultipleCast {
         amount: u32,
     },
+    Homing,
 }
 
 /// 呪文の基礎情報
@@ -197,6 +198,18 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
         SpellType::BulletSpeedDoown => BULLET_SPEED_DOWN,
         SpellType::DualCast => DUAL_CAST,
         SpellType::TripleCast => TRIPLE_CAST,
+        SpellType::Homing => SpellProps {
+            name: Dict {
+                ja: "ホーミング",
+                en: "Homing",
+            },
+            description: Dict { ja: "次に発射する魔法弾が敵に向かって追尾します。", 
+            en: "The next magic bullet you fire will home in on the enemy." },
+            mana_drain: 20,
+            cast_delay: 5,
+            icon: "spell_triple_cast",
+            cast: SpellCast::Homing,
+        } 
     }
 }
 
@@ -249,10 +262,6 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
             light_radius: _,
             light_color_hlsa: _,
         } => {
-
-
-            
-
             format!(
                 "{}:{}  {}:{}\n{}:{}  {}:{}\n{}:{}  {}:{}",
                 DAMAGE.get(language),
@@ -274,5 +283,6 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         }
         SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
         SpellCast::MultipleCast { amount: _ } => format!(""),
+        SpellCast::Homing => format!(""),
     }
 }

@@ -7,13 +7,6 @@ on:
     branches: ["main"]
 
 env:
-  # update with the name of the main binary
-  # binary: bevy_github_ci_template
-  # add_binaries_to_github_release: true
-  #itch_target: <itch.io-username>/<game-name>
-
-  # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
-  # https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-storage-and-bandwidth-usage
   use_git_lfs: false
 
 jobs:
@@ -24,15 +17,12 @@ jobs:
     steps:
       - uses: olegtarasov/get-tag@v2.1.2
         id: get_version
+
       - uses: actions/checkout@v4
-        with:
-          lfs: ${{ env.use_git_lfs }}
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
-
-      - name: install target wasm
-        run: rustup target add wasm32-unknown-unknown
 
       - name: install trunk
         run: cargo install --locked trunk

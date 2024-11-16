@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
+use crate::controller::enemy::Enemy;
 use crate::controller::remote::{RemoteMessage, RemotePlayer};
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
@@ -33,6 +34,7 @@ pub struct Bullet {
     damage: i32,
     impulse: f32,
     owner: Option<Uuid>,
+    homing: f32,
 }
 
 #[derive(Bundle)]
@@ -73,6 +75,7 @@ pub fn spawn_bullets(
             light_intensity: props.light_intensity,
             light_radius: props.light_radius,
             light_color_hlsa: props.light_color_hlsa,
+            homing: props.homing,
         })
         .unwrap();
         writer.send(ClientMessage::Binary(serialized));
@@ -93,6 +96,7 @@ pub struct SpawnBulletProps {
     pub light_intensity: f32,
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
+    pub homing: f32,
 }
 
 /// 指定された位置、方向、弾丸種別などから実際にエンティティを生成します
@@ -112,6 +116,7 @@ pub fn spawn_bullet(
             damage: spawning.damage,
             impulse: spawning.impulse,
             owner: spawning.owner,
+            homing: spawning.homing,
         },
         EntityDepth,
         AsepriteSliceBundle {
@@ -174,6 +179,32 @@ fn despawn_bullet_by_lifetime(
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn_recursive();
+        }
+    }
+}
+
+fn bullet_homing(
+    mut bullet_query: Query<(&mut Bullet, &mut Transform, &mut Velocity)>,
+    enemy_query: Query<&Transform, (With<Enemy>, Without<Bullet>)>,
+) {
+    for (bullet, mut bullet_transform, mut velocity) in bullet_query.iter_mut() {
+        if 0.0 < bullet.homing {
+            let bullet_position = bullet_transform.translation.truncate();
+            let mut enemies = Vec::from_iter(enemy_query.iter());
+            enemies.sort_by(|a, b| {
+                let x = a.translation.truncate().distance(bullet_position);
+                let y = b.translation.truncate().distance(bullet_position);
+                x.total_cmp(&y)
+            });
+            if let Some(nearest) = enemies.first() {
+                let bullet_angle = velocity.linvel.to_angle();
+                let target_angle = (nearest.translation.truncate() - bullet_position).to_angle();
+                let angle_diff = target_angle - bullet_angle;
+                let next_angle = angle_diff.signum() * angle_diff.abs().min(bullet.homing);
+                velocity.linvel =
+                    Vec2::from_angle(bullet_angle + next_angle) * velocity.linvel.length();
+                bullet_transform.rotation = Quat::from_rotation_z(velocity.linvel.to_angle());
+            }
         }
     }
 }
@@ -333,7 +364,7 @@ impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (despawn_bullet_by_lifetime, bullet_collision)
+            (despawn_bullet_by_lifetime, bullet_collision, bullet_homing)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

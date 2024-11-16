@@ -1,16 +1,13 @@
-use std::collections::HashSet;
-
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::ui::floating::{Floating, FloatingContent};
+use crate::ui::item_information::{SpellInformation, SpellInformationItem};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
     entity::actor::Actor, inventory_item::InventoryItem, states::GameState,
 };
 use bevy::prelude::*;
-use bevy::render::view::visibility;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
-
-use super::item_information::{SpellInformation, SpellInformationItem};
+use std::collections::HashSet;
 
 #[derive(Component)]
 struct InventoryItemSlot(usize);

@@ -26,6 +26,7 @@ use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItem;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::wand::Wand;
 use crate::wand::WandType;
 use crate::world::ceil::spawn_roof_tiles;
 use crate::world::map::image_to_tilemap;
@@ -166,10 +167,57 @@ fn spawn_level(
     inventory.set(11, Some(InventoryItem::Spell(SpellType::DualCast)));
     inventory.set(12, Some(InventoryItem::Spell(SpellType::TripleCast)));
     inventory.set(13, Some(InventoryItem::Equipment(Equipment::Lantern)));
-    inventory.set(14, Some(InventoryItem::Wand(WandType::KeyWand)));
+    inventory.set(14, Some(InventoryItem::Spell(SpellType::Homing)));
+    inventory.set(15, Some(InventoryItem::Wand(WandType::KeyWand)));
 
     let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
     equipments[0] = Some(Equipment::Lantern);
+
+    let wands = [
+        Some(Wand {
+            wand_type: WandType::CypressWand,
+            slots: [
+                Some(SpellType::Homing),
+                Some(SpellType::MagicBolt),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ],
+            index: 0,
+        }),
+        Some(Wand {
+            wand_type: WandType::CypressWand,
+            slots: [
+                Some(SpellType::PurpleBolt),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ],
+            index: 0,
+        }),
+        Some(Wand {
+            wand_type: WandType::KeyWand,
+            slots: [
+                Some(SpellType::Heal),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ],
+            index: 0,
+        }),
+        None,
+    ];
 
     let life = 150;
     let max_life = 150;
@@ -200,6 +248,7 @@ fn spawn_level(
         3.0,
         &audio,
         true,
+        wands,
     );
 
     if 20 < empties.len() {

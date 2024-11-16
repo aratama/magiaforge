@@ -8,4 +8,5 @@ pub enum SpellType {
     BulletSpeedDoown,
     DualCast,
     TripleCast,
+    Homing,
 }

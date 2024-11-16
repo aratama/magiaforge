@@ -47,6 +47,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
                 bullet_speed_buff_factor: 0.0,
+                homing: 0.0,
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,
