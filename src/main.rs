@@ -12,6 +12,7 @@ mod constant;
 mod controller;
 mod enemy;
 mod entity;
+mod equipment;
 mod game;
 mod hud;
 mod input;

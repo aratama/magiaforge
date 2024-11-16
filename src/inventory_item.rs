@@ -1,6 +1,7 @@
 use crate::{
     asset::GameAssets,
     entity::dropped_item::spawn_dropped_item,
+    equipment::{equipment_to_props, Equipment},
     language::{Dict, Languages},
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
@@ -13,7 +14,7 @@ use bevy::prelude::*;
 pub enum InventoryItem {
     Wand(WandType),
     Spell(SpellType),
-    Lantern,
+    Equipment(Equipment),
 }
 
 impl InventoryItem {
@@ -21,7 +22,15 @@ impl InventoryItem {
         match self {
             InventoryItem::Spell(_) => 1,
             InventoryItem::Wand(_) => 2,
-            InventoryItem::Lantern => 1,
+            InventoryItem::Equipment(_) => 1,
+        }
+    }
+
+    pub fn get_icon(&self) -> &'static str {
+        match self {
+            InventoryItem::Spell(spell) => spell_to_props(*spell).icon,
+            InventoryItem::Wand(wand) => wand_to_props(*wand).icon,
+            InventoryItem::Equipment(equipment) => equipment_to_props(*equipment).icon,
         }
     }
 }
@@ -51,13 +60,13 @@ pub fn spawn_inventory_item(
                 InventoryItem::Wand(wand_type),
             );
         }
-        InventoryItem::Lantern => {
+        InventoryItem::Equipment(equipment_type) => {
             spawn_dropped_item(
                 &mut commands,
                 &assets,
                 position.x,
                 position.y,
-                InventoryItem::Lantern,
+                InventoryItem::Equipment(equipment_type),
             );
         }
     }
@@ -87,17 +96,14 @@ pub fn inventory_item_to_props(item: InventoryItem) -> InventoryItemProps {
                 description: props.description,
             }
         }
-        InventoryItem::Lantern => InventoryItemProps {
-            icon: "lantern",
-            name: Dict {
-                ja: "ランタン",
-                en: "Lantern",
-            },
-            description: Dict {
-                ja: "暗闇を照らすランタン",
-                en: "A lantern that illuminates the darkness",
-            },
-        },
+        InventoryItem::Equipment(equipment) => {
+            let props = equipment_to_props(equipment);
+            InventoryItemProps {
+                icon: props.icon,
+                name: props.name,
+                description: props.description,
+            }
+        }
     }
 }
 

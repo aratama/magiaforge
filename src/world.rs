@@ -20,6 +20,7 @@ use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
+use crate::equipment::Equipment;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItem;
@@ -164,8 +165,11 @@ fn spawn_level(
     inventory.set(10, Some(InventoryItem::Spell(SpellType::PurpleBolt)));
     inventory.set(11, Some(InventoryItem::Spell(SpellType::DualCast)));
     inventory.set(12, Some(InventoryItem::Spell(SpellType::TripleCast)));
-    inventory.set(13, Some(InventoryItem::Lantern));
+    inventory.set(13, Some(InventoryItem::Equipment(Equipment::Lantern)));
     inventory.set(14, Some(InventoryItem::Wand(WandType::KeyWand)));
+
+    let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
+    equipments[0] = Some(Equipment::Lantern);
 
     let life = 150;
     let max_life = 150;
@@ -190,6 +194,7 @@ fn spawn_level(
             last_idle_life: life,
             last_idle_max_life: max_life,
             inventory,
+            equipments,
         },
         false,
         3.0,

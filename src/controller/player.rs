@@ -1,9 +1,10 @@
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
-use crate::constant::MAX_WANDS;
+use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::{spawn_gold, Gold};
+use crate::equipment::Equipment;
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
 use crate::inventory::Inventory;
 use crate::states::{GameMenuState, GameState};
@@ -26,6 +27,7 @@ pub struct Player {
     pub last_idle_life: i32,
     pub last_idle_max_life: i32,
     pub inventory: Inventory,
+    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
 }
 
 /// プレイヤーの移動
@@ -49,14 +51,13 @@ fn move_player(
     }
 }
 
-fn switch_intensity(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
-) {
-    if keys.just_pressed(KeyCode::KeyQ) {
-        if let Ok(mut actor) = player_query.get_single_mut() {
-            actor.intensity = if actor.intensity == 0.0 { 3.0 } else { 0.0 };
-        }
+fn apply_intensity_by_lantern(mut player_query: Query<(&Player, &mut Actor)>) {
+    if let Ok((player, mut actor)) = player_query.get_single_mut() {
+        let equiped_lantern = player.equipments.iter().any(|e| match e {
+            Some(Equipment::Lantern) => true,
+            _ => false,
+        });
+        actor.intensity = if equiped_lantern { 3.0 } else { 0.0 };
     }
 }
 
@@ -182,7 +183,7 @@ impl Plugin for PlayerPlugin {
                 trigger_bullet,
                 pick_gold,
                 die_player,
-                switch_intensity,
+                apply_intensity_by_lantern,
                 switch_wand,
             )
                 .run_if(in_state(GameState::InGame))

@@ -1,6 +1,6 @@
 use super::{
     command_button::{command_button, CommandButton},
-    floating::InventoryItemFloating,
+    floating::Floating,
     inventory::spawn_inventory,
     item_information::spawn_spell_information,
 };
@@ -13,7 +13,7 @@ use crate::{
     language::Dict,
     set::GameSet,
     states::{GameMenuState, GameState},
-    ui::floating::InventoryItemFloatingContent,
+    ui::floating::FloatingContent,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier2d::plugin::PhysicsSet;
@@ -111,11 +111,11 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
 }
 
 fn switch_sort_button_disabled(
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
     mut query: Query<&mut CommandButton, With<SortButton>>,
     player_query: Query<&Player>,
 ) {
-    let InventoryItemFloating(floating) = floating_query.single();
+    let Floating(floating) = floating_query.single();
     if let Ok(mut button) = query.get_single_mut() {
         if floating.is_some() {
             button.disabled = true;
@@ -160,7 +160,7 @@ fn apply_wand_editor_visible(
 }
 
 fn drop_item(
-    mut floating_query: Query<&mut InventoryItemFloating>,
+    mut floating_query: Query<&mut Floating>,
     mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
     mut commands: Commands,
     assets: Res<GameAssets>,
@@ -190,22 +190,13 @@ fn drop_item(
 
                             let mut floating = floating_query.single_mut();
                             match floating.0 {
-                                Some(InventoryItemFloatingContent::InventoryItem(index)) => {
-                                    match player.inventory.get(index) {
-                                        Some(item) => {
-                                            spawn_inventory_item(
-                                                &mut commands,
-                                                &assets,
-                                                dest,
-                                                item,
-                                            );
-                                            player.inventory.set(index, None);
-                                            *floating = InventoryItemFloating(None);
-                                        }
-                                        _ => {}
-                                    }
+                                Some(FloatingContent::Inventory(index)) => {
+                                    let item = player.inventory.get(index).unwrap();
+                                    spawn_inventory_item(&mut commands, &assets, dest, item);
+                                    player.inventory.set(index, None);
+                                    *floating = Floating(None);
                                 }
-                                Some(InventoryItemFloatingContent::Wand(index)) => {
+                                Some(FloatingContent::Wand(index)) => {
                                     if let Some(ref wand) = actor.wands[index] {
                                         for slot in wand.slots {
                                             if let Some(spell) = slot {
@@ -226,13 +217,10 @@ fn drop_item(
                                             InventoryItem::Wand(wand.wand_type),
                                         );
                                         actor.wands[index] = None;
-                                        *floating = InventoryItemFloating(None);
+                                        *floating = Floating(None);
                                     }
                                 }
-                                Some(InventoryItemFloatingContent::WandSpell {
-                                    wand_index,
-                                    spell_index,
-                                }) => {
+                                Some(FloatingContent::WandSpell(wand_index, spell_index)) => {
                                     if let Some(ref mut wand) = actor.wands[wand_index] {
                                         if let Some(spell) = wand.slots[spell_index] {
                                             spawn_dropped_item(
@@ -243,9 +231,20 @@ fn drop_item(
                                                 InventoryItem::Spell(spell),
                                             );
                                             wand.slots[spell_index] = None;
-                                            *floating = InventoryItemFloating(None);
+                                            *floating = Floating(None);
                                         }
                                     }
+                                }
+                                Some(FloatingContent::Equipment(index)) => {
+                                    let item = player.equipments[index].unwrap();
+                                    spawn_inventory_item(
+                                        &mut commands,
+                                        &assets,
+                                        dest,
+                                        InventoryItem::Equipment(item),
+                                    );
+                                    player.equipments[index] = None;
+                                    *floating = Floating(None);
                                 }
                                 None => {}
                             }

@@ -1,5 +1,5 @@
 use super::{
-    floating::{InventoryItemFloating, InventoryItemFloatingContent},
+    floating::{Floating, FloatingContent},
     item_information::{SpellInformation, SpellInformationItem},
     wand_list::slot_color,
 };
@@ -54,7 +54,7 @@ pub fn spawn_wand_spell_slot(
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut Visibility)>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
         for (spell_sprite, mut aseprite, mut visibility) in sprite_query.iter_mut() {
@@ -71,11 +71,9 @@ fn update_spell_sprite(
                         Some(spell) => {
                             let floating = floating_query.single();
                             match floating.0 {
-                                Some(InventoryItemFloatingContent::WandSpell {
-                                    wand_index,
-                                    spell_index,
-                                }) if wand_index == spell_sprite.wand_index
-                                    && spell_index == spell_sprite.spell_index => {}
+                                Some(FloatingContent::WandSpell(wand_index, spell_index))
+                                    if wand_index == spell_sprite.wand_index
+                                        && spell_index == spell_sprite.spell_index => {}
                                 _ => {
                                     let props = spell_to_props(spell);
                                     *aseprite = AsepriteSlice::new(props.icon);
@@ -98,7 +96,7 @@ fn update_spell_sprite(
 fn interaction_spell_sprite(
     mut interaction_query: Query<(&WandSpellSprite, &Interaction), Changed<Interaction>>,
     mut player_query: Query<(&mut Player, &mut Actor)>,
-    mut floating_query: Query<&mut InventoryItemFloating>,
+    mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
     mut spell_info_query: Query<&mut SpellInformation>,
 ) {
@@ -112,7 +110,7 @@ fn interaction_spell_sprite(
                 if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
-                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                        Some(FloatingContent::Inventory(index)) => {
                             match player.inventory.get(index) {
                                 Some(InventoryItem::Spell(selected_spell)) => {
                                     if let Some(ref mut wand) = &mut actor.wands[slot.wand_index] {
@@ -120,7 +118,7 @@ fn interaction_spell_sprite(
                                             None => {
                                                 player.inventory.set(index, None);
                                                 wand.slots[slot.spell_index] = Some(selected_spell);
-                                                *floating = InventoryItemFloating(None);
+                                                *floating = Floating(None);
                                             }
                                             Some(existing) => {
                                                 player.inventory.set(
@@ -135,17 +133,14 @@ fn interaction_spell_sprite(
                                 _ => {}
                             }
                         }
-                        Some(InventoryItemFloatingContent::WandSpell {
-                            wand_index,
-                            spell_index,
-                        }) => {
+                        Some(FloatingContent::WandSpell(wand_index, spell_index)) => {
                             // TODO
                             // 魔法の移動のとき、同じ配列に対して2つの可変参照を持つ可能性があるので配列を複製しているが、
                             // 複製すると、配列が異なる場合に正しく動かなくなってしまう
                             // 仕方ないので場合分けをしているが、もっと良い書き方があるかも
                             if wand_index == slot.wand_index {
                                 if spell_index == slot.spell_index {
-                                    *floating = InventoryItemFloating(None);
+                                    *floating = Floating(None);
                                 } else {
                                     match actor.wands[wand_index] {
                                         Some(ref mut wand_from) => {
@@ -157,7 +152,7 @@ fn interaction_spell_sprite(
                                                     wand_from.slots[spell_index] = None;
                                                     actor.wands[wand_index] =
                                                         Some(wand_from.clone());
-                                                    *floating = InventoryItemFloating(None);
+                                                    *floating = Floating(None);
                                                 }
                                                 Some(existing) => {
                                                     let spell =
@@ -191,7 +186,7 @@ fn interaction_spell_sprite(
                                                 actor.wands[wand_index] = Some(wand_from.clone());
                                                 actor.wands[slot.wand_index] =
                                                     Some(wand_to.clone());
-                                                *floating = InventoryItemFloating(None);
+                                                *floating = Floating(None);
                                             }
                                             Some(existing) => {
                                                 info!("existing spell: {:?}", existing);
@@ -213,15 +208,14 @@ fn interaction_spell_sprite(
                                 }
                             }
                         }
-                        Some(InventoryItemFloatingContent::Wand(_)) => {}
+                        Some(FloatingContent::Wand(_)) => {}
+                        Some(FloatingContent::Equipment(_)) => {}
                         None => {
                             if let Some(_) = actor.get_spell(slot.wand_index, slot.spell_index) {
-                                *floating = InventoryItemFloating(Some(
-                                    InventoryItemFloatingContent::WandSpell {
-                                        wand_index: slot.wand_index,
-                                        spell_index: slot.spell_index,
-                                    },
-                                ));
+                                *floating = Floating(Some(FloatingContent::WandSpell(
+                                    slot.wand_index,
+                                    slot.spell_index,
+                                )));
                             }
                         }
                     }

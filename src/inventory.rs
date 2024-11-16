@@ -1,5 +1,3 @@
-use bevy::log::info;
-
 use crate::{
     constant::{MAX_ITEMS_IN_INVENTORY, MAX_ITEMS_IN_INVENTORY_COLUMN, MAX_ITEMS_IN_INVENTORY_ROW},
     inventory_item::InventoryItem,
@@ -22,6 +20,14 @@ impl Inventory {
     pub fn set(&mut self, index: usize, item: Option<InventoryItem>) {
         let Inventory(ref mut inventory) = self;
         inventory[index] = item;
+    }
+
+    pub fn try_set(&mut self, index: usize, item: InventoryItem) -> bool {
+        if self.is_settable(index, item) {
+            self.set(index, Some(item));
+            return true;
+        }
+        return false;
     }
 
     pub fn is_settable(&self, index: usize, item: InventoryItem) -> bool {
@@ -50,10 +56,16 @@ impl Inventory {
 
     pub fn insert(&mut self, item: InventoryItem) -> bool {
         let Inventory(ref mut inventory) = *self;
-        for i in 0..MAX_ITEMS_IN_INVENTORY {
-            if inventory[i].is_none() {
-                inventory[i] = Some(item);
-                return true;
+        let mut i = 0;
+        while i < MAX_ITEMS_IN_INVENTORY {
+            match inventory[i] {
+                None => {
+                    inventory[i] = Some(item);
+                    return true;
+                }
+                Some(item) => {
+                    i += item.get_width();
+                }
             }
         }
         return false;

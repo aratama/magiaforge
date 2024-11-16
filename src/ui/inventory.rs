@@ -1,10 +1,8 @@
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::ui::floating::{InventoryItemFloating, InventoryItemFloatingContent};
-use crate::wand_props::wand_to_props;
+use crate::ui::floating::{Floating, FloatingContent};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
-    entity::actor::Actor, inventory_item::InventoryItem, spell_props::spell_to_props,
-    states::GameState,
+    entity::actor::Actor, inventory_item::InventoryItem, states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
@@ -100,13 +98,13 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 fn update_inventory_slot(
     query: Query<&Player>,
     mut slot_query: Query<(&InventoryItemSlot, &mut AsepriteSlice, &mut Style)>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
     if let Ok(player) = query.get_single() {
         let floating = floating_query.single();
         for (slot, mut aseprite, mut style) in slot_query.iter_mut() {
             match floating.0 {
-                Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                Some(FloatingContent::Inventory(index)) => {
                     if index == slot.0 {
                         *aseprite = "empty".into();
                         continue;
@@ -115,17 +113,9 @@ fn update_inventory_slot(
                 _ => {}
             }
 
-            let item = &player.inventory.get(slot.0);
+            let item = player.inventory.get(slot.0);
             let slice: &'static str = match item {
-                Some(InventoryItem::Spell(spell)) => {
-                    let props = spell_to_props(*spell);
-                    props.icon
-                }
-                Some(InventoryItem::Wand(wand)) => {
-                    let props = wand_to_props(*wand);
-                    props.icon
-                }
-                Some(InventoryItem::Lantern) => "lantern",
+                Some(item) => item.get_icon(),
                 None => "empty",
             };
             *aseprite = slice.into();
@@ -145,7 +135,7 @@ fn interaction(
         (&InventoryItemSlot, &Interaction, &mut BackgroundColor),
         Changed<Interaction>,
     >,
-    mut floating_query: Query<&mut InventoryItemFloating>,
+    mut floating_query: Query<&mut Floating>,
     mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
 
     mut spell_info_query: Query<&mut SpellInformation>,
@@ -162,32 +152,29 @@ fn interaction(
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
                         None => {
-                            *floating = InventoryItemFloating(Some(
-                                InventoryItemFloatingContent::InventoryItem(slot.0),
-                            ));
+                            *floating = Floating(Some(FloatingContent::Inventory(slot.0)));
                         }
-                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                        Some(FloatingContent::Inventory(index)) => {
                             if index == slot.0 {
-                                *floating = InventoryItemFloating(None);
+                                *floating = Floating(None);
                             } else {
                                 match (player.inventory.get(index), player.inventory.get(slot.0)) {
                                     (Some(floating_item), None) => {
                                         if player.inventory.is_settable(slot.0, floating_item) {
                                             player.inventory.set(slot.0, Some(floating_item));
                                             player.inventory.set(index, None);
-                                            *floating = InventoryItemFloating(None);
+                                            *floating = Floating(None);
                                         }
                                     }
                                     _ => {}
                                 }
                             }
                         }
-                        Some(InventoryItemFloatingContent::WandSpell {
-                            wand_index,
-                            spell_index,
-                        }) => match actor.wands[wand_index] {
+                        Some(FloatingContent::WandSpell(wand_index, spell_index)) => match actor
+                            .wands[wand_index]
+                        {
                             None => {
-                                *floating = InventoryItemFloating(None);
+                                *floating = Floating(None);
                             }
                             Some(ref mut wand) => {
                                 let spell = wand.slots[spell_index];
@@ -196,10 +183,10 @@ fn interaction(
                                     .set(slot.0, spell.and_then(|s| Some(InventoryItem::Spell(s))));
                                 wand.slots[spell_index] = None;
                                 actor.wands[wand_index] = Some(wand.clone());
-                                *floating = InventoryItemFloating(None);
+                                *floating = Floating(None);
                             }
                         },
-                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {
+                        Some(FloatingContent::Wand(wand_index)) => {
                             if let Some(ref wand) = actor.wands[wand_index] {
                                 let current = player.inventory.get(slot.0);
                                 player
@@ -232,14 +219,23 @@ fn interaction(
 
                                 match current {
                                     None => {
-                                        *floating = InventoryItemFloating(None);
+                                        *floating = Floating(None);
                                     }
                                     Some(_) => {
-                                        *floating = InventoryItemFloating(Some(
-                                            InventoryItemFloatingContent::InventoryItem(slot.0),
-                                        ));
+                                        *floating =
+                                            Floating(Some(FloatingContent::Inventory(slot.0)));
                                     }
                                 }
+                            }
+                        }
+                        Some(FloatingContent::Equipment(index)) => {
+                            let equipment = player.equipments[index].unwrap();
+                            if player
+                                .inventory
+                                .try_set(slot.0, InventoryItem::Equipment(equipment))
+                            {
+                                player.equipments[index] = None;
+                                *floating = Floating(None);
                             }
                         }
                     }

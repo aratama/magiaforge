@@ -1,4 +1,4 @@
-use crate::ui::floating::InventoryItemFloating;
+use crate::ui::floating::Floating;
 use crate::{
     asset::GameAssets,
     config::GameConfig,
@@ -106,9 +106,9 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
 fn update_spell_icon(
     mut query: Query<&mut AsepriteSlice, With<SpellIcon>>,
     spell_info: Query<&SpellInformation>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
-    let InventoryItemFloating(floating) = floating_query.single();
+    let Floating(floating) = floating_query.single();
     if floating.is_some() {
         return;
     }
@@ -134,9 +134,9 @@ fn update_spell_name(
     mut query: Query<&mut Text, With<SpellName>>,
     spell_info: Query<&SpellInformation>,
     config: Res<GameConfig>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
-    let InventoryItemFloating(floating) = floating_query.single();
+    let Floating(floating) = floating_query.single();
     if floating.is_some() {
         return;
     }
@@ -162,9 +162,9 @@ fn update_spell_description(
     mut query: Query<&mut Text, With<SpellDescription>>,
     spell_info: Query<&SpellInformation>,
     config: Res<GameConfig>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
-    let InventoryItemFloating(floating) = floating_query.single();
+    let Floating(floating) = floating_query.single();
     if floating.is_some() {
         return;
     }

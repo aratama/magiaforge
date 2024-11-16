@@ -1,5 +1,5 @@
 use super::{
-    floating::{InventoryItemFloating, InventoryItemFloatingContent},
+    floating::{Floating, FloatingContent},
     item_information::{SpellInformation, SpellInformationItem},
 };
 use crate::{
@@ -47,14 +47,14 @@ pub fn spawn_wand_sprite_in_list(
 fn update_wand_sprite(
     player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSprite, &mut AsepriteSlice)>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
     let floating = floating_query.single();
 
     if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut aseprite) in sprite_query.iter_mut() {
             *aseprite = match floating {
-                InventoryItemFloating(Some(InventoryItemFloatingContent::Wand(wand_index)))
+                Floating(Some(FloatingContent::Wand(wand_index)))
                     if *wand_index == wand_sprite.wand_index =>
                 {
                     AsepriteSlice::new("empty")
@@ -76,7 +76,7 @@ fn interact_wand_sprite(
     assets: Res<GameAssets>,
     mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
     mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
-    mut floating_query: Query<&mut InventoryItemFloating>,
+    mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
 ) {
     if *state.get() != GameMenuState::WandEditOpen {
@@ -90,7 +90,7 @@ fn interact_wand_sprite(
                 {
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
-                        Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                        Some(FloatingContent::Inventory(index)) => {
                             match player.inventory.get(index) {
                                 Some(InventoryItem::Wand(wand)) => {
                                     let current = actor.wands[slot.wand_index].clone();
@@ -114,28 +114,21 @@ fn interact_wand_sprite(
                                         slots: [None; MAX_SPELLS_IN_WAND],
                                         index: 0,
                                     });
-                                    *floating = InventoryItemFloating(None);
+                                    *floating = Floating(None);
                                     player.inventory.set(index, None);
                                 }
                                 _ => {}
                             }
                         }
-                        Some(InventoryItemFloatingContent::WandSpell { .. }) => {}
-                        Some(InventoryItemFloatingContent::Wand(wand_index)) => {
-                            if wand_index == slot.wand_index {
-                                *floating = InventoryItemFloating(None);
-                            } else {
-                                let wand = actor.wands[slot.wand_index].clone();
-                                actor.wands[slot.wand_index] = actor.wands[wand_index].clone();
-                                actor.wands[wand_index] = wand;
-                                *floating = InventoryItemFloating(None);
-                            }
+                        Some(FloatingContent::WandSpell { .. }) => {}
+                        Some(FloatingContent::Wand(wand_index)) => {
+                            actor.wands.swap(slot.wand_index, wand_index);
+                            *floating = Floating(None);
                         }
+                        Some(FloatingContent::Equipment(_)) => {}
                         None => {
                             if let Some(_) = actor.wands[slot.wand_index] {
-                                *floating = InventoryItemFloating(Some(
-                                    InventoryItemFloatingContent::Wand(slot.wand_index),
-                                ));
+                                *floating = Floating(Some(FloatingContent::Wand(slot.wand_index)));
                             }
                         }
                     }

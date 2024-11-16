@@ -3,6 +3,7 @@ use crate::{
     constant::WAND_EDITOR_FLOATING_Z_INDEX,
     controller::player::Player,
     entity::actor::Actor,
+    equipment::{self, equipment_to_props},
     inventory_item::{inventory_item_to_props, InventoryItem},
     spell_props::spell_to_props,
     states::{GameMenuState, GameState},
@@ -11,40 +12,39 @@ use crate::{
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
-pub enum InventoryItemFloatingContent {
-    InventoryItem(usize),
-    WandSpell {
-        wand_index: usize,
-        spell_index: usize,
-    },
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum FloatingContent {
+    Inventory(usize),
+    WandSpell(usize, usize),
     Wand(usize),
+    Equipment(usize),
 }
 
 #[derive(Component)]
-pub struct InventoryItemFloating(pub Option<InventoryItemFloatingContent>);
+pub struct Floating(pub Option<FloatingContent>);
 
-impl InventoryItemFloating {
+impl Floating {
     pub fn get_item(&self, player: &Player, actor: &Actor) -> Option<InventoryItem> {
         match self.0 {
             None => None,
-            Some(InventoryItemFloatingContent::InventoryItem(index)) => player.inventory.get(index),
-            Some(InventoryItemFloatingContent::WandSpell {
-                wand_index,
-                spell_index,
-            }) => actor.wands[wand_index]
+            Some(FloatingContent::Inventory(index)) => player.inventory.get(index),
+            Some(FloatingContent::WandSpell(wand_index, spell_index)) => actor.wands[wand_index]
                 .clone()
                 .and_then(|ref w| w.slots[spell_index])
                 .map(|ref w| InventoryItem::Spell(*w)),
-            Some(InventoryItemFloatingContent::Wand(wand_index)) => actor.wands[wand_index]
+            Some(FloatingContent::Wand(wand_index)) => actor.wands[wand_index]
                 .clone()
                 .map(|ref w| InventoryItem::Wand(w.wand_type)),
+            Some(FloatingContent::Equipment(index)) => player.equipments[index]
+                .clone()
+                .map(|ref e| InventoryItem::Equipment(*e)),
         }
     }
 }
 
 pub fn spawn_inventory_floating(commands: &mut Commands, assets: &Res<GameAssets>) {
     commands.spawn((
-        InventoryItemFloating(None),
+        Floating(None),
         StateScoped(GameState::InGame),
         Interaction::default(),
         ImageBundle {
@@ -72,7 +72,7 @@ pub fn spawn_inventory_floating(commands: &mut Commands, assets: &Res<GameAssets
 
 fn update_inventory_floaing(
     windows_query: Query<&Window, With<PrimaryWindow>>,
-    mut query: Query<(&mut Style, &mut InventoryItemFloating)>,
+    mut query: Query<(&mut Style, &mut Floating)>,
     mouse: Res<ButtonInput<MouseButton>>,
 ) {
     let (mut style, mut floating) = query.single_mut();
@@ -84,11 +84,11 @@ fn update_inventory_floaing(
     }
 
     if mouse.just_pressed(MouseButton::Right) {
-        *floating = InventoryItemFloating(None);
+        *floating = Floating(None);
     }
 }
 
-fn switch_floating_visibility(mut query: Query<(&InventoryItemFloating, &mut Visibility)>) {
+fn switch_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
     let (floating, mut visibility) = query.single_mut();
     *visibility = match floating.0 {
         Some(_) => Visibility::Visible,
@@ -98,15 +98,12 @@ fn switch_floating_visibility(mut query: Query<(&InventoryItemFloating, &mut Vis
 
 fn switch_floating_slice(
     player_query: Query<(&Player, &Actor)>,
-    mut floating_query: Query<
-        (&InventoryItemFloating, &mut AsepriteSlice, &mut Style),
-        With<InventoryItemFloating>,
-    >,
+    mut floating_query: Query<(&Floating, &mut AsepriteSlice, &mut Style), With<Floating>>,
 ) {
     if let Ok((player, actor)) = player_query.get_single() {
         let (floating, mut floating_slice, mut style) = floating_query.single_mut();
         match floating.0 {
-            Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+            Some(FloatingContent::Inventory(index)) => {
                 let item = player.inventory.get(index);
 
                 let slice = match item {
@@ -126,36 +123,43 @@ fn switch_floating_slice(
                     _ => Val::Px(32.0),
                 }
             }
-            Some(InventoryItemFloatingContent::WandSpell {
-                wand_index,
-                spell_index,
-            }) => match &actor.wands[wand_index] {
-                Some(wand) => match wand.slots[spell_index] {
-                    Some(spell) => {
-                        let props = spell_to_props(spell);
-                        *floating_slice = props.icon.into();
-                        style.width = Val::Px(32.0);
-                    }
-                    _ => {
-                        *floating_slice = "empty".into();
-                    }
-                },
-                None => {
-                    *floating_slice = "empty".into();
-                }
-            },
-            Some(InventoryItemFloatingContent::Wand(wand_index)) => {
+            Some(FloatingContent::WandSpell(wand_index, spell_index)) => {
                 match &actor.wands[wand_index] {
-                    Some(wand) => {
-                        let props = wand_to_props(wand.wand_type);
-                        *floating_slice = props.icon.into();
-                        style.width = Val::Px(64.0);
-                    }
+                    Some(wand) => match wand.slots[spell_index] {
+                        Some(spell) => {
+                            let props = spell_to_props(spell);
+                            *floating_slice = props.icon.into();
+                            style.width = Val::Px(32.0);
+                        }
+                        _ => {
+                            *floating_slice = "empty".into();
+                        }
+                    },
                     None => {
                         *floating_slice = "empty".into();
                     }
                 }
             }
+            Some(FloatingContent::Wand(wand_index)) => match &actor.wands[wand_index] {
+                Some(wand) => {
+                    let props = wand_to_props(wand.wand_type);
+                    *floating_slice = props.icon.into();
+                    style.width = Val::Px(64.0);
+                }
+                None => {
+                    *floating_slice = "empty".into();
+                }
+            },
+            Some(FloatingContent::Equipment(equipment)) => match player.equipments[equipment] {
+                Some(equipment) => {
+                    let props = equipment_to_props(equipment);
+                    *floating_slice = props.icon.into();
+                    style.width = Val::Px(32.0);
+                }
+                None => {
+                    *floating_slice = "empty".into();
+                }
+            },
             None => {
                 *floating_slice = "empty".into();
             }
@@ -163,14 +167,11 @@ fn switch_floating_slice(
     }
 }
 
-fn cancel_on_close(
-    state: Res<State<GameMenuState>>,
-    mut floating_query: Query<&mut InventoryItemFloating>,
-) {
+fn cancel_on_close(state: Res<State<GameMenuState>>, mut floating_query: Query<&mut Floating>) {
     if state.is_changed() {
         if *state.get() == GameMenuState::Closed {
             let mut floating = floating_query.single_mut();
-            *floating = InventoryItemFloating(None);
+            *floating = Floating(None);
         }
     }
 }

@@ -1,4 +1,5 @@
 use crate::entity::EntityDepth;
+use crate::equipment::equipment_to_props;
 use crate::inventory_item::InventoryItem;
 use crate::spell_props::spell_to_props;
 use crate::wand_props::wand_to_props;
@@ -41,7 +42,10 @@ pub fn spawn_dropped_item(
             let props = wand_to_props(wand);
             props.icon
         }
-        InventoryItem::Lantern => "lantern",
+        InventoryItem::Equipment(equipment) => {
+            let props = equipment_to_props(equipment);
+            props.icon
+        }
     };
     let name = match item_type {
         InventoryItem::Spell(spell) => {
@@ -52,12 +56,15 @@ pub fn spawn_dropped_item(
             let props = wand_to_props(wand);
             props.name.en
         }
-        InventoryItem::Lantern => "lantern",
+        InventoryItem::Equipment(equipment) => {
+            let props = equipment_to_props(equipment);
+            props.name.en
+        }
     };
     let frame_slice = match item_type {
         InventoryItem::Wand(_) => "empty", //"wand_frame",
         InventoryItem::Spell(_) => "spell_frame",
-        InventoryItem::Lantern => "empty",
+        InventoryItem::Equipment(_) => "empty",
     };
     let collider_width = match item_type {
         InventoryItem::Wand(_) => 16.0,
@@ -66,7 +73,7 @@ pub fn spawn_dropped_item(
     let swing = match item_type {
         InventoryItem::Spell(_) => 2.0,
         InventoryItem::Wand(_) => 0.0,
-        InventoryItem::Lantern => 0.0,
+        InventoryItem::Equipment(_) => 0.0,
     };
     commands
         .spawn((

@@ -1,5 +1,5 @@
 use super::{
-    floating::{InventoryItemFloating, InventoryItemFloatingContent},
+    floating::{Floating, FloatingContent},
     spell_in_wand::spawn_wand_spell_slot,
     wand_sprite::spawn_wand_sprite_in_list,
 };
@@ -75,13 +75,13 @@ fn spawn_wand_and_spell_slot(
 fn update_wand_slot_visibility(
     player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSlot, &mut BorderColor, &mut Visibility)>,
-    floating_query: Query<&InventoryItemFloating>,
+    floating_query: Query<&Floating>,
 ) {
     let floating = floating_query.single();
     if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut border, mut visibility) in sprite_query.iter_mut() {
             *visibility = match floating.0 {
-                Some(InventoryItemFloatingContent::Wand(index))
+                Some(FloatingContent::Wand(index))
                     if index == wand_sprite.wand_index =>
                 {
                     Visibility::Hidden
