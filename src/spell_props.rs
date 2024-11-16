@@ -1,4 +1,4 @@
-use crate::{language::Dict, spell::SpellType};
+use crate::{language::{Dict, Languages}, spell::SpellType};
 
 /// 呪文を詠唱したときの動作を表します
 /// 弾丸系魔法は Bullet にまとめられており、
@@ -76,7 +76,7 @@ const PURPLE_BOLT: SpellProps = SpellProps {
     },
     description: Dict {
         ja:
-            "邪悪な魔力を帯びた視線です。浴びせられると少し嫌な気持ちになります。",
+            "邪悪な魔力を帯びた視線です。浴びせられると少し悪寒が走ります。",
         en: "Fires a slow-moving purple energy bolt. It is weak but consumes little mana.",
     },
     mana_drain: 10,
@@ -200,7 +200,42 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
     }
 }
 
-pub fn get_spell_appendix(cast: SpellCast) -> String {
+const DAMAGE: Dict = Dict {
+    ja: "ダメージ",
+    en: "Damage",
+};
+
+const KNOCKBACK: Dict = Dict {
+    ja: "ノックバック",
+    en: "Knockback",
+};
+
+const SPEED: Dict = Dict {
+    ja: "射出速度",
+    en: "Speed",
+};
+
+const LIFETIME: Dict = Dict {
+    ja: "持続時間",
+    en: "Lifetime",
+};
+
+const SCATTERING: Dict = Dict {
+    ja: "拡散",
+    en: "Scattering",
+};
+
+const SIZE: Dict = Dict {
+    ja: "大きさ",
+    en: "Size",
+};
+
+const HEAL_TEXT: Dict = Dict {
+    ja: "回復",
+    en: "Heal",
+};
+ 
+pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
     match cast {
         SpellCast::Bullet {
             slice: _,
@@ -214,18 +249,28 @@ pub fn get_spell_appendix(cast: SpellCast) -> String {
             light_radius: _,
             light_color_hlsa: _,
         } => {
+
+
+            
+
             format!(
-                "ダメージ:{}  ノックバック:{}\n射出速度:{}  持続時間:{}\n拡散:{}  大きさ:{}",
+                "{}:{}  {}:{}\n{}:{}  {}:{}\n{}:{}  {}:{}",
+                DAMAGE.get(language),
                 damage,
+                KNOCKBACK.get(language),
                 impulse * 0.001,
+                SPEED.get(language),
                 speed,
+                LIFETIME.get(language),
                 lifetime,
+                SCATTERING.get(language),
                 scattering,
+                SIZE.get(language),
                 collier_radius,
             )
         }
         SpellCast::Heal => {
-            format!("回復:{}", 10)
+            format!("{}:{}", HEAL_TEXT.get(language), 10)
         }
         SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
         SpellCast::MultipleCast { amount: _ } => format!(""),

@@ -1,21 +1,17 @@
-use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
-
+use crate::ui::floating::InventoryItemFloating;
 use crate::{
     asset::GameAssets,
     config::GameConfig,
-    language::Dict,
-    spell::SpellType,
-    spell_props::{get_spell_appendix, spell_to_props},
+    inventory_item::{get_inventory_item_description, inventory_item_to_props, InventoryItem},
     states::GameState,
     wand::WandType,
     wand_props::wand_to_props,
 };
-
-use super::floating::InventoryItemFloating;
+use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
 
 pub enum SpellInformationItem {
-    Spell(SpellType),
+    InventoryItem(InventoryItem),
     Wand(WandType),
 }
 
@@ -120,8 +116,8 @@ fn update_spell_icon(
     let mut slice = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
-        SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
-            let props = spell_to_props(*spell);
+        SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
+            let props = inventory_item_to_props(*item);
             *slice = AsepriteSlice::new(props.icon);
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
@@ -148,8 +144,8 @@ fn update_spell_name(
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
-        SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
-            let props = spell_to_props(*spell);
+        SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
+            let props = inventory_item_to_props(*item);
             text.sections[0].value = props.name.get(config.language).to_string();
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
@@ -176,27 +172,8 @@ fn update_spell_description(
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
-        SpellInformation(Some(SpellInformationItem::Spell(spell))) => {
-            let props = spell_to_props(*spell);
-            let appendix = get_spell_appendix(props.cast);
-            text.sections[0].value = format!(
-                "{}\n{}:{}  {}:{}\n{}",
-                props.description.get(config.language),
-                (Dict {
-                    ja: "マナ消費",
-                    en: "Mana Drain",
-                })
-                .get(config.language),
-                props.mana_drain,
-                (Dict {
-                    ja: "詠唱遅延",
-                    en: "Cast Delay",
-                })
-                .get(config.language),
-                props.cast_delay,
-                appendix
-            )
-            .to_string();
+        SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
+            text.sections[0].value = get_inventory_item_description(*item, config.language);
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);

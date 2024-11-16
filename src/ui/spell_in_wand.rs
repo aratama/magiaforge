@@ -232,7 +232,9 @@ fn interaction_spell_sprite(
                             if let Some(spell) = wand.slots[slot.spell_index] {
                                 let mut spell_info = spell_info_query.single_mut();
                                 *spell_info =
-                                    SpellInformation(Some(SpellInformationItem::Spell(spell)));
+                                    SpellInformation(Some(SpellInformationItem::InventoryItem(
+                                        InventoryItem::Spell(spell),
+                                    )));
                             }
                         }
                         None => {}

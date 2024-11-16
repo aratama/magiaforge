@@ -196,6 +196,15 @@ fn pick_up(
                                 warn!("Inventory is full");
                             }
                         }
+                        DroppedItemType::Lantern => {
+                            if let Some(index) = player.inventory.iter().position(|i| i.is_none()) {
+                                player.inventory[index] = Some(InventoryItem::Lantern);
+                                commands.entity(nearest).despawn_recursive();
+                                global.send(GameCommand::SEPickUp(None));
+                            } else {
+                                warn!("Inventory is full");
+                            }
+                        }
                         DroppedItemType::Wand(wand) => {
                             if let Some(i) = actor.wands.iter().position(|w| w.is_none()) {
                                 actor.wands[i] = Some(Wand {

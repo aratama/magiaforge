@@ -93,11 +93,12 @@ fn update_inventory(
 
             let item = &player.inventory[slot.0];
             let slice: &'static str = match item {
-                None => "empty",
                 Some(InventoryItem::Spell(spell)) => {
                     let props = spell_to_props(*spell);
                     props.icon
                 }
+                Some(InventoryItem::Lantern) => "lantern",
+                None => "empty",
             };
             *aseprite = slice.into();
         }
@@ -168,11 +169,11 @@ fn interaction(
                 let mut spell_info = spell_info_query.single_mut();
                 if let Ok((player, _)) = player_query.get_single() {
                     match player.inventory[slot.0] {
-                        Some(InventoryItem::Spell(spell)) => {
+                        Some(item) => {
                             *spell_info =
-                                SpellInformation(Some(SpellInformationItem::Spell(spell)));
+                                SpellInformation(Some(SpellInformationItem::InventoryItem(item)));
                         }
-                        _ => {
+                        None => {
                             *spell_info = SpellInformation(None);
                         }
                     }

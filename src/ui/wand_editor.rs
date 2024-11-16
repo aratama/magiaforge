@@ -194,18 +194,30 @@ fn item_drop_button_pressed(
                             let mut floating = floating_query.single_mut();
                             match floating.0 {
                                 Some(InventoryItemFloatingContent::InventoryItem(index)) => {
-                                    if let Some(InventoryItem::Spell(spell)) =
-                                        player.inventory[index]
-                                    {
-                                        spawn_dropped_item(
-                                            &mut commands,
-                                            &assets,
-                                            dest.x,
-                                            dest.y,
-                                            DroppedItemType::Spell(spell),
-                                        );
-                                        player.inventory[index] = None;
-                                        *floating = InventoryItemFloating(None);
+                                    match player.inventory[index] {
+                                        Some(InventoryItem::Spell(spell)) => {
+                                            spawn_dropped_item(
+                                                &mut commands,
+                                                &assets,
+                                                dest.x,
+                                                dest.y,
+                                                DroppedItemType::Spell(spell),
+                                            );
+                                            player.inventory[index] = None;
+                                            *floating = InventoryItemFloating(None);
+                                        }
+                                        Some(InventoryItem::Lantern) => {
+                                            spawn_dropped_item(
+                                                &mut commands,
+                                                &assets,
+                                                dest.x,
+                                                dest.y,
+                                                DroppedItemType::Lantern,
+                                            );
+                                            player.inventory[index] = None;
+                                            *floating = InventoryItemFloating(None);
+                                        }
+                                        _ => {}
                                     }
                                 }
                                 Some(InventoryItemFloatingContent::Wand(index)) => {

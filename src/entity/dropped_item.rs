@@ -13,6 +13,7 @@ use rand::random;
 pub enum DroppedItemType {
     Spell(SpellType),
     Wand(WandType),
+    Lantern,
 }
 
 #[derive(Component)]
@@ -22,7 +23,9 @@ pub struct DroppedItemEntity {
 }
 
 #[derive(Component)]
-struct SpellSprites;
+struct SpellSprites {
+    swing: f32,
+}
 
 #[derive(Component)]
 struct InteractionMarker;
@@ -45,6 +48,7 @@ pub fn spawn_dropped_item(
             let props = wand_to_props(wand);
             props.icon
         }
+        DroppedItemType::Lantern => "lantern",
     };
     let name = match item_type {
         DroppedItemType::Spell(spell) => {
@@ -55,14 +59,21 @@ pub fn spawn_dropped_item(
             let props = wand_to_props(wand);
             props.name.en
         }
+        DroppedItemType::Lantern => "lantern",
     };
     let frame_slice = match item_type {
+        DroppedItemType::Wand(_) => "empty", //"wand_frame",
         DroppedItemType::Spell(_) => "spell_frame",
-        DroppedItemType::Wand(_) => "wand_frame",
+        DroppedItemType::Lantern => "empty",
     };
     let collider_width = match item_type {
-        DroppedItemType::Spell(_) => 8.0,
         DroppedItemType::Wand(_) => 16.0,
+        _ => 8.0,
+    };
+    let swing = match item_type {
+        DroppedItemType::Spell(_) => 2.0,
+        DroppedItemType::Wand(_) => 0.0,
+        DroppedItemType::Lantern => 0.0,
     };
     commands
         .spawn((
@@ -95,7 +106,7 @@ pub fn spawn_dropped_item(
         .with_children(|parent| {
             parent
                 .spawn((
-                    SpellSprites,
+                    SpellSprites { swing },
                     Transform::from_xyz(0.0, 0.0, 0.0),
                     GlobalTransform::default(),
                     InheritedVisibility::default(),
@@ -140,9 +151,9 @@ pub fn spawn_dropped_item(
         });
 }
 
-fn swing(mut query: Query<&mut Transform, With<SpellSprites>>, frame_count: Res<FrameCount>) {
-    for mut transform in query.iter_mut() {
-        transform.translation.y = (frame_count.0 as f32 * 0.05).sin() * 2.0;
+fn swing(mut query: Query<(&mut Transform, &SpellSprites)>, frame_count: Res<FrameCount>) {
+    for (mut transform, sprite) in query.iter_mut() {
+        transform.translation.y = (frame_count.0 as f32 * 0.05).sin() * sprite.swing;
     }
 }
 

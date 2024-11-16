@@ -3,7 +3,7 @@ use crate::{
     constant::WAND_EDITOR_FLOATING_Z_INDEX,
     controller::player::Player,
     entity::actor::Actor,
-    inventory_item::InventoryItem,
+    inventory_item::{inventory_item_to_props, InventoryItem},
     spell_props::spell_to_props,
     states::{GameMenuState, GameState},
     wand_props::wand_to_props,
@@ -89,11 +89,11 @@ fn switch_floating_slice(
         match floating.0 {
             Some(InventoryItemFloatingContent::InventoryItem(slot)) => {
                 let slice = match player.inventory[slot] {
-                    None => None,
-                    Some(InventoryItem::Spell(spell)) => {
-                        let props = spell_to_props(spell);
+                    Some(item) => {
+                        let props = inventory_item_to_props(item);
                         Some(props.icon)
                     }
+                    _ => None,
                 };
                 if let Some(slice) = slice {
                     *floating_slice = slice.into();
