@@ -1,3 +1,4 @@
+use crate::constant::WEBSOCKET_URL;
 use crate::controller::player::Player;
 use crate::entity::bullet::SpawnBulletProps;
 use crate::{
@@ -13,7 +14,6 @@ use bevy::{core::FrameCount, prelude::*, utils::HashMap};
 use bevy_kira_audio::Audio;
 use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
-use dotenvy_macro::dotenv;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -140,12 +140,9 @@ fn send_player_states(
 }
 
 fn on_enter(config: Res<GameConfig>, mut writer: EventWriter<ClientMessage>) {
-    info!("on_enter {}", config.online);
-
     if config.online {
-        let url = dotenv!("url");
-        info!("Connecting to {}", url);
-        writer.send(ClientMessage::Open(url.to_string()));
+        info!("Connecting to {}", WEBSOCKET_URL);
+        writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
     }
 }
 
