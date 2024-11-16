@@ -91,12 +91,12 @@ fn interact_wand_sprite(
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
                         Some(InventoryItemFloatingContent::InventoryItem(index)) => {
-                            match player.inventory[index] {
+                            match player.inventory.get(index) {
                                 Some(InventoryItem::Wand(wand)) => {
                                     let current = actor.wands[slot.wand_index].clone();
 
                                     let not_inserted = match current {
-                                        Some(wand) => player.insert_wand_to_inventory(&wand),
+                                        Some(wand) => player.inventory.insert_wand(&wand),
                                         None => Vec::new(),
                                     };
 
@@ -115,7 +115,7 @@ fn interact_wand_sprite(
                                         index: 0,
                                     });
                                     *floating = InventoryItemFloating(None);
-                                    player.inventory[index] = None;
+                                    player.inventory.set(index, None);
                                 }
                                 _ => {}
                             }

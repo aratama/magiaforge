@@ -113,18 +113,20 @@ fn interaction_spell_sprite(
                     let mut floating = floating_query.single_mut();
                     match floating.0 {
                         Some(InventoryItemFloatingContent::InventoryItem(index)) => {
-                            match player.inventory[index] {
+                            match player.inventory.get(index) {
                                 Some(InventoryItem::Spell(selected_spell)) => {
                                     if let Some(ref mut wand) = &mut actor.wands[slot.wand_index] {
                                         match wand.slots[slot.spell_index] {
                                             None => {
-                                                player.inventory[index] = None;
+                                                player.inventory.set(index, None);
                                                 wand.slots[slot.spell_index] = Some(selected_spell);
                                                 *floating = InventoryItemFloating(None);
                                             }
                                             Some(existing) => {
-                                                player.inventory[index] =
-                                                    Some(InventoryItem::Spell(existing));
+                                                player.inventory.set(
+                                                    index,
+                                                    Some(InventoryItem::Spell(existing)),
+                                                );
                                                 wand.slots[slot.spell_index] = Some(selected_spell);
                                             }
                                         }

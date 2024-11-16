@@ -1,13 +1,12 @@
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
-use crate::constant::{MAX_ITEMS_IN_INVENTORY, MAX_WANDS};
+use crate::constant::MAX_WANDS;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::input::{get_direction, get_fire_trigger, MyGamepad};
-use crate::inventory_item::InventoryItem;
+use crate::inventory::Inventory;
 use crate::states::{GameMenuState, GameState};
-use crate::wand::Wand;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
@@ -26,36 +25,7 @@ pub struct Player {
     pub last_idle_vy: f32,
     pub last_idle_life: i32,
     pub last_idle_max_life: i32,
-    pub inventory: [Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY],
-}
-
-impl Player {
-    pub fn insert_inventory_item(&mut self, item: InventoryItem) -> bool {
-        for i in 0..MAX_ITEMS_IN_INVENTORY {
-            if self.inventory[i].is_none() {
-                self.inventory[i] = Some(item);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    pub fn insert_wand_to_inventory(&mut self, wand: &Wand) -> Vec<InventoryItem> {
-        let mut items = Vec::new();
-        items.push(InventoryItem::Wand(wand.wand_type));
-        for spell in wand.slots.iter() {
-            if let Some(spell) = spell {
-                items.push(InventoryItem::Spell(*spell));
-            }
-        }
-        let mut not_inserted = Vec::new();
-        for item in items.iter() {
-            if !self.insert_inventory_item(*item) {
-                not_inserted.push(*item);
-            }
-        }
-        return not_inserted;
-    }
+    pub inventory: Inventory,
 }
 
 /// プレイヤーの移動

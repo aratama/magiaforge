@@ -23,6 +23,25 @@ pub enum InventoryItemFloatingContent {
 #[derive(Component)]
 pub struct InventoryItemFloating(pub Option<InventoryItemFloatingContent>);
 
+impl InventoryItemFloating {
+    pub fn get_item(&self, player: &Player, actor: &Actor) -> Option<InventoryItem> {
+        match self.0 {
+            None => None,
+            Some(InventoryItemFloatingContent::InventoryItem(index)) => player.inventory.get(index),
+            Some(InventoryItemFloatingContent::WandSpell {
+                wand_index,
+                spell_index,
+            }) => actor.wands[wand_index]
+                .clone()
+                .and_then(|ref w| w.slots[spell_index])
+                .map(|ref w| InventoryItem::Spell(*w)),
+            Some(InventoryItemFloatingContent::Wand(wand_index)) => actor.wands[wand_index]
+                .clone()
+                .map(|ref w| InventoryItem::Wand(w.wand_type)),
+        }
+    }
+}
+
 pub fn spawn_inventory_floating(commands: &mut Commands, assets: &Res<GameAssets>) {
     commands.spawn((
         InventoryItemFloating(None),
@@ -87,8 +106,8 @@ fn switch_floating_slice(
     if let Ok((player, actor)) = player_query.get_single() {
         let (floating, mut floating_slice, mut style) = floating_query.single_mut();
         match floating.0 {
-            Some(InventoryItemFloatingContent::InventoryItem(slot)) => {
-                let item = player.inventory[slot];
+            Some(InventoryItemFloatingContent::InventoryItem(index)) => {
+                let item = player.inventory.get(index);
 
                 let slice = match item {
                     Some(item) => {

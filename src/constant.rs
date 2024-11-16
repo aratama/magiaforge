@@ -14,7 +14,12 @@ pub const MAX_WANDS: usize = 4;
 
 pub const MAX_SPELLS_IN_WAND: usize = 8;
 
-pub const MAX_ITEMS_IN_INVENTORY: usize = 64;
+pub const MAX_ITEMS_IN_INVENTORY_ROW: usize = 8;
+
+pub const MAX_ITEMS_IN_INVENTORY_COLUMN: usize = 8;
+
+pub const MAX_ITEMS_IN_INVENTORY: usize =
+    MAX_ITEMS_IN_INVENTORY_ROW * MAX_ITEMS_IN_INVENTORY_COLUMN;
 
 /// level.aseprite のスライスの最大値 - 1
 pub const LEVELS: i32 = 4;

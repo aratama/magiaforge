@@ -115,7 +115,7 @@ fn update_inventory_slot(
                 _ => {}
             }
 
-            let item = &player.inventory[slot.0];
+            let item = &player.inventory.get(slot.0);
             let slice: &'static str = match item {
                 Some(InventoryItem::Spell(spell)) => {
                     let props = spell_to_props(*spell);
@@ -170,17 +170,15 @@ fn interaction(
                             if index == slot.0 {
                                 *floating = InventoryItemFloating(None);
                             } else {
-                                match player.inventory[slot.0] {
-                                    None => {
-                                        *floating = InventoryItemFloating(None);
-                                        player.inventory[slot.0] = player.inventory[index];
-                                        player.inventory[index] = None;
+                                match (player.inventory.get(index), player.inventory.get(slot.0)) {
+                                    (Some(floating_item), None) => {
+                                        if player.inventory.is_settable(slot.0, floating_item) {
+                                            player.inventory.set(slot.0, Some(floating_item));
+                                            player.inventory.set(index, None);
+                                            *floating = InventoryItemFloating(None);
+                                        }
                                     }
-                                    Some(_) => {
-                                        let spell = player.inventory[slot.0];
-                                        player.inventory[slot.0] = player.inventory[index];
-                                        player.inventory[index] = spell;
-                                    }
+                                    _ => {}
                                 }
                             }
                         }
@@ -193,8 +191,9 @@ fn interaction(
                             }
                             Some(ref mut wand) => {
                                 let spell = wand.slots[spell_index];
-                                player.inventory[slot.0] =
-                                    spell.and_then(|s| Some(InventoryItem::Spell(s)));
+                                player
+                                    .inventory
+                                    .set(slot.0, spell.and_then(|s| Some(InventoryItem::Spell(s))));
                                 wand.slots[spell_index] = None;
                                 actor.wands[wand_index] = Some(wand.clone());
                                 *floating = InventoryItemFloating(None);
@@ -202,17 +201,16 @@ fn interaction(
                         },
                         Some(InventoryItemFloatingContent::Wand(wand_index)) => {
                             if let Some(ref wand) = actor.wands[wand_index] {
-                                let current = player.inventory[slot.0];
-                                player.inventory[slot.0] =
-                                    Some(InventoryItem::Wand(wand.wand_type));
+                                let current = player.inventory.get(slot.0);
+                                player
+                                    .inventory
+                                    .set(slot.0, Some(InventoryItem::Wand(wand.wand_type)));
 
                                 // 杖に入っていた呪文はインベントリの空きスロットに入れる
                                 let mut not_inserted = Vec::new();
                                 for slot in wand.slots {
                                     if let Some(spell) = slot {
-                                        if !player
-                                            .insert_inventory_item(InventoryItem::Spell(spell))
-                                        {
+                                        if !player.inventory.insert(InventoryItem::Spell(spell)) {
                                             not_inserted.push(spell);
                                         }
                                     }
@@ -248,20 +246,25 @@ fn interaction(
                 }
             }
             Interaction::Hovered => {
-                *color = Color::hsla(0.0, 0.0, 0.5, 0.95).into();
                 let mut spell_info = spell_info_query.single_mut();
-                if let Ok((player, _, _)) = player_query.get_single() {
-                    match player.inventory[slot.0] {
-                        Some(item) => {
-                            *spell_info =
-                                SpellInformation(Some(SpellInformationItem::InventoryItem(item)));
-                        }
-                        None => {
-                            *spell_info = SpellInformation(None);
-                        }
+                if let Ok((player, actor, _)) = player_query.get_single() {
+                    let floating = floating_query.single_mut();
+                    let floating_item = floating.get_item(&player, &actor);
+                    if player.inventory.is_settable_optional(slot.0, floating_item) {
+                        *color = Color::hsla(0.0, 0.0, 0.5, 0.95).into();
+                        *spell_info = match player.inventory.get(slot.0) {
+                            Some(slot_item) => SpellInformation(Some(
+                                SpellInformationItem::InventoryItem(slot_item),
+                            )),
+                            None => SpellInformation(None),
+                        };
+                    } else {
+                        *spell_info = SpellInformation(None);
+                        *color = Color::hsla(0.0, 0.0, 0.0, 0.0).into();
                     }
                 } else {
                     *spell_info = SpellInformation(None);
+                    *color = Color::hsla(0.0, 0.0, 0.0, 0.0).into();
                 }
             }
             Interaction::None => {

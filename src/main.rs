@@ -16,6 +16,7 @@ mod game;
 mod hud;
 mod input;
 mod interaction_sensor;
+mod inventory;
 mod inventory_item;
 mod language;
 mod page;

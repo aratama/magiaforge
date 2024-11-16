@@ -9,7 +9,7 @@ use crate::{
     constant::{TILE_SIZE, WAND_EDITOR_Z_INDEX},
     controller::player::Player,
     entity::{actor::Actor, dropped_item::spawn_dropped_item},
-    inventory_item::{sort_inventory, spawn_inventory_item, InventoryItem},
+    inventory_item::{spawn_inventory_item, InventoryItem},
     language::Dict,
     set::GameSet,
     states::{GameMenuState, GameState},
@@ -123,7 +123,7 @@ fn switch_sort_button_disabled(
         }
         if let Ok(player) = player_query.get_single() {
             let mut cloned = player.inventory.clone();
-            sort_inventory(&mut cloned);
+            cloned.sort();
             button.disabled = cloned == player.inventory;
         }
     }
@@ -159,7 +159,7 @@ fn apply_wand_editor_visible(
     }
 }
 
-fn item_drop_button_pressed(
+fn drop_item(
     mut floating_query: Query<&mut InventoryItemFloating>,
     mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
     mut commands: Commands,
@@ -191,7 +191,7 @@ fn item_drop_button_pressed(
                             let mut floating = floating_query.single_mut();
                             match floating.0 {
                                 Some(InventoryItemFloatingContent::InventoryItem(index)) => {
-                                    match player.inventory[index] {
+                                    match player.inventory.get(index) {
                                         Some(item) => {
                                             spawn_inventory_item(
                                                 &mut commands,
@@ -199,7 +199,7 @@ fn item_drop_button_pressed(
                                                 dest,
                                                 item,
                                             );
-                                            player.inventory[index] = None;
+                                            player.inventory.set(index, None);
                                             *floating = InventoryItemFloating(None);
                                         }
                                         _ => {}
@@ -265,7 +265,7 @@ fn sort_button_pressed(
         for interaction in interaction_query.iter() {
             match interaction {
                 Interaction::Pressed => {
-                    sort_inventory(&mut player.inventory);
+                    player.inventory.sort();
                 }
                 _ => {}
             }
@@ -289,7 +289,7 @@ impl Plugin for WandEditorPlugin {
         );
         app.add_systems(
             FixedUpdate,
-            item_drop_button_pressed
+            drop_item
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),

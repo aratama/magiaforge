@@ -21,7 +21,7 @@ use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory_item::Inventory;
+use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItem;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -150,22 +150,22 @@ fn spawn_level(
         camera.translation.y = player_y;
     }
 
-    let mut inventory: Inventory = [None; MAX_ITEMS_IN_INVENTORY];
-    inventory[0] = Some(InventoryItem::Spell(SpellType::MagicBolt));
-    inventory[1] = Some(InventoryItem::Spell(SpellType::MagicBolt));
-    inventory[2] = Some(InventoryItem::Spell(SpellType::SlimeCharge));
-    inventory[3] = Some(InventoryItem::Spell(SpellType::Heal));
-    inventory[4] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory[5] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory[6] = Some(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory[7] = Some(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-    inventory[8] = Some(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-    inventory[9] = Some(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-    inventory[10] = Some(InventoryItem::Spell(SpellType::PurpleBolt));
-    inventory[11] = Some(InventoryItem::Spell(SpellType::DualCast));
-    inventory[12] = Some(InventoryItem::Spell(SpellType::TripleCast));
-    inventory[13] = Some(InventoryItem::Lantern);
-    inventory[14] = Some(InventoryItem::Wand(WandType::KeyWand));
+    let mut inventory = Inventory::new();
+    inventory.set(0, Some(InventoryItem::Spell(SpellType::MagicBolt)));
+    inventory.set(1, Some(InventoryItem::Spell(SpellType::MagicBolt)));
+    inventory.set(2, Some(InventoryItem::Spell(SpellType::SlimeCharge)));
+    inventory.set(3, Some(InventoryItem::Spell(SpellType::Heal)));
+    inventory.set(4, Some(InventoryItem::Spell(SpellType::BulletSpeedUp)));
+    inventory.set(5, Some(InventoryItem::Spell(SpellType::BulletSpeedUp)));
+    inventory.set(6, Some(InventoryItem::Spell(SpellType::BulletSpeedUp)));
+    inventory.set(7, Some(InventoryItem::Spell(SpellType::BulletSpeedDoown)));
+    inventory.set(8, Some(InventoryItem::Spell(SpellType::BulletSpeedDoown)));
+    inventory.set(9, Some(InventoryItem::Spell(SpellType::BulletSpeedDoown)));
+    inventory.set(10, Some(InventoryItem::Spell(SpellType::PurpleBolt)));
+    inventory.set(11, Some(InventoryItem::Spell(SpellType::DualCast)));
+    inventory.set(12, Some(InventoryItem::Spell(SpellType::TripleCast)));
+    inventory.set(13, Some(InventoryItem::Lantern));
+    inventory.set(14, Some(InventoryItem::Wand(WandType::KeyWand)));
 
     let life = 150;
     let max_life = 150;

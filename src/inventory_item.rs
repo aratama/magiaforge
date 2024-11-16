@@ -1,6 +1,5 @@
 use crate::{
     asset::GameAssets,
-    constant::MAX_ITEMS_IN_INVENTORY,
     entity::dropped_item::spawn_dropped_item,
     language::{Dict, Languages},
     spell::SpellType,
@@ -12,9 +11,19 @@ use bevy::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum InventoryItem {
-    Spell(SpellType),
     Wand(WandType),
+    Spell(SpellType),
     Lantern,
+}
+
+impl InventoryItem {
+    pub fn get_width(&self) -> usize {
+        match self {
+            InventoryItem::Spell(_) => 1,
+            InventoryItem::Wand(_) => 2,
+            InventoryItem::Lantern => 1,
+        }
+    }
 }
 
 pub fn spawn_inventory_item(
@@ -33,6 +42,15 @@ pub fn spawn_inventory_item(
                 InventoryItem::Spell(spell),
             );
         }
+        InventoryItem::Wand(wand_type) => {
+            spawn_dropped_item(
+                &mut commands,
+                &assets,
+                position.x,
+                position.y,
+                InventoryItem::Wand(wand_type),
+            );
+        }
         InventoryItem::Lantern => {
             spawn_dropped_item(
                 &mut commands,
@@ -42,7 +60,6 @@ pub fn spawn_inventory_item(
                 InventoryItem::Lantern,
             );
         }
-        _ => {}
     }
 }
 
@@ -116,20 +133,4 @@ pub fn get_inventory_item_description(item: InventoryItem, language: Languages) 
             .get(language)
             .to_string(),
     }
-}
-
-pub type Inventory = [Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY];
-
-pub fn sort_inventory(inventory: &mut Inventory) {
-    inventory.sort_by(|a, b| {
-        if a.is_none() {
-            return std::cmp::Ordering::Greater;
-        }
-        if b.is_none() {
-            return std::cmp::Ordering::Less;
-        }
-        match (a.unwrap(), b.unwrap()) {
-            (a, b) => a.cmp(&b),
-        }
-    });
 }
