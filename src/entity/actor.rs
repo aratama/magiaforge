@@ -13,6 +13,15 @@ use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
 
+#[derive(Clone, Copy, Default)]
+pub struct CastEffects {
+    // pub queue: Vec,
+    pub bullet_speed_buff_factor: f32,
+    // マルチキャストで待機中の弾丸
+    // pub multicasts: Vec<SpawnBulletProps>,
+    pub homing: f32,
+}
+
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
 pub struct Actor {
@@ -54,10 +63,10 @@ pub struct Actor {
 
     pub wands: [Option<Wand>; MAX_WANDS],
     // pub queue: Vec,
-    pub bullet_speed_buff_factor: f32,
-    // マルチキャストで待機中の弾丸
-    // pub multicasts: Vec<SpawnBulletProps>,
-    pub homing: f32,
+
+    // 弾丸へのバフ効果
+    // 一回発射するごとにリセットされます
+    pub effects: CastEffects,
 }
 
 impl Actor {

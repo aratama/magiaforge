@@ -77,7 +77,9 @@ pub fn cast_spell(
                         online,
                         SpawnBulletProps {
                             position: bullet_position,
-                            velocity: direction * speed * (1.0 + actor.bullet_speed_buff_factor),
+                            velocity: direction
+                                * speed
+                                * (1.0 + actor.effects.bullet_speed_buff_factor),
                             lifetime: lifetime,
                             owner: Some(actor.uuid),
                             group: actor.group,
@@ -89,19 +91,20 @@ pub fn cast_spell(
                             light_intensity,
                             light_radius,
                             light_color_hlsa,
-                            homing: actor.homing,
+                            homing: actor.effects.homing,
                         },
                     );
-                    actor.bullet_speed_buff_factor = 0.0;
-                    actor.homing = 0.0;
+                    actor.effects = default();
                     wand.shift();
 
                     return props.cast_delay as i32;
                 }
                 SpellCast::BulletSpeedUpDown { delta } => {
                     wand.shift();
-                    actor.bullet_speed_buff_factor =
-                        (actor.bullet_speed_buff_factor + delta).max(-0.9).min(3.0);
+                    actor.effects.bullet_speed_buff_factor =
+                        (actor.effects.bullet_speed_buff_factor + delta)
+                            .max(-0.9)
+                            .min(3.0);
 
                     return props.cast_delay as i32;
                 }
@@ -137,7 +140,7 @@ pub fn cast_spell(
                 }
                 SpellCast::Homing => {
                     wand.shift();
-                    actor.homing = (actor.homing + 0.02).max(-0.1).min(0.1);
+                    actor.effects.homing = (actor.effects.homing + 0.01).max(-0.1).min(0.1);
                     return props.cast_delay as i32;
                 }
             }

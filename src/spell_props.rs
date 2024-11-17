@@ -200,7 +200,7 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
         SpellType::TripleCast => TRIPLE_CAST,
         SpellType::Homing => SpellProps {
             name: Dict {
-                ja: "ホーミング",
+                ja: "追尾",
                 en: "Homing",
             },
             description: Dict { ja: "次に発射する魔法弾が敵に向かって追尾します。", 

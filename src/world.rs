@@ -168,6 +168,9 @@ fn spawn_level(
     inventory.insert(InventoryItem::Spell(SpellType::TripleCast));
     inventory.insert(InventoryItem::Equipment(Equipment::Lantern));
     inventory.insert(InventoryItem::Spell(SpellType::Homing));
+    inventory.insert(InventoryItem::Spell(SpellType::Homing));
+    inventory.insert(InventoryItem::Spell(SpellType::Homing));
+    inventory.insert(InventoryItem::Spell(SpellType::Homing));
     inventory.insert(InventoryItem::Wand(WandType::KeyWand));
     inventory.sort();
 
