@@ -3,9 +3,9 @@ use bevy::prelude::*;
 
 fn on_enter_warp(mut overlay_writer: EventWriter<OverlayEvent>, next_level: Res<NextLevel>) {
     overlay_writer.send(OverlayEvent::Close(match *next_level {
-        NextLevel::Level(_) => GameState::InGame,
+        NextLevel::Level(_, _) => GameState::InGame,
         NextLevel::None => GameState::InGame,
-        NextLevel::MultiPlayArena => GameState::NameInput,
+        NextLevel::MultiPlayArena(_) => GameState::NameInput,
     }));
 }
 

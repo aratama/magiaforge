@@ -15,7 +15,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 
 /// 操作可能なプレイヤーキャラクターを表します
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
 pub struct Player {
     pub name: String,
     pub golds: i32,

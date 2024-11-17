@@ -20,13 +20,11 @@ use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
-use crate::equipment::Equipment;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItem;
+use crate::player_state::PlayerState;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::Wand;
 use crate::wand::WandType;
 use crate::world::ceil::spawn_roof_tiles;
 use crate::world::map::image_to_tilemap;
@@ -42,13 +40,12 @@ use uuid::Uuid;
 use wall::respawn_wall_collisions;
 use wall::WallCollider;
 
-#[derive(Resource, Debug, Clone, Copy, Default)]
-
+#[derive(Resource, Debug, Clone, Default)]
 pub enum NextLevel {
     #[default]
     None,
-    Level(i32),
-    MultiPlayArena,
+    Level(i32, PlayerState),
+    MultiPlayArena(PlayerState),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -71,12 +68,16 @@ fn setup_world(
     next: Res<NextLevel>,
     audio: Res<Audio>,
 ) {
-    info!("setup_world {:?}", next);
-
-    let level = match *next {
+    let level = match next.clone() {
         NextLevel::None => GameLevel::Level(0),
-        NextLevel::Level(level) => GameLevel::Level(level % LEVELS),
-        NextLevel::MultiPlayArena => GameLevel::MultiPlayArena,
+        NextLevel::Level(level, _) => GameLevel::Level(level % LEVELS),
+        NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
+    };
+
+    let player = match next.clone() {
+        NextLevel::None => PlayerState::from_config(&config),
+        NextLevel::Level(_, player) => player,
+        NextLevel::MultiPlayArena(player) => player,
     };
 
     let mut chunk = spawn_level(
@@ -100,53 +101,6 @@ fn setup_world(
         camera.translation.y = player_y;
     }
 
-    let mut inventory = Inventory::new();
-    inventory.insert(InventoryItem::Spell(SpellType::MagicBolt));
-    inventory.insert(InventoryItem::Spell(SpellType::MagicBolt));
-    inventory.insert(InventoryItem::Spell(SpellType::SlimeCharge));
-    inventory.insert(InventoryItem::Spell(SpellType::Heal));
-    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
-    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-    inventory.insert(InventoryItem::Spell(SpellType::PurpleBolt));
-    inventory.insert(InventoryItem::Spell(SpellType::DualCast));
-    inventory.insert(InventoryItem::Spell(SpellType::TripleCast));
-    inventory.insert(InventoryItem::Equipment(Equipment::Lantern));
-    inventory.insert(InventoryItem::Spell(SpellType::Homing));
-    inventory.insert(InventoryItem::Spell(SpellType::Homing));
-    inventory.insert(InventoryItem::Spell(SpellType::Homing));
-    inventory.insert(InventoryItem::Spell(SpellType::Homing));
-    inventory.insert(InventoryItem::Wand(WandType::KeyWand));
-    inventory.sort();
-
-    let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
-    equipments[0] = Some(Equipment::Lantern);
-
-    let wands = [
-        Some(Wand {
-            wand_type: WandType::CypressWand,
-            slots: [
-                Some(SpellType::MagicBolt),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ],
-            index: 0,
-        }),
-        None,
-        None,
-        None,
-    ];
-
-    let life = 150;
-    let max_life = 150;
     spawn_witch(
         &mut commands,
         &assets,
@@ -154,27 +108,27 @@ fn setup_world(
         0.0,
         Uuid::new_v4(),
         None,
-        life,
-        max_life,
+        player.life,
+        player.max_life,
         &life_bar_res,
         Player {
-            name: config.player_name.clone(),
-            golds: 10,
+            name: player.name,
+            golds: player.golds,
             last_idle_frame_count: *frame_count,
             last_ilde_x: player_x,
             last_ilde_y: player_y,
             last_idle_vx: 0.0,
             last_idle_vy: 0.0,
-            last_idle_life: life,
-            last_idle_max_life: max_life,
-            inventory,
-            equipments,
+            last_idle_life: player.life,
+            last_idle_max_life: player.max_life,
+            inventory: player.inventory,
+            equipments: player.equipments,
         },
         false,
         3.0,
         &audio,
         true,
-        wands,
+        player.wands,
     );
 }
 
@@ -182,7 +136,7 @@ fn select_bgm(next: Res<NextLevel>, mut writer: EventWriter<GameCommand>) {
     if next.is_changed() {
         writer.send(match *next {
             NextLevel::None => GameCommand::BGMDokutsu,
-            NextLevel::Level(0) => GameCommand::BGMDokutsu,
+            NextLevel::Level(0, _) => GameCommand::BGMDokutsu,
             _ => GameCommand::BGMArechi,
         });
     }
