@@ -42,9 +42,6 @@ use uuid::Uuid;
 use wall::respawn_wall_collisions;
 use wall::WallCollider;
 
-#[derive(Resource, Debug, Clone, Default)]
-pub struct CurrentLevel(pub Option<i32>);
-
 #[derive(Resource, Debug, Clone, Copy, Default)]
 
 pub enum NextLevel {
@@ -54,59 +51,13 @@ pub enum NextLevel {
     MultiPlayArena,
 }
 
-fn setup_world(
-    commands: Commands,
-    level_aseprites: Res<Assets<Aseprite>>,
-    images: Res<Assets<Image>>,
-    assets: Res<GameAssets>,
-    collider_query: Query<Entity, With<WallCollider>>,
-    world_tile: Query<Entity, With<WorldTile>>,
-    life_bar_res: Res<LifeBarResource>,
-    camera: Query<&mut Transform, With<Camera2d>>,
-    frame_count: Res<FrameCount>,
-    config: Res<GameConfig>,
-    mut current: ResMut<CurrentLevel>,
-    next: Res<NextLevel>,
-    mut writer: EventWriter<GameCommand>,
-    audio: Res<Audio>,
-) {
-    info!("setup_world {:?}", next);
-
-    let level_slice = match *next {
-        NextLevel::None => "level0",
-        NextLevel::Level(level) => &format!("level{}", level % LEVELS),
-        NextLevel::MultiPlayArena => "multiplay_arena",
-    };
-
-    current.0 = match *next {
-        NextLevel::None => None,
-        NextLevel::Level(level) => Some(level % LEVELS),
-        NextLevel::MultiPlayArena => None,
-    };
-
-    writer.send(match *next {
-        NextLevel::None => GameCommand::BGMDokutsu,
-        NextLevel::Level(0) => GameCommand::BGMDokutsu,
-        _ => GameCommand::BGMArechi,
-    });
-
-    spawn_level(
-        commands,
-        level_aseprites,
-        images,
-        assets,
-        collider_query,
-        world_tile,
-        life_bar_res,
-        camera,
-        frame_count,
-        config,
-        &audio,
-        level_slice,
-    );
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum GameLevel {
+    Level(i32),
+    MultiPlayArena,
 }
 
-fn spawn_level(
+fn setup_world(
     mut commands: Commands,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
@@ -117,30 +68,27 @@ fn spawn_level(
     mut camera: Query<&mut Transform, With<Camera2d>>,
     frame_count: Res<FrameCount>,
     config: Res<GameConfig>,
-    audio: &Res<Audio>,
-    level_slice: &str,
+    next: Res<NextLevel>,
+    audio: Res<Audio>,
 ) {
-    let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
-    let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
-    let slice = level_aseprite.slices.get(level_slice).unwrap();
+    info!("setup_world {:?}", next);
 
-    info!(
-        "bounds min_x:{} max_x:{} min_y:{} max_y:{}",
-        slice.rect.min.x, slice.rect.max.x, slice.rect.min.y, slice.rect.max.y
+    let level = match *next {
+        NextLevel::None => GameLevel::Level(0),
+        NextLevel::Level(level) => GameLevel::Level(level % LEVELS),
+        NextLevel::MultiPlayArena => GameLevel::MultiPlayArena,
+    };
+
+    let mut chunk = spawn_level(
+        &mut commands,
+        &level_aseprites,
+        &images,
+        &assets,
+        &collider_query,
+        &world_tile,
+        &life_bar_res,
+        level,
     );
-
-    let mut chunk = image_to_tilemap(
-        &level_image,
-        slice.rect.min.x as i32,
-        slice.rect.max.x as i32,
-        slice.rect.min.y as i32,
-        slice.rect.max.y as i32,
-    );
-
-    let mut empties = image_to_spawn_tiles(&chunk);
-
-    respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
-    spawn_entities(&mut commands, &assets, &chunk);
 
     let entry_point = random_select(&mut chunk.entry_points);
 
@@ -228,6 +176,54 @@ fn spawn_level(
         true,
         wands,
     );
+}
+
+fn select_bgm(next: Res<NextLevel>, mut writer: EventWriter<GameCommand>) {
+    if next.is_changed() {
+        writer.send(match *next {
+            NextLevel::None => GameCommand::BGMDokutsu,
+            NextLevel::Level(0) => GameCommand::BGMDokutsu,
+            _ => GameCommand::BGMArechi,
+        });
+    }
+}
+
+fn spawn_level(
+    mut commands: &mut Commands,
+    level_aseprites: &Res<Assets<Aseprite>>,
+    images: &Res<Assets<Image>>,
+    assets: &Res<GameAssets>,
+    collider_query: &Query<Entity, With<WallCollider>>,
+    world_tile: &Query<Entity, With<WorldTile>>,
+    life_bar_res: &Res<LifeBarResource>,
+    level: GameLevel,
+) -> LevelTileMap {
+    let level_slice = match level {
+        GameLevel::Level(level) => &format!("level{}", level % LEVELS),
+        GameLevel::MultiPlayArena => "multiplay_arena",
+    };
+
+    let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
+    let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
+    let slice = level_aseprite.slices.get(level_slice).unwrap();
+
+    info!(
+        "bounds min_x:{} max_x:{} min_y:{} max_y:{}",
+        slice.rect.min.x, slice.rect.max.x, slice.rect.min.y, slice.rect.max.y
+    );
+
+    let chunk = image_to_tilemap(
+        &level_image,
+        slice.rect.min.x as i32,
+        slice.rect.max.x as i32,
+        slice.rect.min.y as i32,
+        slice.rect.max.y as i32,
+    );
+
+    let mut empties = image_to_spawn_tiles(&chunk);
+
+    respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
+    spawn_entities(&mut commands, &assets, &chunk);
 
     if 20 < empties.len() {
         for _ in 0..10 {
@@ -256,6 +252,8 @@ fn spawn_level(
             );
         }
     }
+
+    return chunk;
 }
 
 fn random_select<T: Copy>(xs: &mut Vec<T>) -> T {
@@ -265,7 +263,7 @@ fn random_select<T: Copy>(xs: &mut Vec<T>) -> T {
 fn respawn_world(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
-    collider_query: Query<Entity, With<WallCollider>>,
+    collider_query: &Query<Entity, With<WallCollider>>,
     chunk: &LevelTileMap,
     world_tile: &Query<Entity, With<WorldTile>>,
 ) {
@@ -461,7 +459,7 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_world);
-        app.init_resource::<CurrentLevel>();
         app.init_resource::<NextLevel>();
+        app.add_systems(Update, select_bgm.run_if(in_state(GameState::InGame)));
     }
 }
