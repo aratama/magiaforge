@@ -7,14 +7,17 @@ use bevy::{
 };
 use bevy_rapier2d::plugin::PhysicsSet;
 
-use crate::{config::GameConfig, player_state::PlayerState, states::GameState, world::NextLevel};
+use crate::{
+    config::GameConfig, hud::overlay::OverlayEvent, player_state::PlayerState, states::GameState,
+    world::NextLevel,
+};
 
 fn process_debug_command(
     mut evr_kbd: EventReader<KeyboardInput>,
     mut local: Local<String>,
-    mut next: ResMut<NextState<GameState>>,
     mut level: ResMut<NextLevel>,
     config: Res<GameConfig>,
+    mut writer: EventWriter<OverlayEvent>,
 ) {
     for ev in evr_kbd.read() {
         if ev.state == ButtonState::Released {
@@ -27,17 +30,25 @@ fn process_debug_command(
             _ => {}
         }
     }
-    // info!("debug commands: {}", *local);
 
     if local.ends_with("next") {
+        info!("debug command: next");
         local.clear();
         *level = match level.as_ref() {
             NextLevel::None => NextLevel::Level(1, PlayerState::from_config(&config)),
             NextLevel::Level(n, p) => NextLevel::Level(n + 1, p.clone()),
             NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
         };
-        info!("next level: {:?}", level);
-        next.set(GameState::Warp);
+        writer.send(OverlayEvent::Close(GameState::Warp));
+    } else if local.ends_with("home") {
+        info!("debug command: home");
+        local.clear();
+        *level = match level.as_ref() {
+            NextLevel::None => NextLevel::Level(0, PlayerState::from_config(&config)),
+            NextLevel::Level(_, p) => NextLevel::Level(0, p.clone()),
+            NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
+        };
+        writer.send(OverlayEvent::Close(GameState::Warp));
     }
 }
 
