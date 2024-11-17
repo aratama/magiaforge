@@ -137,7 +137,7 @@ pub fn cast_spell(
                 }
                 SpellCast::Homing => {
                     wand.shift();
-                    actor.homing = (actor.homing + 0.01).max(-0.1).min(0.1);
+                    actor.homing = (actor.homing + 0.02).max(-0.1).min(0.1);
                     return props.cast_delay as i32;
                 }
             }

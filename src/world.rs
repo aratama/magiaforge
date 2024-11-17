@@ -153,22 +153,23 @@ fn spawn_level(
     }
 
     let mut inventory = Inventory::new();
-    inventory.set(0, Some(InventoryItem::Spell(SpellType::MagicBolt)));
-    inventory.set(1, Some(InventoryItem::Spell(SpellType::MagicBolt)));
-    inventory.set(2, Some(InventoryItem::Spell(SpellType::SlimeCharge)));
-    inventory.set(3, Some(InventoryItem::Spell(SpellType::Heal)));
-    inventory.set(4, Some(InventoryItem::Spell(SpellType::BulletSpeedUp)));
-    inventory.set(5, Some(InventoryItem::Spell(SpellType::BulletSpeedUp)));
-    inventory.set(6, Some(InventoryItem::Spell(SpellType::BulletSpeedUp)));
-    inventory.set(7, Some(InventoryItem::Spell(SpellType::BulletSpeedDoown)));
-    inventory.set(8, Some(InventoryItem::Spell(SpellType::BulletSpeedDoown)));
-    inventory.set(9, Some(InventoryItem::Spell(SpellType::BulletSpeedDoown)));
-    inventory.set(10, Some(InventoryItem::Spell(SpellType::PurpleBolt)));
-    inventory.set(11, Some(InventoryItem::Spell(SpellType::DualCast)));
-    inventory.set(12, Some(InventoryItem::Spell(SpellType::TripleCast)));
-    inventory.set(13, Some(InventoryItem::Equipment(Equipment::Lantern)));
-    inventory.set(14, Some(InventoryItem::Spell(SpellType::Homing)));
-    inventory.set(15, Some(InventoryItem::Wand(WandType::KeyWand)));
+    inventory.insert(InventoryItem::Spell(SpellType::MagicBolt));
+    inventory.insert(InventoryItem::Spell(SpellType::MagicBolt));
+    inventory.insert(InventoryItem::Spell(SpellType::SlimeCharge));
+    inventory.insert(InventoryItem::Spell(SpellType::Heal));
+    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
+    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
+    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
+    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
+    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
+    inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
+    inventory.insert(InventoryItem::Spell(SpellType::PurpleBolt));
+    inventory.insert(InventoryItem::Spell(SpellType::DualCast));
+    inventory.insert(InventoryItem::Spell(SpellType::TripleCast));
+    inventory.insert(InventoryItem::Equipment(Equipment::Lantern));
+    inventory.insert(InventoryItem::Spell(SpellType::Homing));
+    inventory.insert(InventoryItem::Wand(WandType::KeyWand));
+    inventory.sort();
 
     let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
     equipments[0] = Some(Equipment::Lantern);
@@ -177,7 +178,6 @@ fn spawn_level(
         Some(Wand {
             wand_type: WandType::CypressWand,
             slots: [
-                Some(SpellType::Homing),
                 Some(SpellType::MagicBolt),
                 None,
                 None,
@@ -185,37 +185,12 @@ fn spawn_level(
                 None,
                 None,
                 None,
-            ],
-            index: 0,
-        }),
-        Some(Wand {
-            wand_type: WandType::CypressWand,
-            slots: [
-                Some(SpellType::PurpleBolt),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
                 None,
             ],
             index: 0,
         }),
-        Some(Wand {
-            wand_type: WandType::KeyWand,
-            slots: [
-                Some(SpellType::Heal),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ],
-            index: 0,
-        }),
+        None,
+        None,
         None,
     ];
 

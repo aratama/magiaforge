@@ -207,7 +207,7 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
             en: "The next magic bullet you fire will home in on the enemy." },
             mana_drain: 20,
             cast_delay: 5,
-            icon: "spell_triple_cast",
+            icon: "spell_homing",
             cast: SpellCast::Homing,
         } 
     }
