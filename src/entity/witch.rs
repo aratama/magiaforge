@@ -10,7 +10,6 @@ use crate::wand::Wand;
 use crate::wand_props::wand_to_props;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_kira_audio::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::f32::consts::PI;
 use uuid::Uuid;
@@ -23,9 +22,6 @@ pub const PLAYER_MOVE_FORCE: f32 = 50000.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct WitchWandSprite;
-
-#[derive(Default, Component, Reflect)]
-pub struct Footsteps(pub Handle<AudioInstance>);
 
 #[derive(Component)]
 pub struct Witch;
@@ -172,7 +168,9 @@ fn update_animation(
     for (parent, mut animation) in witch_animation_query.iter_mut() {
         if let Ok((actor, mut state)) = witch_query.get_mut(**parent) {
             if actor.move_direction.length() < 0.01 {
-                *state = ActorState(AnimationState::Idle);
+                if state.0 != AnimationState::Idle {
+                    *state = ActorState(AnimationState::Idle);
+                }
 
                 if animation.tag != Some("idle".to_string()) {
                     // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
@@ -180,7 +178,9 @@ fn update_animation(
                     animation.play("idle", AnimationRepeat::Loop);
                 }
             } else {
-                *state = ActorState(AnimationState::Walk);
+                if state.0 != AnimationState::Walk {
+                    *state = ActorState(AnimationState::Walk);
+                }
 
                 if animation.tag != Some("run".to_string()) {
                     animation.play("run", AnimationRepeat::Loop);

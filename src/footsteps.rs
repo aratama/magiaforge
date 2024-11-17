@@ -9,7 +9,7 @@ use std::time::Duration;
 pub struct WitchWandSprite;
 
 #[derive(Default, Component, Reflect)]
-pub struct Footsteps(Handle<AudioInstance>);
+pub struct Footsteps(pub Handle<AudioInstance>);
 
 fn update_volume(
     mut witch_query: Query<(&ActorState, &mut Footsteps), Changed<ActorState>>,
@@ -22,6 +22,8 @@ fn update_volume(
                 AnimationState::Walk => 0.6,
             };
             instance.set_volume(volume, AudioTween::linear(Duration::from_millis(200)));
+        } else {
+            warn!("no audio instance found");
         }
     }
 }
