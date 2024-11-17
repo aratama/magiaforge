@@ -21,6 +21,7 @@ use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
+use crate::footsteps::FootStepsPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
@@ -172,6 +173,7 @@ pub fn run_game() {
         .add_plugins(EntityPickerPlugin)
         .add_plugins(EnemyPlugin)
         .add_plugins(EquipmentListPlugin)
+        .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GameCommandPlugin)
         .add_plugins(GameConfigPlugin)

@@ -19,6 +19,7 @@ use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
+use crate::entity::witch::Footsteps;
 use crate::entity::GameEntity;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory_item::InventoryItem;
@@ -36,9 +37,10 @@ use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_kira_audio::Audio;
+use bevy_kira_audio::AudioControl;
 use map::image_to_spawn_tiles;
 use uuid::Uuid;
-use wall::respawn_wall_collisions;
+use wall::spawn_wall_collisions;
 use wall::WallCollider;
 
 #[derive(Resource, Debug, Clone, Default)]
@@ -55,6 +57,7 @@ pub enum GameLevel {
     MultiPlayArena,
 }
 
+/// レベルとプレイヤーキャラクターを生成します
 fn setup_world(
     mut commands: Commands,
     level_aseprites: Res<Assets<Aseprite>>,
@@ -97,7 +100,8 @@ fn setup_world(
         camera.translation.y = player_y;
     }
 
-    spawn_witch(
+    // プレイヤーキャラクターの魔法使いを生成
+    let witch_entity = spawn_witch(
         &mut commands,
         &assets,
         Vec2::new(player_x, player_y),
@@ -107,6 +111,10 @@ fn setup_world(
         player.life,
         player.max_life,
         &life_bar_res,
+        false,
+        3.0,
+        true,
+        player.wands,
         Player {
             name: player.name,
             golds: player.golds,
@@ -120,12 +128,19 @@ fn setup_world(
             inventory: player.inventory,
             equipments: player.equipments,
         },
-        false,
-        3.0,
-        &audio,
-        true,
-        player.wands,
     );
+
+    // 足音が必要なのはプレイヤーキャラクターだけなので、足音コンポーネントを追加
+    let audio_instance = audio
+        .play(assets.taiikukan.clone())
+        .looped()
+        .with_volume(0.0)
+        // .with_volume(Volume::Amplitude((config.se_volume * volume) as f64))
+        // .with_panning(panning as f64)
+        .handle();
+    commands
+        .entity(witch_entity)
+        .insert(Footsteps(audio_instance));
 }
 
 fn select_bgm(next: Res<NextLevel>, mut writer: EventWriter<GameCommand>) {
@@ -186,11 +201,9 @@ fn spawn_level(
 
     let mut empties = image_to_spawn_tiles(&chunk);
 
-    // despown if exisiting
+    spawn_world_tilemap(&mut commands, &assets, &chunk);
 
-    // spawn
-
-    respawn_world(&mut commands, &assets, &chunk);
+    spawn_wall_collisions(&mut commands, &chunk);
 
     spawn_entities(&mut commands, &assets, &chunk);
 
@@ -225,12 +238,7 @@ fn spawn_level(
     return chunk;
 }
 
-fn respawn_world(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
-    respawn_world_tilemap(&mut commands, &assets, &chunk);
-    respawn_wall_collisions(&mut commands, &chunk);
-}
-
-fn respawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
+fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
     // 床と壁の生成
     for y in chunk.min_y..chunk.max_y as i32 {
         for x in chunk.min_x..chunk.max_x as i32 {

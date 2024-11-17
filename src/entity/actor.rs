@@ -22,6 +22,13 @@ pub struct CastEffects {
     pub homing: f32,
 }
 
+#[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AnimationState {
+    #[default]
+    Idle,
+    Walk,
+}
+
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
 #[derive(Component)]
 pub struct Actor {
@@ -35,6 +42,7 @@ pub struct Actor {
     pub max_mana: i32,
 
     pub life: i32,
+
     pub max_life: i32,
 
     /// プレイヤーの位置からの相対的なポインターの位置
@@ -61,6 +69,9 @@ pub struct Actor {
 
     pub current_wand: usize,
 
+    /// アクターが所持している杖のリスト
+    /// モンスターの呪文詠唱の仕組みもプレイヤーキャラクターと同一であるため、
+    /// 内部的にはモンスターも杖を持っていることになっています
     pub wands: [Option<Wand>; MAX_WANDS],
     // pub queue: Vec,
 

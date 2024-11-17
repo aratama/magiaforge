@@ -2,6 +2,7 @@ use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::breakable::{Breakable, BreakableSprite};
+use crate::entity::witch::ActorState;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
@@ -58,6 +59,7 @@ pub fn spawn_basic_enemy<T: Component>(
                     None,
                 ],
             },
+            ActorState::default(),
             EntityDepth,
             Breakable {
                 life: 0,

@@ -11,7 +11,6 @@ use crate::{
     states::GameState,
 };
 use bevy::{core::FrameCount, prelude::*, utils::HashMap};
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::{plugin::PhysicsSet, prelude::Velocity};
 use bevy_simple_websocket::{ClientMessage, ReadyState, ServerMessage, WebSocketState};
 use serde::{Deserialize, Serialize};
@@ -191,7 +190,6 @@ fn receive_events(
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
     mut writer: EventWriter<GameCommand>,
-    audio: Res<Audio>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -249,16 +247,15 @@ fn receive_events(
                                 life,
                                 max_life,
                                 &life_bar_res,
+                                true,
+                                3.0,
+                                false,
+                                [None, None, None, None],
                                 RemotePlayer {
                                     name,
                                     golds,
                                     last_update: *frame_count,
                                 },
-                                true,
-                                3.0,
-                                &audio,
-                                false,
-                                [None, None, None, None],
                             );
                             info!("Remote player spawned: {}", uuid);
                         }

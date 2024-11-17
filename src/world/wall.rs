@@ -91,7 +91,7 @@ pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
 pub struct WallCollider;
 
-pub fn respawn_wall_collisions(commands: &mut Commands, chunk: &LevelTileMap) {
+pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelTileMap) {
     // 衝突形状の生成
     for rect in get_wall_collisions(&chunk) {
         let w = TILE_HALF * (rect.width() + 1.0);
