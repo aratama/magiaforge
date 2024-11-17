@@ -7,6 +7,7 @@ use crate::constant::*;
 use crate::controller::enemy::EnemyPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
+use crate::debug::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
@@ -165,6 +166,7 @@ pub fn run_game() {
         .add_plugins(CameraPlugin)
         .add_plugins(ChestPlugin)
         .add_plugins(CommandButtonPlugin)
+        .add_plugins(DebugCommandPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(EntityPickerPlugin)

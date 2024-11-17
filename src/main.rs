@@ -10,6 +10,7 @@ mod command;
 mod config;
 mod constant;
 mod controller;
+mod debug;
 mod enemy;
 mod entity;
 mod equipment;
