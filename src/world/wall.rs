@@ -91,16 +91,7 @@ pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
 pub struct WallCollider;
 
-pub fn respawn_wall_collisions(
-    commands: &mut Commands,
-    collider_query: &Query<Entity, With<WallCollider>>,
-    chunk: &LevelTileMap,
-) {
-    // 既存の壁コライダーを削除
-    for entity in collider_query {
-        commands.entity(entity).despawn_recursive();
-    }
-
+pub fn respawn_wall_collisions(commands: &mut Commands, chunk: &LevelTileMap) {
     // 衝突形状の生成
     for rect in get_wall_collisions(&chunk) {
         let w = TILE_HALF * (rect.width() + 1.0);

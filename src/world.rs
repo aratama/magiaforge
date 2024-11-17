@@ -23,6 +23,7 @@ use crate::entity::GameEntity;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory_item::InventoryItem;
 use crate::player_state::PlayerState;
+use crate::random::random_select;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::WandType;
@@ -59,11 +60,8 @@ fn setup_world(
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
-    collider_query: Query<Entity, With<WallCollider>>,
-    world_tile: Query<Entity, With<WorldTile>>,
     life_bar_res: Res<LifeBarResource>,
     mut camera: Query<&mut Transform, With<Camera2d>>,
-    frame_count: Res<FrameCount>,
     config: Res<GameConfig>,
     next: Res<NextLevel>,
     audio: Res<Audio>,
@@ -85,8 +83,6 @@ fn setup_world(
         &level_aseprites,
         &images,
         &assets,
-        &collider_query,
-        &world_tile,
         &life_bar_res,
         level,
     );
@@ -114,7 +110,7 @@ fn setup_world(
         Player {
             name: player.name,
             golds: player.golds,
-            last_idle_frame_count: *frame_count,
+            last_idle_frame_count: FrameCount(0),
             last_ilde_x: player_x,
             last_ilde_y: player_y,
             last_idle_vx: 0.0,
@@ -142,13 +138,27 @@ fn select_bgm(next: Res<NextLevel>, mut writer: EventWriter<GameCommand>) {
     }
 }
 
+/// 現状は StateScopedですべてのエンティティが削除されるので以下のコードは不要ですが、
+/// 今後レベルのシームレスなスポーンを実装する場合は、以下のようなコードが必要になるかも
+#[allow(dead_code)]
+fn despawn_level(
+    commands: &mut Commands,
+    collider_query: &Query<Entity, With<WallCollider>>,
+    world_tile: &Query<Entity, With<WorldTile>>,
+) {
+    for entity in world_tile {
+        commands.entity(entity).despawn_recursive();
+    }
+    for entity in collider_query {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
 fn spawn_level(
     mut commands: &mut Commands,
     level_aseprites: &Res<Assets<Aseprite>>,
     images: &Res<Assets<Image>>,
     assets: &Res<GameAssets>,
-    collider_query: &Query<Entity, With<WallCollider>>,
-    world_tile: &Query<Entity, With<WorldTile>>,
     life_bar_res: &Res<LifeBarResource>,
     level: GameLevel,
 ) -> LevelTileMap {
@@ -176,7 +186,12 @@ fn spawn_level(
 
     let mut empties = image_to_spawn_tiles(&chunk);
 
-    respawn_world(&mut commands, &assets, collider_query, &chunk, &world_tile);
+    // despown if exisiting
+
+    // spawn
+
+    respawn_world(&mut commands, &assets, &chunk);
+
     spawn_entities(&mut commands, &assets, &chunk);
 
     if 20 < empties.len() {
@@ -210,31 +225,12 @@ fn spawn_level(
     return chunk;
 }
 
-fn random_select<T: Copy>(xs: &mut Vec<T>) -> T {
-    xs.remove((rand::random::<usize>() % xs.len()) as usize)
+fn respawn_world(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
+    respawn_world_tilemap(&mut commands, &assets, &chunk);
+    respawn_wall_collisions(&mut commands, &chunk);
 }
 
-fn respawn_world(
-    mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    collider_query: &Query<Entity, With<WallCollider>>,
-    chunk: &LevelTileMap,
-    world_tile: &Query<Entity, With<WorldTile>>,
-) {
-    respawn_world_tilemap(&mut commands, &assets, &chunk, &world_tile);
-    respawn_wall_collisions(&mut commands, &collider_query, &chunk);
-}
-
-fn respawn_world_tilemap(
-    commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    chunk: &LevelTileMap,
-    world_tile: &Query<Entity, With<WorldTile>>,
-) {
-    for entity in world_tile {
-        commands.entity(entity).despawn_recursive();
-    }
-
+fn respawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
     // 床と壁の生成
     for y in chunk.min_y..chunk.max_y as i32 {
         for x in chunk.min_x..chunk.max_x as i32 {

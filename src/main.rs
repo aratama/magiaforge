@@ -23,6 +23,7 @@ mod inventory_item;
 mod language;
 mod page;
 mod player_state;
+mod random;
 mod set;
 mod spell;
 mod spell_commands;
