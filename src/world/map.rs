@@ -142,6 +142,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::MultiPlayArenaMagicCircle, x, y));
                 }
+                (56, 111, 161, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::MagicCircleHome, x, y));
+                }
                 (255, 0, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
@@ -197,7 +204,7 @@ pub fn image_to_tilemap(
                         tile: Tile::Blank,
                         biome: Biome::SafeZone,
                     });
-                    warn!("Unknown color: ({}, {}, {}, {})", r, g, b, a);
+                    error!("Unknown color: ({}, {}, {}, {})", r, g, b, a);
                 }
             }
         }

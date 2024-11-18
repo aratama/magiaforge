@@ -17,6 +17,7 @@ const MIN_FALLOFF_ON: f32 = 10.0;
 #[derive(Debug, Clone, Copy)]
 pub enum MagicCircleDestination {
     NextLevel,
+    Home,
     MultiplayArena,
 }
 
@@ -42,8 +43,6 @@ pub fn spawn_magic_circle(
     destination: MagicCircleDestination,
 ) {
     let light_entity = commands.spawn_empty().id();
-
-    info!("spawn cirlce to {:?}", destination);
 
     commands
         .spawn((
@@ -149,8 +148,6 @@ fn warp(
                 writer.send(GameCommand::SEWarp(Some(transform.translation.truncate())));
                 commands.entity(entity).despawn_recursive();
 
-                info!("circle.destination {:?}", circle.destination);
-
                 let player_state = PlayerState {
                     name: player.name.clone(),
                     life: actor.life,
@@ -171,12 +168,14 @@ fn warp(
                             NextLevel::MultiPlayArena(_) => NextLevel::Level(1, player_state),
                         };
                         config.online = false;
-                        info!("next level: {:?}", *next);
+                    }
+                    MagicCircleDestination::Home => {
+                        *next = NextLevel::Level(0, player_state);
+                        config.online = false;
                     }
                     MagicCircleDestination::MultiplayArena => {
                         *next = NextLevel::MultiPlayArena(player_state);
                         config.online = true;
-                        info!("next level: {:?}", *next);
                     }
                 }
             }

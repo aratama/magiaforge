@@ -346,6 +346,15 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     MagicCircleDestination::NextLevel,
                 );
             }
+            GameEntity::MagicCircleHome => {
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    MagicCircleDestination::Home,
+                );
+            }
             GameEntity::MultiPlayArenaMagicCircle => {
                 spawn_magic_circle(
                     &mut commands,

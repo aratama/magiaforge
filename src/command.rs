@@ -171,7 +171,6 @@ fn process_game_commands(
                 *next_bgm = BGM(Some(assets.arechi.clone()));
             }
             GameCommand::BGMDokutsu => {
-                info!("play dokutsu");
                 *next_bgm = BGM(Some(assets.dokutsu.clone()));
             }
             GameCommand::StateMainMenu => {

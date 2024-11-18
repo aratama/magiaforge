@@ -78,7 +78,11 @@ fn setup(
                 })
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
-                        "Input Your Name",
+                        Dict {
+                            ja: "名前を入力してください",
+                            en: "Input Your Name",
+                        }
+                        .get(config.language),
                         TextStyle {
                             font_size: 60.0,
                             font: assets.dotgothic.clone(),

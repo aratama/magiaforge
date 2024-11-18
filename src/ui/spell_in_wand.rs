@@ -189,7 +189,6 @@ fn interaction_spell_sprite(
                                                 *floating = Floating(None);
                                             }
                                             Some(existing) => {
-                                                info!("existing spell: {:?}", existing);
                                                 let spell = wand_from.slots[spell_index].clone();
                                                 wand_to.slots[slot.spell_index] = spell;
                                                 wand_from.slots[spell_index] = Some(existing);

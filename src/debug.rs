@@ -32,7 +32,6 @@ fn process_debug_command(
     }
 
     if local.ends_with("next") {
-        info!("debug command: next");
         local.clear();
         *level = match level.as_ref() {
             NextLevel::None => NextLevel::Level(1, PlayerState::from_config(&config)),
@@ -41,7 +40,6 @@ fn process_debug_command(
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("home") {
-        info!("debug command: home");
         local.clear();
         *level = match level.as_ref() {
             NextLevel::None => NextLevel::Level(0, PlayerState::from_config(&config)),

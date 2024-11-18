@@ -121,6 +121,8 @@ fn pick_gold(
                 commands.entity(gold).despawn_recursive();
             } else if diff.length() < 48.0 {
                 gold_force.force = diff.normalize() * 1000.0;
+            } else {
+                gold_force.force = Vec2::ZERO;
             }
         }
 

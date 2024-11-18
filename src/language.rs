@@ -6,6 +6,7 @@ pub enum Languages {
     En,
 }
 
+#[derive(Debug)]
 pub struct Dict {
     pub ja: &'static str,
     pub en: &'static str,

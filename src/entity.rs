@@ -24,6 +24,7 @@ pub enum GameEntity {
     Chest,
     BookShelf,
     MagicCircle,
+    MagicCircleHome,
     MultiPlayArenaMagicCircle,
     BrokenMagicCircle,
     Usage,

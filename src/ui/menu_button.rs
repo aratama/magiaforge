@@ -56,27 +56,18 @@ pub fn menu_button<'a>(
 }
 
 fn update_text(config: Res<GameConfig>, mut query: Query<(&mut Text, &MenuButtonText)>) {
-    if config.is_changed() {
-        for (mut text, label) in query.iter_mut() {
-            text.sections[0].value = label.text.get(config.language).to_string();
-        }
+    for (mut text, label) in query.iter_mut() {
+        text.sections[0].value = label.text.get(config.language).to_string();
     }
-}
-
-fn update_text_on_enter(mut config: ResMut<GameConfig>) {
-    // ハック
-    // update_textでは config が変更されたときに呼ばれるが、
-    // タイトル画面に戻ってから再開すると、config が変更されていないため呼ばれず、
-    // ラベルが正しく更新されない
-    // これを避けるため、config をわざと上書きして強制的に呼び出す
-    config.language = config.language;
 }
 
 pub struct MenuButtonPlugin;
 
 impl Plugin for MenuButtonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_text.run_if(in_state(GameState::InGame)));
-        app.add_systems(OnEnter(GameState::InGame), update_text_on_enter);
+        app.add_systems(
+            Update,
+            update_text.run_if(in_state(GameState::InGame).or_else(in_state(GameState::NameInput))),
+        );
     }
 }

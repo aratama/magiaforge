@@ -101,7 +101,8 @@ impl Plugin for OverlayPlugin {
                 update_overlay.after(read_overlay_event).run_if(
                     in_state(GameState::InGame)
                         .or_else(in_state(GameState::MainMenu))
-                        .or_else(in_state(GameState::NameInput).or_else(in_state(GameState::Warp))),
+                        .or_else(in_state(GameState::NameInput))
+                        .or_else(in_state(GameState::Warp)),
                 ),
             ),
         );
