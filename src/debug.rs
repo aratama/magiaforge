@@ -9,7 +9,7 @@ use bevy_rapier2d::plugin::PhysicsSet;
 
 use crate::{
     config::GameConfig, hud::overlay::OverlayEvent, player_state::PlayerState, states::GameState,
-    world::NextLevel,
+    level::NextLevel,
 };
 
 fn process_debug_command(

@@ -7,7 +7,7 @@ use crate::language::{Dict, Languages};
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
-use crate::world::NextLevel;
+use crate::level::NextLevel;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;

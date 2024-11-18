@@ -1,4 +1,4 @@
-use crate::world::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
+use crate::level::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
 use crate::{asset::GameAssets, entity::get_entity_z, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceBundle};

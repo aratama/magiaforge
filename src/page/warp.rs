@@ -1,4 +1,4 @@
-use crate::{hud::overlay::OverlayEvent, states::GameState, world::NextLevel};
+use crate::{hud::overlay::OverlayEvent, states::GameState, level::NextLevel};
 use bevy::prelude::*;
 
 fn on_enter_warp(mut overlay_writer: EventWriter<OverlayEvent>, next_level: Res<NextLevel>) {

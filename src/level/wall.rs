@@ -1,8 +1,8 @@
-use crate::world::{
+use crate::level::{
     map::LevelTileMap, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE,
     WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
 };
-use crate::{states::GameState, world::Tile};
+use crate::{states::GameState, level::Tile};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,

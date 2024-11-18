@@ -33,7 +33,7 @@ mod states;
 mod ui;
 mod wand;
 mod wand_props;
-mod world;
+mod level;
 
 use game::run_game;
 

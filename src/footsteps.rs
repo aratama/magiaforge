@@ -1,5 +1,4 @@
-use crate::entity::actor::AnimationState;
-use crate::entity::witch::ActorState;
+use crate::entity::actor::ActorState;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
@@ -17,9 +16,9 @@ fn update_volume(
 ) {
     for (state, footsteps) in witch_query.iter_mut() {
         if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
-            let volume = match state.0 {
-                AnimationState::Idle => 0.0,
-                AnimationState::Walk => 0.6,
+            let volume = match state {
+                ActorState::Idle => 0.0,
+                ActorState::Walk => 0.6,
             };
             instance.set_volume(volume, AudioTween::linear(Duration::from_millis(200)));
         } else {

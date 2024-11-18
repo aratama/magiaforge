@@ -3,9 +3,11 @@ pub mod overlay;
 pub mod pointer;
 
 use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::level::{level_to_name, GameLevel, NextLevel};
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
 use crate::ui::equipment_list::spawn_equipment_list;
@@ -28,7 +30,12 @@ pub struct PlayerManaBar;
 #[derive(Component)]
 pub struct PlayerGold;
 
-fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
+fn setup_hud(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    next: Res<NextLevel>,
+    config: Res<GameConfig>,
+) {
     commands
         .spawn((
             Name::new("hud_root"),
@@ -58,26 +65,68 @@ fn setup_hud(mut commands: Commands, assets: Res<GameAssets>) {
             // 左上
             spawn_status_bars(&mut parent);
 
-            // 左下
+            // 下半分
             parent
                 .spawn((
                     StateScoped(GameState::InGame),
                     NodeBundle {
                         z_index: ZIndex::Global(HUD_Z_INDEX),
                         style: Style {
+                            width: Val::Percent(100.),
                             display: Display::Flex,
-                            flex_direction: FlexDirection::Column,
-                            align_items: AlignItems::Start,
-                            row_gap: Val::Px(4.),
+                            flex_direction: FlexDirection::Row,
+                            align_items: AlignItems::End,
+                            justify_content: JustifyContent::SpaceBetween,
                             ..default()
                         },
                         ..default()
                     },
                 ))
-                .with_children(|mut parent| {
-                    spawn_wand_list(&mut parent, &assets);
+                .with_children(|parent| {
+                    // 左下
+                    parent
+                        .spawn((
+                            StateScoped(GameState::InGame),
+                            NodeBundle {
+                                z_index: ZIndex::Global(HUD_Z_INDEX),
+                                style: Style {
+                                    display: Display::Flex,
+                                    flex_direction: FlexDirection::Column,
+                                    align_items: AlignItems::Start,
+                                    row_gap: Val::Px(4.),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                        ))
+                        .with_children(|mut parent| {
+                            spawn_wand_list(&mut parent, &assets);
 
-                    spawn_equipment_list(&mut parent, &assets);
+                            spawn_equipment_list(&mut parent, &assets);
+                        });
+
+                    // 右下
+
+                    let level: GameLevel = match *next {
+                        NextLevel::None => GameLevel::Level(0),
+                        NextLevel::Level(i, _) => GameLevel::Level(i),
+                        NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
+                    };
+                    let name = level_to_name(level).get(config.language).to_string();
+
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            name,
+                            TextStyle {
+                                color: Color::srgba(1.0, 1.0, 1.0, 0.3),
+                                font: assets.dotgothic.clone(),
+                                font_size: 12.0,
+                                ..default()
+                            },
+                        ),
+                        style: Style { ..default() },
+                        ..default()
+                    });
                 });
         });
 

@@ -22,8 +22,8 @@ pub struct CastEffects {
     pub homing: f32,
 }
 
-#[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
-pub enum AnimationState {
+#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ActorState {
     #[default]
     Idle,
     Walk,
@@ -212,13 +212,28 @@ fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
     }
 }
 
+fn update_actor_state(mut witch_query: Query<(&Actor, &mut ActorState)>) {
+    for (actor, mut state) in witch_query.iter_mut() {
+        if actor.move_direction.length() < 0.01 {
+            if *state != ActorState::Idle {
+                *state = ActorState::Idle;
+            }
+        } else {
+            if *state != ActorState::Walk {
+                *state = ActorState::Walk;
+            }
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_sprite_flip, update_actor_light).run_if(in_state(GameState::InGame)),
+            (update_sprite_flip, update_actor_light, update_actor_state)
+                .run_if(in_state(GameState::InGame)),
         );
         app.add_systems(
             FixedUpdate,

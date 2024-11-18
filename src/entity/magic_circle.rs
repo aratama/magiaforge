@@ -1,6 +1,6 @@
 use crate::{
     asset::GameAssets, command::GameCommand, config::GameConfig, constant::*,
-    controller::player::Player, player_state::PlayerState, states::GameState, world::NextLevel,
+    controller::player::Player, player_state::PlayerState, states::GameState, level::NextLevel,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;

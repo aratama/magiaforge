@@ -1,4 +1,4 @@
-use crate::{entity::GameEntity, world::tile::Tile};
+use crate::{entity::GameEntity, level::tile::Tile};
 use bevy::{
     a11y::accesskit::Vec2,
     log::*,

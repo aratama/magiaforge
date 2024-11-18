@@ -1,3 +1,4 @@
+use super::actor::ActorState;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState};
@@ -14,8 +15,6 @@ use bevy_rapier2d::prelude::*;
 use std::f32::consts::PI;
 use uuid::Uuid;
 
-use super::actor::AnimationState;
-
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
 pub const PLAYER_MOVE_FORCE: f32 = 50000.0;
@@ -25,9 +24,6 @@ pub struct WitchWandSprite;
 
 #[derive(Component)]
 pub struct Witch;
-
-#[derive(Component, Default)]
-pub struct ActorState(pub AnimationState);
 
 pub fn spawn_witch<T: Component>(
     commands: &mut Commands,
@@ -161,31 +157,21 @@ pub fn spawn_witch<T: Component>(
     return entity.id();
 }
 
-fn update_animation(
-    mut witch_query: Query<(&Actor, &mut ActorState)>,
+fn update_witch_animation(
+    witch_query: Query<&ActorState, Changed<ActorState>>,
     mut witch_animation_query: Query<(&Parent, &mut Animation)>,
 ) {
     for (parent, mut animation) in witch_animation_query.iter_mut() {
-        if let Ok((actor, mut state)) = witch_query.get_mut(**parent) {
-            if actor.move_direction.length() < 0.01 {
-                if state.0 != AnimationState::Idle {
-                    *state = ActorState(AnimationState::Idle);
-                }
-
-                if animation.tag != Some("idle".to_string()) {
-                    // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
-                    // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
-                    animation.play("idle", AnimationRepeat::Loop);
-                }
-            } else {
-                if state.0 != AnimationState::Walk {
-                    *state = ActorState(AnimationState::Walk);
-                }
-
-                if animation.tag != Some("run".to_string()) {
-                    animation.play("run", AnimationRepeat::Loop);
-                }
-            }
+        if let Ok(state) = witch_query.get(**parent) {
+            // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
+            // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
+            animation.play(
+                match state {
+                    ActorState::Idle => "idle",
+                    ActorState::Walk => "run",
+                },
+                AnimationRepeat::Loop,
+            );
         }
     }
 }
@@ -221,7 +207,7 @@ impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_animation, update_wand).run_if(in_state(GameState::InGame)),
+            (update_witch_animation, update_wand).run_if(in_state(GameState::InGame)),
         );
     }
 }

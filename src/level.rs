@@ -23,15 +23,16 @@ use crate::entity::GameEntity;
 use crate::footsteps::Footsteps;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory_item::InventoryItem;
+use crate::language::Dict;
+use crate::level::ceil::spawn_roof_tiles;
+use crate::level::map::image_to_tilemap;
+use crate::level::map::LevelTileMap;
+use crate::level::tile::*;
 use crate::player_state::PlayerState;
 use crate::random::random_select;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::WandType;
-use crate::world::ceil::spawn_roof_tiles;
-use crate::world::map::image_to_tilemap;
-use crate::world::map::LevelTileMap;
-use crate::world::tile::*;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -58,7 +59,7 @@ pub enum GameLevel {
 }
 
 /// レベルとプレイヤーキャラクターを生成します
-fn setup_world(
+fn setup_level(
     mut commands: Commands,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
@@ -421,11 +422,40 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
     }
 }
 
+pub fn level_to_name(level: GameLevel) -> Dict {
+    match level {
+        GameLevel::Level(0) => Dict {
+            ja: "見捨てられた工房",
+            en: "Abandoned Workshop",
+        },
+
+        GameLevel::Level(1) => Dict {
+            ja: "図書館跡",
+            en: "Library Ruins",
+        },
+
+        GameLevel::Level(2) => Dict {
+            ja: "洞窟",
+            en: "Cave",
+        },
+
+        GameLevel::MultiPlayArena => Dict {
+            ja: "対決の洞窟",
+            en: "Arena Cave",
+        },
+
+        _ => Dict {
+            ja: "不明",
+            en: "Unknown",
+        },
+    }
+}
+
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::InGame), setup_world);
+        app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.init_resource::<NextLevel>();
         app.add_systems(Update, select_bgm.run_if(in_state(GameState::InGame)));
     }
