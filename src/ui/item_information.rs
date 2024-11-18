@@ -31,7 +31,6 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
     builder
         .spawn((
             SpellInformation(None),
-            StateScoped(GameState::InGame),
             NodeBundle {
                 style: Style {
                     padding: UiRect::all(Val::Px(8.0)),
@@ -60,7 +59,6 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
                 .with_children(|parent| {
                     parent.spawn((
                         SpellIcon,
-                        StateScoped(GameState::MainMenu),
                         ImageBundle {
                             style: Style {
                                 width: Val::Px(32.0),
@@ -77,7 +75,6 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
                     ));
 
                     parent.spawn((
-                        StateScoped(GameState::MainMenu),
                         SpellName,
                         TextBundle::from_section(
                             "",
@@ -90,7 +87,6 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
                 });
 
             parent.spawn((
-                StateScoped(GameState::MainMenu),
                 SpellDescription,
                 TextBundle::from_section(
                     "",

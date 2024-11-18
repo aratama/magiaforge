@@ -42,10 +42,9 @@ impl Floating {
     }
 }
 
-pub fn spawn_inventory_floating(commands: &mut Commands, assets: &Res<GameAssets>) {
-    commands.spawn((
+pub fn spawn_inventory_floating(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+    builder.spawn((
         Floating(None),
-        StateScoped(GameState::InGame),
         Interaction::default(),
         ImageBundle {
             style: Style {

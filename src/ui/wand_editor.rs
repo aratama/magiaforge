@@ -26,10 +26,9 @@ struct SortButton;
 
 const MENU_THEME_COLOR: Color = Color::hsla(63.0, 0.12, 0.5, 0.95);
 
-pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
-    commands
+pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+    builder
         .spawn((
-            StateScoped(GameState::InGame),
             WandEditorRoot,
             NodeBundle {
                 style: Style {
@@ -54,18 +53,15 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
             spawn_inventory(&mut parent, &assets);
 
             parent
-                .spawn((
-                    StateScoped(GameState::InGame),
-                    NodeBundle {
-                        style: Style {
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Row,
-                            column_gap: Val::Px(8.0),
-                            ..default()
-                        },
+                .spawn((NodeBundle {
+                    style: Style {
+                        display: Display::Flex,
+                        flex_direction: FlexDirection::Row,
+                        column_gap: Val::Px(8.0),
                         ..default()
                     },
-                ))
+                    ..default()
+                },))
                 .with_children(|parent| {
                     command_button(
                         parent,
@@ -82,9 +78,8 @@ pub fn spawn_wand_editor(commands: &mut Commands, assets: &Res<GameAssets>) {
                 });
         });
 
-    commands
+    builder
         .spawn((
-            StateScoped(GameState::InGame),
             WandEditorRoot,
             NodeBundle {
                 style: Style {

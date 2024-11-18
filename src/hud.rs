@@ -67,38 +67,32 @@ fn setup_hud(
 
             // 下半分
             parent
-                .spawn((
-                    StateScoped(GameState::InGame),
-                    NodeBundle {
-                        z_index: ZIndex::Global(HUD_Z_INDEX),
-                        style: Style {
-                            width: Val::Percent(100.),
-                            display: Display::Flex,
-                            flex_direction: FlexDirection::Row,
-                            align_items: AlignItems::End,
-                            justify_content: JustifyContent::SpaceBetween,
-                            ..default()
-                        },
+                .spawn((NodeBundle {
+                    z_index: ZIndex::Global(HUD_Z_INDEX),
+                    style: Style {
+                        width: Val::Percent(100.),
+                        display: Display::Flex,
+                        flex_direction: FlexDirection::Row,
+                        align_items: AlignItems::End,
+                        justify_content: JustifyContent::SpaceBetween,
                         ..default()
                     },
-                ))
+                    ..default()
+                },))
                 .with_children(|parent| {
                     // 左下
                     parent
-                        .spawn((
-                            StateScoped(GameState::InGame),
-                            NodeBundle {
-                                z_index: ZIndex::Global(HUD_Z_INDEX),
-                                style: Style {
-                                    display: Display::Flex,
-                                    flex_direction: FlexDirection::Column,
-                                    align_items: AlignItems::Start,
-                                    row_gap: Val::Px(4.),
-                                    ..default()
-                                },
+                        .spawn((NodeBundle {
+                            z_index: ZIndex::Global(HUD_Z_INDEX),
+                            style: Style {
+                                display: Display::Flex,
+                                flex_direction: FlexDirection::Column,
+                                align_items: AlignItems::Start,
+                                row_gap: Val::Px(4.),
                                 ..default()
                             },
-                        ))
+                            ..default()
+                        },))
                         .with_children(|mut parent| {
                             spawn_wand_list(&mut parent, &assets);
 
@@ -128,11 +122,11 @@ fn setup_hud(
                         ..default()
                     });
                 });
+
+            spawn_wand_editor(&mut parent, &assets);
+
+            spawn_inventory_floating(&mut parent, &assets);
         });
-
-    spawn_wand_editor(&mut commands, &assets);
-
-    spawn_inventory_floating(&mut commands, &assets);
 
     #[cfg(feature = "debug")]
     commands.spawn(PerfUiBundle::default());
@@ -140,22 +134,19 @@ fn setup_hud(
 
 fn spawn_status_bars(parent: &mut ChildBuilder) {
     parent
-        .spawn((
-            StateScoped(GameState::InGame),
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    justify_content: JustifyContent::Start,
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Start,
-                    row_gap: Val::Px(4.),
-                    height: Val::Percent(100.),
-                    width: Val::Percent(100.),
-                    ..default()
-                },
+        .spawn((NodeBundle {
+            style: Style {
+                display: Display::Flex,
+                justify_content: JustifyContent::Start,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Start,
+                row_gap: Val::Px(4.),
+                height: Val::Percent(100.),
+                width: Val::Percent(100.),
                 ..default()
             },
-        ))
+            ..default()
+        },))
         .with_children(|mut parent| {
             spawn_status_bar(
                 &mut parent,

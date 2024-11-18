@@ -1,6 +1,6 @@
 use crate::{
     asset::GameAssets, command::GameCommand, config::GameConfig, constant::*,
-    controller::player::Player, player_state::PlayerState, states::GameState, level::NextLevel,
+    controller::player::Player, level::NextLevel, player_state::PlayerState, states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -72,7 +72,6 @@ pub fn spawn_magic_circle(
         .with_children(|parent| {
             parent.spawn((
                 Name::new("magic_circle_star"),
-                StateScoped(GameState::InGame),
                 MagicStar,
                 AsepriteSliceBundle {
                     aseprite: assets.atlas.clone(),
@@ -90,7 +89,6 @@ pub fn spawn_magic_circle(
     commands.entity(light_entity).insert((
         Name::new("magic_circle_light"),
         MagicCircleLight,
-        StateScoped(GameState::InGame),
         PointLight2dBundle {
             transform: Transform::from_xyz(x, y, 0.0),
             point_light: PointLight2d {

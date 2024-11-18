@@ -112,29 +112,22 @@ pub fn spawn_dropped_item(
                     InheritedVisibility::default(),
                 ))
                 .with_children(|parent| {
-                    parent.spawn((
-                        StateScoped(GameState::InGame),
-                        AsepriteSliceBundle {
-                            aseprite: assets.atlas.clone(),
-                            slice: frame_slice.into(),
-                            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-                            ..default()
-                        },
-                    ));
+                    parent.spawn((AsepriteSliceBundle {
+                        aseprite: assets.atlas.clone(),
+                        slice: frame_slice.into(),
+                        transform: Transform::from_xyz(0.0, 0.0, 0.0),
+                        ..default()
+                    },));
 
-                    parent.spawn((
-                        StateScoped(GameState::InGame),
-                        AsepriteSliceBundle {
-                            aseprite: assets.atlas.clone(),
-                            slice: icon.into(),
-                            transform: Transform::from_xyz(0.0, 0.0, 0.0001),
-                            ..default()
-                        },
-                    ));
+                    parent.spawn((AsepriteSliceBundle {
+                        aseprite: assets.atlas.clone(),
+                        slice: icon.into(),
+                        transform: Transform::from_xyz(0.0, 0.0, 0.0001),
+                        ..default()
+                    },));
 
                     parent.spawn((
                         InteractionMarker,
-                        StateScoped(GameState::InGame),
                         AsepriteSliceBundle {
                             aseprite: assets.atlas.clone(),
                             transform: Transform::from_xyz(0.0, 14.0, 0.0002),
