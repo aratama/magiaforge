@@ -28,6 +28,7 @@ use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GamepadPlugin;
 use crate::interaction_sensor::EntityPickerPlugin;
+use crate::level::*;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
@@ -41,6 +42,7 @@ use crate::ui::inventory::InventoryPlugin;
 use crate::ui::item_information::SpellInformationPlugin;
 use crate::ui::label::LabelPlugin;
 use crate::ui::menu_button::MenuButtonPlugin;
+use crate::ui::menu_left::MenuLeftPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::pause_menu::GameMenuPlugin;
 use crate::ui::player_list::PlayerListPlugin;
@@ -48,7 +50,6 @@ use crate::ui::spell_in_wand::SpellInWandPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::ui::wand_sprite::WandSpritePlugin;
-use crate::level::*;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::*;
 use bevy::prelude::*;
@@ -189,6 +190,7 @@ pub fn run_game() {
         .add_plugins(MagicCirclePlugin)
         .add_plugins(MainMenuPlugin)
         .add_plugins(MenuButtonPlugin)
+        .add_plugins(MenuLeftPlugin)
         .add_plugins(NameInputPagePlugin)
         .add_plugins(OnPressPlugin)
         .add_plugins(OverlayPlugin)

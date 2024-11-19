@@ -41,6 +41,7 @@ pub fn spawn_wand_spell_slot(
                 height: Val::Px(32.),
                 ..default()
             },
+            background_color: slot_color(wand_index, spell_index).into(),
             ..default()
         },
         AsepriteSliceUiBundle {
@@ -241,42 +242,13 @@ fn interaction_spell_sprite(
     }
 }
 
-fn update_spell_sprite_background(
-    mut interaction_query: Query<
-        (&WandSpellSprite, &Interaction, &mut BackgroundColor),
-        Changed<Interaction>,
-    >,
-    state: Res<State<GameMenuState>>,
-) {
-    for (slot, interaction, mut color) in &mut interaction_query {
-        if *state.get() == GameMenuState::WandEditOpen {
-            match *interaction {
-                Interaction::Pressed => {}
-                Interaction::Hovered => {
-                    *color = Color::hsla(0.0, 0.0, 0.5, 0.3).into();
-                }
-                Interaction::None => {
-                    *color = slot_color(slot.wand_index, slot.spell_index).into();
-                }
-            }
-        } else {
-            *color = slot_color(slot.wand_index, slot.spell_index).into();
-        }
-    }
-}
-
 pub struct SpellInWandPlugin;
 
 impl Plugin for SpellInWandPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (
-                update_spell_sprite,
-                interaction_spell_sprite,
-                update_spell_sprite_background,
-            )
-                .run_if(in_state(GameState::InGame)),
+            (update_spell_sprite, interaction_spell_sprite).run_if(in_state(GameState::InGame)),
         );
     }
 }

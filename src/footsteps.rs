@@ -21,8 +21,6 @@ fn update_volume(
                 ActorState::Walk => 0.6,
             };
             instance.set_volume(volume, AudioTween::linear(Duration::from_millis(200)));
-        } else {
-            warn!("no audio instance found");
         }
     }
 }

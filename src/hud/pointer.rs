@@ -1,4 +1,5 @@
 use crate::constant::POINTER_Z_INDEX;
+use crate::states::GameMenuState;
 use crate::{asset::GameAssets, constant::TILE_SIZE, input::MyGamepad, states::GameState};
 use crate::{controller::player::Player, entity::actor::Actor};
 use bevy::{prelude::*, window::PrimaryWindow};
@@ -47,7 +48,12 @@ fn update_pointer_by_mouse(
     mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
+    state: Res<State<GameMenuState>>,
 ) {
+    if *state.get() != GameMenuState::Closed {
+        return;
+    }
+
     if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
         if let Ok(window) = q_window.get_single() {
             if let Some(cursor_in_screen) = window.cursor_position() {

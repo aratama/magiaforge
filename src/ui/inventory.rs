@@ -16,8 +16,8 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((NodeBundle {
             style: Style {
-                width: Val::Px(32.0 * 8.0),
-                height: Val::Px(32.0 * 8.0),
+                width: Val::Px(151.0 * 2.0),
+                height: Val::Px(160.0 * 2.0),
                 // Make the height of the node fill its parent
                 // height: Val::Percent(100.0),
                 // Make the grid have a 1:1 aspect ratio meaning it will scale as an exact square
@@ -46,8 +46,8 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 ImageBundle {
                     style: Style {
                         position_type: PositionType::Absolute,
-                        width: Val::Px(32.0 * 8.0),
-                        height: Val::Px(32.0 * 8.0),
+                        width: Val::Px(151.0 * 2.0),
+                        height: Val::Px(160.0 * 2.0),
                         left: Val::Px(0.0),
                         top: Val::Px(0.0),
                         ..default()
@@ -73,8 +73,8 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                             // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
                             // Absoluteでずれないようにする
                             position_type: PositionType::Absolute,
-                            left: Val::Px((i % 8) as f32 * 32.0),
-                            top: Val::Px((i / 8) as f32 * 32.0),
+                            left: Val::Px(16.0 + (i % 8) as f32 * 32.0),
+                            top: Val::Px(16.0 + (i / 8) as f32 * 32.0),
                             ..default()
                         },
                         z_index: ZIndex::Local(1),
@@ -137,20 +137,14 @@ fn update_inventory_slot(
 }
 
 fn interaction(
-    mut interaction_query: Query<
-        (&InventoryItemSlot, &Interaction, &mut BackgroundColor),
-        Changed<Interaction>,
-    >,
+    mut interaction_query: Query<(&InventoryItemSlot, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
     mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
-
     mut spell_info_query: Query<&mut SpellInformation>,
-
     mut commands: Commands,
-
     assets: Res<GameAssets>,
 ) {
-    for (slot, interaction, mut color) in &mut interaction_query {
+    for (slot, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 if let Ok((mut player, mut actor, player_position)) = player_query.get_single_mut()
@@ -253,7 +247,6 @@ fn interaction(
                     let floating = floating_query.single_mut();
                     let floating_item = floating.get_item(&player, &actor);
                     if player.inventory.is_settable_optional(slot.0, floating_item) {
-                        *color = Color::hsla(0.0, 0.0, 0.5, 0.95).into();
                         *spell_info = match player.inventory.get(slot.0) {
                             Some(slot_item) => SpellInformation(Some(
                                 SpellInformationItem::InventoryItem(slot_item),
@@ -262,16 +255,12 @@ fn interaction(
                         };
                     } else {
                         *spell_info = SpellInformation(None);
-                        *color = Color::hsla(0.0, 0.0, 0.0, 0.0).into();
                     }
                 } else {
                     *spell_info = SpellInformation(None);
-                    *color = Color::hsla(0.0, 0.0, 0.0, 0.0).into();
                 }
             }
-            Interaction::None => {
-                *color = Color::hsla(0.0, 0.0, 0.0, 0.0).into();
-            }
+            Interaction::None => {}
         }
     }
 }

@@ -3,6 +3,7 @@ use super::{
     floating::Floating,
     inventory::spawn_inventory,
     item_information::spawn_spell_information,
+    menu_left::MenuLeft,
 };
 use crate::{
     asset::GameAssets,
@@ -30,61 +31,48 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((
             WandEditorRoot,
+            MenuLeft::new(16.0, -144.0 * 2.0),
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
                     left: Val::Px(20.0),
                     top: Val::Px(100.0),
+                    width: Val::Px(151.0 * 2.0),
+                    height: Val::Px(160.0 * 2.0),
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
-                    row_gap: Val::Px(8.0),
-                    padding: UiRect::all(Val::Px(24.0)),
+                    row_gap: Val::Px(20.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: MENU_THEME_COLOR.into(),
                 z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
-                visibility: Visibility::Hidden,
                 ..default()
             },
         ))
         .with_children(|mut parent| {
             spawn_inventory(&mut parent, &assets);
 
-            parent
-                .spawn((NodeBundle {
-                    style: Style {
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Row,
-                        column_gap: Val::Px(8.0),
-                        ..default()
-                    },
-                    ..default()
-                },))
-                .with_children(|parent| {
-                    command_button(
-                        parent,
-                        assets,
-                        SortButton,
-                        160.0,
-                        40.0,
-                        false,
-                        Dict {
-                            ja: "並び替え",
-                            en: "Sort",
-                        },
-                    );
-                });
+            command_button(
+                parent,
+                assets,
+                SortButton,
+                160.0,
+                40.0,
+                false,
+                Dict {
+                    ja: "並び替え",
+                    en: "Sort",
+                },
+            );
         });
 
     builder
         .spawn((
-            WandEditorRoot,
+            MenuLeft::new(900.0, 1300.0),
             NodeBundle {
                 style: Style {
                     position_type: PositionType::Absolute,
-                    left: Val::Px(900.0),
                     top: Val::Px(100.0),
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
@@ -96,7 +84,6 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 },
                 background_color: MENU_THEME_COLOR.into(),
                 z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
-                visibility: Visibility::Hidden,
                 ..default()
             },
         ))
@@ -124,7 +111,7 @@ fn switch_sort_button_disabled(
     }
 }
 
-fn handle_e_key(
+fn handle_tab_key(
     keys: Res<ButtonInput<KeyCode>>,
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
@@ -139,18 +126,6 @@ fn handle_e_key(
             }
             _ => {}
         }
-    }
-}
-
-fn apply_wand_editor_visible(
-    mut query: Query<&mut Visibility, With<WandEditorRoot>>,
-    state: Res<State<GameMenuState>>,
-) {
-    for mut visibility in query.iter_mut() {
-        *visibility = match state.get() {
-            GameMenuState::WandEditOpen => Visibility::Visible,
-            _ => Visibility::Hidden,
-        };
     }
 }
 
@@ -274,8 +249,7 @@ impl Plugin for WandEditorPlugin {
         app.add_systems(
             Update,
             (
-                handle_e_key,
-                apply_wand_editor_visible,
+                handle_tab_key,
                 sort_button_pressed,
                 switch_sort_button_disabled,
             )

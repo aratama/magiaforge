@@ -126,7 +126,7 @@ pub fn cast_spell(
                     wand.shift();
                     let mut delay = 0;
                     for _ in 0..amount {
-                        delay += cast_spell(
+                        delay = delay.max(cast_spell(
                             commands,
                             assets,
                             writer,
@@ -134,7 +134,7 @@ pub fn cast_spell(
                             actor,
                             actor_transform,
                             online,
-                        );
+                        ));
                     }
                     return delay;
                 }
