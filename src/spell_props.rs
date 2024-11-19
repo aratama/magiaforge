@@ -164,10 +164,10 @@ const BULLET_SPEED_DOWN: SpellProps = SpellProps {
 
 const DUAL_CAST: SpellProps = SpellProps {
     name: Dict {
-        ja: "二重呪文",
+        ja: "並列詠唱",
         en: "Dual Cast",
     },
-    description: Dict { ja: "ふたつの投射物呪文を同時に詠唱します。", 
+    description: Dict { ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。", 
     en: "Casts two projectile spells at the same time." },
     mana_drain: 20,
     cast_delay: 0,
@@ -177,7 +177,7 @@ const DUAL_CAST: SpellProps = SpellProps {
 
 const TRIPLE_CAST: SpellProps = SpellProps {
     name: Dict {
-        ja: "三重呪文",
+        ja: "三並列詠唱",
         en: "Triple Cast",
     },
     description: Dict { ja: "みっつの投射物呪文を同時に詠唱します。", 

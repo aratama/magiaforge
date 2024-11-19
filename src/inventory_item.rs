@@ -46,8 +46,7 @@ pub fn spawn_inventory_item(
             spawn_dropped_item(
                 &mut commands,
                 &assets,
-                position.x,
-                position.y,
+                position,
                 InventoryItem::Spell(spell),
             );
         }
@@ -55,8 +54,7 @@ pub fn spawn_inventory_item(
             spawn_dropped_item(
                 &mut commands,
                 &assets,
-                position.x,
-                position.y,
+                position,
                 InventoryItem::Wand(wand_type),
             );
         }
@@ -64,8 +62,7 @@ pub fn spawn_inventory_item(
             spawn_dropped_item(
                 &mut commands,
                 &assets,
-                position.x,
-                position.y,
+                position,
                 InventoryItem::Equipment(equipment_type),
             );
         }

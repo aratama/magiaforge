@@ -10,3 +10,15 @@ pub enum SpellType {
     TripleCast,
     Homing,
 }
+
+pub const SPELL_TYPES: [SpellType; 9] = [
+    SpellType::MagicBolt,
+    SpellType::PurpleBolt,
+    SpellType::SlimeCharge,
+    SpellType::Heal,
+    SpellType::BulletSpeedUp,
+    SpellType::BulletSpeedDoown,
+    SpellType::DualCast,
+    SpellType::TripleCast,
+    SpellType::Homing,
+];

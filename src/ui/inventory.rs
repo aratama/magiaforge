@@ -209,8 +209,7 @@ fn interaction(
                                     spawn_dropped_item(
                                         &mut commands,
                                         &assets,
-                                        player_position.translation.x,
-                                        player_position.translation.y,
+                                        player_position.translation.truncate(),
                                         InventoryItem::Spell(spell),
                                     );
                                 }

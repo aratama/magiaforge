@@ -8,7 +8,6 @@ use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use rand::random;
 
 #[derive(Component)]
 pub struct DroppedItemEntity {
@@ -27,12 +26,9 @@ struct InteractionMarker;
 pub fn spawn_dropped_item(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    x: f32,
-    y: f32,
+    position: Vec2,
     item_type: InventoryItem,
 ) {
-    let tx = x;
-    let ty = y;
     let icon = match item_type {
         InventoryItem::Spell(spell) => {
             let props = spell_to_props(spell);
@@ -85,11 +81,7 @@ pub fn spawn_dropped_item(
             },
             EntityDepth,
             InheritedVisibility::default(),
-            Transform::from_translation(Vec3::new(
-                tx + (random::<f32>() - 0.5) * 16.0,
-                ty + (random::<f32>() - 0.5) * 16.0,
-                0.0,
-            )),
+            Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
             LockedAxes::ROTATION_LOCKED,
             RigidBody::Dynamic,

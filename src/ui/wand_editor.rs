@@ -173,8 +173,7 @@ fn drop_item(
                                                 spawn_dropped_item(
                                                     &mut commands,
                                                     &assets,
-                                                    dest.x,
-                                                    dest.y,
+                                                    dest,
                                                     InventoryItem::Spell(spell),
                                                 );
                                             }
@@ -182,8 +181,7 @@ fn drop_item(
                                         spawn_dropped_item(
                                             &mut commands,
                                             &assets,
-                                            dest.x,
-                                            dest.y,
+                                            dest,
                                             InventoryItem::Wand(wand.wand_type),
                                         );
                                         actor.wands[index] = None;
@@ -196,8 +194,7 @@ fn drop_item(
                                             spawn_dropped_item(
                                                 &mut commands,
                                                 &assets,
-                                                pointer_in_world.x,
-                                                pointer_in_world.y,
+                                                pointer_in_world,
                                                 InventoryItem::Spell(spell),
                                             );
                                             wand.slots[spell_index] = None;

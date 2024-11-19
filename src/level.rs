@@ -30,7 +30,9 @@ use crate::level::map::LevelTileMap;
 use crate::level::tile::*;
 use crate::player_state::PlayerState;
 use crate::random::random_select;
+use crate::random::random_select_mut;
 use crate::spell::SpellType;
+use crate::spell::SPELL_TYPES;
 use crate::states::GameState;
 use crate::wand::WandType;
 use bevy::asset::*;
@@ -91,7 +93,7 @@ fn setup_level(
         level,
     );
 
-    let entry_point = random_select(&mut chunk.entry_points);
+    let entry_point = random_select_mut(&mut chunk.entry_points);
 
     let player_x = TILE_SIZE * entry_point.x as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.y as f32 - TILE_HALF;
@@ -208,9 +210,9 @@ fn spawn_level(
 
     spawn_entities(&mut commands, &assets, &chunk);
 
-    if 20 < empties.len() {
+    if 30 < empties.len() {
         for _ in 0..10 {
-            let (x, y) = random_select(&mut empties);
+            let (x, y) = random_select_mut(&mut empties);
             spawn_slime(
                 &mut commands,
                 &assets,
@@ -223,7 +225,7 @@ fn spawn_level(
         }
 
         for _ in 0..10 {
-            let (x, y) = random_select(&mut empties);
+            let (x, y) = random_select_mut(&mut empties);
             spawn_eyeball(
                 &mut commands,
                 &assets,
@@ -232,6 +234,20 @@ fn spawn_level(
                     TILE_SIZE * -y as f32 - TILE_HALF,
                 ),
                 &life_bar_res,
+            );
+        }
+
+        let mut spells = Vec::from(SPELL_TYPES);
+        for _ in 0..3 {
+            let (x, y) = random_select_mut(&mut empties);
+            spawn_dropped_item(
+                &mut commands,
+                &assets,
+                Vec2::new(
+                    TILE_SIZE * x as f32 + TILE_HALF,
+                    TILE_SIZE * -y as f32 - TILE_HALF,
+                ),
+                InventoryItem::Spell(*random_select(&mut spells)),
             );
         }
     }
@@ -404,8 +420,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 spawn_dropped_item(
                     &mut commands,
                     &assets,
-                    tx + TILE_HALF,
-                    ty - TILE_HALF,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     InventoryItem::Spell(SpellType::MagicBolt),
                 );
             }
@@ -413,8 +428,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 spawn_dropped_item(
                     &mut commands,
                     &assets,
-                    tx + TILE_HALF,
-                    ty - TILE_HALF,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     InventoryItem::Wand(WandType::CypressWand),
                 );
             }
