@@ -8,7 +8,7 @@ pub const WEBSOCKET_URL: &str = "wss://magia-server-38847751193.asia-northeast1.
 
 // Setupステートでの初期化が完了した直後に遷移する先のステート
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
-pub const INITIAL_STATE: GameState = GameState::InGame;
+pub const INITIAL_STATE: GameState = GameState::MainMenu;
 
 pub const MAX_WANDS: usize = 4;
 

@@ -102,17 +102,20 @@ pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(GameState::Setup), setup_pointer)
-            .add_systems(
-                Update,
-                (
-                    update_pointer_image_by_angle,
-                    update_pointer_by_mouse,
-                    update_pointer_by_gamepad,
-                )
-                    .run_if(in_state(GameState::InGame).or_else(
-                        in_state(GameState::MainMenu).or_else(in_state(GameState::NameInput)),
-                    )),
-            );
+        app.add_systems(OnExit(GameState::Setup), setup_pointer);
+
+        app.add_systems(
+            Update,
+            (update_pointer_by_mouse, update_pointer_by_gamepad)
+                .run_if(in_state(GameState::InGame)),
+        );
+
+        app.add_systems(
+            Update,
+            (update_pointer_image_by_angle,)
+                .run_if(in_state(GameState::InGame).or_else(
+                    in_state(GameState::MainMenu).or_else(in_state(GameState::NameInput)),
+                )),
+        );
     }
 }
