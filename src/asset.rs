@@ -36,6 +36,9 @@ pub struct GameAssets {
     #[asset(path = "entity/eyeball.aseprite")]
     pub eyeball: Handle<Aseprite>,
 
+    #[asset(path = "entity/buer.aseprite")]
+    pub buer: Handle<Aseprite>,
+
     #[asset(path = "entity/stone_lantern.aseprite")]
     pub stone_lantern: Handle<Aseprite>,
 

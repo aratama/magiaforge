@@ -8,6 +8,7 @@ use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
+use crate::enemy::buer::spawn_buer;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::book_shelf::spawn_book_shelf;
@@ -34,7 +35,6 @@ use crate::random::random_select_mut;
 use crate::spell::SpellType;
 use crate::spell::SPELL_TYPES;
 use crate::states::GameState;
-use crate::wand::WandType;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -424,12 +424,11 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     InventoryItem::Spell(SpellType::MagicBolt),
                 );
             }
-            GameEntity::Wand => {
-                spawn_dropped_item(
+            GameEntity::Buer => {
+                spawn_buer(
                     &mut commands,
-                    &assets,
+                    assets.buer.clone(),
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    InventoryItem::Wand(WandType::CypressWand),
                 );
             }
         }

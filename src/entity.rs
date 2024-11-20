@@ -31,8 +31,8 @@ pub enum GameEntity {
     Routes,
     StoneLantern,
     Spell,
-    Wand,
     Crate,
+    Buer,
 }
 
 #[derive(Component)]
