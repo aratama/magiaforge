@@ -1,9 +1,7 @@
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
-use crate::entity::breakable::{Breakable, BreakableSprite};
 use crate::entity::EntityDepth;
-use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
@@ -17,7 +15,7 @@ pub struct Buer;
 
 pub fn spawn_buer(commands: &mut Commands, aseprite: Handle<Aseprite>, position: Vec2) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
-    // slots[0] = Some(spell);
+    slots[0] = Some(SpellType::MagicBolt);
 
     commands.spawn((
         Name::new("buer"),

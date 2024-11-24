@@ -1,10 +1,10 @@
-use crate::asset::GameAssets;
 use crate::command::GameCommand;
 use crate::controller::enemy::Enemy;
-use crate::controller::remote::{RemoteMessage, RemotePlayer};
+use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
 use crate::entity::EntityDepth;
+use crate::firing::Firing;
 use crate::level::wall::WallCollider;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -14,7 +14,6 @@ use bevy_particle_systems::{
     ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
 };
 use bevy_rapier2d::prelude::*;
-use bevy_simple_websocket::ClientMessage;
 use std::collections::HashSet;
 use uuid::Uuid;
 
@@ -48,87 +47,37 @@ pub struct BulletBundle {
 /// このとき、アクターへのマナ消費、クールタイムの設定、弾丸の生成、リモート通信などを行います
 /// この関数はすでに発射が確定している場合に呼ばれ、発射条件のチェックは行いません
 /// 発射条件やコストの消費などは cast_spell で行います
-pub fn spawn_bullets(
-    mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    writer: &mut EventWriter<ClientMessage>,
-    mut se_writer: &mut EventWriter<GameCommand>,
-    actor_uuid: Uuid,
-    online: bool,
-    props: SpawnBulletProps,
-) {
-    spawn_bullet(&mut commands, assets.atlas.clone(), &mut se_writer, &props);
-
-    if online {
-        let serialized = bincode::serialize(&RemoteMessage::Fire {
-            sender: actor_uuid,
-            uuid: actor_uuid,
-            x: props.position.x,
-            y: props.position.y,
-            vx: props.velocity.x,
-            vy: props.velocity.y,
-            bullet_lifetime: props.lifetime,
-            damage: props.damage,
-            impulse: props.impulse,
-            slice: props.slice,
-            collier_radius: props.collier_radius,
-            light_intensity: props.light_intensity,
-            light_radius: props.light_radius,
-            light_color_hlsa: props.light_color_hlsa,
-            homing: props.homing,
-        })
-        .unwrap();
-        writer.send(ClientMessage::Binary(serialized));
-    }
-}
-
-pub struct SpawnBulletProps {
-    pub position: Vec2,
-    pub velocity: Vec2,
-    pub lifetime: u32,
-    pub owner: Option<Uuid>,
-    pub group: Group,
-    pub filter: Group,
-    pub damage: i32,
-    pub impulse: f32,
-    pub slice: String,
-    pub collier_radius: f32,
-    pub light_intensity: f32,
-    pub light_radius: f32,
-    pub light_color_hlsa: [f32; 4],
-    pub homing: f32,
-}
-
-/// 指定された位置、方向、弾丸種別などから実際にエンティティを生成します
 pub fn spawn_bullet(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
     writer: &mut EventWriter<GameCommand>,
-    spawning: &SpawnBulletProps,
+    group: Group,
+    filter: Group,
+    firing: &Firing,
 ) {
-    writer.send(GameCommand::SEFire(Some(spawning.position)));
+    writer.send(GameCommand::SEFire(Some(firing.position)));
 
     let mut entity = commands.spawn((
         Name::new("bullet"),
         StateScoped(GameState::InGame),
         Bullet {
-            life: spawning.lifetime,
-            damage: spawning.damage,
-            impulse: spawning.impulse,
-            owner: spawning.owner,
-            homing: spawning.homing,
+            life: firing.bullet_lifetime,
+            damage: firing.damage,
+            impulse: firing.impulse,
+            owner: firing.sender,
+            homing: firing.homing,
         },
         EntityDepth,
         AsepriteSliceBundle {
             aseprite,
-            slice: AsepriteSlice::new(spawning.slice.as_str()),
-            transform: Transform::from_xyz(spawning.position.x, spawning.position.y, BULLET_Z)
-                * Transform::from_rotation(Quat::from_rotation_z(spawning.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
+            slice: AsepriteSlice::new(firing.slice.as_str()),
+            transform: Transform::from_xyz(firing.position.x, firing.position.y, BULLET_Z)
+                * Transform::from_rotation(Quat::from_rotation_z(firing.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
             ..default()
         },
         (
             // 衝突にはColliderが必要
-            Collider::ball(spawning.collier_radius),
+            Collider::ball(firing.collier_radius),
             // 速度ベースで制御するので KinematicVelocityBased
             // これがないと Velocityを設定しても移動しない
             RigidBody::KinematicVelocityBased,
@@ -142,10 +91,10 @@ pub fn spawn_bullet(
             // 衝突を発生されるには ActiveEvents も必要
             ActiveEvents::COLLISION_EVENTS,
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(spawning.group, spawning.filter),
+            CollisionGroups::new(group, filter),
             //
             Velocity {
-                linvel: spawning.velocity,
+                linvel: firing.velocity,
                 angvel: 0.0,
             },
             GravityScale(0.0),
@@ -154,16 +103,16 @@ pub fn spawn_bullet(
         ),
     ));
 
-    if 0.0 < spawning.light_intensity {
+    if 0.0 < firing.light_intensity {
         entity.insert(PointLight2d {
-            radius: spawning.light_radius,
-            intensity: spawning.light_intensity,
+            radius: firing.light_radius,
+            intensity: firing.light_intensity,
             falloff: 10.0,
             color: Color::hsla(
-                spawning.light_color_hlsa[0],
-                spawning.light_color_hlsa[1],
-                spawning.light_color_hlsa[2],
-                spawning.light_color_hlsa[3],
+                firing.light_color_hlsa[0],
+                firing.light_color_hlsa[1],
+                firing.light_color_hlsa[2],
+                firing.light_color_hlsa[3],
             ),
             ..default()
         });

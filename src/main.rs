@@ -14,6 +14,7 @@ mod debug;
 mod enemy;
 mod entity;
 mod equipment;
+mod firing;
 mod footsteps;
 mod game;
 mod hud;
@@ -22,18 +23,17 @@ mod interaction_sensor;
 mod inventory;
 mod inventory_item;
 mod language;
+mod level;
 mod page;
 mod player_state;
 mod random;
 mod set;
 mod spell;
-mod spell_commands;
 mod spell_props;
 mod states;
 mod ui;
 mod wand;
 mod wand_props;
-mod level;
 
 use game::run_game;
 

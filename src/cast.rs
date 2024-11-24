@@ -1,17 +1,20 @@
 use crate::{
     asset::GameAssets,
     command::GameCommand,
+    controller::remote::{send_remote_message, RemoteMessage},
     entity::{
         actor::Actor,
-        bullet::{spawn_bullets, SpawnBulletProps, BULLET_SPAWNING_MARGIN},
+        bullet::{spawn_bullet, BULLET_SPAWNING_MARGIN},
         witch::WITCH_COLLIDER_RADIUS,
     },
+    firing::Firing,
     spell::SpellType,
     spell_props::{spell_to_props, SpellCast},
 };
 use bevy::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
+use uuid::Uuid;
 
 /// 現在のインデックスをもとに呪文を唱えます
 /// マナが不足している場合は不発になる場合もあります
@@ -68,34 +71,36 @@ pub fn cast_spell(
                     let bullet_position =
                         actor_transform.translation.truncate() + range * normalized;
 
-                    spawn_bullets(
+                    let firing = Firing {
+                        uuid: Uuid::new_v4(),
+                        position: bullet_position,
+                        velocity: direction
+                            * speed
+                            * (1.0 + actor.effects.bullet_speed_buff_factor),
+                        bullet_lifetime: lifetime,
+                        sender: Some(actor.uuid),
+                        damage,
+                        impulse,
+                        slice: slice.to_string(),
+                        collier_radius,
+                        light_intensity,
+                        light_radius,
+                        light_color_hlsa,
+                        homing: actor.effects.homing,
+                    };
+
+                    spawn_bullet(
                         commands,
-                        assets,
-                        writer,
+                        assets.atlas.clone(),
                         se_writer,
-                        actor.uuid,
-                        online,
-                        SpawnBulletProps {
-                            position: bullet_position,
-                            velocity: direction
-                                * speed
-                                * (1.0 + actor.effects.bullet_speed_buff_factor),
-                            lifetime: lifetime,
-                            owner: Some(actor.uuid),
-                            group: actor.group,
-                            filter: actor.filter,
-                            damage,
-                            impulse,
-                            slice: slice.to_string(),
-                            collier_radius,
-                            light_intensity,
-                            light_radius,
-                            light_color_hlsa,
-                            homing: actor.effects.homing,
-                        },
+                        actor.group,
+                        actor.filter,
+                        &firing,
                     );
                     actor.effects = default();
                     wand.shift();
+
+                    send_remote_message(writer, online, &RemoteMessage::Fire(firing));
 
                     return props.cast_delay as i32;
                 }

@@ -14,6 +14,8 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 
+use super::remote::send_remote_message;
+
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component, Debug, Clone)]
 pub struct Player {
@@ -158,15 +160,14 @@ fn die_player(
                 );
             }
 
-            if websocket.ready_state == ReadyState::OPEN {
-                writer.send(ClientMessage::Binary(
-                    bincode::serialize(&RemoteMessage::Die {
-                        sender: actor.uuid,
-                        uuid: actor.uuid,
-                    })
-                    .unwrap(),
-                ));
-            }
+            send_remote_message(
+                &mut writer,
+                websocket.ready_state == ReadyState::OPEN,
+                &RemoteMessage::Die {
+                    sender: actor.uuid,
+                    uuid: actor.uuid,
+                },
+            );
         }
     }
 }

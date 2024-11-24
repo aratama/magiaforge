@@ -1,11 +1,10 @@
-use crate::constant::WEBSOCKET_URL;
+use crate::constant::*;
 use crate::controller::player::Player;
-use crate::entity::bullet::SpawnBulletProps;
+use crate::firing::Firing;
 use crate::{
     asset::GameAssets,
     command::GameCommand,
     config::GameConfig,
-    constant::{ENEMY_GROUP, ENTITY_GROUP, WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP},
     entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
     hud::life_bar::LifeBarResource,
     states::GameState,
@@ -63,23 +62,7 @@ pub enum RemoteMessage {
         intensity: f32,
     },
     // 弾を発射したことを通知します
-    Fire {
-        sender: Uuid,
-        uuid: Uuid,
-        x: f32,
-        y: f32,
-        vx: f32,
-        vy: f32,
-        bullet_lifetime: u32,
-        damage: i32,
-        impulse: f32,
-        slice: String,
-        collier_radius: f32,
-        light_intensity: f32,
-        light_radius: f32,
-        light_color_hlsa: [f32; 4],
-        homing: f32,
-    },
+    Fire(Firing),
     // ダメージを受けたことを通知します
     Hit {
         sender: Uuid,
@@ -201,143 +184,121 @@ fn receive_events(
             ServerMessage::String(text) => {
                 info!("Received text message: {}", text);
             }
-            ServerMessage::Binary(bin) => {
-                let command: RemoteMessage =
-                    bincode::deserialize(bin).expect("Failed to deserialize");
-                match command {
-                    RemoteMessage::Position {
-                        sender: _sender,
-                        uuid,
-                        name,
-                        golds,
-                        x,
-                        y,
-                        vx,
-                        vy,
-                        life,
-                        max_life,
-                        angle,
-                        intensity,
-                    } => {
-                        let target = remotes
-                            .iter_mut()
-                            .find(|(_, _, actor, _, _)| actor.uuid == uuid);
-                        if let Some((_, mut remote, mut actor, mut transform, mut velocity)) =
-                            target
-                        {
-                            remote.last_update = *frame_count;
-                            remote.golds = golds;
-                            transform.translation.x = x;
-                            transform.translation.y = y;
-                            velocity.linvel.x = vx;
-                            velocity.linvel.y = vy;
-                            actor.life = life;
-                            actor.max_life = max_life;
-                            actor.pointer = Vec2::from_angle(angle);
-                            actor.intensity = intensity;
-                        } else if !spawned_players.contains(&uuid) {
-                            spawned_players.insert(uuid);
-                            spawn_witch(
-                                &mut commands,
-                                &assets,
-                                Vec2::new(x, y),
-                                angle,
-                                uuid,
-                                Some(name.clone()),
-                                life,
-                                max_life,
-                                &life_bar_res,
-                                true,
-                                3.0,
-                                false,
-                                [None, None, None, None],
-                                RemotePlayer {
-                                    name,
-                                    golds,
-                                    last_update: *frame_count,
-                                },
-                            );
-                            info!("Remote player spawned: {}", uuid);
-                        }
-                    }
-                    RemoteMessage::Fire {
-                        sender: _sender,
-                        uuid,
-                        x,
-                        y,
-                        vx,
-                        vy,
-                        bullet_lifetime,
-                        damage,
-                        impulse,
-                        slice,
-                        collier_radius,
-                        light_intensity,
-                        light_radius,
-                        light_color_hlsa,
-                        homing,
-                    } => {
-                        spawn_bullet(
-                            &mut commands,
-                            assets.atlas.clone(),
-                            &mut writer,
-                            &SpawnBulletProps {
-                                position: Vec2::new(x, y),
-                                velocity: Vec2::new(vx, vy),
-                                lifetime: bullet_lifetime,
-                                owner: Some(uuid),
-                                group: WITCH_BULLET_GROUP,
-                                filter: WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP,
-                                damage,
-                                impulse,
-                                slice: slice.to_string(),
-                                collier_radius,
-                                light_intensity,
-                                light_radius,
-                                light_color_hlsa,
-                                homing,
-                            },
-                        );
-                    }
-                    RemoteMessage::Hit {
-                        sender: _sender,
-                        uuid,
-                        damage,
-                    } => {
-                        let target = remotes
-                            .iter_mut()
-                            .find(|(_, _, actor, _, _)| actor.uuid == uuid);
-
-                        if let Some((_, mut remote, mut actor, _, _)) = target {
-                            actor.life -= damage;
-                            remote.last_update = *frame_count;
-                        }
-                    }
-                    RemoteMessage::Die {
-                        sender: _sender,
-                        uuid,
-                    } => {
-                        let target = remotes
-                            .iter_mut()
-                            .find(|(_, _, actor, _, _)| actor.uuid == uuid);
-
-                        if let Some((entity, _, _, transform, _)) = target {
-                            writer.send(GameCommand::SECry(Some(transform.translation.truncate())));
-
-                            commands.entity(entity).despawn_recursive();
-
-                            for _ in 0..20 {
-                                spawn_gold(
+            ServerMessage::Binary(bin) => match bincode::deserialize::<RemoteMessage>(bin) {
+                Err(err) => {
+                    warn!("Failed to deserialize: {:?}", err);
+                }
+                Ok(command) => {
+                    match command {
+                        RemoteMessage::Position {
+                            sender: _sender,
+                            uuid,
+                            name,
+                            golds,
+                            x,
+                            y,
+                            vx,
+                            vy,
+                            life,
+                            max_life,
+                            angle,
+                            intensity,
+                        } => {
+                            let target = remotes
+                                .iter_mut()
+                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+                            if let Some((_, mut remote, mut actor, mut transform, mut velocity)) =
+                                target
+                            {
+                                remote.last_update = *frame_count;
+                                remote.golds = golds;
+                                transform.translation.x = x;
+                                transform.translation.y = y;
+                                velocity.linvel.x = vx;
+                                velocity.linvel.y = vy;
+                                actor.life = life;
+                                actor.max_life = max_life;
+                                actor.pointer = Vec2::from_angle(angle);
+                                actor.intensity = intensity;
+                            } else if !spawned_players.contains(&uuid) {
+                                spawned_players.insert(uuid);
+                                spawn_witch(
                                     &mut commands,
                                     &assets,
-                                    transform.translation.x,
-                                    transform.translation.y,
+                                    Vec2::new(x, y),
+                                    angle,
+                                    uuid,
+                                    Some(name.clone()),
+                                    life,
+                                    max_life,
+                                    &life_bar_res,
+                                    true,
+                                    3.0,
+                                    false,
+                                    [None, None, None, None],
+                                    RemotePlayer {
+                                        name,
+                                        golds,
+                                        last_update: *frame_count,
+                                    },
                                 );
+                                info!("Remote player spawned: {}", uuid);
                             }
                         }
-                    }
+                        RemoteMessage::Fire(firing) => {
+                            let group = WITCH_BULLET_GROUP;
+                            let filter = WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP;
+                            spawn_bullet(
+                                &mut commands,
+                                assets.atlas.clone(),
+                                &mut writer,
+                                group,
+                                filter,
+                                &firing,
+                            );
+                        }
+                        RemoteMessage::Hit {
+                            sender: _sender,
+                            uuid,
+                            damage,
+                        } => {
+                            let target = remotes
+                                .iter_mut()
+                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+
+                            if let Some((_, mut remote, mut actor, _, _)) = target {
+                                actor.life -= damage;
+                                remote.last_update = *frame_count;
+                            }
+                        }
+                        RemoteMessage::Die {
+                            sender: _sender,
+                            uuid,
+                        } => {
+                            let target = remotes
+                                .iter_mut()
+                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+
+                            if let Some((entity, _, _, transform, _)) = target {
+                                writer.send(GameCommand::SECry(Some(
+                                    transform.translation.truncate(),
+                                )));
+
+                                commands.entity(entity).despawn_recursive();
+
+                                for _ in 0..20 {
+                                    spawn_gold(
+                                        &mut commands,
+                                        &assets,
+                                        transform.translation.x,
+                                        transform.translation.y,
+                                    );
+                                }
+                            }
+                        }
+                    };
                 }
-            }
+            },
             _ => {}
         }
     }
@@ -354,6 +315,17 @@ fn despawn_no_contact_remotes(
             info!("Remote player {} despawned", actor.uuid);
             commands.entity(entity).despawn_recursive();
         }
+    }
+}
+
+pub fn send_remote_message(
+    writer: &mut EventWriter<ClientMessage>,
+    online: bool,
+    message: &RemoteMessage,
+) {
+    if online {
+        let serialized = bincode::serialize::<RemoteMessage>(message).unwrap();
+        writer.send(ClientMessage::Binary(serialized));
     }
 }
 
