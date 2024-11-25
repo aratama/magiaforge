@@ -17,7 +17,7 @@ use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
-pub const PLAYER_MOVE_FORCE: f32 = 50000.0;
+pub const PLAYER_MOVE_FORCE: f32 = 40000.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct WitchWandSprite;

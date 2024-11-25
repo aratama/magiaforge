@@ -1,4 +1,5 @@
 use crate::constant::CAMERA_SPEED;
+use crate::entity::actor::Actor;
 use crate::{controller::player::Player, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
@@ -32,7 +33,7 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn update_camera(
-    player_query: Query<&Transform, (With<Player>, Without<Camera2d>)>,
+    player_query: Query<(&Transform, &Actor), (With<Player>, Without<Camera2d>)>,
     mut camera_query: Query<
         (
             &mut Transform,
@@ -43,10 +44,18 @@ fn update_camera(
     >,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    if let Ok(player) = player_query.get_single() {
+    if let Ok((player, actor)) = player_query.get_single() {
         if let Ok((mut camera, mut ortho, mut scale_factor)) = camera_query.get_single_mut() {
-            camera.translation.x += (player.translation.x - camera.translation.x) * CAMERA_SPEED;
-            camera.translation.y += (player.translation.y - camera.translation.y) * CAMERA_SPEED;
+            // ポインターのある方向にカメラをずらして遠方を見やすくする係数
+            // カメラがブレるように感じて酔いやすい？
+            let point_by_mouse_factor = 0.0; // 0.2;
+
+            let vrp = player.translation.truncate()
+                + actor.pointer.normalize_or_zero()
+                    * (actor.pointer.length() * point_by_mouse_factor).min(50.0);
+
+            camera.translation.x += (vrp.x - camera.translation.x) * CAMERA_SPEED;
+            camera.translation.y += (vrp.y - camera.translation.y) * CAMERA_SPEED;
 
             if keys.just_pressed(KeyCode::KeyR) {
                 *scale_factor = CameraScaleFactor((scale_factor.0 - 0.5).max(-2.0));
