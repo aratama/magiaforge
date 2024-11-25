@@ -1,4 +1,4 @@
-# magiacircle
+# magiaforge
 
 Online Battle Royale Twin-stick Shooter. WIP.
 
@@ -8,7 +8,7 @@ Online Battle Royale Twin-stick Shooter. WIP.
 
 ### Demo
 
-https://aratama.github.io/magiacircle/ (**Desktop Chrome only** for now)
+https://aratama.github.io/magiaforge/ (**Desktop Chrome only** for now)
 
 ### Development
 

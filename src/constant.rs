@@ -2,7 +2,7 @@ use crate::states::GameState;
 use bevy_rapier2d::prelude::*;
 
 #[allow(dead_code)]
-pub const CRATE_NAME: &str = "magiacircle";
+pub const CRATE_NAME: &str = "magiaforge";
 
 pub const WEBSOCKET_URL: &str = "wss://magia-server-38847751193.asia-northeast1.run.app";
 

@@ -7,16 +7,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'magiacircle'",
+      "name": "Debug executable 'magiaforge'",
       "cargo": {
         "args": [
           "build",
-          "--bin=magiacircle",
-          "--package=magiacircle",
+          "--bin=magiaforge",
+          "--package=magiaforge",
           "--features=debug"
         ],
         "filter": {
-          "name": "magiacircle",
+          "name": "magiaforge",
           "kind": "bin"
         }
       },
@@ -28,16 +28,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'magiacircle'",
+      "name": "Debug unit tests in executable 'magiaforge'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=magiacircle",
-          "--package=magiacircle"
+          "--bin=magiaforge",
+          "--package=magiaforge"
         ],
         "filter": {
-          "name": "magiacircle",
+          "name": "magiaforge",
           "kind": "bin"
         }
       },
