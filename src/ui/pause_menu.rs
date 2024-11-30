@@ -4,10 +4,10 @@ use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
 use crate::input::MyGamepad;
 use crate::language::{Dict, Languages};
+use crate::level::NextLevel;
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
-use crate::level::NextLevel;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
@@ -302,7 +302,7 @@ fn setup_game_menu(
                         60.0,
                         Dict {
                             ja: "再開",
-                            en: "Resume",
+                            en: "Back",
                         },
                     );
 

@@ -1,4 +1,4 @@
-use crate::language::*;
+use crate::{constant::*, language::*};
 use bevy::prelude::*;
 use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
@@ -17,8 +17,8 @@ impl Default for GameConfig {
     fn default() -> Self {
         Self {
             online: false,
-            bgm_volume: 0.0,
-            se_volume: 0.8,
+            bgm_volume: DEFAULT_BGM_VOLUME,
+            se_volume: DEFAULT_SE_VOLUME,
             player_name: "".to_string(),
             language: Languages::Ja,
             fullscreen: false,
