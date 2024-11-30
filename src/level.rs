@@ -4,7 +4,7 @@ pub mod tile;
 pub mod wall;
 
 use crate::asset::GameAssets;
-use crate::command::GameCommand;
+use crate::audio::NextBGM;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -146,14 +146,12 @@ fn setup_level(
         .insert(Footsteps(audio_instance));
 }
 
-fn select_bgm(next: Res<NextLevel>, mut writer: EventWriter<GameCommand>) {
-    if next.is_changed() {
-        writer.send(match *next {
-            NextLevel::None => GameCommand::BGMDokutsu,
-            NextLevel::Level(0, _) => GameCommand::BGMDokutsu,
-            _ => GameCommand::BGMArechi,
-        });
-    }
+fn select_level_bgm(next: Res<NextLevel>, mut next_bgm: ResMut<NextBGM>, assets: Res<GameAssets>) {
+    *next_bgm = NextBGM(Some(match *next {
+        NextLevel::None => assets.dokutsu.clone(),
+        NextLevel::Level(0, _) => assets.dokutsu.clone(),
+        _ => assets.arechi.clone(),
+    }));
 }
 
 /// 現状は StateScopedですべてのエンティティが削除されるので以下のコードは不要ですが、
@@ -470,6 +468,6 @@ impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.init_resource::<NextLevel>();
-        app.add_systems(Update, select_bgm.run_if(in_state(GameState::InGame)));
+        app.add_systems(Update, select_level_bgm.run_if(in_state(GameState::InGame)));
     }
 }

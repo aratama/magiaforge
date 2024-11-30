@@ -1,8 +1,5 @@
 use crate::{
-    asset::GameAssets,
-    audio::{play_se, BGM},
-    config::GameConfig,
-    hud::overlay::OverlayEvent,
+    asset::GameAssets, audio::play_se, config::GameConfig, hud::overlay::OverlayEvent,
     states::GameState,
 };
 use bevy::prelude::*;
@@ -23,10 +20,6 @@ pub enum GameCommand {
     SEPickUp(Option<Vec2>),
     SEHeal(Option<Vec2>),
     SESwitch(Option<Vec2>),
-    BGMNone,
-    BGMBoubaku,
-    BGMArechi,
-    BGMDokutsu,
     StateMainMenu,
     StateInGame,
     StateWarp,
@@ -42,7 +35,6 @@ fn process_game_commands(
     audio: Res<Audio>,
     config: Res<GameConfig>,
     mut reader: EventReader<GameCommand>,
-    mut next_bgm: ResMut<BGM>,
     camera_query: Query<&Transform, With<Camera2d>>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
     mut next: ResMut<CommandState>,
@@ -160,18 +152,6 @@ fn process_game_commands(
                     position,
                     camera_position,
                 );
-            }
-            GameCommand::BGMNone => {
-                *next_bgm = BGM(None);
-            }
-            GameCommand::BGMBoubaku => {
-                *next_bgm = BGM(Some(assets.boubaku.clone()));
-            }
-            GameCommand::BGMArechi => {
-                *next_bgm = BGM(Some(assets.arechi.clone()));
-            }
-            GameCommand::BGMDokutsu => {
-                *next_bgm = BGM(Some(assets.dokutsu.clone()));
             }
             GameCommand::StateMainMenu => {
                 overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));

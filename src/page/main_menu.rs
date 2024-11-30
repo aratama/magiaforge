@@ -1,3 +1,4 @@
+use crate::audio::NextBGM;
 use crate::command::GameCommand;
 use crate::constant::HUD_Z_INDEX;
 use crate::ui::on_press::OnPress;
@@ -32,12 +33,8 @@ enum Events {
     Start,
 }
 
-fn setup_main_menu(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut writer: EventWriter<GameCommand>,
-) {
-    writer.send(GameCommand::BGMBoubaku);
+fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm: ResMut<NextBGM>) {
+    *next_bgm = NextBGM(Some(assets.boubaku.clone()));
 
     commands.spawn((
         StateScoped(GameState::MainMenu),
@@ -188,6 +185,7 @@ fn read_events(
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
     mut writer: EventWriter<GameCommand>,
     mut reader: EventReader<Events>,
+    mut next_bgm: ResMut<NextBGM>,
 ) {
     for event in reader.read() {
         match event {
@@ -198,7 +196,7 @@ fn read_events(
                 menu_next_state.set(MainMenuPhase::Paused);
                 writer.send(GameCommand::SEClick(None));
                 writer.send(GameCommand::StateInGame);
-                writer.send(GameCommand::BGMNone);
+                *next_bgm = NextBGM(None);
             }
         }
     }

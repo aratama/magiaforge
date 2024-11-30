@@ -1,3 +1,4 @@
+use crate::audio::NextBGM;
 use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::language::Dict;
@@ -32,10 +33,11 @@ fn start_game(
     mut config: ResMut<GameConfig>,
     query: Query<&TextInputValue>,
     mut writer: EventWriter<GameCommand>,
+    mut next_bgm: ResMut<NextBGM>,
 ) {
     menu_next_state.set(MainMenuPhase::Paused);
     writer.send(GameCommand::StateInGame);
-    writer.send(GameCommand::BGMNone);
+    *next_bgm = NextBGM(None);
 
     let q = query.single();
     config.player_name = q.0.clone();
