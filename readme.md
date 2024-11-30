@@ -8,7 +8,7 @@ Online Battle Royale Twin-stick Shooter. WIP.
 
 ### Demo
 
-https://aratama.github.io/magiaforge/ (**Desktop Chrome only** for now)
+https://magiaforge.app/ (**Desktop Chrome only** for now)
 
 ### Development
 
