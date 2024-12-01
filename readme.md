@@ -8,6 +8,8 @@ Online Battle Royale Twin-stick Shooter. WIP.
 
 ### Demo
 
+[![Release](https://github.com/aratama/magiaforge/actions/workflows/release.yaml/badge.svg)](https://github.com/aratama/magiaforge/actions/workflows/release.yaml)
+
 https://magiaforge.app/ (**Desktop Chrome only** for now)
 
 ### Development

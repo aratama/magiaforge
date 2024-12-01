@@ -113,7 +113,7 @@ pub fn run_game() {
                     primary_window: Some(Window {
                         position: WindowPosition::Centered(MonitorSelection::Current),
                         cursor: Cursor {
-                            visible: false,
+                            visible: cfg!(feature = "debug"),
                             ..default()
                         },
                         title: format!("{} 0.1", CRATE_NAME).to_string(),
