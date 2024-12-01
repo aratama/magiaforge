@@ -8,11 +8,9 @@ use crate::firing::Firing;
 use crate::level::wall::WallCollider;
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
+use bevy_aseprite_ultra::prelude::{AseSpriteSlice, Aseprite};
 use bevy_light_2d::light::PointLight2d;
-use bevy_particle_systems::{
-    ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
-};
+use bevy_particle_systems::Playing;
 use bevy_rapier2d::prelude::*;
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -68,12 +66,11 @@ pub fn spawn_bullet(
             homing: firing.homing,
         },
         EntityDepth,
-        AsepriteSliceBundle {
+        Transform::from_xyz(firing.position.x, firing.position.y, BULLET_Z)
+            * Transform::from_rotation(Quat::from_rotation_z(firing.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
+        AseSpriteSlice {
             aseprite,
-            slice: AsepriteSlice::new(firing.slice.as_str()),
-            transform: Transform::from_xyz(firing.position.x, firing.position.y, BULLET_Z)
-                * Transform::from_rotation(Quat::from_rotation_z(firing.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
-            ..default()
+            name: firing.slice.clone().into(),
         },
         (
             // 衝突にはColliderが必要
@@ -275,28 +272,26 @@ fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
         .spawn((
             Name::new("particle system"),
             StateScoped(GameState::InGame),
-            ParticleSystemBundle {
-                transform: Transform::from_translation(position.extend(BULLET_Z)),
-                particle_system: ParticleSystem {
-                    spawn_rate_per_second: 0.0.into(),
-                    max_particles: 100,
-                    initial_speed: JitteredValue::jittered(50.0, -50.0..50.0),
-                    lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
-                    color: ColorOverTime::Constant(Color::WHITE),
-                    bursts: vec![ParticleBurst {
-                        // このシステムのスケジュールをUpdate意外に設定し、このtimeを0.0にすると、
-                        // パーティクルシステムを設置してそのGlobalTransformが更新される前にパーティクルが生成されてしまうため、
-                        // パーティクルの発生位置が原点になってしまうことに注意
-                        // 0.1くらいにしておくと0.0ではないので大丈夫っぽい
-                        time: 0.1,
-                        count: 20,
-                    }],
-                    system_duration_seconds: 0.2,
-                    ..ParticleSystem::oneshot()
-                },
-                ..ParticleSystemBundle::default()
-            },
-            Playing,
+            Transform::from_translation(position.extend(BULLET_Z)),
+            // TODO: particle
+            // ParticleSystem {
+            //     spawn_rate_per_second: 0.0.into(),
+            //     max_particles: 100,
+            //     initial_speed: JitteredValue::jittered(50.0, -50.0..50.0),
+            //     lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
+            //     color: ColorOverTime::Constant(Color::WHITE),
+            //     bursts: vec![ParticleBurst {
+            //         // このシステムのスケジュールをUpdate意外に設定し、このtimeを0.0にすると、
+            //         // パーティクルシステムを設置してそのGlobalTransformが更新される前にパーティクルが生成されてしまうため、
+            //         // パーティクルの発生位置が原点になってしまうことに注意
+            //         // 0.1くらいにしておくと0.0ではないので大丈夫っぽい
+            //         time: 0.1,
+            //         count: 20,
+            //     }],
+            //     system_duration_seconds: 0.2,
+            //     ..ParticleSystem::oneshot()
+            // },
+            // Playing,
             PointLight2d {
                 radius: 50.0,
                 intensity: 1.0,

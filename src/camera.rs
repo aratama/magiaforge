@@ -15,19 +15,19 @@ fn setup_camera(mut commands: Commands) {
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される
     // この範囲を超えるとクリップされることに注意
-    let mut camera_bundle = Camera2dBundle::default();
-    camera_bundle.projection.scale = 2.0_f32.powf(initial_scale_factor);
+    let mut camera = Camera2d::default();
+    let mut projection = OrthographicProjection::default_2d();
+    projection.scale = 2.0_f32.powf(initial_scale_factor);
 
     commands.spawn((
-        camera_bundle,
+        camera,
+        projection,
         CameraScaleFactor(initial_scale_factor),
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
         AmbientLight2d {
-            // color: Color::hsl(250.0, 0.8, 0.5),
+            color: Color::WHITE,
             brightness: BLIGHTNESS_IN_GAME,
-            // brightness: 1.,
-            ..default()
         },
     ));
 }

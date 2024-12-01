@@ -10,7 +10,7 @@ use crate::{
     wand_props::wand_to_props,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
+use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum FloatingContent {
@@ -46,32 +46,28 @@ pub fn spawn_inventory_floating(builder: &mut ChildBuilder, assets: &Res<GameAss
     builder.spawn((
         Floating(None),
         Interaction::default(),
-        ImageBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(500.0),
-                left: Val::Px(500.0),
-                width: Val::Px(32.0),
-                height: Val::Px(32.0),
-                // border: UiRect::all(Val::Px(1.0)),
-                ..default()
-            },
-            z_index: ZIndex::Global(WAND_EDITOR_FLOATING_Z_INDEX),
-            // background_color: Color::hsla(0.0, 0.0, 0.0, 0.5).into(),
-            visibility: Visibility::Hidden,
+        GlobalZIndex(WAND_EDITOR_FLOATING_Z_INDEX),
+        Visibility::Hidden,
+        // background_color: Color::hsla(0.0, 0.0, 0.0, 0.5).into(),
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(500.0),
+            left: Val::Px(500.0),
+            width: Val::Px(32.0),
+            height: Val::Px(32.0),
+            // border: UiRect::all(Val::Px(1.0)),
             ..default()
         },
-        AsepriteSliceUiBundle {
+        AseUiSlice {
             aseprite: assets.atlas.clone(),
-            slice: "empty".into(),
-            ..default()
+            name: "empty".into(),
         },
     ));
 }
 
 fn update_inventory_floaing(
     windows_query: Query<&Window, With<PrimaryWindow>>,
-    mut query: Query<(&mut Style, &mut Floating)>,
+    mut query: Query<(&mut Node, &mut Floating)>,
     mouse: Res<ButtonInput<MouseButton>>,
 ) {
     let (mut style, mut floating) = query.single_mut();
@@ -97,7 +93,7 @@ fn switch_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
 
 fn switch_floating_slice(
     player_query: Query<(&Player, &Actor)>,
-    mut floating_query: Query<(&Floating, &mut AsepriteSlice, &mut Style), With<Floating>>,
+    mut floating_query: Query<(&Floating, &mut AseUiSlice, &mut Node), With<Floating>>,
 ) {
     if let Ok((player, actor)) = player_query.get_single() {
         let (floating, mut floating_slice, mut style) = floating_query.single_mut();
@@ -113,7 +109,7 @@ fn switch_floating_slice(
                     _ => None,
                 };
                 if let Some(slice) = slice {
-                    *floating_slice = slice.into();
+                    floating_slice.name = slice.into();
                     style.width = Val::Px(32.0);
                 }
 
@@ -127,40 +123,40 @@ fn switch_floating_slice(
                     Some(wand) => match wand.slots[spell_index] {
                         Some(spell) => {
                             let props = spell_to_props(spell);
-                            *floating_slice = props.icon.into();
+                            floating_slice.name = props.icon.into();
                             style.width = Val::Px(32.0);
                         }
                         _ => {
-                            *floating_slice = "empty".into();
+                            floating_slice.name = "empty".into();
                         }
                     },
                     None => {
-                        *floating_slice = "empty".into();
+                        floating_slice.name = "empty".into();
                     }
                 }
             }
             Some(FloatingContent::Wand(wand_index)) => match &actor.wands[wand_index] {
                 Some(wand) => {
                     let props = wand_to_props(wand.wand_type);
-                    *floating_slice = props.icon.into();
+                    floating_slice.name = props.icon.into();
                     style.width = Val::Px(64.0);
                 }
                 None => {
-                    *floating_slice = "empty".into();
+                    floating_slice.name = "empty".into();
                 }
             },
             Some(FloatingContent::Equipment(equipment)) => match player.equipments[equipment] {
                 Some(equipment) => {
                     let props = equipment_to_props(equipment);
-                    *floating_slice = props.icon.into();
+                    floating_slice.name = props.icon.into();
                     style.width = Val::Px(32.0);
                 }
                 None => {
-                    *floating_slice = "empty".into();
+                    floating_slice.name = "empty".into();
                 }
             },
             None => {
-                *floating_slice = "empty".into();
+                floating_slice.name = "empty".into();
             }
         }
     }

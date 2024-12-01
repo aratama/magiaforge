@@ -88,10 +88,9 @@ pub fn spawn_basic_enemy<T: Component>(
         .with_children(|mut parent| {
             parent.spawn((
                 BreakableSprite,
-                AsepriteAnimationBundle {
-                    aseprite: aseprite,
+                AseSpriteAnimation {
+                    aseprite,
                     animation: Animation::default().with_tag("idle"),
-                    ..default()
                 },
             ));
 

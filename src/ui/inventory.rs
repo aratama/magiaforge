@@ -6,7 +6,7 @@ use crate::{
     entity::actor::Actor, inventory_item::InventoryItem, states::GameState,
 };
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AsepriteSlice, AsepriteSliceUiBundle};
+use bevy_aseprite_ultra::prelude::*;
 use std::collections::HashSet;
 
 #[derive(Component)]
@@ -14,8 +14,9 @@ struct InventoryItemSlot(usize);
 
 pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
-        .spawn((NodeBundle {
-            style: Style {
+        .spawn((
+            // background_color: BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.2)),
+            Node {
                 width: Val::Px(151.0 * 2.0),
                 height: Val::Px(160.0 * 2.0),
                 // Make the height of the node fill its parent
@@ -38,27 +39,21 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 // column_gap: Val::Px(2.0),
                 ..default()
             },
-            // background_color: BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.2)),
-            ..default()
-        },))
+        ))
         .with_children(|builder| {
             builder.spawn((
-                ImageBundle {
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        width: Val::Px(151.0 * 2.0),
-                        height: Val::Px(160.0 * 2.0),
-                        left: Val::Px(0.0),
-                        top: Val::Px(0.0),
-                        ..default()
-                    },
-                    z_index: ZIndex::Local(0),
+                ZIndex(0),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Px(151.0 * 2.0),
+                    height: Val::Px(160.0 * 2.0),
+                    left: Val::Px(0.0),
+                    top: Val::Px(0.0),
                     ..default()
                 },
-                AsepriteSliceUiBundle {
+                AseUiSlice {
                     aseprite: assets.atlas.clone(),
-                    slice: "inventory".into(),
-                    ..default()
+                    name: "inventory".into(),
                 },
             ));
 
@@ -66,24 +61,20 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 builder.spawn((
                     InventoryItemSlot(i),
                     Interaction::default(),
-                    ImageBundle {
-                        style: Style {
-                            width: Val::Px(32.0),
-                            height: Val::Px(32.0),
-                            // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
-                            // Absoluteでずれないようにする
-                            position_type: PositionType::Absolute,
-                            left: Val::Px(16.0 + (i % 8) as f32 * 32.0),
-                            top: Val::Px(16.0 + (i / 8) as f32 * 32.0),
-                            ..default()
-                        },
-                        z_index: ZIndex::Local(1),
+                    ZIndex(1),
+                    Node {
+                        width: Val::Px(32.0),
+                        height: Val::Px(32.0),
+                        // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
+                        // Absoluteでずれないようにする
+                        position_type: PositionType::Absolute,
+                        left: Val::Px(16.0 + (i % 8) as f32 * 32.0),
+                        top: Val::Px(16.0 + (i / 8) as f32 * 32.0),
                         ..default()
                     },
-                    AsepriteSliceUiBundle {
+                    AseUiSlice {
                         aseprite: assets.atlas.clone(),
-                        slice: "empty".into(),
-                        ..default()
+                        name: "empty".into(),
                     },
                 ));
             }
@@ -94,8 +85,8 @@ fn update_inventory_slot(
     query: Query<&Player>,
     mut slot_query: Query<(
         &InventoryItemSlot,
-        &mut AsepriteSlice,
-        &mut Style,
+        &mut AseUiSlice,
+        &mut Node,
         &mut Visibility,
     )>,
     floating_query: Query<&Floating>,
@@ -110,7 +101,7 @@ fn update_inventory_slot(
 
             if let Some(item) = item {
                 let width = item.get_width();
-                *aseprite = match floating.0 {
+                aseprite.name = match floating.0 {
                     Some(FloatingContent::Inventory(index)) if index == slot.0 => "empty".into(),
                     _ => item.get_icon().into(),
                 };
@@ -122,7 +113,7 @@ fn update_inventory_slot(
                 }
             } else {
                 style.width = Val::Px(32.0);
-                *aseprite = "empty".into();
+                aseprite.name = "empty".into();
             }
         }
 

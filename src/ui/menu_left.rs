@@ -20,7 +20,7 @@ impl MenuLeft {
 }
 
 fn apply_wand_editor_visible(
-    mut query: Query<(&mut MenuLeft, &mut Style)>,
+    mut query: Query<(&mut MenuLeft, &mut Node)>,
     state: Res<State<GameMenuState>>,
 ) {
     for (mut root, mut style) in query.iter_mut() {

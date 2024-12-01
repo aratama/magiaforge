@@ -32,85 +32,67 @@ pub fn spawn_status_bar<T: Component>(
         .spawn((
             marker,
             StatusBar { value, max_value },
-            NodeBundle {
-                style: Style {
-                    height: Val::Px(BAR_HEIGHT),
-                    border: UiRect::all(Val::Px(1.)),
-                    ..default()
-                },
+            Node {
+                height: Val::Px(BAR_HEIGHT),
+                border: UiRect::all(Val::Px(1.)),
                 ..default()
             },
         ))
         .with_children(|parent| {
             parent.spawn((
                 StatusBarBackground,
-                NodeBundle {
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        top: Val::Px(0.),
-                        left: Val::Px(0.),
-                        height: Val::Px(BAR_HEIGHT),
-                        ..default()
-                    },
-                    background_color: Color::srgba(0., 0., 0., 0.5).into(),
-                    z_index: ZIndex::Local(0),
+                BackgroundColor::from(Color::srgba(0., 0., 0., 0.5)),
+                GlobalZIndex(0),
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(0.),
+                    left: Val::Px(0.),
+                    height: Val::Px(BAR_HEIGHT),
                     ..default()
                 },
             ));
 
             parent.spawn((
                 StatusBarRect,
-                NodeBundle {
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        top: Val::Px(0.),
-                        left: Val::Px(0.),
-                        height: Val::Px(BAR_HEIGHT),
-                        ..default()
-                    },
-                    background_color: color.into(),
-                    z_index: ZIndex::Local(1),
+                BackgroundColor(color),
+                GlobalZIndex(1),
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(0.),
+                    left: Val::Px(0.),
+                    height: Val::Px(BAR_HEIGHT),
                     ..default()
                 },
             ));
 
             parent.spawn((
                 StatusBarBorder,
-                NodeBundle {
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        top: Val::Px(0.),
-                        left: Val::Px(0.),
-                        height: Val::Px(BAR_HEIGHT),
-                        border: UiRect::all(Val::Px(1.)),
-                        ..default()
-                    },
-                    border_color: Color::WHITE.into(),
-                    z_index: ZIndex::Local(2),
+                BackgroundColor(Color::WHITE),
+                GlobalZIndex(2),
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(0.),
+                    left: Val::Px(0.),
+                    height: Val::Px(BAR_HEIGHT),
+                    border: UiRect::all(Val::Px(1.)),
                     ..default()
                 },
             ));
 
             parent.spawn((
                 StatusBarText,
-                TextBundle {
-                    text: Text::from_section(
-                        "",
-                        TextStyle {
-                            color: Color::hsla(0.0, 0.0, 1.0, 0.5),
-                            font_size: 18.0,
-                            ..default()
-                        },
-                    ),
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        left: Val::Px(8.0),
-                        top: Val::Px(-1.0),
-                        height: Val::Px(BAR_HEIGHT),
-                        max_width: Val::Px(500.0),
-                        ..default()
-                    },
-                    z_index: ZIndex::Local(3),
+                Text::new(""),
+                TextColor(Color::hsla(0.0, 0.0, 1.0, 0.5)),
+                TextFont {
+                    font_size: 18.0,
+                    ..default()
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(8.0),
+                    top: Val::Px(-1.0),
+                    height: Val::Px(BAR_HEIGHT),
+                    max_width: Val::Px(500.0),
                     ..default()
                 },
             ));
@@ -119,13 +101,13 @@ pub fn spawn_status_bar<T: Component>(
 
 fn update_status_bar(
     status_bar_query: Query<&StatusBar>,
-    mut background_query: Query<(&Parent, &mut Style), With<StatusBarBackground>>,
+    mut background_query: Query<(&Parent, &mut Node), With<StatusBarBackground>>,
     mut rect_query: Query<
-        (&Parent, &mut Style),
+        (&Parent, &mut Node),
         (With<StatusBarRect>, Without<StatusBarBackground>),
     >,
     mut border_query: Query<
-        (&Parent, &mut Style),
+        (&Parent, &mut Node),
         (
             With<StatusBarBorder>,
             Without<StatusBarRect>,
@@ -148,7 +130,7 @@ fn update_status_bar(
     }
     for (parent, mut text) in text_query.iter_mut() {
         let bar = status_bar_query.get(parent.get()).unwrap();
-        text.sections[0].value = format!("{} / {}", bar.value, bar.max_value);
+        text.0 = format!("{} / {}", bar.value, bar.max_value);
     }
 }
 

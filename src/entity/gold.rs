@@ -20,15 +20,14 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
         StateScoped(GameState::InGame),
         Gold,
         EntityDepth,
-        AsepriteSliceBundle {
+        Transform::from_translation(Vec3::new(
+            tx + (random::<f32>() - 0.5) * 16.0,
+            ty + (random::<f32>() - 0.5) * 16.0,
+            0.0,
+        )),
+        AseSpriteSlice {
             aseprite: assets.atlas.clone(),
-            slice: "gold".into(),
-            transform: Transform::from_translation(Vec3::new(
-                tx + (random::<f32>() - 0.5) * 16.0,
-                ty + (random::<f32>() - 0.5) * 16.0,
-                0.0,
-            )),
-            ..default()
+            name: "gold".into(),
         },
         LockedAxes::ROTATION_LOCKED,
         Velocity::linear(Vec2::from_angle(2.0 * PI * random::<f32>()) * 20.0),

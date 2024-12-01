@@ -1,11 +1,12 @@
 use crate::asset::GameAssets;
 use crate::command::GameCommand;
 use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
+use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::equipment::Equipment;
-use crate::input::{get_direction, get_fire_trigger, MyGamepad};
+use crate::input::{get_direction, get_fire_trigger};
 use crate::inventory::Inventory;
 use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
@@ -13,8 +14,6 @@ use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
-
-use super::remote::send_remote_message;
 
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component, Debug, Clone)]
@@ -37,14 +36,13 @@ pub struct Player {
 fn move_player(
     mut player_query: Query<&mut Actor, With<Player>>,
     keys: Res<ButtonInput<KeyCode>>,
-    gamepads: Option<Res<MyGamepad>>,
-    axes: Res<Axis<GamepadAxis>>,
+    gamepads: Query<&Gamepad>,
     menu: Res<State<GameMenuState>>,
 ) {
     if let Ok(mut actor) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                actor.move_direction = get_direction(keys, axes, &gamepads);
+                actor.move_direction = get_direction(keys, &gamepads);
             }
             _ => {
                 actor.move_direction = Vec2::ZERO;
@@ -67,14 +65,13 @@ fn apply_intensity_by_lantern(mut player_query: Query<(&Player, &mut Actor)>) {
 fn trigger_bullet(
     mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
-    gamepad_buttons: Res<ButtonInput<GamepadButton>>,
+    gamepads: Query<&Gamepad>,
     menu: Res<State<GameMenuState>>,
 ) {
     if let Ok(mut player) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                if get_fire_trigger(buttons, gamepad_buttons, &my_gamepad) {
+                if get_fire_trigger(buttons, &gamepads) {
                     player.fire_state = ActorFireState::Fire;
                 } else {
                     player.fire_state = ActorFireState::Idle;

@@ -45,12 +45,12 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
         .with_children(|parent| {
             parent.spawn((
                 BreakableSprite,
-                AsepriteAnimationBundle {
+                Sprite {
+                    anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
+                    ..default()
+                },
+                AseSpriteSlice {
                     aseprite: assets.stone_lantern.clone(),
-                    sprite: Sprite {
-                        anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
-                        ..default()
-                    },
                     ..default()
                 },
             ));
@@ -58,15 +58,12 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
 
     commands.spawn((
         LanternParent(entity),
-        PointLight2dBundle {
-            point_light: PointLight2d {
-                radius: 64.0,
-                intensity: 1.0,
-                falloff: 10.0,
-                color: Color::hsl(42.0, 1.0, 0.71),
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(tx, ty, 0.0)),
+        Transform::from_translation(Vec3::new(tx, ty, 0.0)),
+        PointLight2d {
+            radius: 64.0,
+            intensity: 1.0,
+            falloff: 10.0,
+            color: Color::hsl(42.0, 1.0, 0.71),
             ..default()
         },
     ));
@@ -95,9 +92,7 @@ fn break_stone_lantern(
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEBreak(Some(
-                transform.translation.truncate(),
-            )));
+            writer.send(GameCommand::SEBreak(Some(transform.translation.truncate())));
         }
     }
 }

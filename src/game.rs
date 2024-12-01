@@ -51,11 +51,12 @@ use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::ui::wand_sprite::WandSpritePlugin;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
+use bevy::ecs::world::WorldId;
 use bevy::log::*;
 use bevy::prelude::*;
-use bevy::window::EnabledButtons;
-use bevy::window::{Cursor, WindowMode};
-use bevy_aseprite_ultra::BevySprityPlugin;
+use bevy::window::WindowMode;
+use bevy::window::{CursorOptions, EnabledButtons};
+use bevy_aseprite_ultra::AsepriteUltraPlugin;
 use bevy_asset_loader::prelude::*;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -112,7 +113,7 @@ pub fn run_game() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         position: WindowPosition::Centered(MonitorSelection::Current),
-                        cursor: Cursor {
+                        cursor_options: CursorOptions {
                             visible: false,
                             ..default()
                         },
@@ -134,26 +135,26 @@ pub fn run_game() {
                 }),
             //
         )
-        // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
-        // そうしないと警告が出る
-        .insert_resource(RapierConfiguration {
-            gravity: Vect::ZERO,
-            physics_pipeline_active: true,
-            query_pipeline_active: true,
-            timestep_mode: TimestepMode::Fixed {
-                dt: 0.016666668,
-                substeps: 1,
-            },
-            scaled_shape_subdivision: 10,
-            force_update_from_transform_changes: false,
-        })
+        .add_plugins(AsepriteUltraPlugin)
         .add_plugins(
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER)
-                // .with_length_unit(PIXELS_PER_METER)
-                .in_fixed_schedule(),
+                .in_fixed_schedule()
+                .with_custom_initialization(RapierContextInitialization::NoAutomaticRapierContext),
         )
-        .add_plugins(BevySprityPlugin)
-        .add_plugins(ParticleSystemPlugin)
+        .add_systems(Startup, create_worlds)
+        // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
+        // そうしないと警告が出る
+        // .insert_resource(RapierConfiguration {
+        //     gravity: Vect::ZERO,
+        //     physics_pipeline_active: true,
+        //     query_pipeline_active: true,
+        //     timestep_mode: TimestepMode::Fixed {
+        //         dt: 0.016666668,
+        //         substeps: 1,
+        //     },
+        //     scaled_shape_subdivision: 10,
+        //     force_update_from_transform_changes: false,
+        // })
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
         //
@@ -247,14 +248,34 @@ pub fn run_game() {
     app.run();
 }
 
+fn create_worlds(mut commands: Commands) {
+    commands.spawn((
+        RapierContext::default(),
+        RapierConfiguration::new(100.0),
+        // RapierContext::default() {
+        //     // gravity: Vect::ZERO,
+        //     // physics_pipeline_active: true,
+        //     // query_pipeline_active: true,
+        //     // timestep_mode: TimestepMode::Fixed {
+        //     //     dt: 0.016666668,
+        //     //     substeps: 1,
+        //     // },
+        //     // scaled_shape_subdivision: 10,
+        //     // force_update_from_transform_changes: false,
+        //     ..default()
+        // },
+        DefaultRapierContext,
+    ));
+}
+
 fn toggle_fullscreen(mut window_query: Query<&mut Window>, keys: Res<ButtonInput<KeyCode>>) {
     if keys.just_pressed(KeyCode::F11) {
         let mut window = window_query.single_mut();
         window.mode = match window.mode {
-            WindowMode::Windowed => WindowMode::SizedFullscreen,
-            WindowMode::BorderlessFullscreen => WindowMode::Windowed,
-            WindowMode::SizedFullscreen => WindowMode::Windowed,
-            WindowMode::Fullscreen => WindowMode::Windowed,
+            WindowMode::Windowed => WindowMode::SizedFullscreen(MonitorSelection::Current),
+            WindowMode::BorderlessFullscreen(_) => WindowMode::Windowed,
+            WindowMode::SizedFullscreen(_) => WindowMode::Windowed,
+            WindowMode::Fullscreen(_) => WindowMode::Windowed,
         };
     }
 }

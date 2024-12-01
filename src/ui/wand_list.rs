@@ -12,7 +12,7 @@ use crate::{
 };
 use bevy::{
     prelude::*,
-    ui::{Display, Style},
+    ui::{Display, Node},
 };
 
 #[derive(Component)]
@@ -27,13 +27,10 @@ pub fn spawn_wand_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
     parent
         .spawn((
             WandList,
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Px(6.),
-                    ..default()
-                },
+            Node {
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(6.),
                 ..default()
             },
         ))
@@ -52,14 +49,11 @@ fn spawn_wand_and_spell_slot(
     parent
         .spawn((
             WandSlot { wand_index },
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    border: UiRect::all(Val::Px(1.)),
-                    ..default()
-                },
-                border_color: Color::hsla(0.0, 0.0, 1.0, 0.0).into(),
+            BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0)),
+            Node {
+                display: Display::Flex,
+                flex_direction: FlexDirection::Row,
+                border: UiRect::all(Val::Px(1.)),
                 ..default()
             },
         ))

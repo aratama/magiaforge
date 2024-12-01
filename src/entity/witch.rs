@@ -105,48 +105,38 @@ pub fn spawn_witch<T: Component>(
 
         spawn_children.spawn((
             BreakableSprite,
-            AsepriteAnimationBundle {
+            Sprite {
+                // flip_x: true,
+                // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
+                // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
+                ..default()
+            },
+            AseSpriteAnimation {
                 aseprite: assets.player.clone(),
                 animation: Animation::default().with_tag("idle"),
-                sprite: Sprite {
-                    // flip_x: true,
-                    // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
-                    // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
-                    ..default()
-                },
-                ..default()
             },
         ));
 
         spawn_children.spawn((
             WitchWandSprite,
-            AsepriteSliceBundle {
+            AseSpriteSlice {
                 aseprite: assets.atlas.clone(),
-                slice: "wand_cypress".into(),
-                ..default()
+                name: "wand_cypress".into(),
             },
         ));
 
         // リモートプレイヤーの名前
         // 自分のプレイヤーキャラクターは名前を表示しません
         if let Some(name) = name_plate {
-            let mut sections = Vec::new();
-            sections.push(TextSection {
-                value: name,
-                style: TextStyle {
-                    color: Color::hsla(120.0, 1.0, 0.5, 0.3),
+            spawn_children.spawn((
+                Transform::from_xyz(0.0, 20.0, 100.0),
+                Text2d::new(name),
+                TextColor(Color::hsla(120.0, 1.0, 0.5, 0.3)),
+                TextFont {
                     font_size: 10.0,
                     ..default()
                 },
-            });
-            spawn_children.spawn(Text2dBundle {
-                text: Text {
-                    sections,
-                    ..default()
-                },
-                transform: Transform::from_xyz(0.0, 20.0, 100.0),
-                ..default()
-            });
+            ));
         }
 
         if life_bar {
@@ -179,7 +169,7 @@ fn update_witch_animation(
 fn update_wand(
     actor_query: Query<&Actor>,
     mut query: Query<
-        (&Parent, &mut Transform, &mut Sprite, &mut AsepriteSlice),
+        (&Parent, &mut Transform, &mut Sprite, &mut AseSpriteSlice),
         With<WitchWandSprite>,
     >,
 ) {
@@ -193,9 +183,9 @@ fn update_wand(
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
                 let props = wand_to_props(wand.wand_type);
-                *slice = AsepriteSlice::new(props.slice);
+                slice.name = props.slice.to_string();
             } else {
-                *slice = AsepriteSlice::new("empty");
+                slice.name = "empty".to_string();
             }
         }
     }

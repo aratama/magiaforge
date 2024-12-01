@@ -4,7 +4,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
+use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor};
 
 use super::actor::Actor;
@@ -54,15 +54,14 @@ pub fn spawn_magic_circle(
                 light: light_entity,
                 destination,
             },
-            AsepriteSliceBundle {
-                aseprite: assets.atlas.clone(),
-                slice: "magic_circle0".into(),
-                transform: Transform::from_translation(Vec3::new(x, y, PAINT_LAYER_Z)),
-                sprite: Sprite {
-                    color: Color::hsla(0.0, 1.0, 1.0, 0.7),
-                    ..default()
-                },
+            Transform::from_translation(Vec3::new(x, y, PAINT_LAYER_Z)),
+            Sprite {
+                color: Color::hsla(0.0, 1.0, 1.0, 0.7),
                 ..default()
+            },
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "magic_circle0".into(),
             },
             Collider::cuboid(TILE_HALF, TILE_HALF),
             Sensor,
@@ -73,13 +72,12 @@ pub fn spawn_magic_circle(
             parent.spawn((
                 Name::new("magic_circle_star"),
                 MagicStar,
-                AsepriteSliceBundle {
+                AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
-                    slice: "magic_star0".into(),
-                    sprite: Sprite {
-                        color: Color::hsla(0.0, 1.0, 1.0, 0.7),
-                        ..default()
-                    },
+                    name: "magic_star0".into(),
+                },
+                Sprite {
+                    color: Color::hsla(0.0, 1.0, 1.0, 0.7),
                     ..default()
                 },
             ));
@@ -89,15 +87,12 @@ pub fn spawn_magic_circle(
     commands.entity(light_entity).insert((
         Name::new("magic_circle_light"),
         MagicCircleLight,
-        PointLight2dBundle {
-            transform: Transform::from_xyz(x, y, 0.0),
-            point_light: PointLight2d {
-                color: Color::hsla(240.0, 1.0, 0.5, 1.0),
-                radius: MIN_RADIUS_ON,
-                intensity: MIN_INTENSITY_ON,
-                falloff: MIN_FALLOFF_ON,
-                ..default()
-            },
+        Transform::from_xyz(x, y, 0.0),
+        PointLight2d {
+            color: Color::hsla(240.0, 1.0, 0.5, 1.0),
+            radius: MIN_RADIUS_ON,
+            intensity: MIN_INTENSITY_ON,
+            falloff: MIN_FALLOFF_ON,
             ..default()
         },
     ));
@@ -234,24 +229,25 @@ fn process_collision_end_event(
     false
 }
 
-fn change_slice(mut circle_query: Query<(&MagicCircle, &mut AsepriteSlice)>) {
+fn change_slice(mut circle_query: Query<(&MagicCircle, &mut AseSpriteSlice)>) {
     for (circle, mut slice) in circle_query.iter_mut() {
         let ratio = (circle.step as f32 / MAX_POWER as f32 * 10.0).ceil() as i32 * 10;
-        *slice = AsepriteSlice::new(format!("magic_circle{}", ratio.max(0).min(100)).as_str());
+        slice.name = format!("magic_circle{}", ratio.max(0).min(100)).to_string();
     }
 }
 
 fn change_star_slice(
     circle_query: Query<&MagicCircle>,
-    mut star_query: Query<(&Parent, &mut AsepriteSlice), With<MagicStar>>,
+    mut star_query: Query<(&Parent, &mut AseSpriteSlice), With<MagicStar>>,
 ) {
     for (parent, mut slice) in star_query.iter_mut() {
         if let Ok(circle) = circle_query.get(parent.get()) {
-            *slice = AsepriteSlice::new(if 0 < circle.players {
+            slice.name = (if 0 < circle.players {
                 "magic_star1"
             } else {
                 "magic_star0"
-            });
+            })
+            .to_string();
         }
     }
 }

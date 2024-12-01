@@ -35,30 +35,26 @@ pub fn command_button<'a, T: Component>(
                 hovered: if disabled { DISABLED } else { HOVERED },
                 none: if disabled { DISABLED } else { NONE },
             },
-            ButtonBundle {
-                style: Style {
-                    width: Val::Px(w),
-                    height: Val::Px(h),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: Color::hsla(0.0, 1.0, 1.0, 0.0).into(),
+            BackgroundColor(Color::hsla(0.0, 1.0, 1.0, 0.0)),
+            Button,
+            Node {
+                width: Val::Px(w),
+                height: Val::Px(h),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
         ))
         .with_children(|parent| {
             parent.spawn((
                 MenuButtonText,
-                TextBundle::from_section(
-                    "".to_string(),
-                    TextStyle {
-                        font_size: 40.0,
-                        font: assets.dotgothic.clone(),
-                        color: Color::srgb(0.9, 0.9, 0.9),
-                        ..default()
-                    },
-                ),
+                Text::new(""),
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                TextFont {
+                    font_size: 40.0,
+                    font: assets.dotgothic.clone(),
+                    ..default()
+                },
             ));
         });
 }
@@ -71,18 +67,18 @@ fn update_text(
     if config.is_changed() {
         for (parent, mut text) in text_query.iter_mut() {
             let button = button_query.get(parent.get()).unwrap();
-            text.sections[0].value = button.text.get(config.language).to_string();
+            text.0 = button.text.get(config.language).to_string();
         }
     }
 }
 
 fn update_color(
     mut button_query: Query<(&CommandButton, &mut HoverColor)>,
-    mut text_color: Query<(&Parent, &mut Text), With<MenuButtonText>>,
+    mut text_color: Query<(&Parent, &mut TextColor), With<MenuButtonText>>,
 ) {
-    for (parent, mut text) in text_color.iter_mut() {
+    for (parent, mut text_color) in text_color.iter_mut() {
         let (button, mut hover) = button_query.get_mut(parent.get()).unwrap();
-        text.sections[0].style.color = if button.disabled {
+        text_color.0 = if button.disabled {
             Color::hsla(0.0, 0.0, 1.0, 0.2)
         } else {
             Color::WHITE

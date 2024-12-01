@@ -104,31 +104,32 @@ pub fn spawn_dropped_item(
                     InheritedVisibility::default(),
                 ))
                 .with_children(|parent| {
-                    parent.spawn((AsepriteSliceBundle {
-                        aseprite: assets.atlas.clone(),
-                        slice: frame_slice.into(),
-                        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-                        ..default()
-                    },));
+                    parent.spawn((
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: frame_slice.into(),
+                        },
+                        Transform::from_xyz(0.0, 0.0, 0.0),
+                    ));
 
-                    parent.spawn((AsepriteSliceBundle {
-                        aseprite: assets.atlas.clone(),
-                        slice: icon.into(),
-                        transform: Transform::from_xyz(0.0, 0.0, 0.0001),
-                        ..default()
-                    },));
+                    parent.spawn((
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: icon.into(),
+                        },
+                        Transform::from_xyz(0.0, 0.0, 0.0001),
+                    ));
 
                     parent.spawn((
                         InteractionMarker,
-                        AsepriteSliceBundle {
+                        Visibility::Hidden,
+                        Transform::from_xyz(0.0, 14.0, 0.0002),
+                        AseSpriteSlice {
                             aseprite: assets.atlas.clone(),
-                            transform: Transform::from_xyz(0.0, 14.0, 0.0002),
-                            slice: "interactive".into(),
-                            visibility: Visibility::Hidden,
-                            sprite: Sprite {
-                                color: Color::hsla(0.0, 0.0, 1.0, 0.2),
-                                ..default()
-                            },
+                            name: "interactive".into(),
+                        },
+                        Sprite {
+                            color: Color::hsla(0.0, 0.0, 1.0, 0.2),
                             ..default()
                         },
                     ));
