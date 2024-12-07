@@ -63,7 +63,7 @@ impl Plugin for MenuButtonPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            update_text.run_if(in_state(GameState::InGame).or_else(in_state(GameState::NameInput))),
+            update_text.run_if(in_state(GameState::InGame).or(in_state(GameState::NameInput))),
         );
     }
 }

@@ -1,8 +1,5 @@
 use bevy::prelude::*;
 
-#[derive(Resource)]
-pub struct MyGamepad(pub Gamepad);
-
 pub fn get_direction(keys: Res<ButtonInput<KeyCode>>, gamepads: &Query<&Gamepad>) -> Vec2 {
     let key_direction = Vec2::new(
         to_s(&keys, KeyCode::KeyD) - to_s(&keys, KeyCode::KeyA),
@@ -60,5 +57,5 @@ pub fn get_fire_trigger(
 pub struct GamepadPlugin;
 
 impl Plugin for GamepadPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, _app: &mut App) {}
 }

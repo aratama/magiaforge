@@ -10,7 +10,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AseSpriteSlice, Aseprite};
 use bevy_light_2d::light::PointLight2d;
-use bevy_particle_systems::Playing;
 use bevy_rapier2d::prelude::*;
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -266,40 +265,40 @@ fn process_bullet_event(
     }
 }
 
-fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
-    commands
-        // Add the bundle specifying the particle system itself.
-        .spawn((
-            Name::new("particle system"),
-            StateScoped(GameState::InGame),
-            Transform::from_translation(position.extend(BULLET_Z)),
-            // TODO: particle
-            // ParticleSystem {
-            //     spawn_rate_per_second: 0.0.into(),
-            //     max_particles: 100,
-            //     initial_speed: JitteredValue::jittered(50.0, -50.0..50.0),
-            //     lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
-            //     color: ColorOverTime::Constant(Color::WHITE),
-            //     bursts: vec![ParticleBurst {
-            //         // このシステムのスケジュールをUpdate意外に設定し、このtimeを0.0にすると、
-            //         // パーティクルシステムを設置してそのGlobalTransformが更新される前にパーティクルが生成されてしまうため、
-            //         // パーティクルの発生位置が原点になってしまうことに注意
-            //         // 0.1くらいにしておくと0.0ではないので大丈夫っぽい
-            //         time: 0.1,
-            //         count: 20,
-            //     }],
-            //     system_duration_seconds: 0.2,
-            //     ..ParticleSystem::oneshot()
-            // },
-            // Playing,
-            PointLight2d {
-                radius: 50.0,
-                intensity: 1.0,
-                falloff: 10.0,
-                color: Color::hsl(245.0, 1.0, 0.6),
-                ..default()
-            },
-        ));
+fn spawn_particle_system(_commands: &mut Commands, _position: Vec2) {
+    // TODO: particle
+    // commands
+    //     // Add the bundle specifying the particle system itself.
+    //     .spawn((
+    //         Name::new("particle system"),
+    //         StateScoped(GameState::InGame),
+    //         Transform::from_translation(position.extend(BULLET_Z)),
+    //         ParticleSystem {
+    //             spawn_rate_per_second: 0.0.into(),
+    //             max_particles: 100,
+    //             initial_speed: JitteredValue::jittered(50.0, -50.0..50.0),
+    //             lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
+    //             color: ColorOverTime::Constant(Color::WHITE),
+    //             bursts: vec![ParticleBurst {
+    //                 // このシステムのスケジュールをUpdate意外に設定し、このtimeを0.0にすると、
+    //                 // パーティクルシステムを設置してそのGlobalTransformが更新される前にパーティクルが生成されてしまうため、
+    //                 // パーティクルの発生位置が原点になってしまうことに注意
+    //                 // 0.1くらいにしておくと0.0ではないので大丈夫っぽい
+    //                 time: 0.1,
+    //                 count: 20,
+    //             }],
+    //             system_duration_seconds: 0.2,
+    //             ..ParticleSystem::oneshot()
+    //         },
+    //         Playing,
+    //         PointLight2d {
+    //             radius: 50.0,
+    //             intensity: 1.0,
+    //             falloff: 10.0,
+    //             color: Color::hsl(245.0, 1.0, 0.6),
+    //             ..default()
+    //         },
+    //     ));
 }
 
 pub struct BulletPlugin;

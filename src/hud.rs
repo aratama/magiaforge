@@ -15,8 +15,6 @@ use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
-#[cfg(feature = "debug")]
-use iyes_perf_ui::entries::PerfUiBundle;
 
 #[derive(Component)]
 pub struct HUD;
@@ -118,9 +116,6 @@ fn setup_hud(
 
             spawn_inventory_floating(&mut parent, &assets);
         });
-
-    #[cfg(feature = "debug")]
-    commands.spawn(PerfUiBundle::default());
 }
 
 fn spawn_status_bars(parent: &mut ChildBuilder) {

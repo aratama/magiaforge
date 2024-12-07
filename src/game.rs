@@ -51,7 +51,6 @@ use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::ui::wand_sprite::WandSpritePlugin;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
-use bevy::ecs::world::WorldId;
 use bevy::log::*;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
@@ -64,7 +63,6 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_embedded_assets::PluginMode;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
-use bevy_particle_systems::ParticleSystemPlugin;
 #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
 use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
@@ -80,8 +78,6 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-#[cfg(feature = "debug")]
-use iyes_perf_ui::PerfUiPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -141,20 +137,7 @@ pub fn run_game() {
                 .in_fixed_schedule()
                 .with_custom_initialization(RapierContextInitialization::NoAutomaticRapierContext),
         )
-        .add_systems(Startup, create_worlds)
-        // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
-        // そうしないと警告が出る
-        // .insert_resource(RapierConfiguration {
-        //     gravity: Vect::ZERO,
-        //     physics_pipeline_active: true,
-        //     query_pipeline_active: true,
-        //     timestep_mode: TimestepMode::Fixed {
-        //         dt: 0.016666668,
-        //         substeps: 1,
-        //     },
-        //     scaled_shape_subdivision: 10,
-        //     force_update_from_transform_changes: false,
-        // })
+        .add_systems(Startup, setup_rapier_context)
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
         //
@@ -234,8 +217,7 @@ pub fn run_game() {
     // 無くてもゲーム自体は動作します
     //
     #[cfg(feature = "debug")]
-    app.add_plugins(PerfUiPlugin)
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+    app.add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(EntityCountDiagnosticsPlugin)
         .add_plugins(SystemInformationDiagnosticsPlugin)
         .add_plugins(WorldInspectorPlugin::new())
@@ -248,23 +230,17 @@ pub fn run_game() {
     app.run();
 }
 
-fn create_worlds(mut commands: Commands) {
+fn setup_rapier_context(mut commands: Commands) {
     commands.spawn((
-        RapierContext::default(),
-        RapierConfiguration::new(100.0),
-        // RapierContext::default() {
-        //     // gravity: Vect::ZERO,
-        //     // physics_pipeline_active: true,
-        //     // query_pipeline_active: true,
-        //     // timestep_mode: TimestepMode::Fixed {
-        //     //     dt: 0.016666668,
-        //     //     substeps: 1,
-        //     // },
-        //     // scaled_shape_subdivision: 10,
-        //     // force_update_from_transform_changes: false,
-        //     ..default()
-        // },
         DefaultRapierContext,
+        RapierContext::default(),
+        RapierConfiguration {
+            gravity: Vec2::ZERO,
+            physics_pipeline_active: true,
+            query_pipeline_active: true,
+            scaled_shape_subdivision: 10,
+            force_update_from_transform_changes: false,
+        },
     ));
 }
 

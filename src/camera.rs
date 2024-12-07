@@ -15,7 +15,7 @@ fn setup_camera(mut commands: Commands) {
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される
     // この範囲を超えるとクリップされることに注意
-    let mut camera = Camera2d::default();
+    let camera = Camera2d::default();
     let mut projection = OrthographicProjection::default_2d();
     projection.scale = 2.0_f32.powf(initial_scale_factor);
 

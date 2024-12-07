@@ -5,7 +5,7 @@ use crate::entity::{
 use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
 use bevy::{core::FrameCount, prelude::*, sprite::Anchor};
 use bevy_aseprite_ultra::prelude::*;
-use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
+use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Default, Component, Reflect)]
@@ -49,7 +49,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                     anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
                     ..default()
                 },
-                AseSpriteSlice {
+                AseSpriteAnimation {
                     aseprite: assets.stone_lantern.clone(),
                     ..default()
                 },

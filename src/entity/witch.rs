@@ -149,19 +149,16 @@ pub fn spawn_witch<T: Component>(
 
 fn update_witch_animation(
     witch_query: Query<&ActorState, Changed<ActorState>>,
-    mut witch_animation_query: Query<(&Parent, &mut Animation)>,
+    mut witch_animation_query: Query<(&Parent, &mut AseSpriteAnimation)>,
 ) {
     for (parent, mut animation) in witch_animation_query.iter_mut() {
         if let Ok(state) = witch_query.get(**parent) {
             // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
             // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
-            animation.play(
-                match state {
-                    ActorState::Idle => "idle",
-                    ActorState::Walk => "run",
-                },
-                AnimationRepeat::Loop,
-            );
+            animation.animation.tag = match state {
+                ActorState::Idle => Some("idle".to_string()),
+                ActorState::Walk => Some("run".to_string()),
+            };
         }
     }
 }
@@ -172,6 +169,7 @@ fn update_wand(
         (&Parent, &mut Transform, &mut Sprite, &mut AseSpriteSlice),
         With<WitchWandSprite>,
     >,
+    assets: Res<GameAssets>,
 ) {
     for (parent, mut transform, mut sprite, mut slice) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
@@ -183,9 +181,15 @@ fn update_wand(
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
                 let props = wand_to_props(wand.wand_type);
-                slice.name = props.slice.to_string();
+                *slice = AseSpriteSlice {
+                    name: props.slice.to_string(),
+                    aseprite: assets.atlas.clone(),
+                };
             } else {
-                slice.name = "empty".to_string();
+                *slice = AseSpriteSlice {
+                    name: "empty".to_string(),
+                    aseprite: assets.atlas.clone(),
+                };
             }
         }
     }

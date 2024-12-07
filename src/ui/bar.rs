@@ -42,7 +42,7 @@ pub fn spawn_status_bar<T: Component>(
             parent.spawn((
                 StatusBarBackground,
                 BackgroundColor::from(Color::srgba(0., 0., 0., 0.5)),
-                GlobalZIndex(0),
+                ZIndex(0),
                 Node {
                     position_type: PositionType::Absolute,
                     top: Val::Px(0.),
@@ -55,7 +55,7 @@ pub fn spawn_status_bar<T: Component>(
             parent.spawn((
                 StatusBarRect,
                 BackgroundColor(color),
-                GlobalZIndex(1),
+                ZIndex(1),
                 Node {
                     position_type: PositionType::Absolute,
                     top: Val::Px(0.),
@@ -67,8 +67,8 @@ pub fn spawn_status_bar<T: Component>(
 
             parent.spawn((
                 StatusBarBorder,
-                BackgroundColor(Color::WHITE),
-                GlobalZIndex(2),
+                BorderColor(Color::WHITE),
+                ZIndex(2),
                 Node {
                     position_type: PositionType::Absolute,
                     top: Val::Px(0.),

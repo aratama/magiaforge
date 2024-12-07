@@ -30,7 +30,7 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
             wait: 0,
         },
         GlobalZIndex(OVERLAY_Z_INDEX),
-        BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 1.0)),
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
         Node {
             width: Val::Px(width),
             height: Val::Px(height),

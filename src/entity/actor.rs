@@ -6,7 +6,7 @@ use crate::spell::SpellType;
 use crate::wand::Wand;
 use crate::{asset::GameAssets, command::GameCommand, states::GameState};
 use bevy::prelude::*;
-use bevy_light_2d::light::{PointLight2d, PointLight2dBundle};
+use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::{ExternalForce, Group};
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
@@ -143,14 +143,11 @@ fn update_actor_light(
                 ActorLight {
                     owner: actor_entity,
                 },
-                PointLight2dBundle {
-                    transform: transform.clone(),
-                    point_light: PointLight2d {
-                        radius: 150.0,
-                        intensity: actor.intensity,
-                        falloff: 10.0,
-                        ..default()
-                    },
+                transform.clone(),
+                PointLight2d {
+                    radius: 150.0,
+                    intensity: actor.intensity,
+                    falloff: 10.0,
                     ..default()
                 },
             ));

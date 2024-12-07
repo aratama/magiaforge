@@ -21,7 +21,7 @@ pub fn spawn_interaction_sensor(builder: &mut ChildBuilder) {
         InteractionSensor {
             entities: HashSet::new(),
         },
-        VisibilityBundle::default(),
+        Visibility::default(),
         Transform::IDENTITY,
         GlobalTransform::default(),
         RigidBody::Fixed,

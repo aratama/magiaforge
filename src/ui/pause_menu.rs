@@ -2,7 +2,6 @@ use super::label::spawn_label;
 use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
-use crate::input::MyGamepad;
 use crate::language::{Dict, Languages};
 use crate::level::NextLevel;
 use crate::states::GameMenuState;
@@ -12,7 +11,7 @@ use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use bevy_rapier2d::plugin::{DefaultRapierContext, PhysicsSet, RapierConfiguration, RapierContext};
+use bevy_rapier2d::plugin::{DefaultRapierContext, PhysicsSet, RapierConfiguration};
 use bevy_simple_websocket::ClientMessage;
 
 #[derive(Resource)]
@@ -317,10 +316,10 @@ fn setup_game_menu(
 
 fn update_game_menu(
     state: Res<State<GameMenuState>>,
-    mut next: ResMut<NextState<GameMenuState>>,
+    // mut next: ResMut<NextState<GameMenuState>>,
     mut query: Query<&mut Visibility, With<PauseMenuRoot>>,
-    gamepad_buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // gamepad_buttons: Res<ButtonInput<GamepadButton>>,
+    // my_gamepad: Option<Res<MyGamepad>>,
 ) {
     let mut visibility = query.single_mut();
     *visibility = match state.get() {
