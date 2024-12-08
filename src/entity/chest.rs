@@ -65,14 +65,13 @@ pub fn spawn_chest(
         .with_children(move |parent| {
             parent.spawn((
                 BreakableSprite,
-                AsepriteSliceBundle {
+                AseSpriteSlice {
                     aseprite: aseprite,
-                    slice: match chest_type {
+                    name: match chest_type {
                         ChestType::Chest => "chest",
                         ChestType::Crate => "crate",
                     }
                     .into(),
-                    ..default()
                 },
             ));
         });

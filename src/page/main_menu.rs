@@ -8,7 +8,7 @@ use crate::{
 };
 use bevy::core::FrameCount;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteAnimationUiBundle, AsepriteSliceUiBundle};
+use bevy_aseprite_ultra::prelude::*;
 use git_version::git_version;
 
 const SCALE: f32 = 4.0;
@@ -38,19 +38,16 @@ fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm
 
     commands.spawn((
         StateScoped(GameState::MainMenu),
-        ImageBundle {
-            z_index: ZIndex::Global(-1000),
-            style: Style {
-                width: Val::Px(1280.0),
-                height: Val::Px(720.0),
-                ..default()
-            },
+        GlobalZIndex(-1000),
+        Transform::from_xyz(0.0, 0.0, 0.0),
+        Node {
+            width: Val::Px(1280.0),
+            height: Val::Px(720.0),
             ..default()
         },
-        AsepriteSliceUiBundle {
-            slice: "all".into(),
+        AseUiSlice {
+            name: "all".into(),
             aseprite: assets.title.clone(),
-            ..default()
         },
     ));
 
@@ -62,84 +59,66 @@ fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm
     commands.spawn((
         WitchAnimation,
         StateScoped(GameState::MainMenu),
-        ImageBundle {
-            z_index: ZIndex::Global(-800),
-            style: Style {
-                left: Val::Px(800.0),
-                top: Val::Px(0.0),
-                width: Val::Px(96.0 * SCALE),
-                height: Val::Px(96.0 * SCALE),
-                ..default()
-            },
+        GlobalZIndex(-800),
+        Node {
+            left: Val::Px(800.0),
+            top: Val::Px(0.0),
+            width: Val::Px(96.0 * SCALE),
+            height: Val::Px(96.0 * SCALE),
             ..default()
         },
-        AsepriteAnimationUiBundle {
+        AseUiAnimation {
             aseprite: assets.title_witch.clone(),
             animation: "default".into(),
-            ..default()
         },
     ));
 
     commands.spawn((
         StateScoped(GameState::MainMenu),
-        ImageBundle {
-            z_index: ZIndex::Global(-700),
-            style: Style {
-                left: Val::Px(400.0),
-                top: Val::Px(300.0),
-                width: Val::Px(128.0 * SCALE),
-                height: Val::Px(48.0 * SCALE),
-                ..default()
-            },
+        GlobalZIndex(-700),
+        Node {
+            left: Val::Px(400.0),
+            top: Val::Px(300.0),
+            width: Val::Px(128.0 * SCALE),
+            height: Val::Px(48.0 * SCALE),
             ..default()
         },
-        AsepriteSliceUiBundle {
+        AseUiSlice {
             aseprite: assets.atlas.clone(),
-            slice: "title_logo".into(),
-            ..default()
+            name: "title_logo".into(),
         },
     ));
 
     commands.spawn((
         StateScoped(GameState::MainMenu),
-        ImageBundle {
-            z_index: ZIndex::Global(-700),
-            style: Style {
-                left: Val::Px(520.0),
-                top: Val::Px(640.0),
-                width: Val::Px(64.0 * SCALE),
-                height: Val::Px(16.0 * SCALE),
-                ..default()
-            },
+        GlobalZIndex(-700),
+        Node {
+            left: Val::Px(520.0),
+            top: Val::Px(640.0),
+            width: Val::Px(64.0 * SCALE),
+            height: Val::Px(16.0 * SCALE),
             ..default()
         },
-        AsepriteSliceUiBundle {
+        AseUiSlice {
             aseprite: assets.atlas.clone(),
-            slice: "click_to_start".into(),
-            ..default()
+            name: "click_to_start".into(),
         },
     ));
 
     commands.spawn((
         StateScoped(GameState::MainMenu),
         Name::new("Git Version"),
-        TextBundle {
-            text: Text::from_section(
-                format!("Version: {}", git_version!()),
-                TextStyle {
-                    color: Color::srgba(1.0, 1.0, 1.0, 0.3),
-                    font_size: 12.0,
-                    ..default()
-                },
-            ),
-            style: Style {
-                position_type: PositionType::Absolute,
-                left: Val::Px(10.0),
-                top: Val::Px(700.0),
-                ..default()
-            },
-            z_index: ZIndex::Global(HUD_Z_INDEX),
-
+        GlobalZIndex(HUD_Z_INDEX),
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(10.0),
+            top: Val::Px(700.0),
+            ..default()
+        },
+        Text::new(format!("Version: {}", git_version!())),
+        TextColor::from(Color::srgba(1.0, 1.0, 1.0, 0.3)),
+        TextFont {
+            font_size: 12.0,
             ..default()
         },
     ));
@@ -154,22 +133,17 @@ fn spawn_cloud<T: Component>(
     commands.spawn((
         marker,
         StateScoped(GameState::MainMenu),
-        ImageBundle {
-            z_index: ZIndex::Global(z_index),
-            style: Style {
-                left: Val::Px(0.0),
-                top: Val::Px(0.0),
-                width: Val::Px(1024.0 * SCALE),
-                height: Val::Px(180.0 * SCALE),
-
-                ..default()
-            },
+        GlobalZIndex(z_index),
+        Node {
+            left: Val::Px(0.0),
+            top: Val::Px(0.0),
+            width: Val::Px(1024.0 * SCALE),
+            height: Val::Px(180.0 * SCALE),
             ..default()
         },
-        AsepriteAnimationUiBundle {
+        AseUiAnimation {
             aseprite: aseprite.clone(),
             animation: "default".into(),
-            ..default()
         },
     ));
 }
@@ -204,7 +178,7 @@ fn read_events(
 
 fn witch_animation(
     frame_count: Res<FrameCount>,
-    mut query: Query<&mut Style, With<WitchAnimation>>,
+    mut query: Query<&mut Node, With<WitchAnimation>>,
 ) {
     for mut style in &mut query.iter_mut() {
         style.left = Val::Px(750.0 + (frame_count.0 as f32 * 0.007).sin() * 100.0);
@@ -214,7 +188,7 @@ fn witch_animation(
 
 fn cloud_animation0(
     frame_count: Res<FrameCount>,
-    mut query: Query<&mut Style, With<CloudAnimation0>>,
+    mut query: Query<&mut Node, With<CloudAnimation0>>,
 ) {
     for mut style in &mut query.iter_mut() {
         style.left = Val::Px(0.0 - (frame_count.0 as f32 * 0.0003).fract() * 1024.0 * SCALE);
@@ -223,7 +197,7 @@ fn cloud_animation0(
 
 fn cloud_animation1(
     frame_count: Res<FrameCount>,
-    mut query: Query<&mut Style, With<CloudAnimation1>>,
+    mut query: Query<&mut Node, With<CloudAnimation1>>,
 ) {
     for mut style in &mut query.iter_mut() {
         style.left =
@@ -233,7 +207,7 @@ fn cloud_animation1(
 
 fn cloud_animation2(
     frame_count: Res<FrameCount>,
-    mut query: Query<&mut Style, With<CloudAnimation2>>,
+    mut query: Query<&mut Node, With<CloudAnimation2>>,
 ) {
     for mut style in &mut query.iter_mut() {
         style.left =
@@ -243,7 +217,7 @@ fn cloud_animation2(
 
 fn cloud_animation3(
     frame_count: Res<FrameCount>,
-    mut query: Query<&mut Style, With<CloudAnimation3>>,
+    mut query: Query<&mut Node, With<CloudAnimation3>>,
 ) {
     for mut style in &mut query.iter_mut() {
         style.left = Val::Px(

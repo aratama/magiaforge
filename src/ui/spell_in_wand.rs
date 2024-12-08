@@ -12,7 +12,7 @@ use crate::{
     states::{GameMenuState, GameState},
     wand_props::wand_to_props,
 };
-use bevy::{prelude::*, ui::Style};
+use bevy::{prelude::*, ui::Node};
 use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component, Debug, Clone)]
@@ -33,28 +33,24 @@ pub fn spawn_wand_spell_slot(
             spell_index,
         },
         Interaction::default(),
-        ImageBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                left: Val::Px(64.0 + 32. * (spell_index as f32)),
-                width: Val::Px(32.),
-                height: Val::Px(32.),
-                ..default()
-            },
-            background_color: slot_color(wand_index, spell_index).into(),
+        BackgroundColor(slot_color(wand_index, spell_index)),
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(64.0 + 32. * (spell_index as f32)),
+            width: Val::Px(32.),
+            height: Val::Px(32.),
             ..default()
         },
-        AsepriteSliceUiBundle {
+        AseUiSlice {
             aseprite: assets.atlas.clone(),
-            slice: "empty".into(),
-            ..default()
+            name: "empty".into(),
         },
     ));
 }
 
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSpellSprite, &mut AsepriteSlice, &mut Visibility)>,
+    mut sprite_query: Query<(&WandSpellSprite, &mut AseUiSlice, &mut Visibility)>,
     floating_query: Query<&Floating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
@@ -77,7 +73,7 @@ fn update_spell_sprite(
                                         && spell_index == spell_sprite.spell_index => {}
                                 _ => {
                                     let props = spell_to_props(spell);
-                                    *aseprite = AsepriteSlice::new(props.icon);
+                                    aseprite.name = props.icon.to_string();
                                     continue;
                                 }
                             }
@@ -89,7 +85,7 @@ fn update_spell_sprite(
                 *visibility = Visibility::Hidden;
             }
 
-            *aseprite = AsepriteSlice::new("empty");
+            aseprite.name = "empty".into();
         }
     }
 }

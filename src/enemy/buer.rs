@@ -51,12 +51,11 @@ pub fn spawn_buer(commands: &mut Commands, aseprite: Handle<Aseprite>, position:
         },
         ActorState::default(),
         EntityDepth,
-        AsepriteAnimationBundle {
+        AseSpriteAnimation {
             aseprite: aseprite,
             animation: Animation::default().with_tag("idle"),
-            transform: Transform::from_translation(position.extend(0.0)),
-            ..default()
         },
+        Transform::from_translation(position.extend(0.0)),
         (
             RigidBody::Dynamic,
             Collider::ball(48.0),

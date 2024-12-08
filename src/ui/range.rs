@@ -15,17 +15,14 @@ pub fn spawn_range<T: Component>(
     label: Dict,
 ) {
     child_builder
-        .spawn((NodeBundle {
-            style: Style {
-                display: Display::Flex,
-                flex_direction: FlexDirection::Row,
-                align_items: AlignItems::Start,
-                justify_content: JustifyContent::Start,
-                border: UiRect::all(Val::Px(2.0)),
-                width: Val::Percent(100.0),
-                column_gap: Val::Px(10.0),
-                ..default()
-            },
+        .spawn((Node {
+            display: Display::Flex,
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Start,
+            justify_content: JustifyContent::Start,
+            border: UiRect::all(Val::Px(2.0)),
+            width: Val::Percent(100.0),
+            column_gap: Val::Px(10.0),
             ..default()
         },))
         .with_children(|parent| {
@@ -43,15 +40,13 @@ pub fn spawn_range<T: Component>(
             );
             parent.spawn((
                 marker,
-                TextBundle::from_section(
-                    format!("{}", value).to_string(),
-                    TextStyle {
-                        font_size: 40.0,
-                        font: assets.dotgothic.clone(),
-                        color: Color::srgba(0.9, 0.9, 0.9, 0.4),
-                        ..default()
-                    },
-                ),
+                Text::new(format!("{}", value)),
+                TextColor(Color::srgba(0.9, 0.9, 0.9, 0.4)),
+                TextFont {
+                    font_size: 40.0,
+                    font: assets.dotgothic.clone(),
+                    ..default()
+                },
             ));
             menu_button(
                 parent,

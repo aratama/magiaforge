@@ -105,48 +105,38 @@ pub fn spawn_witch<T: Component>(
 
         spawn_children.spawn((
             BreakableSprite,
-            AsepriteAnimationBundle {
+            Sprite {
+                // flip_x: true,
+                // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
+                // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
+                ..default()
+            },
+            AseSpriteAnimation {
                 aseprite: assets.player.clone(),
                 animation: Animation::default().with_tag("idle"),
-                sprite: Sprite {
-                    // flip_x: true,
-                    // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
-                    // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
-                    ..default()
-                },
-                ..default()
             },
         ));
 
         spawn_children.spawn((
             WitchWandSprite,
-            AsepriteSliceBundle {
+            AseSpriteSlice {
                 aseprite: assets.atlas.clone(),
-                slice: "wand_cypress".into(),
-                ..default()
+                name: "wand_cypress".into(),
             },
         ));
 
         // リモートプレイヤーの名前
         // 自分のプレイヤーキャラクターは名前を表示しません
         if let Some(name) = name_plate {
-            let mut sections = Vec::new();
-            sections.push(TextSection {
-                value: name,
-                style: TextStyle {
-                    color: Color::hsla(120.0, 1.0, 0.5, 0.3),
+            spawn_children.spawn((
+                Transform::from_xyz(0.0, 20.0, 100.0),
+                Text2d::new(name),
+                TextColor(Color::hsla(120.0, 1.0, 0.5, 0.3)),
+                TextFont {
                     font_size: 10.0,
                     ..default()
                 },
-            });
-            spawn_children.spawn(Text2dBundle {
-                text: Text {
-                    sections,
-                    ..default()
-                },
-                transform: Transform::from_xyz(0.0, 20.0, 100.0),
-                ..default()
-            });
+            ));
         }
 
         if life_bar {
@@ -159,19 +149,16 @@ pub fn spawn_witch<T: Component>(
 
 fn update_witch_animation(
     witch_query: Query<&ActorState, Changed<ActorState>>,
-    mut witch_animation_query: Query<(&Parent, &mut Animation)>,
+    mut witch_animation_query: Query<(&Parent, &mut AseSpriteAnimation)>,
 ) {
     for (parent, mut animation) in witch_animation_query.iter_mut() {
         if let Ok(state) = witch_query.get(**parent) {
             // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
             // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
-            animation.play(
-                match state {
-                    ActorState::Idle => "idle",
-                    ActorState::Walk => "run",
-                },
-                AnimationRepeat::Loop,
-            );
+            animation.animation.tag = match state {
+                ActorState::Idle => Some("idle".to_string()),
+                ActorState::Walk => Some("run".to_string()),
+            };
         }
     }
 }
@@ -179,9 +166,10 @@ fn update_witch_animation(
 fn update_wand(
     actor_query: Query<&Actor>,
     mut query: Query<
-        (&Parent, &mut Transform, &mut Sprite, &mut AsepriteSlice),
+        (&Parent, &mut Transform, &mut Sprite, &mut AseSpriteSlice),
         With<WitchWandSprite>,
     >,
+    assets: Res<GameAssets>,
 ) {
     for (parent, mut transform, mut sprite, mut slice) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
@@ -193,9 +181,15 @@ fn update_wand(
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
                 let props = wand_to_props(wand.wand_type);
-                *slice = AsepriteSlice::new(props.slice);
+                *slice = AseSpriteSlice {
+                    name: props.slice.to_string(),
+                    aseprite: assets.atlas.clone(),
+                };
             } else {
-                *slice = AsepriteSlice::new("empty");
+                *slice = AseSpriteSlice {
+                    name: "empty".to_string(),
+                    aseprite: assets.atlas.clone(),
+                };
             }
         }
     }

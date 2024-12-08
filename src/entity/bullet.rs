@@ -1,18 +1,16 @@
-use crate::command::GameCommand;
 use crate::controller::enemy::Enemy;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
+use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::EntityDepth;
 use crate::firing::Firing;
 use crate::level::wall::WallCollider;
 use crate::states::GameState;
+use crate::{command::GameCommand, entity::bullet_particle::spawn_particle_system};
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{Aseprite, AsepriteSlice, AsepriteSliceBundle};
+use bevy_aseprite_ultra::prelude::{AseSpriteSlice, Aseprite};
 use bevy_light_2d::light::PointLight2d;
-use bevy_particle_systems::{
-    ColorOverTime, JitteredValue, ParticleBurst, ParticleSystem, ParticleSystemBundle, Playing,
-};
 use bevy_rapier2d::prelude::*;
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -68,12 +66,11 @@ pub fn spawn_bullet(
             homing: firing.homing,
         },
         EntityDepth,
-        AsepriteSliceBundle {
+        Transform::from_xyz(firing.position.x, firing.position.y, BULLET_Z)
+            * Transform::from_rotation(Quat::from_rotation_z(firing.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
+        AseSpriteSlice {
             aseprite,
-            slice: AsepriteSlice::new(firing.slice.as_str()),
-            transform: Transform::from_xyz(firing.position.x, firing.position.y, BULLET_Z)
-                * Transform::from_rotation(Quat::from_rotation_z(firing.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
-            ..default()
+            name: firing.slice.clone().into(),
         },
         (
             // 衝突にはColliderが必要
@@ -169,6 +166,7 @@ fn bullet_collision(
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut writer: EventWriter<GameCommand>,
+    resource: Res<BulletParticleResource>,
 ) {
     // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
     // すでにdespawnしたentityに対して再びdespawnしてしまうことがあり、
@@ -189,6 +187,7 @@ fn bullet_collision(
                     &b,
                     &wall_collider_query,
                     &mut writer,
+                    &resource,
                 ) {
                     process_bullet_event(
                         &mut commands,
@@ -200,6 +199,7 @@ fn bullet_collision(
                         &a,
                         &wall_collider_query,
                         &mut writer,
+                        &resource,
                     );
                 }
             }
@@ -218,6 +218,7 @@ fn process_bullet_event(
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
     writer: &mut EventWriter<GameCommand>,
+    resource: &Res<BulletParticleResource>,
 ) -> bool {
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
@@ -236,7 +237,7 @@ fn process_bullet_event(
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
-                    spawn_particle_system(&mut commands, bullet_position);
+                    spawn_particle_system(&mut commands, bullet_position, resource);
                     writer.send(GameCommand::SEDamage(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
@@ -245,19 +246,19 @@ fn process_bullet_event(
                 breakabke.amplitude = 2.0;
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
-                spawn_particle_system(&mut commands, bullet_position);
+                spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(GameCommand::SEDamage(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
-                spawn_particle_system(&mut commands, bullet_position);
+                spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(GameCommand::SESteps(Some(bullet_position)));
             } else {
                 trace!("bullet hit unknown entity: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
-                spawn_particle_system(&mut commands, bullet_position);
+                spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(GameCommand::SENoDamage(Some(bullet_position)));
             }
             true
@@ -267,44 +268,6 @@ fn process_bullet_event(
     } else {
         false
     }
-}
-
-fn spawn_particle_system(commands: &mut Commands, position: Vec2) {
-    commands
-        // Add the bundle specifying the particle system itself.
-        .spawn((
-            Name::new("particle system"),
-            StateScoped(GameState::InGame),
-            ParticleSystemBundle {
-                transform: Transform::from_translation(position.extend(BULLET_Z)),
-                particle_system: ParticleSystem {
-                    spawn_rate_per_second: 0.0.into(),
-                    max_particles: 100,
-                    initial_speed: JitteredValue::jittered(50.0, -50.0..50.0),
-                    lifetime: JitteredValue::jittered(0.2, -0.05..0.05),
-                    color: ColorOverTime::Constant(Color::WHITE),
-                    bursts: vec![ParticleBurst {
-                        // このシステムのスケジュールをUpdate意外に設定し、このtimeを0.0にすると、
-                        // パーティクルシステムを設置してそのGlobalTransformが更新される前にパーティクルが生成されてしまうため、
-                        // パーティクルの発生位置が原点になってしまうことに注意
-                        // 0.1くらいにしておくと0.0ではないので大丈夫っぽい
-                        time: 0.1,
-                        count: 20,
-                    }],
-                    system_duration_seconds: 0.2,
-                    ..ParticleSystem::oneshot()
-                },
-                ..ParticleSystemBundle::default()
-            },
-            Playing,
-            PointLight2d {
-                radius: 50.0,
-                intensity: 1.0,
-                falloff: 10.0,
-                color: Color::hsl(245.0, 1.0, 0.6),
-                ..default()
-            },
-        ));
 }
 
 pub struct BulletPlugin;

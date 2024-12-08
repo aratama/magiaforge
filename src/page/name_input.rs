@@ -9,7 +9,9 @@ use crate::{
 };
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
-use bevy_simple_text_input::{TextInputBundle, TextInputSettings, TextInputValue};
+use bevy_simple_text_input::{
+    TextInput, TextInputSettings, TextInputTextColor, TextInputTextFont, TextInputValue,
+};
 
 const BORDER_COLOR_ACTIVE: Color = Color::srgb(0.75, 0.52, 0.99);
 const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
@@ -54,81 +56,70 @@ fn setup(
     commands
         .spawn((
             StateScoped(GameState::NameInput),
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        flex_direction: FlexDirection::Column,
-                        row_gap: Val::Px(10.0),
-                        ..default()
-                    },
+                .spawn(Node {
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Px(10.0),
                     ..default()
                 })
                 .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(
-                        Dict {
-                            ja: "名前を入力してください",
-                            en: "Input Your Name",
-                        }
-                        .get(config.language),
-                        TextStyle {
+                    parent.spawn((
+                        Text::new(
+                            Dict {
+                                ja: "名前を入力してください",
+                                en: "Input Your Name",
+                            }
+                            .get(config.language),
+                        ),
+                        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                        TextFont {
                             font_size: 60.0,
                             font: assets.dotgothic.clone(),
-                            color: Color::srgb(0.9, 0.9, 0.9),
                             ..default()
                         },
                     ));
 
                     parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.0),
-                                height: Val::Percent(100.0),
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::Center,
-                                column_gap: Val::Px(10.0),
-                                ..default()
-                            },
+                        .spawn(Node {
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::Center,
+                            column_gap: Val::Px(10.0),
                             ..default()
                         })
                         .with_children(|parent| {
                             parent.spawn((
-                                NodeBundle {
-                                    style: Style {
-                                        width: Val::Px(200.0),
-                                        border: UiRect::all(Val::Px(5.0)),
-                                        padding: UiRect::all(Val::Px(5.0)),
-                                        ..default()
-                                    },
-                                    border_color: BORDER_COLOR_ACTIVE.into(),
-                                    background_color: BACKGROUND_COLOR.into(),
+                                Node {
+                                    width: Val::Px(200.0),
+                                    border: UiRect::all(Val::Px(5.0)),
+                                    padding: UiRect::all(Val::Px(5.0)),
                                     ..default()
                                 },
-                                TextInputBundle::default()
-                                    .with_text_style(TextStyle {
-                                        font_size: 40.,
-                                        color: TEXT_COLOR,
-                                        ..default()
-                                    })
-                                    .with_settings(TextInputSettings {
-                                        retain_on_submit: true,
-                                        ..default()
-                                    })
-                                    .with_value(config.player_name.clone()),
+                                BorderColor::from(BORDER_COLOR_ACTIVE),
+                                BackgroundColor::from(BACKGROUND_COLOR),
+                                TextInput,
+                                TextInputTextFont(TextFont {
+                                    font_size: 40.,
+                                    ..default()
+                                }),
+                                TextInputTextColor(TEXT_COLOR.into()),
+                                TextInputSettings {
+                                    retain_on_submit: true,
+                                    ..default()
+                                },
+                                TextInputValue(config.player_name.clone()),
                             ));
 
                             menu_button(

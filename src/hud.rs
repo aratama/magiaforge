@@ -15,8 +15,6 @@ use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
-#[cfg(feature = "debug")]
-use iyes_perf_ui::entries::PerfUiBundle;
 
 #[derive(Component)]
 pub struct HUD;
@@ -40,24 +38,21 @@ fn setup_hud(
         .spawn((
             Name::new("hud_root"),
             StateScoped(GameState::InGame),
-            NodeBundle {
-                style: Style {
-                    display: Display::Flex,
-                    justify_content: JustifyContent::Start,
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Start,
-                    row_gap: Val::Px(4.),
-                    height: Val::Percent(100.),
-                    width: Val::Percent(100.),
-                    padding: UiRect {
-                        left: Val::Px(8.),
-                        right: Val::Px(8.),
-                        top: Val::Px(8.),
-                        bottom: Val::Px(8.),
-                    },
-                    ..default()
+            GlobalZIndex(HUD_Z_INDEX),
+            Node {
+                display: Display::Flex,
+                justify_content: JustifyContent::Start,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Start,
+                row_gap: Val::Px(4.),
+                height: Val::Percent(100.),
+                width: Val::Percent(100.),
+                padding: UiRect {
+                    left: Val::Px(8.),
+                    right: Val::Px(8.),
+                    top: Val::Px(8.),
+                    bottom: Val::Px(8.),
                 },
-                z_index: ZIndex::Global(HUD_Z_INDEX),
                 ..default()
             },
         ))
@@ -67,9 +62,9 @@ fn setup_hud(
 
             // 下半分
             parent
-                .spawn((NodeBundle {
-                    z_index: ZIndex::Global(HUD_Z_INDEX),
-                    style: Style {
+                .spawn((
+                    GlobalZIndex(HUD_Z_INDEX),
+                    Node {
                         width: Val::Percent(100.),
                         display: Display::Flex,
                         flex_direction: FlexDirection::Row,
@@ -77,22 +72,20 @@ fn setup_hud(
                         justify_content: JustifyContent::SpaceBetween,
                         ..default()
                     },
-                    ..default()
-                },))
+                ))
                 .with_children(|parent| {
                     // 左下
                     parent
-                        .spawn((NodeBundle {
-                            z_index: ZIndex::Global(HUD_Z_INDEX),
-                            style: Style {
+                        .spawn((
+                            GlobalZIndex(HUD_Z_INDEX),
+                            Node {
                                 display: Display::Flex,
                                 flex_direction: FlexDirection::Column,
                                 align_items: AlignItems::Start,
                                 row_gap: Val::Px(4.),
                                 ..default()
                             },
-                            ..default()
-                        },))
+                        ))
                         .with_children(|mut parent| {
                             spawn_wand_list(&mut parent, &assets);
 
@@ -108,43 +101,33 @@ fn setup_hud(
                     };
                     let name = level_to_name(level).get(config.language).to_string();
 
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            name,
-                            TextStyle {
-                                color: Color::srgba(1.0, 1.0, 1.0, 0.3),
-                                font: assets.dotgothic.clone(),
-                                font_size: 12.0,
-                                ..default()
-                            },
-                        ),
-                        style: Style { ..default() },
-                        ..default()
-                    });
+                    parent.spawn((
+                        Text(name),
+                        TextColor(Color::srgba(1.0, 1.0, 1.0, 0.3)),
+                        TextFont {
+                            font: assets.dotgothic.clone(),
+                            font_size: 12.0,
+                            ..default()
+                        },
+                    ));
                 });
 
             spawn_wand_editor(&mut parent, &assets);
 
             spawn_inventory_floating(&mut parent, &assets);
         });
-
-    #[cfg(feature = "debug")]
-    commands.spawn(PerfUiBundle::default());
 }
 
 fn spawn_status_bars(parent: &mut ChildBuilder) {
     parent
-        .spawn((NodeBundle {
-            style: Style {
-                display: Display::Flex,
-                justify_content: JustifyContent::Start,
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Start,
-                row_gap: Val::Px(4.),
-                height: Val::Percent(100.),
-                width: Val::Percent(100.),
-                ..default()
-            },
+        .spawn((Node {
+            display: Display::Flex,
+            justify_content: JustifyContent::Start,
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Start,
+            row_gap: Val::Px(4.),
+            height: Val::Percent(100.),
+            width: Val::Percent(100.),
             ..default()
         },))
         .with_children(|mut parent| {
@@ -167,17 +150,11 @@ fn spawn_status_bars(parent: &mut ChildBuilder) {
             parent.spawn((
                 PlayerGold,
                 Name::new("golds"),
-                TextBundle {
-                    text: Text::from_section(
-                        "",
-                        TextStyle {
-                            color: Color::hsla(0.0, 0.0, 1.0, 0.35),
-                            font_size: 18.0,
-                            ..default()
-                        },
-                    ),
-                    style: Style { ..default() },
-                    z_index: ZIndex::Global(HUD_Z_INDEX),
+                GlobalZIndex(HUD_Z_INDEX),
+                Text::new(""),
+                TextColor(Color::hsla(0.0, 0.0, 1.0, 0.35)),
+                TextFont {
+                    font_size: 18.0,
                     ..default()
                 },
                 HUD,
@@ -202,7 +179,7 @@ fn update_hud(
         player_mana.value = actor.mana / 10;
         player_mana.max_value = actor.max_mana / 10;
 
-        player_gold.sections[0].value = format!("Golds: {}", player.golds);
+        player_gold.0 = format!("Golds: {}", player.golds);
     }
 }
 

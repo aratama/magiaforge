@@ -41,19 +41,9 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
     parent.with_children(move |parent| {
         parent.spawn((
             BreakableSprite,
-            AsepriteSliceBundle {
-                slice: "book_shelf".into(),
+            AseSpriteSlice {
+                name: "book_shelf".to_string(),
                 aseprite: aseprite_clone,
-                sprite: Sprite {
-                    // ここでanchorを設定しても反映されないことに注意
-                    // Aseprite側でスライスごとに pivot を設定することができるようになっており、
-                    // pivotが指定されている場合はそれが比率に変換されて anchor に設定されます
-                    // pivotが指定されていない場合は Center になります
-                    // https://github.com/Lommix/bevy_aseprite_ultra/blob/dc57882c8d3023e6879a29332ad42c6ddcf56380/src/loader.rs#L59
-                    // anchor: bevy::sprite::Anchor::Center,
-                    ..default()
-                },
-                ..default()
             },
         ));
     });

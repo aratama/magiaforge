@@ -1,18 +1,13 @@
-use bevy::{
-    prelude::*,
-    ui::{Display, Style},
+use crate::ui::{
+    floating::{Floating, FloatingContent},
+    wand_list::slot_color,
 };
-use bevy_aseprite_ultra::prelude::*;
-
 use crate::{
     asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player,
     equipment::equipment_to_props, inventory_item::InventoryItem, states::GameState,
 };
-
-use super::{
-    floating::{Floating, FloatingContent},
-    wand_list::slot_color,
-};
+use bevy::{prelude::*, ui::Display};
+use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component)]
 pub struct EquipmentContainer;
@@ -26,16 +21,13 @@ pub fn spawn_equipment_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>)
     parent
         .spawn((
             EquipmentContainer,
-            NodeBundle {
-                style: Style {
-                    width: Val::Px(64. + 32. * MAX_SPELLS_IN_WAND as f32),
-                    height: Val::Px(32.),
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Row,
-                    border: UiRect::all(Val::Px(1.)),
-                    ..default()
-                },
-                border_color: Color::hsla(0.0, 0.0, 1.0, 0.0).into(),
+            BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0)),
+            Node {
+                width: Val::Px(64. + 32. * MAX_SPELLS_IN_WAND as f32),
+                height: Val::Px(32.),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Row,
+                border: UiRect::all(Val::Px(1.)),
                 ..default()
             },
         ))
@@ -50,27 +42,23 @@ fn spawn_equipment_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, ind
     parent.spawn((
         EquipmentSprite { index },
         Interaction::default(),
-        ImageBundle {
-            background_color: slot_color(5, index).into(),
-            style: Style {
-                position_type: PositionType::Absolute,
-                left: Val::Px(64.0 + 32. * (index as f32)),
-                width: Val::Px(32.),
-                height: Val::Px(32.),
-                ..default()
-            },
+        BackgroundColor(slot_color(5, index)),
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(64.0 + 32. * (index as f32)),
+            width: Val::Px(32.),
+            height: Val::Px(32.),
             ..default()
         },
-        AsepriteSliceUiBundle {
+        AseSpriteSlice {
             aseprite: assets.atlas.clone(),
-            slice: "empty".into(),
-            ..default()
+            name: "empty".into(),
         },
     ));
 }
 
 fn update_equipment_sprite(
-    mut sprite_query: Query<(&EquipmentSprite, &mut AsepriteSlice)>,
+    mut sprite_query: Query<(&EquipmentSprite, &mut AseSpriteSlice)>,
     player_query: Query<&Player>,
     floating_query: Query<&mut Floating>,
 ) {
@@ -82,12 +70,12 @@ fn update_equipment_sprite(
                 _ => false,
             };
             if picked {
-                *slice = AsepriteSlice::new("empty");
+                slice.name = "empty".into();
             } else if let Some(equipment) = player.equipments[sprite.index] {
                 let props = equipment_to_props(equipment);
-                *slice = AsepriteSlice::new(props.icon);
+                slice.name = props.icon.into();
             } else {
-                *slice = AsepriteSlice::new("empty");
+                slice.name = "empty".into();
             }
         }
     }

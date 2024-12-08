@@ -29,15 +29,12 @@ fn setup_overlay(mut commands: Commands, window: Query<&Window>) {
             next: None,
             wait: 0,
         },
-        NodeBundle {
-            style: Style {
-                width: Val::Px(width),
-                height: Val::Px(height),
-                ..Default::default()
-            },
-            background_color: Color::srgba(0.0, 0.0, 0.0, 1.0).into(),
-            z_index: ZIndex::Global(OVERLAY_Z_INDEX),
-            ..Default::default()
+        GlobalZIndex(OVERLAY_Z_INDEX),
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 1.0)),
+        Node {
+            width: Val::Px(width),
+            height: Val::Px(height),
+            ..default()
         },
     ));
 }
@@ -100,9 +97,9 @@ impl Plugin for OverlayPlugin {
                 read_overlay_event,
                 update_overlay.after(read_overlay_event).run_if(
                     in_state(GameState::InGame)
-                        .or_else(in_state(GameState::MainMenu))
-                        .or_else(in_state(GameState::NameInput))
-                        .or_else(in_state(GameState::Warp)),
+                        .or(in_state(GameState::MainMenu))
+                        .or(in_state(GameState::NameInput))
+                        .or(in_state(GameState::Warp)),
                 ),
             ),
         );

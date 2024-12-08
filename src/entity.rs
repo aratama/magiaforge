@@ -3,6 +3,7 @@ pub mod book_shelf;
 pub mod breakable;
 pub mod broken_magic_circle;
 pub mod bullet;
+pub mod bullet_particle;
 pub mod chest;
 pub mod dropped_item;
 pub mod gold;

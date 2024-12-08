@@ -1,7 +1,7 @@
 use crate::{entity::GameEntity, level::tile::Tile};
 use bevy::{
-    a11y::accesskit::Vec2,
     log::*,
+    math::Vec2,
     prelude::{Image, Resource},
 };
 
@@ -86,7 +86,7 @@ pub fn image_to_tilemap(
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
-    let mut entry_points = Vec::new();
+    let mut entry_points = Vec::<Vec2>::new();
     for y in min_y..max_y {
         for x in min_x..max_x {
             let i = 4 * (y * texture_width as i32 + x) as usize;
@@ -154,7 +154,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                         biome: Biome::SafeZone,
                     });
-                    entry_points.push(Vec2::new(x as f64, y as f64));
+                    entry_points.push(Vec2::new(x as f32, y as f32));
                     entities.push((GameEntity::BrokenMagicCircle, x, y));
                 }
                 (255, 0, 255, 255) => {

@@ -12,7 +12,7 @@ use crate::{
     wand::Wand,
     wand_props::wand_to_props,
 };
-use bevy::{prelude::*, ui::Style};
+use bevy::{prelude::*, ui::Node};
 use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component)]
@@ -28,44 +28,40 @@ pub fn spawn_wand_sprite_in_list(
     parent.spawn((
         WandSprite { wand_index },
         Interaction::default(),
-        ImageBundle {
-            style: Style {
-                width: Val::Px(64.),
-                height: Val::Px(32.),
-                ..default()
-            },
-            background_color: Color::hsla(0.0, 0.0, 0.5, 0.1).into(),
+        BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.1)),
+        Node {
+            width: Val::Px(64.),
+            height: Val::Px(32.),
             ..default()
         },
-        AsepriteSliceUiBundle {
+        AseUiSlice {
             aseprite: assets.atlas.clone(),
-            slice: "empty".into(),
-            ..default()
+            name: "empty".into(),
         },
     ));
 }
 
 fn update_wand_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSprite, &mut AsepriteSlice)>,
+    mut sprite_query: Query<(&WandSprite, &mut AseUiSlice)>,
     floating_query: Query<&Floating>,
 ) {
     let floating = floating_query.single();
 
     if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut aseprite) in sprite_query.iter_mut() {
-            *aseprite = match floating {
+            aseprite.name = match floating {
                 Floating(Some(FloatingContent::Wand(wand_index)))
                     if *wand_index == wand_sprite.wand_index =>
                 {
-                    AsepriteSlice::new("empty")
+                    "empty".into()
                 }
                 _ => match &actor.wands[wand_sprite.wand_index] {
                     Some(wand) => {
                         let props = wand_to_props(wand.wand_type);
-                        AsepriteSlice::new(props.icon)
+                        props.icon.into()
                     }
-                    None => AsepriteSlice::new("empty"),
+                    None => "empty".into(),
                 },
             }
         }

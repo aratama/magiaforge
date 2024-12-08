@@ -2,7 +2,6 @@ use super::label::spawn_label;
 use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
-use crate::input::MyGamepad;
 use crate::language::{Dict, Languages};
 use crate::level::NextLevel;
 use crate::states::GameMenuState;
@@ -12,7 +11,7 @@ use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use bevy_rapier2d::plugin::{PhysicsSet, RapierConfiguration};
+use bevy_rapier2d::plugin::{DefaultRapierContext, PhysicsSet, RapierConfiguration};
 use bevy_simple_websocket::ClientMessage;
 
 #[derive(Resource)]
@@ -114,7 +113,7 @@ fn fullscreen_on(
     mut window_query: Query<&mut Window>,
 ) {
     let mut window = window_query.single_mut();
-    window.mode = WindowMode::SizedFullscreen;
+    window.mode = WindowMode::SizedFullscreen(MonitorSelection::Primary);
     writer.send(GameCommand::SEClick(None));
     config.fullscreen = true;
 }
@@ -141,37 +140,31 @@ fn setup_game_menu(
             PauseMenuRoot,
             StateScoped(GameState::InGame),
             Name::new("Pause Menu"),
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    left: Val::Px(0.),
-                    top: Val::Px(0.),
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    row_gap: Val::Px(10.0),
-                    ..Default::default()
-                },
-                background_color: Color::hsla(0.0, 0.0, 0.05, 1.0).into(),
-                z_index: ZIndex::Global(GAME_MENU_Z_INDEX),
-                visibility: Visibility::Hidden,
-                ..default()
+            BackgroundColor(Color::hsla(0.0, 0.0, 0.05, 1.0)),
+            GlobalZIndex(GAME_MENU_Z_INDEX),
+            Visibility::Hidden,
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(0.),
+                top: Val::Px(0.),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                row_gap: Val::Px(10.0),
+                ..Default::default()
             },
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        display: Display::Flex,
-                        flex_direction: FlexDirection::Column,
-                        row_gap: Val::Px(10.0),
-                        ..default()
-                    },
+                .spawn(Node {
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Px(10.0),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -185,12 +178,9 @@ fn setup_game_menu(
                     );
 
                     parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                column_gap: Val::Px(4.0),
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
+                        .spawn(Node {
+                            column_gap: Val::Px(4.0),
+                            align_items: AlignItems::Center,
                             ..default()
                         })
                         .with_children(|parent| {
@@ -226,12 +216,9 @@ fn setup_game_menu(
 
                     #[cfg(not(target_arch = "wasm32"))]
                     parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                column_gap: Val::Px(4.0),
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
+                        .spawn(Node {
+                            column_gap: Val::Px(4.0),
+                            align_items: AlignItems::Center,
                             ..default()
                         })
                         .with_children(|parent| {
@@ -306,12 +293,9 @@ fn setup_game_menu(
                         },
                     );
 
-                    parent.spawn(NodeBundle {
-                        style: Style {
-                            width: Val::Px(280.0),
-                            height: Val::Px(60.0),
-                            ..default()
-                        },
+                    parent.spawn(Node {
+                        width: Val::Px(280.0),
+                        height: Val::Px(60.0),
                         ..default()
                     });
 
@@ -332,10 +316,10 @@ fn setup_game_menu(
 
 fn update_game_menu(
     state: Res<State<GameMenuState>>,
-    mut next: ResMut<NextState<GameMenuState>>,
+    // mut next: ResMut<NextState<GameMenuState>>,
     mut query: Query<&mut Visibility, With<PauseMenuRoot>>,
-    gamepad_buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // gamepad_buttons: Res<ButtonInput<GamepadButton>>,
+    // my_gamepad: Option<Res<MyGamepad>>,
 ) {
     let mut visibility = query.single_mut();
     *visibility = match state.get() {
@@ -343,17 +327,18 @@ fn update_game_menu(
         _ => Visibility::Hidden,
     };
 
-    if let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() {
-        if gamepad_buttons.just_pressed(GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Start,
-        }) {
-            next.set(match state.get() {
-                GameMenuState::Closed => GameMenuState::PauseMenuOpen,
-                _ => GameMenuState::PauseMenuClosing,
-            });
-        }
-    }
+    // todo: gamepad
+    // if let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() {
+    //     if gamepad_buttons.just_pressed(GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Start,
+    //     }) {
+    //         next.set(match state.get() {
+    //             GameMenuState::Closed => GameMenuState::PauseMenuOpen,
+    //             _ => GameMenuState::PauseMenuClosing,
+    //         });
+    //     }
+    // }
 }
 
 fn handle_escape_key(
@@ -375,17 +360,21 @@ fn handle_escape_key(
 
 fn switch_physics_activation(
     state: Res<State<GameMenuState>>,
-    mut rapier_state: ResMut<RapierConfiguration>,
+    mut rapier_query: Query<&mut RapierConfiguration, With<DefaultRapierContext>>,
 ) {
     if state.is_changed() {
         match *state.get() {
             GameMenuState::PauseMenuOpen => {
-                rapier_state.physics_pipeline_active = false;
-                rapier_state.query_pipeline_active = false;
+                if let Ok(mut rapier) = rapier_query.get_single_mut() {
+                    rapier.physics_pipeline_active = false;
+                    rapier.query_pipeline_active = false;
+                };
             }
             _ => {
-                rapier_state.physics_pipeline_active = true;
-                rapier_state.query_pipeline_active = true;
+                if let Ok(mut rapier) = rapier_query.get_single_mut() {
+                    rapier.physics_pipeline_active = true;
+                    rapier.query_pipeline_active = true;
+                };
             }
         }
     }
@@ -396,7 +385,7 @@ fn update_bgm_volume_label(
     mut query: Query<&mut Text, With<BGMVolumeLabel>>,
 ) {
     for mut text in query.iter_mut() {
-        text.sections[0].value = format!("{}", (10.0 * config.bgm_volume).round() as u32);
+        text.0 = format!("{}", (10.0 * config.bgm_volume).round() as u32);
     }
 }
 
@@ -405,7 +394,7 @@ fn update_se_volume_label(
     mut query: Query<&mut Text, With<SEVolumeLabel>>,
 ) {
     for mut text in query.iter_mut() {
-        text.sections[0].value = format!("{}", (10.0 * config.se_volume).round() as u32);
+        text.0 = format!("{}", (10.0 * config.se_volume).round() as u32);
     }
 }
 

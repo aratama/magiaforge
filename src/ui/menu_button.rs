@@ -27,37 +27,33 @@ pub fn menu_button<'a>(
         .spawn((
             HoverColor { hovered, none },
             OnPress(button_type),
-            ButtonBundle {
-                style: Style {
-                    width: Val::Px(w),
-                    height: Val::Px(h),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: Color::hsla(0.0, 1.0, 1.0, 0.0).into(),
+            BackgroundColor(Color::hsla(0.0, 1.0, 1.0, 0.0)),
+            Button,
+            Node {
+                width: Val::Px(w),
+                height: Val::Px(h),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
         ))
         .with_children(|parent| {
             parent.spawn((
                 MenuButtonText { text },
-                TextBundle::from_section(
-                    "".to_string(),
-                    TextStyle {
-                        font_size: 40.0,
-                        font: assets.dotgothic.clone(),
-                        color: Color::srgb(0.9, 0.9, 0.9),
-                        ..default()
-                    },
-                ),
+                Text::new(""),
+                TextColor(Color::srgb(0.9, 0.9, 0.9)),
+                TextFont {
+                    font_size: 40.0,
+                    font: assets.dotgothic.clone(),
+                    ..default()
+                },
             ));
         });
 }
 
 fn update_text(config: Res<GameConfig>, mut query: Query<(&mut Text, &MenuButtonText)>) {
     for (mut text, label) in query.iter_mut() {
-        text.sections[0].value = label.text.get(config.language).to_string();
+        text.0 = label.text.get(config.language).to_string();
     }
 }
 
@@ -67,7 +63,7 @@ impl Plugin for MenuButtonPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            update_text.run_if(in_state(GameState::InGame).or_else(in_state(GameState::NameInput))),
+            update_text.run_if(in_state(GameState::InGame).or(in_state(GameState::NameInput))),
         );
     }
 }

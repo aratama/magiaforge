@@ -32,21 +32,18 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
         .spawn((
             WandEditorRoot,
             MenuLeft::new(16.0, -144.0 * 2.0),
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    left: Val::Px(20.0),
-                    top: Val::Px(100.0),
-                    width: Val::Px(151.0 * 2.0),
-                    height: Val::Px(160.0 * 2.0),
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Px(20.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
+            GlobalZIndex(WAND_EDITOR_Z_INDEX),
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(20.0),
+                top: Val::Px(100.0),
+                width: Val::Px(151.0 * 2.0),
+                height: Val::Px(160.0 * 2.0),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(20.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
         ))
@@ -70,20 +67,17 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((
             MenuLeft::new(900.0, 1300.0),
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    top: Val::Px(100.0),
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    row_gap: Val::Px(8.0),
-                    padding: UiRect::all(Val::Px(24.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: MENU_THEME_COLOR.into(),
-                z_index: ZIndex::Global(WAND_EDITOR_Z_INDEX),
+            BackgroundColor(MENU_THEME_COLOR),
+            GlobalZIndex(WAND_EDITOR_Z_INDEX),
+            Node {
+                position_type: PositionType::Absolute,
+                top: Val::Px(100.0),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(8.0),
+                padding: UiRect::all(Val::Px(24.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
         ))
@@ -143,7 +137,7 @@ fn drop_item(
             if let Ok(window) = q_window.get_single() {
                 if let Some(cursor_in_screen) = window.cursor_position() {
                     if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
-                        if let Some(mouse_in_world) =
+                        if let Ok(mouse_in_world) =
                             camera.viewport_to_world(camera_global_transform, cursor_in_screen)
                         {
                             let player_position = transform.translation.truncate();

@@ -263,15 +263,14 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
                         WorldTile,
                         Name::new("stone_tile"),
                         StateScoped(GameState::InGame),
-                        AsepriteSliceBundle {
+                        Transform::from_translation(Vec3::new(
+                            x as f32 * TILE_SIZE,
+                            y as f32 * -TILE_SIZE,
+                            FLOOR_LAYER_Z,
+                        )),
+                        AseSpriteSlice {
                             aseprite: assets.atlas.clone(),
-                            slice: "stone tile".into(),
-                            transform: Transform::from_translation(Vec3::new(
-                                x as f32 * TILE_SIZE,
-                                y as f32 * -TILE_SIZE,
-                                FLOOR_LAYER_Z,
-                            )),
-                            ..default()
+                            name: "stone tile".into(),
                         },
                     ));
                 }
@@ -286,15 +285,10 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
                             WorldTile,
                             Name::new("wall"),
                             StateScoped(GameState::InGame),
-                            AsepriteSliceBundle {
+                            Transform::from_translation(Vec3::new(tx, ty - TILE_HALF, tz)),
+                            AseSpriteSlice {
                                 aseprite: assets.atlas.clone(),
-                                slice: "stone wall".into(),
-                                transform: Transform::from_translation(Vec3::new(
-                                    tx,
-                                    ty - TILE_HALF,
-                                    tz,
-                                )),
-                                ..default()
+                                name: "stone wall".into(),
                             },
                         ));
                     }
@@ -391,28 +385,30 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 spawn_stone_lantern(&mut commands, &assets, tx + TILE_HALF, ty - TILE_HALF);
             }
             GameEntity::Usage => {
-                commands.spawn(AsepriteSliceBundle {
-                    aseprite: assets.atlas.clone(),
-                    slice: "usage".into(),
-                    transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
-                    sprite: Sprite {
+                commands.spawn((
+                    Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
+                    Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),
                         ..default()
                     },
-                    ..default()
-                });
+                    AseSpriteSlice {
+                        aseprite: assets.atlas.clone(),
+                        name: "usage".into(),
+                    },
+                ));
             }
             GameEntity::Routes => {
-                commands.spawn(AsepriteSliceBundle {
-                    aseprite: assets.atlas.clone(),
-                    slice: "routes".into(),
-                    transform: Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
-                    sprite: Sprite {
+                commands.spawn((
+                    Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
+                    Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),
                         ..default()
                     },
-                    ..default()
-                });
+                    AseSpriteSlice {
+                        aseprite: assets.atlas.clone(),
+                        name: "routes".into(),
+                    },
+                ));
             }
             GameEntity::Spell => {
                 spawn_dropped_item(

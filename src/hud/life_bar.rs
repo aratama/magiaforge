@@ -1,9 +1,6 @@
 use crate::entity::actor::Actor;
 use crate::{set::GameSet, states::GameState};
-use bevy::{
-    prelude::*,
-    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-};
+use bevy::prelude::*;
 
 const LIFE_BAR_WIDTH: f32 = 16.0;
 
@@ -44,22 +41,16 @@ fn setup_life_bar(
 pub fn spawn_life_bar(child_builder: &mut ChildBuilder, res: &Res<LifeBarResource>) {
     child_builder.spawn((
         LifeBar,
-        MaterialMesh2dBundle {
-            mesh: Mesh2dHandle(res.shape.clone()),
-            material: res.material_life.clone(),
-            transform: Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z + 1.0),
-            visibility: Visibility::Hidden,
-            ..default()
-        },
+        Mesh2d::from(res.shape.clone()),
+        MeshMaterial2d::from(res.material_life.clone()),
+        Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z + 1.0),
+        Visibility::Hidden,
     ));
     child_builder.spawn((
         LifeBarBackground,
-        MaterialMesh2dBundle {
-            mesh: Mesh2dHandle(res.shape.clone()),
-            material: res.material_background.clone(),
-            transform: Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z),
-            ..default()
-        },
+        Mesh2d::from(res.shape.clone()),
+        MeshMaterial2d::from(res.material_background.clone()),
+        Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z),
     ));
 }
 

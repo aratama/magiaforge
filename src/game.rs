@@ -14,6 +14,7 @@ use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::breakable::BreakablePlugin;
 use crate::entity::bullet::BulletPlugin;
+use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::gold::GoldPlugin;
@@ -53,9 +54,9 @@ use crate::ui::wand_sprite::WandSpritePlugin;
 use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::*;
 use bevy::prelude::*;
-use bevy::window::EnabledButtons;
-use bevy::window::{Cursor, WindowMode};
-use bevy_aseprite_ultra::BevySprityPlugin;
+use bevy::window::WindowMode;
+use bevy::window::{CursorOptions, EnabledButtons};
+use bevy_aseprite_ultra::AsepriteUltraPlugin;
 use bevy_asset_loader::prelude::*;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -63,7 +64,6 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 use bevy_embedded_assets::PluginMode;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
-use bevy_particle_systems::ParticleSystemPlugin;
 #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
 use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
@@ -79,8 +79,6 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-#[cfg(feature = "debug")]
-use iyes_perf_ui::PerfUiPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -112,7 +110,7 @@ pub fn run_game() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         position: WindowPosition::Centered(MonitorSelection::Current),
-                        cursor: Cursor {
+                        cursor_options: CursorOptions {
                             visible: cfg!(feature = "debug"),
                             ..default()
                         },
@@ -134,26 +132,13 @@ pub fn run_game() {
                 }),
             //
         )
-        // RapierConfiguration は RapierPhysicsPlugin の初期化の前に設定する必要があるらしい
-        // そうしないと警告が出る
-        .insert_resource(RapierConfiguration {
-            gravity: Vect::ZERO,
-            physics_pipeline_active: true,
-            query_pipeline_active: true,
-            timestep_mode: TimestepMode::Fixed {
-                dt: 0.016666668,
-                substeps: 1,
-            },
-            scaled_shape_subdivision: 10,
-            force_update_from_transform_changes: false,
-        })
+        .add_plugins(AsepriteUltraPlugin)
         .add_plugins(
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER)
-                // .with_length_unit(PIXELS_PER_METER)
-                .in_fixed_schedule(),
+                .in_fixed_schedule()
+                .with_custom_initialization(RapierContextInitialization::NoAutomaticRapierContext),
         )
-        .add_plugins(BevySprityPlugin)
-        .add_plugins(ParticleSystemPlugin)
+        .add_systems(Startup, setup_rapier_context)
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
         //
@@ -165,6 +150,7 @@ pub fn run_game() {
         .add_plugins(BookshelfPlugin)
         .add_plugins(BreakablePlugin)
         .add_plugins(BulletPlugin)
+        .add_plugins(BulletParticlePlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(ChestPlugin)
         .add_plugins(CommandButtonPlugin)
@@ -233,8 +219,7 @@ pub fn run_game() {
     // 無くてもゲーム自体は動作します
     //
     #[cfg(feature = "debug")]
-    app.add_plugins(PerfUiPlugin)
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+    app.add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(EntityCountDiagnosticsPlugin)
         .add_plugins(SystemInformationDiagnosticsPlugin)
         .add_plugins(WorldInspectorPlugin::new())
@@ -247,14 +232,28 @@ pub fn run_game() {
     app.run();
 }
 
+fn setup_rapier_context(mut commands: Commands) {
+    commands.spawn((
+        DefaultRapierContext,
+        RapierContext::default(),
+        RapierConfiguration {
+            gravity: Vec2::ZERO,
+            physics_pipeline_active: true,
+            query_pipeline_active: true,
+            scaled_shape_subdivision: 10,
+            force_update_from_transform_changes: false,
+        },
+    ));
+}
+
 fn toggle_fullscreen(mut window_query: Query<&mut Window>, keys: Res<ButtonInput<KeyCode>>) {
     if keys.just_pressed(KeyCode::F11) {
         let mut window = window_query.single_mut();
         window.mode = match window.mode {
-            WindowMode::Windowed => WindowMode::SizedFullscreen,
-            WindowMode::BorderlessFullscreen => WindowMode::Windowed,
-            WindowMode::SizedFullscreen => WindowMode::Windowed,
-            WindowMode::Fullscreen => WindowMode::Windowed,
+            WindowMode::Windowed => WindowMode::SizedFullscreen(MonitorSelection::Current),
+            WindowMode::BorderlessFullscreen(_) => WindowMode::Windowed,
+            WindowMode::SizedFullscreen(_) => WindowMode::Windowed,
+            WindowMode::Fullscreen(_) => WindowMode::Windowed,
         };
     }
 }
