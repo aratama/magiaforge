@@ -14,6 +14,7 @@ use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::breakable::BreakablePlugin;
 use crate::entity::bullet::BulletPlugin;
+use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::gold::GoldPlugin;
@@ -149,6 +150,7 @@ pub fn run_game() {
         .add_plugins(BookshelfPlugin)
         .add_plugins(BreakablePlugin)
         .add_plugins(BulletPlugin)
+        .add_plugins(BulletParticlePlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(ChestPlugin)
         .add_plugins(CommandButtonPlugin)
