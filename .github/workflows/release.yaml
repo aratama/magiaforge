@@ -63,7 +63,6 @@ jobs:
         run: |
           mkdir windows
           cp target/x86_64-pc-windows-msvc/release/${{ env.binary }}.exe windows/
-          mkdir assets -ea 0 # create the assets directory if it does not exist, it will get ignored in the zip if empty
           cp -r assets windows/
 
       - name: Package as a zip
@@ -77,10 +76,17 @@ jobs:
           name: windows
           retention-days: 1
 
+      - name: Get current date on Windows
+            id: get_date
+            run: |
+              echo "datetime=$(powershell -Command "(Get-Date).ToString('yyyy-MM-dd')")" >> $env:GITHUB_ENV
+
+      # リポジトリの Settings > Actions > General > Workflow permissions を
+      # Read and write permissions に変更する必要がある
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.binary }}.zip
           asset_name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
-          tag: ${{ github.ref }}
+          tag: ${{ env.datetime }}
