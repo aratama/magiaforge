@@ -89,3 +89,4 @@ jobs:
           file: ${{ env.binary }}.zip
           asset_name: ${{ env.binary }}-windows-${{ env.datetime }}.zip
           tag: ${{ env.datetime }}
+          overwrite: true
