@@ -18,7 +18,7 @@ fn update_volume(
         if let Some(instance) = audio_instances.get_mut(&footsteps.0) {
             let volume = match state {
                 ActorState::Idle => 0.0,
-                ActorState::Walk => 0.6,
+                ActorState::Run => 0.6,
             };
             instance.set_volume(volume, AudioTween::linear(Duration::from_millis(200)));
         }

@@ -12,7 +12,6 @@ use crate::wand_props::wand_to_props;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use std::f32::consts::PI;
 use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
@@ -21,6 +20,9 @@ pub const PLAYER_MOVE_FORCE: f32 = 40000.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct WitchWandSprite;
+
+#[derive(Default, Component, Reflect)]
+pub struct WitchAnimationSprite;
 
 #[derive(Component)]
 pub struct Witch;
@@ -104,6 +106,7 @@ pub fn spawn_witch<T: Component>(
         }
 
         spawn_children.spawn((
+            WitchAnimationSprite,
             BreakableSprite,
             Sprite {
                 // flip_x: true,
@@ -113,7 +116,7 @@ pub fn spawn_witch<T: Component>(
             },
             AseSpriteAnimation {
                 aseprite: assets.player.clone(),
-                animation: Animation::default().with_tag("idle"),
+                animation: Animation::default().with_tag("idle_r"),
             },
         ));
 
@@ -148,36 +151,95 @@ pub fn spawn_witch<T: Component>(
 }
 
 fn update_witch_animation(
-    witch_query: Query<&ActorState, Changed<ActorState>>,
-    mut witch_animation_query: Query<(&Parent, &mut AseSpriteAnimation)>,
+    witch_query: Query<(&Actor, &ActorState), With<Witch>>,
+    mut witch_animation_query: Query<
+        (
+            &Parent,
+            &mut Sprite,
+            &mut AseSpriteAnimation,
+            &mut AnimationState,
+        ),
+        With<WitchAnimationSprite>,
+    >,
 ) {
-    for (parent, mut animation) in witch_animation_query.iter_mut() {
-        if let Ok(state) = witch_query.get(**parent) {
-            // アニメーションを切り替えても現在のフレーム位置が巻き戻らない？
-            // https://github.com/Lommix/bevy_aseprite_ultra/issues/14
-            animation.animation.tag = match state {
-                ActorState::Idle => Some("idle".to_string()),
-                ActorState::Walk => Some("run".to_string()),
+    for (parent, mut sprite, mut animation, mut animation_state) in witch_animation_query.iter_mut()
+    {
+        if let Ok((actor, state)) = witch_query.get(**parent) {
+            let angle = actor.pointer.to_angle();
+            let pi = std::f32::consts::PI;
+            match state {
+                ActorState::Idle => {
+                    if angle < pi * -0.75 || pi * 0.75 < angle {
+                        sprite.flip_x = true;
+                        if animation.animation.tag != Some("idle_r".to_string()) {
+                            animation.animation.tag = Some("idle_r".to_string());
+                            animation_state.current_frame = 0;
+                        }
+                    } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                        sprite.flip_x = false;
+                        if animation.animation.tag != Some("idle_u".to_string()) {
+                            animation.animation.tag = Some("idle_u".to_string());
+                            animation_state.current_frame = 6;
+                        }
+                    } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                        sprite.flip_x = false;
+                        if animation.animation.tag != Some("idle_d".to_string()) {
+                            animation.animation.tag = Some("idle_d".to_string());
+                            animation_state.current_frame = 3;
+                        }
+                    } else {
+                        sprite.flip_x = false;
+                        if animation.animation.tag != Some("idle_r".to_string()) {
+                            animation.animation.tag = Some("idle_r".to_string());
+                            animation_state.current_frame = 0;
+                        }
+                    };
+                }
+                ActorState::Run => {
+                    if angle < pi * -0.75 || pi * 0.75 < angle {
+                        sprite.flip_x = true;
+                        if animation.animation.tag != Some("run_r".to_string()) {
+                            animation.animation.tag = Some("run_r".to_string());
+                            animation_state.current_frame = 9;
+                        }
+                    } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                        sprite.flip_x = false;
+                        if animation.animation.tag != Some("run_u".to_string()) {
+                            animation.animation.tag = Some("run_u".to_string());
+                            animation_state.current_frame = 13;
+                        }
+                    } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                        sprite.flip_x = false;
+                        if animation.animation.tag != Some("run_d".to_string()) {
+                            animation.animation.tag = Some("run_d".to_string());
+                            animation_state.current_frame = 17;
+                        }
+                    } else {
+                        sprite.flip_x = false;
+                        if animation.animation.tag != Some("run_r".to_string()) {
+                            animation.animation.tag = Some("run_r".to_string());
+                            animation_state.current_frame = 9;
+                        }
+                    };
+                }
             };
+        } else {
+            warn!("parent of witch not found");
         }
     }
 }
 
 fn update_wand(
     actor_query: Query<&Actor>,
-    mut query: Query<
-        (&Parent, &mut Transform, &mut Sprite, &mut AseSpriteSlice),
-        With<WitchWandSprite>,
-    >,
+    mut query: Query<(&Parent, &mut Transform, &mut AseSpriteSlice), With<WitchWandSprite>>,
     assets: Res<GameAssets>,
 ) {
-    for (parent, mut transform, mut sprite, mut slice) in query.iter_mut() {
+    for (parent, mut transform, mut slice) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
             transform.rotation = Quat::from_rotation_z(angle);
             transform.translation = Vec3::new(0.0, 0.0, -0.01);
-            sprite.flip_y = if angle.abs() < PI / 2.0 { false } else { true };
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
                 let props = wand_to_props(wand.wand_type);

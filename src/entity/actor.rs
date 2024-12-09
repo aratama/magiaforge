@@ -28,7 +28,7 @@ pub struct CastEffects {
 pub enum ActorState {
     #[default]
     Idle,
-    Walk,
+    Run,
 }
 
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
@@ -218,8 +218,8 @@ fn update_actor_state(mut witch_query: Query<(&Actor, &mut ActorState)>) {
                 *state = ActorState::Idle;
             }
         } else {
-            if *state != ActorState::Walk {
-                *state = ActorState::Walk;
+            if *state != ActorState::Run {
+                *state = ActorState::Run;
             }
         }
     }
