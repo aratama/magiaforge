@@ -77,7 +77,6 @@ jobs:
           retention-days: 1
 
       - name: Get current date on Windows
-          id: get_date
         run: |
           echo "datetime=$(powershell -Command "(Get-Date).ToString('yyyy-MM-dd')")" >> $env:GITHUB_ENV
 
