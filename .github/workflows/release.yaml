@@ -193,3 +193,4 @@ jobs:
           asset_name: ${{ env.binary }}-macOS-apple-silicon-${{ env.datetime }}.dmg
           tag: ${{ env.datetime }}
           overwrite: true
+          prerelease: true

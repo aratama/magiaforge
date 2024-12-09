@@ -2,9 +2,9 @@
 
 Online Battle Royale Twin-stick Shooter. WIP.
 
-![](screenshot_title.png)
+![](misc/screenshot_title.png)
 
-![](screenshot.png)
+![](misc/screenshot.png)
 
 ### Demo
 
