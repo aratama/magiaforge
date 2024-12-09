@@ -87,5 +87,5 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-windows-${{ steps.get_version.outputs.tag }}.zip
+          asset_name: ${{ env.binary }}-windows-${{ env.datetime }}.zip
           tag: ${{ env.datetime }}
