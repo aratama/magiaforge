@@ -136,7 +136,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder) {
                 PlayerLifeBar,
                 0,
                 0,
-                Color::hsla(110., 0.5, 0.4, 0.9),
+                Color::hsla(110., 0.7, 0.7, 0.9),
             );
 
             spawn_status_bar(
@@ -144,7 +144,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder) {
                 PlayerManaBar,
                 0,
                 0,
-                Color::hsla(240., 0.5, 0.4, 0.9),
+                Color::hsla(240., 0.7, 0.7, 0.9),
             );
 
             parent.spawn((

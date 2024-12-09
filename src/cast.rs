@@ -41,8 +41,13 @@ pub fn cast_spell(
                 //     "not enough mana, current:{}, required:{}",
                 //     actor.mana, props.mana_drain
                 // );
+
+                // マナが足りない場合でもエフェクトを残すと
+                // エフェクトが多重にかかってしまうので、エフェクトはリセットする
+                actor.effects = default();
                 wand.shift();
-                return 0;
+                se_writer.send(GameCommand::SEEmptyMana(None));
+                return props.cast_delay as i32;
             }
 
             // info!("cast {:?} ", spell);

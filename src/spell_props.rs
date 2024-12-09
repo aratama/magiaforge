@@ -53,8 +53,8 @@ const MAGIC_BOLT: SpellProps = SpellProps {
         ja: "魔力の塊を発射する、最も基本的な攻撃魔法です。",
         en: "A basic attack spell that fires a bolt of magic.",
     },
-    mana_drain: 50,
-    cast_delay: 10,
+    mana_drain: 80,
+    cast_delay: 20,
     icon: "bullet_magic_bolt",
     cast: SpellCast::Bullet {
         slice: "bullet_magic_bolt",

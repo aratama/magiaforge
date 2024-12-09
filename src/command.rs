@@ -20,6 +20,7 @@ pub enum GameCommand {
     SEPickUp(Option<Vec2>),
     SEHeal(Option<Vec2>),
     SESwitch(Option<Vec2>),
+    SEEmptyMana(Option<Vec2>),
     StateMainMenu,
     StateInGame,
     StateWarp,
@@ -149,6 +150,15 @@ fn process_game_commands(
                     &audio,
                     &config,
                     assets.cursor2.clone(),
+                    position,
+                    camera_position,
+                );
+            }
+            GameCommand::SEEmptyMana(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.cursor8.clone(),
                     position,
                     camera_position,
                 );
