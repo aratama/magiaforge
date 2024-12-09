@@ -82,17 +82,16 @@ pub fn spawn_status_bar<T: Component>(
             parent.spawn((
                 StatusBarText,
                 Text::new(""),
-                TextColor(Color::hsla(0.0, 0.0, 1.0, 0.5)),
+                TextColor(Color::WHITE),
                 TextFont {
-                    font_size: 18.0,
+                    font_size: 15.0,
                     ..default()
                 },
+                ZIndex(3),
                 Node {
                     position_type: PositionType::Absolute,
                     left: Val::Px(8.0),
-                    top: Val::Px(-1.0),
-                    height: Val::Px(BAR_HEIGHT),
-                    max_width: Val::Px(500.0),
+                    top: Val::Px(0.0),
                     ..default()
                 },
             ));
@@ -130,7 +129,7 @@ fn update_status_bar(
     }
     for (parent, mut text) in text_query.iter_mut() {
         let bar = status_bar_query.get(parent.get()).unwrap();
-        text.0 = format!("{} / {}", bar.value, bar.max_value);
+        text.0 = format!("{}", bar.value);
     }
 }
 

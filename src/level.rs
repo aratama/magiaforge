@@ -8,8 +8,8 @@ use crate::audio::NextBGM;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::enemy::buer::spawn_buer;
 use crate::enemy::eyeball::spawn_eyeball;
+use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
@@ -418,10 +418,10 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     InventoryItem::Spell(SpellType::MagicBolt),
                 );
             }
-            GameEntity::Buer => {
-                spawn_buer(
+            GameEntity::HugeSlime => {
+                spawn_huge_slime(
                     &mut commands,
-                    assets.buer.clone(),
+                    assets.huge_slime.clone(),
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                 );
             }

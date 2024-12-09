@@ -3,7 +3,7 @@ use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
 use crate::entity::bullet_particle::BulletParticleResource;
-use crate::entity::damege::spawn_damage;
+use crate::entity::damege::spawn_damage_number;
 use crate::entity::EntityDepth;
 use crate::firing::Firing;
 use crate::level::wall::WallCollider;
@@ -46,6 +46,9 @@ pub struct BulletBundle {
 /// このとき、アクターへのマナ消費、クールタイムの設定、弾丸の生成、リモート通信などを行います
 /// この関数はすでに発射が確定している場合に呼ばれ、発射条件のチェックは行いません
 /// 発射条件やコストの消費などは cast_spell で行います
+///
+/// 弾丸が物体に衝突した場合、それがActorまたはBreakableであればダメージを与えてから消滅します
+/// それ以外の物体に衝突した場合はそのまま消滅します
 pub fn spawn_bullet(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
@@ -239,7 +242,7 @@ fn process_bullet_event(
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position, resource);
-                    spawn_damage(&mut commands, bullet.damage, bullet_position);
+                    spawn_damage_number(&mut commands, bullet.damage, bullet_position);
                     writer.send(GameCommand::SEDamage(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
@@ -249,7 +252,7 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
-                spawn_damage(&mut commands, bullet.damage, bullet_position);
+                spawn_damage_number(&mut commands, bullet.damage, bullet_position);
                 writer.send(GameCommand::SEDamage(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);

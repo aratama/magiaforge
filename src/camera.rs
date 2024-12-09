@@ -33,7 +33,7 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn update_camera(
-    player_query: Query<(&Transform, &Actor), (With<Player>, Without<Camera2d>)>,
+    player_query: Query<(&Transform, &Actor), With<Player>>,
     mut camera_query: Query<
         (
             &mut Transform,

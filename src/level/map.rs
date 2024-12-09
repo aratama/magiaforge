@@ -197,7 +197,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                         biome: Biome::SafeZone,
                     });
-                    entities.push((GameEntity::Buer, x, y));
+                    entities.push((GameEntity::HugeSlime, x, y));
                 }
                 _ => {
                     tiles.push(LevelTileMapile {

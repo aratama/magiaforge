@@ -6,9 +6,11 @@ struct DamageParticle {
     lifetime: usize,
 }
 
-pub fn spawn_damage(commands: &mut Commands, damage: i32, position: Vec2) {
+pub fn spawn_damage_number(commands: &mut Commands, damage: i32, position: Vec2) {
     commands.spawn((
-        DamageParticle { lifetime: 60 },
+        Name::new("Damage Number"),
+        StateScoped(GameState::InGame),
+        DamageParticle { lifetime: 40 },
         Text2d(format!("{}", damage).to_string()),
         TextColor(Color::WHITE),
         TextFont {

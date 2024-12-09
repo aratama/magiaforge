@@ -2,9 +2,14 @@ use bevy::prelude::*;
 
 use crate::states::GameState;
 
+/// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 #[derive(Default, Component, Reflect)]
 pub struct Breakable {
+    /// 破壊可能なオブジェクトのライフ
+    /// ゼロになると消滅します
     pub life: i32,
+
+    /// ダメージを受けた時の振動の幅
     pub amplitude: f32,
 }
 

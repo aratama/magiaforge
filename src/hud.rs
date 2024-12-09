@@ -15,6 +15,7 @@ use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::{AseSpriteSlice, AseUiSlice};
 
 #[derive(Component)]
 pub struct HUD;
@@ -58,7 +59,7 @@ fn setup_hud(
         ))
         .with_children(|mut parent| {
             // 左上
-            spawn_status_bars(&mut parent);
+            spawn_status_bars(&mut parent, &assets);
 
             // 下半分
             parent
@@ -118,14 +119,14 @@ fn setup_hud(
         });
 }
 
-fn spawn_status_bars(parent: &mut ChildBuilder) {
+fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
     parent
         .spawn((Node {
             display: Display::Flex,
             justify_content: JustifyContent::Start,
             flex_direction: FlexDirection::Column,
             align_items: AlignItems::Start,
-            row_gap: Val::Px(4.),
+            row_gap: Val::Px(8.),
             height: Val::Percent(100.),
             width: Val::Percent(100.),
             ..default()
@@ -147,18 +148,36 @@ fn spawn_status_bars(parent: &mut ChildBuilder) {
                 Color::hsla(240., 0.7, 0.7, 0.9),
             );
 
-            parent.spawn((
-                PlayerGold,
-                Name::new("golds"),
-                GlobalZIndex(HUD_Z_INDEX),
-                Text::new(""),
-                TextColor(Color::hsla(0.0, 0.0, 1.0, 0.35)),
-                TextFont {
-                    font_size: 18.0,
+            parent
+                .spawn((Node {
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Row,
+                    align_items: AlignItems::Center,
+                    column_gap: Val::Px(8.),
                     ..default()
-                },
-                HUD,
-            ));
+                },))
+                .with_children(|mut parent| {
+                    parent.spawn((
+                        AseUiSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: "gold_icon".to_string(),
+                        },
+                        Transform::from_scale(Vec3::new(2.0, 2.0, 1.0)),
+                    ));
+
+                    parent.spawn((
+                        PlayerGold,
+                        Name::new("golds"),
+                        GlobalZIndex(HUD_Z_INDEX),
+                        Text::new(""),
+                        TextColor(Color::hsla(57.0, 1.0, 0.5, 0.7)),
+                        TextFont {
+                            font_size: 18.0,
+                            ..default()
+                        },
+                        HUD,
+                    ));
+                });
         });
 }
 
@@ -179,7 +198,7 @@ fn update_hud(
         player_mana.value = actor.mana / 10;
         player_mana.max_value = actor.max_mana / 10;
 
-        player_gold.0 = format!("Golds: {}", player.golds);
+        player_gold.0 = format!("{}", player.golds);
     }
 }
 

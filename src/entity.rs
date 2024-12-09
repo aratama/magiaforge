@@ -34,7 +34,7 @@ pub enum GameEntity {
     StoneLantern,
     Spell,
     Crate,
-    Buer,
+    HugeSlime,
 }
 
 #[derive(Component)]
