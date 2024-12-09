@@ -146,7 +146,11 @@ fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm
             top: Val::Px(700.0),
             ..default()
         },
-        Text::new(format!("Version: {}", git_version!())),
+        Text::new(format!(
+            "Version: {} ({})",
+            git_version!(),
+            std::env!("BUILD_DATETIME")
+        )),
         TextColor::from(Color::srgba(1.0, 1.0, 1.0, 0.3)),
         TextFont {
             font_size: 12.0,

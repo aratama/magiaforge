@@ -107,3 +107,4 @@ trunk = "*"
 
 [build-dependencies]
 embed-resource = "2.5"
+chrono = "0.4.39"
