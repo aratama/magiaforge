@@ -32,6 +32,7 @@ pub enum SpellCast {
         amount: u32,
     },
     Homing,
+    HeavyShot
 }
 
 /// 呪文の基礎情報
@@ -209,7 +210,19 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
             cast_delay: 5,
             icon: "spell_homing",
             cast: SpellCast::Homing,
-        } 
+        } ,
+        SpellType::HeavyShot => SpellProps {
+            name: Dict {
+                ja: "ヘヴィーショット",
+                en: "Heavy Shot",
+            },
+            description: Dict { ja: "次に発射する魔法弾の威力が上昇し、飛翔速度が低下します。",
+            en: "The next magic bullet you fire will be more powerful and slower." },
+            mana_drain: 10,
+            cast_delay: 5,
+            icon: "spell_heavy_shot",
+            cast: SpellCast::HeavyShot,
+        },
     }
 }
 
@@ -284,5 +297,6 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
         SpellCast::MultipleCast { amount: _ } => format!(""),
         SpellCast::Homing => format!(""),
+        SpellCast::HeavyShot => format!("威力: +5"),
     }
 }

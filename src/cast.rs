@@ -84,7 +84,7 @@ pub fn cast_spell(
                             * (1.0 + actor.effects.bullet_speed_buff_factor),
                         bullet_lifetime: lifetime,
                         sender: Some(actor.uuid),
-                        damage,
+                        damage: damage + actor.effects.bullet_damage_buff_amount,
                         impulse,
                         slice: slice.to_string(),
                         collier_radius,
@@ -151,6 +151,11 @@ pub fn cast_spell(
                 SpellCast::Homing => {
                     wand.shift();
                     actor.effects.homing = (actor.effects.homing + 0.01).max(-0.1).min(0.1);
+                    return props.cast_delay as i32;
+                }
+                SpellCast::HeavyShot => {
+                    wand.shift();
+                    actor.effects.bullet_damage_buff_amount += 5;
                     return props.cast_delay as i32;
                 }
             }

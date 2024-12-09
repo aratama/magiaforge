@@ -9,9 +9,10 @@ pub enum SpellType {
     DualCast,
     TripleCast,
     Homing,
+    HeavyShot,
 }
 
-pub const SPELL_TYPES: [SpellType; 9] = [
+pub const SPELL_TYPES: [SpellType; 10] = [
     SpellType::MagicBolt,
     SpellType::PurpleBolt,
     SpellType::SlimeCharge,
@@ -21,4 +22,5 @@ pub const SPELL_TYPES: [SpellType; 9] = [
     SpellType::DualCast,
     SpellType::TripleCast,
     SpellType::Homing,
+    SpellType::HeavyShot,
 ];

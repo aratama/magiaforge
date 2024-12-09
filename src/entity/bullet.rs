@@ -3,6 +3,7 @@ use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::breakable::Breakable;
 use crate::entity::bullet_particle::BulletParticleResource;
+use crate::entity::damege::spawn_damage;
 use crate::entity::EntityDepth;
 use crate::firing::Firing;
 use crate::level::wall::WallCollider;
@@ -238,6 +239,7 @@ fn process_bullet_event(
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position, resource);
+                    spawn_damage(&mut commands, bullet.damage, bullet_position);
                     writer.send(GameCommand::SEDamage(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
@@ -247,6 +249,7 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
+                spawn_damage(&mut commands, bullet.damage, bullet_position);
                 writer.send(GameCommand::SEDamage(Some(bullet_position)));
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);

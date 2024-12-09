@@ -20,6 +20,8 @@ pub struct CastEffects {
     // マルチキャストで待機中の弾丸
     // pub multicasts: Vec<SpawnBulletProps>,
     pub homing: f32,
+
+    pub bullet_damage_buff_amount: i32,
 }
 
 #[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
