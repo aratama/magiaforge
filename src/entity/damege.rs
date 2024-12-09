@@ -24,7 +24,7 @@ fn update_damage(
     mut commands: Commands,
     mut query: Query<(Entity, &mut DamageParticle, &mut Transform)>,
 ) {
-    for (entity, mut particle, mut transform) in query.iter_mut() {
+    for (entity, mut particle, mut _transform) in query.iter_mut() {
         particle.lifetime -= 1;
         if particle.lifetime == 0 {
             commands.entity(entity).despawn();

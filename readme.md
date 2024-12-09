@@ -21,6 +21,12 @@ https://magiaforge.app/ (**Desktop Chrome only** for now)
 
 Add `--features debug` to launch app in debug mode.
 
+### Save Data Location
+
+On Windows, save data is stored in `C:\Users\<USERNAME>\AppData\Roaming\magiaforge`.
+
+In browsers, save data is stored in local storage under the key `magiaforge.magiaforgeconfig`.
+
 ### Asset credits
 
 #### Sound Effects

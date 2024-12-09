@@ -17,16 +17,11 @@ const SCALE: f32 = 4.0;
 struct WitchAnimation;
 
 #[derive(Component)]
-struct CloudAnimation0;
-
-#[derive(Component)]
-struct CloudAnimation1;
-
-#[derive(Component)]
-struct CloudAnimation2;
-
-#[derive(Component)]
-struct CloudAnimation3;
+struct CloudAnimation {
+    left: f32,
+    speed: f32,
+    offset: f32,
+}
 
 #[derive(Event, PartialEq, Eq, Debug, Clone, Copy)]
 enum Events {
@@ -51,10 +46,46 @@ fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm
         },
     ));
 
-    spawn_cloud(&mut commands, &assets.title_cloud, CloudAnimation0, -950);
-    spawn_cloud(&mut commands, &assets.title_cloud, CloudAnimation1, -950);
-    spawn_cloud(&mut commands, &assets.title_cloud2, CloudAnimation2, -900);
-    spawn_cloud(&mut commands, &assets.title_cloud2, CloudAnimation3, -900);
+    spawn_cloud(
+        &mut commands,
+        &assets.title_cloud,
+        CloudAnimation {
+            left: 0.0,
+            speed: 0.0003,
+            offset: 0.0,
+        },
+        -950,
+    );
+    spawn_cloud(
+        &mut commands,
+        &assets.title_cloud,
+        CloudAnimation {
+            left: 1024.0,
+            speed: 0.0003,
+            offset: 0.0,
+        },
+        -950,
+    );
+    spawn_cloud(
+        &mut commands,
+        &assets.title_cloud2,
+        CloudAnimation {
+            left: 0.0,
+            speed: 0.0001,
+            offset: -600.0,
+        },
+        -900,
+    );
+    spawn_cloud(
+        &mut commands,
+        &assets.title_cloud2,
+        CloudAnimation {
+            left: 1024.0,
+            speed: 0.0001,
+            offset: -600.0,
+        },
+        -900,
+    );
 
     commands.spawn((
         WitchAnimation,
@@ -186,42 +217,12 @@ fn witch_animation(
     }
 }
 
-fn cloud_animation0(
-    frame_count: Res<FrameCount>,
-    mut query: Query<&mut Node, With<CloudAnimation0>>,
-) {
-    for mut style in &mut query.iter_mut() {
-        style.left = Val::Px(0.0 - (frame_count.0 as f32 * 0.0003).fract() * 1024.0 * SCALE);
-    }
-}
-
-fn cloud_animation1(
-    frame_count: Res<FrameCount>,
-    mut query: Query<&mut Node, With<CloudAnimation1>>,
-) {
-    for mut style in &mut query.iter_mut() {
-        style.left =
-            Val::Px(1024.0 * SCALE - (frame_count.0 as f32 * 0.0003).fract() * 1024.0 * SCALE);
-    }
-}
-
-fn cloud_animation2(
-    frame_count: Res<FrameCount>,
-    mut query: Query<&mut Node, With<CloudAnimation2>>,
-) {
-    for mut style in &mut query.iter_mut() {
-        style.left =
-            Val::Px(0.0 - (frame_count.0 as f32 * 0.0001).fract() * 1024.0 * SCALE - 600.0);
-    }
-}
-
-fn cloud_animation3(
-    frame_count: Res<FrameCount>,
-    mut query: Query<&mut Node, With<CloudAnimation3>>,
-) {
-    for mut style in &mut query.iter_mut() {
+fn cloud_animation(frame_count: Res<FrameCount>, mut query: Query<(&mut Node, &CloudAnimation)>) {
+    for (mut style, animation) in &mut query.iter_mut() {
         style.left = Val::Px(
-            1024.0 * SCALE - (frame_count.0 as f32 * 0.0001).fract() * 1024.0 * SCALE - 600.0,
+            animation.left * SCALE
+                - (frame_count.0 as f32 * animation.speed).fract() * 1024.0 * SCALE
+                + animation.offset,
         );
     }
 }
@@ -234,15 +235,7 @@ impl Plugin for MainMenuPlugin {
         app.add_systems(OnEnter(GameState::MainMenu), setup_main_menu);
         app.add_systems(
             Update,
-            (
-                on_click,
-                read_events,
-                witch_animation,
-                cloud_animation0,
-                cloud_animation1,
-                cloud_animation2,
-                cloud_animation3,
-            )
+            (on_click, read_events, witch_animation, cloud_animation)
                 .run_if(in_state(GameState::MainMenu)),
         );
     }
