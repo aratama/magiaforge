@@ -421,7 +421,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             GameEntity::HugeSlime => {
                 spawn_huge_slime(
                     &mut commands,
-                    assets.huge_slime.clone(),
+                    &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                 );
             }

@@ -9,6 +9,7 @@ use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
 use crate::debug::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
+use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
@@ -171,6 +172,7 @@ pub fn run_game() {
         .add_plugins(GoldPlugin)
         .add_plugins(HoverColorPlugin)
         .add_plugins(HudPlugin)
+        .add_plugins(HugeSlimePlugin)
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(LabelPlugin)
