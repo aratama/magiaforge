@@ -1,7 +1,7 @@
 use crate::cast::cast_spell;
 use crate::config::GameConfig;
 use crate::constant::MAX_WANDS;
-use crate::entity::breakable::BreakableSprite;
+use crate::entity::life::LifeBeingSprite;
 use crate::spell::SpellType;
 use crate::wand::Wand;
 use crate::{asset::GameAssets, command::GameCommand, states::GameState};
@@ -12,6 +12,8 @@ use bevy_rapier2d::prelude::{ExternalForce, Group};
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
+
+use super::life::Life;
 
 #[derive(Clone, Copy, Default)]
 pub struct CastEffects {
@@ -42,10 +44,6 @@ pub struct Actor {
     pub mana: i32,
 
     pub max_mana: i32,
-
-    pub life: i32,
-
-    pub max_life: i32,
 
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,
@@ -101,7 +99,7 @@ pub enum ActorFireState {
 
 fn update_sprite_flip(
     actor_query: Query<&Actor>,
-    mut sprite_query: Query<(&Parent, &mut Sprite), With<BreakableSprite>>,
+    mut sprite_query: Query<(&Parent, &mut Sprite), With<LifeBeingSprite>>,
 ) {
     for (parent, mut sprite) in sprite_query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
@@ -169,7 +167,7 @@ fn update_actor_light(
 
 /// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
-    mut actor_query: Query<(&mut Actor, &mut Transform), Without<Camera2d>>,
+    mut actor_query: Query<(&mut Actor, &mut Life, &mut Transform), Without<Camera2d>>,
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut writer: EventWriter<ClientMessage>,
@@ -179,8 +177,8 @@ fn fire_bullet(
 ) {
     let online = config.online && websocket.ready_state == ReadyState::OPEN;
 
-    for (mut actor, actor_transform) in actor_query.iter_mut() {
-        if actor.life <= 0 {
+    for (mut actor, mut actor_life, actor_transform) in actor_query.iter_mut() {
+        if actor_life.life <= 0 {
             return;
         }
 
@@ -192,6 +190,7 @@ fn fire_bullet(
                     &mut writer,
                     &mut se_writer,
                     &mut actor,
+                    &mut actor_life,
                     &actor_transform,
                     online,
                 );

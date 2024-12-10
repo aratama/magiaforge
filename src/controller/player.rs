@@ -5,6 +5,7 @@ use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::{spawn_gold, Gold};
+use crate::entity::life::Life;
 use crate::equipment::Equipment;
 use crate::input::{get_direction, get_fire_trigger};
 use crate::inventory::Inventory;
@@ -136,13 +137,13 @@ fn pick_gold(
 fn die_player(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    player_query: Query<(Entity, &Player, &Actor, &Transform)>,
+    player_query: Query<(Entity, &Player, &Actor, &Life, &Transform)>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<GameCommand>,
     websocket: Res<WebSocketState>,
 ) {
-    if let Ok((entity, player, actor, transform)) = player_query.get_single() {
-        if actor.life <= 0 {
+    if let Ok((entity, player, actor, player_life, transform)) = player_query.get_single() {
+        if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
             game.send(GameCommand::SECry(Some(transform.translation.truncate())));

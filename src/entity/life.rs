@@ -3,23 +3,27 @@ use bevy::prelude::*;
 use crate::states::GameState;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
+/// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
 #[derive(Default, Component, Reflect)]
-pub struct Breakable {
+pub struct Life {
     /// 破壊可能なオブジェクトのライフ
     /// ゼロになると消滅します
     pub life: i32,
+
+    pub max_life: i32,
 
     /// ダメージを受けた時の振動の幅
     pub amplitude: f32,
 }
 
+/// ダメージを受けた時に振動するスプライト
 #[derive(Default, Component, Reflect)]
-pub struct BreakableSprite;
+pub struct LifeBeingSprite;
 
 fn vibrate_breakabke_sprite(
     time: Res<Time>,
-    mut breakable_query: Query<(&mut Breakable, &Children)>,
-    mut breakable_sprite_query: Query<&mut Transform, With<BreakableSprite>>,
+    mut breakable_query: Query<(&mut Life, &Children)>,
+    mut breakable_sprite_query: Query<&mut Transform, With<LifeBeingSprite>>,
 ) {
     for (mut breakable, children) in breakable_query.iter_mut() {
         for child in children {
@@ -31,9 +35,9 @@ fn vibrate_breakabke_sprite(
     }
 }
 
-pub struct BreakablePlugin;
+pub struct LifePlugin;
 
-impl Plugin for BreakablePlugin {
+impl Plugin for LifePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,

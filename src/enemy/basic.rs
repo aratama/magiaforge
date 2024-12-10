@@ -1,7 +1,7 @@
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
-use crate::entity::breakable::{Breakable, BreakableSprite};
+use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
@@ -36,8 +36,6 @@ pub fn spawn_basic_enemy<T: Component>(
                 spell_delay: 0,
                 mana: 1000,
                 max_mana: 1000,
-                life: 15,
-                max_life: 20,
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
                 move_direction: Vec2::ZERO,
@@ -60,8 +58,9 @@ pub fn spawn_basic_enemy<T: Component>(
             },
             ActorState::default(),
             EntityDepth,
-            Breakable {
-                life: 0,
+            Life {
+                life: 15,
+                max_life: 15,
                 amplitude: 0.0,
             },
             Transform::from_translation(position.extend(5.0)),
@@ -87,7 +86,7 @@ pub fn spawn_basic_enemy<T: Component>(
         ))
         .with_children(|mut parent| {
             parent.spawn((
-                BreakableSprite,
+                LifeBeingSprite,
                 AseSpriteAnimation {
                     aseprite,
                     animation: Animation::default().with_tag("idle"),

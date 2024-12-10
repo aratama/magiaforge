@@ -5,6 +5,7 @@ use crate::{
     entity::{
         actor::Actor,
         bullet::{spawn_bullet, BULLET_SPAWNING_MARGIN},
+        life::Life,
         witch::WITCH_COLLIDER_RADIUS,
     },
     firing::Firing,
@@ -25,6 +26,7 @@ pub fn cast_spell(
     writer: &mut EventWriter<ClientMessage>,
     se_writer: &mut EventWriter<GameCommand>,
     actor: &mut Actor,
+    actor_life: &mut Life,
     actor_transform: &Transform,
     online: bool,
 ) -> i32 {
@@ -121,11 +123,11 @@ pub fn cast_spell(
                 SpellCast::Heal => {
                     wand.shift();
 
-                    if spell == SpellType::Heal && actor.life == actor.max_life {
+                    if spell == SpellType::Heal && actor_life.life == actor_life.max_life {
                         return 0;
                     }
 
-                    actor.life = (actor.life + 2).min(actor.max_life);
+                    actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
                     se_writer.send(GameCommand::SEHeal(Some(
                         actor_transform.translation.truncate(),
                     )));
@@ -142,6 +144,7 @@ pub fn cast_spell(
                             writer,
                             se_writer,
                             actor,
+                            actor_life,
                             actor_transform,
                             online,
                         ));

@@ -1,6 +1,7 @@
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
+use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -21,14 +22,17 @@ pub fn spawn_huge_slime(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
         Name::new("huge slime"),
         StateScoped(GameState::InGame),
         Enemy,
+        Life {
+            life: 200,
+            max_life: 200,
+            amplitude: 0.0,
+        },
         HugeSlime,
         Actor {
             uuid: Uuid::new_v4(),
             spell_delay: 0,
             mana: 1000,
             max_mana: 1000,
-            life: 15,
-            max_life: 20,
             pointer: Vec2::ZERO,
             intensity: 0.0,
             move_direction: Vec2::ZERO,
@@ -74,4 +78,19 @@ pub fn spawn_huge_slime(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
             ),
         ),
     ));
+}
+
+fn update_huge_slime() {}
+
+pub struct HugeSlimePlugin;
+
+impl Plugin for HugeSlimePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            FixedUpdate,
+            update_huge_slime
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
+        );
+    }
 }

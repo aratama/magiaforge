@@ -2,7 +2,7 @@ use super::actor::ActorState;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState};
-use crate::entity::breakable::{Breakable, BreakableSprite};
+use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::interaction_sensor::spawn_interaction_sensor;
@@ -51,8 +51,7 @@ pub fn spawn_witch<T: Component>(
             spell_delay: 0,
             mana: 1000,
             max_mana: 1000,
-            life,
-            max_life,
+
             pointer: Vec2::from_angle(angle),
             intensity,
             move_direction: Vec2::ZERO,
@@ -68,8 +67,9 @@ pub fn spawn_witch<T: Component>(
         Witch,
         controller,
         EntityDepth,
-        Breakable {
-            life: 0,
+        Life {
+            life,
+            max_life,
             amplitude: 0.0,
         },
         Transform::from_translation(position.extend(1.0)),
@@ -107,7 +107,7 @@ pub fn spawn_witch<T: Component>(
 
         spawn_children.spawn((
             WitchAnimationSprite,
-            BreakableSprite,
+            LifeBeingSprite,
             Sprite {
                 // flip_x: true,
                 // ここもanchorは効かないことに注意。Aseprite側のpivotで設定

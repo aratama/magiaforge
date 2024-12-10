@@ -7,7 +7,7 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor};
 
-use super::actor::Actor;
+use super::{actor::Actor, life::Life};
 
 const MAX_POWER: i32 = 360;
 const MIN_RADIUS_ON: f32 = 100.0;
@@ -123,7 +123,7 @@ fn power_on_circle(
 
 fn warp(
     mut commands: Commands,
-    mut player_query: Query<(Entity, &Player, &Actor)>,
+    mut player_query: Query<(Entity, &Player, &Actor, &Life)>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<NextLevel>,
     mut writer: EventWriter<GameCommand>,
@@ -137,14 +137,14 @@ fn warp(
                 circle.step = (circle.step - 1).max(0);
             }
         } else if circle.step == MAX_POWER {
-            if let Ok((entity, player, actor)) = player_query.get_single_mut() {
+            if let Ok((entity, player, actor, actor_life)) = player_query.get_single_mut() {
                 writer.send(GameCommand::SEWarp(Some(transform.translation.truncate())));
                 commands.entity(entity).despawn_recursive();
 
                 let player_state = PlayerState {
                     name: player.name.clone(),
-                    life: actor.life,
-                    max_life: actor.max_life,
+                    life: actor_life.life,
+                    max_life: actor_life.max_life,
                     golds: player.golds,
                     inventory: player.inventory.clone(),
                     equipments: player.equipments.clone(),

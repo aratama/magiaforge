@@ -1,5 +1,5 @@
 use crate::command::GameCommand;
-use crate::entity::breakable::{Breakable, BreakableSprite};
+use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
 use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
@@ -21,8 +21,9 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
     let mut parent = commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        Breakable {
+        Life {
             life: 25,
+            max_life: 25,
             amplitude: 0.0,
         },
         Bookshelf,
@@ -40,7 +41,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
 
     parent.with_children(move |parent| {
         parent.spawn((
-            BreakableSprite,
+            LifeBeingSprite,
             AseSpriteSlice {
                 name: "book_shelf".to_string(),
                 aseprite: aseprite_clone,
@@ -51,7 +52,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
 
 fn break_book_shelf(
     mut commands: Commands,
-    query: Query<(Entity, &Breakable, &Transform), With<Bookshelf>>,
+    query: Query<(Entity, &Life, &Transform), With<Bookshelf>>,
     mut writer: EventWriter<GameCommand>,
 ) {
     for (entity, breakabke, transform) in query.iter() {

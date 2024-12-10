@@ -1,6 +1,6 @@
 use crate::entity::{
-    breakable::{Breakable, BreakableSprite},
     gold::spawn_gold,
+    life::{Life, LifeBeingSprite},
     EntityDepth,
 };
 use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
@@ -41,8 +41,9 @@ pub fn spawn_chest(
         .spawn((
             Name::new("chest"),
             StateScoped(GameState::InGame),
-            Breakable {
+            Life {
                 life: 30,
+                max_life: 30,
                 amplitude: 0.0,
             },
             Chest {
@@ -64,7 +65,7 @@ pub fn spawn_chest(
         ))
         .with_children(move |parent| {
             parent.spawn((
-                BreakableSprite,
+                LifeBeingSprite,
                 AseSpriteSlice {
                     aseprite: aseprite,
                     name: match chest_type {
@@ -79,7 +80,7 @@ pub fn spawn_chest(
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(Entity, &Breakable, &Transform, &Chest)>,
+    query: Query<(Entity, &Life, &Transform, &Chest)>,
     assets: Res<GameAssets>,
     mut writer: EventWriter<GameCommand>,
 ) {

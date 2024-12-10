@@ -1,4 +1,5 @@
 use crate::entity::actor::Actor;
+use crate::entity::life::Life;
 use crate::{set::GameSet, states::GameState};
 use bevy::prelude::*;
 
@@ -61,7 +62,7 @@ pub fn update_life_bar(
         // TODO: ここでなぜ Withoutが必要なのかよく理解できていない
         (With<LifeBarBackground>, Without<LifeBar>),
     >,
-    enemy_query: Query<&Actor>,
+    enemy_query: Query<&Life>,
 ) {
     for (life_bar_parent, mut transform, mut visibility) in query.iter_mut() {
         if let Ok(enemy) = enemy_query.get(life_bar_parent.get()) {

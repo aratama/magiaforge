@@ -1,5 +1,6 @@
 use crate::constant::*;
 use crate::controller::player::Player;
+use crate::entity::life::Life;
 use crate::firing::Firing;
 use crate::{
     asset::GameAssets,
@@ -77,14 +78,14 @@ pub enum RemoteMessage {
 
 fn send_player_states(
     mut writer: EventWriter<ClientMessage>,
-    mut query: Query<(&mut Player, &Actor, &GlobalTransform, &Velocity)>,
+    mut query: Query<(&mut Player, &Actor, &Life, &GlobalTransform, &Velocity)>,
     config: Res<GameConfig>,
     state: Res<WebSocketState>,
     frame_count: Res<FrameCount>,
 ) {
     if config.online && state.ready_state == ReadyState::OPEN {
-        if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
-            if actor.life <= 0 {
+        if let Ok((mut player, actor, actor_life, transform, velocity)) = query.get_single_mut() {
+            if actor_life.life <= 0 {
                 return;
             }
 
@@ -93,8 +94,8 @@ fn send_player_states(
             if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
                 || translate.x != player.last_ilde_x
                 || translate.y != player.last_ilde_y
-                || actor.life != player.last_idle_life
-                || actor.max_life != player.last_idle_max_life
+                || actor_life.life != player.last_idle_life
+                || actor_life.max_life != player.last_idle_max_life
             {
                 let command = RemoteMessage::Position {
                     sender: actor.uuid,
@@ -105,8 +106,8 @@ fn send_player_states(
                     y: translate.y,
                     vx: velocity.linvel.x,
                     vy: velocity.linvel.y,
-                    life: actor.life,
-                    max_life: actor.max_life,
+                    life: actor_life.life,
+                    max_life: actor_life.max_life,
                     angle: actor.pointer.to_angle(),
                     intensity: actor.intensity,
                 };
@@ -164,6 +165,7 @@ fn receive_events(
             Entity,
             &mut RemotePlayer,
             &mut Actor,
+            &mut Life,
             &mut Transform,
             &mut Velocity,
         ),
@@ -206,9 +208,15 @@ fn receive_events(
                         } => {
                             let target = remotes
                                 .iter_mut()
-                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
-                            if let Some((_, mut remote, mut actor, mut transform, mut velocity)) =
-                                target
+                                .find(|(_, _, actor, _, _, _)| actor.uuid == uuid);
+                            if let Some((
+                                _,
+                                mut remote,
+                                mut actor,
+                                mut actor_life,
+                                mut transform,
+                                mut velocity,
+                            )) = target
                             {
                                 remote.last_update = *frame_count;
                                 remote.golds = golds;
@@ -216,8 +224,8 @@ fn receive_events(
                                 transform.translation.y = y;
                                 velocity.linvel.x = vx;
                                 velocity.linvel.y = vy;
-                                actor.life = life;
-                                actor.max_life = max_life;
+                                actor_life.life = life;
+                                actor_life.max_life = max_life;
                                 actor.pointer = Vec2::from_angle(angle);
                                 actor.intensity = intensity;
                             } else if !spawned_players.contains(&uuid) {
@@ -264,10 +272,10 @@ fn receive_events(
                         } => {
                             let target = remotes
                                 .iter_mut()
-                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+                                .find(|(_, _, actor, _, _, _)| actor.uuid == uuid);
 
-                            if let Some((_, mut remote, mut actor, _, _)) = target {
-                                actor.life -= damage;
+                            if let Some((_, mut remote, _, mut actor_life, _, _)) = target {
+                                actor_life.life -= damage;
                                 remote.last_update = *frame_count;
                             }
                         }
@@ -277,9 +285,9 @@ fn receive_events(
                         } => {
                             let target = remotes
                                 .iter_mut()
-                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+                                .find(|(_, _, actor, _, _, _)| actor.uuid == uuid);
 
-                            if let Some((entity, _, _, transform, _)) = target {
+                            if let Some((entity, _, _, _, transform, _)) = target {
                                 writer.send(GameCommand::SECry(Some(
                                     transform.translation.truncate(),
                                 )));

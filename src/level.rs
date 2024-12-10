@@ -73,7 +73,7 @@ fn setup_level(
     audio: Res<Audio>,
 ) {
     let level = match next.clone() {
-        NextLevel::None => GameLevel::Level(0),
+        NextLevel::None => GameLevel::Level(INITIAL_LEVEL % LEVELS),
         NextLevel::Level(level, _) => GameLevel::Level(level % LEVELS),
         NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
     };

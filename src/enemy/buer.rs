@@ -1,6 +1,7 @@
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
+use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -22,13 +23,16 @@ pub fn spawn_buer(commands: &mut Commands, aseprite: Handle<Aseprite>, position:
         StateScoped(GameState::InGame),
         Enemy,
         Buer,
+        Life {
+            life: 15,
+            max_life: 20,
+            amplitude: 0.0,
+        },
         Actor {
             uuid: Uuid::new_v4(),
             spell_delay: 0,
             mana: 1000,
             max_mana: 1000,
-            life: 15,
-            max_life: 20,
             pointer: Vec2::ZERO,
             intensity: 0.0,
             move_direction: Vec2::ZERO,

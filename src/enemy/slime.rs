@@ -3,6 +3,7 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::{Actor, ActorFireState};
+use crate::entity::life::Life;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::GameSet;
 use crate::spell::SpellType;
@@ -41,10 +42,10 @@ pub fn spawn_slime(
 /// また、プレイヤーを狙います
 fn control_slime(
     mut enemy_query: Query<(&mut Actor, &mut Transform), With<SlimeControl>>,
-    mut player_query: Query<(&Actor, &GlobalTransform), (With<Player>, Without<SlimeControl>)>,
+    mut player_query: Query<(&Life, &GlobalTransform), (With<Player>, Without<SlimeControl>)>,
 ) {
-    if let Ok((player, player_transform)) = player_query.get_single_mut() {
-        if 0 < player.life {
+    if let Ok((enemy_life, player_transform)) = player_query.get_single_mut() {
+        if 0 < enemy_life.life {
             for (mut actor, enemy_transform) in enemy_query.iter_mut() {
                 let diff = player_transform.translation() - enemy_transform.translation;
                 if diff.length() < ENEMY_ATTACK_RANGE {

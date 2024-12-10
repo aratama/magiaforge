@@ -1,5 +1,5 @@
 use crate::entity::{
-    breakable::{Breakable, BreakableSprite},
+    life::{Life, LifeBeingSprite},
     EntityDepth,
 };
 use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
@@ -27,8 +27,9 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
         .insert((
             Name::new("stone_lantern"),
             StateScoped(GameState::InGame),
-            Breakable {
+            Life {
                 life: 50,
+                max_life: 50,
                 amplitude: 0.0,
             },
             StoneLantern,
@@ -44,7 +45,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
         ))
         .with_children(|parent| {
             parent.spawn((
-                BreakableSprite,
+                LifeBeingSprite,
                 Sprite {
                     anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
                     ..default()
@@ -86,7 +87,7 @@ fn update_lantern(
 
 fn break_stone_lantern(
     mut commands: Commands,
-    query: Query<(Entity, &Breakable, &Transform), With<StoneLantern>>,
+    query: Query<(Entity, &Life, &Transform), With<StoneLantern>>,
     mut writer: EventWriter<GameCommand>,
 ) {
     for (entity, breakabke, transform) in query.iter() {

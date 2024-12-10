@@ -7,6 +7,7 @@ use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::life::Life;
 use crate::level::{level_to_name, GameLevel, NextLevel};
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
@@ -182,18 +183,18 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
 }
 
 fn update_hud(
-    player_query: Query<(&Player, &Actor), Without<Camera2d>>,
+    player_query: Query<(&Player, &Actor, &Life), Without<Camera2d>>,
     mut player_life_query: Query<&mut StatusBar, With<PlayerLifeBar>>,
     mut player_mana_query: Query<&mut StatusBar, (With<PlayerManaBar>, Without<PlayerLifeBar>)>,
     mut player_gold_query: Query<&mut Text, (With<PlayerGold>,)>,
 ) {
-    if let Ok((player, actor)) = player_query.get_single() {
+    if let Ok((player, actor, actor_life)) = player_query.get_single() {
         let mut player_life = player_life_query.single_mut();
         let mut player_mana = player_mana_query.single_mut();
         let mut player_gold = player_gold_query.single_mut();
 
-        player_life.value = actor.life;
-        player_life.max_value = actor.max_life;
+        player_life.value = actor_life.life;
+        player_life.max_value = actor_life.max_life;
 
         player_mana.value = actor.mana / 10;
         player_mana.max_value = actor.max_mana / 10;

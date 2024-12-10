@@ -12,13 +12,13 @@ use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
-use crate::entity::breakable::BreakablePlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::damege::DamagePlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::gold::GoldPlugin;
+use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
@@ -149,7 +149,7 @@ pub fn run_game() {
         .add_plugins(ActorPlugin)
         .add_plugins(AudioPlugin)
         .add_plugins(BookshelfPlugin)
-        .add_plugins(BreakablePlugin)
+        .add_plugins(LifePlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(BulletParticlePlugin)
         .add_plugins(CameraPlugin)

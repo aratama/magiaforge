@@ -1,9 +1,9 @@
 use crate::controller::enemy::Enemy;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
-use crate::entity::breakable::Breakable;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::damege::spawn_damage_number;
+use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::firing::Firing;
 use crate::level::wall::WallCollider;
@@ -47,7 +47,7 @@ pub struct BulletBundle {
 /// この関数はすでに発射が確定している場合に呼ばれ、発射条件のチェックは行いません
 /// 発射条件やコストの消費などは cast_spell で行います
 ///
-/// 弾丸が物体に衝突した場合、それがActorまたはBreakableであればダメージを与えてから消滅します
+/// 弾丸が物体に衝突した場合、それがActorまたはlifeであればダメージを与えてから消滅します
 /// それ以外の物体に衝突した場合はそのまま消滅します
 pub fn spawn_bullet(
     commands: &mut Commands,
@@ -163,10 +163,10 @@ fn bullet_collision(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut actor_query: Query<
-        (&mut Actor, &mut ExternalImpulse, &mut Breakable),
+        (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
         Without<RemotePlayer>,
     >,
-    mut breakable_query: Query<&mut Breakable, Without<Actor>>,
+    mut lifebeing_query: Query<&mut Life, Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut writer: EventWriter<GameCommand>,
@@ -185,7 +185,7 @@ fn bullet_collision(
                     &mut commands,
                     &mut bullet_query,
                     &mut actor_query,
-                    &mut breakable_query,
+                    &mut lifebeing_query,
                     &mut despawnings,
                     &a,
                     &b,
@@ -197,7 +197,7 @@ fn bullet_collision(
                         &mut commands,
                         &mut bullet_query,
                         &mut actor_query,
-                        &mut breakable_query,
+                        &mut lifebeing_query,
                         &mut despawnings,
                         &b,
                         &a,
@@ -215,8 +215,11 @@ fn bullet_collision(
 fn process_bullet_event(
     mut commands: &mut Commands,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    actors: &mut Query<(&mut Actor, &mut ExternalImpulse, &mut Breakable), Without<RemotePlayer>>,
-    breakabke_query: &mut Query<&mut Breakable, Without<Actor>>,
+    actors: &mut Query<
+        (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
+        Without<RemotePlayer>,
+    >,
+    breakabke_query: &mut Query<&mut Life, Without<Actor>>,
     despownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
@@ -228,7 +231,7 @@ fn process_bullet_event(
         let bullet_position = bullet_transform.translation.truncate();
 
         if !despownings.contains(&bullet_entity) {
-            if let Ok((mut actor, mut impilse, mut breakable)) = actors.get_mut(*b) {
+            if let Ok((actor, impilse, mut lifebeing)) = actors.get_mut(*b) {
                 trace!("bullet hit actor: {:?}", actor.uuid);
 
                 // 弾丸がアクターに衝突したとき
@@ -236,9 +239,12 @@ fn process_bullet_event(
                 // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
                 // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
-                    actor.life = (actor.life - bullet.damage).max(0);
-                    breakable.amplitude = 6.0;
-                    impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
+                    lifebeing.life = (lifebeing.life - bullet.damage).max(0);
+                    lifebeing.amplitude = 6.0;
+                    if let Some(mut impilse) = impilse {
+                        impilse.impulse +=
+                            bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
+                    }
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position, resource);
@@ -246,7 +252,7 @@ fn process_bullet_event(
                     writer.send(GameCommand::SEDamage(Some(bullet_position)));
                 }
             } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
-                trace!("bullet hit breakable: {:?}", b);
+                trace!("bullet hit: {:?}", b);
                 breakabke.life -= bullet.damage;
                 breakabke.amplitude = 2.0;
                 despownings.insert(bullet_entity.clone());
