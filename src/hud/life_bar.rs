@@ -1,4 +1,3 @@
-use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::{set::GameSet, states::GameState};
 use bevy::prelude::*;

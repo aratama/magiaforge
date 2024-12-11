@@ -16,7 +16,7 @@ use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AseSpriteSlice, AseUiSlice};
+use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 #[derive(Component)]
 pub struct HUD;
@@ -157,7 +157,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
                     column_gap: Val::Px(8.),
                     ..default()
                 },))
-                .with_children(|mut parent| {
+                .with_children(|parent| {
                     parent.spawn((
                         AseUiSlice {
                             aseprite: assets.atlas.clone(),

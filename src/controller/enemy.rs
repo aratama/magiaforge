@@ -1,5 +1,4 @@
 use crate::command::GameCommand;
-use crate::entity::actor::Actor;
 use crate::entity::gold::spawn_gold;
 use crate::entity::life::Life;
 use crate::{asset::GameAssets, set::GameSet, states::GameState};

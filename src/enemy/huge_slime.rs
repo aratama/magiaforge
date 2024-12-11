@@ -1,13 +1,16 @@
 use crate::asset::GameAssets;
+use crate::camera::GameCamera;
+use crate::command::GameCommand;
 use crate::constant::*;
 use crate::controller::enemy::Enemy;
+use crate::controller::player::Player;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
-use bevy::{prelude::*, sprite};
+use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
@@ -73,11 +76,15 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             Transform::from_translation(position.extend(PAINT_LAYER_Z)),
             (
                 RigidBody::Dynamic,
-                Collider::ball(32.0),
+                Velocity {
+                    linvel: Vec2::new(0.0, -10.0),
+                    angvel: 0.0,
+                },
+                Collider::ball(24.0),
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
                 Damping {
-                    linear_damping: 10.0,
+                    linear_damping: 40.0,
                     angular_damping: 1.0,
                 },
                 ExternalForce::default(),
@@ -102,15 +109,30 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 }
 
 fn update_huge_slime(
-    mut query: Query<&mut HugeSlime>,
-    mut sprite_query: Query<(&Parent, &mut Transform), With<HugeSlimeSprite>>,
+    player_query: Query<&Transform, With<Player>>,
+    mut query: Query<
+        (
+            &mut HugeSlime,
+            &Transform,
+            &mut CollisionGroups,
+            &mut ExternalForce,
+        ),
+        Without<Player>,
+    >,
+    mut sprite_query: Query<
+        (&Parent, &mut Transform),
+        (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
+    >,
+    mut se_writer: EventWriter<GameCommand>,
+    mut camera_query: Query<&mut GameCamera>,
 ) {
     const GRAVITY: f32 = 0.2;
-    const JUMP_POWER: f32 = 5.0;
-    const JUMP_TIMESPAN: u32 = 120;
+    const JUMP_POWER: f32 = 3.0;
+    const JUMP_TIMESPAN: u32 = 60;
 
-    for (parent, mut transform) in sprite_query.iter_mut() {
-        let mut huge_slime = query.get_mut(**parent).unwrap();
+    for (parent, mut offset) in sprite_query.iter_mut() {
+        let (mut huge_slime, transform, mut collision, mut force) =
+            query.get_mut(**parent).unwrap();
 
         huge_slime.animation += 1;
         if huge_slime.animation >= JUMP_TIMESPAN {
@@ -118,9 +140,39 @@ fn update_huge_slime(
             huge_slime.up_velocity = JUMP_POWER;
         }
 
+        let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
+        if 0.0 < offset.translation.y && next == 0.0 {
+            se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
+
+            let mut camera = camera_query.single_mut();
+            camera.vibration = 10.0;
+        }
+
+        if let Ok(player) = player_query.get_single() {
+            let direction = (player.translation - transform.translation)
+                .normalize()
+                .truncate();
+
+            force.force = if next == 0.0 {
+                Vec2::ZERO
+            } else {
+                direction * 4000000.0
+            };
+        } else {
+            force.force = Vec2::ZERO;
+        }
+
+        *collision = if next == 0.0 {
+            CollisionGroups::new(
+                ENEMY_GROUP,
+                ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP,
+            )
+        } else {
+            CollisionGroups::new(ENEMY_GROUP, WALL_GROUP)
+        };
+
         huge_slime.up_velocity -= GRAVITY;
-        transform.translation.y =
-            (transform.translation.y + huge_slime.up_velocity as f32).max(0.0);
+        offset.translation.y = next;
     }
 }
 

@@ -150,6 +150,7 @@ fn select_level_bgm(next: Res<NextLevel>, mut next_bgm: ResMut<NextBGM>, assets:
     *next_bgm = NextBGM(Some(match *next {
         NextLevel::None => assets.dokutsu.clone(),
         NextLevel::Level(0, _) => assets.dokutsu.clone(),
+        NextLevel::Level(3, _) => assets.deamon.clone(),
         _ => assets.arechi.clone(),
     }));
 }

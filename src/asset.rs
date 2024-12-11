@@ -92,6 +92,9 @@ pub struct GameAssets {
     #[asset(path = "audio/カーソル移動8.ogg")]
     pub cursor8: Handle<AudioSource>,
 
+    #[asset(path = "audio/爆発3_drop.ogg")]
+    pub drop: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 
@@ -105,4 +108,7 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/水のしたたる洞窟.ogg")]
     pub dokutsu: Handle<AudioSource>,
+
+    #[asset(path = "bgm/悪魔との戦闘.ogg")]
+    pub deamon: Handle<AudioSource>,
 }
