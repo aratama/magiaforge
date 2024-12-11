@@ -97,7 +97,6 @@ fn setup_hud(
                     // 右下
 
                     let level: GameLevel = match *next {
-                        NextLevel::None => GameLevel::Level(0),
                         NextLevel::Level(i, _) => GameLevel::Level(i),
                         NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
                     };

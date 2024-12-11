@@ -3,7 +3,6 @@ use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
 use crate::language::{Dict, Languages};
-use crate::level::NextLevel;
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
@@ -63,13 +62,11 @@ fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<G
 
 fn exit(
     mut writer: EventWriter<GameCommand>,
-    mut next: ResMut<NextLevel>,
     mut config: ResMut<GameConfig>,
     mut websocket: EventWriter<ClientMessage>,
 ) {
     writer.send(GameCommand::StateMainMenu);
     writer.send(GameCommand::SEClick(None));
-    *next = NextLevel::None;
 
     if config.online {
         websocket.send(ClientMessage::Close);

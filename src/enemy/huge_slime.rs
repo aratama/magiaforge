@@ -16,9 +16,9 @@ use bevy_rapier2d::prelude::*;
 use uuid::*;
 
 #[derive(Component)]
-pub struct HugeSlime {
-    pub animation: u32,
-    pub up_velocity: f32,
+pub enum HugeSlime {
+    Growl { animation: u32 },
+    Approach { animation: u32, up_velocity: f32 },
 }
 
 #[derive(Component)]
@@ -38,10 +38,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 max_life: 200,
                 amplitude: 0.0,
             },
-            HugeSlime {
-                animation: 0,
-                up_velocity: 0.0,
-            },
+            HugeSlime::Growl { animation: 0 },
             Actor {
                 uuid: Uuid::new_v4(),
                 spell_delay: 0,
@@ -76,10 +73,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             Transform::from_translation(position.extend(PAINT_LAYER_Z)),
             (
                 RigidBody::Dynamic,
-                Velocity {
-                    linvel: Vec2::new(0.0, -10.0),
-                    angvel: 0.0,
-                },
+                Velocity::zero(),
                 Collider::ball(24.0),
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
@@ -134,45 +128,70 @@ fn update_huge_slime(
         let (mut huge_slime, transform, mut collision, mut force) =
             query.get_mut(**parent).unwrap();
 
-        huge_slime.animation += 1;
-        if huge_slime.animation >= JUMP_TIMESPAN {
-            huge_slime.animation = 0;
-            huge_slime.up_velocity = JUMP_POWER;
+        match *huge_slime {
+            HugeSlime::Growl { ref mut animation } => {
+                *animation += 1;
+
+                if *animation == 120 {
+                    se_writer.send(GameCommand::SEGrowl(Some(transform.translation.truncate())));
+                }
+
+                if 300 <= *animation {
+                    *animation = 0;
+                    *huge_slime = HugeSlime::Approach {
+                        animation: 0,
+                        up_velocity: 0.0,
+                    };
+                }
+            }
+
+            HugeSlime::Approach {
+                ref mut animation,
+                ref mut up_velocity,
+            } => {
+                let next = (offset.translation.y + *up_velocity as f32).max(0.0);
+                if 0.0 < offset.translation.y && next == 0.0 {
+                    se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
+
+                    let mut camera = camera_query.single_mut();
+                    camera.vibration = 10.0;
+                }
+                // 重力に従って落下
+                *collision = if next == 0.0 {
+                    CollisionGroups::new(
+                        ENEMY_GROUP,
+                        ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP,
+                    )
+                } else {
+                    CollisionGroups::new(ENEMY_GROUP, WALL_GROUP)
+                };
+                *up_velocity -= GRAVITY;
+                offset.translation.y = next;
+
+                if let Ok(player) = player_query.get_single() {
+                    // プレイヤーがいる場合はジャンプしながら接近
+
+                    *animation += 1;
+
+                    if JUMP_TIMESPAN <= *animation {
+                        *animation = 0;
+                        *up_velocity = JUMP_POWER;
+                    }
+
+                    let direction = (player.translation - transform.translation)
+                        .normalize()
+                        .truncate();
+
+                    force.force = if next == 0.0 {
+                        Vec2::ZERO
+                    } else {
+                        direction * 4000000.0
+                    };
+                } else {
+                    force.force = Vec2::ZERO;
+                }
+            }
         }
-
-        let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
-        if 0.0 < offset.translation.y && next == 0.0 {
-            se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
-
-            let mut camera = camera_query.single_mut();
-            camera.vibration = 10.0;
-        }
-
-        if let Ok(player) = player_query.get_single() {
-            let direction = (player.translation - transform.translation)
-                .normalize()
-                .truncate();
-
-            force.force = if next == 0.0 {
-                Vec2::ZERO
-            } else {
-                direction * 4000000.0
-            };
-        } else {
-            force.force = Vec2::ZERO;
-        }
-
-        *collision = if next == 0.0 {
-            CollisionGroups::new(
-                ENEMY_GROUP,
-                ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP,
-            )
-        } else {
-            CollisionGroups::new(ENEMY_GROUP, WALL_GROUP)
-        };
-
-        huge_slime.up_velocity -= GRAVITY;
-        offset.translation.y = next;
     }
 }
 

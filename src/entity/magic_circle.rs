@@ -154,7 +154,6 @@ fn warp(
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {
                         *next = match *next {
-                            NextLevel::None => NextLevel::Level(1, player_state),
                             NextLevel::Level(level, _) => {
                                 NextLevel::Level((level + 1) % LEVELS, player_state)
                             }

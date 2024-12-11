@@ -45,6 +45,7 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - 回復魔法 1 https://soundeffect-lab.info/sound/battle/
 - カーソル移動 2 https://soundeffect-lab.info/sound/button/
 - 爆発 3 https://soundeffect-lab.info/sound/battle/battle2.html
+- イノシシの鳴き声 https://soundeffect-lab.info/sound/animal/
 
 #### BGMs
 

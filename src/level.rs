@@ -5,6 +5,7 @@ pub mod wall;
 
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
+use crate::camera::GameCamera;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -46,12 +47,19 @@ use uuid::Uuid;
 use wall::spawn_wall_collisions;
 use wall::WallCollider;
 
-#[derive(Resource, Debug, Clone, Default)]
+#[derive(Resource, Debug, Clone)]
 pub enum NextLevel {
-    #[default]
-    None,
     Level(i32, PlayerState),
     MultiPlayArena(PlayerState),
+}
+
+impl Default for NextLevel {
+    fn default() -> Self {
+        NextLevel::Level(
+            INITIAL_LEVEL,
+            PlayerState::from_config(&GameConfig::default()),
+        )
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -67,19 +75,16 @@ fn setup_level(
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
     life_bar_res: Res<LifeBarResource>,
-    mut camera: Query<&mut Transform, With<Camera2d>>,
-    config: Res<GameConfig>,
+    mut camera: Query<(&mut GameCamera, &mut Transform), With<Camera2d>>,
     next: Res<NextLevel>,
     audio: Res<Audio>,
 ) {
     let level = match next.clone() {
-        NextLevel::None => GameLevel::Level(INITIAL_LEVEL % LEVELS),
         NextLevel::Level(level, _) => GameLevel::Level(level % LEVELS),
         NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
     };
 
     let player = match next.clone() {
-        NextLevel::None => PlayerState::from_config(&config),
         NextLevel::Level(_, player) => player,
         NextLevel::MultiPlayArena(player) => player,
     };
@@ -98,7 +103,9 @@ fn setup_level(
     let player_x = TILE_SIZE * entry_point.x as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.y as f32 - TILE_HALF;
 
-    if let Ok(mut camera) = camera.get_single_mut() {
+    if let Ok((mut game_camera, mut camera)) = camera.get_single_mut() {
+        game_camera.x = player_x;
+        game_camera.y = player_y;
         camera.translation.x = player_x;
         camera.translation.y = player_y;
     }
@@ -148,7 +155,6 @@ fn setup_level(
 
 fn select_level_bgm(next: Res<NextLevel>, mut next_bgm: ResMut<NextBGM>, assets: Res<GameAssets>) {
     *next_bgm = NextBGM(Some(match *next {
-        NextLevel::None => assets.dokutsu.clone(),
         NextLevel::Level(0, _) => assets.dokutsu.clone(),
         NextLevel::Level(3, _) => assets.deamon.clone(),
         _ => assets.arechi.clone(),
@@ -464,7 +470,7 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_level);
+        app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.init_resource::<NextLevel>();
-        app.add_systems(Update, select_level_bgm.run_if(in_state(GameState::InGame)));
     }
 }

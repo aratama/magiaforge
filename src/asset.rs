@@ -36,9 +36,8 @@ pub struct GameAssets {
     #[asset(path = "entity/eyeball.aseprite")]
     pub eyeball: Handle<Aseprite>,
 
-    #[asset(path = "entity/buer.aseprite")]
-    pub buer: Handle<Aseprite>,
-
+    // #[asset(path = "entity/buer.aseprite")]
+    // pub buer: Handle<Aseprite>,
     #[asset(path = "entity/huge_slime.aseprite")]
     pub huge_slime: Handle<Aseprite>,
 
@@ -94,6 +93,9 @@ pub struct GameAssets {
 
     #[asset(path = "audio/爆発3_drop.ogg")]
     pub drop: Handle<AudioSource>,
+
+    #[asset(path = "audio/イノシシの鳴き声.ogg")]
+    pub inoshishi: Handle<AudioSource>,
 
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,

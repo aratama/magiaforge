@@ -22,6 +22,7 @@ pub enum GameCommand {
     SESwitch(Option<Vec2>),
     SEEmptyMana(Option<Vec2>),
     SEDrop(Option<Vec2>),
+    SEGrowl(Option<Vec2>),
     StateMainMenu,
     StateInGame,
     StateWarp,
@@ -169,6 +170,15 @@ fn process_game_commands(
                     &audio,
                     &config,
                     assets.drop.clone(),
+                    position,
+                    camera_position,
+                );
+            }
+            GameCommand::SEGrowl(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.inoshishi.clone(),
                     position,
                     camera_position,
                 );

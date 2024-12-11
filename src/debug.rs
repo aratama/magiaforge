@@ -8,8 +8,8 @@ use bevy::{
 use bevy_rapier2d::plugin::PhysicsSet;
 
 use crate::{
-    config::GameConfig, hud::overlay::OverlayEvent, player_state::PlayerState, states::GameState,
-    level::NextLevel,
+    config::GameConfig, hud::overlay::OverlayEvent, level::NextLevel, player_state::PlayerState,
+    states::GameState,
 };
 
 fn process_debug_command(
@@ -34,7 +34,6 @@ fn process_debug_command(
     if local.ends_with("next") {
         local.clear();
         *level = match level.as_ref() {
-            NextLevel::None => NextLevel::Level(1, PlayerState::from_config(&config)),
             NextLevel::Level(n, p) => NextLevel::Level(n + 1, p.clone()),
             NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
         };
@@ -42,7 +41,6 @@ fn process_debug_command(
     } else if local.ends_with("home") {
         local.clear();
         *level = match level.as_ref() {
-            NextLevel::None => NextLevel::Level(0, PlayerState::from_config(&config)),
             NextLevel::Level(_, p) => NextLevel::Level(0, p.clone()),
             NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
         };
