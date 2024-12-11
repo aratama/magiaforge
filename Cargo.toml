@@ -31,7 +31,7 @@ save = []
 default = []
 
 [dependencies]
-bevy_aseprite_ultra = "0.3.2"
+bevy_aseprite_ultra = "0.4.1"
 bevy_asset_loader = "0.22.0"
 bevy_embedded_assets = "0.12.0"
 bevy-inspector-egui = "0.28.0"

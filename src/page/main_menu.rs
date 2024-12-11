@@ -100,7 +100,7 @@ fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm
         },
         AseUiAnimation {
             aseprite: assets.title_witch.clone(),
-            animation: "default".into(),
+            animation: "idle".into(),
         },
     ));
 

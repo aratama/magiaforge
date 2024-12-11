@@ -238,8 +238,19 @@ fn update_wand(
         if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
+            let pi = std::f32::consts::PI;
             transform.rotation = Quat::from_rotation_z(angle);
-            transform.translation = Vec3::new(0.0, 0.0, -0.01);
+            transform.translation = Vec3::new(
+                if pi * 0.25 < angle && angle < pi * 0.75 {
+                    4.0
+                } else if angle < pi * -0.25 && pi * -0.75 < angle {
+                    -4.0
+                } else {
+                    0.0
+                },
+                0.0,
+                -0.01,
+            );
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
                 let props = wand_to_props(wand.wand_type);
