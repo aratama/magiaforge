@@ -12,7 +12,9 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
-pub struct SlimeControl;
+pub struct SlimeControl {
+    wait: u32,
+}
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
@@ -25,13 +27,14 @@ pub fn spawn_slime(
     aseprite: &Res<GameAssets>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
+    initial_wait: u32,
 ) {
     spawn_basic_enemy(
         &mut commands,
         aseprite.slime.clone(),
         position,
         life_bar_locals,
-        SlimeControl,
+        SlimeControl { wait: initial_wait },
         "slime",
         SpellType::SlimeCharge,
         ENEMY_MOVE_FORCE,
@@ -41,12 +44,17 @@ pub fn spawn_slime(
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます
 /// また、プレイヤーを狙います
 fn control_slime(
-    mut enemy_query: Query<(&mut Actor, &mut Transform), With<SlimeControl>>,
+    mut enemy_query: Query<(&mut SlimeControl, &mut Actor, &mut Transform)>,
     mut player_query: Query<(&Life, &GlobalTransform), (With<Player>, Without<SlimeControl>)>,
 ) {
     if let Ok((enemy_life, player_transform)) = player_query.get_single_mut() {
         if 0 < enemy_life.life {
-            for (mut actor, enemy_transform) in enemy_query.iter_mut() {
+            for (mut slime, mut actor, enemy_transform) in enemy_query.iter_mut() {
+                if slime.wait > 0 {
+                    slime.wait -= 1;
+                    continue;
+                }
+
                 let diff = player_transform.translation() - enemy_transform.translation;
                 if diff.length() < ENEMY_ATTACK_RANGE {
                     actor.move_direction = Vec2::ZERO;

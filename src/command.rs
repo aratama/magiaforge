@@ -23,6 +23,8 @@ pub enum GameCommand {
     SEEmptyMana(Option<Vec2>),
     SEDrop(Option<Vec2>),
     SEGrowl(Option<Vec2>),
+    SEPuyon(Option<Vec2>),
+    SEBicha(Option<Vec2>),
     StateMainMenu,
     StateInGame,
     StateWarp,
@@ -179,6 +181,24 @@ fn process_game_commands(
                     &audio,
                     &config,
                     assets.inoshishi.clone(),
+                    position,
+                    camera_position,
+                );
+            }
+            GameCommand::SEPuyon(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.puyon.clone(),
+                    position,
+                    camera_position,
+                );
+            }
+            GameCommand::SEBicha(position) => {
+                play_se(
+                    &audio,
+                    &config,
+                    assets.bicha.clone(),
                     position,
                     camera_position,
                 );

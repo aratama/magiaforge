@@ -45,6 +45,13 @@ fn process_debug_command(
             NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
+    } else if local.ends_with("boss") {
+        local.clear();
+        *level = match level.as_ref() {
+            NextLevel::Level(_, p) => NextLevel::Level(3, p.clone()),
+            NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
+        };
+        writer.send(OverlayEvent::Close(GameState::Warp));
     }
 }
 
