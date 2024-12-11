@@ -1,6 +1,6 @@
 use crate::cast::cast_spell;
 use crate::config::GameConfig;
-use crate::constant::MAX_WANDS;
+use crate::constant::{MANA_CHARGE_SPEED, MAX_WANDS};
 use crate::entity::life::LifeBeingSprite;
 use crate::spell::SpellType;
 use crate::wand::Wand;
@@ -116,7 +116,7 @@ fn update_sprite_flip(
 
 fn recovery_mana(mut actor_query: Query<(&mut Actor, &Transform), Without<Camera2d>>) {
     for (mut actor, _) in actor_query.iter_mut() {
-        actor.mana = (actor.mana + 1).min(actor.max_mana);
+        actor.mana = (actor.mana + MANA_CHARGE_SPEED).min(actor.max_mana);
     }
 }
 

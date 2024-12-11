@@ -7,22 +7,37 @@ use crate::controller::player::Player;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
+use crate::hud::life_bar::LifeBarResource;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
 use bevy::prelude::*;
+use bevy::state::commands;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
+
+use super::slime::spawn_slime;
 
 #[derive(Component)]
 pub enum HugeSlime {
     Growl { animation: u32 },
     Approach { animation: u32, up_velocity: f32 },
+    Summon { animation: u32 },
 }
 
 #[derive(Component)]
 pub struct HugeSlimeSprite;
+
+#[derive(Component)]
+pub struct SlimeSeed {
+    animation: u32,
+    from: Vec2,
+    to: Vec2,
+}
+
+#[derive(Component)]
+pub struct SlimeSeedSprite;
 
 pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
@@ -39,6 +54,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 amplitude: 0.0,
             },
             HugeSlime::Growl { animation: 0 },
+            // HugeSlime::Summon { animation: 0 },
             Actor {
                 uuid: Uuid::new_v4(),
                 spell_delay: 0,
@@ -103,6 +119,8 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 }
 
 fn update_huge_slime(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
     player_query: Query<&Transform, With<Player>>,
     mut query: Query<
         (
@@ -173,8 +191,7 @@ fn update_huge_slime(
 
                     *animation += 1;
 
-                    if JUMP_TIMESPAN <= *animation {
-                        *animation = 0;
+                    if *animation % JUMP_TIMESPAN == 0 {
                         *up_velocity = JUMP_POWER;
                     }
 
@@ -190,7 +207,91 @@ fn update_huge_slime(
                 } else {
                     force.force = Vec2::ZERO;
                 }
+
+                if *animation == 360 {
+                    *huge_slime = HugeSlime::Summon { animation: 0 };
+                }
             }
+
+            HugeSlime::Summon { ref mut animation } => {
+                *animation += 1;
+
+                if let Ok(player) = player_query.get_single() {
+                    if *animation == 60 {
+                        let slimes = 8;
+                        for i in 0..slimes {
+                            let t = std::f32::consts::PI * 2.0 / slimes as f32; // 等間隔に配置した場合の角度
+                            let a = rand::random::<f32>() * 3.0; // 起点は適当にばらけさせる
+                            let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
+                            let offset = Vec2::from_angle(angle) * 100.0; // 100ピクセルの演習場にばらまく
+                            let to = player.translation.truncate() + offset;
+                            commands
+                                .spawn((
+                                    StateScoped(GameState::InGame),
+                                    SlimeSeed {
+                                        animation: 0,
+                                        from: transform.translation.truncate(),
+                                        to,
+                                    },
+                                    AseSpriteSlice {
+                                        aseprite: assets.atlas.clone(),
+                                        name: "slime_shadow".into(),
+                                    },
+                                    Transform::from_translation(transform.translation),
+                                ))
+                                .with_child((
+                                    SlimeSeedSprite,
+                                    AseSpriteAnimation {
+                                        aseprite: assets.slime.clone(),
+                                        animation: Animation::default().with_tag("idle"),
+                                    },
+                                ));
+                        }
+                    }
+                }
+
+                if 120 <= *animation {
+                    *animation = 0;
+                    *huge_slime = HugeSlime::Growl { animation: 0 };
+                }
+            }
+        }
+    }
+}
+
+const SLIME_SEED_TIMESPAN: u32 = 60;
+
+fn update_slime_seed(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut SlimeSeed, &mut Transform)>,
+    assets: Res<GameAssets>,
+    life_bar_locals: Res<LifeBarResource>,
+) {
+    for (entity, mut seed, mut transform) in query.iter_mut() {
+        seed.animation += 1;
+        transform.translation = seed
+            .from
+            .lerp(seed.to, seed.animation as f32 / SLIME_SEED_TIMESPAN as f32)
+            .extend(ENTITY_LAYER_Z);
+        if seed.animation == SLIME_SEED_TIMESPAN {
+            commands.entity(entity).despawn_recursive();
+            spawn_slime(&mut commands, &assets, seed.to, &life_bar_locals);
+        }
+    }
+}
+
+fn update_slime_seed_sprite(
+    parent_query: Query<&SlimeSeed>,
+    mut query: Query<(&Parent, &mut Transform), With<SlimeSeedSprite>>,
+) {
+    for (parent, mut transform) in query.iter_mut() {
+        if let Ok(seed) = parent_query.get(parent.get()) {
+            let h = 100.0;
+            let t1 = SLIME_SEED_TIMESPAN as f32;
+            let t0 = t1 * 0.5;
+            let t = seed.animation as f32;
+            let y = -(h / t0.powf(2.0)) * (t - t0).powf(2.0) + h;
+            transform.translation.y = y;
         }
     }
 }
@@ -201,7 +302,11 @@ impl Plugin for HugeSlimePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            update_huge_slime
+            (
+                update_huge_slime,
+                update_slime_seed,
+                update_slime_seed_sprite,
+            )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );
