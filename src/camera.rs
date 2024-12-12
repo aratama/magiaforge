@@ -14,7 +14,7 @@ pub struct GameCamera {
     pub vibration: f32,
 }
 
-static BLIGHTNESS_IN_GAME: f32 = 0.03;
+static BLIGHTNESS_IN_GAME: f32 = 0.01;
 
 fn setup_camera(mut commands: Commands) {
     let initial_scale_factor = -1.0;

@@ -14,6 +14,7 @@ use bevy_rapier2d::prelude::*;
 #[derive(Component)]
 pub struct SlimeControl {
     wait: u32,
+    gold: u32,
 }
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
@@ -28,16 +29,21 @@ pub fn spawn_slime(
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
     initial_wait: u32,
+    gold: u32,
 ) {
     spawn_basic_enemy(
         &mut commands,
         aseprite.slime.clone(),
         position,
         life_bar_locals,
-        SlimeControl { wait: initial_wait },
+        SlimeControl {
+            wait: initial_wait,
+            gold,
+        },
         "slime",
         SpellType::SlimeCharge,
         ENEMY_MOVE_FORCE,
+        gold,
     );
 }
 

@@ -48,7 +48,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         .spawn((
             Name::new("huge slime"),
             StateScoped(GameState::InGame),
-            Enemy,
+            Enemy { gold: 50 },
             Life {
                 life: 200,
                 max_life: 200,
@@ -236,28 +236,37 @@ fn update_huge_slime_summon(
                         let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
                         let offset = Vec2::from_angle(angle) * 100.0; // 100ピクセルの演習場にばらまく
                         let to = player.translation.truncate() + offset;
-                        commands
-                            .spawn((
-                                StateScoped(GameState::InGame),
-                                SlimeSeed {
-                                    animation: 0,
-                                    from: transform.translation.truncate(),
-                                    to,
-                                    speed: 60 + rand::random::<u32>() % 30,
-                                },
-                                AseSpriteSlice {
-                                    aseprite: assets.atlas.clone(),
-                                    name: "slime_shadow".into(),
-                                },
-                                Transform::from_translation(transform.translation),
-                            ))
-                            .with_child((
-                                SlimeSeedSprite,
-                                AseSpriteAnimation {
-                                    aseprite: assets.slime.clone(),
-                                    animation: Animation::default().with_tag("idle"),
-                                },
-                            ));
+
+                        // 放出したスライムが壁の外にはみ出ないように、範囲を限定してます
+                        // level.asepriteの座標と対応させる必要があります
+                        if TILE_SIZE < to.x
+                            && to.x < 63.0 * TILE_SIZE
+                            && to.y < -65.0 * TILE_SIZE
+                            && -126.0 * TILE_SIZE < to.y
+                        {
+                            commands
+                                .spawn((
+                                    StateScoped(GameState::InGame),
+                                    SlimeSeed {
+                                        animation: 0,
+                                        from: transform.translation.truncate(),
+                                        to,
+                                        speed: 60 + rand::random::<u32>() % 30,
+                                    },
+                                    AseSpriteSlice {
+                                        aseprite: assets.atlas.clone(),
+                                        name: "slime_shadow".into(),
+                                    },
+                                    Transform::from_translation(transform.translation),
+                                ))
+                                .with_child((
+                                    SlimeSeedSprite,
+                                    AseSpriteAnimation {
+                                        aseprite: assets.slime.clone(),
+                                        animation: Animation::default().with_tag("idle"),
+                                    },
+                                ));
+                        }
                     }
 
                     se_writer.send(GameCommand::SEPuyon(Some(transform.translation.truncate())));
@@ -293,6 +302,7 @@ fn update_slime_seed(
                 seed.to,
                 &life_bar_locals,
                 30 + rand::random::<u32>() % 30,
+                0,
             );
             se_writer.send(GameCommand::SEBicha(Some(seed.to)));
         }

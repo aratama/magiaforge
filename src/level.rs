@@ -227,6 +227,7 @@ fn spawn_level(
                 ),
                 &life_bar_res,
                 0,
+                2,
             );
         }
 

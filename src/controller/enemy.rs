@@ -8,7 +8,9 @@ use rand::random;
 
 /// 攻撃されてライフがゼロになったら金塊を残して消滅するアクターを表します
 #[derive(Component)]
-pub struct Enemy;
+pub struct Enemy {
+    pub gold: u32,
+}
 
 /// 敵のライフが0以下になったら消滅させます
 /// アクターはライフがゼロになったら消滅しますが、プレイヤーキャラクターの消滅と敵の消滅は処理が異なるので、
@@ -16,15 +18,15 @@ pub struct Enemy;
 fn dead_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut query: Query<(Entity, &Life, &Transform), With<Enemy>>,
+    mut query: Query<(Entity, &Enemy, &Life, &Transform)>,
     mut writer: EventWriter<GameCommand>,
 ) {
-    for (entity, enemy_life, transform) in query.iter_mut() {
+    for (entity, enemy, enemy_life, transform) in query.iter_mut() {
         if enemy_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
             writer.send(GameCommand::SECry(Some(transform.translation.truncate())));
 
-            for _ in 0..(1 + random::<u32>() % 3) {
+            for _ in 0..enemy.gold {
                 spawn_gold(
                     &mut commands,
                     &assets,

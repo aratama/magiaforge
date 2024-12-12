@@ -2,7 +2,7 @@ use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
 use crate::entity::life::{Life, LifeBeingSprite};
-use crate::entity::EntityDepth;
+use crate::entity::{gold, EntityDepth};
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -21,6 +21,7 @@ pub fn spawn_basic_enemy<T: Component>(
     name: &str,
     spell: SpellType,
     move_force: f32,
+    gold: u32,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(spell);
@@ -29,7 +30,7 @@ pub fn spawn_basic_enemy<T: Component>(
         .spawn((
             Name::new(name.to_string()),
             StateScoped(GameState::InGame),
-            Enemy,
+            Enemy { gold },
             marker,
             Actor {
                 uuid: Uuid::new_v4(),
