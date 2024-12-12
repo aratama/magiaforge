@@ -1,7 +1,6 @@
 use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
-use crate::command::GameCommandPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
@@ -36,6 +35,7 @@ use crate::level::*;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
+use crate::se::SECommandPlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
@@ -168,7 +168,7 @@ pub fn run_game() {
         .add_plugins(EquipmentListPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
-        .add_plugins(GameCommandPlugin)
+        .add_plugins(SECommandPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)
         .add_plugins(GamepadPlugin)

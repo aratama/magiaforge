@@ -1,6 +1,6 @@
-use crate::command::GameCommand;
 use crate::entity::gold::spawn_gold;
 use crate::entity::life::Life;
+use crate::se::{SECommand, SE};
 use crate::{asset::GameAssets, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -18,12 +18,12 @@ fn dead_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut query: Query<(Entity, &DespawnWithGold, &Life, &Transform)>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
 ) {
     for (entity, enemy, enemy_life, transform) in query.iter_mut() {
         if enemy_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SECry(Some(transform.translation.truncate())));
+            writer.send(SECommand::pos(SE::Cry, transform.translation.truncate()));
 
             for _ in 0..enemy.gold {
                 spawn_gold(

@@ -3,7 +3,7 @@ use crate::constant::MAX_WANDS;
 use crate::entity::life::LifeBeingSprite;
 use crate::spell::SpellType;
 use crate::wand::Wand;
-use crate::{asset::GameAssets, command::GameCommand, states::GameState};
+use crate::{asset::GameAssets, se::SECommand, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
@@ -160,7 +160,7 @@ fn fire_bullet(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut writer: EventWriter<ClientMessage>,
-    mut se_writer: EventWriter<GameCommand>,
+    mut se_writer: EventWriter<SECommand>,
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;

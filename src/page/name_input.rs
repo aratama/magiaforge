@@ -1,7 +1,8 @@
 use crate::audio::NextBGM;
-use crate::command::GameCommand;
 use crate::config::GameConfig;
+use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
+use crate::se::{SECommand, SE};
 use crate::ui::menu_button::menu_button;
 use crate::{
     asset::GameAssets,
@@ -34,17 +35,18 @@ fn start_game(
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
     mut config: ResMut<GameConfig>,
     query: Query<&TextInputValue>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
     mut next_bgm: ResMut<NextBGM>,
+    mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
     menu_next_state.set(MainMenuPhase::Paused);
-    writer.send(GameCommand::StateInGame);
+    overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
     *next_bgm = NextBGM(None);
 
     let q = query.single();
     config.player_name = q.0.clone();
 
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
 fn setup(

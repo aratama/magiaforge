@@ -9,7 +9,7 @@ const SPATIAL_AUDIO_MAX_DISTANCE: f32 = 400.0;
 pub fn play_se(
     audio: &Res<Audio>,
     config: &GameConfig,
-    source: Handle<AudioSource>,
+    source: &Handle<AudioSource>,
     position: &Option<Vec2>,
     camera_position: Vec2,
 ) {

@@ -6,7 +6,7 @@ mod asset;
 mod audio;
 mod camera;
 mod cast;
-mod command;
+mod se;
 mod config;
 mod constant;
 mod controller;

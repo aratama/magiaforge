@@ -1,8 +1,11 @@
-use crate::entity::{
-    life::{Life, LifeBeingSprite},
-    EntityDepth,
+use crate::{asset::GameAssets, constant::*, se::SECommand, states::GameState};
+use crate::{
+    entity::{
+        life::{Life, LifeBeingSprite},
+        EntityDepth,
+    },
+    se::SE,
 };
-use crate::{asset::GameAssets, command::GameCommand, constant::*, states::GameState};
 use bevy::{core::FrameCount, prelude::*, sprite::Anchor};
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
@@ -88,12 +91,15 @@ fn update_lantern(
 fn break_stone_lantern(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform), With<StoneLantern>>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
 ) {
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(GameCommand::SEBreak(Some(transform.translation.truncate())));
+            writer.send(SECommand::pos(
+                SE::Break,
+                transform.translation.truncate(),
+            ));
         }
     }
 }

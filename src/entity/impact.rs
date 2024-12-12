@@ -1,10 +1,11 @@
 use crate::entity::life::Life;
+use crate::se::SE;
 use crate::{
     asset::GameAssets,
     camera::GameCamera,
-    command::GameCommand,
     constant::{ENEMY_GROUP, ENTITY_GROUP, PAINT_LAYER_Z, WITCH_GROUP},
     entity::damege::spawn_damage_number,
+    se::SECommand,
     states::GameState,
 };
 use bevy::prelude::*;
@@ -30,7 +31,7 @@ fn read_impact_event(
     mut commands: Commands,
     assets: Res<GameAssets>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
     mut reader: EventReader<SpawnImpact>,
     mut life_query: Query<(&mut Life, &Transform, Option<&mut ExternalImpulse>)>,
     mut camera_query: Query<(&mut GameCamera, &Transform), Without<Life>>,
@@ -44,7 +45,7 @@ fn read_impact_event(
         impulse,
     } in reader.read()
     {
-        writer.send(GameCommand::SEDrop(Some(*position)));
+        writer.send(SECommand::pos(SE::Drop, *position));
         let (mut camera, camera_transform) = camera_query.single_mut();
         let distance = camera_transform.translation.truncate().distance(*position);
         let max_range = 320.0; // 振動が起きる最大距離
@@ -78,7 +79,7 @@ fn read_impact_event(
                 let p = life_transform.translation.truncate();
                 life.life = (life.life - damage).max(0);
                 spawn_damage_number(&mut commands, 10, p);
-                writer.send(GameCommand::SEDamage(Some(p)));
+                writer.send(SECommand::pos(SE::Damage, p));
                 if let Some(ref mut ex) = external_impulse {
                     ex.impulse = (p - position).normalize_or_zero() * impulse;
                 }

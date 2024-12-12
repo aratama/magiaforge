@@ -1,8 +1,9 @@
 use super::label::spawn_label;
-use crate::command::GameCommand;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
+use crate::hud::overlay::OverlayEvent;
 use crate::language::{Dict, Languages};
+use crate::se::{SECommand, SE};
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
@@ -55,66 +56,70 @@ impl FromWorld for ButtonShots {
     }
 }
 
-fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<GameCommand>) {
+fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<SECommand>) {
     state.set(GameMenuState::PauseMenuClosing);
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
-fn exit(mut writer: EventWriter<GameCommand>, mut websocket: EventWriter<ClientMessage>) {
-    writer.send(GameCommand::StateMainMenu);
-    writer.send(GameCommand::SEClick(None));
+fn exit(
+    mut writer: EventWriter<SECommand>,
+    mut websocket: EventWriter<ClientMessage>,
+    mut overlay_event_writer: EventWriter<OverlayEvent>,
+) {
+    overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
+    writer.send(SECommand::new(SE::Click));
     websocket.send(ClientMessage::Close);
 }
 
-fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<SECommand>) {
     config.bgm_volume = (config.bgm_volume + 0.1).min(1.0);
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
-fn volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+fn volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<SECommand>) {
     config.bgm_volume = (config.bgm_volume - 0.1).max(0.0);
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
-fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<SECommand>) {
     config.se_volume = (config.se_volume + 0.1).min(1.0);
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
-fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<SECommand>) {
     config.se_volume = (config.se_volume - 0.1).max(0.0);
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
-fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<SECommand>) {
     config.language = Languages::Ja;
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
-fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {
+fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<SECommand>) {
     config.language = Languages::En;
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
 }
 
 fn fullscreen_on(
     mut config: ResMut<GameConfig>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
     mut window_query: Query<&mut Window>,
 ) {
     let mut window = window_query.single_mut();
     window.mode = WindowMode::SizedFullscreen(MonitorSelection::Primary);
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
     config.fullscreen = true;
 }
 
 fn fullscreen_off(
     mut config: ResMut<GameConfig>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
     mut window_query: Query<&mut Window>,
 ) {
     let mut window = window_query.single_mut();
     window.mode = WindowMode::Windowed;
-    writer.send(GameCommand::SEClick(None));
+    writer.send(SECommand::new(SE::Click));
     config.fullscreen = false;
 }
 

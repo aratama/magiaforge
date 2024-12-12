@@ -1,7 +1,8 @@
 use crate::audio::NextBGM;
-use crate::command::GameCommand;
 use crate::constant::HUD_Z_INDEX;
+use crate::hud::overlay::OverlayEvent;
 use crate::level::{CurrentLevel, NextLevel};
+use crate::se::{SECommand, SE};
 use crate::ui::on_press::OnPress;
 use crate::{
     asset::GameAssets,
@@ -201,9 +202,10 @@ fn on_click(buttons: Res<ButtonInput<MouseButton>>, mut writer: EventWriter<Even
 fn read_events(
     mut query: Query<&mut Visibility, With<OnPress>>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
     mut reader: EventReader<Events>,
     mut next_bgm: ResMut<NextBGM>,
+    mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
     for event in reader.read() {
         match event {
@@ -212,8 +214,8 @@ fn read_events(
                     *visibility = Visibility::Hidden;
                 }
                 menu_next_state.set(MainMenuPhase::Paused);
-                writer.send(GameCommand::SEClick(None));
-                writer.send(GameCommand::StateInGame);
+                writer.send(SECommand::new(SE::Click));
+                overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
                 *next_bgm = NextBGM(None);
             }
         }

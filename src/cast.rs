@@ -1,6 +1,5 @@
 use crate::{
     asset::GameAssets,
-    command::GameCommand,
     controller::remote::{send_remote_message, RemoteMessage},
     entity::{
         actor::Actor,
@@ -8,6 +7,7 @@ use crate::{
         life::Life,
         witch::WITCH_COLLIDER_RADIUS,
     },
+    se::{SECommand, SE},
     spell::SpellType,
     spell_props::{spell_to_props, SpellCast},
 };
@@ -23,7 +23,7 @@ pub fn cast_spell(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     writer: &mut EventWriter<ClientMessage>,
-    se_writer: &mut EventWriter<GameCommand>,
+    se_writer: &mut EventWriter<SECommand>,
     actor: &mut Actor,
     actor_life: &mut Life,
     actor_transform: &Transform,
@@ -103,9 +103,10 @@ pub fn cast_spell(
                     }
 
                     actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
-                    se_writer.send(GameCommand::SEHeal(Some(
+                    se_writer.send(SECommand::pos(
+                        SE::Heal,
                         actor_transform.translation.truncate(),
-                    )));
+                    ));
 
                     return props.cast_delay as i32;
                 }

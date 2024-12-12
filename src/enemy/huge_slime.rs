@@ -1,5 +1,4 @@
 use crate::asset::GameAssets;
-use crate::command::GameCommand;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::player::Player;
@@ -11,6 +10,7 @@ use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::LifeBarResource;
+use crate::se::{SECommand, SE};
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandType};
@@ -187,14 +187,14 @@ fn update_huge_slime(
 fn update_huge_slime_growl(
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
-    mut se_writer: EventWriter<GameCommand>,
+    mut se_writer: EventWriter<SECommand>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
         if let HugeSlimeState::Growl { ref mut animation } = huge_slime.state {
             *animation += 1;
             if *animation == 120 {
-                se_writer.send(GameCommand::SEGrowl(Some(transform.translation.truncate())));
+                se_writer.send(SECommand::pos(SE::Growl, transform.translation.truncate()));
             }
             if 300 <= *animation {
                 *animation = 0;
@@ -245,7 +245,7 @@ fn update_huge_slime_summon(
     player_query: Query<&Transform, With<Player>>,
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
-    mut se_writer: EventWriter<GameCommand>,
+    mut se_writer: EventWriter<SECommand>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
@@ -295,7 +295,7 @@ fn update_huge_slime_summon(
                         }
                     }
 
-                    se_writer.send(GameCommand::SEPuyon(Some(transform.translation.truncate())));
+                    se_writer.send(SECommand::pos(SE::Puyon, transform.translation.truncate()));
                 }
             }
 
@@ -312,7 +312,7 @@ fn update_slime_seed(
     mut query: Query<(Entity, &mut SlimeSeed, &mut Transform)>,
     assets: Res<GameAssets>,
     life_bar_locals: Res<LifeBarResource>,
-    mut se_writer: EventWriter<GameCommand>,
+    mut se_writer: EventWriter<SECommand>,
 ) {
     for (entity, mut seed, mut transform) in query.iter_mut() {
         seed.animation += 1;
@@ -330,7 +330,7 @@ fn update_slime_seed(
                 30 + rand::random::<u32>() % 30,
                 0,
             );
-            se_writer.send(GameCommand::SEBicha(Some(seed.to)));
+            se_writer.send(SECommand::pos(SE::Bicha, seed.to));
         }
     }
 }

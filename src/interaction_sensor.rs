@@ -1,8 +1,8 @@
 use crate::{
-    command::GameCommand,
     constant::{DROPPED_ITEM_GROUP, PLAYER_INTERACTION_SENSOR_GROUP},
     controller::player::Player,
     entity::{actor::Actor, dropped_item::DroppedItemEntity, witch::Witch},
+    se::{SECommand, SE},
     set::GameSet,
     states::{GameMenuState, GameState},
 };
@@ -156,7 +156,7 @@ fn pick_up(
     spell_query: Query<(Entity, &DroppedItemEntity, &Transform)>,
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
-    mut global: EventWriter<GameCommand>,
+    mut global: EventWriter<SECommand>,
     state: Res<State<GameMenuState>>,
 ) {
     if keys.just_pressed(KeyCode::KeyE) && *state.get() == GameMenuState::Closed {
@@ -178,7 +178,7 @@ fn pick_up(
                 if let Ok((_, DroppedItemEntity { item_type, .. }, _)) = spell_query.get(nearest) {
                     if player.inventory.insert(*item_type) {
                         commands.entity(nearest).despawn_recursive();
-                        global.send(GameCommand::SEPickUp(None));
+                        global.send(SECommand::new(SE::PickUp));
                         // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、
                         // ここで削除する必要はない
                         // entities.remove(entity);

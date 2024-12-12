@@ -1,5 +1,4 @@
 use crate::asset::GameAssets;
-use crate::command::GameCommand;
 use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
@@ -7,8 +6,10 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::{spawn_gold, Gold};
 use crate::entity::life::Life;
 use crate::equipment::Equipment;
+use crate::hud::overlay::OverlayEvent;
 use crate::input::{get_direction, get_fire_trigger};
 use crate::inventory::Inventory;
+use crate::se::{SECommand, SE};
 use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
@@ -88,7 +89,7 @@ fn trigger_bullet(
 fn switch_wand(
     mut witch_query: Query<&mut Actor, With<Player>>,
     mut wheel: EventReader<MouseWheel>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
 ) {
     for event in wheel.read() {
         if let Ok(mut actor) = witch_query.get_single_mut() {
@@ -97,7 +98,7 @@ fn switch_wand(
                 .min(MAX_WANDS as i32 - 1) as usize;
             if next != actor.current_wand {
                 actor.current_wand = next;
-                writer.send(GameCommand::SESwitch(None));
+                writer.send(SECommand::new(SE::Switch));
             }
         }
     }
@@ -107,7 +108,7 @@ fn pick_gold(
     mut commands: Commands,
     mut gold_query: Query<(Entity, &Transform, &mut ExternalForce), With<Gold>>,
     mut player_query: Query<(&mut Player, &Transform)>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
 ) {
     if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
         let mut got_gold = false;
@@ -127,9 +128,10 @@ fn pick_gold(
         }
 
         if got_gold {
-            writer.send(GameCommand::SEPickUp(Some(
+            writer.send(SECommand::pos(
+                SE::PickUp,
                 player_transform.translation.truncate(),
-            )));
+            ));
         }
     }
 }
@@ -139,15 +141,16 @@ fn die_player(
     assets: Res<GameAssets>,
     player_query: Query<(Entity, &Player, &Actor, &Life, &Transform)>,
     mut writer: EventWriter<ClientMessage>,
-    mut game: EventWriter<GameCommand>,
+    mut game: EventWriter<SECommand>,
     websocket: Res<WebSocketState>,
+    mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
     if let Ok((entity, player, actor, player_life, transform)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
-            game.send(GameCommand::SECry(Some(transform.translation.truncate())));
-            game.send(GameCommand::StateMainMenu);
+            game.send(SECommand::pos(SE::Cry, transform.translation.truncate()));
+            overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
 
             for _ in 0..player.golds {
                 spawn_gold(

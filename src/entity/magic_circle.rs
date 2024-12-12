@@ -1,10 +1,11 @@
 use crate::{
     asset::GameAssets,
-    command::GameCommand,
     constant::*,
     controller::player::Player,
+    hud::overlay::OverlayEvent,
     level::{GameLevel, NextLevel},
     player_state::PlayerState,
+    se::{SECommand, SE},
     states::GameState,
 };
 use bevy::prelude::*;
@@ -110,7 +111,7 @@ fn power_on_circle(
     player_query: Query<&Player>,
     mut circle_query: Query<&mut MagicCircle>,
     mut events: EventReader<CollisionEvent>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
 ) {
     for event in events.read() {
         match event {
@@ -118,7 +119,7 @@ fn power_on_circle(
                 if process_collision_start_event(a, b, &player_query, &mut circle_query)
                     || process_collision_start_event(b, a, &player_query, &mut circle_query)
                 {
-                    writer.send(GameCommand::SETurnOn(None));
+                    writer.send(SECommand::new(SE::TurnOn));
                 }
             }
             CollisionEvent::Stopped(a, b, _) => {
@@ -134,7 +135,8 @@ fn warp(
     mut player_query: Query<(Entity, &Player, &Actor, &Life)>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<NextLevel>,
-    mut writer: EventWriter<GameCommand>,
+    mut writer: EventWriter<SECommand>,
+    mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
@@ -145,7 +147,7 @@ fn warp(
             }
         } else if circle.step == MAX_POWER {
             if let Ok((entity, player, actor, actor_life)) = player_query.get_single_mut() {
-                writer.send(GameCommand::SEWarp(Some(transform.translation.truncate())));
+                writer.send(SECommand::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
 
                 let player_state = PlayerState {
@@ -187,7 +189,7 @@ fn warp(
             }
             circle.step += 1;
         } else if circle.step == MAX_POWER + 120 {
-            writer.send(GameCommand::StateWarp);
+            overlay_event_writer.send(OverlayEvent::Close(GameState::Warp));
             circle.step += 1;
         } else {
             circle.step += 1;
