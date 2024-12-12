@@ -460,6 +460,11 @@ pub fn level_to_name(level: GameLevel) -> Dict {
             en: "Cave",
         },
 
+        GameLevel::Level(3) => Dict {
+            ja: "スライムの巣窟",
+            en: "Slime Nest",
+        },
+
         GameLevel::MultiPlayArena => Dict {
             ja: "対決の洞窟",
             en: "Arena Cave",

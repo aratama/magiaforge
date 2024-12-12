@@ -10,7 +10,10 @@ use crate::{
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor};
+use bevy_rapier2d::{
+    plugin::PhysicsSet,
+    prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor},
+};
 
 use super::{actor::Actor, life::Life};
 
@@ -268,7 +271,9 @@ impl Plugin for MagicCirclePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (power_on_circle, warp).run_if(in_state(GameState::InGame)),
+            (power_on_circle, warp)
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
         );
         app.add_systems(
             Update,

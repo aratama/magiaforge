@@ -111,7 +111,8 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
                 Damping {
-                    linear_damping: 40.0,
+                    // linear_damping: 40.0,
+                    linear_damping: 20.0,
                     angular_damping: 1.0,
                 },
                 ExternalForce::default(),
@@ -153,12 +154,13 @@ fn update_huge_slime(
         force.force = Vec2::ZERO;
 
         // プレイヤーがいる場合はジャンプしながら接近
+        // 空中にいる場合は移動の外力が働く
+
         if let Ok(player_transform) = player_query.get_single() {
-            // 空中にいる場合は移動の外力が働く
             if 0.0 < offset.translation.y {
-                let direction = (player_transform.translation - transform.translation)
-                    .normalize()
-                    .truncate();
+                let direction = (player_transform.translation.truncate()
+                    - transform.translation.truncate())
+                .normalize_or_zero();
                 force.force = direction * 4000000.0;
             };
         }
@@ -192,7 +194,6 @@ fn update_huge_slime_growl(
             if 300 <= *animation {
                 *animation = 0;
                 huge_slime.state = HugeSlimeState::Approach { animation: 0 };
-                info!("huge_slime approach");
             }
         }
     }
@@ -218,14 +219,12 @@ fn update_huge_slime_approach(
                 // 60フレームに一度ジャンプ
                 if *animation % JUMP_TIMESPAN == 0 {
                     huge_slime.up_velocity = JUMP_POWER;
-                    info!("jump");
                 }
             }
 
             // 6秒ごとに召喚フェイズに移行
             if *animation == 360 {
                 huge_slime.state = HugeSlimeState::Summon { animation: 0 };
-                info!("huge_slime summon");
             } else {
                 huge_slime.state = HugeSlimeState::Approach {
                     animation: animation + 1,

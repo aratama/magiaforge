@@ -67,7 +67,6 @@ pub struct BookshelfPlugin;
 
 impl Plugin for BookshelfPlugin {
     fn build(&self, app: &mut App) {
-        // ここを FixedUpdate にするとパーティクルの発生位置がおかしくなる
         app.add_systems(
             FixedUpdate,
             break_book_shelf
