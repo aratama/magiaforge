@@ -24,6 +24,9 @@ const HUGE_SLIME_COLLIDER_RADIUS: f32 = 24.0;
 const IMPACT_MARGIN: f32 = 16.0;
 
 #[derive(Component)]
+pub struct Boss;
+
+#[derive(Component)]
 pub struct HugeSlime {
     up_velocity: f32,
     state: HugeSlimeState,
@@ -56,12 +59,13 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 
     commands
         .spawn((
-            Name::new("huge slime"),
+            Name::new("スライムの王 エミルス"),
             StateScoped(GameState::InGame),
+            Boss,
             Enemy { gold: 50 },
             Life {
-                life: 200,
-                max_life: 200,
+                life: 1200,
+                max_life: 1200,
                 amplitude: 0.0,
             },
             HugeSlime {

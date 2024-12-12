@@ -11,6 +11,7 @@ use crate::entity::life::Life;
 use crate::level::{level_to_name, GameLevel, NextLevel};
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
+use crate::ui::boss_hitpoint_bar::spawn_boss_hitpoint_bar;
 use crate::ui::equipment_list::spawn_equipment_list;
 use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
@@ -116,6 +117,8 @@ fn setup_hud(
             spawn_wand_editor(&mut parent, &assets);
 
             spawn_inventory_floating(&mut parent, &assets);
+
+            spawn_boss_hitpoint_bar(&mut parent);
         });
 }
 

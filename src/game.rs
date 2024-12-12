@@ -38,6 +38,7 @@ use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
+use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
 use crate::ui::command_button::CommandButtonPlugin;
 use crate::ui::equipment_list::EquipmentListPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
@@ -151,6 +152,7 @@ pub fn run_game() {
         .add_plugins(ActorPlugin)
         .add_plugins(AudioPlugin)
         .add_plugins(BookshelfPlugin)
+        .add_plugins(BossHitpointBarPlugin)
         .add_plugins(LifePlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(BulletParticlePlugin)
