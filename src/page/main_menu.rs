@@ -1,6 +1,7 @@
 use crate::audio::NextBGM;
 use crate::command::GameCommand;
 use crate::constant::HUD_Z_INDEX;
+use crate::level::{CurrentLevel, NextLevel};
 use crate::ui::on_press::OnPress;
 use crate::{
     asset::GameAssets,
@@ -28,8 +29,16 @@ enum Events {
     Start,
 }
 
-fn setup_main_menu(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm: ResMut<NextBGM>) {
+fn setup_main_menu(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    mut next_bgm: ResMut<NextBGM>,
+    mut current: ResMut<CurrentLevel>,
+    mut next: ResMut<NextLevel>,
+) {
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
+    *current = CurrentLevel::default();
+    *next = NextLevel::default();
 
     commands.spawn((
         StateScoped(GameState::MainMenu),

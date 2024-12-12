@@ -138,7 +138,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 
 fn update_huge_slime(
     player_query: Query<&Transform, With<Player>>,
-    mut slime_query: Query<(&mut HugeSlime, &Transform, &mut ExternalForce), Without<Player>>,
+    mut slime_query: Query<(&mut HugeSlime, &Transform, &mut Actor), Without<Player>>,
     mut sprite_query: Query<
         (&Parent, &mut Transform),
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
@@ -147,11 +147,11 @@ fn update_huge_slime(
 ) {
     const GRAVITY: f32 = 0.2;
     for (parent, mut offset) in sprite_query.iter_mut() {
-        let (mut huge_slime, transform, mut force) = slime_query.get_mut(**parent).unwrap();
+        let (mut huge_slime, transform, mut actor) = slime_query.get_mut(**parent).unwrap();
         huge_slime.up_velocity -= GRAVITY;
         let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
 
-        force.force = Vec2::ZERO;
+        actor.move_force = 0.0;
 
         // プレイヤーがいる場合はジャンプしながら接近
         // 空中にいる場合は移動の外力が働く
@@ -161,7 +161,12 @@ fn update_huge_slime(
                 let direction = (player_transform.translation.truncate()
                     - transform.translation.truncate())
                 .normalize_or_zero();
-                force.force = direction * 4000000.0;
+
+                // スライムを移動するのに、ExternalForceを直接操作しないこと
+                // 直接操作すると、実行順序の関係で移動したりしなかったりという不安定なバグになります
+                // ExternalForce は Actor の apply_external_force を通じて設定します
+                actor.move_direction = direction;
+                actor.move_force = 4000000.0;
             };
         }
 

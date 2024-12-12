@@ -76,17 +76,18 @@ fn update_player_list_visibility(
     current: Res<CurrentLevel>,
 ) {
     let mut player_list_root = player_list_query.single_mut();
-    player_list_root.display = if current.level == Some(GameLevel::MultiPlayArena) {
-        Display::Flex
-    } else {
-        Display::None
-    };
+
+    player_list_root.display =
+        if current.level != None && current.level == Some(GameLevel::MultiPlayArena) {
+            Display::Flex
+        } else {
+            Display::None
+        };
 }
 
 /// プレイヤーリストを更新
 fn update_player_list(
     mut commands: Commands,
-    mut player_list_query: Query<&mut Node, With<PlayerListRoot>>,
     player_query: Query<&Player>,
     remote_query: Query<(Entity, &RemotePlayer)>,
     mut remote_player_items_query: Query<(
@@ -98,10 +99,6 @@ fn update_player_list(
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
 ) {
-    let mut player_list_root = player_list_query.single_mut();
-
-    player_list_root.display = Display::Flex;
-
     let parent = list_query.single_mut();
     let mut players = Vec::<(String, i32, Color)>::new();
     if let Ok(player) = player_query.get_single() {
