@@ -31,8 +31,6 @@
 //         Actor {
 //             uuid: Uuid::new_v4(),
 //             spell_delay: 0,
-//             mana: 1000,
-//             max_mana: 1000,
 //             pointer: Vec2::ZERO,
 //             intensity: 0.0,
 //             move_direction: Vec2::ZERO,

@@ -91,9 +91,9 @@ pub struct GameAssets {
     #[asset(path = "audio/カーソル移動2.ogg")]
     pub cursor2: Handle<AudioSource>,
 
-    #[asset(path = "audio/カーソル移動8.ogg")]
-    pub cursor8: Handle<AudioSource>,
-
+    // #[asset(path = "audio/カーソル移動8.ogg")]
+    // pub cursor8: Handle<AudioSource>,
+    //
     #[asset(path = "audio/爆発3_drop.ogg")]
     pub drop: Handle<AudioSource>,
 

@@ -38,25 +38,6 @@ pub fn cast_spell(
         if let Some(spell) = wand.slots[wand.index] {
             let props = spell_to_props(spell);
 
-            if actor.mana < props.mana_drain {
-                // info!(
-                //     "not enough mana, current:{}, required:{}",
-                //     actor.mana, props.mana_drain
-                // );
-
-                // マナが足りない場合でもエフェクトを残すと
-                // エフェクトが多重にかかってしまうので、エフェクトはリセットする
-                actor.effects = default();
-                wand.shift();
-                se_writer.send(GameCommand::SEEmptyMana(None));
-                return props.cast_delay as i32;
-            }
-
-            // info!("cast {:?} ", spell);
-
-            let props = spell_to_props(spell);
-            actor.mana -= props.mana_drain;
-
             match props.cast {
                 SpellCast::Bullet {
                     slice,

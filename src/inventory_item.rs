@@ -108,14 +108,8 @@ pub fn get_inventory_item_description(item: InventoryItem, language: Languages) 
     match item {
         InventoryItem::Spell(spell) => {
             let props = spell_to_props(spell);
-            let mana = format!(
-                "{}: {}  {}:{}",
-                Dict {
-                    ja: "マナ消費",
-                    en: "Mana Drain"
-                }
-                .get(language),
-                props.mana_drain,
+            let cast = format!(
+                "{}:{}",
                 Dict {
                     ja: "詠唱遅延",
                     en: "Cast Delay"
@@ -127,7 +121,7 @@ pub fn get_inventory_item_description(item: InventoryItem, language: Languages) 
             return format!(
                 "{}\n{}\n{}",
                 props.description.get(language),
-                mana,
+                cast,
                 appendix
             );
         }

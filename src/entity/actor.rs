@@ -1,6 +1,6 @@
 use crate::cast::cast_spell;
 use crate::config::GameConfig;
-use crate::constant::{MANA_CHARGE_SPEED, MAX_WANDS};
+use crate::constant::MAX_WANDS;
 use crate::entity::life::LifeBeingSprite;
 use crate::spell::SpellType;
 use crate::wand::Wand;
@@ -40,10 +40,6 @@ pub struct Actor {
 
     /// 次の魔法を発射できるまでのクールタイム
     pub spell_delay: i32,
-
-    pub mana: i32,
-
-    pub max_mana: i32,
 
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,
@@ -111,12 +107,6 @@ fn update_sprite_flip(
                 sprite.flip_x = false;
             }
         }
-    }
-}
-
-fn recovery_mana(mut actor_query: Query<(&mut Actor, &Transform), Without<Camera2d>>) {
-    for (mut actor, _) in actor_query.iter_mut() {
-        actor.mana = (actor.mana + MANA_CHARGE_SPEED).min(actor.max_mana);
     }
 }
 
@@ -204,9 +194,15 @@ fn fire_bullet(
 }
 
 /// actor.move_direction の値に従って、アクターに外力を適用します
+/// 魔法の発射中は移動速度が低下します
 fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
     for (actor, mut force) in player_query.iter_mut() {
-        force.force = actor.move_direction * actor.move_force;
+        force.force = actor.move_direction
+            * actor.move_force
+            * match actor.fire_state {
+                ActorFireState::Idle => 1.0,
+                ActorFireState::Fire => 0.5,
+            };
     }
 }
 
@@ -235,7 +231,7 @@ impl Plugin for ActorPlugin {
         );
         app.add_systems(
             FixedUpdate,
-            (apply_external_force, fire_bullet, recovery_mana)
+            (apply_external_force, fire_bullet)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

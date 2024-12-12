@@ -49,8 +49,6 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             spell_delay: 0,
-            mana: 1000,
-            max_mana: 1000,
 
             pointer: Vec2::from_angle(angle),
             intensity,

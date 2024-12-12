@@ -1,5 +1,5 @@
 use crate::{enemy::huge_slime::Boss, entity::life::Life, states::GameState};
-use bevy::{ecs::query, prelude::*, text::cosmic_text::ttf_parser::name};
+use bevy::prelude::*;
 
 const BAR_WIDTH: f32 = 800.0;
 const BAR_HEIGHT: f32 = 8.0;
@@ -116,7 +116,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder) {
 }
 
 fn update_bar_visibility(
-    mut bar_query: Query<(&mut Visibility), With<BossHitpointBar>>,
+    mut bar_query: Query<&mut Visibility, With<BossHitpointBar>>,
     boss_query: Query<(&Name, &Life), With<Boss>>,
     mut rect_query: Query<&mut Node, (With<StatusBarRect>, Without<StatusBarBackground>)>,
     mut text_query: Query<
@@ -137,7 +137,7 @@ fn update_bar_visibility(
         ),
     >,
 ) {
-    for (mut visibility) in bar_query.iter_mut() {
+    for mut visibility in bar_query.iter_mut() {
         if let Ok((name, life)) = boss_query.get_single() {
             *visibility = Visibility::Inherited;
 
