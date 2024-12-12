@@ -24,9 +24,15 @@ const HUGE_SLIME_COLLIDER_RADIUS: f32 = 24.0;
 const IMPACT_MARGIN: f32 = 16.0;
 
 #[derive(Component)]
-pub enum HugeSlime {
+pub struct HugeSlime {
+    up_velocity: f32,
+    state: HugeSlimeState,
+}
+
+#[derive(Clone)]
+pub enum HugeSlimeState {
     Growl { animation: u32 },
-    Approach { animation: u32, up_velocity: f32 },
+    Approach { animation: u32 },
     Summon { animation: u32 },
 }
 
@@ -58,7 +64,10 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 max_life: 200,
                 amplitude: 0.0,
             },
-            HugeSlime::Growl { animation: 0 },
+            HugeSlime {
+                up_velocity: 0.0,
+                state: HugeSlimeState::Growl { animation: 0 },
+            },
             // HugeSlime::Summon { animation: 0 },
             Actor {
                 uuid: Uuid::new_v4(),
@@ -123,30 +132,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         });
 }
 
-fn update_huge_slime_growl(
-    mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
-    mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
-    mut se_writer: EventWriter<GameCommand>,
-) {
-    for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
-        if let HugeSlime::Growl { ref mut animation } = *huge_slime {
-            *animation += 1;
-            if *animation == 120 {
-                se_writer.send(GameCommand::SEGrowl(Some(transform.translation.truncate())));
-            }
-            if 300 <= *animation {
-                *animation = 0;
-                *huge_slime = HugeSlime::Approach {
-                    animation: 0,
-                    up_velocity: 0.0,
-                };
-            }
-        }
-    }
-}
-
-fn update_huge_slime_approach(
+fn update_huge_slime(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
@@ -176,68 +162,103 @@ fn update_huge_slime_approach(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
     const GRAVITY: f32 = 0.2;
-    const JUMP_POWER: f32 = 3.0;
-    const JUMP_TIMESPAN: u32 = 60;
-
     for (parent, mut offset) in huge_slime_sprite_query.iter_mut() {
         let (mut huge_slime, transform, mut force) = huge_slime_query.get_mut(**parent).unwrap();
+        huge_slime.up_velocity -= GRAVITY;
+        let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
 
-        if let HugeSlime::Approach {
-            ref mut animation,
-            ref mut up_velocity,
-        } = *huge_slime
-        {
+        // プレイヤーがいる場合はジャンプしながら接近
+        if let Ok((_, player_transform, _)) = player_query.get_single() {
+            // 空中にいる場合は移動の外力が働く
+            if offset.translation.y == 0.0 {
+                force.force = Vec2::ZERO;
+            } else {
+                let direction = (player_transform.translation - transform.translation)
+                    .normalize()
+                    .truncate();
+                force.force = direction * 4000000.0;
+            };
+        } else {
+            force.force = Vec2::ZERO;
+        }
+
+        // 着地判定
+        if 0.0 < offset.translation.y && next == 0.0 {
+            se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
+            let (mut camera, camera_transform) = camera_query.single_mut();
+            let distance = camera_transform.translation.distance(transform.translation);
+            let max_range = 320.0; // 振動が起きる最大距離
+            camera.vibration = (20.0 * (max_range - distance).max(0.0) / max_range).min(10.0);
+            spawn_impact(
+                &mut commands,
+                &assets,
+                &mut player_query,
+                &mut life_query,
+                &rapier_context,
+                &mut se_writer,
+                transform.translation.truncate(),
+                HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
+                30000.0,
+            );
+        }
+
+        offset.translation.y = next;
+    }
+}
+
+fn update_huge_slime_growl(
+    mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
+    mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
+    mut se_writer: EventWriter<GameCommand>,
+) {
+    for parent in sprite_query.iter_mut() {
+        let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
+        if let HugeSlimeState::Growl { ref mut animation } = huge_slime.state {
             *animation += 1;
-
-            let next = (offset.translation.y + *up_velocity as f32).max(0.0);
-
-            // 着地判定
-            if 0.0 < offset.translation.y && next == 0.0 {
-                se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
-                let (mut camera, camera_transform) = camera_query.single_mut();
-                let distance = camera_transform.translation.distance(transform.translation);
-                let max_range = 320.0; // 振動が起きる最大距離
-                camera.vibration = (20.0 * (max_range - distance).max(0.0) / max_range).min(10.0);
-                spawn_impact(
-                    &mut commands,
-                    &assets,
-                    &mut player_query,
-                    &mut life_query,
-                    &rapier_context,
-                    &mut se_writer,
-                    transform.translation.truncate(),
-                    HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
-                    30000.0,
-                );
+            if *animation == 120 {
+                se_writer.send(GameCommand::SEGrowl(Some(transform.translation.truncate())));
             }
+            if 300 <= *animation {
+                *animation = 0;
+                huge_slime.state = HugeSlimeState::Approach { animation: 0 };
+                info!("huge_slime approach");
+            }
+        }
+    }
+}
 
-            // 重力に従って落下
-            *up_velocity -= GRAVITY;
-            offset.translation.y = next;
+fn update_huge_slime_approach(
+    player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
+    mut huge_slime_query: Query<&mut HugeSlime, Without<Player>>,
+    mut huge_slime_sprite_query: Query<
+        &Parent,
+        (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
+    >,
+) {
+    const JUMP_POWER: f32 = 3.0;
+    const JUMP_TIMESPAN: u32 = 50; // 35
 
+    for parent in huge_slime_sprite_query.iter_mut() {
+        let mut huge_slime = huge_slime_query.get_mut(**parent).unwrap();
+
+        if let HugeSlimeState::Approach { ref animation } = huge_slime.state.clone() {
             // プレイヤーがいる場合はジャンプしながら接近
-            if let Ok((_, player_transform, _)) = player_query.get_single() {
+            if let Ok(_) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
                 if *animation % JUMP_TIMESPAN == 0 {
-                    *up_velocity = JUMP_POWER;
+                    huge_slime.up_velocity = JUMP_POWER;
+                    info!("jump");
                 }
-
-                // 空中にいる場合は移動の外力が働く
-                if next == 0.0 {
-                    force.force = Vec2::ZERO;
-                } else {
-                    let direction = (player_transform.translation - transform.translation)
-                        .normalize()
-                        .truncate();
-                    force.force = direction * 4000000.0;
-                };
-            } else {
-                force.force = Vec2::ZERO;
             }
 
             // 6秒ごとに召喚フェイズに移行
             if *animation == 360 {
-                *huge_slime = HugeSlime::Summon { animation: 0 };
+                huge_slime.state = HugeSlimeState::Summon { animation: 0 };
+                info!("huge_slime summon");
+            } else {
+                huge_slime.state = HugeSlimeState::Approach {
+                    animation: animation + 1,
+                };
             }
         }
     }
@@ -254,7 +275,7 @@ fn update_huge_slime_summon(
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
 
-        if let HugeSlime::Summon { ref mut animation } = *huge_slime {
+        if let HugeSlimeState::Summon { ref mut animation } = huge_slime.state {
             *animation += 1;
 
             if let Ok(player) = player_query.get_single() {
@@ -305,7 +326,8 @@ fn update_huge_slime_summon(
 
             if 120 <= *animation {
                 *animation = 0;
-                *huge_slime = HugeSlime::Growl { animation: 0 };
+                huge_slime.state = HugeSlimeState::Growl { animation: 0 };
+                info!("huge_slime growl");
             }
         }
     }
@@ -357,6 +379,7 @@ impl Plugin for HugeSlimePlugin {
         app.add_systems(
             FixedUpdate,
             (
+                update_huge_slime,
                 update_huge_slime_growl,
                 update_huge_slime_approach,
                 update_huge_slime_summon,
