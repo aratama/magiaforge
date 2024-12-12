@@ -19,6 +19,7 @@ use crate::entity::chest::ChestPlugin;
 use crate::entity::damege::DamagePlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::gold::GoldPlugin;
+use crate::entity::impact::ImpactPlugin;
 use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
@@ -173,6 +174,7 @@ pub fn run_game() {
         .add_plugins(HoverColorPlugin)
         .add_plugins(HudPlugin)
         .add_plugins(HugeSlimePlugin)
+        .add_plugins(ImpactPlugin)
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(LabelPlugin)

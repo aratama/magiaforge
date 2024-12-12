@@ -4,7 +4,6 @@ use crate::entity::life::Life;
 use crate::{asset::GameAssets, set::GameSet, states::GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use rand::random;
 
 /// 攻撃されてライフがゼロになったら金塊を残して消滅するアクターを表します
 #[derive(Component)]

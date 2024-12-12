@@ -5,7 +5,9 @@ use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::controller::player::Player;
 use crate::curve::jump_curve;
+use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
+use crate::entity::impact::spawn_impact;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::LifeBarResource;
@@ -17,7 +19,9 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
 
-use super::slime::spawn_slime;
+const HUGE_SLIME_COLLIDER_RADIUS: f32 = 24.0;
+
+const IMPACT_MARGIN: f32 = 16.0;
 
 #[derive(Component)]
 pub enum HugeSlime {
@@ -91,7 +95,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             (
                 RigidBody::Dynamic,
                 Velocity::zero(),
-                Collider::ball(24.0),
+                Collider::ball(HUGE_SLIME_COLLIDER_RADIUS),
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
                 Damping {
@@ -143,7 +147,9 @@ fn update_huge_slime_growl(
 }
 
 fn update_huge_slime_approach(
-    player_query: Query<&Transform, With<Player>>,
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    mut player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut ExternalForce), Without<Player>>,
     mut huge_slime_sprite_query: Query<
         (&Parent, &mut Transform),
@@ -157,7 +163,17 @@ fn update_huge_slime_approach(
             Without<Player>,
         ),
     >,
+    mut life_query: Query<
+        (&mut Life, &Transform, Option<&mut ExternalImpulse>),
+        (
+            Without<GameCamera>,
+            Without<HugeSlimeSprite>,
+            Without<HugeSlime>,
+            Without<Player>,
+        ),
+    >,
     mut se_writer: EventWriter<GameCommand>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
     const GRAVITY: f32 = 0.2;
     const JUMP_POWER: f32 = 3.0;
@@ -174,19 +190,33 @@ fn update_huge_slime_approach(
             *animation += 1;
 
             let next = (offset.translation.y + *up_velocity as f32).max(0.0);
+
+            // 着地判定
             if 0.0 < offset.translation.y && next == 0.0 {
                 se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
                 let (mut camera, camera_transform) = camera_query.single_mut();
                 let distance = camera_transform.translation.distance(transform.translation);
                 let max_range = 320.0; // 振動が起きる最大距離
                 camera.vibration = (20.0 * (max_range - distance).max(0.0) / max_range).min(10.0);
+                spawn_impact(
+                    &mut commands,
+                    &assets,
+                    &mut player_query,
+                    &mut life_query,
+                    &rapier_context,
+                    &mut se_writer,
+                    transform.translation.truncate(),
+                    HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
+                    30000.0,
+                );
             }
+
             // 重力に従って落下
             *up_velocity -= GRAVITY;
             offset.translation.y = next;
 
             // プレイヤーがいる場合はジャンプしながら接近
-            if let Ok(player) = player_query.get_single() {
+            if let Ok((_, player_transform, _)) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
                 if *animation % JUMP_TIMESPAN == 0 {
                     *up_velocity = JUMP_POWER;
@@ -196,7 +226,7 @@ fn update_huge_slime_approach(
                 if next == 0.0 {
                     force.force = Vec2::ZERO;
                 } else {
-                    let direction = (player.translation - transform.translation)
+                    let direction = (player_transform.translation - transform.translation)
                         .normalize()
                         .truncate();
                     force.force = direction * 4000000.0;

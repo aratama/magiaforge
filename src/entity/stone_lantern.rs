@@ -39,7 +39,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
             InheritedVisibility::default(),
             Collider::cuboid(8.0, 8.0),
             CollisionGroups::new(
-                WALL_GROUP,
+                ENTITY_GROUP,
                 ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
             ),
         ))

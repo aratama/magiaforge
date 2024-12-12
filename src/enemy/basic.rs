@@ -2,7 +2,7 @@ use crate::constant::*;
 use crate::controller::enemy::Enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
 use crate::entity::life::{Life, LifeBeingSprite};
-use crate::entity::{gold, EntityDepth};
+use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
 use crate::states::GameState;
