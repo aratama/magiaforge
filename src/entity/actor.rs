@@ -1,5 +1,4 @@
 use crate::cast::cast_spell;
-use crate::config::GameConfig;
 use crate::constant::MAX_WANDS;
 use crate::entity::life::LifeBeingSprite;
 use crate::spell::SpellType;
@@ -163,9 +162,8 @@ fn fire_bullet(
     mut writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<GameCommand>,
     websocket: Res<WebSocketState>,
-    config: Res<GameConfig>,
 ) {
-    let online = config.online && websocket.ready_state == ReadyState::OPEN;
+    let online = websocket.ready_state == ReadyState::OPEN;
 
     for (mut actor, mut actor_life, actor_transform) in actor_query.iter_mut() {
         if actor_life.life <= 0 {

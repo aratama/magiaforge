@@ -1,7 +1,7 @@
 use crate::{
     asset::GameAssets,
-    config::GameConfig,
     controller::{player::Player, remote::RemotePlayer},
+    level::{CurrentLevel, GameLevel},
     states::GameState,
 };
 use bevy::prelude::*;
@@ -22,7 +22,7 @@ struct PlayersLabel;
 #[derive(Component)]
 struct RemotePlayerListItem;
 
-fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig>) {
+fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
     commands
         .spawn((
             PlayerListRoot,
@@ -33,11 +33,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Re
                 left: Val::Px(1100.0),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Start,
-                display: if config.online {
-                    Display::Flex
-                } else {
-                    Display::None
-                },
+                display: Display::None,
                 ..default()
             },
         ))
@@ -75,6 +71,18 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>, config: Re
         });
 }
 
+fn update_player_list_visibility(
+    mut player_list_query: Query<&mut Node, With<PlayerListRoot>>,
+    current: Res<CurrentLevel>,
+) {
+    let mut player_list_root = player_list_query.single_mut();
+    player_list_root.display = if current.level == Some(GameLevel::MultiPlayArena) {
+        Display::Flex
+    } else {
+        Display::None
+    };
+}
+
 /// プレイヤーリストを更新
 fn update_player_list(
     mut commands: Commands,
@@ -89,67 +97,61 @@ fn update_player_list(
     )>,
     mut list_query: Query<Entity, With<PlayerList>>,
     assets: Res<GameAssets>,
-
-    config: Res<GameConfig>,
 ) {
     let mut player_list_root = player_list_query.single_mut();
 
-    if config.online {
-        player_list_root.display = Display::Flex;
+    player_list_root.display = Display::Flex;
 
-        let parent = list_query.single_mut();
-        let mut players = Vec::<(String, i32, Color)>::new();
-        if let Ok(player) = player_query.get_single() {
-            players.push((
-                player.name.clone(),
-                player.golds,
-                Color::hsl(120.0, 1.0, 0.5),
-            ));
+    let parent = list_query.single_mut();
+    let mut players = Vec::<(String, i32, Color)>::new();
+    if let Ok(player) = player_query.get_single() {
+        players.push((
+            player.name.clone(),
+            player.golds,
+            Color::hsl(120.0, 1.0, 0.5),
+        ));
+    }
+    for (_, remote_player) in remote_query.iter() {
+        players.push((
+            remote_player.name.clone(),
+            remote_player.golds,
+            Color::WHITE,
+        ));
+    }
+
+    players.sort_by(|a, b| b.1.cmp(&a.1));
+
+    // 必要な個数だけListItemを生成
+    let diff = players.len() as i32 - remote_player_items_query.iter().len() as i32;
+    if 0 < diff {
+        for _ in 0..diff {
+            commands.entity(parent).with_children(|parent| {
+                parent.spawn((
+                    RemotePlayerListItem,
+                    Text::new("(anonymous)"),
+                    TextColor(Color::WHITE),
+                    TextFont {
+                        font: assets.dotgothic.clone(),
+                        font_size: 20.0,
+                        ..default()
+                    },
+                    Label,
+                ));
+            });
         }
-        for (_, remote_player) in remote_query.iter() {
-            players.push((
-                remote_player.name.clone(),
-                remote_player.golds,
-                Color::WHITE,
-            ));
-        }
-
-        players.sort_by(|a, b| b.1.cmp(&a.1));
-
-        // 必要な個数だけListItemを生成
-        let diff = players.len() as i32 - remote_player_items_query.iter().len() as i32;
-        if 0 < diff {
-            for _ in 0..diff {
-                commands.entity(parent).with_children(|parent| {
-                    parent.spawn((
-                        RemotePlayerListItem,
-                        Text::new("(anonymous)"),
-                        TextColor(Color::WHITE),
-                        TextFont {
-                            font: assets.dotgothic.clone(),
-                            font_size: 20.0,
-                            ..default()
-                        },
-                        Label,
-                    ));
-                });
-            }
-        } else if diff < 0 {
-            for i in players.len()..remote_player_items_query.iter().len() {
-                if let Some((item_entity, _, _, _)) = remote_player_items_query.iter().nth(i) {
-                    commands.entity(item_entity).despawn_recursive();
-                }
-            }
-        } else {
-            for (i, (name, golds, color)) in players.iter().enumerate() {
-                let (_, _, mut text, mut text_color) =
-                    remote_player_items_query.iter_mut().nth(i).unwrap();
-                text.0 = format_remote_player_name(&name, *golds);
-                text_color.0 = *color;
+    } else if diff < 0 {
+        for i in players.len()..remote_player_items_query.iter().len() {
+            if let Some((item_entity, _, _, _)) = remote_player_items_query.iter().nth(i) {
+                commands.entity(item_entity).despawn_recursive();
             }
         }
     } else {
-        player_list_root.display = Display::None;
+        for (i, (name, golds, color)) in players.iter().enumerate() {
+            let (_, _, mut text, mut text_color) =
+                remote_player_items_query.iter_mut().nth(i).unwrap();
+            text.0 = format_remote_player_name(&name, *golds);
+            text_color.0 = *color;
+        }
     }
 }
 
@@ -195,12 +197,13 @@ impl Plugin for PlayerListPlugin {
         app.add_systems(OnEnter(GameState::InGame), spawn_player_list);
         app.add_systems(
             Update,
-            update_player_list.run_if(in_state(GameState::InGame)),
+            (
+                update_player_list,
+                update_player_list_visibility,
+                update_ready_state_label,
+                update_players,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
-        app.add_systems(
-            Update,
-            update_ready_state_label.run_if(in_state(GameState::InGame)),
-        );
-        app.add_systems(Update, update_players.run_if(in_state(GameState::InGame)));
     }
 }

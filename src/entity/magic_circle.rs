@@ -1,6 +1,11 @@
 use crate::{
-    asset::GameAssets, command::GameCommand, config::GameConfig, constant::*,
-    controller::player::Player, level::NextLevel, player_state::PlayerState, states::GameState,
+    asset::GameAssets,
+    command::GameCommand,
+    constant::*,
+    controller::player::Player,
+    level::{GameLevel, NextLevel},
+    player_state::PlayerState,
+    states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -127,7 +132,6 @@ fn warp(
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<NextLevel>,
     mut writer: EventWriter<GameCommand>,
-    mut config: ResMut<GameConfig>,
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
@@ -153,21 +157,28 @@ fn warp(
 
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {
-                        *next = match *next {
-                            NextLevel::Level(level, _) => {
-                                NextLevel::Level((level + 1) % LEVELS, player_state)
-                            }
-                            NextLevel::MultiPlayArena(_) => NextLevel::Level(1, player_state),
+                        *next = match next.level {
+                            GameLevel::Level(level) => NextLevel {
+                                level: GameLevel::Level((level + 1) % LEVELS),
+                                state: player_state,
+                            },
+                            GameLevel::MultiPlayArena => NextLevel {
+                                level: GameLevel::Level(1),
+                                state: player_state,
+                            },
                         };
-                        config.online = false;
                     }
                     MagicCircleDestination::Home => {
-                        *next = NextLevel::Level(0, player_state);
-                        config.online = false;
+                        *next = NextLevel {
+                            level: GameLevel::Level(0),
+                            state: player_state,
+                        };
                     }
                     MagicCircleDestination::MultiplayArena => {
-                        *next = NextLevel::MultiPlayArena(player_state);
-                        config.online = true;
+                        *next = NextLevel {
+                            level: GameLevel::MultiPlayArena,
+                            state: player_state,
+                        };
                     }
                 }
             }

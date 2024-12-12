@@ -4,11 +4,10 @@ use crate::{
     controller::remote::{send_remote_message, RemoteMessage},
     entity::{
         actor::Actor,
-        bullet::{spawn_bullet, BULLET_SPAWNING_MARGIN},
+        bullet::{spawn_bullet, SpawnBullet, BULLET_SPAWNING_MARGIN},
         life::Life,
         witch::WITCH_COLLIDER_RADIUS,
     },
-    firing::Firing,
     spell::SpellType,
     spell_props::{spell_to_props, SpellCast},
 };
@@ -59,7 +58,7 @@ pub fn cast_spell(
                     let bullet_position =
                         actor_transform.translation.truncate() + range * normalized;
 
-                    let firing = Firing {
+                    let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
                         position: bullet_position,
                         velocity: direction
@@ -75,20 +74,15 @@ pub fn cast_spell(
                         light_radius,
                         light_color_hlsa,
                         homing: actor.effects.homing,
+                        group: actor.group,
+                        filter: actor.filter,
                     };
 
-                    spawn_bullet(
-                        commands,
-                        assets.atlas.clone(),
-                        se_writer,
-                        actor.group,
-                        actor.filter,
-                        &firing,
-                    );
+                    spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
                     actor.effects = default();
                     wand.shift();
 
-                    send_remote_message(writer, online, &RemoteMessage::Fire(firing));
+                    send_remote_message(writer, online, &RemoteMessage::Fire(spawn));
 
                     return props.cast_delay as i32;
                 }

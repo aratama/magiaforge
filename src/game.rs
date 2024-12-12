@@ -4,7 +4,7 @@ use crate::camera::*;
 use crate::command::GameCommandPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
-use crate::controller::enemy::EnemyPlugin;
+use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
 use crate::debug::DebugCommandPlugin;
@@ -161,10 +161,10 @@ pub fn run_game() {
         .add_plugins(CommandButtonPlugin)
         .add_plugins(DamagePlugin)
         .add_plugins(DebugCommandPlugin)
+        .add_plugins(DespawnWithGoldPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(EntityPickerPlugin)
-        .add_plugins(EnemyPlugin)
         .add_plugins(EquipmentListPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)

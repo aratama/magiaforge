@@ -1,6 +1,7 @@
 use crate::constant::*;
-use crate::controller::enemy::Enemy;
+use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
+use crate::entity::bullet::HomingTarget;
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
@@ -30,7 +31,7 @@ pub fn spawn_basic_enemy<T: Component>(
         .spawn((
             Name::new(name.to_string()),
             StateScoped(GameState::InGame),
-            Enemy { gold },
+            DespawnWithGold { gold },
             marker,
             Actor {
                 uuid: Uuid::new_v4(),
@@ -62,6 +63,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 max_life: 15,
                 amplitude: 0.0,
             },
+            HomingTarget,
             Transform::from_translation(position.extend(5.0)),
             GlobalTransform::default(),
             InheritedVisibility::default(),

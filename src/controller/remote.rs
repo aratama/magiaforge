@@ -1,11 +1,11 @@
 use crate::constant::*;
 use crate::controller::player::Player;
+use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
-use crate::firing::Firing;
+use crate::level::{CurrentLevel, GameLevel};
 use crate::{
     asset::GameAssets,
     command::GameCommand,
-    config::GameConfig,
     entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
     hud::life_bar::LifeBarResource,
     states::GameState,
@@ -63,7 +63,7 @@ pub enum RemoteMessage {
         intensity: f32,
     },
     // 弾を発射したことを通知します
-    Fire(Firing),
+    Fire(SpawnBullet),
     // ダメージを受けたことを通知します
     Hit {
         sender: Uuid,
@@ -79,11 +79,11 @@ pub enum RemoteMessage {
 fn send_player_states(
     mut writer: EventWriter<ClientMessage>,
     mut query: Query<(&mut Player, &Actor, &Life, &GlobalTransform, &Velocity)>,
-    config: Res<GameConfig>,
     state: Res<WebSocketState>,
     frame_count: Res<FrameCount>,
+    current: Res<CurrentLevel>,
 ) {
-    if config.online && state.ready_state == ReadyState::OPEN {
+    if current.level == Some(GameLevel::MultiPlayArena) && state.ready_state == ReadyState::OPEN {
         if let Ok((mut player, actor, actor_life, transform, velocity)) = query.get_single_mut() {
             if actor_life.life <= 0 {
                 return;
@@ -123,17 +123,13 @@ fn send_player_states(
     }
 }
 
-fn on_enter(config: Res<GameConfig>, mut writer: EventWriter<ClientMessage>) {
-    if config.online {
-        info!("Connecting to {}", WEBSOCKET_URL);
-        writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
-    }
+fn on_enter(mut writer: EventWriter<ClientMessage>) {
+    info!("Connecting to {}", WEBSOCKET_URL);
+    writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
 }
 
-fn on_exit(config: Res<GameConfig>, mut writer: EventWriter<ClientMessage>) {
-    if config.online {
-        writer.send(ClientMessage::Close);
-    }
+fn on_exit(mut writer: EventWriter<ClientMessage>) {
+    writer.send(ClientMessage::Close);
 }
 
 #[allow(dead_code)]
@@ -253,17 +249,8 @@ fn receive_events(
                                 info!("Remote player spawned: {}", uuid);
                             }
                         }
-                        RemoteMessage::Fire(firing) => {
-                            let group = WITCH_BULLET_GROUP;
-                            let filter = WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP;
-                            spawn_bullet(
-                                &mut commands,
-                                assets.atlas.clone(),
-                                &mut writer,
-                                group,
-                                filter,
-                                &firing,
-                            );
+                        RemoteMessage::Fire(spawn) => {
+                            spawn_bullet(&mut commands, assets.atlas.clone(), &mut writer, &spawn);
                         }
                         RemoteMessage::Hit {
                             sender: _sender,

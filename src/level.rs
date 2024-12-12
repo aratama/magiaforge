@@ -47,25 +47,30 @@ use uuid::Uuid;
 use wall::spawn_wall_collisions;
 use wall::WallCollider;
 
-#[derive(Resource, Debug, Clone)]
-pub enum NextLevel {
-    Level(i32, PlayerState),
-    MultiPlayArena(PlayerState),
-}
-
-impl Default for NextLevel {
-    fn default() -> Self {
-        NextLevel::Level(
-            INITIAL_LEVEL,
-            PlayerState::from_config(&GameConfig::default()),
-        )
-    }
-}
-
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum GameLevel {
     Level(i32),
     MultiPlayArena,
+}
+
+#[derive(Resource, Debug, Clone, Default)]
+pub struct CurrentLevel {
+    pub level: Option<GameLevel>,
+}
+
+#[derive(Resource, Debug, Clone)]
+pub struct NextLevel {
+    pub level: GameLevel,
+    pub state: PlayerState,
+}
+
+impl Default for NextLevel {
+    fn default() -> Self {
+        NextLevel {
+            level: GameLevel::Level(INITIAL_LEVEL),
+            state: PlayerState::from_config(&GameConfig::default()),
+        }
+    }
 }
 
 /// レベルとプレイヤーキャラクターを生成します
@@ -77,17 +82,15 @@ fn setup_level(
     life_bar_res: Res<LifeBarResource>,
     mut camera: Query<(&mut GameCamera, &mut Transform), With<Camera2d>>,
     next: Res<NextLevel>,
+    mut current: ResMut<CurrentLevel>,
     audio: Res<Audio>,
 ) {
-    let level = match next.clone() {
-        NextLevel::Level(level, _) => GameLevel::Level(level % LEVELS),
-        NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
+    let level = match next.level {
+        GameLevel::Level(level) => GameLevel::Level(level % LEVELS),
+        GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
     };
 
-    let player = match next.clone() {
-        NextLevel::Level(_, player) => player,
-        NextLevel::MultiPlayArena(player) => player,
-    };
+    let player = next.state.clone();
 
     let mut chunk = spawn_level(
         &mut commands,
@@ -151,12 +154,14 @@ fn setup_level(
     commands
         .entity(witch_entity)
         .insert(Footsteps(audio_instance));
+
+    current.level = Some(level);
 }
 
 fn select_level_bgm(next: Res<NextLevel>, mut next_bgm: ResMut<NextBGM>, assets: Res<GameAssets>) {
-    *next_bgm = NextBGM(Some(match *next {
-        NextLevel::Level(0, _) => assets.dokutsu.clone(),
-        NextLevel::Level(3, _) => assets.deamon.clone(),
+    *next_bgm = NextBGM(Some(match next.level {
+        GameLevel::Level(0) => assets.dokutsu.clone(),
+        GameLevel::Level(3) => assets.deamon.clone(),
         _ => assets.arechi.clone(),
     }));
 }
@@ -473,6 +478,7 @@ impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
+        app.init_resource::<CurrentLevel>();
         app.init_resource::<NextLevel>();
     }
 }

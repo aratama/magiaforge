@@ -1,19 +1,15 @@
-use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
-use bevy_rapier2d::prelude::*;
-
+use crate::entity::life::Life;
 use crate::{
     asset::GameAssets,
     camera::GameCamera,
     command::GameCommand,
     constant::{ENEMY_GROUP, ENTITY_GROUP, PAINT_LAYER_Z, WITCH_GROUP},
-    controller::player::Player,
-    enemy::huge_slime::{HugeSlime, HugeSlimeSprite},
     entity::damege::spawn_damage_number,
     states::GameState,
 };
-
-use super::life::Life;
+use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 struct Impact {
@@ -22,84 +18,82 @@ struct Impact {
 
 /// 一定の範囲にダメージと吹き飛ばし効果を与える衝撃波です
 /// 1フレームだけ当たり判定があり、すぐに消えます
-pub fn spawn_impact(
-    mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    player_query: &mut Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
-    life_query: &mut Query<
-        (&mut Life, &Transform, Option<&mut ExternalImpulse>),
-        (
-            Without<GameCamera>,
-            Without<HugeSlimeSprite>,
-            Without<HugeSlime>,
-            Without<Player>,
-        ),
-    >,
-    rapier_context: &Query<&RapierContext, With<DefaultRapierContext>>,
-    writer: &mut EventWriter<GameCommand>,
-    position: Vec2,
-    radius: f32,
-    impulse: f32,
+#[derive(Event)]
+pub struct SpawnImpact {
+    pub owner: Entity,
+    pub position: Vec2,
+    pub radius: f32,
+    pub impulse: f32,
+}
+
+fn read_impact_event(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    mut writer: EventWriter<GameCommand>,
+    mut reader: EventReader<SpawnImpact>,
+    mut life_query: Query<(&mut Life, &Transform, Option<&mut ExternalImpulse>)>,
+    mut camera_query: Query<(&mut GameCamera, &Transform), Without<Life>>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
-    let mut entities: Vec<Entity> = Vec::new();
-
-    context.intersections_with_shape(
+    for SpawnImpact {
+        owner,
         position,
-        0.0,
-        &Collider::ball(radius),
-        QueryFilter {
-            groups: Some(CollisionGroups::new(
-                ENEMY_GROUP,
-                WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP,
-            )),
-            ..default()
-        },
-        |entity| {
-            entities.push(entity);
-            true // 交差図形の検索を続ける
-        },
-    );
+        radius,
+        impulse,
+    } in reader.read()
+    {
+        writer.send(GameCommand::SEDrop(Some(*position)));
+        let (mut camera, camera_transform) = camera_query.single_mut();
+        let distance = camera_transform.translation.truncate().distance(*position);
+        let max_range = 320.0; // 振動が起きる最大距離
+        camera.vibration = (20.0 * (max_range - distance).max(0.0) / max_range).min(10.0);
 
-    info!("lifes {:?}", life_query.iter().count());
+        let mut entities: Vec<Entity> = Vec::new();
 
-    for entity in entities {
-        if let Ok((mut life, life_transform, mut external_impulse)) = player_query.get_mut(entity) {
-            info!("hit player {:?}", life.life);
+        context.intersections_with_shape(
+            *position,
+            0.0,
+            &Collider::ball(*radius),
+            QueryFilter {
+                groups: Some(CollisionGroups::new(
+                    ENEMY_GROUP,
+                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP,
+                )),
+                ..default()
+            },
+            |entity| {
+                if entity != *owner {
+                    entities.push(entity);
+                }
+                true // 交差図形の検索を続ける
+            },
+        );
 
-            let damage = 10;
-            let p = life_transform.translation.truncate();
-            life.life = (life.life - damage).max(0);
-            spawn_damage_number(&mut commands, 10, p);
-            writer.send(GameCommand::SEDamage(Some(p)));
-            external_impulse.impulse = (p - position).normalize() * impulse;
-        } else if let Ok((mut life, life_transform, mut external_impulse)) =
-            life_query.get_mut(entity)
-        {
-            info!("hit something {:?}", life.life);
-
-            let damage = 10;
-            let p = life_transform.translation.truncate();
-            life.life = (life.life - damage).max(0);
-            spawn_damage_number(&mut commands, 10, p);
-            writer.send(GameCommand::SEDamage(Some(p)));
-            if let Some(ref mut ex) = external_impulse {
-                ex.impulse = (p - position).normalize() * impulse;
+        for entity in entities {
+            if let Ok((mut life, life_transform, mut external_impulse)) = life_query.get_mut(entity)
+            {
+                let damage = 10;
+                let p = life_transform.translation.truncate();
+                life.life = (life.life - damage).max(0);
+                spawn_damage_number(&mut commands, 10, p);
+                writer.send(GameCommand::SEDamage(Some(p)));
+                if let Some(ref mut ex) = external_impulse {
+                    ex.impulse = (p - position).normalize_or_zero() * impulse;
+                }
             }
-        } else {
-            warn!("HugeSlime hits {:?} but not found life", entity);
         }
-    }
 
-    commands.spawn((
-        Impact { lifetime: 60 },
-        AseSpriteAnimation {
-            aseprite: assets.impact.clone(),
-            animation: "idle".into(),
-        },
-        Transform::from_translation(position.extend(PAINT_LAYER_Z)),
-    ));
+        commands.spawn((
+            Impact { lifetime: 60 },
+            AseSpriteAnimation {
+                aseprite: assets.impact.clone(),
+                animation: "idle".into(),
+            },
+            Transform::from_translation(position.extend(PAINT_LAYER_Z)),
+        ));
+    }
 }
 
 fn update_impact(mut commands: Commands, mut query: Query<(Entity, &mut Impact)>) {
@@ -115,9 +109,11 @@ pub struct ImpactPlugin;
 
 impl Plugin for ImpactPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<SpawnImpact>();
+
         app.add_systems(
             FixedUpdate,
-            update_impact
+            (read_impact_event, update_impact)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

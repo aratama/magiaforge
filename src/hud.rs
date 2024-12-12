@@ -93,9 +93,9 @@ fn setup_hud(
 
                     // 右下
 
-                    let level: GameLevel = match *next {
-                        NextLevel::Level(i, _) => GameLevel::Level(i),
-                        NextLevel::MultiPlayArena(_) => GameLevel::MultiPlayArena,
+                    let level: GameLevel = match next.level {
+                        GameLevel::Level(i) => GameLevel::Level(i),
+                        GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
                     };
                     let name = level_to_name(level).get(config.language).to_string();
 

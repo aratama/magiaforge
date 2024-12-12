@@ -1,11 +1,9 @@
-use crate::controller::enemy::Enemy;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::damege::spawn_damage_number;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
-use crate::firing::Firing;
 use crate::level::wall::WallCollider;
 use crate::states::GameState;
 use crate::{command::GameCommand, entity::bullet_particle::spawn_particle_system};
@@ -13,6 +11,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AseSpriteSlice, Aseprite};
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
 
@@ -42,6 +41,33 @@ pub struct BulletBundle {
     transform: Transform,
 }
 
+#[derive(Component, Reflect)]
+pub struct HomingTarget;
+
+/// 生成される弾丸の大半の情報を収めた構造体です
+/// 実際に弾丸を生成する spawn_bullet 関数のパラメータとして使われるほか、
+/// リモートで送信される RemoteMessage::Fire のデータとしても共通で使われることで、
+/// ローカルとリモートの弾丸生成を共通化します
+#[derive(Clone, Debug, Serialize, Deserialize)]
+
+pub struct SpawnBullet {
+    pub sender: Option<Uuid>,
+    pub uuid: Uuid,
+    pub position: Vec2,
+    pub velocity: Vec2,
+    pub bullet_lifetime: u32,
+    pub damage: i32,
+    pub impulse: f32,
+    pub slice: String,
+    pub collier_radius: f32,
+    pub light_intensity: f32,
+    pub light_radius: f32,
+    pub light_color_hlsa: [f32; 4],
+    pub homing: f32,
+    pub group: Group,
+    pub filter: Group,
+}
+
 /// 指定した種類の弾丸を発射します
 /// このとき、アクターへのマナ消費、クールタイムの設定、弾丸の生成、リモート通信などを行います
 /// この関数はすでに発射が確定している場合に呼ばれ、発射条件のチェックは行いません
@@ -53,32 +79,30 @@ pub fn spawn_bullet(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
     writer: &mut EventWriter<GameCommand>,
-    group: Group,
-    filter: Group,
-    firing: &Firing,
+    spawn: &SpawnBullet,
 ) {
-    writer.send(GameCommand::SEFire(Some(firing.position)));
+    writer.send(GameCommand::SEFire(Some(spawn.position)));
 
     let mut entity = commands.spawn((
         Name::new("bullet"),
         StateScoped(GameState::InGame),
         Bullet {
-            life: firing.bullet_lifetime,
-            damage: firing.damage,
-            impulse: firing.impulse,
-            owner: firing.sender,
-            homing: firing.homing,
+            life: spawn.bullet_lifetime,
+            damage: spawn.damage,
+            impulse: spawn.impulse,
+            owner: spawn.sender,
+            homing: spawn.homing,
         },
         EntityDepth,
-        Transform::from_xyz(firing.position.x, firing.position.y, BULLET_Z)
-            * Transform::from_rotation(Quat::from_rotation_z(firing.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
+        Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
+            * Transform::from_rotation(Quat::from_rotation_z(spawn.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
         AseSpriteSlice {
             aseprite,
-            name: firing.slice.clone().into(),
+            name: spawn.slice.clone().into(),
         },
         (
             // 衝突にはColliderが必要
-            Collider::ball(firing.collier_radius),
+            Collider::ball(spawn.collier_radius),
             // 速度ベースで制御するので KinematicVelocityBased
             // これがないと Velocityを設定しても移動しない
             RigidBody::KinematicVelocityBased,
@@ -92,10 +116,10 @@ pub fn spawn_bullet(
             // 衝突を発生されるには ActiveEvents も必要
             ActiveEvents::COLLISION_EVENTS,
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(group, filter),
+            CollisionGroups::new(spawn.group, spawn.filter),
             //
             Velocity {
-                linvel: firing.velocity,
+                linvel: spawn.velocity,
                 angvel: 0.0,
             },
             GravityScale(0.0),
@@ -104,16 +128,16 @@ pub fn spawn_bullet(
         ),
     ));
 
-    if 0.0 < firing.light_intensity {
+    if 0.0 < spawn.light_intensity {
         entity.insert(PointLight2d {
-            radius: firing.light_radius,
-            intensity: firing.light_intensity,
+            radius: spawn.light_radius,
+            intensity: spawn.light_intensity,
             falloff: 10.0,
             color: Color::hsla(
-                firing.light_color_hlsa[0],
-                firing.light_color_hlsa[1],
-                firing.light_color_hlsa[2],
-                firing.light_color_hlsa[3],
+                spawn.light_color_hlsa[0],
+                spawn.light_color_hlsa[1],
+                spawn.light_color_hlsa[2],
+                spawn.light_color_hlsa[3],
             ),
             ..default()
         });
@@ -135,12 +159,17 @@ fn despawn_bullet_by_lifetime(
 
 fn bullet_homing(
     mut bullet_query: Query<(&mut Bullet, &mut Transform, &mut Velocity)>,
-    enemy_query: Query<&Transform, (With<Enemy>, Without<Bullet>)>,
+    enemy_query: Query<(Option<&Actor>, &Transform), (With<HomingTarget>, Without<Bullet>)>,
 ) {
     for (bullet, mut bullet_transform, mut velocity) in bullet_query.iter_mut() {
         if 0.0 < bullet.homing {
             let bullet_position = bullet_transform.translation.truncate();
-            let mut enemies = Vec::from_iter(enemy_query.iter());
+            let mut enemies = Vec::<Transform>::new();
+            for (enemy, enemy_transform) in enemy_query.iter() {
+                if enemy.map(|e| e.uuid) != bullet.owner {
+                    enemies.push(*enemy_transform);
+                }
+            }
             enemies.sort_by(|a, b| {
                 let x = a.translation.truncate().distance(bullet_position);
                 let y = b.translation.truncate().distance(bullet_position);

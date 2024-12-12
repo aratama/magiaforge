@@ -60,18 +60,10 @@ fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<G
     writer.send(GameCommand::SEClick(None));
 }
 
-fn exit(
-    mut writer: EventWriter<GameCommand>,
-    mut config: ResMut<GameConfig>,
-    mut websocket: EventWriter<ClientMessage>,
-) {
+fn exit(mut writer: EventWriter<GameCommand>, mut websocket: EventWriter<ClientMessage>) {
     writer.send(GameCommand::StateMainMenu);
     writer.send(GameCommand::SEClick(None));
-
-    if config.online {
-        websocket.send(ClientMessage::Close);
-        config.online = false;
-    }
+    websocket.send(ClientMessage::Close);
 }
 
 fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<GameCommand>) {

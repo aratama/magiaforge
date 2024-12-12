@@ -100,7 +100,7 @@ features = ["console", "Window", "Storage"]
 version = "0.27.0"
 git = "https://github.com/Vrixyz/bevy_rapier"
 branch = "master-bevy_0.15"
-features = ["debug-render-2d"]
+features = ["debug-render-2d", "serde-serialize"]
 
 [dev-dependencies]
 trunk = "*"

@@ -1,13 +1,13 @@
 use crate::asset::GameAssets;
-use crate::camera::GameCamera;
 use crate::command::GameCommand;
 use crate::constant::*;
-use crate::controller::enemy::Enemy;
+use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::player::Player;
 use crate::curve::jump_curve;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
-use crate::entity::impact::spawn_impact;
+use crate::entity::bullet::HomingTarget;
+use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::LifeBarResource;
@@ -62,12 +62,13 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             Name::new("スライムの王 エミルス"),
             StateScoped(GameState::InGame),
             Boss,
-            Enemy { gold: 50 },
+            DespawnWithGold { gold: 50 },
             Life {
                 life: 1200,
                 max_life: 1200,
                 amplitude: 0.0,
             },
+            HomingTarget,
             HugeSlime {
                 up_velocity: 0.0,
                 state: HugeSlimeState::Growl { animation: 0 },
@@ -135,73 +136,41 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 }
 
 fn update_huge_slime(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
-    mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut ExternalForce), Without<Player>>,
-    mut huge_slime_sprite_query: Query<
+    player_query: Query<&Transform, With<Player>>,
+    mut slime_query: Query<(&mut HugeSlime, &Transform, &mut ExternalForce), Without<Player>>,
+    mut sprite_query: Query<
         (&Parent, &mut Transform),
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
     >,
-    mut camera_query: Query<
-        (&mut GameCamera, &Transform),
-        (
-            Without<HugeSlimeSprite>,
-            Without<HugeSlime>,
-            Without<Player>,
-        ),
-    >,
-    mut life_query: Query<
-        (&mut Life, &Transform, Option<&mut ExternalImpulse>),
-        (
-            Without<GameCamera>,
-            Without<HugeSlimeSprite>,
-            Without<HugeSlime>,
-            Without<Player>,
-        ),
-    >,
-    mut se_writer: EventWriter<GameCommand>,
-    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    mut impact_writer: EventWriter<SpawnImpact>,
 ) {
     const GRAVITY: f32 = 0.2;
-    for (parent, mut offset) in huge_slime_sprite_query.iter_mut() {
-        let (mut huge_slime, transform, mut force) = huge_slime_query.get_mut(**parent).unwrap();
+    for (parent, mut offset) in sprite_query.iter_mut() {
+        let (mut huge_slime, transform, mut force) = slime_query.get_mut(**parent).unwrap();
         huge_slime.up_velocity -= GRAVITY;
         let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
 
+        force.force = Vec2::ZERO;
+
         // プレイヤーがいる場合はジャンプしながら接近
-        if let Ok((_, player_transform, _)) = player_query.get_single() {
+        if let Ok(player_transform) = player_query.get_single() {
             // 空中にいる場合は移動の外力が働く
-            if offset.translation.y == 0.0 {
-                force.force = Vec2::ZERO;
-            } else {
+            if 0.0 < offset.translation.y {
                 let direction = (player_transform.translation - transform.translation)
                     .normalize()
                     .truncate();
                 force.force = direction * 4000000.0;
             };
-        } else {
-            force.force = Vec2::ZERO;
         }
 
         // 着地判定
         if 0.0 < offset.translation.y && next == 0.0 {
-            se_writer.send(GameCommand::SEDrop(Some(transform.translation.truncate())));
-            let (mut camera, camera_transform) = camera_query.single_mut();
-            let distance = camera_transform.translation.distance(transform.translation);
-            let max_range = 320.0; // 振動が起きる最大距離
-            camera.vibration = (20.0 * (max_range - distance).max(0.0) / max_range).min(10.0);
-            spawn_impact(
-                &mut commands,
-                &assets,
-                &mut player_query,
-                &mut life_query,
-                &rapier_context,
-                &mut se_writer,
-                transform.translation.truncate(),
-                HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
-                30000.0,
-            );
+            impact_writer.send(SpawnImpact {
+                owner: parent.get(),
+                position: transform.translation.truncate(),
+                radius: HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
+                impulse: 30000.0,
+            });
         }
 
         offset.translation.y = next;
@@ -328,8 +297,7 @@ fn update_huge_slime_summon(
 
             if 120 <= *animation {
                 *animation = 0;
-                huge_slime.state = HugeSlimeState::Growl { animation: 0 };
-                info!("huge_slime growl");
+                huge_slime.state = HugeSlimeState::Approach { animation: 0 };
             }
         }
     }

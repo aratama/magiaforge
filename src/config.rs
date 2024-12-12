@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Resource, Clone, Debug, Serialize, Deserialize)]
 pub struct GameConfig {
-    pub online: bool,
     pub bgm_volume: f32,
     pub se_volume: f32,
     pub player_name: String,
@@ -16,7 +15,6 @@ pub struct GameConfig {
 impl Default for GameConfig {
     fn default() -> Self {
         Self {
-            online: false,
             bgm_volume: DEFAULT_BGM_VOLUME,
             se_volume: DEFAULT_SE_VOLUME,
             player_name: "".to_string(),

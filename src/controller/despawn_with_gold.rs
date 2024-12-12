@@ -7,7 +7,7 @@ use bevy_rapier2d::prelude::*;
 
 /// 攻撃されてライフがゼロになったら金塊を残して消滅するアクターを表します
 #[derive(Component)]
-pub struct Enemy {
+pub struct DespawnWithGold {
     pub gold: u32,
 }
 
@@ -17,7 +17,7 @@ pub struct Enemy {
 fn dead_enemy(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut query: Query<(Entity, &Enemy, &Life, &Transform)>,
+    mut query: Query<(Entity, &DespawnWithGold, &Life, &Transform)>,
     mut writer: EventWriter<GameCommand>,
 ) {
     for (entity, enemy, enemy_life, transform) in query.iter_mut() {
@@ -37,9 +37,9 @@ fn dead_enemy(
     }
 }
 
-pub struct EnemyPlugin;
+pub struct DespawnWithGoldPlugin;
 
-impl Plugin for EnemyPlugin {
+impl Plugin for DespawnWithGoldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,

@@ -15,7 +15,6 @@ mod debug;
 mod enemy;
 mod entity;
 mod equipment;
-mod firing;
 mod footsteps;
 mod game;
 mod hud;

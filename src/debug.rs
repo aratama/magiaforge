@@ -8,7 +8,10 @@ use bevy::{
 use bevy_rapier2d::plugin::PhysicsSet;
 
 use crate::{
-    config::GameConfig, hud::overlay::OverlayEvent, level::NextLevel, player_state::PlayerState,
+    config::GameConfig,
+    hud::overlay::OverlayEvent,
+    level::{GameLevel, NextLevel},
+    player_state::PlayerState,
     states::GameState,
 };
 
@@ -33,23 +36,30 @@ fn process_debug_command(
 
     if local.ends_with("next") {
         local.clear();
-        *level = match level.as_ref() {
-            NextLevel::Level(n, p) => NextLevel::Level(n + 1, p.clone()),
-            NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
+        let next = level.as_ref();
+        *level = match next.level {
+            GameLevel::Level(n) => NextLevel {
+                level: GameLevel::Level(n + 1),
+                state: next.state.clone(),
+            },
+            GameLevel::MultiPlayArena => NextLevel {
+                level: GameLevel::Level(0),
+                state: PlayerState::from_config(&config),
+            },
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("home") {
         local.clear();
-        *level = match level.as_ref() {
-            NextLevel::Level(_, p) => NextLevel::Level(0, p.clone()),
-            NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
+        *level = NextLevel {
+            level: GameLevel::Level(0),
+            state: PlayerState::from_config(&config),
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("boss") {
         local.clear();
-        *level = match level.as_ref() {
-            NextLevel::Level(_, p) => NextLevel::Level(3, p.clone()),
-            NextLevel::MultiPlayArena(_) => NextLevel::Level(0, PlayerState::from_config(&config)),
+        *level = NextLevel {
+            level: GameLevel::Level(3),
+            state: PlayerState::from_config(&config),
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
     }
