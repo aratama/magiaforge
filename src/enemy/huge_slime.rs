@@ -30,13 +30,16 @@ pub struct Boss;
 pub struct HugeSlime {
     up_velocity: f32,
     state: HugeSlimeState,
+    animation: u32,
+    promoted: bool,
 }
 
 #[derive(Clone)]
 pub enum HugeSlimeState {
-    Growl { animation: u32 },
-    Approach { animation: u32 },
-    Summon { animation: u32 },
+    Growl,
+    Approach,
+    Summon,
+    Promote,
 }
 
 #[derive(Component)]
@@ -71,7 +74,9 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             HomingTarget,
             HugeSlime {
                 up_velocity: 0.0,
-                state: HugeSlimeState::Growl { animation: 0 },
+                state: HugeSlimeState::Growl,
+                animation: 0,
+                promoted: false,
             },
             Actor {
                 uuid: Uuid::new_v4(),
@@ -146,7 +151,7 @@ fn update_huge_slime(
 ) {
     const GRAVITY: f32 = 0.2;
     for (parent, mut offset) in sprite_query.iter_mut() {
-        let (mut huge_slime, transform, mut actor) = slime_query.get_mut(**parent).unwrap();
+        let (mut huge_slime, transform, mut actor) = slime_query.get_mut(parent.get()).unwrap();
         huge_slime.up_velocity -= GRAVITY;
         let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
 
@@ -180,6 +185,8 @@ fn update_huge_slime(
         }
 
         offset.translation.y = next;
+
+        huge_slime.animation += 1;
     }
 }
 
@@ -189,15 +196,13 @@ fn update_huge_slime_growl(
     mut se_writer: EventWriter<SECommand>,
 ) {
     for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
-        if let HugeSlimeState::Growl { ref mut animation } = huge_slime.state {
-            *animation += 1;
-            if *animation == 120 {
+        let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
+        if let HugeSlimeState::Growl = huge_slime.state {
+            if huge_slime.animation == 120 {
                 se_writer.send(SECommand::pos(SE::Growl, transform.translation.truncate()));
-            }
-            if 300 <= *animation {
-                *animation = 0;
-                huge_slime.state = HugeSlimeState::Approach { animation: 0 };
+            } else if 300 <= huge_slime.animation {
+                huge_slime.state = HugeSlimeState::Approach;
+                huge_slime.animation = 0;
             }
         }
     }
@@ -212,27 +217,23 @@ fn update_huge_slime_approach(
     >,
 ) {
     const JUMP_POWER: f32 = 3.0;
-    const JUMP_TIMESPAN: u32 = 50; // 35
 
     for parent in huge_slime_sprite_query.iter_mut() {
-        let mut huge_slime = huge_slime_query.get_mut(**parent).unwrap();
-
-        if let HugeSlimeState::Approach { ref animation } = huge_slime.state.clone() {
+        let mut huge_slime = huge_slime_query.get_mut(parent.get()).unwrap();
+        let timespan = if huge_slime.promoted { 35 } else { 60 };
+        if let HugeSlimeState::Approach = huge_slime.state.clone() {
             // プレイヤーがいる場合はジャンプしながら接近
             if let Ok(_) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
-                if *animation % JUMP_TIMESPAN == 0 {
+                if huge_slime.animation % timespan == 0 {
                     huge_slime.up_velocity = JUMP_POWER;
                 }
             }
 
             // 6秒ごとに召喚フェイズに移行
-            if *animation == 360 {
-                huge_slime.state = HugeSlimeState::Summon { animation: 0 };
-            } else {
-                huge_slime.state = HugeSlimeState::Approach {
-                    animation: animation + 1,
-                };
+            if huge_slime.animation == 360 {
+                huge_slime.state = HugeSlimeState::Summon;
+                huge_slime.animation = 0;
             }
         }
     }
@@ -249,12 +250,10 @@ fn update_huge_slime_summon(
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
 
-        if let HugeSlimeState::Summon { ref mut animation } = huge_slime.state {
-            *animation += 1;
-
+        if let HugeSlimeState::Summon = huge_slime.state {
             if let Ok(player) = player_query.get_single() {
-                if *animation == 60 {
-                    let slimes = 8;
+                if huge_slime.animation == 60 {
+                    let slimes = if huge_slime.promoted { 8 } else { 4 };
                     for i in 0..slimes {
                         let t = std::f32::consts::PI * 2.0 / slimes as f32; // 等間隔に配置した場合の角度
                         let a = rand::random::<f32>() * 3.0; // 起点は適当にばらけさせる
@@ -298,10 +297,38 @@ fn update_huge_slime_summon(
                 }
             }
 
-            if 120 <= *animation {
-                *animation = 0;
-                huge_slime.state = HugeSlimeState::Approach { animation: 0 };
+            if 120 <= huge_slime.animation {
+                huge_slime.animation = 0;
+                huge_slime.state = HugeSlimeState::Approach;
             }
+        }
+    }
+}
+
+fn update_huge_slime_promote(
+    mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
+    mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
+    mut se_writer: EventWriter<SECommand>,
+) {
+    for parent in sprite_query.iter_mut() {
+        let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
+        if let HugeSlimeState::Promote = huge_slime.state {
+            if huge_slime.animation == 120 {
+                se_writer.send(SECommand::pos(SE::Growl, transform.translation.truncate()));
+            } else if 300 <= huge_slime.animation {
+                huge_slime.state = HugeSlimeState::Approach;
+                huge_slime.animation = 0;
+            }
+        }
+    }
+}
+
+fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life), Without<Player>>) {
+    for (mut huge_slime, life) in huge_slime_query.iter_mut() {
+        if !huge_slime.promoted && life.life < 600 {
+            huge_slime.state = HugeSlimeState::Promote;
+            huge_slime.animation = 0;
+            huge_slime.promoted = true;
         }
     }
 }
@@ -356,6 +383,8 @@ impl Plugin for HugeSlimePlugin {
                 update_huge_slime_growl,
                 update_huge_slime_approach,
                 update_huge_slime_summon,
+                update_huge_slime_promote,
+                promote,
                 update_slime_seed,
                 update_slime_seed_sprite,
             )
