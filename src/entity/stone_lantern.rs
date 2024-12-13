@@ -62,6 +62,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
 
     commands.spawn((
         Name::new("stone lantern light"),
+        StateScoped(GameState::InGame),
         LanternParent(entity),
         Transform::from_translation(Vec3::new(tx, ty, 0.0)),
         PointLight2d {

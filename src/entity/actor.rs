@@ -131,6 +131,7 @@ fn update_actor_light(
             // https://github.com/jgayfer/bevy_light_2d/issues/26
             commands.spawn((
                 Name::new("actor light"),
+                StateScoped(GameState::InGame),
                 ActorLight {
                     owner: actor_entity,
                 },
