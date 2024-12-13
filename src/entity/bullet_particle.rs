@@ -35,6 +35,7 @@ pub fn spawn_particle_system(
         let velocity = Vec2::from_angle(angle) * (0.4 + rand::random::<f32>() * 0.2);
         let lifetime = 15 + rand::random::<usize>() % 10;
         commands.spawn((
+            Name::new("bullet_particle"),
             BulletParticle { velocity, lifetime },
             Mesh2d(resource.shape.clone()),
             MeshMaterial2d(resource.material.clone()),

@@ -18,6 +18,7 @@ struct InteractionSensor {
 
 pub fn spawn_interaction_sensor(builder: &mut ChildBuilder) {
     builder.spawn((
+        Name::new("interaction_sensor"),
         InteractionSensor {
             entities: HashSet::new(),
         },

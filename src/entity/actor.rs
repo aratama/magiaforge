@@ -130,6 +130,7 @@ fn update_actor_light(
             // ライトも描画されず不自然になるため、別で追加する
             // https://github.com/jgayfer/bevy_light_2d/issues/26
             commands.spawn((
+                Name::new("actor light"),
                 ActorLight {
                     owner: actor_entity,
                 },

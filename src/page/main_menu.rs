@@ -42,6 +42,7 @@ fn setup_main_menu(
     *next = NextLevel::default();
 
     commands.spawn((
+        Name::new("main_menu"),
         StateScoped(GameState::MainMenu),
         GlobalZIndex(-1000),
         Transform::from_xyz(0.0, 0.0, 0.0),
@@ -98,6 +99,7 @@ fn setup_main_menu(
     );
 
     commands.spawn((
+        Name::new("witch"),
         WitchAnimation,
         StateScoped(GameState::MainMenu),
         GlobalZIndex(-800),
@@ -115,6 +117,7 @@ fn setup_main_menu(
     ));
 
     commands.spawn((
+        Name::new("title_logo"),
         StateScoped(GameState::MainMenu),
         GlobalZIndex(-700),
         Node {
@@ -131,6 +134,7 @@ fn setup_main_menu(
     ));
 
     commands.spawn((
+        Name::new("click_to_start"),
         StateScoped(GameState::MainMenu),
         GlobalZIndex(-700),
         Node {
@@ -147,8 +151,8 @@ fn setup_main_menu(
     ));
 
     commands.spawn((
-        StateScoped(GameState::MainMenu),
         Name::new("Git Version"),
+        StateScoped(GameState::MainMenu),
         GlobalZIndex(HUD_Z_INDEX),
         Node {
             position_type: PositionType::Absolute,
@@ -176,6 +180,7 @@ fn spawn_cloud<T: Component>(
     z_index: i32,
 ) {
     commands.spawn((
+        Name::new("cloud"),
         marker,
         StateScoped(GameState::MainMenu),
         GlobalZIndex(z_index),

@@ -25,6 +25,7 @@ struct RemotePlayerListItem;
 fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
     commands
         .spawn((
+            Name::new("player_list_root"),
             PlayerListRoot,
             StateScoped(GameState::InGame),
             Node {

@@ -88,8 +88,8 @@ fn spawn_roof_tile(
     let y = (TILE_SIZE * -y as f32) + TILE_HALF * -dy as f32 + WALL_HEIGHT;
     let z = get_entity_z(y - WALL_HEIGHT);
     commands.spawn((
-        WorldTile,
         Name::new("ceil"),
+        WorldTile,
         StateScoped(GameState::InGame),
         Transform::from_xyz(x, y, z),
         AseSpriteSlice {

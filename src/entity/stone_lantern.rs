@@ -61,6 +61,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
         });
 
     commands.spawn((
+        Name::new("stone lantern light"),
         LanternParent(entity),
         Transform::from_translation(Vec3::new(tx, ty, 0.0)),
         PointLight2d {
@@ -96,10 +97,7 @@ fn break_stone_lantern(
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SECommand::pos(
-                SE::Break,
-                transform.translation.truncate(),
-            ));
+            writer.send(SECommand::pos(SE::Break, transform.translation.truncate()));
         }
     }
 }

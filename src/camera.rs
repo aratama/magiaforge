@@ -26,6 +26,7 @@ fn setup_camera(mut commands: Commands) {
     projection.scale = 2.0_f32.powf(initial_scale_factor);
 
     commands.spawn((
+        Name::new("default camera"),
         camera,
         projection,
         GameCamera {

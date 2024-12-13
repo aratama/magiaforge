@@ -57,6 +57,7 @@ fn setup(
 ) {
     commands
         .spawn((
+            Name::new("name_input"),
             StateScoped(GameState::NameInput),
             Node {
                 width: Val::Percent(100.0),

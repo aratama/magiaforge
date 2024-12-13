@@ -64,18 +64,19 @@ use bevy::window::WindowMode;
 use bevy::window::{CursorOptions, EnabledButtons};
 use bevy_aseprite_ultra::AsepriteUltraPlugin;
 use bevy_asset_loader::prelude::*;
-#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
-use bevy_embedded_assets::EmbeddedAssetPlugin;
-#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
-use bevy_embedded_assets::PluginMode;
 use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
-#[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
-use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
 use wall::WallPlugin;
+
+#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
+use bevy_embedded_assets::EmbeddedAssetPlugin;
+#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
+use bevy_embedded_assets::PluginMode;
+#[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+use bevy_pkv::PkvStore;
 
 #[cfg(feature = "debug")]
 use bevy::diagnostic::EntityCountDiagnosticsPlugin;
@@ -84,7 +85,7 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 #[cfg(feature = "debug")]
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_remote_inspector::RemoteInspectorPlugins;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -234,7 +235,7 @@ pub fn run_game() {
     app.add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(EntityCountDiagnosticsPlugin)
         .add_plugins(SystemInformationDiagnosticsPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(RemoteInspectorPlugins)
         .add_plugins(RapierDebugRenderPlugin {
             enabled: true,
             mode: DebugRenderMode::COLLIDER_SHAPES,
@@ -246,6 +247,7 @@ pub fn run_game() {
 
 fn setup_rapier_context(mut commands: Commands) {
     commands.spawn((
+        Name::new("default rapier context"),
         DefaultRapierContext,
         RapierContext::default(),
         RapierConfiguration {

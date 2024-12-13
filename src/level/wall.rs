@@ -2,7 +2,7 @@ use crate::level::{
     map::LevelTileMap, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE,
     WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
 };
-use crate::{states::GameState, level::Tile};
+use crate::{level::Tile, states::GameState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
     CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
@@ -99,8 +99,8 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelTileMap) {
         let x = rect.min.x as f32 * TILE_SIZE + w;
         let y = rect.min.y as f32 * -TILE_SIZE - h;
         commands.spawn((
-            WallCollider,
             Name::new("wall collider"),
+            WallCollider,
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
             GlobalTransform::default(),

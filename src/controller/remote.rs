@@ -263,8 +263,13 @@ fn receive_events(
                                 info!("Remote player spawned: {}", uuid);
                             }
                         }
-                        RemoteMessage::Fire(spawn) => {
-                            spawn_bullet(&mut commands, assets.atlas.clone(), &mut writer, &spawn);
+                        RemoteMessage::Fire(spawning) => {
+                            spawn_bullet(
+                                &mut commands,
+                                assets.atlas.clone(),
+                                &mut writer,
+                                &spawning,
+                            );
                         }
                         RemoteMessage::Hit {
                             sender: _sender,

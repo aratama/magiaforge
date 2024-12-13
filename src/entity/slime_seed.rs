@@ -34,6 +34,7 @@ pub fn spawn_slime_seed(
     for SpawnSlimeSeed { from, to } in reader.read() {
         commands
             .spawn((
+                Name::new("slime_seed"),
                 StateScoped(GameState::InGame),
                 SlimeSeed {
                     animation: 0,

@@ -87,6 +87,7 @@ fn read_impact_event(
         }
 
         commands.spawn((
+            Name::new("impact"),
             Impact { lifetime: 60 },
             AseSpriteAnimation {
                 aseprite: assets.impact.clone(),

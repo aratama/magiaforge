@@ -25,6 +25,7 @@ pub struct BossNameText;
 pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder) {
     parent
         .spawn((
+            Name::new("boss_hitpoint_bar"),
             BossHitpointBar,
             Node {
                 position_type: PositionType::Absolute,

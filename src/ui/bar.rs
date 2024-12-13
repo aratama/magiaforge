@@ -30,6 +30,7 @@ pub fn spawn_status_bar<T: Component>(
 ) {
     parent
         .spawn((
+            Name::new("status_bar"),
             marker,
             StatusBar { value, max_value },
             Node {

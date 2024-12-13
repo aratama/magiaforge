@@ -10,6 +10,7 @@ struct Pointer;
 
 fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
     commands.spawn((
+        Name::new("pointer"),
         Pointer,
         GlobalZIndex(POINTER_Z_INDEX),
         AseUiSlice {

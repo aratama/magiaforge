@@ -34,10 +34,10 @@ default = []
 bevy_aseprite_ultra = "0.4.1"
 bevy_asset_loader = "0.22.0"
 bevy_embedded_assets = "0.12.0"
-bevy-inspector-egui = "0.28.0"
 bevy_kira_audio = { version = "0.21.0", features = ["ogg"] }
 bevy_light_2d = "0.5.0"
 bevy_pkv = "0.12.0"
+bevy_remote_inspector = "0.1.0"
 bevy_simple_text_input = "0.10.0"
 bevy_simple_websocket = { version = "0.3.0", git = "https://github.com/aratama/bevy_simple_websocket" }
 bincode = "1.3.3"
@@ -46,6 +46,7 @@ rand = "0.8.5"
 serde = "1.0.210"
 serde_json = "1.0.128"
 uuid = "1.11.0"
+
 
 [dependencies.bevy]
 version = "0.15.0"

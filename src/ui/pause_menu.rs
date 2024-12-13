@@ -134,9 +134,9 @@ fn setup_game_menu(
 ) {
     commands
         .spawn((
+            Name::new("Pause Menu"),
             PauseMenuRoot,
             StateScoped(GameState::InGame),
-            Name::new("Pause Menu"),
             BackgroundColor(Color::hsla(0.0, 0.0, 0.05, 1.0)),
             GlobalZIndex(GAME_MENU_Z_INDEX),
             Visibility::Hidden,

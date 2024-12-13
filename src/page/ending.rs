@@ -29,6 +29,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm: ResMut<N
     next_bgm.0 = Some(assets.ending_bgm.clone());
 
     commands.spawn((
+        Name::new("ending"),
         EndingImage,
         StateScoped(GameState::Ending),
         AseUiAnimation {

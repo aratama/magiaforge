@@ -400,6 +400,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             }
             GameEntity::Usage => {
                 commands.spawn((
+                    Name::new("usage"),
                     Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
                     Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),
@@ -413,6 +414,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             }
             GameEntity::Routes => {
                 commands.spawn((
+                    Name::new("routes"),
                     Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
                     Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),
