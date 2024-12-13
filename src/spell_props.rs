@@ -32,7 +32,8 @@ pub enum SpellCast {
         amount: u32,
     },
     Homing,
-    HeavyShot
+    HeavyShot,
+    SummonSlime
 }
 
 /// 呪文の基礎情報
@@ -212,6 +213,17 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
             icon: "spell_heavy_shot",
             cast: SpellCast::HeavyShot,
         },
+        SpellType::SummonSlime => SpellProps {
+            name: Dict {
+                ja: "スライム召喚",
+                en: "Summon Slime",
+            },
+            description: Dict { ja: "狙った位置にスライムを召喚します。",
+            en: "Summons a slime" },
+            cast_delay: 60,
+            icon: "slime_seed",
+            cast: SpellCast::SummonSlime,
+        },
     }
 }
 
@@ -287,5 +299,6 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::MultipleCast { amount: _ } => format!(""),
         SpellCast::Homing => format!(""),
         SpellCast::HeavyShot => format!("威力: +5"),
+        SpellCast::SummonSlime => format!(""),
     }
 }

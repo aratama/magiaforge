@@ -10,6 +10,7 @@ pub mod gold;
 pub mod impact;
 pub mod life;
 pub mod magic_circle;
+pub mod slime_seed;
 pub mod stone_lantern;
 pub mod witch;
 

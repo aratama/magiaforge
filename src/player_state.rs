@@ -44,6 +44,7 @@ impl PlayerState {
         inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
         inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
         inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
+        inventory.insert(InventoryItem::Spell(SpellType::SummonSlime));
         inventory.sort();
 
         let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];

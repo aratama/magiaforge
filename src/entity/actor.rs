@@ -13,6 +13,7 @@ use std::f32::consts::PI;
 use uuid::Uuid;
 
 use super::life::Life;
+use super::slime_seed::SpawnSlimeSeed;
 
 #[derive(Clone, Copy, Default)]
 pub struct CastEffects {
@@ -162,6 +163,7 @@ fn fire_bullet(
     mut writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SECommand>,
     websocket: Res<WebSocketState>,
+    mut slime_writer: EventWriter<SpawnSlimeSeed>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
@@ -181,6 +183,7 @@ fn fire_bullet(
                     &mut actor_life,
                     &actor_transform,
                     online,
+                    &mut slime_writer,
                 );
 
                 actor.spell_delay += delay.max(1);

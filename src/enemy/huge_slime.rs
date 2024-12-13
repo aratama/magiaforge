@@ -1,14 +1,12 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::curve::jump_curve;
-use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::{Actor, ActorFireState, ActorState};
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
+use crate::entity::slime_seed::SpawnSlimeSeed;
 use crate::entity::EntityDepth;
-use crate::hud::life_bar::LifeBarResource;
 use crate::page::ending::DespawnAndGoEnding;
 use crate::se::{SECommand, SE};
 use crate::spell::SpellType;
@@ -44,17 +42,6 @@ pub enum HugeSlimeState {
 
 #[derive(Component)]
 pub struct HugeSlimeSprite;
-
-#[derive(Component)]
-pub struct SlimeSeed {
-    animation: u32,
-    from: Vec2,
-    to: Vec2,
-    speed: u32,
-}
-
-#[derive(Component)]
-pub struct SlimeSeedSprite;
 
 pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
@@ -240,12 +227,11 @@ fn update_huge_slime_approach(
 }
 
 fn update_huge_slime_summon(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
     player_query: Query<&Transform, With<Player>>,
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SECommand>,
+    mut seed_writer: EventWriter<SpawnSlimeSeed>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
@@ -268,28 +254,10 @@ fn update_huge_slime_summon(
                             && to.y < -65.0 * TILE_SIZE
                             && -126.0 * TILE_SIZE < to.y
                         {
-                            commands
-                                .spawn((
-                                    StateScoped(GameState::InGame),
-                                    SlimeSeed {
-                                        animation: 0,
-                                        from: transform.translation.truncate(),
-                                        to,
-                                        speed: 60 + rand::random::<u32>() % 30,
-                                    },
-                                    AseSpriteSlice {
-                                        aseprite: assets.atlas.clone(),
-                                        name: "slime_shadow".into(),
-                                    },
-                                    Transform::from_translation(transform.translation),
-                                ))
-                                .with_child((
-                                    SlimeSeedSprite,
-                                    AseSpriteAnimation {
-                                        aseprite: assets.slime.clone(),
-                                        animation: Animation::default().with_tag("idle"),
-                                    },
-                                ));
+                            seed_writer.send(SpawnSlimeSeed {
+                                from: transform.translation.truncate(),
+                                to,
+                            });
                         }
                     }
 
@@ -333,45 +301,6 @@ fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life), Without<Player>>
     }
 }
 
-fn update_slime_seed(
-    mut commands: Commands,
-    mut query: Query<(Entity, &mut SlimeSeed, &mut Transform)>,
-    assets: Res<GameAssets>,
-    life_bar_locals: Res<LifeBarResource>,
-    mut se_writer: EventWriter<SECommand>,
-) {
-    for (entity, mut seed, mut transform) in query.iter_mut() {
-        seed.animation += 1;
-        transform.translation = seed
-            .from
-            .lerp(seed.to, seed.animation as f32 / seed.speed as f32)
-            .extend(ENTITY_LAYER_Z);
-        if seed.animation == seed.speed {
-            commands.entity(entity).despawn_recursive();
-            spawn_slime(
-                &mut commands,
-                &assets,
-                seed.to,
-                &life_bar_locals,
-                30 + rand::random::<u32>() % 30,
-                0,
-            );
-            se_writer.send(SECommand::pos(SE::Bicha, seed.to));
-        }
-    }
-}
-
-fn update_slime_seed_sprite(
-    parent_query: Query<&SlimeSeed>,
-    mut query: Query<(&Parent, &mut Transform), With<SlimeSeedSprite>>,
-) {
-    for (parent, mut transform) in query.iter_mut() {
-        if let Ok(seed) = parent_query.get(parent.get()) {
-            transform.translation.y = jump_curve(seed.speed as f32, 100.0, seed.animation as f32);
-        }
-    }
-}
-
 pub struct HugeSlimePlugin;
 
 impl Plugin for HugeSlimePlugin {
@@ -385,8 +314,6 @@ impl Plugin for HugeSlimePlugin {
                 update_huge_slime_summon,
                 update_huge_slime_promote,
                 promote,
-                update_slime_seed,
-                update_slime_seed_sprite,
             )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),

@@ -5,6 +5,7 @@ use crate::{
         actor::Actor,
         bullet::{spawn_bullet, SpawnBullet, BULLET_SPAWNING_MARGIN},
         life::Life,
+        slime_seed::SpawnSlimeSeed,
         witch::WITCH_COLLIDER_RADIUS,
     },
     se::{SECommand, SE},
@@ -28,6 +29,7 @@ pub fn cast_spell(
     actor_life: &mut Life,
     actor_transform: &Transform,
     online: bool,
+    slime_writer: &mut EventWriter<SpawnSlimeSeed>,
 ) -> i32 {
     if let Some(ref mut wand) = &mut actor.wands[actor.current_wand] {
         if 0 < actor.spell_delay {
@@ -123,6 +125,7 @@ pub fn cast_spell(
                             actor_life,
                             actor_transform,
                             online,
+                            slime_writer,
                         ));
                     }
                     return delay;
@@ -135,6 +138,14 @@ pub fn cast_spell(
                 SpellCast::HeavyShot => {
                     wand.shift();
                     actor.effects.bullet_damage_buff_amount += 5;
+                    return props.cast_delay as i32;
+                }
+                SpellCast::SummonSlime => {
+                    wand.shift();
+                    slime_writer.send(SpawnSlimeSeed {
+                        from: actor_transform.translation.truncate(),
+                        to: actor_transform.translation.truncate() + actor.pointer,
+                    });
                     return props.cast_delay as i32;
                 }
             }
