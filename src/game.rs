@@ -84,7 +84,7 @@ use bevy::diagnostic::EntityCountDiagnosticsPlugin;
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
-#[cfg(feature = "debug")]
+#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
 use bevy_remote_inspector::RemoteInspectorPlugins;
 
 pub fn run_game() {
@@ -235,12 +235,14 @@ pub fn run_game() {
     app.add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(EntityCountDiagnosticsPlugin)
         .add_plugins(SystemInformationDiagnosticsPlugin)
-        .add_plugins(RemoteInspectorPlugins)
         .add_plugins(RapierDebugRenderPlugin {
             enabled: true,
             mode: DebugRenderMode::COLLIDER_SHAPES,
             ..default()
         });
+
+    #[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
+    app.add_plugins(RemoteInspectorPlugins);
 
     app.run();
 }
