@@ -4,6 +4,7 @@ use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::{Dict, Languages};
 use crate::level::{GameLevel, NextLevel};
+use crate::physics::GamePhysics;
 use crate::se::{SECommand, SE};
 use crate::states::GameMenuState;
 use crate::ui::menu_button::menu_button;
@@ -12,7 +13,7 @@ use crate::{asset::GameAssets, states::GameState};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
-use bevy_rapier2d::plugin::{DefaultRapierContext, PhysicsSet, RapierConfiguration};
+use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_simple_websocket::ClientMessage;
 
 #[derive(Resource)]
@@ -355,24 +356,11 @@ fn handle_escape_key(
     }
 }
 
-fn switch_physics_activation(
-    state: Res<State<GameMenuState>>,
-    mut rapier_query: Query<&mut RapierConfiguration, With<DefaultRapierContext>>,
-) {
+fn switch_physics_activation(state: Res<State<GameMenuState>>, mut physics: ResMut<GamePhysics>) {
     if state.is_changed() {
         match *state.get() {
-            GameMenuState::PauseMenuOpen => {
-                if let Ok(mut rapier) = rapier_query.get_single_mut() {
-                    rapier.physics_pipeline_active = false;
-                    rapier.query_pipeline_active = false;
-                };
-            }
-            _ => {
-                if let Ok(mut rapier) = rapier_query.get_single_mut() {
-                    rapier.physics_pipeline_active = true;
-                    rapier.query_pipeline_active = true;
-                };
-            }
+            GameMenuState::PauseMenuOpen => physics.active = false,
+            _ => physics.active = true,
         }
     }
 }

@@ -37,6 +37,7 @@ use crate::page::ending::EndingPlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
+use crate::physics::GamePhysicsPlugin;
 use crate::se::SECommandPlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
@@ -176,6 +177,7 @@ pub fn run_game() {
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)
         .add_plugins(GamepadPlugin)
+        .add_plugins(GamePhysicsPlugin)
         .add_plugins(GoldPlugin)
         .add_plugins(HoverColorPlugin)
         .add_plugins(HudPlugin)

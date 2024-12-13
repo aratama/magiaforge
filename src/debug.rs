@@ -11,6 +11,7 @@ use crate::{
     config::GameConfig,
     hud::overlay::OverlayEvent,
     level::{GameLevel, NextLevel},
+    physics::GamePhysics,
     player_state::PlayerState,
     states::GameState,
 };
@@ -21,6 +22,7 @@ fn process_debug_command(
     mut level: ResMut<NextLevel>,
     config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
+    mut physics: ResMut<GamePhysics>,
 ) {
     for ev in evr_kbd.read() {
         if ev.state == ButtonState::Released {
@@ -65,6 +67,12 @@ fn process_debug_command(
     } else if local.ends_with("ending") {
         local.clear();
         writer.send(OverlayEvent::Close(GameState::Ending));
+    } else if local.ends_with("pause") {
+        local.clear();
+        physics.active = false;
+    } else if local.ends_with("resume") {
+        local.clear();
+        physics.active = true;
     }
 }
 
