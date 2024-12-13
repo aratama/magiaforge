@@ -1,9 +1,9 @@
 use super::actor::ActorState;
+use super::get_entity_z;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::life::{Life, LifeBeingSprite};
-use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::interaction_sensor::spawn_interaction_sensor;
 use crate::states::GameState;
@@ -64,13 +64,12 @@ pub fn spawn_witch<T: Component>(
         ActorState::default(),
         Witch,
         controller,
-        EntityDepth,
         Life {
             life,
             max_life,
             amplitude: 0.0,
         },
-        Transform::from_translation(position.extend(1.0)),
+        Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),
         InheritedVisibility::default(),
         (
@@ -102,6 +101,14 @@ pub fn spawn_witch<T: Component>(
         if interaction {
             spawn_interaction_sensor(&mut spawn_children);
         }
+
+        spawn_children.spawn((
+            Transform::from_translation(Vec2::new(0.0, -10.0).extend(SHADOW_LAYER_Z)),
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "entity_shadow".into(),
+            },
+        ));
 
         spawn_children.spawn((
             WitchAnimationSprite,
@@ -227,6 +234,22 @@ fn update_witch_animation(
     }
 }
 
+/// 魔女スプライトのZを設定します
+/// X,Y座標は親にあり、Z座標は親のY座標から計算されることに注意します
+/// X,Y座標とZ座標を設定するコンポーネントがそれぞれ異なるため、EntityDepthは使えません
+fn update_witch_z(
+    witch_query: Query<&Transform, With<Witch>>,
+    mut sprite_query: Query<
+        (&Parent, &mut Transform),
+        (With<WitchAnimationSprite>, Without<Witch>),
+    >,
+) {
+    for (parent, mut transform) in sprite_query.iter_mut() {
+        let witch_transform = witch_query.get(parent.get()).unwrap();
+        transform.translation.z = get_entity_z(witch_transform.translation.y);
+    }
+}
+
 fn update_wand(
     actor_query: Query<&Actor>,
     mut query: Query<(&Parent, &mut Transform, &mut AseSpriteSlice), With<WitchWandSprite>>,
@@ -272,7 +295,8 @@ impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_witch_animation, update_wand).run_if(in_state(GameState::InGame)),
+            (update_witch_animation, update_wand, update_witch_z)
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }

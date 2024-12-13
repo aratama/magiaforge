@@ -51,6 +51,8 @@ pub const WALL_HEIGHT: f32 = 8.0;
 /// キャラクターやチェストなどのレイヤー
 pub const ENTITY_LAYER_Z: f32 = 20.0;
 
+pub const SHADOW_LAYER_Z: f32 = 11.0;
+
 /// 魔法陣などのレイヤー
 /// 床タイルよりは常に上だが、キャラクターなどのエンティティよりは下
 pub const PAINT_LAYER_Z: f32 = 10.0;

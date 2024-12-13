@@ -44,9 +44,9 @@ pub fn spawn_slime_seed(
                 },
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
-                    name: "slime_shadow".into(),
+                    name: "entity_shadow".into(),
                 },
-                Transform::from_translation(from.extend(ENTITY_LAYER_Z)),
+                Transform::from_translation(from.extend(SHADOW_LAYER_Z)),
             ))
             .with_child((
                 SlimeSeedSprite,
