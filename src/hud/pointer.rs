@@ -108,8 +108,9 @@ impl Plugin for PointerPlugin {
         app.add_systems(
             Update,
             (update_pointer_image_by_angle,).run_if(
-                in_state(GameState::InGame)
-                    .or(in_state(GameState::MainMenu).or(in_state(GameState::NameInput))),
+                in_state(GameState::InGame).or(in_state(GameState::MainMenu)
+                    .or(in_state(GameState::NameInput))
+                    .or(in_state(GameState::Ending))),
             ),
         );
     }

@@ -99,7 +99,8 @@ impl Plugin for OverlayPlugin {
                     in_state(GameState::InGame)
                         .or(in_state(GameState::MainMenu))
                         .or(in_state(GameState::NameInput))
-                        .or(in_state(GameState::Warp)),
+                        .or(in_state(GameState::Warp))
+                        .or(in_state(GameState::Ending)),
                 ),
             ),
         );

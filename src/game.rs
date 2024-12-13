@@ -32,6 +32,7 @@ use crate::hud::*;
 use crate::input::GamepadPlugin;
 use crate::interaction_sensor::EntityPickerPlugin;
 use crate::level::*;
+use crate::page::ending::EndingPlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::warp::WarpPagePlugin;
@@ -162,6 +163,7 @@ pub fn run_game() {
         .add_plugins(DamagePlugin)
         .add_plugins(DebugCommandPlugin)
         .add_plugins(DespawnWithGoldPlugin)
+        .add_plugins(EndingPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(EntityPickerPlugin)

@@ -28,6 +28,11 @@ pub enum GameState {
     // 名前入力画面
     // 名前入力が完了したらオンラインアリーナのレベルへ移動します
     NameInput,
+
+    // エンディング画面
+    Ending,
+    //
+    // 画面を追加したら OverlayPlugin や update_pointer_image_by_angle にも変更が必要
 }
 
 #[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]

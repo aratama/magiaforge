@@ -27,6 +27,9 @@ pub struct GameAssets {
     #[asset(path = "image/title_cloud2.aseprite")]
     pub title_cloud2: Handle<Aseprite>,
 
+    #[asset(path = "image/ending.aseprite")]
+    pub ending: Handle<Aseprite>,
+
     #[asset(path = "entity/player.aseprite")]
     pub player: Handle<Aseprite>,
 
@@ -122,4 +125,7 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/悪魔との戦闘.ogg")]
     pub deamon: Handle<AudioSource>,
+
+    #[asset(path = "bgm/Tides_of_Adventure.ogg")]
+    pub ending_bgm: Handle<AudioSource>,
 }

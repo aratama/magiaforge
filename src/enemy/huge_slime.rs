@@ -1,6 +1,5 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::player::Player;
 use crate::curve::jump_curve;
 use crate::enemy::slime::spawn_slime;
@@ -10,6 +9,7 @@ use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::LifeBarResource;
+use crate::page::ending::DespawnAndGoEnding;
 use crate::se::{SECommand, SE};
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -62,7 +62,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             Name::new("スライムの王 エミルス"),
             StateScoped(GameState::InGame),
             Boss,
-            DespawnWithGold { gold: 50 },
+            DespawnAndGoEnding,
             Life {
                 life: 1200,
                 max_life: 1200,
@@ -73,7 +73,6 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 up_velocity: 0.0,
                 state: HugeSlimeState::Growl { animation: 0 },
             },
-            // HugeSlime::Summon { animation: 0 },
             Actor {
                 uuid: Uuid::new_v4(),
                 spell_delay: 0,

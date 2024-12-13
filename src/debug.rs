@@ -62,6 +62,9 @@ fn process_debug_command(
             state: PlayerState::from_config(&config),
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
+    } else if local.ends_with("ending") {
+        local.clear();
+        writer.send(OverlayEvent::Close(GameState::Ending));
     }
 }
 
