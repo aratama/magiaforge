@@ -2,7 +2,7 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
-use crate::level::{CurrentLevel, GameLevel};
+use crate::level::{CurrentLevel, GameLevel, NextLevel};
 use crate::se::SE;
 use crate::{
     asset::GameAssets,
@@ -124,13 +124,18 @@ fn send_player_states(
     }
 }
 
-fn on_enter(mut writer: EventWriter<ClientMessage>) {
-    info!("Connecting to {}", WEBSOCKET_URL);
-    writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
+fn on_enter(mut writer: EventWriter<ClientMessage>, next: Res<NextLevel>) {
+    if next.level == GameLevel::MultiPlayArena {
+        info!("Connecting to {}", WEBSOCKET_URL);
+        writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
+    }
 }
 
-fn on_exit(mut writer: EventWriter<ClientMessage>) {
-    writer.send(ClientMessage::Close);
+fn on_exit(mut writer: EventWriter<ClientMessage>, next: Res<NextLevel>) {
+    if next.level != GameLevel::MultiPlayArena {
+        info!("Closing {}", WEBSOCKET_URL);
+        writer.send(ClientMessage::Close);
+    }
 }
 
 #[allow(dead_code)]
