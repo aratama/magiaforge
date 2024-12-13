@@ -124,15 +124,23 @@ fn send_player_states(
     }
 }
 
-fn on_enter(mut writer: EventWriter<ClientMessage>, next: Res<NextLevel>) {
-    if next.level == GameLevel::MultiPlayArena {
+fn on_enter(
+    mut writer: EventWriter<ClientMessage>,
+    current: Res<CurrentLevel>,
+    next: Res<NextLevel>,
+) {
+    if current.level != Some(GameLevel::MultiPlayArena) && next.level == GameLevel::MultiPlayArena {
         info!("Connecting to {}", WEBSOCKET_URL);
         writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
     }
 }
 
-fn on_exit(mut writer: EventWriter<ClientMessage>, next: Res<NextLevel>) {
-    if next.level != GameLevel::MultiPlayArena {
+fn on_exit(
+    mut writer: EventWriter<ClientMessage>,
+    current: Res<CurrentLevel>,
+    next: Res<NextLevel>,
+) {
+    if current.level == Some(GameLevel::MultiPlayArena) && next.level != GameLevel::MultiPlayArena {
         info!("Closing {}", WEBSOCKET_URL);
         writer.send(ClientMessage::Close);
     }

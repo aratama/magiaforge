@@ -19,7 +19,7 @@ const CYPRESS_WAND: WandProps = WandProps {
     },
     slice: "wand_cypress",
     icon: "wand_icon_cypress",
-    capacity: 3,
+    capacity: 8,
 };
 
 const KEY_WAND: WandProps = WandProps {
