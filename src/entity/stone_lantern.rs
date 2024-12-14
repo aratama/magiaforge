@@ -40,10 +40,24 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
             InheritedVisibility::default(),
-            Collider::cuboid(8.0, 8.0),
-            CollisionGroups::new(
-                ENTITY_GROUP,
-                ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+            (
+                RigidBody::Dynamic,
+                Damping {
+                    linear_damping: 20.0,
+                    angular_damping: 0.0,
+                },
+                LockedAxes::ROTATION_LOCKED,
+                Collider::cuboid(8.0, 8.0),
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    ENTITY_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP
+                        | WALL_GROUP,
+                ),
+                ExternalImpulse::default(),
             ),
         ))
         .with_children(|parent| {
@@ -77,14 +91,18 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
 
 fn update_lantern(
     mut commands: Commands,
-    parent_query: Query<Entity, With<StoneLantern>>,
-    mut child_query: Query<(Entity, &LanternParent, &mut PointLight2d)>,
+    parent_query: Query<&Transform, With<StoneLantern>>,
+    mut child_query: Query<
+        (Entity, &LanternParent, &mut PointLight2d, &mut Transform),
+        Without<StoneLantern>,
+    >,
     frame_count: Res<FrameCount>,
 ) {
-    for (entity, child, mut light) in child_query.iter_mut() {
+    for (entity, child, mut light, mut transform) in child_query.iter_mut() {
         light.intensity = 1.0 + ((frame_count.0 as f32 * 0.5).cos()) * 0.1;
-
-        if !parent_query.contains(child.0) {
+        if let Ok(lantern_transform) = parent_query.get(child.0) {
+            transform.translation = lantern_transform.translation;
+        } else {
             commands.entity(entity).despawn_recursive();
         }
     }

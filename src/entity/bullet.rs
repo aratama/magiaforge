@@ -196,7 +196,7 @@ fn bullet_collision(
         (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
         Without<RemotePlayer>,
     >,
-    mut lifebeing_query: Query<&mut Life, Without<Actor>>,
+    mut lifebeing_query: Query<(&mut Life, Option<&mut ExternalImpulse>), Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut writer: EventWriter<SECommand>,
@@ -249,7 +249,7 @@ fn process_bullet_event(
         (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
         Without<RemotePlayer>,
     >,
-    breakabke_query: &mut Query<&mut Life, Without<Actor>>,
+    breakabke_query: &mut Query<(&mut Life, Option<&mut ExternalImpulse>), Without<Actor>>,
     despownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
@@ -281,7 +281,7 @@ fn process_bullet_event(
                     spawn_damage_number(&mut commands, bullet.damage, bullet_position);
                     writer.send(SECommand::pos(SE::Damage, bullet_position));
                 }
-            } else if let Ok(mut breakabke) = breakabke_query.get_mut(*b) {
+            } else if let Ok((mut breakabke, impulse_optional)) = breakabke_query.get_mut(*b) {
                 trace!("bullet hit: {:?}", b);
                 breakabke.life -= bullet.damage;
                 breakabke.amplitude = 2.0;
@@ -290,6 +290,10 @@ fn process_bullet_event(
                 spawn_particle_system(&mut commands, bullet_position, resource);
                 spawn_damage_number(&mut commands, bullet.damage, bullet_position);
                 writer.send(SECommand::pos(SE::Damage, bullet_position));
+
+                if let Some(mut impilse) = impulse_optional {
+                    impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
+                }
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);
                 despownings.insert(bullet_entity.clone());

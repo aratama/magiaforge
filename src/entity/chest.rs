@@ -60,10 +60,24 @@ pub fn spawn_chest(
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
             InheritedVisibility::default(),
-            Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-            CollisionGroups::new(
-                WALL_GROUP,
-                ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+            (
+                RigidBody::Dynamic,
+                LockedAxes::ROTATION_LOCKED,
+                Damping {
+                    linear_damping: 10.0,
+                    angular_damping: 0.0,
+                },
+                Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    ENTITY_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP
+                        | WALL_GROUP,
+                ),
+                ExternalImpulse::default(),
             ),
         ))
         .with_children(move |parent| {
@@ -90,10 +104,7 @@ fn break_chest(
     for (entity, breakabke, transform, chest) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SECommand::pos(
-                SE::Break,
-                transform.translation.truncate(),
-            ));
+            writer.send(SECommand::pos(SE::Break, transform.translation.truncate()));
 
             if chest.chest_type == ChestType::Chest {
                 for _ in 0..(3 + random::<i32>().abs() % 10) {
