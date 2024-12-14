@@ -57,13 +57,14 @@ fn control_slime(
                     continue;
                 }
 
-                let diff = player_transform.translation() - enemy_transform.translation;
+                let diff = (player_transform.translation().truncate()
+                    - enemy_transform.translation.truncate());
                 if diff.length() < ENEMY_ATTACK_RANGE {
                     actor.move_direction = Vec2::ZERO;
-                    actor.pointer = diff.truncate();
+                    actor.pointer = diff;
                     actor.fire_state = ActorFireState::Fire;
                 } else if diff.length() < ENEMY_DETECTION_RANGE {
-                    actor.move_direction = diff.normalize_or_zero().truncate();
+                    actor.move_direction = diff.normalize_or_zero();
                     actor.fire_state = ActorFireState::Idle;
                 } else {
                     actor.move_direction = Vec2::ZERO;
