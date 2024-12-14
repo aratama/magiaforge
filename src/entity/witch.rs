@@ -70,6 +70,9 @@ pub fn spawn_witch<T: Component>(
             max_life,
             amplitude: 0.0,
         },
+        // XとYは親エンティティ側で設定しますが、
+        // キャラクター画像とシャドウでz座標の計算が異なるため、
+        // 親のzは常に0にします
         Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),
         InheritedVisibility::default(),
@@ -252,12 +255,15 @@ fn update_witch_z(
 }
 
 fn update_wand(
-    actor_query: Query<&Actor>,
-    mut query: Query<(&Parent, &mut Transform, &mut AseSpriteSlice), With<WitchWandSprite>>,
+    actor_query: Query<(&Actor, &Transform)>,
+    mut query: Query<
+        (&Parent, &mut Transform, &mut AseSpriteSlice),
+        (With<WitchWandSprite>, Without<Actor>),
+    >,
     assets: Res<GameAssets>,
 ) {
     for (parent, mut transform, mut slice) in query.iter_mut() {
-        if let Ok(actor) = actor_query.get(parent.get()) {
+        if let Ok((actor, actor_transform)) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
             let pi = std::f32::consts::PI;
@@ -271,7 +277,8 @@ fn update_wand(
                     0.0
                 },
                 0.0,
-                -0.01,
+                // 杖と腕は身体の奥に描画するため、 -0.1 でずらしています
+                get_entity_z(actor_transform.translation.y) - 0.1,
             );
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
