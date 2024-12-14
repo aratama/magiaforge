@@ -245,22 +245,12 @@ fn update_huge_slime_summon(
                         let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
                         let offset = Vec2::from_angle(angle) * 100.0; // 100ピクセルの演習場にばらまく
                         let to = player.translation.truncate() + offset;
-
-                        // 放出したスライムが壁の外にはみ出ないように、範囲を限定してます
-                        // level.asepriteの座標と対応させる必要があります
-                        if TILE_SIZE < to.x
-                            && to.x < 63.0 * TILE_SIZE
-                            && to.y < -65.0 * TILE_SIZE
-                            && -126.0 * TILE_SIZE < to.y
-                        {
-                            seed_writer.send(SpawnSlimeSeed {
-                                from: transform.translation.truncate(),
-                                to,
-                                actor_group: ActorGroup::Enemy,
-                            });
-                        }
+                        seed_writer.send(SpawnSlimeSeed {
+                            from: transform.translation.truncate(),
+                            to,
+                            actor_group: ActorGroup::Enemy,
+                        });
                     }
-
                     se_writer.send(SECommand::pos(SE::Puyon, transform.translation.truncate()));
                 }
             }

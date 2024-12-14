@@ -141,7 +141,7 @@ fn update_actor_light(
                 },
                 transform.clone(),
                 PointLight2d {
-                    radius: 300.0,
+                    radius: 320.0,
                     intensity: actor.intensity,
                     falloff: 10.0,
                     ..default()

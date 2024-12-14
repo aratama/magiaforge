@@ -5,7 +5,9 @@ use bevy::{
     prelude::{Image, Resource},
 };
 
-#[derive(Clone, Copy)]
+use super::TILE_SIZE;
+
+#[derive(Clone, Copy, Debug)]
 pub enum Biome {
     /// モンスターがスポーンしないエリア
     SafeZone,
@@ -14,14 +16,14 @@ pub enum Biome {
     Dungeon,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 struct LevelTileMapile {
     tile: Tile,
     biome: Biome,
 }
 
-#[derive(Clone, Resource)]
-pub struct LevelTileMap {
+#[derive(Clone, Resource, Debug)]
+pub struct LevelChunk {
     tiles: Vec<LevelTileMapile>,
     pub min_x: i32,
     pub min_y: i32,
@@ -31,7 +33,7 @@ pub struct LevelTileMap {
     pub entry_points: Vec<Vec2>,
 }
 
-impl LevelTileMap {
+impl LevelChunk {
     pub fn get_tile(&self, x: i32, y: i32) -> Tile {
         if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
             return Tile::Blank;
@@ -39,6 +41,12 @@ impl LevelTileMap {
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
         return self.tiles[i].tile;
+    }
+
+    pub fn get_tile_by_coords(&self, p: Vec2) -> Tile {
+        let x = (p.x / TILE_SIZE as f32).floor() as i32;
+        let y = (-p.y / TILE_SIZE as f32).floor() as i32;
+        self.get_tile(x, y)
     }
 
     pub fn get_biome(&self, x: i32, y: i32) -> Biome {
@@ -82,7 +90,7 @@ pub fn image_to_tilemap(
     max_x: i32,
     min_y: i32,
     max_y: i32,
-) -> LevelTileMap {
+) -> LevelChunk {
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
@@ -209,7 +217,7 @@ pub fn image_to_tilemap(
             }
         }
     }
-    return LevelTileMap {
+    return LevelChunk {
         tiles,
         min_x,
         max_x,
@@ -220,7 +228,7 @@ pub fn image_to_tilemap(
     };
 }
 
-pub fn image_to_spawn_tiles(tilemap: &LevelTileMap) -> Vec<(i32, i32)> {
+pub fn image_to_spawn_tiles(tilemap: &LevelChunk) -> Vec<(i32, i32)> {
     let mut tiles = Vec::new();
     for y in tilemap.min_y..tilemap.max_y {
         for x in tilemap.min_x..tilemap.max_x {

@@ -3,6 +3,8 @@ use crate::constant::*;
 use crate::curve::jump_curve;
 use crate::enemy::slime::spawn_slime;
 use crate::hud::life_bar::LifeBarResource;
+use crate::level::tile::Tile;
+use crate::level::CurrentLevel;
 use crate::se::{SECommand, SE};
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -77,25 +79,35 @@ fn update_slime_seed(
     assets: Res<GameAssets>,
     life_bar_locals: Res<LifeBarResource>,
     mut se_writer: EventWriter<SECommand>,
+    current: Res<CurrentLevel>,
 ) {
     for (entity, mut seed, mut transform) in query.iter_mut() {
         seed.animation += 1;
         transform.translation = seed
             .from
             .lerp(seed.to, seed.animation as f32 / seed.speed as f32)
-            .extend(ENTITY_LAYER_Z);
+            .extend(SLIME_SEED_LAYER_Z);
         if seed.animation == seed.speed {
             commands.entity(entity).despawn_recursive();
-            spawn_slime(
-                &mut commands,
-                &assets,
-                seed.to,
-                &life_bar_locals,
-                30 + rand::random::<u32>() % 30,
-                0,
-                seed.actor_group,
-            );
-            se_writer.send(SECommand::pos(SE::Bicha, seed.to));
+            if let Some(ref chunk) = current.chunk {
+                match chunk.get_tile_by_coords(seed.to) {
+                    Tile::StoneTile => {
+                        spawn_slime(
+                            &mut commands,
+                            &assets,
+                            seed.to,
+                            &life_bar_locals,
+                            30 + rand::random::<u32>() % 30,
+                            0,
+                            seed.actor_group,
+                        );
+                        se_writer.send(SECommand::pos(SE::Bicha, seed.to));
+                    }
+                    tile => {
+                        warn!("SlimeSeed: Hit non-stone tile: {:?}", tile);
+                    }
+                }
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::level::{
-    map::LevelTileMap, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE,
+    map::LevelChunk, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE,
     WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
 };
 use crate::{level::Tile, states::GameState};
@@ -14,7 +14,7 @@ use std::collections::HashMap;
 /// TODO: 本棚などのエンティティもここで一括で生成したほうが効率はいい？
 /// でもエンティティが個別に削除されることも多そうなので、その場合はエンティティは別のほうがいいかも
 /// https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/walls.rs
-pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
+pub fn get_wall_collisions(chunk: &LevelChunk) -> Vec<Rect> {
     /// Represents a wide wall that is 1 tile tall
     /// Used to spawn wall collisions
     #[derive(Clone, Eq, PartialEq, Debug, Default, Hash)]
@@ -91,7 +91,7 @@ pub fn get_wall_collisions(chunk: &LevelTileMap) -> Vec<Rect> {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
 pub struct WallCollider;
 
-pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelTileMap) {
+pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
     // 衝突形状の生成
     for rect in get_wall_collisions(&chunk) {
         let w = TILE_HALF * (rect.width() + 1.0);

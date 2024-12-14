@@ -29,7 +29,7 @@ use crate::inventory_item::InventoryItem;
 use crate::language::Dict;
 use crate::level::ceil::spawn_roof_tiles;
 use crate::level::map::image_to_tilemap;
-use crate::level::map::LevelTileMap;
+use crate::level::map::LevelChunk;
 use crate::level::tile::*;
 use crate::player_state::PlayerState;
 use crate::random::random_select;
@@ -58,6 +58,7 @@ pub enum GameLevel {
 #[derive(Resource, Debug, Clone, Default)]
 pub struct CurrentLevel {
     pub level: Option<GameLevel>,
+    pub chunk: Option<LevelChunk>,
 }
 
 #[derive(Resource, Debug, Clone)]
@@ -158,6 +159,7 @@ fn setup_level(
         .insert(Footsteps(audio_instance));
 
     current.level = Some(level);
+    current.chunk = Some(chunk);
 }
 
 fn select_level_bgm(
@@ -220,7 +222,7 @@ fn spawn_level(
     assets: &Res<GameAssets>,
     life_bar_res: &Res<LifeBarResource>,
     level: GameLevel,
-) -> LevelTileMap {
+) -> LevelChunk {
     let level_slice = match level {
         GameLevel::Level(level) => &format!("level{}", level % LEVELS),
         GameLevel::MultiPlayArena => "multiplay_arena",
@@ -299,7 +301,7 @@ fn spawn_level(
     return chunk;
 }
 
-fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
+fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelChunk) {
     // 床と壁の生成
     for y in chunk.min_y..chunk.max_y as i32 {
         for x in chunk.min_x..chunk.max_x as i32 {
@@ -360,7 +362,7 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
     }
 }
 
-fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelTileMap) {
+fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelChunk) {
     // エンティティの生成
     for (entity, x, y) in &chunk.entities {
         let tx = TILE_SIZE * *x as f32;

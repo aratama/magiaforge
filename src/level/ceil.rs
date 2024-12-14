@@ -1,4 +1,4 @@
-use crate::level::{map::LevelTileMap, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
+use crate::level::{map::LevelChunk, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
 use crate::{asset::GameAssets, entity::get_entity_z, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -6,7 +6,7 @@ use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 pub fn spawn_roof_tiles(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    chunk: &LevelTileMap,
+    chunk: &LevelChunk,
     x: i32,
     y: i32,
 ) {

@@ -23,7 +23,7 @@ use bevy::{
     prelude::*,
 };
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum GameEntity {
     Chest,
     BookShelf,
