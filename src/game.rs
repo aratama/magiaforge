@@ -36,6 +36,7 @@ use crate::level::*;
 use crate::page::ending::EndingPlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
+use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
 use crate::se::SECommandPlugin;
@@ -149,12 +150,12 @@ pub fn run_game() {
         .add_systems(Startup, setup_rapier_context)
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
+        .add_plugins(AudioPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //
         .add_systems(Update, toggle_fullscreen)
         .add_plugins(ActorPlugin)
-        .add_plugins(AudioPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BossHitpointBarPlugin)
         .add_plugins(LifePlugin)
@@ -198,6 +199,7 @@ pub fn run_game() {
         .add_plugins(PlayerPlugin)
         .add_plugins(PointerPlugin)
         .add_plugins(RemotePlayerPlugin)
+        .add_plugins(SetupPlugin)
         .add_plugins(SlimeControlPlugin)
         .add_plugins(SlimeSeedPlugin)
         .add_plugins(SpellInformationPlugin)

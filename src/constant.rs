@@ -101,6 +101,8 @@ pub const PIXELS_PER_METER: f32 = 16.0;
 
 // UI階層
 
+pub const LOADING_Z_INDEX: i32 = 100000;
+
 pub const OVERLAY_Z_INDEX: i32 = 10000;
 
 pub const POINTER_Z_INDEX: i32 = 5000;
