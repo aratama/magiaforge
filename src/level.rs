@@ -159,23 +159,30 @@ fn setup_level(
     current.level = Some(level);
 }
 
-fn select_level_bgm(next: Res<NextLevel>, mut next_bgm: ResMut<NextBGM>, assets: Res<GameAssets>) {
-    *next_bgm = NextBGM(Some(match next.level {
-        GameLevel::Level(0) => assets.dokutsu.clone(),
-        GameLevel::Level(3) => assets.deamon.clone(),
-        _ => {
-            let mut rng = rand::thread_rng();
-            let mut bgms = vec![
-                assets.arechi.clone(),
-                assets.touha.clone(),
-                assets.mori.clone(),
-                assets.meikyu.clone(),
-                assets.shiden.clone(),
-            ];
-            bgms.shuffle(&mut rng);
-            bgms.pop().unwrap()
-        }
-    }));
+fn select_level_bgm(
+    next_level: Res<NextLevel>,
+    mut next_bgm: ResMut<NextBGM>,
+    assets: Res<GameAssets>,
+) {
+    if next_level.is_changed() {
+        info!("select_level_bgm {:?}", next_level.level);
+        *next_bgm = NextBGM(Some(match next_level.level {
+            GameLevel::Level(0) => assets.dokutsu.clone(),
+            GameLevel::Level(3) => assets.deamon.clone(),
+            _ => {
+                let mut rng = rand::thread_rng();
+                let mut bgms = vec![
+                    assets.arechi.clone(),
+                    assets.touha.clone(),
+                    assets.mori.clone(),
+                    assets.meikyu.clone(),
+                    assets.shiden.clone(),
+                ];
+                bgms.shuffle(&mut rng);
+                bgms.pop().unwrap()
+            }
+        }));
+    }
 }
 
 /// 現状は StateScopedですべてのエンティティが削除されるので以下のコードは不要ですが、

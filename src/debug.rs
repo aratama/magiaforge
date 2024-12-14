@@ -41,7 +41,7 @@ fn process_debug_command(
         let next = level.as_ref();
         *level = match next.level {
             GameLevel::Level(n) => NextLevel {
-                level: GameLevel::Level(n + 1),
+                level: GameLevel::Level((n + 1) % 4),
                 state: next.state.clone(),
             },
             GameLevel::MultiPlayArena => NextLevel {
