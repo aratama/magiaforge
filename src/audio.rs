@@ -1,21 +1,15 @@
 use crate::config::GameConfig;
-use bevy::prelude::*;
-use bevy_kira_audio::prelude::*;
-use bevy_rapier2d::plugin::PhysicsSet;
-use std::time::Duration;
+use bevy::{audio::Volume, prelude::*};
 
 const SPATIAL_AUDIO_MAX_DISTANCE: f32 = 400.0;
 
 pub fn play_se(
-    audio: &Res<Audio>,
+    commands: &mut Commands,
     config: &GameConfig,
     source: &Handle<AudioSource>,
     position: &Option<Vec2>,
     camera_position: Vec2,
 ) {
-    // 手動 Spatial Audio
-    // bevy_kira_audio のものを試したが、エンティティに紐づけなくてはならないことと、
-    // 再生したときに音が乱れる不具合があったため、手動で実装
     let volume = match position {
         None => 1.0,
         Some(p) => {
@@ -26,88 +20,84 @@ pub fn play_se(
         }
     };
 
-    let panning = match position {
-        None => 0.5,
-        Some(p) => {
-            0.5 + (((*p).x - camera_position.x) / SPATIAL_AUDIO_MAX_DISTANCE)
-                .max(-0.5)
-                .min(0.5)
-        }
-    };
+    // let panning = match position {
+    //     None => 0.5,
+    //     Some(p) => {
+    //         0.5 + (((*p).x - camera_position.x) / SPATIAL_AUDIO_MAX_DISTANCE)
+    //             .max(-0.5)
+    //             .min(0.5)
+    //     }
+    // };
 
-    audio
-        .play(source.clone())
-        .with_volume(Volume::Amplitude((config.se_volume * volume) as f64))
-        .with_panning(panning as f64)
-        .handle();
+    commands.spawn((
+        AudioPlayer::new(source.clone()),
+        PlaybackSettings {
+            volume: Volume::new(config.se_volume * volume),
+            mode: bevy::audio::PlaybackMode::Despawn,
+            ..default()
+        },
+    ));
 }
 
 /// 次に再生するBGMを表すリソース
 #[derive(Resource, Default)]
 pub struct NextBGM(pub Option<Handle<AudioSource>>);
 
-struct SourceAndInstance {
-    instance: Handle<AudioInstance>,
-    source: Handle<AudioSource>,
+#[derive(Component)]
+pub struct BGM {
+    volume: f32,
 }
 
-#[derive(Resource, Default)]
-struct CurrentBGM(Option<SourceAndInstance>);
-
 fn change_bgm(
-    mut current_bgm: ResMut<CurrentBGM>,
+    mut commands: Commands,
+    mut bgm_query: Query<(Entity, &AudioPlayer, &AudioSink, &mut BGM)>,
     next_bgm: ResMut<NextBGM>,
-    audio: Res<Audio>,
-    mut audio_instances: ResMut<Assets<AudioInstance>>,
     config: Res<GameConfig>,
 ) {
-    if next_bgm.is_changed() {
-        let NextBGM(ref next_bgm_or_none) = *next_bgm;
+    if let Ok((entity, player, sink, mut bgm)) = bgm_query.get_single_mut() {
+        if let Some(ref next) = next_bgm.0 {
+            if player.0 != *next {
+                bgm.volume = (bgm.volume - 0.01).max(0.0);
+                sink.set_volume(config.bgm_volume * bgm.volume);
 
-        if let Some(ref mut current_handle) = &mut current_bgm.0 {
-            if let Some(ref next) = *next_bgm_or_none {
-                if current_handle.source.id() != next.id() {
-                    if let Some(instance) = audio_instances.get_mut(&current_handle.instance) {
-                        instance.stop(AudioTween::new(Duration::from_secs(1), AudioEasing::Linear));
-                    }
-                    let instance = audio
-                        .play(next.clone())
-                        .with_volume(Volume::Amplitude(config.bgm_volume as f64))
-                        .looped()
-                        .handle();
-                    current_bgm.0 = Some(SourceAndInstance {
-                        instance: instance.clone(),
-                        source: next.clone(),
-                    });
+                if bgm.volume == 0.0 {
+                    // AudioPlayer を上書きするだけでは音声を変更できないことに注意
+                    // いったん despawn する必要がある
+                    info!("BGM stopped");
+                    commands.entity(entity).despawn_recursive();
+
+                    // 次のBGMを再生
+                    commands.spawn((
+                        BGM { volume: 1.0 },
+                        AudioPlayer::new(next.clone()),
+                        PlaybackSettings {
+                            volume: Volume::new(config.bgm_volume),
+                            ..default()
+                        },
+                    ));
                 }
             }
-        } else if let Some(ref next) = *next_bgm_or_none {
-            let instance = audio
-                .play(next.clone())
-                .with_volume(Volume::Amplitude(config.bgm_volume as f64))
-                .looped()
-                .handle();
-            current_bgm.0 = Some(SourceAndInstance {
-                instance: instance.clone(),
-                source: next.clone(),
-            });
+        }
+    } else {
+        info!("BGM not found, starting new BGM");
+        if let Some(ref next) = next_bgm.0 {
+            info!("BGM started: {:?}", next);
+            commands.spawn((
+                BGM { volume: 1.0 },
+                AudioPlayer::new(next.clone()),
+                PlaybackSettings {
+                    volume: Volume::new(config.bgm_volume),
+                    ..default()
+                },
+            ));
         }
     }
 }
 
-fn update_bgm_volue(
-    mut current_bgm: ResMut<CurrentBGM>,
-    mut audio_instances: ResMut<Assets<AudioInstance>>,
-    config: Res<GameConfig>,
-) {
+fn update_bgm_volue(mut current_bgm: Query<(&AudioSink, &BGM)>, config: Res<GameConfig>) {
     if config.is_changed() {
-        if let Some(ref mut current_handle) = &mut current_bgm.0 {
-            if let Some(instance) = audio_instances.get_mut(&current_handle.instance) {
-                instance.set_volume(
-                    Volume::Amplitude(config.bgm_volume as f64),
-                    AudioTween::linear(Duration::from_millis(100)),
-                );
-            }
+        if let Ok((sink, bgm)) = current_bgm.get_single_mut() {
+            sink.set_volume(config.bgm_volume * bgm.volume);
         }
     }
 }
@@ -116,9 +106,7 @@ pub struct GameAudioPlugin;
 
 impl Plugin for GameAudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, change_bgm.before(PhysicsSet::SyncBackend));
-        app.add_systems(Update, update_bgm_volue);
+        app.add_systems(Update, (update_bgm_volue, change_bgm));
         app.init_resource::<NextBGM>();
-        app.init_resource::<CurrentBGM>();
     }
 }

@@ -1,9 +1,7 @@
-use std::cmp::Ordering;
-
 use crate::{asset::GameAssets, audio::play_se, config::GameConfig};
 use bevy::{prelude::*, utils::hashbrown::HashSet};
-use bevy_kira_audio::Audio;
 use bevy_rapier2d::plugin::PhysicsSet;
+use std::cmp::Ordering;
 
 #[derive(Event, Clone, Copy, Debug, PartialEq)]
 pub struct SECommand {
@@ -48,8 +46,8 @@ pub enum SE {
 /// ただし、同一のフレームに同じ効果音が複数回再生されると極端に音が大きくなり不自然なため、
 /// 同じ効果音が同時に複数回リクエストされても、最も距離が近いもののみが再生されます
 fn process_se_commands(
+    mut commands: Commands,
     assets: Res<GameAssets>,
-    audio: Res<Audio>,
     config: Res<GameConfig>,
     mut reader: EventReader<SECommand>,
     camera_query: Query<&Transform, With<Camera2d>>,
@@ -95,7 +93,7 @@ fn process_se_commands(
             SE::Bicha => &assets.bicha,
         };
 
-        play_se(&audio, &config, handle, position, camera_position);
+        play_se(&mut commands, &config, handle, position, camera_position);
     }
 }
 

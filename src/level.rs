@@ -23,7 +23,6 @@ use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
-use crate::footsteps::Footsteps;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory_item::InventoryItem;
 use crate::language::Dict;
@@ -41,8 +40,6 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_kira_audio::Audio;
-use bevy_kira_audio::AudioControl;
 use map::image_to_spawn_tiles;
 use rand::seq::SliceRandom;
 use uuid::Uuid;
@@ -86,7 +83,6 @@ fn setup_level(
     mut camera: Query<(&mut GameCamera, &mut Transform), With<Camera2d>>,
     next: Res<NextLevel>,
     mut current: ResMut<CurrentLevel>,
-    audio: Res<Audio>,
 ) {
     let level = match next.level {
         GameLevel::Level(level) => GameLevel::Level(level % LEVELS),
@@ -117,7 +113,7 @@ fn setup_level(
     }
 
     // プレイヤーキャラクターの魔法使いを生成
-    let witch_entity = spawn_witch(
+    spawn_witch(
         &mut commands,
         &assets,
         Vec2::new(player_x, player_y),
@@ -145,18 +141,6 @@ fn setup_level(
             equipments: player.equipments,
         },
     );
-
-    // 足音が必要なのはプレイヤーキャラクターだけなので、足音コンポーネントを追加
-    let audio_instance = audio
-        .play(assets.taiikukan.clone())
-        .looped()
-        .with_volume(0.0)
-        // .with_volume(Volume::Amplitude((config.se_volume * volume) as f64))
-        // .with_panning(panning as f64)
-        .handle();
-    commands
-        .entity(witch_entity)
-        .insert(Footsteps(audio_instance));
 
     current.level = Some(level);
     current.chunk = Some(chunk);

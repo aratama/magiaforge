@@ -66,7 +66,6 @@ use bevy::window::WindowMode;
 use bevy::window::{CursorOptions, EnabledButtons};
 use bevy_aseprite_ultra::AsepriteUltraPlugin;
 use bevy_asset_loader::prelude::*;
-use bevy_kira_audio::AudioPlugin;
 use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
@@ -151,7 +150,6 @@ pub fn run_game() {
         .add_systems(Startup, setup_rapier_context)
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
-        .add_plugins(AudioPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //

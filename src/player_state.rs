@@ -99,8 +99,8 @@ impl PlayerState {
 
         PlayerState {
             name: config.player_name.clone(),
-            life: 120,
-            max_life: 120,
+            life: 60,
+            max_life: 60,
             golds: 10,
             inventory,
             equipments,

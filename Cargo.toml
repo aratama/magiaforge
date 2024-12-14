@@ -34,7 +34,6 @@ default = []
 bevy_aseprite_ultra = "0.4.1"
 bevy_asset_loader = "0.22.0"
 bevy_embedded_assets = "0.12.0"
-bevy_kira_audio = { version = "0.21.0", features = ["ogg"] }
 bevy_light_2d = "0.5.0"
 bevy_pkv = "0.12.0"
 bevy_simple_text_input = "0.10.0"
@@ -58,7 +57,7 @@ features = [
     # "android_shared_stdcxx",
     "animation",
     "bevy_asset",
-    # "bevy_audio",
+    "bevy_audio",
     "bevy_color",
     "bevy_core_pipeline",
     "bevy_gilrs",
@@ -79,7 +78,7 @@ features = [
     # "smaa_luts",
     "sysinfo_plugin",
     # "tonemapping_luts",
-    # "vorbis", bevy_kira_audioでoggを使うので不要
+    "vorbis", # bevy_kira_audioでoggを使う場合は不要
     # "webgl2",
 
     # bevy_light_2dはデスクトップではwebgl2でも動きますが、wasmではwebgpuでないと実行時エラーで動きません

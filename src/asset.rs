@@ -2,7 +2,6 @@ use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_asset_loader::prelude::*;
-use bevy_kira_audio::AudioSource;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {

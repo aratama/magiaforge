@@ -9,6 +9,7 @@ use crate::interaction_sensor::spawn_interaction_sensor;
 use crate::states::GameState;
 use crate::wand::Wand;
 use crate::wand_props::wand_to_props;
+use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -67,6 +68,14 @@ pub fn spawn_witch<T: Component>(
             life,
             max_life,
             amplitude: 0.0,
+        },
+        // 足音
+        // footsteps.rsで音量を調整
+        AudioPlayer::new(assets.taiikukan.clone()),
+        PlaybackSettings {
+            volume: Volume::new(0.0),
+            mode: bevy::audio::PlaybackMode::Loop,
+            ..default()
         },
         // XとYは親エンティティ側で設定しますが、
         // キャラクター画像とシャドウでz座標の計算が異なるため、
