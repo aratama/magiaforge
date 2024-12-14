@@ -168,7 +168,18 @@ fn select_level_bgm(
         info!("select_level_bgm {:?}", next_level.level);
         *next_bgm = NextBGM(Some(match next_level.level {
             GameLevel::Level(0) => assets.dokutsu.clone(),
-            GameLevel::Level(3) => assets.deamon.clone(),
+            GameLevel::Level(3) => {
+                let mut rng = rand::thread_rng();
+                let mut bgms = vec![
+                    assets.deamon.clone(),
+                    assets.action.clone(),
+                    assets.decisive.clone(),
+                    assets.enjin.clone(),
+                    assets.sacred.clone(),
+                ];
+                bgms.shuffle(&mut rng);
+                bgms.pop().unwrap()
+            }
             _ => {
                 let mut rng = rand::thread_rng();
                 let mut bgms = vec![

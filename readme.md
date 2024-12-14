@@ -61,6 +61,10 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - 森のいざない https://dova-s.jp/bgm/play12135.html
 - 迷宮 https://dova-s.jp/bgm/play8802.html
 - 忘れられた神殿 https://dova-s.jp/bgm/play629.html
+- アクション・バトル https://dova-s.jp/bgm/play12133.html
+- Decisive Battle https://dova-s.jp/bgm/play5746.html
+- 炎神の吐息 https://dova-s.jp/bgm/play298.html
+- Sacred Sacrifice https://dova-s.jp/bgm/play6142.html
 
 #### Fonts
 
