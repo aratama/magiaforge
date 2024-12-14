@@ -56,7 +56,7 @@ fn control_eyeball(
     for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in
         actor_query.iter_mut()
     {
-        if let Some(eyeball) = eyeball_optional {
+        if let Some(_) = eyeball_optional {
             eyeball_actor.move_direction = Vec2::ZERO;
             eyeball_actor.fire_state = ActorFireState::Idle;
 

@@ -1,6 +1,8 @@
 use crate::audio::NextBGM;
+use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
+use crate::language::Languages;
 use crate::level::{CurrentLevel, NextLevel};
 use crate::se::{SECommand, SE};
 use crate::ui::on_press::OnPress;
@@ -29,6 +31,12 @@ struct CloudAnimation {
 enum Events {
     Start,
 }
+
+#[derive(Component)]
+struct LanguageButton;
+
+#[derive(Component)]
+struct ClickToStart;
 
 fn setup_main_menu(
     mut commands: Commands,
@@ -133,22 +141,31 @@ fn setup_main_menu(
         },
     ));
 
-    commands.spawn((
-        Name::new("click_to_start"),
-        StateScoped(GameState::MainMenu),
-        GlobalZIndex(-700),
-        Node {
-            left: Val::Px(520.0),
-            top: Val::Px(640.0),
-            width: Val::Px(64.0 * SCALE),
-            height: Val::Px(16.0 * SCALE),
-            ..default()
-        },
-        AseUiSlice {
-            aseprite: assets.atlas.clone(),
-            name: "click_to_start".into(),
-        },
-    ));
+    commands
+        .spawn((
+            Name::new("click_to_start"),
+            StateScoped(GameState::MainMenu),
+            GlobalZIndex(-700),
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(0.0),
+                bottom: Val::Px(20.0),
+                width: Val::Percent(100.0),
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+        ))
+        .with_child((
+            ClickToStart,
+            Text::new(""),
+            TextColor::from(Color::WHITE),
+            TextFont {
+                font_size: 16.0,
+                font: assets.dotgothic.clone(),
+                ..default()
+            },
+        ));
 
     commands.spawn((
         Name::new("Git Version"),
@@ -171,6 +188,32 @@ fn setup_main_menu(
             ..default()
         },
     ));
+
+    commands
+        .spawn((
+            Name::new("language_button"),
+            LanguageButton,
+            StateScoped(GameState::MainMenu),
+            GlobalZIndex(HUD_Z_INDEX),
+            Node {
+                position_type: PositionType::Absolute,
+                right: Val::Px(40.0),
+                bottom: Val::Px(40.0),
+                padding: UiRect::new(Val::Px(20.0), Val::Px(20.0), Val::Px(8.0), Val::Px(8.0)),
+                ..default()
+            },
+            Button,
+            BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.3)),
+        ))
+        .with_child((
+            Text::new("English / 日本語"),
+            TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
+            TextFont {
+                font_size: 16.0,
+                font: assets.dotgothic.clone(),
+                ..default()
+            },
+        ));
 }
 
 fn spawn_cloud<T: Component>(
@@ -198,8 +241,60 @@ fn spawn_cloud<T: Component>(
     ));
 }
 
-fn on_click(buttons: Res<ButtonInput<MouseButton>>, mut writer: EventWriter<Events>) {
-    if buttons.any_just_pressed(vec![MouseButton::Left, MouseButton::Right]) {
+#[derive(Resource, Default)]
+struct LanguageChanged(bool);
+
+fn toggle_language(
+    mut query: Query<
+        (&mut BackgroundColor, &Interaction),
+        (With<LanguageButton>, Changed<Interaction>),
+    >,
+    mut config: ResMut<GameConfig>,
+    mut changed: ResMut<LanguageChanged>,
+) {
+    changed.0 = false;
+
+    for (mut background, interaction) in &mut query.iter_mut() {
+        match interaction {
+            Interaction::None => {
+                background.0 = Color::hsva(0.0, 0.0, 1.0, 0.3);
+            }
+            Interaction::Hovered => {
+                background.0 = Color::hsva(0.0, 0.0, 1.0, 0.8);
+            }
+            Interaction::Pressed => {
+                background.0 = Color::WHITE;
+                config.language = match config.language {
+                    Languages::En => Languages::Ja,
+                    Languages::Ja => Languages::En,
+                };
+                changed.0 = true;
+            }
+        }
+    }
+}
+
+fn update_click_to_start_text(
+    mut query: Query<&mut Text, With<ClickToStart>>,
+    config: Res<GameConfig>,
+) {
+    if config.is_changed() {
+        for mut text in &mut query.iter_mut() {
+            text.0 = (match config.language {
+                Languages::Ja => "クリックでスタート",
+                Languages::En => "Click to Start",
+            })
+            .to_string();
+        }
+    }
+}
+
+fn start_game(
+    buttons: Res<ButtonInput<MouseButton>>,
+    mut writer: EventWriter<Events>,
+    changed: Res<LanguageChanged>,
+) {
+    if !changed.0 && buttons.any_just_pressed(vec![MouseButton::Left, MouseButton::Right]) {
         writer.send(Events::Start);
     }
 }
@@ -251,11 +346,18 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
+        app.init_resource::<LanguageChanged>();
         app.add_event::<Events>();
         app.add_systems(OnEnter(GameState::MainMenu), setup_main_menu);
         app.add_systems(
             Update,
-            (on_click, read_events, witch_animation, cloud_animation)
+            (
+                read_events,
+                witch_animation,
+                cloud_animation,
+                (toggle_language, start_game).chain(),
+                update_click_to_start_text,
+            )
                 .run_if(in_state(GameState::MainMenu)),
         );
     }
