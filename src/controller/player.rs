@@ -1,12 +1,11 @@
 use crate::asset::GameAssets;
-use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
+use crate::constant::{ENTITY_LAYER_Z, MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
-use crate::entity::gold::{spawn_gold, Gold};
+use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::Equipment;
-use crate::hud::overlay::OverlayEvent;
 use crate::input::{get_direction, get_fire_trigger};
 use crate::inventory::Inventory;
 use crate::se::{SECommand, SE};
@@ -14,6 +13,8 @@ use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 
@@ -139,27 +140,35 @@ fn pick_gold(
 fn die_player(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    player_query: Query<(Entity, &Player, &Actor, &Life, &Transform)>,
+    player_query: Query<(Entity, &Actor, &Life, &Transform), With<Player>>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SECommand>,
     websocket: Res<WebSocketState>,
-    mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
-    if let Ok((entity, player, actor, player_life, transform)) = player_query.get_single() {
+    if let Ok((entity, actor, player_life, transform)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
             game.send(SECommand::pos(SE::Cry, transform.translation.truncate()));
-            overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
 
-            for _ in 0..player.golds {
-                spawn_gold(
-                    &mut commands,
-                    &assets,
-                    transform.translation.x,
-                    transform.translation.y,
-                );
-            }
+            // ダウンのアニメーションを残す
+            commands.spawn((
+                StateScoped(GameState::InGame),
+                AseSpriteAnimation {
+                    aseprite: assets.player.clone(),
+                    animation: "down".into(),
+                },
+                Transform::from_translation(
+                    transform.translation.truncate().extend(ENTITY_LAYER_Z),
+                ),
+                PointLight2d {
+                    color: Color::hsl(240.0, 1.0, 0.8),
+                    intensity: 1.0,
+                    radius: 100.0,
+                    falloff: 1.0,
+                    ..default()
+                },
+            ));
 
             send_remote_message(
                 &mut writer,

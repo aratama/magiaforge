@@ -1,3 +1,4 @@
+pub mod gameover;
 pub mod life_bar;
 pub mod overlay;
 pub mod pointer;

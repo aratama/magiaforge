@@ -71,6 +71,7 @@ use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
+use gameover::GameoverPlugin;
 use wall::WallPlugin;
 
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
@@ -174,6 +175,7 @@ pub fn run_game() {
         .add_plugins(EquipmentListPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
+        .add_plugins(GameoverPlugin)
         .add_plugins(SECommandPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)
