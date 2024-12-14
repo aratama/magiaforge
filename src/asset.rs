@@ -128,4 +128,16 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/Tides_of_Adventure.ogg")]
     pub ending_bgm: Handle<AudioSource>,
+
+    #[asset(path = "bgm/ダンジョンを踏破せし者.ogg")]
+    pub touha: Handle<AudioSource>,
+
+    #[asset(path = "bgm/森のいざない.ogg")]
+    pub mori: Handle<AudioSource>,
+
+    #[asset(path = "bgm/迷宮.ogg")]
+    pub meikyu: Handle<AudioSource>,
+
+    #[asset(path = "bgm/忘れられた神殿.ogg")]
+    pub shiden: Handle<AudioSource>,
 }

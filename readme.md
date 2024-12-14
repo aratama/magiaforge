@@ -57,6 +57,10 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - 荒れ地の先へ https://dova-s.jp/bgm/play17195.html
 - 悪魔との戦闘 https://dova-s.jp/bgm/play11175.html
 - Tides of Adventure https://dova-s.jp/bgm/play21129.html
+- ダンジョンを踏破せし者 https://dova-s.jp/bgm/play20822.html
+- 森のいざない https://dova-s.jp/bgm/play12135.html
+- 迷宮 https://dova-s.jp/bgm/play8802.html
+- 忘れられた神殿 https://dova-s.jp/bgm/play629.html
 
 #### Fonts
 

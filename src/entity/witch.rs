@@ -103,7 +103,7 @@ pub fn spawn_witch<T: Component>(
         }
 
         spawn_children.spawn((
-            Transform::from_translation(Vec2::new(0.0, -10.0).extend(SHADOW_LAYER_Z)),
+            Transform::from_translation(Vec2::new(0.0, -8.0).extend(SHADOW_LAYER_Z)),
             AseSpriteSlice {
                 aseprite: assets.atlas.clone(),
                 name: "entity_shadow".into(),

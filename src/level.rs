@@ -43,6 +43,7 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_kira_audio::Audio;
 use bevy_kira_audio::AudioControl;
 use map::image_to_spawn_tiles;
+use rand::seq::SliceRandom;
 use uuid::Uuid;
 use wall::spawn_wall_collisions;
 use wall::WallCollider;
@@ -162,7 +163,18 @@ fn select_level_bgm(next: Res<NextLevel>, mut next_bgm: ResMut<NextBGM>, assets:
     *next_bgm = NextBGM(Some(match next.level {
         GameLevel::Level(0) => assets.dokutsu.clone(),
         GameLevel::Level(3) => assets.deamon.clone(),
-        _ => assets.arechi.clone(),
+        _ => {
+            let mut rng = rand::thread_rng();
+            let mut bgms = vec![
+                assets.arechi.clone(),
+                assets.touha.clone(),
+                assets.mori.clone(),
+                assets.meikyu.clone(),
+                assets.shiden.clone(),
+            ];
+            bgms.shuffle(&mut rng);
+            bgms.pop().unwrap()
+        }
     }));
 }
 
