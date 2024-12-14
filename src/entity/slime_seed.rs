@@ -20,6 +20,7 @@ pub struct SlimeSeed {
     to: Vec2,
     speed: u32,
     actor_group: ActorGroup,
+    owner: Entity,
 }
 
 #[derive(Component)]
@@ -30,6 +31,7 @@ pub struct SpawnSlimeSeed {
     pub from: Vec2,
     pub to: Vec2,
     pub actor_group: ActorGroup,
+    pub owner: Entity,
 }
 
 pub fn spawn_slime_seed(
@@ -41,6 +43,7 @@ pub fn spawn_slime_seed(
         from,
         to,
         actor_group,
+        owner,
     } in reader.read()
     {
         commands
@@ -53,6 +56,7 @@ pub fn spawn_slime_seed(
                     to: *to,
                     speed: 60 + rand::random::<u32>() % 30,
                     actor_group: *actor_group,
+                    owner: *owner,
                 },
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -100,6 +104,7 @@ fn update_slime_seed(
                             30 + rand::random::<u32>() % 30,
                             0,
                             seed.actor_group,
+                            Some(seed.owner),
                         );
                         se_writer.send(SECommand::pos(SE::Bicha, seed.to));
                     }

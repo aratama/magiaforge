@@ -267,6 +267,7 @@ fn spawn_level(
                 0,
                 2,
                 ActorGroup::Enemy,
+                None,
             );
         }
 

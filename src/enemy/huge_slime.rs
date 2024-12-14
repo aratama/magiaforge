@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::audio::NextBGM;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::{Actor, ActorFireState, ActorGroup, ActorState};
@@ -7,7 +8,6 @@ use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::slime_seed::SpawnSlimeSeed;
 use crate::entity::EntityDepth;
-use crate::page::ending::DespawnAndGoEnding;
 use crate::se::{SECommand, SE};
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -52,7 +52,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             Name::new("スライムの王 エミルス"),
             StateScoped(GameState::InGame),
             Boss,
-            DespawnAndGoEnding,
+            DespawnHugeSlime,
             Life {
                 life: 1200,
                 max_life: 1200,
@@ -227,13 +227,14 @@ fn update_huge_slime_approach(
 
 fn update_huge_slime_summon(
     player_query: Query<&Transform, With<Player>>,
-    mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
+    mut huge_slime_query: Query<(Entity, &mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SECommand>,
     mut seed_writer: EventWriter<SpawnSlimeSeed>,
 ) {
     for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform) = huge_slime_query.get_mut(**parent).unwrap();
+        let (huge_slime_entity, mut huge_slime, transform) =
+            huge_slime_query.get_mut(**parent).unwrap();
 
         if let HugeSlimeState::Summon = huge_slime.state {
             if let Ok(player) = player_query.get_single() {
@@ -249,6 +250,7 @@ fn update_huge_slime_summon(
                             from: transform.translation.truncate(),
                             to,
                             actor_group: ActorGroup::Enemy,
+                            owner: huge_slime_entity,
                         });
                     }
                     se_writer.send(SECommand::pos(SE::Puyon, transform.translation.truncate()));
@@ -291,6 +293,23 @@ fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life), Without<Player>>
     }
 }
 
+#[derive(Component)]
+pub struct DespawnHugeSlime;
+
+fn despown(
+    mut commands: Commands,
+    query: Query<(Entity, &Life), With<DespawnHugeSlime>>,
+    mut bgm: ResMut<NextBGM>,
+    assets: Res<GameAssets>,
+) {
+    for (entity, life) in query.iter() {
+        if life.life <= 0 {
+            commands.entity(entity).despawn_recursive();
+            bgm.0 = Some(assets.dokutsu.clone());
+        }
+    }
+}
+
 pub struct HugeSlimePlugin;
 
 impl Plugin for HugeSlimePlugin {
@@ -304,6 +323,7 @@ impl Plugin for HugeSlimePlugin {
                 update_huge_slime_summon,
                 update_huge_slime_promote,
                 promote,
+                despown,
             )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),

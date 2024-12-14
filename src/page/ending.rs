@@ -1,29 +1,16 @@
 use crate::{
-    asset::GameAssets, audio::NextBGM, entity::life::Life, hud::overlay::OverlayEvent,
+    asset::GameAssets,
+    audio::NextBGM,
+    enemy::huge_slime::HugeSlime,
+    hud::overlay::OverlayEvent,
+    level::{CurrentLevel, GameLevel},
     states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
-use bevy_rapier2d::plugin::PhysicsSet;
-
-#[derive(Component)]
-pub struct DespawnAndGoEnding;
 
 #[derive(Component)]
 pub struct EndingImage;
-
-fn despown(
-    mut commands: Commands,
-    query: Query<(Entity, &Life), With<DespawnAndGoEnding>>,
-    mut writer: EventWriter<OverlayEvent>,
-) {
-    for (entity, life) in query.iter() {
-        if life.life <= 0 {
-            commands.entity(entity).despawn_recursive();
-            writer.send(OverlayEvent::Close(GameState::Ending));
-        }
-    }
-}
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm: ResMut<NextBGM>) {
     next_bgm.0 = Some(assets.ending_bgm.clone());
@@ -60,12 +47,26 @@ fn interaction(
     }
 }
 
+fn start_ending(
+    mut local: Local<u32>,
+    boss_query: Query<&HugeSlime>,
+    mut writer: EventWriter<OverlayEvent>,
+    current: Res<CurrentLevel>,
+) {
+    if current.level == Some(GameLevel::Level(3)) && boss_query.is_empty() {
+        *local += 1;
+        if *local == 120 {
+            writer.send(OverlayEvent::Close(GameState::Ending));
+        }
+    }
+}
+
 pub struct EndingPlugin;
 
 impl Plugin for EndingPlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(Update, start_ending.run_if(in_state(GameState::InGame)));
         app.add_systems(Update, interaction.run_if(in_state(GameState::Ending)));
-        app.add_systems(FixedUpdate, despown.before(PhysicsSet::SyncBackend));
         app.add_systems(OnEnter(GameState::Ending), setup);
     }
 }

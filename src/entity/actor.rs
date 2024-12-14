@@ -163,7 +163,7 @@ fn update_actor_light(
 
 /// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
-    mut actor_query: Query<(&mut Actor, &mut Life, &mut Transform), Without<Camera2d>>,
+    mut actor_query: Query<(Entity, &mut Actor, &mut Life, &mut Transform), Without<Camera2d>>,
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut writer: EventWriter<ClientMessage>,
@@ -173,7 +173,7 @@ fn fire_bullet(
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
-    for (mut actor, mut actor_life, actor_transform) in actor_query.iter_mut() {
+    for (actor_entity, mut actor, mut actor_life, actor_transform) in actor_query.iter_mut() {
         if actor_life.life <= 0 {
             return;
         }
@@ -185,6 +185,7 @@ fn fire_bullet(
                     &assets,
                     &mut writer,
                     &mut se_writer,
+                    actor_entity,
                     &mut actor,
                     &mut actor_life,
                     &actor_transform,

@@ -28,6 +28,7 @@ pub fn cast_spell(
     assets: &Res<GameAssets>,
     writer: &mut EventWriter<ClientMessage>,
     se_writer: &mut EventWriter<SECommand>,
+    actor_entity: Entity,
     actor: &mut Actor,
     actor_life: &mut Life,
     actor_transform: &Transform,
@@ -131,6 +132,7 @@ pub fn cast_spell(
                             assets,
                             writer,
                             se_writer,
+                            actor_entity,
                             actor,
                             actor_life,
                             actor_transform,
@@ -155,6 +157,7 @@ pub fn cast_spell(
                     slime_writer.send(SpawnSlimeSeed {
                         from: actor_transform.translation.truncate(),
                         to: actor_transform.translation.truncate() + actor.pointer,
+                        owner: actor_entity,
                         actor_group: match (actor.actor_group, friend) {
                             (ActorGroup::Player, true) => ActorGroup::Player,
                             (ActorGroup::Player, false) => ActorGroup::Enemy,

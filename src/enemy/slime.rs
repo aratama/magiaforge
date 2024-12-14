@@ -13,6 +13,7 @@ use std::collections::HashMap;
 
 #[derive(Component, Debug)]
 pub struct SlimeControl {
+    owner: Option<Entity>,
     wait: u32,
 }
 
@@ -30,6 +31,7 @@ pub fn spawn_slime(
     initial_wait: u32,
     gold: u32,
     group: ActorGroup,
+    owner: Option<Entity>,
 ) {
     spawn_basic_enemy(
         &mut commands,
@@ -39,7 +41,10 @@ pub fn spawn_slime(
         },
         position,
         life_bar_locals,
-        SlimeControl { wait: initial_wait },
+        SlimeControl {
+            owner,
+            wait: initial_wait,
+        },
         "slime",
         SpellType::SlimeCharge,
         ENEMY_MOVE_FORCE,
@@ -118,13 +123,27 @@ fn control_slime(
     }
 }
 
+fn despown_if_no_owner(
+    mut commands: Commands,
+    query: Query<(Entity, &SlimeControl)>,
+    parent: Query<Entity, Without<SlimeControl>>,
+) {
+    for (slime_entity, slime) in query.iter() {
+        if let Some(owner) = slime.owner {
+            if !parent.contains(owner) {
+                commands.entity(slime_entity).despawn_recursive();
+            }
+        }
+    }
+}
+
 pub struct SlimeControlPlugin;
 
 impl Plugin for SlimeControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            control_slime
+            (control_slime, despown_if_no_owner)
                 .run_if(in_state(GameState::InGame))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),
