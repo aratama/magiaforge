@@ -1,12 +1,14 @@
+use bevy::reflect::Reflect;
+
 use crate::{constant::MAX_SPELLS_IN_WAND, spell::SpellType, wand_props::wand_to_props};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum WandType {
     CypressWand,
     KeyWand,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Reflect, Clone, Debug)]
 pub struct Wand {
     pub wand_type: WandType,
     pub slots: [Option<SpellType>; MAX_SPELLS_IN_WAND],

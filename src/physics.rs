@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::plugin::{DefaultRapierContext, PhysicsSet, RapierConfiguration};
@@ -31,6 +33,14 @@ fn switch_physics_activation(
                 rapier.query_pipeline_active = false;
             };
         }
+    }
+}
+
+pub fn compare_distance(origin: Vec2) -> impl FnMut(&Vec2, &Vec2) -> Ordering {
+    move |a, b| {
+        let a_diff = a - origin;
+        let b_diff = b - origin;
+        a_diff.length().partial_cmp(&b_diff.length()).unwrap()
     }
 }
 

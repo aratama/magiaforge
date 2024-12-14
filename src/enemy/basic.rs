@@ -23,7 +23,7 @@ pub fn spawn_basic_enemy<T: Component>(
     spell: SpellType,
     move_force: f32,
     gold: u32,
-    group: ActorGroup,
+    actor_group: ActorGroup,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(spell);
@@ -42,11 +42,9 @@ pub fn spawn_basic_enemy<T: Component>(
                 move_direction: Vec2::ZERO,
                 move_force: move_force,
                 fire_state: ActorFireState::Idle,
-                group: ENEMY_GROUP,
-                filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
                 effects: default(),
-                actor_group: group,
+                actor_group,
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,
@@ -82,8 +80,17 @@ pub fn spawn_basic_enemy<T: Component>(
                 ExternalImpulse::default(),
                 ActiveEvents::COLLISION_EVENTS,
                 CollisionGroups::new(
-                    ENEMY_GROUP,
-                    ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP,
+                    match actor_group {
+                        ActorGroup::Enemy => ENEMY_GROUP,
+                        ActorGroup::Player => WITCH_GROUP,
+                    },
+                    match actor_group {
+                        ActorGroup::Enemy => WITCH_BULLET_GROUP,
+                        ActorGroup::Player => ENEMY_BULLET_GROUP,
+                    } | ENTITY_GROUP
+                        | WALL_GROUP
+                        | WITCH_GROUP
+                        | ENEMY_GROUP,
                 ),
             ),
         ))

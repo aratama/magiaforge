@@ -33,7 +33,7 @@ pub enum SpellCast {
     },
     Homing,
     HeavyShot,
-    SummonSlime
+    SummonSlime { friend: bool } 
 }
 
 /// 呪文の基礎情報
@@ -213,16 +213,27 @@ pub fn spell_to_props(spell: SpellType) -> SpellProps {
             icon: "spell_heavy_shot",
             cast: SpellCast::HeavyShot,
         },
-        SpellType::SummonSlime => SpellProps {
+        SpellType::SummonFriendSlime => SpellProps {
             name: Dict {
-                ja: "スライム召喚",
-                en: "Summon Slime",
+                ja: "味方スライム召喚",
+                en: "Summon Friend Slime",
             },
-            description: Dict { ja: "狙った位置にスライムを召喚します。",
-            en: "Summons a slime" },
+            description: Dict { ja: "狙った位置に味方のスライムを召喚します。",
+            en: "Summons a friend slime" },
+            cast_delay: 60,
+            icon: "friend_slime_seed",
+            cast: SpellCast::SummonSlime { friend: true },
+        },
+        SpellType::SummonEnemySlime => SpellProps {
+            name: Dict {
+                ja: "敵スライム召喚",
+                en: "Summon Enemy Slime",
+            },
+            description: Dict { ja: "狙った位置に敵のスライムを召喚します。",
+            en: "Summons a enemy slime" },
             cast_delay: 60,
             icon: "slime_seed",
-            cast: SpellCast::SummonSlime,
+            cast: SpellCast::SummonSlime { friend:false },
         },
     }
 }
@@ -299,6 +310,6 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::MultipleCast { amount: _ } => format!(""),
         SpellCast::Homing => format!(""),
         SpellCast::HeavyShot => format!("威力: +5"),
-        SpellCast::SummonSlime => format!(""),
+        SpellCast::SummonSlime {..} => format!(""),
     }
 }

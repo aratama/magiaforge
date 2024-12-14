@@ -44,7 +44,8 @@ impl PlayerState {
         inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
         inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
         inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
-        inventory.insert(InventoryItem::Spell(SpellType::SummonSlime));
+        inventory.insert(InventoryItem::Spell(SpellType::SummonFriendSlime));
+        inventory.insert(InventoryItem::Spell(SpellType::SummonEnemySlime));
         inventory.sort();
 
         let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
@@ -65,8 +66,34 @@ impl PlayerState {
                 ],
                 index: 0,
             }),
-            None,
-            None,
+            Some(Wand {
+                wand_type: WandType::CypressWand,
+                slots: [
+                    Some(SpellType::SummonFriendSlime),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
+                index: 0,
+            }),
+            Some(Wand {
+                wand_type: WandType::CypressWand,
+                slots: [
+                    Some(SpellType::SummonEnemySlime),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
+                index: 0,
+            }),
             None,
         ];
 

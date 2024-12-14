@@ -1,4 +1,6 @@
-#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord)]
+use bevy::reflect::Reflect;
+
+#[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum SpellType {
     MagicBolt,
     PurpleBolt,
@@ -10,10 +12,11 @@ pub enum SpellType {
     TripleCast,
     Homing,
     HeavyShot,
-    SummonSlime,
+    SummonFriendSlime,
+    SummonEnemySlime,
 }
 
-pub const SPELL_TYPES: [SpellType; 11] = [
+pub const SPELL_TYPES: [SpellType; 12] = [
     SpellType::MagicBolt,
     SpellType::PurpleBolt,
     SpellType::SlimeCharge,
@@ -24,5 +27,6 @@ pub const SPELL_TYPES: [SpellType; 11] = [
     SpellType::TripleCast,
     SpellType::Homing,
     SpellType::HeavyShot,
-    SpellType::SummonSlime,
+    SpellType::SummonFriendSlime,
+    SpellType::SummonEnemySlime,
 ];

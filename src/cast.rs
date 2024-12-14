@@ -1,5 +1,8 @@
 use crate::{
     asset::GameAssets,
+    constant::{
+        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
+    },
     controller::remote::{send_remote_message, RemoteMessage},
     entity::{
         actor::{Actor, ActorGroup},
@@ -76,8 +79,15 @@ pub fn cast_spell(
                         light_radius,
                         light_color_hlsa,
                         homing: actor.effects.homing,
-                        group: actor.group,
-                        filter: actor.filter,
+                        group: match actor.actor_group {
+                            ActorGroup::Player => WITCH_BULLET_GROUP,
+                            ActorGroup::Enemy => ENEMY_BULLET_GROUP,
+                        },
+                        filter: match actor.actor_group {
+                            ActorGroup::Player => ENEMY_GROUP,
+                            ActorGroup::Enemy => WITCH_GROUP,
+                        } | ENTITY_GROUP
+                            | WALL_GROUP,
                     };
 
                     spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
@@ -140,12 +150,17 @@ pub fn cast_spell(
                     actor.effects.bullet_damage_buff_amount += 5;
                     return props.cast_delay as i32;
                 }
-                SpellCast::SummonSlime => {
+                SpellCast::SummonSlime { friend } => {
                     wand.shift();
                     slime_writer.send(SpawnSlimeSeed {
                         from: actor_transform.translation.truncate(),
                         to: actor_transform.translation.truncate() + actor.pointer,
-                        group: ActorGroup::Player,
+                        actor_group: match (actor.actor_group, friend) {
+                            (ActorGroup::Player, true) => ActorGroup::Player,
+                            (ActorGroup::Player, false) => ActorGroup::Enemy,
+                            (ActorGroup::Enemy, true) => ActorGroup::Enemy,
+                            (ActorGroup::Enemy, false) => ActorGroup::Player,
+                        },
                     });
                     return props.cast_delay as i32;
                 }

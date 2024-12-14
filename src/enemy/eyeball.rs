@@ -1,15 +1,15 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::controller::player::Player;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::{Actor, ActorFireState, ActorGroup};
-use crate::entity::life::Life;
 use crate::hud::life_bar::LifeBarResource;
+use crate::physics::compare_distance;
 use crate::set::GameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use std::collections::HashMap;
 
 #[derive(Component)]
 pub struct EyeballControl;
@@ -41,24 +41,59 @@ pub fn spawn_eyeball(
 }
 
 fn control_eyeball(
-    mut player_query: Query<(&Life, &GlobalTransform), (With<Player>, Without<EyeballControl>)>,
-    mut enemy_query: Query<(&mut Actor, &mut ExternalForce, &mut Transform), With<EyeballControl>>,
+    mut actor_query: Query<(Entity, Option<&EyeballControl>, &mut Actor, &mut Transform)>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    if let Ok((player_life, player_transform)) = player_query.get_single_mut() {
-        if 0 < player_life.life {
-            for (mut actor, mut force, enemy_transform) in enemy_query.iter_mut() {
-                let diff = player_transform.translation() - enemy_transform.translation;
+    let context: &RapierContext = rapier_context.single();
+
+    // 多対多の参照になるので、HashMapでキャッシュしておく
+    let map: HashMap<Entity, (ActorGroup, Vec2)> = actor_query
+        .iter()
+        .map(|(e, _, a, t)| (e, (a.actor_group, t.translation.truncate())))
+        .collect();
+
+    // 各アイボールの行動を選択します
+    for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in
+        actor_query.iter_mut()
+    {
+        if let Some(eyeball) = eyeball_optional {
+            eyeball_actor.move_direction = Vec2::ZERO;
+            eyeball_actor.fire_state = ActorFireState::Idle;
+
+            // 指定した範囲にいる、自分以外で、かつ別のグループに所属するアクターの一覧を取得
+            let mut enemies: Vec<Vec2> = Vec::new();
+            context.intersections_with_shape(
+                eyeball_transform.translation.truncate(),
+                0.0,
+                &Collider::ball(ENEMY_DETECTION_RANGE),
+                QueryFilter {
+                    groups: Some(CollisionGroups::new(ENEMY_GROUP, WITCH_GROUP | ENEMY_GROUP)),
+                    ..default()
+                },
+                |e| {
+                    if e != eyeball_entity {
+                        if let Some((e_g, e_t)) = map.get(&e) {
+                            if *e_g != eyeball_actor.actor_group {
+                                enemies.push(*e_t);
+                            }
+                        }
+                    }
+                    true // 交差図形の検索を続ける
+                },
+            );
+
+            // 最も近くにいる、別グループのアクターに対して接近または攻撃
+            let origin = eyeball_transform.translation.truncate();
+            enemies.sort_by(compare_distance(origin));
+            if let Some(nearest) = enemies.first() {
+                let diff = nearest - origin;
                 if diff.length() < ENEMY_ATTACK_RANGE {
-                    force.force = Vec2::ZERO;
-                    actor.pointer = diff.truncate();
-                    actor.fire_state = ActorFireState::Fire;
+                    eyeball_actor.move_direction = Vec2::ZERO;
+                    eyeball_actor.pointer = diff;
+                    eyeball_actor.fire_state = ActorFireState::Fire;
                 } else if diff.length() < ENEMY_DETECTION_RANGE {
-                    let direction = diff.normalize_or_zero();
-                    force.force = direction.truncate() * ENEMY_MOVE_FORCE;
-                    actor.fire_state = ActorFireState::Idle;
-                } else {
-                    force.force = Vec2::ZERO;
-                    actor.fire_state = ActorFireState::Idle;
+                    eyeball_actor.move_direction = diff.normalize_or_zero();
+                    eyeball_actor.fire_state = ActorFireState::Idle;
                 }
             }
         }

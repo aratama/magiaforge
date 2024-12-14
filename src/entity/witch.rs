@@ -55,8 +55,6 @@ pub fn spawn_witch<T: Component>(
             move_direction: Vec2::ZERO,
             move_force: PLAYER_MOVE_FORCE,
             fire_state: ActorFireState::Idle,
-            group: WITCH_GROUP,
-            filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
             current_wand: 0,
             effects: default(),
             actor_group: ActorGroup::Player,

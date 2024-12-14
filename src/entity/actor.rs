@@ -7,7 +7,7 @@ use crate::{asset::GameAssets, se::SECommand, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
-use bevy_rapier2d::prelude::{ExternalForce, Group};
+use bevy_rapier2d::prelude::ExternalForce;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
@@ -15,7 +15,7 @@ use uuid::Uuid;
 use super::life::Life;
 use super::slime_seed::SpawnSlimeSeed;
 
-#[derive(Clone, Copy, Default)]
+#[derive(Reflect, Clone, Copy, Default)]
 pub struct CastEffects {
     // pub queue: Vec,
     pub bullet_speed_buff_factor: f32,
@@ -26,7 +26,7 @@ pub struct CastEffects {
     pub bullet_damage_buff_amount: i32,
 }
 
-#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Component, Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ActorState {
     #[default]
     Idle,
@@ -34,7 +34,7 @@ pub enum ActorState {
 }
 
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct Actor {
     pub uuid: Uuid,
 
@@ -58,10 +58,6 @@ pub struct Actor {
     pub move_force: f32,
 
     pub fire_state: ActorFireState,
-
-    pub group: Group,
-
-    pub filter: Group,
 
     pub current_wand: usize,
 
@@ -87,7 +83,7 @@ impl Actor {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Reflect, Debug, PartialEq, Clone, Copy)]
 pub enum ActorFireState {
     Idle,
 
@@ -95,7 +91,7 @@ pub enum ActorFireState {
     Fire,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ActorGroup {
     Player,
     Enemy,
@@ -145,7 +141,7 @@ fn update_actor_light(
                 },
                 transform.clone(),
                 PointLight2d {
-                    radius: 150.0,
+                    radius: 300.0,
                     intensity: actor.intensity,
                     falloff: 10.0,
                     ..default()
@@ -235,6 +231,7 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
+        app.register_type::<Actor>();
         app.add_systems(
             Update,
             (update_sprite_flip, update_actor_light, update_actor_state)

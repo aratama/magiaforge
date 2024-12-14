@@ -17,7 +17,7 @@ pub struct SlimeSeed {
     from: Vec2,
     to: Vec2,
     speed: u32,
-    group: ActorGroup,
+    actor_group: ActorGroup,
 }
 
 #[derive(Component)]
@@ -27,7 +27,7 @@ pub struct SlimeSeedSprite;
 pub struct SpawnSlimeSeed {
     pub from: Vec2,
     pub to: Vec2,
-    pub group: ActorGroup,
+    pub actor_group: ActorGroup,
 }
 
 pub fn spawn_slime_seed(
@@ -35,7 +35,12 @@ pub fn spawn_slime_seed(
     assets: Res<GameAssets>,
     mut reader: EventReader<SpawnSlimeSeed>,
 ) {
-    for SpawnSlimeSeed { from, to, group } in reader.read() {
+    for SpawnSlimeSeed {
+        from,
+        to,
+        actor_group,
+    } in reader.read()
+    {
         commands
             .spawn((
                 Name::new("slime_seed"),
@@ -45,7 +50,7 @@ pub fn spawn_slime_seed(
                     from: *from,
                     to: *to,
                     speed: 60 + rand::random::<u32>() % 30,
-                    group: *group,
+                    actor_group: *actor_group,
                 },
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -56,7 +61,10 @@ pub fn spawn_slime_seed(
             .with_child((
                 SlimeSeedSprite,
                 AseSpriteAnimation {
-                    aseprite: assets.slime.clone(),
+                    aseprite: match actor_group {
+                        ActorGroup::Player => assets.friend_slime.clone(),
+                        ActorGroup::Enemy => assets.slime.clone(),
+                    },
                     animation: Animation::default().with_tag("idle"),
                 },
             ));
@@ -85,7 +93,7 @@ fn update_slime_seed(
                 &life_bar_locals,
                 30 + rand::random::<u32>() % 30,
                 0,
-                seed.group,
+                seed.actor_group,
             );
             se_writer.send(SECommand::pos(SE::Bicha, seed.to));
         }

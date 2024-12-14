@@ -73,8 +73,6 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 move_direction: Vec2::ZERO,
                 move_force: 0.0,
                 fire_state: ActorFireState::Idle,
-                group: ENEMY_GROUP,
-                filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
                 effects: default(),
                 actor_group: ActorGroup::Enemy,
@@ -258,7 +256,7 @@ fn update_huge_slime_summon(
                             seed_writer.send(SpawnSlimeSeed {
                                 from: transform.translation.truncate(),
                                 to,
-                                group: ActorGroup::Enemy,
+                                actor_group: ActorGroup::Enemy,
                             });
                         }
                     }
