@@ -2,7 +2,7 @@ use crate::{
     asset::GameAssets,
     controller::remote::{send_remote_message, RemoteMessage},
     entity::{
-        actor::Actor,
+        actor::{Actor, ActorGroup},
         bullet::{spawn_bullet, SpawnBullet, BULLET_SPAWNING_MARGIN},
         life::Life,
         slime_seed::SpawnSlimeSeed,
@@ -145,6 +145,7 @@ pub fn cast_spell(
                     slime_writer.send(SpawnSlimeSeed {
                         from: actor_transform.translation.truncate(),
                         to: actor_transform.translation.truncate() + actor.pointer,
+                        group: ActorGroup::Player,
                     });
                     return props.cast_delay as i32;
                 }

@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::basic::spawn_basic_enemy;
-use crate::entity::actor::{Actor, ActorFireState};
+use crate::entity::actor::{Actor, ActorFireState, ActorGroup};
 use crate::entity::life::Life;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::GameSet;
@@ -36,6 +36,7 @@ pub fn spawn_eyeball(
         SpellType::PurpleBolt,
         ENEMY_MOVE_FORCE,
         3,
+        ActorGroup::Enemy,
     );
 }
 

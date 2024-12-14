@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::basic::spawn_basic_enemy;
-use crate::entity::actor::{Actor, ActorFireState};
+use crate::entity::actor::{Actor, ActorFireState, ActorGroup};
 use crate::entity::life::Life;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::GameSet;
@@ -29,6 +29,7 @@ pub fn spawn_slime(
     life_bar_locals: &Res<LifeBarResource>,
     initial_wait: u32,
     gold: u32,
+    group: ActorGroup,
 ) {
     spawn_basic_enemy(
         &mut commands,
@@ -40,6 +41,7 @@ pub fn spawn_slime(
         SpellType::SlimeCharge,
         ENEMY_MOVE_FORCE,
         gold,
+        group,
     );
 }
 
@@ -57,8 +59,8 @@ fn control_slime(
                     continue;
                 }
 
-                let diff = (player_transform.translation().truncate()
-                    - enemy_transform.translation.truncate());
+                let diff = player_transform.translation().truncate()
+                    - enemy_transform.translation.truncate();
                 if diff.length() < ENEMY_ATTACK_RANGE {
                     actor.move_direction = Vec2::ZERO;
                     actor.pointer = diff;

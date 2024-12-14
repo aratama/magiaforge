@@ -1,6 +1,6 @@
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
-use crate::entity::actor::{Actor, ActorFireState, ActorState};
+use crate::entity::actor::{Actor, ActorFireState, ActorGroup, ActorState};
 use crate::entity::bullet::HomingTarget;
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
@@ -23,6 +23,7 @@ pub fn spawn_basic_enemy<T: Component>(
     spell: SpellType,
     move_force: f32,
     gold: u32,
+    group: ActorGroup,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(spell);
@@ -45,6 +46,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
                 effects: default(),
+                actor_group: group,
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,

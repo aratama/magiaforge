@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::entity::actor::{Actor, ActorFireState, ActorState};
+use crate::entity::actor::{Actor, ActorFireState, ActorGroup, ActorState};
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
@@ -77,6 +77,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP,
                 current_wand: 0,
                 effects: default(),
+                actor_group: ActorGroup::Enemy,
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,
@@ -257,6 +258,7 @@ fn update_huge_slime_summon(
                             seed_writer.send(SpawnSlimeSeed {
                                 from: transform.translation.truncate(),
                                 to,
+                                group: ActorGroup::Enemy,
                             });
                         }
                     }

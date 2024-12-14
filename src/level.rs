@@ -12,6 +12,7 @@ use crate::controller::player::Player;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::slime::spawn_slime;
+use crate::entity::actor::ActorGroup;
 use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
@@ -263,6 +264,7 @@ fn spawn_level(
                 &life_bar_res,
                 0,
                 2,
+                ActorGroup::Enemy,
             );
         }
 

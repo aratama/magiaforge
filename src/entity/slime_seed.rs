@@ -9,12 +9,15 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::actor::ActorGroup;
+
 #[derive(Component)]
 pub struct SlimeSeed {
     animation: u32,
     from: Vec2,
     to: Vec2,
     speed: u32,
+    group: ActorGroup,
 }
 
 #[derive(Component)]
@@ -24,6 +27,7 @@ pub struct SlimeSeedSprite;
 pub struct SpawnSlimeSeed {
     pub from: Vec2,
     pub to: Vec2,
+    pub group: ActorGroup,
 }
 
 pub fn spawn_slime_seed(
@@ -31,7 +35,7 @@ pub fn spawn_slime_seed(
     assets: Res<GameAssets>,
     mut reader: EventReader<SpawnSlimeSeed>,
 ) {
-    for SpawnSlimeSeed { from, to } in reader.read() {
+    for SpawnSlimeSeed { from, to, group } in reader.read() {
         commands
             .spawn((
                 Name::new("slime_seed"),
@@ -41,6 +45,7 @@ pub fn spawn_slime_seed(
                     from: *from,
                     to: *to,
                     speed: 60 + rand::random::<u32>() % 30,
+                    group: *group,
                 },
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -80,6 +85,7 @@ fn update_slime_seed(
                 &life_bar_locals,
                 30 + rand::random::<u32>() % 30,
                 0,
+                seed.group,
             );
             se_writer.send(SECommand::pos(SE::Bicha, seed.to));
         }

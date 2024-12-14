@@ -74,6 +74,8 @@ pub struct Actor {
     // 弾丸へのバフ効果
     // 一回発射するごとにリセットされます
     pub effects: CastEffects,
+
+    pub actor_group: ActorGroup,
 }
 
 impl Actor {
@@ -91,6 +93,12 @@ pub enum ActorFireState {
 
     /// Actorのpointerに向かって弾丸を発射します
     Fire,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ActorGroup {
+    Player,
+    Enemy,
 }
 
 fn update_sprite_flip(

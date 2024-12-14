@@ -1,4 +1,4 @@
-use super::actor::ActorState;
+use super::actor::{ActorGroup, ActorState};
 use super::get_entity_z;
 use crate::asset::GameAssets;
 use crate::constant::*;
@@ -59,6 +59,7 @@ pub fn spawn_witch<T: Component>(
             filter: ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
             current_wand: 0,
             effects: default(),
+            actor_group: ActorGroup::Player,
             wands,
         },
         ActorState::default(),
