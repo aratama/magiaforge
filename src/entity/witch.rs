@@ -1,5 +1,5 @@
 use super::actor::{ActorGroup, ActorState};
-use super::get_entity_z;
+use super::EntityChildrenAutoDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState};
@@ -134,6 +134,7 @@ pub fn spawn_witch<T: Component>(
                 aseprite: assets.player.clone(),
                 animation: Animation::default().with_tag("idle_r"),
             },
+            EntityChildrenAutoDepth { offset: 0.0 },
         ));
 
         spawn_children.spawn((
@@ -142,6 +143,7 @@ pub fn spawn_witch<T: Component>(
                 aseprite: assets.atlas.clone(),
                 name: "wand_cypress".into(),
             },
+            EntityChildrenAutoDepth { offset: -0.001 },
         ));
 
         // リモートプレイヤーの名前
@@ -245,24 +247,8 @@ fn update_witch_animation(
     }
 }
 
-/// 魔女スプライトのZを設定します
-/// X,Y座標は親にあり、Z座標は親のY座標から計算されることに注意します
-/// X,Y座標とZ座標を設定するコンポーネントがそれぞれ異なるため、EntityDepthは使えません
-fn update_witch_z(
-    witch_query: Query<&Transform, With<Witch>>,
-    mut sprite_query: Query<
-        (&Parent, &mut Transform),
-        (With<WitchAnimationSprite>, Without<Witch>),
-    >,
-) {
-    for (parent, mut transform) in sprite_query.iter_mut() {
-        let witch_transform = witch_query.get(parent.get()).unwrap();
-        transform.translation.z = get_entity_z(witch_transform.translation.y);
-    }
-}
-
 fn update_wand(
-    actor_query: Query<(&Actor, &Transform)>,
+    actor_query: Query<&Actor>,
     mut query: Query<
         (&Parent, &mut Transform, &mut AseSpriteSlice),
         (With<WitchWandSprite>, Without<Actor>),
@@ -270,23 +256,18 @@ fn update_wand(
     assets: Res<GameAssets>,
 ) {
     for (parent, mut transform, mut slice) in query.iter_mut() {
-        if let Ok((actor, actor_transform)) = actor_query.get(parent.get()) {
+        if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
             let pi = std::f32::consts::PI;
             transform.rotation = Quat::from_rotation_z(angle);
-            transform.translation = Vec3::new(
-                if pi * 0.25 < angle && angle < pi * 0.75 {
-                    4.0
-                } else if angle < pi * -0.25 && pi * -0.75 < angle {
-                    -4.0
-                } else {
-                    0.0
-                },
-                0.0,
-                // 杖と腕は身体の奥に描画するため、 -0.1 でずらしています
-                get_entity_z(actor_transform.translation.y) - 0.1,
-            );
+            transform.translation.x = if pi * 0.25 < angle && angle < pi * 0.75 {
+                4.0
+            } else if angle < pi * -0.25 && pi * -0.75 < angle {
+                -4.0
+            } else {
+                0.0
+            };
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
                 let props = wand_to_props(wand.wand_type);
@@ -310,8 +291,7 @@ impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_witch_animation, update_wand, update_witch_z)
-                .run_if(in_state(GameState::InGame)),
+            (update_witch_animation, update_wand).run_if(in_state(GameState::InGame)),
         );
     }
 }

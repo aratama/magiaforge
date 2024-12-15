@@ -55,6 +55,9 @@ pub struct GameAssets {
     #[asset(path = "entity/impact.aseprite")]
     pub impact: Handle<Aseprite>,
 
+    #[asset(path = "entity/rabbit.aseprite")]
+    pub rabbit: Handle<Aseprite>,
+
     #[asset(path = "audio/dageki.ogg")]
     pub dageki: Handle<AudioSource>,
 

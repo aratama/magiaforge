@@ -20,6 +20,7 @@ use crate::entity::chest::ChestType;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
+use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
@@ -455,6 +456,13 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
             }
             GameEntity::HugeSlime => {
                 spawn_huge_slime(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                );
+            }
+            GameEntity::Rabbit => {
+                spawn_rabbit(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),

@@ -1,9 +1,5 @@
 use crate::{entity::GameEntity, level::tile::Tile};
-use bevy::{
-    log::*,
-    math::Vec2,
-    prelude::{Image, Resource},
-};
+use bevy::prelude::*;
 
 use super::TILE_SIZE;
 
@@ -207,12 +203,19 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::HugeSlime, x, y));
                 }
+                (255, 243, 0, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::Rabbit, x, y));
+                }
                 _ => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Blank,
                         biome: Biome::SafeZone,
                     });
-                    error!("Unknown color: ({}, {}, {}, {})", r, g, b, a);
+                    panic!("Unknown color: ({}, {}, {}, {})", r, g, b, a);
                 }
             }
         }

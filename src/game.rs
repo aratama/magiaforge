@@ -21,6 +21,7 @@ use crate::entity::gold::GoldPlugin;
 use crate::entity::impact::ImpactPlugin;
 use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
+use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::slime_seed::SlimeSeedPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
@@ -198,6 +199,7 @@ pub fn run_game() {
         .add_plugins(PlayerListPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(PointerPlugin)
+        .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(SlimeControlPlugin)
