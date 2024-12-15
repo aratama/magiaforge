@@ -3,6 +3,7 @@ use crate::{
     entity::{dropped_item::DroppedItemEntity, rabbit::Rabbit},
     se::{SECommand, SE},
     set::GameSet,
+    speech_bubble::{SpeechBubble, SpeechEvent},
     states::{GameMenuState, GameState},
     ui::interaction_marker::InteractionMarker,
 };
@@ -33,6 +34,7 @@ fn pick_up(
     keys: Res<ButtonInput<KeyCode>>,
     mut global: EventWriter<SECommand>,
     state: Res<State<GameMenuState>>,
+    mut speech_writer: EventWriter<SpeechEvent>,
 ) {
     if keys.just_pressed(KeyCode::KeyE) && *state.get() == GameMenuState::Closed {
         if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
@@ -62,7 +64,9 @@ fn pick_up(
                         warn!("Inventory is full");
                     }
                 } else if let Ok(_rabbit) = rabbit_query.get(nearest_parent) {
-                    info!("rabbit");
+                    speech_writer.send(SpeechEvent::Speech(
+                        "やあ、君か。\nなにか買っていくかい？".to_string(),
+                    ));
                 } else {
                     warn!("no item for nrearest {:?}", nearest_parent);
                 }

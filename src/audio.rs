@@ -1,5 +1,9 @@
 use crate::config::GameConfig;
-use bevy::{audio::Volume, prelude::*};
+use bevy::{
+    audio::{PlaybackMode, Volume},
+    prelude::*,
+    state::commands,
+};
 
 const SPATIAL_AUDIO_MAX_DISTANCE: f32 = 400.0;
 
@@ -66,15 +70,7 @@ fn change_bgm(
                     info!("BGM stopped");
                     commands.entity(entity).despawn_recursive();
 
-                    // 次のBGMを再生
-                    commands.spawn((
-                        BGM { volume: 1.0 },
-                        AudioPlayer::new(next.clone()),
-                        PlaybackSettings {
-                            volume: Volume::new(config.bgm_volume),
-                            ..default()
-                        },
-                    ));
+                    spawn_bgm(&mut commands, next, &config);
                 }
             }
         }
@@ -82,16 +78,21 @@ fn change_bgm(
         info!("BGM not found, starting new BGM");
         if let Some(ref next) = next_bgm.0 {
             info!("BGM started: {:?}", next);
-            commands.spawn((
-                BGM { volume: 1.0 },
-                AudioPlayer::new(next.clone()),
-                PlaybackSettings {
-                    volume: Volume::new(config.bgm_volume),
-                    ..default()
-                },
-            ));
+            spawn_bgm(&mut commands, next, &config);
         }
     }
+}
+
+fn spawn_bgm(commands: &mut Commands, next: &Handle<AudioSource>, config: &GameConfig) {
+    commands.spawn((
+        BGM { volume: 1.0 },
+        AudioPlayer::new(next.clone()),
+        PlaybackSettings {
+            volume: Volume::new(config.bgm_volume),
+            mode: PlaybackMode::Loop,
+            ..default()
+        },
+    ));
 }
 
 fn update_bgm_volue(mut current_bgm: Query<(&AudioSink, &BGM)>, config: Res<GameConfig>) {

@@ -114,6 +114,9 @@ pub struct GameAssets {
     #[asset(path = "audio/お風呂.ogg")]
     pub bicha: Handle<AudioSource>,
 
+    #[asset(path = "audio/可愛い動作.ogg")]
+    pub kawaii: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 

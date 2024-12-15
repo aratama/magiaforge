@@ -40,6 +40,7 @@ pub enum SE {
     Growl,
     Puyon,
     Bicha,
+    Kawaii,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -91,6 +92,7 @@ fn process_se_commands(
             SE::Growl => &assets.inoshishi,
             SE::Puyon => &assets.puyon,
             SE::Bicha => &assets.bicha,
+            SE::Kawaii => &assets.kawaii,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

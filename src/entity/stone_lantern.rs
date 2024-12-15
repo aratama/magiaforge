@@ -43,11 +43,12 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
             (
                 RigidBody::Dynamic,
                 Damping {
-                    linear_damping: 20.0,
+                    linear_damping: 80.0,
                     angular_damping: 0.0,
                 },
                 LockedAxes::ROTATION_LOCKED,
                 Collider::cuboid(8.0, 8.0),
+                ColliderMassProperties::Density(10.0),
                 CollisionGroups::new(
                     ENTITY_GROUP,
                     ENTITY_GROUP
