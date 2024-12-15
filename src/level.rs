@@ -126,7 +126,6 @@ fn setup_level(
         &life_bar_res,
         false,
         3.0,
-        true,
         player.wands,
         Player {
             name: player.name,

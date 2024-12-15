@@ -5,7 +5,6 @@ use crate::constant::*;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
-use crate::interaction_sensor::spawn_interaction_sensor;
 use crate::states::GameState;
 use crate::wand::Wand;
 use crate::wand_props::wand_to_props;
@@ -40,7 +39,6 @@ pub fn spawn_witch<T: Component>(
     res: &Res<LifeBarResource>,
     life_bar: bool,
     intensity: f32,
-    interaction: bool,
     wands: [Option<Wand>; 4],
     controller: T,
 ) -> Entity {
@@ -108,11 +106,7 @@ pub fn spawn_witch<T: Component>(
         ),
     ));
 
-    entity.with_children(move |mut spawn_children| {
-        if interaction {
-            spawn_interaction_sensor(&mut spawn_children);
-        }
-
+    entity.with_children(move |spawn_children| {
         spawn_children.spawn((
             Transform::from_translation(Vec2::new(0.0, -8.0).extend(SHADOW_LAYER_Z)),
             AseSpriteSlice {

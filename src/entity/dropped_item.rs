@@ -2,6 +2,7 @@ use crate::entity::EntityDepth;
 use crate::equipment::equipment_to_props;
 use crate::inventory_item::InventoryItem;
 use crate::spell_props::spell_to_props;
+use crate::ui::interaction_marker::spawn_interaction_marker;
 use crate::wand_props::wand_to_props;
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::core::FrameCount;
@@ -12,16 +13,12 @@ use bevy_rapier2d::prelude::*;
 #[derive(Component)]
 pub struct DroppedItemEntity {
     pub item_type: InventoryItem,
-    pub interaction_marker: bool,
 }
 
 #[derive(Component)]
 struct SpellSprites {
     swing: f32,
 }
-
-#[derive(Component)]
-struct InteractionMarker;
 
 pub fn spawn_dropped_item(
     commands: &mut Commands,
@@ -75,10 +72,7 @@ pub fn spawn_dropped_item(
         .spawn((
             Name::new(format!("dropped item {}", name)),
             StateScoped(GameState::InGame),
-            DroppedItemEntity {
-                item_type,
-                interaction_marker: false,
-            },
+            DroppedItemEntity { item_type },
             EntityDepth,
             InheritedVisibility::default(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
@@ -95,7 +89,9 @@ pub fn spawn_dropped_item(
                 angular_damping: 1.0,
             },
         ))
-        .with_children(|parent| {
+        .with_children(|mut parent| {
+            spawn_interaction_marker(&mut parent, &assets, 14.0);
+
             parent
                 .spawn((
                     SpellSprites { swing },
@@ -119,20 +115,6 @@ pub fn spawn_dropped_item(
                         },
                         Transform::from_xyz(0.0, 0.0, 0.0001),
                     ));
-
-                    parent.spawn((
-                        InteractionMarker,
-                        Visibility::Hidden,
-                        Transform::from_xyz(0.0, 14.0, 0.0002),
-                        AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
-                            name: "interactive".into(),
-                        },
-                        Sprite {
-                            color: Color::hsla(0.0, 0.0, 1.0, 0.2),
-                            ..default()
-                        },
-                    ));
                 });
         });
 }
@@ -143,30 +125,10 @@ fn swing(mut query: Query<(&mut Transform, &SpellSprites)>, frame_count: Res<Fra
     }
 }
 
-fn update_interactive_marker_visibility(
-    spell: Query<&DroppedItemEntity>,
-    sprites: Query<&Parent, With<SpellSprites>>,
-    mut marker_query: Query<(&Parent, &mut Visibility), With<InteractionMarker>>,
-) {
-    for (parent, mut visibility) in marker_query.iter_mut() {
-        if let Ok(parent) = sprites.get(parent.get()) {
-            if let Ok(spell) = spell.get(parent.get()) {
-                *visibility = if spell.interaction_marker {
-                    Visibility::Inherited
-                } else {
-                    Visibility::Hidden
-                };
-            }
-        }
-    }
-}
 pub struct SpellEntityPlugin;
 
 impl Plugin for SpellEntityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (swing, update_interactive_marker_visibility).run_if(in_state(GameState::InGame)),
-        );
+        app.add_systems(Update, swing.run_if(in_state(GameState::InGame)));
     }
 }

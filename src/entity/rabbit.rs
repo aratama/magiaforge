@@ -5,6 +5,7 @@ use crate::entity::actor::{ActorGroup, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::states::GameState;
+use crate::ui::interaction_marker::spawn_interaction_marker;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseSpriteSlice};
 use bevy_rapier2d::prelude::*;
@@ -59,7 +60,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 ),
             ),
         ))
-        .with_children(|builder| {
+        .with_children(|mut builder| {
             builder.spawn((
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -75,6 +76,8 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 },
                 EntityChildrenAutoDepth { offset: 0.0 },
             ));
+
+            spawn_interaction_marker(&mut builder, &assets, 28.0);
         });
 }
 

@@ -252,7 +252,6 @@ fn receive_events(
                                     &life_bar_res,
                                     true,
                                     3.0,
-                                    false,
                                     [None, None, None, None],
                                     RemotePlayer {
                                         name,
