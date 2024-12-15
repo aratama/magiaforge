@@ -3,7 +3,7 @@ use crate::{
     entity::{dropped_item::DroppedItemEntity, rabbit::Rabbit},
     se::{SECommand, SE},
     set::GameSet,
-    speech_bubble::{SpeechBubble, SpeechEvent},
+    speech_bubble::SpeechEvent,
     states::{GameMenuState, GameState},
     ui::interaction_marker::InteractionMarker,
 };

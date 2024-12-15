@@ -8,7 +8,6 @@ use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::life::Life;
-use crate::entity::rabbit::Rabbit;
 use crate::level::{level_to_name, GameLevel, NextLevel};
 use crate::speech_bubble::spawn_speech_bubble;
 use crate::states::GameState;
@@ -19,15 +18,7 @@ use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
-use bevy::text::FontSmoothing;
-use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
-
-const SCALE: f32 = 3.0;
-
-const SPEECH_BUBBLE_WIDTH: f32 = 128.0;
-
-const SPEECH_BUBBLE_HEIGHT: f32 = 64.0;
 
 #[derive(Component)]
 pub struct HUD;
