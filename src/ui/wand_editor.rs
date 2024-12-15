@@ -2,7 +2,7 @@ use super::{
     command_button::{command_button, CommandButton},
     floating::Floating,
     inventory::spawn_inventory,
-    item_information::spawn_spell_information,
+    item_information::{spawn_spell_information, SpellInformationInner, SpellInformationRoot},
     menu_left::MenuLeft,
 };
 use crate::{
@@ -66,23 +66,35 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 
     builder
         .spawn((
-            MenuLeft::new(900.0, 1300.0),
+            SpellInformationRoot,
             BackgroundColor(MENU_THEME_COLOR),
             GlobalZIndex(WAND_EDITOR_Z_INDEX),
             Node {
                 position_type: PositionType::Absolute,
                 top: Val::Px(100.0),
-                display: Display::Flex,
+                display: Display::None,
+                // display: Display::Flex,
+                //
                 flex_direction: FlexDirection::Column,
                 row_gap: Val::Px(8.0),
-                padding: UiRect::all(Val::Px(24.0)),
+                padding: UiRect::all(Val::Px(4.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 ..default()
             },
         ))
-        .with_children(|mut parent| {
-            spawn_spell_information(&mut parent, &assets);
+        .with_children(|parent| {
+            parent
+                .spawn((
+                    SpellInformationInner,
+                    Node {
+                        display: Display::Flex,
+                        ..default()
+                    },
+                ))
+                .with_children(|mut parent| {
+                    spawn_spell_information(&mut parent, &assets);
+                });
         });
 }
 

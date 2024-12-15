@@ -8,6 +8,7 @@ use crate::{
     wand_props::wand_to_props,
 };
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
 
 pub enum SpellInformationItem {
@@ -27,6 +28,16 @@ struct SpellName;
 #[derive(Component)]
 struct SpellDescription;
 
+/// アイテム情報が表示されるのは、マウスがインベントリのグリッド上にあり、
+/// かつそのスロットの位置にアイテムがあるときです
+/// この両方が揃ったときに表示されるようにするため、SpellInformationRootとSpellInformationInnerの両方の
+/// displayを切り替えています
+#[derive(Component)]
+pub struct SpellInformationRoot;
+
+#[derive(Component)]
+pub struct SpellInformationInner;
+
 pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((
@@ -35,7 +46,7 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
             Node {
                 padding: UiRect::all(Val::Px(8.0)),
                 width: Val::Px(300.0),
-                height: Val::Px(500.0),
+                height: Val::Px(300.0),
                 display: Display::Flex,
                 flex_direction: FlexDirection::Column,
                 ..default()
@@ -83,6 +94,18 @@ pub fn spawn_spell_information(builder: &mut ChildBuilder, assets: &Res<GameAsse
                 },
             ));
         });
+}
+
+fn update_information_position(
+    mut spell_info: Query<&mut Node, With<SpellInformationRoot>>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+) {
+    let window = q_window.single();
+    if let Some(cursor) = window.cursor_position() {
+        let mut info = spell_info.single_mut();
+        info.left = Val::Px(cursor.x);
+        info.top = Val::Px(cursor.y);
+    }
 }
 
 fn update_spell_icon(
@@ -145,24 +168,30 @@ fn update_spell_description(
     spell_info: Query<&SpellInformation>,
     config: Res<GameConfig>,
     floating_query: Query<&Floating>,
+    mut inner_query: Query<&mut Node, With<SpellInformationInner>>,
 ) {
     let Floating(floating) = floating_query.single();
     if floating.is_some() {
         return;
     }
 
+    let mut inner = inner_query.single_mut();
+
     let mut text = query.single_mut();
     let spell_info = spell_info.single();
     match spell_info {
         SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
             text.0 = get_inventory_item_description(*item, config.language);
+            inner.display = Display::Flex;
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             let props = wand_to_props(*wand);
             text.0 = props.description.get(config.language).to_string();
+            inner.display = Display::Flex;
         }
         _ => {
             text.0 = "".to_string();
+            inner.display = Display::None;
         }
     }
 }
@@ -177,6 +206,7 @@ impl Plugin for SpellInformationPlugin {
                 update_spell_name,
                 update_spell_description,
                 update_spell_icon,
+                update_information_position,
             )
                 .run_if(in_state(GameState::InGame)),
         );

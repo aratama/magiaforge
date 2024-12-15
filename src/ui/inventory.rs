@@ -9,38 +9,23 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use std::collections::HashSet;
 
+use super::item_information::SpellInformationRoot;
+
+#[derive(Component)]
+pub struct InventoryGrid;
+
 #[derive(Component)]
 struct InventoryItemSlot(usize);
 
 pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
-        .spawn((
-            // background_color: BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.2)),
-            Node {
-                width: Val::Px(151.0 * 2.0),
-                height: Val::Px(160.0 * 2.0),
-                // Make the height of the node fill its parent
-                // height: Val::Percent(100.0),
-                // Make the grid have a 1:1 aspect ratio meaning it will scale as an exact square
-                // As the height is set explicitly, this means the width will adjust to match the height
-                // aspect_ratio: Some(1.0),
-                // Use grid layout for this node
-                // display: Display::Grid,
-                // Add 24px of padding around the grid
-                // padding: UiRect::all(Val::Px(0.0)),
-                // Set the grid to have 4 columns all with sizes minmax(0, 1fr)
-                // This creates 4 exactly evenly sized columns
-                // grid_template_columns: RepeatedGridTrack::flex(8, 1.0),
-                // Set the grid to have 4 rows all with sizes minmax(0, 1fr)
-                // This creates 4 exactly evenly sized rows
-                // grid_template_rows: RepeatedGridTrack::flex(8, 1.0),
-                // Set a 12px gap/gutter between rows and columns
-                // row_gap: Val::Px(2.0),
-                // column_gap: Val::Px(2.0),
-                ..default()
-            },
-        ))
+        .spawn((Node {
+            width: Val::Px(151.0 * 2.0),
+            height: Val::Px(160.0 * 2.0),
+            ..default()
+        },))
         .with_children(|builder| {
+            // 背景画像
             builder.spawn((
                 ZIndex(0),
                 Node {
@@ -57,27 +42,43 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 },
             ));
 
-            for i in 0..MAX_ITEMS_IN_INVENTORY {
-                builder.spawn((
-                    InventoryItemSlot(i),
+            builder
+                .spawn((
+                    InventoryGrid,
                     Interaction::default(),
-                    ZIndex(1),
                     Node {
-                        width: Val::Px(32.0),
-                        height: Val::Px(32.0),
-                        // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
-                        // Absoluteでずれないようにする
                         position_type: PositionType::Absolute,
-                        left: Val::Px(16.0 + (i % 8) as f32 * 32.0),
-                        top: Val::Px(16.0 + (i / 8) as f32 * 32.0),
+                        width: Val::Px(16.0 * 8.0 * 2.0),
+                        height: Val::Px(16.0 * 8.0 * 2.0),
+                        left: Val::Px(16.0),
+                        top: Val::Px(16.0),
                         ..default()
                     },
-                    AseUiSlice {
-                        aseprite: assets.atlas.clone(),
-                        name: "empty".into(),
-                    },
-                ));
-            }
+                ))
+                .with_children(|builder| {
+                    //スロット
+                    for i in 0..MAX_ITEMS_IN_INVENTORY {
+                        builder.spawn((
+                            InventoryItemSlot(i),
+                            Interaction::default(),
+                            ZIndex(1),
+                            Node {
+                                width: Val::Px(32.0),
+                                height: Val::Px(32.0),
+                                // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
+                                // Absoluteでずれないようにする
+                                position_type: PositionType::Absolute,
+                                left: Val::Px((i % 8) as f32 * 32.0),
+                                top: Val::Px((i / 8) as f32 * 32.0),
+                                ..default()
+                            },
+                            AseUiSlice {
+                                aseprite: assets.atlas.clone(),
+                                name: "empty".into(),
+                            },
+                        ));
+                    }
+                });
         });
 }
 
@@ -255,13 +256,28 @@ fn interaction(
     }
 }
 
+fn root_interaction(
+    mut interaction_query: Query<&Interaction, (With<InventoryGrid>, Changed<Interaction>)>,
+    mut spell_info_query: Query<&mut Node, With<SpellInformationRoot>>,
+) {
+    let mut spell = spell_info_query.single_mut();
+    for interaction in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {}
+            Interaction::Hovered => spell.display = Display::Flex,
+            Interaction::None => spell.display = Display::None,
+        }
+    }
+}
+
 pub struct InventoryPlugin;
 
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_inventory_slot, interaction).run_if(in_state(GameState::InGame)),
+            (update_inventory_slot, interaction, root_interaction)
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }
