@@ -147,6 +147,9 @@ pub struct GameAssets {
     #[asset(path = "bgm/忘れられた神殿.ogg")]
     pub shiden: Handle<AudioSource>,
 
+    #[asset(path = "bgm/midnight-forest-184304.ogg")]
+    pub midnight_forest: Handle<AudioSource>,
+
     // ボス //////////////////////////////////////////////////////////////////////
     #[asset(path = "bgm/悪魔との戦闘.ogg")]
     pub deamon: Handle<AudioSource>,
@@ -162,4 +165,16 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/Sacred_Sacrifice.ogg")]
     pub sacred: Handle<AudioSource>,
+
+    #[asset(path = "bgm/battle-cinematic-trailer-royalty-free-music-210434.ogg")]
+    pub battle_cinematic: Handle<AudioSource>,
+
+    #[asset(path = "bgm/battle-fight-music-dynamic-warrior-background-intro-theme-272176.ogg")]
+    pub battle_fight: Handle<AudioSource>,
+
+    #[asset(path = "bgm/final-battle-trailer-music-217488.ogg")]
+    pub final_battle: Handle<AudioSource>,
+
+    #[asset(path = "bgm/human-vs-machine-dark-orchestral-cinematic-epic-action-271968.ogg")]
+    pub human_vs_machine: Handle<AudioSource>,
 }

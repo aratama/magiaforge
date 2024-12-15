@@ -65,6 +65,11 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - Decisive Battle https://dova-s.jp/bgm/play5746.html
 - 炎神の吐息 https://dova-s.jp/bgm/play298.html
 - Sacred Sacrifice https://dova-s.jp/bgm/play6142.html
+- FINAL BATTLE (TRAILER MUSIC) https://pixabay.com/music/electronic-final-battle-trailer-music-217488/
+- Battle Fight Music (Dynamic Warrior Background Intro Theme) https://pixabay.com/music/upbeat-battle-fight-music-dynamic-warrior-background-intro-theme-272176/
+- Battle Cinematic Trailer (Royalty Free Music) https://pixabay.com/music/main-title-battle-cinematic-trailer-royalty-free-music-210434/
+- Human vs Machine (dark orchestral cinematic epic action) https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/
+- Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/
 
 #### Fonts
 

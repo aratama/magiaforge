@@ -65,7 +65,7 @@ fn pick_up(
                     }
                 } else if let Ok(_rabbit) = rabbit_query.get(nearest_parent) {
                     speech_writer.send(SpeechEvent::Speech(
-                        "やあ、君か。\nなにか買っていくかい？".to_string(),
+                        "やあ、君か。\nなにか買っていくかい？？".to_string(),
                     ));
                 } else {
                     warn!("no item for nrearest {:?}", nearest_parent);

@@ -163,6 +163,10 @@ fn select_level_bgm(
                     assets.decisive.clone(),
                     assets.enjin.clone(),
                     assets.sacred.clone(),
+                    assets.battle_cinematic.clone(),
+                    assets.battle_fight.clone(),
+                    assets.final_battle.clone(),
+                    assets.human_vs_machine.clone(),
                 ];
                 bgms.shuffle(&mut rng);
                 bgms.pop().unwrap()
@@ -175,6 +179,7 @@ fn select_level_bgm(
                     assets.mori.clone(),
                     assets.meikyu.clone(),
                     assets.shiden.clone(),
+                    assets.midnight_forest.clone(),
                 ];
                 bgms.shuffle(&mut rng);
                 bgms.pop().unwrap()
