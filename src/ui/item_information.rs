@@ -1,8 +1,9 @@
+use crate::inventory::InventoryItem;
 use crate::ui::floating::Floating;
 use crate::{
     asset::GameAssets,
     config::GameConfig,
-    inventory_item::{get_inventory_item_description, inventory_item_to_props, InventoryItemType},
+    inventory_item::{get_inventory_item_description, inventory_item_to_props},
     states::GameState,
     wand::WandType,
 };
@@ -14,7 +15,7 @@ use super::inventory::InventoryGrid;
 
 #[derive(PartialEq, Eq)]
 pub enum SpellInformationItem {
-    InventoryItem(InventoryItemType),
+    InventoryItem(InventoryItem),
     Wand(WandType),
 }
 
@@ -118,7 +119,7 @@ fn update_spell_icon(
     let spell_info = spell_info.single();
     match spell_info {
         SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
-            let props = inventory_item_to_props(*item);
+            let props = inventory_item_to_props(item.item_type);
             slice.name = props.icon.into();
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
@@ -145,7 +146,7 @@ fn update_spell_name(
     let spell_info = spell_info.single();
     match spell_info {
         SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
-            let props = inventory_item_to_props(*item);
+            let props = inventory_item_to_props(item.item_type);
             text.0 = props.name.get(config.language).to_string();
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
@@ -172,7 +173,10 @@ fn update_spell_description(
     let spell_info = spell_info.single();
     match spell_info {
         SpellInformation(Some(SpellInformationItem::InventoryItem(item))) => {
-            text.0 = get_inventory_item_description(*item, config.language);
+            text.0 = get_inventory_item_description(item.item_type, config.language);
+            if 0 < item.price {
+                text.0 += &format!("\n未清算:{}ゴールド", item.price);
+            }
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
             text.0 = wand.to_props().description.get(config.language).to_string();

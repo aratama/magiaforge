@@ -14,7 +14,7 @@ use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
 use crate::ui::boss_hitpoint_bar::spawn_boss_hitpoint_bar;
 use crate::ui::equipment_list::spawn_equipment_list;
-use crate::ui::floating::spawn_inventory_floating;
+use crate::ui::floating::{spawn_inventory_floating, Floating};
 use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
@@ -119,7 +119,62 @@ fn setup_hud(
             spawn_boss_hitpoint_bar(&mut parent);
 
             spawn_speech_bubble(&mut parent, &assets);
+
+            spawn_drop_area(&mut parent);
         });
+}
+
+#[derive(Component)]
+pub struct DropArea {
+    pub hover: bool,
+}
+
+fn spawn_drop_area(parent: &mut ChildBuilder) {
+    parent.spawn((
+        DropArea { hover: false },
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(540.0),
+            top: Val::Px(260.0),
+            width: Val::Px(200.0),
+            height: Val::Px(200.0),
+            border: UiRect::all(Val::Px(1.0)),
+            ..default()
+        },
+        BorderColor(Color::hsva(0.0, 0.0, 1.0, 0.2)),
+        Interaction::default(),
+    ));
+}
+
+fn drop_area_interaction(
+    mut quary: Query<(&mut DropArea, &Interaction, &mut BorderColor), Changed<Interaction>>,
+) {
+    for (mut area, interaction, mut border) in quary.iter_mut() {
+        match interaction {
+            Interaction::Hovered => {
+                area.hover = true;
+                border.0.set_alpha(0.5);
+            }
+            Interaction::None => {
+                area.hover = false;
+                border.0.set_alpha(0.2);
+            }
+            _ => {}
+        }
+    }
+}
+
+fn drop_area_visibility(
+    mut droparea_quary: Query<&mut Node, With<DropArea>>,
+    floating_query: Query<&Floating, Changed<Floating>>,
+) {
+    if let Ok(floating) = floating_query.get_single() {
+        let mut node = droparea_quary.single_mut();
+        node.display = match floating.content {
+            Some(_) => Display::Flex,
+            _ => Display::None,
+        };
+    }
 }
 
 fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
@@ -197,6 +252,10 @@ pub struct HudPlugin;
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_hud);
-        app.add_systems(Update, (update_hud,).run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            Update,
+            (update_hud, drop_area_interaction, drop_area_visibility)
+                .run_if(in_state(GameState::InGame)),
+        );
     }
 }

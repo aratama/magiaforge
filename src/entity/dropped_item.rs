@@ -92,16 +92,19 @@ pub fn spawn_dropped_item(
                     InheritedVisibility::default(),
                 ))
                 .with_children(|parent| {
-                    parent.spawn((
-                        Text2d(format!("{}", item.price)),
-                        TextFont {
-                            font: assets.dotgothic.clone(),
-                            font_size: 24.0,
-                            font_smoothing: FontSmoothing::None,
-                        },
-                        TextColor(Color::WHITE),
-                        Transform::from_xyz(0.0, 14.0, 1.0).with_scale(Vec3::new(0.3, 0.3, 1.0)),
-                    ));
+                    if 0 < item.price {
+                        parent.spawn((
+                            Text2d(format!("{}", item.price)),
+                            TextFont {
+                                font: assets.dotgothic.clone(),
+                                font_size: 24.0,
+                                font_smoothing: FontSmoothing::None,
+                            },
+                            TextColor(Color::WHITE),
+                            Transform::from_xyz(0.0, 14.0, 1.0)
+                                .with_scale(Vec3::new(0.3, 0.3, 1.0)),
+                        ));
+                    }
 
                     parent.spawn((
                         AseSpriteSlice {

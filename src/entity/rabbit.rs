@@ -5,6 +5,7 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::actor::{ActorGroup, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
+use crate::se::{SECommand, SE};
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -16,6 +17,9 @@ pub struct Rabbit;
 
 #[derive(Component)]
 struct RabbitSensor;
+
+#[derive(Component)]
+struct RabbitOuterSensor;
 
 pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
@@ -86,21 +90,44 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 Collider::ball(16.0),
                 Sensor,
                 ActiveEvents::COLLISION_EVENTS,
+                CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+            ));
+
+            builder.spawn((
+                RabbitOuterSensor,
+                Collider::ball(32.0),
+                Sensor,
+                ActiveEvents::COLLISION_EVENTS,
+                CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
             ));
         });
 }
 
-fn collision(
+fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitSensor>,
-    player_query: Query<&Player>,
+    mut player_query: Query<&mut Player>,
     mut speech_writer: EventWriter<SpeechEvent>,
+    mut se: EventWriter<SECommand>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, _option) => {
-                let _ = chat_start(a, b, &sensor_query, &player_query, &mut speech_writer)
-                    || chat_start(b, a, &sensor_query, &player_query, &mut speech_writer);
+                let _ = chat_start(
+                    a,
+                    b,
+                    &sensor_query,
+                    &mut player_query,
+                    &mut speech_writer,
+                    &mut se,
+                ) || chat_start(
+                    b,
+                    a,
+                    &sensor_query,
+                    &mut player_query,
+                    &mut speech_writer,
+                    &mut se,
+                );
             }
             CollisionEvent::Stopped(a, b, _option) => {
                 let _ = chat_end(a, b, &sensor_query, &player_query, &mut speech_writer)
@@ -114,14 +141,35 @@ fn chat_start(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitSensor>,
-    player_query: &Query<&Player>,
+    player_query: &mut Query<&mut Player>,
     speech_writer: &mut EventWriter<SpeechEvent>,
+    se: &mut EventWriter<SECommand>,
 ) -> bool {
-    if sensor_query.contains(*a) && player_query.contains(*b) {
-        speech_writer.send(SpeechEvent::Speech(
-            "やあ。\nなにか買っていくかい？？".to_string(),
-        ));
-        return true;
+    if sensor_query.contains(*a) {
+        if let Ok(mut player) = player_query.get_mut(*b) {
+            let dept = player.dept();
+            if 0 < dept {
+                if player.liquidate() {
+                    se.send(SECommand::new(SE::Register));
+                    speech_writer.send(SpeechEvent::Speech(
+                        format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
+                    ));
+                } else {
+                    speech_writer.send(SpeechEvent::Speech(
+                        format!(
+                            "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
+                            dept as i32 - player.golds
+                        )
+                        .to_string(),
+                    ));
+                }
+            } else {
+                speech_writer.send(SpeechEvent::Speech(
+                    "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
+                ));
+            }
+            return true;
+        }
     }
     return false;
 }
@@ -130,12 +178,51 @@ fn chat_end(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitSensor>,
-    player_query: &Query<&Player>,
+    player_query: &Query<&mut Player>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) && player_query.contains(*b) {
         speech_writer.send(SpeechEvent::Close);
         return true;
+    }
+    return false;
+}
+
+fn collision_outer_sensor(
+    mut collision_events: EventReader<CollisionEvent>,
+    sensor_query: Query<&RabbitOuterSensor>,
+    player_query: Query<&Player>,
+    mut speech_writer: EventWriter<SpeechEvent>,
+) {
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(..) => {}
+            CollisionEvent::Stopped(a, b, _option) => {
+                let _ = out_sensor(a, b, &sensor_query, &player_query, &mut speech_writer)
+                    || out_sensor(b, a, &sensor_query, &player_query, &mut speech_writer);
+            }
+        }
+    }
+}
+
+fn out_sensor(
+    a: &Entity,
+    b: &Entity,
+    sensor_query: &Query<&RabbitOuterSensor>,
+    player_query: &Query<&Player>,
+    _speech_writer: &mut EventWriter<SpeechEvent>,
+) -> bool {
+    if sensor_query.contains(*a) {
+        if let Ok(player) = player_query.get(*b) {
+            if 0 < player.dept() {
+                // WIP
+                // speech_writer.send(SpeechEvent::Speech(
+                //     format!("おいおいおいおい\n冗談はよしてくれ\nまだ会計をしてないのに\nどこに行く気だい？")
+                //         .to_string(),
+                // ));
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -146,7 +233,7 @@ impl Plugin for RabbitPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (collision)
+            (collision_inner_sensor, collision_outer_sensor)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

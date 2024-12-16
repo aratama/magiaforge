@@ -16,6 +16,9 @@ pub struct InventoryGrid {
 #[derive(Component)]
 struct InventoryItemSlot(usize);
 
+#[derive(Component)]
+struct YellowFrame;
+
 pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((Node {
@@ -57,26 +60,34 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 .with_children(|builder| {
                     //スロット
                     for i in 0..MAX_ITEMS_IN_INVENTORY {
-                        builder.spawn((
-                            InventoryItemSlot(i),
-                            Interaction::default(),
-                            ZIndex(1),
-                            Node {
-                                width: Val::Px(32.0),
-                                height: Val::Px(32.0),
-                                // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
-                                // Absoluteでずれないようにする
-                                position_type: PositionType::Absolute,
-                                left: Val::Px((i % 8) as f32 * 32.0),
-                                top: Val::Px((i / 8) as f32 * 32.0),
-                                ..default()
-                            },
-                            BackgroundColor(Color::hsla(0.0, 0.0, 0.0, 0.0)),
-                            AseUiSlice {
-                                aseprite: assets.atlas.clone(),
-                                name: "empty".into(),
-                            },
-                        ));
+                        builder
+                            .spawn((
+                                InventoryItemSlot(i),
+                                Interaction::default(),
+                                ZIndex(1),
+                                Node {
+                                    width: Val::Px(32.0),
+                                    height: Val::Px(32.0),
+                                    // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
+                                    // Absoluteでずれないようにする
+                                    position_type: PositionType::Absolute,
+                                    left: Val::Px((i % 8) as f32 * 32.0),
+                                    top: Val::Px((i / 8) as f32 * 32.0),
+                                    ..default()
+                                },
+                                AseUiSlice {
+                                    aseprite: assets.atlas.clone(),
+                                    name: "empty".into(),
+                                },
+                            ))
+                            .with_child((
+                                YellowFrame,
+                                AseUiSlice {
+                                    aseprite: assets.atlas.clone(),
+                                    name: "empty".into(),
+                                },
+                                ZIndex(-1),
+                            ));
                     }
                 });
         });
@@ -89,7 +100,6 @@ fn update_inventory_slot(
         &mut AseUiSlice,
         &mut Node,
         &mut Visibility,
-        &mut BackgroundColor,
     )>,
     floating_query: Query<&Floating>,
 ) {
@@ -98,8 +108,7 @@ fn update_inventory_slot(
 
         let mut hidden: HashSet<usize> = HashSet::new();
 
-        for (slot, mut aseprite, mut style, mut visibility, mut background) in slot_query.iter_mut()
-        {
+        for (slot, mut aseprite, mut style, mut visibility) in slot_query.iter_mut() {
             let item_optional = player.inventory.get(slot.0);
 
             if let Some(item) = item_optional {
@@ -110,28 +119,43 @@ fn update_inventory_slot(
                 };
                 style.width = Val::Px(32.0 * width as f32);
                 *visibility = Visibility::Inherited;
-                *background = BackgroundColor(Color::hsla(
-                    0.0,
-                    1.0,
-                    0.5,
-                    if 0 < item.price { 1.0 } else { 0.0 },
-                ));
+
                 for d in 1..width {
                     hidden.insert(slot.0 + d);
                 }
             } else {
-                *background = BackgroundColor(Color::hsla(0.0, 1.0, 0.5, 0.0));
                 style.width = Val::Px(32.0);
                 aseprite.name = "empty".into();
             }
         }
 
-        for (sprite, _, _, mut visibility, _) in slot_query.iter_mut() {
-            *visibility = if hidden.contains(&sprite.0) {
-                Visibility::Hidden
+        for (sprite, _, _, mut visibility) in slot_query.iter_mut() {
+            if hidden.contains(&sprite.0) {
+                *visibility = Visibility::Hidden;
             } else {
-                Visibility::Inherited
-            };
+                *visibility = Visibility::Inherited;
+            }
+        }
+    }
+}
+
+fn update_yellow_frame(
+    query: Query<&Player>,
+    slot_query: Query<&InventoryItemSlot>,
+    mut children_query: Query<(&Parent, &mut AseUiSlice), With<YellowFrame>>,
+) {
+    if let Ok(player) = query.get_single() {
+        for (parent, mut aseprite) in children_query.iter_mut() {
+            let slot = slot_query.get(parent.get()).unwrap();
+            let item_optional = player.inventory.get(slot.0);
+            match item_optional {
+                Some(item) if 0 < item.price => {
+                    aseprite.name = "yellow_frame".into();
+                }
+                _ => {
+                    aseprite.name = "empty".into();
+                }
+            }
         }
     }
 }
@@ -163,7 +187,7 @@ fn interaction(
                     if player.inventory.is_settable_optional(slot.0, floating_item) {
                         *spell_info = match player.inventory.get(slot.0) {
                             Some(slot_item) => SpellInformation(Some(
-                                SpellInformationItem::InventoryItem(slot_item.item_type),
+                                SpellInformationItem::InventoryItem(slot_item),
                             )),
                             None => SpellInformation(None),
                         };
@@ -201,7 +225,12 @@ impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_inventory_slot, interaction, root_interaction)
+            (
+                update_inventory_slot,
+                interaction,
+                root_interaction,
+                update_yellow_frame,
+            )
                 .run_if(in_state(GameState::InGame)),
         );
     }

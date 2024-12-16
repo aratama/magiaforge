@@ -106,13 +106,21 @@ impl Inventory {
     }
 
     // 現在所持している有料呪文の合計金額を返します
-    // fn dept(&self) -> u32 {
-    //     let total = 0;
-    //     for item in self.0 {
-    //         if let Some(item) = item {
-    //             total += item.price;
-    //         }
-    //     }
-    //     total
-    // }
+    pub fn dept(&self) -> u32 {
+        let mut total = 0;
+        for item in self.0 {
+            if let Some(item) = item {
+                total += item.price;
+            }
+        }
+        total
+    }
+
+    pub fn liquidate(&mut self) {
+        for item in self.0.iter_mut() {
+            if let Some(item) = item {
+                item.price = 0;
+            }
+        }
+    }
 }

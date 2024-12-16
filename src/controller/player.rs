@@ -40,18 +40,24 @@ pub struct Player {
     pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
 }
 
-// impl Player {
-//     /// 現在所持している有料呪文の合計金額を返します
-//     fn dept(&self) {
-//         let total = 0;
+impl Player {
+    /// 現在所持している有料呪文の合計金額を返します
+    pub fn dept(&self) -> u32 {
+        self.inventory.dept()
+    }
 
-//        for item in self.inventory {
-//             item.
-//        }
-
-//         total
-//     }
-// }
+    /// 清算します
+    /// いま所持している有料のスペルをすべて無料に戻します
+    pub fn liquidate(&mut self) -> bool {
+        if self.golds < self.dept() as i32 {
+            return false;
+        }
+        let dept = self.dept();
+        self.golds -= dept as i32;
+        self.inventory.liquidate();
+        return true;
+    }
+}
 
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません

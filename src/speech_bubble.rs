@@ -118,16 +118,26 @@ fn countup(
 
     if *visibility == Visibility::Inherited {
         const DELAY: usize = 4;
-        speech.count += 1;
-        let count = speech.count / DELAY;
+
+        let pos = speech.count / DELAY;
         let mut text = text_query.single_mut();
-        let mut chars = speech.text.char_indices();
-        let length = speech.text.char_indices().count();
-        let (i, _) = chars.nth(count.min(length - 1)).unwrap();
-        text.0 = speech.text[..i].to_string();
-        speech.count = speech.count.min(length * DELAY + 1);
-        if speech.count % DELAY == 0 {
-            se.send(SECommand::new(SE::Kawaii));
+        let chars = speech.text.char_indices();
+        let mut str = "".to_string();
+        let mut s = 0;
+        for (i, val) in chars.enumerate() {
+            if i < pos {
+                str.push(val.1);
+            }
+            s += 1;
+        }
+        text.0 = str;
+
+        if pos < s {
+            if speech.count % DELAY == 0 {
+                se.send(SECommand::new(SE::Kawaii));
+            }
+
+            speech.count += 1;
         }
     }
 }

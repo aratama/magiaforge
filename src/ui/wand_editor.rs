@@ -7,18 +7,12 @@ use super::{
 };
 use crate::{
     asset::GameAssets,
-    constant::{TILE_SIZE, WAND_EDITOR_Z_INDEX},
+    constant::WAND_EDITOR_Z_INDEX,
     controller::player::Player,
-    entity::{actor::Actor, dropped_item::spawn_dropped_item},
-    inventory::InventoryItem,
-    inventory_item::InventoryItemType,
     language::Dict,
-    set::GameSet,
     states::{GameMenuState, GameState},
-    ui::floating::FloatingContent,
 };
-use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_rapier2d::plugin::PhysicsSet;
+use bevy::prelude::*;
 
 #[derive(Component)]
 struct WandEditorRoot;
@@ -113,128 +107,23 @@ fn handle_tab_key(
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
 ) {
-    if keys.just_pressed(KeyCode::Tab) {
-        match state.get() {
-            GameMenuState::Closed => {
+    match state.get() {
+        GameMenuState::Closed => {
+            if keys.just_pressed(KeyCode::Tab) {
                 next.set(GameMenuState::WandEditOpen);
             }
-            GameMenuState::WandEditOpen => {
+        }
+        GameMenuState::WandEditOpen => {
+            if keys.just_pressed(KeyCode::Tab)
+                || keys.just_pressed(KeyCode::KeyW)
+                || keys.just_pressed(KeyCode::KeyA)
+                || keys.just_pressed(KeyCode::KeyS)
+                || keys.just_pressed(KeyCode::KeyD)
+            {
                 next.set(GameMenuState::Closed);
             }
-            _ => {}
         }
-    }
-}
-
-fn drop_item(
-    mut floating_query: Query<&mut Floating>,
-    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    q_window: Query<&Window, With<PrimaryWindow>>,
-    camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    mouse: Res<ButtonInput<MouseButton>>,
-) {
-    if mouse.just_pressed(MouseButton::Left) {
-        if let Ok((mut player, mut actor, transform)) = player_query.get_single_mut() {
-            if let Ok(window) = q_window.get_single() {
-                if let Some(cursor_in_screen) = window.cursor_position() {
-                    if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
-                        if let Ok(mouse_in_world) =
-                            camera.viewport_to_world(camera_global_transform, cursor_in_screen)
-                        {
-                            let player_position = transform.translation.truncate();
-                            let pointer_in_world = mouse_in_world.origin.truncate();
-                            let vector = pointer_in_world - player_position;
-                            let angle = vector.to_angle();
-                            let length = vector.length();
-
-                            if TILE_SIZE * 3.0 < length {
-                                return;
-                            }
-
-                            let dest = player_position + Vec2::from_angle(angle) * length;
-
-                            let mut floating = floating_query.single_mut();
-                            match floating.content {
-                                Some(FloatingContent::Inventory(index)) => {
-                                    let item = player.inventory.get(index).unwrap();
-                                    spawn_dropped_item(&mut commands, &assets, dest, item);
-                                    player.inventory.set(index, None);
-                                    floating.content = None;
-                                }
-                                Some(FloatingContent::Wand(index)) => {
-                                    if let Some(ref wand) = actor.wands[index] {
-                                        for slot in wand.slots {
-                                            if let Some(spell) = slot {
-                                                spawn_dropped_item(
-                                                    &mut commands,
-                                                    &assets,
-                                                    dest,
-                                                    InventoryItem {
-                                                        item_type: InventoryItemType::Spell(
-                                                            spell.spell_type,
-                                                        ),
-                                                        price: spell.price,
-                                                    },
-                                                );
-                                            }
-                                        }
-                                        spawn_dropped_item(
-                                            &mut commands,
-                                            &assets,
-                                            dest,
-                                            InventoryItem {
-                                                item_type: InventoryItemType::Wand(wand.wand_type),
-                                                price: wand.price,
-                                            },
-                                        );
-                                        actor.wands[index] = None;
-                                        floating.content = None;
-                                    }
-                                }
-                                Some(FloatingContent::WandSpell(wand_index, spell_index)) => {
-                                    if let Some(ref mut wand) = actor.wands[wand_index] {
-                                        if let Some(spell) = wand.slots[spell_index] {
-                                            spawn_dropped_item(
-                                                &mut commands,
-                                                &assets,
-                                                pointer_in_world,
-                                                InventoryItem {
-                                                    item_type: InventoryItemType::Spell(
-                                                        spell.spell_type,
-                                                    ),
-                                                    price: spell.price,
-                                                },
-                                            );
-                                            wand.slots[spell_index] = None;
-                                            floating.content = None;
-                                        }
-                                    }
-                                }
-                                Some(FloatingContent::Equipment(index)) => {
-                                    let item = player.equipments[index].unwrap();
-                                    spawn_dropped_item(
-                                        &mut commands,
-                                        &assets,
-                                        dest,
-                                        InventoryItem {
-                                            item_type: InventoryItemType::Equipment(
-                                                item.equipment_type,
-                                            ),
-                                            price: item.price,
-                                        },
-                                    );
-                                    player.equipments[index] = None;
-                                    floating.content = None;
-                                }
-                                None => {}
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        _ => {}
     }
 }
 
@@ -266,13 +155,6 @@ impl Plugin for WandEditorPlugin {
                 switch_sort_button_disabled,
             )
                 .run_if(in_state(GameState::InGame)),
-        );
-        app.add_systems(
-            FixedUpdate,
-            drop_item
-                .run_if(in_state(GameState::InGame))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
         );
     }
 }
