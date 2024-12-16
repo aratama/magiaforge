@@ -1,7 +1,7 @@
 use crate::language::Dict;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Equipment {
+pub enum EquipmentType {
     Lantern,
 }
 
@@ -11,9 +11,9 @@ pub struct EquipmentProps {
     pub description: Dict,
 }
 
-pub fn equipment_to_props(equipment: Equipment) -> EquipmentProps {
+pub fn equipment_to_props(equipment: EquipmentType) -> EquipmentProps {
     match equipment {
-        Equipment::Lantern => EquipmentProps {
+        EquipmentType::Lantern => EquipmentProps {
             icon: "lantern",
             name: Dict {
                 en: "Lantern",

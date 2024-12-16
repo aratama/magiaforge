@@ -119,7 +119,7 @@ fn chat_start(
 ) -> bool {
     if sensor_query.contains(*a) && player_query.contains(*b) {
         speech_writer.send(SpeechEvent::Speech(
-            "やあ、君か。\nなにか買っていくかい？？".to_string(),
+            "やあ。\nなにか買っていくかい？？".to_string(),
         ));
         return true;
     }

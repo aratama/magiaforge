@@ -2,7 +2,7 @@ use crate::ui::floating::Floating;
 use crate::{
     asset::GameAssets,
     config::GameConfig,
-    inventory_item::{get_inventory_item_description, inventory_item_to_props, InventoryItem},
+    inventory_item::{get_inventory_item_description, inventory_item_to_props, InventoryItemType},
     states::GameState,
     wand::WandType,
     wand_props::wand_to_props,
@@ -15,7 +15,7 @@ use super::inventory::InventoryGrid;
 
 #[derive(PartialEq, Eq)]
 pub enum SpellInformationItem {
-    InventoryItem(InventoryItem),
+    InventoryItem(InventoryItemType),
     Wand(WandType),
 }
 

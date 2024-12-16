@@ -25,7 +25,8 @@ use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory_item::InventoryItem;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::ceil::spawn_roof_tiles;
 use crate::level::map::image_to_tilemap;
@@ -283,8 +284,10 @@ fn spawn_level(
                     TILE_SIZE * x as f32 + TILE_HALF,
                     TILE_SIZE * -y as f32 - TILE_HALF,
                 ),
-                InventoryItem::Spell(*random_select(&mut spells)),
-                0,
+                InventoryItem {
+                    item_type: InventoryItemType::Spell(*random_select(&mut spells)),
+                    price: 0,
+                },
             );
         }
     }
@@ -456,8 +459,10 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    InventoryItem::Spell(SpellType::MagicBolt),
-                    10,
+                    InventoryItem {
+                        item_type: InventoryItemType::Spell(SpellType::MagicBolt),
+                        price: 10,
+                    },
                 );
             }
             GameEntity::HugeSlime => {

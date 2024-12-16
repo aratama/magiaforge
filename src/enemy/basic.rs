@@ -7,7 +7,7 @@ use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::{Wand, WandType};
+use crate::wand::{Wand, WandSpell, WandType};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -26,7 +26,10 @@ pub fn spawn_basic_enemy<T: Component>(
     actor_group: ActorGroup,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
-    slots[0] = Some(spell);
+    slots[0] = Some(WandSpell {
+        spell_type: spell,
+        price: 0,
+    });
 
     commands
         .spawn((
@@ -48,6 +51,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,
+                        price: 0,
                         slots,
                         index: 0,
                     }),

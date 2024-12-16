@@ -5,7 +5,7 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::gold::Gold;
 use crate::entity::life::Life;
-use crate::equipment::Equipment;
+use crate::equipment::EquipmentType;
 use crate::input::{get_direction, get_fire_trigger};
 use crate::inventory::Inventory;
 use crate::se::{SECommand, SE};
@@ -17,6 +17,12 @@ use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
+
+#[derive(Debug, Clone, Copy)]
+pub struct Equipment {
+    pub equipment_type: EquipmentType,
+    pub price: u32,
+}
 
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component, Debug, Clone)]
@@ -33,6 +39,19 @@ pub struct Player {
     pub inventory: Inventory,
     pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
 }
+
+// impl Player {
+//     /// 現在所持している有料呪文の合計金額を返します
+//     fn dept(&self) {
+//         let total = 0;
+
+//        for item in self.inventory {
+//             item.
+//        }
+
+//         total
+//     }
+// }
 
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません
@@ -57,7 +76,10 @@ fn move_player(
 fn apply_intensity_by_lantern(mut player_query: Query<(&Player, &mut Actor)>) {
     if let Ok((player, mut actor)) = player_query.get_single_mut() {
         let equiped_lantern = player.equipments.iter().any(|e| match e {
-            Some(Equipment::Lantern) => true,
+            Some(Equipment {
+                equipment_type: EquipmentType::Lantern,
+                ..
+            }) => true,
             _ => false,
         });
         actor.intensity = if equiped_lantern { 3.0 } else { 0.0 };

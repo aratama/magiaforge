@@ -41,7 +41,7 @@ pub fn cast_spell(
         }
 
         if let Some(spell) = wand.slots[wand.index] {
-            let props = spell_to_props(spell);
+            let props = spell_to_props(spell.spell_type);
 
             match props.cast {
                 SpellCast::Bullet {
@@ -111,7 +111,8 @@ pub fn cast_spell(
                 SpellCast::Heal => {
                     wand.shift();
 
-                    if spell == SpellType::Heal && actor_life.life == actor_life.max_life {
+                    if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
+                    {
                         return 0;
                     }
 

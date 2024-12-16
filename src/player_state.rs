@@ -1,11 +1,12 @@
 use crate::{
     config::GameConfig,
     constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS},
-    equipment::Equipment,
+    controller::player::Equipment,
+    equipment::EquipmentType,
     inventory::Inventory,
-    inventory_item::InventoryItem,
+    inventory_item::InventoryItemType,
     spell::SpellType,
-    wand::{Wand, WandType},
+    wand::{Wand, WandSpell, WandType},
 };
 
 #[derive(Debug, Clone)]
@@ -22,40 +23,47 @@ pub struct PlayerState {
 impl PlayerState {
     pub fn from_config(config: &GameConfig) -> Self {
         let mut inventory = Inventory::new();
-        inventory.insert(InventoryItem::Spell(SpellType::MagicBolt));
-        inventory.insert(InventoryItem::Spell(SpellType::MagicBolt));
-        inventory.insert(InventoryItem::Spell(SpellType::SlimeCharge));
-        inventory.insert(InventoryItem::Spell(SpellType::Heal));
-        inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
-        inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
-        inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedUp));
-        inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-        inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-        inventory.insert(InventoryItem::Spell(SpellType::BulletSpeedDoown));
-        inventory.insert(InventoryItem::Spell(SpellType::PurpleBolt));
-        inventory.insert(InventoryItem::Spell(SpellType::DualCast));
-        inventory.insert(InventoryItem::Spell(SpellType::TripleCast));
-        inventory.insert(InventoryItem::Equipment(Equipment::Lantern));
-        inventory.insert(InventoryItem::Spell(SpellType::Homing));
-        inventory.insert(InventoryItem::Spell(SpellType::Homing));
-        inventory.insert(InventoryItem::Spell(SpellType::Homing));
-        inventory.insert(InventoryItem::Spell(SpellType::Homing));
-        inventory.insert(InventoryItem::Wand(WandType::KeyWand));
-        inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
-        inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
-        inventory.insert(InventoryItem::Spell(SpellType::HeavyShot));
-        inventory.insert(InventoryItem::Spell(SpellType::SummonFriendSlime));
-        inventory.insert(InventoryItem::Spell(SpellType::SummonEnemySlime));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::SlimeCharge));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Heal));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedDoown));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedDoown));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedDoown));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::PurpleBolt));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::DualCast));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::TripleCast));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Lantern));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+        inventory.insert_free(InventoryItemType::Wand(WandType::KeyWand));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendSlime));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemySlime));
         inventory.sort();
 
         let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
-        equipments[0] = Some(Equipment::Lantern);
+        equipments[0] = Some(Equipment {
+            equipment_type: EquipmentType::Lantern,
+            price: 0,
+        });
 
         let wands = [
             Some(Wand {
                 wand_type: WandType::CypressWand,
+                price: 0,
                 slots: [
-                    Some(SpellType::MagicBolt),
+                    Some(WandSpell {
+                        spell_type: SpellType::MagicBolt,
+                        price: 0,
+                    }),
                     None,
                     None,
                     None,
@@ -68,8 +76,12 @@ impl PlayerState {
             }),
             Some(Wand {
                 wand_type: WandType::CypressWand,
+                price: 0,
                 slots: [
-                    Some(SpellType::SummonFriendSlime),
+                    Some(WandSpell {
+                        spell_type: SpellType::SummonFriendSlime,
+                        price: 0,
+                    }),
                     None,
                     None,
                     None,
@@ -82,8 +94,12 @@ impl PlayerState {
             }),
             Some(Wand {
                 wand_type: WandType::CypressWand,
+                price: 0,
                 slots: [
-                    Some(SpellType::SummonEnemySlime),
+                    Some(WandSpell {
+                        spell_type: SpellType::SummonEnemySlime,
+                        price: 0,
+                    }),
                     None,
                     None,
                     None,

@@ -8,10 +8,17 @@ pub enum WandType {
     KeyWand,
 }
 
+#[derive(Reflect, Clone, Copy, Debug)]
+pub struct WandSpell {
+    pub spell_type: SpellType,
+    pub price: u32,
+}
+
 #[derive(Reflect, Clone, Debug)]
 pub struct Wand {
     pub wand_type: WandType,
-    pub slots: [Option<SpellType>; MAX_SPELLS_IN_WAND],
+    pub price: u32,
+    pub slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND],
     pub index: usize,
 }
 

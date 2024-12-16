@@ -1,74 +1,33 @@
 use crate::{
-    asset::GameAssets,
-    entity::dropped_item::spawn_dropped_item,
-    equipment::{equipment_to_props, Equipment},
+    equipment::{equipment_to_props, EquipmentType},
     language::{Dict, Languages},
     spell::SpellType,
     spell_props::{get_spell_appendix, spell_to_props},
     wand::WandType,
     wand_props::wand_to_props,
 };
-use bevy::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum InventoryItem {
+pub enum InventoryItemType {
     Wand(WandType),
     Spell(SpellType),
-    Equipment(Equipment),
+    Equipment(EquipmentType),
 }
 
-impl InventoryItem {
+impl InventoryItemType {
     pub fn get_width(&self) -> usize {
         match self {
-            InventoryItem::Spell(_) => 1,
-            InventoryItem::Wand(_) => 2,
-            InventoryItem::Equipment(_) => 1,
+            InventoryItemType::Spell(_) => 1,
+            InventoryItemType::Wand(_) => 2,
+            InventoryItemType::Equipment(_) => 1,
         }
     }
 
     pub fn get_icon(&self) -> &'static str {
         match self {
-            InventoryItem::Spell(spell) => spell_to_props(*spell).icon,
-            InventoryItem::Wand(wand) => wand_to_props(*wand).icon,
-            InventoryItem::Equipment(equipment) => equipment_to_props(*equipment).icon,
-        }
-    }
-}
-
-pub fn spawn_inventory_item(
-    mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    position: Vec2,
-    item: InventoryItem,
-    price: u32,
-) {
-    match item {
-        InventoryItem::Spell(spell) => {
-            spawn_dropped_item(
-                &mut commands,
-                &assets,
-                position,
-                InventoryItem::Spell(spell),
-                price,
-            );
-        }
-        InventoryItem::Wand(wand_type) => {
-            spawn_dropped_item(
-                &mut commands,
-                &assets,
-                position,
-                InventoryItem::Wand(wand_type),
-                price,
-            );
-        }
-        InventoryItem::Equipment(equipment_type) => {
-            spawn_dropped_item(
-                &mut commands,
-                &assets,
-                position,
-                InventoryItem::Equipment(equipment_type),
-                price,
-            );
+            InventoryItemType::Spell(spell) => spell_to_props(*spell).icon,
+            InventoryItemType::Wand(wand) => wand_to_props(*wand).icon,
+            InventoryItemType::Equipment(equipment) => equipment_to_props(*equipment).icon,
         }
     }
 }
@@ -79,9 +38,9 @@ pub struct InventoryItemProps {
     pub description: Dict,
 }
 
-pub fn inventory_item_to_props(item: InventoryItem) -> InventoryItemProps {
+pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {
     match item {
-        InventoryItem::Spell(spell) => {
+        InventoryItemType::Spell(spell) => {
             let props = spell_to_props(spell);
             InventoryItemProps {
                 icon: props.icon,
@@ -89,7 +48,7 @@ pub fn inventory_item_to_props(item: InventoryItem) -> InventoryItemProps {
                 description: props.description,
             }
         }
-        InventoryItem::Wand(wand) => {
+        InventoryItemType::Wand(wand) => {
             let props = wand_to_props(wand);
             InventoryItemProps {
                 icon: props.icon,
@@ -97,7 +56,7 @@ pub fn inventory_item_to_props(item: InventoryItem) -> InventoryItemProps {
                 description: props.description,
             }
         }
-        InventoryItem::Equipment(equipment) => {
+        InventoryItemType::Equipment(equipment) => {
             let props = equipment_to_props(equipment);
             InventoryItemProps {
                 icon: props.icon,
@@ -108,9 +67,9 @@ pub fn inventory_item_to_props(item: InventoryItem) -> InventoryItemProps {
     }
 }
 
-pub fn get_inventory_item_description(item: InventoryItem, language: Languages) -> String {
+pub fn get_inventory_item_description(item: InventoryItemType, language: Languages) -> String {
     match item {
-        InventoryItem::Spell(spell) => {
+        InventoryItemType::Spell(spell) => {
             let props = spell_to_props(spell);
             let cast = format!(
                 "{}:{}",

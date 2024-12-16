@@ -1,7 +1,8 @@
 use crate::controller::player::Player;
 use crate::entity::EntityDepth;
 use crate::equipment::equipment_to_props;
-use crate::inventory_item::InventoryItem;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::se::{SECommand, SE};
 use crate::spell_props::spell_to_props;
 use crate::wand_props::wand_to_props;
@@ -14,8 +15,7 @@ use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct DroppedItemEntity {
-    pub item_type: InventoryItem,
-    pub price: u32,
+    item: InventoryItem,
 }
 
 #[derive(Component)]
@@ -28,56 +28,57 @@ pub fn spawn_dropped_item(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     position: Vec2,
-    item_type: InventoryItem,
-    price: u32,
+    item: InventoryItem,
 ) {
+    let item_type = item.item_type;
     let icon = match item_type {
-        InventoryItem::Spell(spell) => {
+        InventoryItemType::Spell(spell) => {
             let props = spell_to_props(spell);
             props.icon
         }
-        InventoryItem::Wand(wand) => {
+        InventoryItemType::Wand(wand) => {
             let props = wand_to_props(wand);
             props.icon
         }
-        InventoryItem::Equipment(equipment) => {
+        InventoryItemType::Equipment(equipment) => {
             let props = equipment_to_props(equipment);
             props.icon
         }
     };
     let name = match item_type {
-        InventoryItem::Spell(spell) => {
+        InventoryItemType::Spell(spell) => {
             let props = spell_to_props(spell);
             props.name.en
         }
-        InventoryItem::Wand(wand) => {
+        InventoryItemType::Wand(wand) => {
             let props = wand_to_props(wand);
             props.name.en
         }
-        InventoryItem::Equipment(equipment) => {
+        InventoryItemType::Equipment(equipment) => {
             let props = equipment_to_props(equipment);
             props.name.en
         }
     };
     let frame_slice = match item_type {
-        InventoryItem::Wand(_) => "empty", //"wand_frame",
-        InventoryItem::Spell(_) => "spell_frame",
-        InventoryItem::Equipment(_) => "empty",
+        InventoryItemType::Wand(_) => "empty", //"wand_frame",
+        InventoryItemType::Spell(_) if 0 < item.price => "spell_frame_yellow",
+        InventoryItemType::Spell(_) => "spell_frame",
+        InventoryItemType::Equipment(_) => "empty",
     };
     let collider_width = match item_type {
-        InventoryItem::Wand(_) => 16.0,
+        InventoryItemType::Wand(_) => 16.0,
         _ => 8.0,
     };
     let swing = match item_type {
-        InventoryItem::Spell(_) => 2.0,
-        InventoryItem::Wand(_) => 0.0,
-        InventoryItem::Equipment(_) => 0.0,
+        InventoryItemType::Spell(_) => 2.0,
+        InventoryItemType::Wand(_) => 0.0,
+        InventoryItemType::Equipment(_) => 0.0,
     };
     commands
         .spawn((
             Name::new(format!("dropped item {}", name)),
             StateScoped(GameState::InGame),
-            DroppedItemEntity { item_type, price },
+            DroppedItemEntity { item },
             EntityDepth,
             InheritedVisibility::default(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
@@ -113,7 +114,7 @@ pub fn spawn_dropped_item(
                 ))
                 .with_children(|parent| {
                     parent.spawn((
-                        Text2d(format!("{}", price)),
+                        Text2d(format!("{}", item.price)),
                         TextFont {
                             font: assets.dotgothic.clone(),
                             font_size: 24.0,
@@ -190,7 +191,7 @@ fn chat_start(
 ) -> bool {
     match (item_query.get(*a), player_query.get_mut(*b)) {
         (Ok(item), Ok(mut player)) => {
-            if player.inventory.insert(item.item_type) {
+            if player.inventory.insert(item.item) {
                 commands.entity(*a).despawn_recursive();
                 global.send(SECommand::new(SE::PickUp));
                 return true;

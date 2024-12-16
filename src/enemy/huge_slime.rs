@@ -11,7 +11,7 @@ use crate::entity::EntityDepth;
 use crate::se::{SECommand, SE};
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::{Wand, WandType};
+use crate::wand::{Wand, WandSpell, WandType};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -45,7 +45,10 @@ pub struct HugeSlimeSprite;
 
 pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
-    slots[0] = Some(SpellType::MagicBolt);
+    slots[0] = Some(WandSpell {
+        spell_type: SpellType::MagicBolt,
+        price: 0,
+    });
 
     commands
         .spawn((
@@ -79,6 +82,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,
+                        price: 0,
                         slots,
                         index: 0,
                     }),

@@ -1,14 +1,14 @@
 use crate::{
     asset::GameAssets,
     constant::{MAX_SPELLS_IN_WAND, WAND_EDITOR_FLOATING_Z_INDEX},
-    controller::player::Player,
+    controller::player::{Equipment, Player},
     entity::actor::Actor,
     equipment::equipment_to_props,
-    inventory_item::{inventory_item_to_props, InventoryItem},
-    spell::SpellType,
+    inventory::InventoryItem,
+    inventory_item::{inventory_item_to_props, InventoryItemType},
     spell_props::spell_to_props,
     states::{GameMenuState, GameState},
-    wand::Wand,
+    wand::{Wand, WandSpell},
     wand_props::wand_to_props,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
@@ -35,14 +35,27 @@ impl Floating {
             Some(FloatingContent::Inventory(index)) => player.inventory.get(index),
             Some(FloatingContent::WandSpell(wand_index, spell_index)) => actor.wands[wand_index]
                 .clone()
-                .and_then(|ref w| w.slots[spell_index])
-                .map(|ref w| InventoryItem::Spell(*w)),
-            Some(FloatingContent::Wand(wand_index)) => actor.wands[wand_index]
-                .clone()
-                .map(|ref w| InventoryItem::Wand(w.wand_type)),
-            Some(FloatingContent::Equipment(index)) => player.equipments[index]
-                .clone()
-                .map(|ref e| InventoryItem::Equipment(*e)),
+                .and_then(|ref wand| match wand.slots[spell_index] {
+                    Some(spell) => Some(InventoryItem {
+                        item_type: InventoryItemType::Spell(spell.spell_type),
+                        price: spell.price,
+                    }),
+                    None => None,
+                }),
+            Some(FloatingContent::Wand(wand_index)) => {
+                actor.wands[wand_index].clone().and_then(|ref wand| {
+                    Some(InventoryItem {
+                        item_type: InventoryItemType::Wand(wand.wand_type),
+                        price: wand.price,
+                    })
+                })
+            }
+            Some(FloatingContent::Equipment(index)) => {
+                player.equipments[index].clone().map(|ref e| InventoryItem {
+                    item_type: InventoryItemType::Equipment(e.equipment_type),
+                    price: e.price,
+                })
+            }
         }
     }
 }
@@ -111,7 +124,7 @@ fn switch_floating_slice(
 
                 let slice = match item {
                     Some(item) => {
-                        let props = inventory_item_to_props(item);
+                        let props = inventory_item_to_props(item.item_type);
                         Some(props.icon)
                     }
                     _ => None,
@@ -121,8 +134,8 @@ fn switch_floating_slice(
                     style.width = Val::Px(32.0);
                 }
 
-                style.width = match item {
-                    Some(InventoryItem::Wand(_)) => Val::Px(64.0),
+                style.width = match item.map(|i| i.item_type) {
+                    Some(InventoryItemType::Wand(_)) => Val::Px(64.0),
                     _ => Val::Px(32.0),
                 }
             }
@@ -130,7 +143,7 @@ fn switch_floating_slice(
                 match &actor.wands[wand_index] {
                     Some(wand) => match wand.slots[spell_index] {
                         Some(spell) => {
-                            let props = spell_to_props(spell);
+                            let props = spell_to_props(spell.spell_type);
                             floating_slice.name = props.icon.into();
                             style.width = Val::Px(32.0);
                         }
@@ -155,7 +168,7 @@ fn switch_floating_slice(
             },
             Some(FloatingContent::Equipment(equipment)) => match player.equipments[equipment] {
                 Some(equipment) => {
-                    let props = equipment_to_props(equipment);
+                    let props = equipment_to_props(equipment.equipment_type);
                     floating_slice.name = props.icon.into();
                     style.width = Val::Px(32.0);
                 }
@@ -272,22 +285,31 @@ fn get_inventory_item(
 ) -> Option<InventoryItem> {
     match content {
         FloatingContent::Inventory(i) => player.inventory.get(i),
-        FloatingContent::WandSpell(w, i) => actor.get_spell(w, i).map(InventoryItem::Spell),
+        FloatingContent::WandSpell(w, i) => actor.get_spell(w, i).map(|w| InventoryItem {
+            item_type: InventoryItemType::Spell(w.spell_type),
+            price: w.price,
+        }),
         FloatingContent::Wand(w) => {
             if let Some(ref wand) = actor.wands[w] {
-                Some(InventoryItem::Wand(wand.wand_type))
+                Some(InventoryItem {
+                    item_type: InventoryItemType::Wand(wand.wand_type),
+                    price: wand.price,
+                })
             } else {
                 None
             }
         }
-        FloatingContent::Equipment(e) => player.equipments[e].map(|e| InventoryItem::Equipment(e)),
+        FloatingContent::Equipment(e) => player.equipments[e].map(|e| InventoryItem {
+            item_type: InventoryItemType::Equipment(e.equipment_type),
+            price: e.price,
+        }),
     }
 }
 
 fn set_item(
     dest: FloatingContent,
     item: Option<InventoryItem>,
-    slots: &[Option<SpellType>; MAX_SPELLS_IN_WAND],
+    slots: &[Option<WandSpell>; MAX_SPELLS_IN_WAND],
     player: &mut Player,
     actor: &mut Actor,
     dry_run: bool,
@@ -298,16 +320,26 @@ fn set_item(
                 player.inventory.set(i, item);
                 for spell in slots.iter() {
                     if let Some(spell) = spell {
-                        player.inventory.insert(InventoryItem::Spell(*spell));
+                        player.inventory.insert(InventoryItem {
+                            item_type: InventoryItemType::Spell(spell.spell_type),
+                            price: spell.price,
+                        });
                     }
                 }
             }
             true
         }
-        (FloatingContent::Wand(w), Some(InventoryItem::Wand(wand_type))) => {
+        (
+            FloatingContent::Wand(w),
+            Some(InventoryItem {
+                item_type: InventoryItemType::Wand(wand_type),
+                price,
+            }),
+        ) => {
             if !dry_run {
                 actor.wands[w] = Some(Wand {
                     wand_type,
+                    price,
                     slots: *slots,
                     index: 0,
                 });
@@ -320,10 +352,16 @@ fn set_item(
             }
             true
         }
-        (FloatingContent::WandSpell(w, s), Some(InventoryItem::Spell(spell_type))) => {
+        (
+            FloatingContent::WandSpell(w, s),
+            Some(InventoryItem {
+                item_type: InventoryItemType::Spell(spell_type),
+                price,
+            }),
+        ) => {
             if !dry_run {
                 if let Some(ref mut wand) = actor.wands[w] {
-                    wand.slots[s] = Some(spell_type);
+                    wand.slots[s] = Some(WandSpell { spell_type, price });
                 }
             }
             true
@@ -336,9 +374,18 @@ fn set_item(
             }
             true
         }
-        (FloatingContent::Equipment(e), Some(InventoryItem::Equipment(equipment))) => {
+        (
+            FloatingContent::Equipment(e),
+            Some(InventoryItem {
+                item_type: InventoryItemType::Equipment(equipment),
+                price,
+            }),
+        ) => {
             if !dry_run {
-                player.equipments[e] = Some(equipment)
+                player.equipments[e] = Some(Equipment {
+                    equipment_type: equipment,
+                    price,
+                })
             }
             true
         }

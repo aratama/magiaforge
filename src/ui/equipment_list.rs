@@ -74,8 +74,8 @@ fn update_equipment_sprite(
             };
             if picked {
                 slice.name = "empty".into();
-            } else if let Some(equipment) = player.equipments[sprite.index] {
-                let props = equipment_to_props(equipment);
+            } else if let Some(ref equipment) = player.equipments[sprite.index] {
+                let props = equipment_to_props(equipment.equipment_type);
                 slice.name = props.icon.into();
             } else {
                 slice.name = "empty".into();

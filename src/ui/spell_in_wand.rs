@@ -70,7 +70,7 @@ fn update_spell_sprite(
                                     if wand_index == spell_sprite.wand_index
                                         && spell_index == spell_sprite.spell_index => {}
                                 _ => {
-                                    let props = spell_to_props(spell);
+                                    let props = spell_to_props(spell.spell_type);
                                     aseprite.name = props.icon.to_string();
                                     continue;
                                 }

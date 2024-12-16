@@ -1,8 +1,7 @@
 use crate::cast::cast_spell;
 use crate::constant::MAX_WANDS;
 use crate::entity::life::LifeBeingSprite;
-use crate::spell::SpellType;
-use crate::wand::Wand;
+use crate::wand::{Wand, WandSpell};
 use crate::{asset::GameAssets, se::SECommand, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
@@ -75,7 +74,7 @@ pub struct Actor {
 }
 
 impl Actor {
-    pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<SpellType> {
+    pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
         if let Some(ref wand) = self.wands[wand_index] {
             return wand.slots[spell_index];
         }

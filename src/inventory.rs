@@ -1,8 +1,13 @@
 use crate::{
     constant::{MAX_ITEMS_IN_INVENTORY, MAX_ITEMS_IN_INVENTORY_COLUMN, MAX_ITEMS_IN_INVENTORY_ROW},
-    inventory_item::InventoryItem,
-    wand::Wand,
+    inventory_item::InventoryItemType,
 };
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+pub struct InventoryItem {
+    pub item_type: InventoryItemType,
+    pub price: u32,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
 pub struct Inventory([Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY]);
@@ -28,7 +33,7 @@ impl Inventory {
         if MAX_ITEMS_IN_INVENTORY_COLUMN <= y {
             return false;
         }
-        for i in 0..item.get_width() {
+        for i in 0..item.item_type.get_width() {
             if MAX_ITEMS_IN_INVENTORY_ROW <= x + i {
                 return false;
             }
@@ -56,29 +61,18 @@ impl Inventory {
                     return true;
                 }
                 Some(item) => {
-                    i += item.get_width();
+                    i += item.item_type.get_width();
                 }
             }
         }
         return false;
     }
 
-    #[allow(dead_code)]
-    pub fn insert_wand(&mut self, wand: &Wand) -> Vec<InventoryItem> {
-        let mut items = Vec::new();
-        items.push(InventoryItem::Wand(wand.wand_type));
-        for spell in wand.slots.iter() {
-            if let Some(spell) = spell {
-                items.push(InventoryItem::Spell(*spell));
-            }
-        }
-        let mut not_inserted = Vec::new();
-        for item in items.iter() {
-            if !self.insert(*item) {
-                not_inserted.push(*item);
-            }
-        }
-        return not_inserted;
+    pub fn insert_free(&mut self, item_type: InventoryItemType) -> bool {
+        self.insert(InventoryItem {
+            item_type,
+            price: 0,
+        })
     }
 
     pub fn sort(&mut self) {
@@ -91,7 +85,7 @@ impl Inventory {
                 return std::cmp::Ordering::Less;
             }
             match (a.unwrap(), b.unwrap()) {
-                (a, b) => a.cmp(&b),
+                (a, b) => a.item_type.cmp(&b.item_type),
             }
         });
         let mut i = 0;
@@ -100,7 +94,7 @@ impl Inventory {
                 break;
             }
             let width = match item {
-                Some(item) => item.get_width(),
+                Some(item) => item.item_type.get_width(),
                 None => 1,
             };
             self.0[i] = item;
@@ -110,4 +104,15 @@ impl Inventory {
             i += width;
         }
     }
+
+    // 現在所持している有料呪文の合計金額を返します
+    // fn dept(&self) -> u32 {
+    //     let total = 0;
+    //     for item in self.0 {
+    //         if let Some(item) = item {
+    //             total += item.price;
+    //         }
+    //     }
+    //     total
+    // }
 }

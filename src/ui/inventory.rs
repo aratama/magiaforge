@@ -99,7 +99,7 @@ fn update_inventory_slot(
         for (slot, mut aseprite, mut style, mut visibility) in slot_query.iter_mut() {
             let item = player.inventory.get(slot.0);
 
-            if let Some(item) = item {
+            if let Some(item) = item.map(|i| i.item_type) {
                 let width = item.get_width();
                 aseprite.name = match floating.content {
                     Some(FloatingContent::Inventory(index)) if index == slot.0 => "empty".into(),
@@ -154,7 +154,7 @@ fn interaction(
                     if player.inventory.is_settable_optional(slot.0, floating_item) {
                         *spell_info = match player.inventory.get(slot.0) {
                             Some(slot_item) => SpellInformation(Some(
-                                SpellInformationItem::InventoryItem(slot_item),
+                                SpellInformationItem::InventoryItem(slot_item.item_type),
                             )),
                             None => SpellInformation(None),
                         };
