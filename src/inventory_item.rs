@@ -40,6 +40,7 @@ pub fn spawn_inventory_item(
     assets: &Res<GameAssets>,
     position: Vec2,
     item: InventoryItem,
+    price: u32,
 ) {
     match item {
         InventoryItem::Spell(spell) => {
@@ -48,6 +49,7 @@ pub fn spawn_inventory_item(
                 &assets,
                 position,
                 InventoryItem::Spell(spell),
+                price,
             );
         }
         InventoryItem::Wand(wand_type) => {
@@ -56,6 +58,7 @@ pub fn spawn_inventory_item(
                 &assets,
                 position,
                 InventoryItem::Wand(wand_type),
+                price,
             );
         }
         InventoryItem::Equipment(equipment_type) => {
@@ -64,6 +67,7 @@ pub fn spawn_inventory_item(
                 &assets,
                 position,
                 InventoryItem::Equipment(equipment_type),
+                price,
             );
         }
     }

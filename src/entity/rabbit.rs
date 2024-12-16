@@ -82,11 +82,9 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 EntityChildrenAutoDepth { offset: 0.0 },
             ));
 
-            spawn_interaction_marker(&mut builder, &assets, 28.0);
-
             builder.spawn((
                 RabbitSensor,
-                Collider::ball(32.0),
+                Collider::ball(16.0),
                 Sensor,
                 ActiveEvents::COLLISION_EVENTS,
             ));
@@ -121,7 +119,6 @@ fn chat_start(
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) && player_query.contains(*b) {
-        println!("chat start");
         speech_writer.send(SpeechEvent::Speech(
             "やあ、君か。\nなにか買っていくかい？？".to_string(),
         ));
@@ -138,7 +135,6 @@ fn chat_end(
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) && player_query.contains(*b) {
-        println!("chat end");
         speech_writer.send(SpeechEvent::Close);
         return true;
     }

@@ -284,6 +284,7 @@ fn spawn_level(
                     TILE_SIZE * -y as f32 - TILE_HALF,
                 ),
                 InventoryItem::Spell(*random_select(&mut spells)),
+                0,
             );
         }
     }
@@ -456,6 +457,7 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     InventoryItem::Spell(SpellType::MagicBolt),
+                    10,
                 );
             }
             GameEntity::HugeSlime => {

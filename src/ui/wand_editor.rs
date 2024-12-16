@@ -158,7 +158,7 @@ fn drop_item(
                             match floating.content {
                                 Some(FloatingContent::Inventory(index)) => {
                                     let item = player.inventory.get(index).unwrap();
-                                    spawn_inventory_item(&mut commands, &assets, dest, item);
+                                    spawn_inventory_item(&mut commands, &assets, dest, item, 0);
                                     player.inventory.set(index, None);
                                     floating.content = None;
                                 }
@@ -171,6 +171,7 @@ fn drop_item(
                                                     &assets,
                                                     dest,
                                                     InventoryItem::Spell(spell),
+                                                    0,
                                                 );
                                             }
                                         }
@@ -179,6 +180,7 @@ fn drop_item(
                                             &assets,
                                             dest,
                                             InventoryItem::Wand(wand.wand_type),
+                                            0,
                                         );
                                         actor.wands[index] = None;
                                         floating.content = None;
@@ -192,6 +194,7 @@ fn drop_item(
                                                 &assets,
                                                 pointer_in_world,
                                                 InventoryItem::Spell(spell),
+                                                0,
                                             );
                                             wand.slots[spell_index] = None;
                                             floating.content = None;
@@ -205,6 +208,7 @@ fn drop_item(
                                         &assets,
                                         dest,
                                         InventoryItem::Equipment(item),
+                                        0,
                                     );
                                     player.equipments[index] = None;
                                     floating.content = None;

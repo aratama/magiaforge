@@ -48,10 +48,14 @@ fn pick_up(
             }
 
             if let Some(nearest_parent) = pick_nearest_drop_item(&mut interactives, origin) {
-                if let Ok(DroppedItemEntity { item_type, .. }) =
+                if let Ok(DroppedItemEntity { item_type, price }) =
                     dropped_spell_query.get(nearest_parent)
                 {
-                    if player.inventory.insert(*item_type) {
+                    if player.golds < *price as i32 {
+                        warn!("Not enough golds");
+                        return;
+                    } else if player.inventory.insert(*item_type) {
+                        player.golds -= *price as i32;
                         commands.entity(nearest_parent).despawn_recursive();
                         global.send(SECommand::new(SE::PickUp));
                         // エンティティを削除すれば Stopped イベントが発生してリストから消えるので、

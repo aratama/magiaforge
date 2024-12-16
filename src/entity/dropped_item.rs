@@ -13,6 +13,7 @@ use bevy_rapier2d::prelude::*;
 #[derive(Component)]
 pub struct DroppedItemEntity {
     pub item_type: InventoryItem,
+    pub price: u32,
 }
 
 #[derive(Component)]
@@ -25,6 +26,7 @@ pub fn spawn_dropped_item(
     assets: &Res<GameAssets>,
     position: Vec2,
     item_type: InventoryItem,
+    price: u32,
 ) {
     let icon = match item_type {
         InventoryItem::Spell(spell) => {
@@ -72,7 +74,7 @@ pub fn spawn_dropped_item(
         .spawn((
             Name::new(format!("dropped item {}", name)),
             StateScoped(GameState::InGame),
-            DroppedItemEntity { item_type },
+            DroppedItemEntity { item_type, price },
             EntityDepth,
             InheritedVisibility::default(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
