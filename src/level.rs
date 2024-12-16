@@ -35,7 +35,6 @@ use crate::level::tile::*;
 use crate::player_state::PlayerState;
 use crate::random::random_select;
 use crate::random::random_select_mut;
-use crate::spell::SpellType;
 use crate::spell::SPELL_TYPES;
 use crate::states::GameState;
 use bevy::asset::*;
@@ -455,13 +454,15 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 ));
             }
             GameEntity::Spell => {
+                let spell = SPELL_TYPES[rand::random::<usize>() % SPELL_TYPES.len()];
+                let props = spell.to_props();
                 spawn_dropped_item(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     InventoryItem {
-                        item_type: InventoryItemType::Spell(SpellType::MagicBolt),
-                        price: 10,
+                        item_type: InventoryItemType::Spell(spell),
+                        price: props.price,
                     },
                 );
             }

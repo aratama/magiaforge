@@ -10,7 +10,7 @@ pub struct InventoryItem {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
-pub struct Inventory([Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY]);
+pub struct Inventory(pub [Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY]);
 
 impl Inventory {
     pub fn new() -> Inventory {
@@ -114,13 +114,5 @@ impl Inventory {
             }
         }
         total
-    }
-
-    pub fn liquidate(&mut self) {
-        for item in self.0.iter_mut() {
-            if let Some(item) = item {
-                item.price = 0;
-            }
-        }
     }
 }

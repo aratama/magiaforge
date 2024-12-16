@@ -23,6 +23,14 @@ pub struct Wand {
 }
 
 impl Wand {
+    pub fn dept(&self) -> u32 {
+        self.slots
+            .iter()
+            .filter_map(|spell| spell.as_ref())
+            .map(|spell| spell.price)
+            .sum()
+    }
+
     pub fn shift(&mut self) {
         let props = self.wand_type.to_props();
         self.index = (self.index + 1) % props.capacity;

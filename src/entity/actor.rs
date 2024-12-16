@@ -80,6 +80,14 @@ impl Actor {
         }
         None
     }
+
+    pub fn dept(&self) -> u32 {
+        self.wands
+            .iter()
+            .filter_map(|wand| wand.as_ref())
+            .map(|wand| wand.price + wand.dept())
+            .sum()
+    }
 }
 
 #[derive(Reflect, Debug, PartialEq, Clone, Copy)]

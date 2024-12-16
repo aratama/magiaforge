@@ -42,20 +42,50 @@ pub struct Player {
 
 impl Player {
     /// 現在所持している有料呪文の合計金額を返します
-    pub fn dept(&self) -> u32 {
-        self.inventory.dept()
+    pub fn dept(&self, actor: &Actor) -> u32 {
+        let mut dept = self.inventory.dept() + actor.dept();
+        for e in self.equipments {
+            if let Some(equipment) = e {
+                dept += equipment.price;
+            }
+        }
+        dept
     }
 
     /// 清算します
     /// いま所持している有料のスペルをすべて無料に戻します
-    pub fn liquidate(&mut self) -> bool {
-        if self.golds < self.dept() as i32 {
+    pub fn liquidate(&mut self, actor: &mut Actor) -> bool {
+        let dept = self.dept(actor);
+        if self.golds < dept as i32 {
             return false;
         }
-        let dept = self.dept();
+
         self.golds -= dept as i32;
-        self.inventory.liquidate();
-        return true;
+
+        for item in self.inventory.0.iter_mut() {
+            if let Some(item) = item {
+                item.price = 0;
+            }
+        }
+
+        for e in self.equipments {
+            if let Some(mut equipment) = e {
+                equipment.price = 0;
+            }
+        }
+
+        for w in actor.wands.iter_mut() {
+            if let Some(ref mut wand) = w {
+                wand.price = 0;
+                for s in wand.slots.iter_mut() {
+                    if let Some(mut spell) = s {
+                        spell.price = 0;
+                    }
+                }
+            }
+        }
+
+        true
     }
 }
 

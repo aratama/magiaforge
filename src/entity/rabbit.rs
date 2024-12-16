@@ -106,7 +106,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
 fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitSensor>,
-    mut player_query: Query<&mut Player>,
+    mut player_query: Query<(&mut Player, &mut Actor)>,
     mut speech_writer: EventWriter<SpeechEvent>,
     mut se: EventWriter<SECommand>,
 ) {
@@ -141,15 +141,15 @@ fn chat_start(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitSensor>,
-    player_query: &mut Query<&mut Player>,
+    player_query: &mut Query<(&mut Player, &mut Actor)>,
     speech_writer: &mut EventWriter<SpeechEvent>,
     se: &mut EventWriter<SECommand>,
 ) -> bool {
     if sensor_query.contains(*a) {
-        if let Ok(mut player) = player_query.get_mut(*b) {
-            let dept = player.dept();
+        if let Ok((mut player, mut actor)) = player_query.get_mut(*b) {
+            let dept = player.dept(&mut actor);
             if 0 < dept {
-                if player.liquidate() {
+                if player.liquidate(&mut actor) {
                     se.send(SECommand::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech(
                         format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
@@ -178,7 +178,7 @@ fn chat_end(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitSensor>,
-    player_query: &Query<&mut Player>,
+    player_query: &Query<(&mut Player, &mut Actor)>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) && player_query.contains(*b) {
@@ -191,7 +191,7 @@ fn chat_end(
 fn collision_outer_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitOuterSensor>,
-    player_query: Query<&Player>,
+    player_query: Query<(&Player, &Actor)>,
     mut speech_writer: EventWriter<SpeechEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -209,12 +209,12 @@ fn out_sensor(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitOuterSensor>,
-    player_query: &Query<&Player>,
+    player_query: &Query<(&Player, &Actor)>,
     _speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) {
-        if let Ok(player) = player_query.get(*b) {
-            if 0 < player.dept() {
+        if let Ok((player, actor)) = player_query.get(*b) {
+            if 0 < player.dept(actor) {
                 // WIP
                 // speech_writer.send(SpeechEvent::Speech(
                 //     format!("おいおいおいおい\n冗談はよしてくれ\nまだ会計をしてないのに\nどこに行く気だい？")

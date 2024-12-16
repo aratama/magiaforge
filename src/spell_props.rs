@@ -42,156 +42,149 @@ pub struct SpellProps {
     pub description: Dict,
     pub cast_delay: u32,
     pub icon: &'static str,
+    pub price: u32,
     pub cast: SpellCast,
 }
-
-const MAGIC_BOLT: SpellProps = SpellProps {
-    name: Dict {
-        ja: "マジックボルト",
-        en: "Magic Bolt",
-    },
-    description: Dict {
-        ja: "魔力の塊を発射する、最も基本的な攻撃魔法です。",
-        en: "A basic attack spell that fires a bolt of magic.",
-    },
-    cast_delay: 20,
-    icon: "bullet_magic_bolt",
-    cast: SpellCast::Bullet {
-        slice: "bullet_magic_bolt",
-        collier_radius: 5.0,
-        speed: 100.0,
-        lifetime: 240,
-        damage: 8,
-        impulse: 20000.0,
-        scattering: 0.4,
-        light_intensity: 1.0,
-        light_radius: 50.0,
-        light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
-    },
-};
-
-const PURPLE_BOLT: SpellProps = SpellProps {
-    name: Dict {
-        ja: "悪意の視線",
-        en: "Evil Eye",
-    },
-    description: Dict {
-        ja:
-            "邪悪な魔力を帯びた視線です。浴びせられると少し悪寒が走ります。",
-        en: "Fires a slow-moving purple energy bolt. It is weak but consumes little mana.",
-    },
-    cast_delay: 120,
-    icon: "bullet_purple",
-    cast: SpellCast::Bullet {
-        slice: "bullet_purple",
-        collier_radius: 5.0,
-        speed: 50.0,
-        lifetime: 500,
-        damage: 3,
-        impulse: 0.0,
-        scattering: 0.6,
-        light_intensity: 0.0,
-        light_radius: 0.0,
-        light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
-    },
-};
-
-const SLIME_CHARGE: SpellProps = SpellProps {
-    name: Dict {
-        ja: "スライムの塊",
-        en: "Slime Limp",
-    },
-    description: Dict { 
-        ja: "ぷにぷにとした塊で殴りつけます。痛くはありませんが、相手を大きく吹き飛ばします。",
-        en: "Slap with a soft and squishy lump. It doesn't hurt much, but it blows the opponent away."
-    },
-    cast_delay: 30,
-    icon: "bullet_slime_charge",
-    cast: SpellCast::Bullet {
-        slice: "bullet_slime_charge",
-        collier_radius: 5.0,
-        speed: 2.0,
-        lifetime: 5,
-        damage: 1,
-        impulse: 40000.0,
-        scattering: 0.0,
-        light_intensity: 0.0,
-        light_radius: 0.0,
-        light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
-    },
-};
-
-const HEAL: SpellProps = SpellProps {
-    name: Dict {
-        ja: "回復",
-        en: "Heal",
-    },
-    description: Dict { ja: "自分自身の体力を少しだけ回復します。", 
-    en: "Heals a small amount of your own health." },
-    cast_delay: 120,
-    icon: "spell_heal",
-    cast: SpellCast::Heal,
-};
-
-const BULLET_SPEED_UP: SpellProps = SpellProps {
-    name: Dict {
-        ja: "加速",
-        en: "Speed Up",
-    },
-    description: Dict { ja: "次に発射する魔法の弾速を50%上昇させます。",
-    en: "Increases the speed of the next magic bullet by 50%." },
-    cast_delay: 0,
-    icon: "bullet_speed_up",
-    cast: SpellCast::BulletSpeedUpDown { delta: 0.5 },
-};
-
-const BULLET_SPEED_DOWN: SpellProps = SpellProps {
-    name: Dict {
-        ja: "減速",
-        en: "Speed Down",
-    },
-    description: Dict { ja: "次に発射する魔法の弾速を50%低下させます。",
-    en: "Reduces the speed of the next magic bullet by 50%." },
-    cast_delay: 0,
-    icon: "bullet_speed_down",
-    cast: SpellCast::BulletSpeedUpDown { delta: -0.5 },
-};
-
-const DUAL_CAST: SpellProps = SpellProps {
-    name: Dict {
-        ja: "並列詠唱",
-        en: "Dual Cast",
-    },
-    description: Dict { ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。", 
-    en: "Casts two projectile spells at the same time." },
-    cast_delay: 0,
-    icon: "spell_dual_cast",
-    cast: SpellCast::MultipleCast { amount: 2 },
-};
-
-const TRIPLE_CAST: SpellProps = SpellProps {
-    name: Dict {
-        ja: "三並列詠唱",
-        en: "Triple Cast",
-    },
-    description: Dict { ja: "みっつの投射物呪文を同時に詠唱します。", 
-    en: "Casts three projectile spells at the same time." },
-    cast_delay: 0,
-    icon: "spell_triple_cast",
-    cast: SpellCast::MultipleCast { amount: 3 },
-};
 
 impl SpellType {
     pub fn to_props(&self) -> SpellProps {
         match self {
-            SpellType::MagicBolt => MAGIC_BOLT,
-            SpellType::PurpleBolt => PURPLE_BOLT,
-            SpellType::SlimeCharge => SLIME_CHARGE,
-            SpellType::Heal => HEAL,
-            SpellType::BulletSpeedUp => BULLET_SPEED_UP,
-            SpellType::BulletSpeedDoown => BULLET_SPEED_DOWN,
-            SpellType::DualCast => DUAL_CAST,
-            SpellType::TripleCast => TRIPLE_CAST,
+            SpellType::MagicBolt =>  SpellProps {
+                name: Dict {
+                    ja: "マジックボルト",
+                    en: "Magic Bolt",
+                },
+                description: Dict {
+                    ja: "魔力の塊を発射する、最も基本的な攻撃魔法です。",
+                    en: "A basic attack spell that fires a bolt of magic.",
+                },
+                cast_delay: 20,
+                icon: "bullet_magic_bolt",
+                price: 10,
+                cast: SpellCast::Bullet {
+                    slice: "bullet_magic_bolt",
+                    collier_radius: 5.0,
+                    speed: 100.0,
+                    lifetime: 240,
+                    damage: 8,
+                    impulse: 20000.0,
+                    scattering: 0.4,
+                    light_intensity: 1.0,
+                    light_radius: 50.0,
+                    light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                },
+            },
+            SpellType::PurpleBolt =>  SpellProps {
+                name: Dict {
+                    ja: "悪意の視線",
+                    en: "Evil Eye",
+                },
+                description: Dict {
+                    ja:
+                        "邪悪な魔力を帯びた視線です。浴びせられると少し悪寒が走ります。",
+                    en: "Fires a slow-moving purple energy bolt. It is weak but consumes little mana.",
+                },
+                cast_delay: 120,
+                icon: "bullet_purple",
+                price: 5,
+                cast: SpellCast::Bullet {
+                    slice: "bullet_purple",
+                    collier_radius: 5.0,
+                    speed: 50.0,
+                    lifetime: 500,
+                    damage: 3,
+                    impulse: 0.0,
+                    scattering: 0.6,
+                    light_intensity: 0.0,
+                    light_radius: 0.0,
+                    light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
+                },
+            },
+            SpellType::SlimeCharge => SpellProps {
+                name: Dict {
+                    ja: "スライムの塊",
+                    en: "Slime Limp",
+                },
+                description: Dict { 
+                    ja: "ぷにぷにとした塊で殴りつけます。痛くはありませんが、相手を大きく吹き飛ばします。",
+                    en: "Slap with a soft and squishy lump. It doesn't hurt much, but it blows the opponent away."
+                },
+                cast_delay: 30,
+                icon: "bullet_slime_charge",
+                price: 15,
+                cast: SpellCast::Bullet {
+                    slice: "bullet_slime_charge",
+                    collier_radius: 5.0,
+                    speed: 2.0,
+                    lifetime: 5,
+                    damage: 1,
+                    impulse: 40000.0,
+                    scattering: 0.0,
+                    light_intensity: 0.0,
+                    light_radius: 0.0,
+                    light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
+                },
+            },
+            SpellType::Heal =>  SpellProps {
+                name: Dict {
+                    ja: "回復",
+                    en: "Heal",
+                },
+                description: Dict { ja: "自分自身の体力を少しだけ回復します。", 
+                en: "Heals a small amount of your own health." },
+                cast_delay: 120,
+                icon: "spell_heal",
+                price: 40,
+                cast: SpellCast::Heal,
+            },
+            SpellType::BulletSpeedUp => SpellProps {
+                name: Dict {
+                    ja: "加速",
+                    en: "Speed Up",
+                },
+                description: Dict { ja: "次に発射する魔法の弾速を50%上昇させます。",
+                en: "Increases the speed of the next magic bullet by 50%." },
+                cast_delay: 0,
+                icon: "bullet_speed_up",
+                price: 50,
+                cast: SpellCast::BulletSpeedUpDown { delta: 0.5 },
+            },
+            SpellType::BulletSpeedDoown =>  SpellProps {
+                name: Dict {
+                    ja: "減速",
+                    en: "Speed Down",
+                },
+                description: Dict { ja: "次に発射する魔法の弾速を50%低下させます。",
+                en: "Reduces the speed of the next magic bullet by 50%." },
+                cast_delay: 0,
+                icon: "bullet_speed_down",
+                price: 50,
+                cast: SpellCast::BulletSpeedUpDown { delta: -0.5 },
+            },
+            SpellType::DualCast => SpellProps {
+                name: Dict {
+                    ja: "並列詠唱",
+                    en: "Dual Cast",
+                },
+                description: Dict { ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。", 
+                en: "Casts two projectile spells at the same time." },
+                cast_delay: 0,
+                icon: "spell_dual_cast",
+                price: 50,
+                cast: SpellCast::MultipleCast { amount: 2 },
+            },
+            SpellType::TripleCast =>  SpellProps {
+                name: Dict {
+                    ja: "三並列詠唱",
+                    en: "Triple Cast",
+                },
+                description: Dict { ja: "みっつの投射物呪文を同時に詠唱します。", 
+                en: "Casts three projectile spells at the same time." },
+                cast_delay: 0,
+                icon: "spell_triple_cast",
+                price:100,
+                cast: SpellCast::MultipleCast { amount: 3 },
+            },
             SpellType::Homing => SpellProps {
                 name: Dict {
                     ja: "追尾",
@@ -201,6 +194,7 @@ impl SpellType {
                 en: "The next magic bullet you fire will home in on the enemy." },
                 cast_delay: 5,
                 icon: "spell_homing",
+                price: 100,
                 cast: SpellCast::Homing,
             } ,
             SpellType::HeavyShot => SpellProps {
@@ -212,6 +206,7 @@ impl SpellType {
                 en: "The next magic bullet you fire will be more powerful and slower." },
                 cast_delay: 5,
                 icon: "spell_heavy_shot",
+                price: 80,
                 cast: SpellCast::HeavyShot,
             },
             SpellType::SummonFriendSlime => SpellProps {
@@ -223,6 +218,7 @@ impl SpellType {
                 en: "Summons a friend slime" },
                 cast_delay: 60,
                 icon: "friend_slime_seed",
+                price: 200,
                 cast: SpellCast::SummonSlime { friend: true },
             },
             SpellType::SummonEnemySlime => SpellProps {
@@ -234,6 +230,7 @@ impl SpellType {
                 en: "Summons a enemy slime" },
                 cast_delay: 60,
                 icon: "slime_seed",
+                price: 200,
                 cast: SpellCast::SummonSlime { friend:false },
             },
         }
