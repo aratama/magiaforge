@@ -4,12 +4,9 @@ use super::{
 };
 use crate::{
     asset::GameAssets,
-    constant::MAX_SPELLS_IN_WAND,
     controller::player::Player,
     entity::actor::Actor,
-    inventory_item::{spawn_inventory_item, InventoryItem},
     states::{GameMenuState, GameState},
-    wand::Wand,
     wand_props::wand_to_props,
 };
 use bevy::{prelude::*, ui::Node};
@@ -50,10 +47,8 @@ fn update_wand_sprite(
 
     if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut aseprite) in sprite_query.iter_mut() {
-            aseprite.name = match floating {
-                Floating(Some(FloatingContent::Wand(wand_index)))
-                    if *wand_index == wand_sprite.wand_index =>
-                {
+            aseprite.name = match floating.content {
+                Some(FloatingContent::Wand(wand_index)) if wand_index == wand_sprite.wand_index => {
                     "empty".into()
                 }
                 _ => match &actor.wands[wand_sprite.wand_index] {
@@ -69,10 +64,7 @@ fn update_wand_sprite(
 }
 
 fn interact_wand_sprite(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
     mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
-    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
     mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
 ) {
@@ -80,56 +72,14 @@ fn interact_wand_sprite(
         return;
     }
 
+    let mut floating = floating_query.single_mut();
     for (slot, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                if let Ok((mut player, mut actor, player_position)) = player_query.get_single_mut()
-                {
-                    let mut floating = floating_query.single_mut();
-                    match floating.0 {
-                        Some(FloatingContent::Inventory(index)) => {
-                            match player.inventory.get(index) {
-                                Some(InventoryItem::Wand(wand)) => {
-                                    let current = actor.wands[slot.wand_index].clone();
-
-                                    let not_inserted = match current {
-                                        Some(wand) => player.inventory.insert_wand(&wand),
-                                        None => Vec::new(),
-                                    };
-
-                                    for item in not_inserted {
-                                        spawn_inventory_item(
-                                            &mut commands,
-                                            &assets,
-                                            player_position.translation.truncate(),
-                                            item,
-                                        );
-                                    }
-
-                                    actor.wands[slot.wand_index] = Some(Wand {
-                                        wand_type: wand,
-                                        slots: [None; MAX_SPELLS_IN_WAND],
-                                        index: 0,
-                                    });
-                                    *floating = Floating(None);
-                                    player.inventory.set(index, None);
-                                }
-                                _ => {}
-                            }
-                        }
-                        Some(FloatingContent::WandSpell { .. }) => {}
-                        Some(FloatingContent::Wand(wand_index)) => {
-                            actor.wands.swap(slot.wand_index, wand_index);
-                            *floating = Floating(None);
-                        }
-                        Some(FloatingContent::Equipment(_)) => {}
-                        None => {
-                            if let Some(_) = actor.wands[slot.wand_index] {
-                                *floating = Floating(Some(FloatingContent::Wand(slot.wand_index)));
-                            }
-                        }
-                    }
-                }
+                floating.content = Some(FloatingContent::Wand(slot.wand_index));
+            }
+            Interaction::Hovered => {
+                floating.target = Some(FloatingContent::Wand(slot.wand_index));
             }
             _ => {}
         }

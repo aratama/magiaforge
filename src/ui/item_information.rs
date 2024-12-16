@@ -110,8 +110,8 @@ fn update_spell_icon(
     spell_info: Query<&SpellInformation>,
     floating_query: Query<&Floating>,
 ) {
-    let Floating(floating) = floating_query.single();
-    if floating.is_some() {
+    let floating = floating_query.single();
+    if floating.content.is_some() {
         return;
     }
 
@@ -138,8 +138,8 @@ fn update_spell_name(
     config: Res<GameConfig>,
     floating_query: Query<&Floating>,
 ) {
-    let Floating(floating) = floating_query.single();
-    if floating.is_some() {
+    let floating = floating_query.single();
+    if floating.content.is_some() {
         return;
     }
 
@@ -166,8 +166,8 @@ fn update_spell_description(
     config: Res<GameConfig>,
     floating_query: Query<&Floating>,
 ) {
-    let Floating(floating) = floating_query.single();
-    if floating.is_some() {
+    let floating = floating_query.single();
+    if floating.content.is_some() {
         return;
     }
 
@@ -197,7 +197,7 @@ fn update_visible(
     let text = text_query.single();
     let grid = inventory_grid_query.single();
     let floating = floating_query.single();
-    root.display = if grid.hover && text.0 != None && floating.0 == None {
+    root.display = if grid.hover && text.0 != None && floating.content == None {
         Display::Flex
     } else {
         Display::None

@@ -1,9 +1,8 @@
-use crate::entity::dropped_item::spawn_dropped_item;
 use crate::ui::floating::{Floating, FloatingContent};
 use crate::ui::item_information::{SpellInformation, SpellInformationItem};
 use crate::{
     asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
-    entity::actor::Actor, inventory_item::InventoryItem, states::GameState,
+    entity::actor::Actor, states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -102,7 +101,7 @@ fn update_inventory_slot(
 
             if let Some(item) = item {
                 let width = item.get_width();
-                aseprite.name = match floating.0 {
+                aseprite.name = match floating.content {
                     Some(FloatingContent::Inventory(index)) if index == slot.0 => "empty".into(),
                     _ => item.get_icon().into(),
                 };
@@ -131,111 +130,26 @@ fn update_inventory_slot(
 fn interaction(
     mut interaction_query: Query<(&InventoryItemSlot, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
-    mut player_query: Query<(&mut Player, &mut Actor, &Transform)>,
+    player_query: Query<(&Player, &Actor, &Transform)>,
     mut spell_info_query: Query<&mut SpellInformation>,
-    mut commands: Commands,
-    assets: Res<GameAssets>,
 ) {
     for (slot, interaction) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                if let Ok((mut player, mut actor, player_position)) = player_query.get_single_mut()
-                {
-                    let mut floating = floating_query.single_mut();
-                    match floating.0 {
-                        None => {
-                            *floating = Floating(Some(FloatingContent::Inventory(slot.0)));
-                        }
-                        Some(FloatingContent::Inventory(index)) => {
-                            if index == slot.0 {
-                                *floating = Floating(None);
-                            } else {
-                                match (player.inventory.get(index), player.inventory.get(slot.0)) {
-                                    (Some(floating_item), None) => {
-                                        if player.inventory.is_settable(slot.0, floating_item) {
-                                            player.inventory.set(slot.0, Some(floating_item));
-                                            player.inventory.set(index, None);
-                                            *floating = Floating(None);
-                                        }
-                                    }
-                                    _ => {}
-                                }
-                            }
-                        }
-                        Some(FloatingContent::WandSpell(wand_index, spell_index)) => match actor
-                            .wands[wand_index]
-                        {
-                            None => {
-                                *floating = Floating(None);
-                            }
-                            Some(ref mut wand) => {
-                                let spell = wand.slots[spell_index];
-                                player
-                                    .inventory
-                                    .set(slot.0, spell.and_then(|s| Some(InventoryItem::Spell(s))));
-                                wand.slots[spell_index] = None;
-                                actor.wands[wand_index] = Some(wand.clone());
-                                *floating = Floating(None);
-                            }
-                        },
-                        Some(FloatingContent::Wand(wand_index)) => {
-                            if let Some(ref wand) = actor.wands[wand_index] {
-                                let current = player.inventory.get(slot.0);
-                                player
-                                    .inventory
-                                    .set(slot.0, Some(InventoryItem::Wand(wand.wand_type)));
-
-                                // 杖に入っていた呪文はインベントリの空きスロットに入れる
-                                let mut not_inserted = Vec::new();
-                                for slot in wand.slots {
-                                    if let Some(spell) = slot {
-                                        if !player.inventory.insert(InventoryItem::Spell(spell)) {
-                                            not_inserted.push(spell);
-                                        }
-                                    }
-                                }
-
-                                // インベントリに入らなかった分は床にばらまかれる
-                                for spell in not_inserted {
-                                    // drop items
-                                    spawn_dropped_item(
-                                        &mut commands,
-                                        &assets,
-                                        player_position.translation.truncate(),
-                                        InventoryItem::Spell(spell),
-                                    );
-                                }
-
-                                actor.wands[wand_index] = None;
-
-                                match current {
-                                    None => {
-                                        *floating = Floating(None);
-                                    }
-                                    Some(_) => {
-                                        *floating =
-                                            Floating(Some(FloatingContent::Inventory(slot.0)));
-                                    }
-                                }
-                            }
-                        }
-                        Some(FloatingContent::Equipment(index)) => {
-                            let equipment = player.equipments[index].unwrap();
-                            if player
-                                .inventory
-                                .try_set(slot.0, InventoryItem::Equipment(equipment))
-                            {
-                                player.equipments[index] = None;
-                                *floating = Floating(None);
-                            }
-                        }
+                let mut floating = floating_query.single_mut();
+                match floating.content {
+                    None => {
+                        floating.content = Some(FloatingContent::Inventory(slot.0));
                     }
+                    _ => {}
                 }
             }
             Interaction::Hovered => {
+                let mut floating = floating_query.single_mut();
+                floating.target = Some(FloatingContent::Inventory(slot.0));
+
                 let mut spell_info = spell_info_query.single_mut();
                 if let Ok((player, actor, _)) = player_query.get_single() {
-                    let floating = floating_query.single_mut();
                     let floating_item = floating.get_item(&player, &actor);
                     if player.inventory.is_settable_optional(slot.0, floating_item) {
                         *spell_info = match player.inventory.get(slot.0) {

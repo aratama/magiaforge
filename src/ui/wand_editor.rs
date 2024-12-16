@@ -93,9 +93,9 @@ fn switch_sort_button_disabled(
     mut query: Query<&mut CommandButton, With<SortButton>>,
     player_query: Query<&Player>,
 ) {
-    let Floating(floating) = floating_query.single();
+    let floating = floating_query.single();
     if let Ok(mut button) = query.get_single_mut() {
-        if floating.is_some() {
+        if floating.content.is_some() {
             button.disabled = true;
             return;
         }
@@ -155,12 +155,12 @@ fn drop_item(
                             let dest = player_position + Vec2::from_angle(angle) * length;
 
                             let mut floating = floating_query.single_mut();
-                            match floating.0 {
+                            match floating.content {
                                 Some(FloatingContent::Inventory(index)) => {
                                     let item = player.inventory.get(index).unwrap();
                                     spawn_inventory_item(&mut commands, &assets, dest, item);
                                     player.inventory.set(index, None);
-                                    *floating = Floating(None);
+                                    floating.content = None;
                                 }
                                 Some(FloatingContent::Wand(index)) => {
                                     if let Some(ref wand) = actor.wands[index] {
@@ -181,7 +181,7 @@ fn drop_item(
                                             InventoryItem::Wand(wand.wand_type),
                                         );
                                         actor.wands[index] = None;
-                                        *floating = Floating(None);
+                                        floating.content = None;
                                     }
                                 }
                                 Some(FloatingContent::WandSpell(wand_index, spell_index)) => {
@@ -194,7 +194,7 @@ fn drop_item(
                                                 InventoryItem::Spell(spell),
                                             );
                                             wand.slots[spell_index] = None;
-                                            *floating = Floating(None);
+                                            floating.content = None;
                                         }
                                     }
                                 }
@@ -207,7 +207,7 @@ fn drop_item(
                                         InventoryItem::Equipment(item),
                                     );
                                     player.equipments[index] = None;
-                                    *floating = Floating(None);
+                                    floating.content = None;
                                 }
                                 None => {}
                             }

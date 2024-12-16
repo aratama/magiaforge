@@ -1,6 +1,6 @@
 use crate::{
     asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player,
-    equipment::equipment_to_props, inventory_item::InventoryItem, states::GameState,
+    equipment::equipment_to_props, states::GameState,
 };
 use crate::{
     states::GameMenuState,
@@ -68,7 +68,7 @@ fn update_equipment_sprite(
     if let Ok(player) = player_query.get_single() {
         for (sprite, mut slice) in sprite_query.iter_mut() {
             let float = floating_query.single();
-            let picked = match float.0 {
+            let picked = match float.content {
                 Some(FloatingContent::Equipment(index)) => index == sprite.index,
                 _ => false,
             };
@@ -86,38 +86,20 @@ fn update_equipment_sprite(
 
 fn interact(
     sprite_query: Query<(&EquipmentSprite, &Interaction), Changed<Interaction>>,
-    mut player_query: Query<&mut Player>,
     mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
 ) {
     if *state == GameMenuState::WandEditOpen {
-        if let Ok(mut player) = player_query.get_single_mut() {
-            for (sprite, interaction) in sprite_query.iter() {
-                let mut floating = floating_query.single_mut();
-                match interaction {
-                    Interaction::Pressed => match floating.0 {
-                        None => {
-                            *floating = Floating(Some(FloatingContent::Equipment(sprite.index)));
-                        }
-                        Some(FloatingContent::Inventory(index)) => {
-                            match player.inventory.get(index) {
-                                Some(InventoryItem::Equipment(equipment)) => {
-                                    player.equipments[sprite.index] = Some(equipment);
-                                    player.inventory.set(index, None);
-                                    *floating = Floating(None);
-                                }
-                                _ => {}
-                            }
-                        }
-                        Some(FloatingContent::Wand(_)) => {}
-                        Some(FloatingContent::WandSpell { .. }) => {}
-                        Some(FloatingContent::Equipment(index)) => {
-                            player.equipments.swap(index, sprite.index);
-                            *floating = Floating(None);
-                        }
-                    },
-                    _ => {}
+        let mut floating = floating_query.single_mut();
+        for (sprite, interaction) in sprite_query.iter() {
+            match interaction {
+                Interaction::Pressed => {
+                    floating.content = Some(FloatingContent::Equipment(sprite.index));
                 }
+                Interaction::Hovered => {
+                    floating.target = Some(FloatingContent::Equipment(sprite.index));
+                }
+                _ => {}
             }
         }
     }

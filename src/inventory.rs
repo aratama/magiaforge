@@ -22,14 +22,6 @@ impl Inventory {
         inventory[index] = item;
     }
 
-    pub fn try_set(&mut self, index: usize, item: InventoryItem) -> bool {
-        if self.is_settable(index, item) {
-            self.set(index, Some(item));
-            return true;
-        }
-        return false;
-    }
-
     pub fn is_settable(&self, index: usize, item: InventoryItem) -> bool {
         let x = index % MAX_ITEMS_IN_INVENTORY_ROW;
         let y = index / MAX_ITEMS_IN_INVENTORY_ROW;
@@ -71,6 +63,7 @@ impl Inventory {
         return false;
     }
 
+    #[allow(dead_code)]
     pub fn insert_wand(&mut self, wand: &Wand) -> Vec<InventoryItem> {
         let mut items = Vec::new();
         items.push(InventoryItem::Wand(wand.wand_type));

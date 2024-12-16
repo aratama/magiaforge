@@ -74,7 +74,7 @@ fn update_wand_slot_visibility(
     let floating = floating_query.single();
     if let Ok(actor) = player_query.get_single() {
         for (wand_sprite, mut border, mut visibility) in sprite_query.iter_mut() {
-            *visibility = match floating.0 {
+            *visibility = match floating.content {
                 Some(FloatingContent::Wand(index)) if index == wand_sprite.wand_index => {
                     Visibility::Hidden
                 }
