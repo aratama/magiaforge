@@ -113,11 +113,6 @@ pub fn run_game() {
         .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
         .add_plugins(
             DefaultPlugins
-                .set(AssetPlugin {
-                    // https://github.com/bevyengine/bevy/issues/10157
-                    meta_check: AssetMetaCheck::Never,
-                    ..default()
-                })
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {

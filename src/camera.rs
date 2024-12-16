@@ -44,7 +44,7 @@ fn setup_camera(mut commands: Commands) {
     ));
 }
 
-fn update_camera(
+fn update_camera_position(
     player_query: Query<(&Transform, &Actor), With<Player>>,
     mut camera_query: Query<
         (&mut Transform, &mut OrthographicProjection, &mut GameCamera),
@@ -100,19 +100,12 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(GameState::Setup), setup_camera);
         app.add_systems(
             FixedUpdate,
-            update_camera
+            (update_camera_position, update_camera_brightness)
                 .run_if(in_state(GameState::InGame))
-                .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),
         );
-
-        app.add_systems(
-            FixedUpdate,
-            update_camera_brightness.before(PhysicsSet::SyncBackend),
-        );
-
-        app.add_systems(OnEnter(GameState::Setup), setup_camera);
     }
 }
