@@ -6,9 +6,7 @@ use crate::{
     asset::GameAssets,
     controller::player::Player,
     entity::actor::Actor,
-    spell_props::spell_to_props,
     states::{GameMenuState, GameState},
-    wand_props::wand_to_props,
 };
 use bevy::{prelude::*, ui::Node};
 use bevy_aseprite_ultra::prelude::*;
@@ -54,8 +52,7 @@ fn update_spell_sprite(
     if let Ok(actor) = player_query.get_single() {
         for (spell_sprite, mut aseprite, mut visibility) in sprite_query.iter_mut() {
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
-                let props = wand_to_props(wand.wand_type);
-                *visibility = if spell_sprite.spell_index < props.capacity {
+                *visibility = if spell_sprite.spell_index < wand.wand_type.to_props().capacity {
                     Visibility::Inherited
                 } else {
                     Visibility::Hidden
@@ -70,7 +67,7 @@ fn update_spell_sprite(
                                     if wand_index == spell_sprite.wand_index
                                         && spell_index == spell_sprite.spell_index => {}
                                 _ => {
-                                    let props = spell_to_props(spell.spell_type);
+                                    let props = spell.spell_type.to_props();
                                     aseprite.name = props.icon.to_string();
                                     continue;
                                 }

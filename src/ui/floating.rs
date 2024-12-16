@@ -3,13 +3,10 @@ use crate::{
     constant::{MAX_SPELLS_IN_WAND, WAND_EDITOR_FLOATING_Z_INDEX},
     controller::player::{Equipment, Player},
     entity::actor::Actor,
-    equipment::equipment_to_props,
     inventory::InventoryItem,
     inventory_item::{inventory_item_to_props, InventoryItemType},
-    spell_props::spell_to_props,
     states::{GameMenuState, GameState},
     wand::{Wand, WandSpell},
-    wand_props::wand_to_props,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_aseprite_ultra::prelude::*;
@@ -143,8 +140,7 @@ fn switch_floating_slice(
                 match &actor.wands[wand_index] {
                     Some(wand) => match wand.slots[spell_index] {
                         Some(spell) => {
-                            let props = spell_to_props(spell.spell_type);
-                            floating_slice.name = props.icon.into();
+                            floating_slice.name = spell.spell_type.to_props().icon.into();
                             style.width = Val::Px(32.0);
                         }
                         _ => {
@@ -158,7 +154,7 @@ fn switch_floating_slice(
             }
             Some(FloatingContent::Wand(wand_index)) => match &actor.wands[wand_index] {
                 Some(wand) => {
-                    let props = wand_to_props(wand.wand_type);
+                    let props = wand.wand_type.to_props();
                     floating_slice.name = props.icon.into();
                     style.width = Val::Px(64.0);
                 }
@@ -168,8 +164,7 @@ fn switch_floating_slice(
             },
             Some(FloatingContent::Equipment(equipment)) => match player.equipments[equipment] {
                 Some(equipment) => {
-                    let props = equipment_to_props(equipment.equipment_type);
-                    floating_slice.name = props.icon.into();
+                    floating_slice.name = equipment.equipment_type.to_props().icon.into();
                     style.width = Val::Px(32.0);
                 }
                 None => {

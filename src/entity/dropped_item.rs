@@ -1,11 +1,8 @@
 use crate::controller::player::Player;
 use crate::entity::EntityDepth;
-use crate::equipment::equipment_to_props;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::se::{SECommand, SE};
-use crate::spell_props::spell_to_props;
-use crate::wand_props::wand_to_props;
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -32,32 +29,14 @@ pub fn spawn_dropped_item(
 ) {
     let item_type = item.item_type;
     let icon = match item_type {
-        InventoryItemType::Spell(spell) => {
-            let props = spell_to_props(spell);
-            props.icon
-        }
-        InventoryItemType::Wand(wand) => {
-            let props = wand_to_props(wand);
-            props.icon
-        }
-        InventoryItemType::Equipment(equipment) => {
-            let props = equipment_to_props(equipment);
-            props.icon
-        }
+        InventoryItemType::Spell(spell) => spell.to_props().icon,
+        InventoryItemType::Wand(wand) => wand.to_props().icon,
+        InventoryItemType::Equipment(equipment) => equipment.to_props().icon,
     };
     let name = match item_type {
-        InventoryItemType::Spell(spell) => {
-            let props = spell_to_props(spell);
-            props.name.en
-        }
-        InventoryItemType::Wand(wand) => {
-            let props = wand_to_props(wand);
-            props.name.en
-        }
-        InventoryItemType::Equipment(equipment) => {
-            let props = equipment_to_props(equipment);
-            props.name.en
-        }
+        InventoryItemType::Spell(spell) => spell.to_props().name.en,
+        InventoryItemType::Wand(wand) => wand.to_props().name.en,
+        InventoryItemType::Equipment(equipment) => equipment.to_props().name.en,
     };
     let frame_slice = match item_type {
         InventoryItemType::Wand(_) => "empty", //"wand_frame",

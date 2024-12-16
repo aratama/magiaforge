@@ -1,6 +1,5 @@
 use crate::{
-    asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player,
-    equipment::equipment_to_props, states::GameState,
+    asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player, states::GameState,
 };
 use crate::{
     states::GameMenuState,
@@ -75,8 +74,7 @@ fn update_equipment_sprite(
             if picked {
                 slice.name = "empty".into();
             } else if let Some(ref equipment) = player.equipments[sprite.index] {
-                let props = equipment_to_props(equipment.equipment_type);
-                slice.name = props.icon.into();
+                slice.name = equipment.equipment_type.to_props().icon.into();
             } else {
                 slice.name = "empty".into();
             }

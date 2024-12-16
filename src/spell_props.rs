@@ -181,62 +181,65 @@ const TRIPLE_CAST: SpellProps = SpellProps {
     cast: SpellCast::MultipleCast { amount: 3 },
 };
 
-pub fn spell_to_props(spell: SpellType) -> SpellProps {
-    match spell {
-        SpellType::MagicBolt => MAGIC_BOLT,
-        SpellType::PurpleBolt => PURPLE_BOLT,
-        SpellType::SlimeCharge => SLIME_CHARGE,
-        SpellType::Heal => HEAL,
-        SpellType::BulletSpeedUp => BULLET_SPEED_UP,
-        SpellType::BulletSpeedDoown => BULLET_SPEED_DOWN,
-        SpellType::DualCast => DUAL_CAST,
-        SpellType::TripleCast => TRIPLE_CAST,
-        SpellType::Homing => SpellProps {
-            name: Dict {
-                ja: "追尾",
-                en: "Homing",
+impl SpellType {
+    pub fn to_props(&self) -> SpellProps {
+        match self {
+            SpellType::MagicBolt => MAGIC_BOLT,
+            SpellType::PurpleBolt => PURPLE_BOLT,
+            SpellType::SlimeCharge => SLIME_CHARGE,
+            SpellType::Heal => HEAL,
+            SpellType::BulletSpeedUp => BULLET_SPEED_UP,
+            SpellType::BulletSpeedDoown => BULLET_SPEED_DOWN,
+            SpellType::DualCast => DUAL_CAST,
+            SpellType::TripleCast => TRIPLE_CAST,
+            SpellType::Homing => SpellProps {
+                name: Dict {
+                    ja: "追尾",
+                    en: "Homing",
+                },
+                description: Dict { ja: "次に発射する魔法弾が敵に向かって追尾します。", 
+                en: "The next magic bullet you fire will home in on the enemy." },
+                cast_delay: 5,
+                icon: "spell_homing",
+                cast: SpellCast::Homing,
+            } ,
+            SpellType::HeavyShot => SpellProps {
+                name: Dict {
+                    ja: "ヘヴィーショット",
+                    en: "Heavy Shot",
+                },
+                description: Dict { ja: "次に発射する魔法弾の威力が上昇し、飛翔速度が低下します。",
+                en: "The next magic bullet you fire will be more powerful and slower." },
+                cast_delay: 5,
+                icon: "spell_heavy_shot",
+                cast: SpellCast::HeavyShot,
             },
-            description: Dict { ja: "次に発射する魔法弾が敵に向かって追尾します。", 
-            en: "The next magic bullet you fire will home in on the enemy." },
-            cast_delay: 5,
-            icon: "spell_homing",
-            cast: SpellCast::Homing,
-        } ,
-        SpellType::HeavyShot => SpellProps {
-            name: Dict {
-                ja: "ヘヴィーショット",
-                en: "Heavy Shot",
+            SpellType::SummonFriendSlime => SpellProps {
+                name: Dict {
+                    ja: "味方スライム召喚",
+                    en: "Summon Friend Slime",
+                },
+                description: Dict { ja: "狙った位置に味方のスライムを召喚します。",
+                en: "Summons a friend slime" },
+                cast_delay: 60,
+                icon: "friend_slime_seed",
+                cast: SpellCast::SummonSlime { friend: true },
             },
-            description: Dict { ja: "次に発射する魔法弾の威力が上昇し、飛翔速度が低下します。",
-            en: "The next magic bullet you fire will be more powerful and slower." },
-            cast_delay: 5,
-            icon: "spell_heavy_shot",
-            cast: SpellCast::HeavyShot,
-        },
-        SpellType::SummonFriendSlime => SpellProps {
-            name: Dict {
-                ja: "味方スライム召喚",
-                en: "Summon Friend Slime",
+            SpellType::SummonEnemySlime => SpellProps {
+                name: Dict {
+                    ja: "敵スライム召喚",
+                    en: "Summon Enemy Slime",
+                },
+                description: Dict { ja: "狙った位置に敵のスライムを召喚します。",
+                en: "Summons a enemy slime" },
+                cast_delay: 60,
+                icon: "slime_seed",
+                cast: SpellCast::SummonSlime { friend:false },
             },
-            description: Dict { ja: "狙った位置に味方のスライムを召喚します。",
-            en: "Summons a friend slime" },
-            cast_delay: 60,
-            icon: "friend_slime_seed",
-            cast: SpellCast::SummonSlime { friend: true },
-        },
-        SpellType::SummonEnemySlime => SpellProps {
-            name: Dict {
-                ja: "敵スライム召喚",
-                en: "Summon Enemy Slime",
-            },
-            description: Dict { ja: "狙った位置に敵のスライムを召喚します。",
-            en: "Summons a enemy slime" },
-            cast_delay: 60,
-            icon: "slime_seed",
-            cast: SpellCast::SummonSlime { friend:false },
-        },
+        }
     }
-}
+}   
+
 
 const DAMAGE: Dict = Dict {
     ja: "ダメージ",

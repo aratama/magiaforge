@@ -1,10 +1,9 @@
 use crate::{
-    equipment::{equipment_to_props, EquipmentType},
+    equipment::EquipmentType,
     language::{Dict, Languages},
     spell::SpellType,
-    spell_props::{get_spell_appendix, spell_to_props},
+    spell_props::get_spell_appendix,
     wand::WandType,
-    wand_props::wand_to_props,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -25,9 +24,9 @@ impl InventoryItemType {
 
     pub fn get_icon(&self) -> &'static str {
         match self {
-            InventoryItemType::Spell(spell) => spell_to_props(*spell).icon,
-            InventoryItemType::Wand(wand) => wand_to_props(*wand).icon,
-            InventoryItemType::Equipment(equipment) => equipment_to_props(*equipment).icon,
+            InventoryItemType::Spell(spell) => spell.to_props().icon,
+            InventoryItemType::Wand(wand) => wand.to_props().icon,
+            InventoryItemType::Equipment(equipment) => equipment.to_props().icon,
         }
     }
 }
@@ -41,7 +40,7 @@ pub struct InventoryItemProps {
 pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {
     match item {
         InventoryItemType::Spell(spell) => {
-            let props = spell_to_props(spell);
+            let props = spell.to_props();
             InventoryItemProps {
                 icon: props.icon,
                 name: props.name,
@@ -49,7 +48,7 @@ pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {
             }
         }
         InventoryItemType::Wand(wand) => {
-            let props = wand_to_props(wand);
+            let props = wand.to_props();
             InventoryItemProps {
                 icon: props.icon,
                 name: props.name,
@@ -57,7 +56,7 @@ pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {
             }
         }
         InventoryItemType::Equipment(equipment) => {
-            let props = equipment_to_props(equipment);
+            let props = equipment.to_props();
             InventoryItemProps {
                 icon: props.icon,
                 name: props.name,
@@ -70,7 +69,7 @@ pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {
 pub fn get_inventory_item_description(item: InventoryItemType, language: Languages) -> String {
     match item {
         InventoryItemType::Spell(spell) => {
-            let props = spell_to_props(spell);
+            let props = spell.to_props();
             let cast = format!(
                 "{}:{}",
                 Dict {

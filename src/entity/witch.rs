@@ -7,7 +7,6 @@ use crate::entity::life::{Life, LifeBeingSprite};
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::states::GameState;
 use crate::wand::Wand;
-use crate::wand_props::wand_to_props;
 use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -264,9 +263,8 @@ fn update_wand(
             };
 
             if let Some(wand) = &actor.wands[actor.current_wand] {
-                let props = wand_to_props(wand.wand_type);
                 *slice = AseSpriteSlice {
-                    name: props.slice.to_string(),
+                    name: wand.wand_type.to_props().slice.to_string(),
                     aseprite: assets.atlas.clone(),
                 };
             } else {

@@ -13,7 +13,7 @@ use crate::{
     },
     se::{SECommand, SE},
     spell::SpellType,
-    spell_props::{spell_to_props, SpellCast},
+    spell_props::SpellCast,
 };
 use bevy::prelude::*;
 use bevy_simple_websocket::ClientMessage;
@@ -41,7 +41,7 @@ pub fn cast_spell(
         }
 
         if let Some(spell) = wand.slots[wand.index] {
-            let props = spell_to_props(spell.spell_type);
+            let props = spell.spell_type.to_props();
 
             match props.cast {
                 SpellCast::Bullet {

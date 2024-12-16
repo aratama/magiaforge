@@ -36,9 +36,11 @@ const KEY_WAND: WandProps = WandProps {
     capacity: 8,
 };
 
-pub fn wand_to_props(wand: WandType) -> WandProps {
-    match wand {
-        WandType::CypressWand => CYPRESS_WAND,
-        WandType::KeyWand => KEY_WAND,
+impl WandType {
+    pub fn to_props(&self) -> WandProps {
+        match self {
+            WandType::CypressWand => CYPRESS_WAND,
+            WandType::KeyWand => KEY_WAND,
+        }
     }
 }

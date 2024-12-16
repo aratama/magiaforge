@@ -1,6 +1,6 @@
 use bevy::reflect::Reflect;
 
-use crate::{constant::MAX_SPELLS_IN_WAND, spell::SpellType, wand_props::wand_to_props};
+use crate::{constant::MAX_SPELLS_IN_WAND, spell::SpellType};
 
 #[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum WandType {
@@ -24,7 +24,7 @@ pub struct Wand {
 
 impl Wand {
     pub fn shift(&mut self) {
-        let props = wand_to_props(self.wand_type);
+        let props = self.wand_type.to_props();
         self.index = (self.index + 1) % props.capacity;
         for _ in 0..MAX_SPELLS_IN_WAND {
             if self.slots[self.index].is_none() {

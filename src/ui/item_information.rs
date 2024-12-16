@@ -5,7 +5,6 @@ use crate::{
     inventory_item::{get_inventory_item_description, inventory_item_to_props, InventoryItemType},
     states::GameState,
     wand::WandType,
-    wand_props::wand_to_props,
 };
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -123,8 +122,7 @@ fn update_spell_icon(
             slice.name = props.icon.into();
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
-            let props = wand_to_props(*wand);
-            slice.name = props.slice.into();
+            slice.name = wand.to_props().slice.into();
         }
         _ => {
             slice.name = "empty".into();
@@ -151,8 +149,7 @@ fn update_spell_name(
             text.0 = props.name.get(config.language).to_string();
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
-            let props = wand_to_props(*wand);
-            text.0 = props.name.get(config.language).to_string();
+            text.0 = wand.to_props().name.get(config.language).to_string();
         }
         _ => {
             text.0 = "".to_string();
@@ -178,8 +175,7 @@ fn update_spell_description(
             text.0 = get_inventory_item_description(*item, config.language);
         }
         SpellInformation(Some(SpellInformationItem::Wand(wand))) => {
-            let props = wand_to_props(*wand);
-            text.0 = props.description.get(config.language).to_string();
+            text.0 = wand.to_props().description.get(config.language).to_string();
         }
         _ => {
             text.0 = "".to_string();

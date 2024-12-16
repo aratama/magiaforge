@@ -7,7 +7,6 @@ use crate::{
     controller::player::Player,
     entity::actor::Actor,
     states::{GameMenuState, GameState},
-    wand_props::wand_to_props,
 };
 use bevy::{prelude::*, ui::Node};
 use bevy_aseprite_ultra::prelude::*;
@@ -52,10 +51,7 @@ fn update_wand_sprite(
                     "empty".into()
                 }
                 _ => match &actor.wands[wand_sprite.wand_index] {
-                    Some(wand) => {
-                        let props = wand_to_props(wand.wand_type);
-                        props.icon.into()
-                    }
+                    Some(wand) => wand.wand_type.to_props().icon.into(),
                     None => "empty".into(),
                 },
             }

@@ -71,6 +71,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                                 top: Val::Px((i / 8) as f32 * 32.0),
                                 ..default()
                             },
+                            BackgroundColor(Color::hsla(0.0, 0.0, 0.0, 0.0)),
                             AseUiSlice {
                                 aseprite: assets.atlas.clone(),
                                 name: "empty".into(),
@@ -88,6 +89,7 @@ fn update_inventory_slot(
         &mut AseUiSlice,
         &mut Node,
         &mut Visibility,
+        &mut BackgroundColor,
     )>,
     floating_query: Query<&Floating>,
 ) {
@@ -96,28 +98,35 @@ fn update_inventory_slot(
 
         let mut hidden: HashSet<usize> = HashSet::new();
 
-        for (slot, mut aseprite, mut style, mut visibility) in slot_query.iter_mut() {
-            let item = player.inventory.get(slot.0);
+        for (slot, mut aseprite, mut style, mut visibility, mut background) in slot_query.iter_mut()
+        {
+            let item_optional = player.inventory.get(slot.0);
 
-            if let Some(item) = item.map(|i| i.item_type) {
-                let width = item.get_width();
+            if let Some(item) = item_optional {
+                let width = item.item_type.get_width();
                 aseprite.name = match floating.content {
                     Some(FloatingContent::Inventory(index)) if index == slot.0 => "empty".into(),
-                    _ => item.get_icon().into(),
+                    _ => item.item_type.get_icon().into(),
                 };
-
                 style.width = Val::Px(32.0 * width as f32);
                 *visibility = Visibility::Inherited;
+                *background = BackgroundColor(Color::hsla(
+                    0.0,
+                    1.0,
+                    0.5,
+                    if 0 < item.price { 1.0 } else { 0.0 },
+                ));
                 for d in 1..width {
                     hidden.insert(slot.0 + d);
                 }
             } else {
+                *background = BackgroundColor(Color::hsla(0.0, 1.0, 0.5, 0.0));
                 style.width = Val::Px(32.0);
                 aseprite.name = "empty".into();
             }
         }
 
-        for (sprite, _, _, mut visibility) in slot_query.iter_mut() {
+        for (sprite, _, _, mut visibility, _) in slot_query.iter_mut() {
             *visibility = if hidden.contains(&sprite.0) {
                 Visibility::Hidden
             } else {
