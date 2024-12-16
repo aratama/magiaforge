@@ -32,7 +32,6 @@ use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GamepadPlugin;
-use crate::interaction_sensor::EntityPickerPlugin;
 use crate::level::*;
 use crate::page::ending::EndingPlugin;
 use crate::page::main_menu::MainMenuPlugin;
@@ -49,7 +48,6 @@ use crate::ui::command_button::CommandButtonPlugin;
 use crate::ui::equipment_list::EquipmentListPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
-use crate::ui::interaction_marker::InteractionMarkerPlugin;
 use crate::ui::inventory::InventoryPlugin;
 use crate::ui::item_information::SpellInformationPlugin;
 use crate::ui::label::LabelPlugin;
@@ -166,7 +164,6 @@ pub fn run_game() {
         .add_plugins(EndingPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
-        .add_plugins(EntityPickerPlugin)
         .add_plugins(EquipmentListPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
@@ -181,7 +178,6 @@ pub fn run_game() {
         .add_plugins(HudPlugin)
         .add_plugins(HugeSlimePlugin)
         .add_plugins(ImpactPlugin)
-        .add_plugins(InteractionMarkerPlugin)
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(LabelPlugin)

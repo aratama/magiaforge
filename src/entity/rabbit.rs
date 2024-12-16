@@ -7,7 +7,6 @@ use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
-use crate::ui::interaction_marker::spawn_interaction_marker;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseSpriteSlice};
 use bevy_rapier2d::prelude::*;
@@ -65,7 +64,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 ),
             ),
         ))
-        .with_children(|mut builder| {
+        .with_children(|builder| {
             builder.spawn((
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -91,7 +90,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
         });
 }
 
-fn chat(
+fn collision(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitSensor>,
     player_query: Query<&Player>,
@@ -147,7 +146,7 @@ impl Plugin for RabbitPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (chat)
+            (collision)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

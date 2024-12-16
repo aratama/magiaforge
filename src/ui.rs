@@ -4,7 +4,6 @@ pub mod command_button;
 pub mod equipment_list;
 pub mod floating;
 pub mod hover_color;
-pub mod interaction_marker;
 pub mod inventory;
 pub mod item_information;
 pub mod label;

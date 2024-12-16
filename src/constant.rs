@@ -77,8 +77,6 @@ pub const CAMERA_SPEED: f32 = 0.1;
 
 pub const ENTITY_GROUP: Group = Group::GROUP_1;
 
-pub const PLAYER_INTERACTION_SENSOR_GROUP: Group = Group::GROUP_2;
-
 pub const WALL_GROUP: Group = Group::GROUP_3;
 
 /// プレイヤーキャラクターのグループ
@@ -92,8 +90,6 @@ pub const ENEMY_GROUP: Group = Group::GROUP_6;
 pub const ENEMY_BULLET_GROUP: Group = Group::GROUP_7;
 
 pub const MAGIC_CIRCLE_GROUP: Group = Group::GROUP_8;
-
-pub const DROPPED_ITEM_GROUP: Group = Group::GROUP_9;
 
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています

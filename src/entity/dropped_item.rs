@@ -1,12 +1,14 @@
+use crate::controller::player::Player;
 use crate::entity::EntityDepth;
 use crate::equipment::equipment_to_props;
 use crate::inventory_item::InventoryItem;
+use crate::se::{SECommand, SE};
 use crate::spell_props::spell_to_props;
-use crate::ui::interaction_marker::spawn_interaction_marker;
 use crate::wand_props::wand_to_props;
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
+use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -19,6 +21,7 @@ pub struct DroppedItemEntity {
 #[derive(Component)]
 struct SpellSprites {
     swing: f32,
+    frame_count_offset: u32,
 }
 
 pub fn spawn_dropped_item(
@@ -83,25 +86,43 @@ pub fn spawn_dropped_item(
             RigidBody::Dynamic,
             Collider::cuboid(collider_width, 8.0),
             CollisionGroups::new(
-                DROPPED_ITEM_GROUP,
-                ENTITY_GROUP | WALL_GROUP | PLAYER_INTERACTION_SENSOR_GROUP | DROPPED_ITEM_GROUP,
+                ENTITY_GROUP,
+                ENTITY_GROUP
+                    | WITCH_GROUP
+                    | WITCH_BULLET_GROUP
+                    | ENEMY_GROUP
+                    | ENEMY_BULLET_GROUP
+                    | WALL_GROUP,
             ),
             Damping {
                 linear_damping: 10.0,
                 angular_damping: 1.0,
             },
+            ActiveEvents::COLLISION_EVENTS,
         ))
-        .with_children(|mut parent| {
-            spawn_interaction_marker(&mut parent, &assets, 14.0);
-
+        .with_children(|parent| {
             parent
                 .spawn((
-                    SpellSprites { swing },
+                    SpellSprites {
+                        swing,
+                        frame_count_offset: rand::random::<u32>() % 360,
+                    },
                     Transform::from_xyz(0.0, 0.0, 0.0),
                     GlobalTransform::default(),
                     InheritedVisibility::default(),
                 ))
                 .with_children(|parent| {
+                    parent.spawn((
+                        Text2d(format!("{}", price)),
+                        TextFont {
+                            font: assets.dotgothic.clone(),
+                            font_size: 24.0,
+                            font_smoothing: FontSmoothing::None,
+                        },
+                        TextColor(Color::WHITE),
+                        Transform::from_xyz(0.0, 14.0, 1.0).with_scale(Vec3::new(0.3, 0.3, 1.0)),
+                    ));
+
                     parent.spawn((
                         AseSpriteSlice {
                             aseprite: assets.atlas.clone(),
@@ -123,14 +144,73 @@ pub fn spawn_dropped_item(
 
 fn swing(mut query: Query<(&mut Transform, &SpellSprites)>, frame_count: Res<FrameCount>) {
     for (mut transform, sprite) in query.iter_mut() {
-        transform.translation.y = (frame_count.0 as f32 * 0.05).sin() * sprite.swing;
+        transform.translation.y =
+            ((sprite.frame_count_offset + frame_count.0) as f32 * 0.05).sin() * sprite.swing;
     }
+}
+
+fn collision(
+    mut commands: Commands,
+    mut collision_events: EventReader<CollisionEvent>,
+    item_query: Query<&DroppedItemEntity>,
+    mut player_query: Query<&mut Player>,
+    mut global: EventWriter<SECommand>,
+) {
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(a, b, _option) => {
+                let _ = chat_start(
+                    &mut commands,
+                    a,
+                    b,
+                    &item_query,
+                    &mut player_query,
+                    &mut global,
+                ) || chat_start(
+                    &mut commands,
+                    b,
+                    a,
+                    &item_query,
+                    &mut player_query,
+                    &mut global,
+                );
+            }
+            CollisionEvent::Stopped(..) => {}
+        }
+    }
+}
+
+fn chat_start(
+    commands: &mut Commands,
+    a: &Entity,
+    b: &Entity,
+    item_query: &Query<&DroppedItemEntity>,
+    player_query: &mut Query<&mut Player>,
+    global: &mut EventWriter<SECommand>,
+) -> bool {
+    match (item_query.get(*a), player_query.get_mut(*b)) {
+        (Ok(item), Ok(mut player)) => {
+            if player.inventory.insert(item.item_type) {
+                commands.entity(*a).despawn_recursive();
+                global.send(SECommand::new(SE::PickUp));
+                return true;
+            }
+        }
+        _ => return false,
+    }
+    return false;
 }
 
 pub struct SpellEntityPlugin;
 
 impl Plugin for SpellEntityPlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(
+            FixedUpdate,
+            collision
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
+        );
         app.add_systems(Update, swing.run_if(in_state(GameState::InGame)));
     }
 }
