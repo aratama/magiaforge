@@ -23,7 +23,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 uuid: uuid::Uuid::new_v4(),
                 spell_delay: 0,
                 pointer: Vec2::from_angle(0.0),
-                intensity: 0.0,
+                intensity: 0.5,
                 move_direction: Vec2::ZERO,
                 move_force: 0.0,
                 fire_state: ActorFireState::Idle,

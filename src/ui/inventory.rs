@@ -9,10 +9,10 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use std::collections::HashSet;
 
-use super::item_information::SpellInformationRoot;
-
 #[derive(Component)]
-pub struct InventoryGrid;
+pub struct InventoryGrid {
+    pub hover: bool,
+}
 
 #[derive(Component)]
 struct InventoryItemSlot(usize);
@@ -44,7 +44,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 
             builder
                 .spawn((
-                    InventoryGrid,
+                    InventoryGrid { hover: false },
                     Interaction::default(),
                     Node {
                         position_type: PositionType::Absolute,
@@ -257,15 +257,17 @@ fn interaction(
 }
 
 fn root_interaction(
-    mut interaction_query: Query<&Interaction, (With<InventoryGrid>, Changed<Interaction>)>,
-    mut spell_info_query: Query<&mut Node, With<SpellInformationRoot>>,
+    mut interaction_query: Query<(&Interaction, &mut InventoryGrid), Changed<Interaction>>,
 ) {
-    let mut spell = spell_info_query.single_mut();
-    for interaction in &mut interaction_query {
+    for (interaction, mut grid) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {}
-            Interaction::Hovered => spell.display = Display::Flex,
-            Interaction::None => spell.display = Display::None,
+            Interaction::Hovered => {
+                grid.hover = true;
+            }
+            Interaction::None => {
+                grid.hover = false;
+            }
         }
     }
 }

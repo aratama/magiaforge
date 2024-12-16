@@ -2,7 +2,7 @@ use super::{
     command_button::{command_button, CommandButton},
     floating::Floating,
     inventory::spawn_inventory,
-    item_information::{spawn_spell_information, SpellInformationInner, SpellInformationRoot},
+    item_information::{spawn_spell_information, SpellInformationRoot},
     menu_left::MenuLeft,
 };
 use crate::{
@@ -83,18 +83,8 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 ..default()
             },
         ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    SpellInformationInner,
-                    Node {
-                        display: Display::Flex,
-                        ..default()
-                    },
-                ))
-                .with_children(|mut parent| {
-                    spawn_spell_information(&mut parent, &assets);
-                });
+        .with_children(|mut parent| {
+            spawn_spell_information(&mut parent, &assets);
         });
 }
 

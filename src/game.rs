@@ -62,7 +62,6 @@ use crate::ui::spell_in_wand::SpellInWandPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::ui::wand_sprite::WandSpritePlugin;
-use bevy::asset::{AssetMetaCheck, AssetPlugin};
 use bevy::log::*;
 use bevy::prelude::*;
 use bevy::window::WindowMode;
