@@ -132,16 +132,6 @@ fn countup(
     }
 }
 
-fn close_on_move(mut events: EventWriter<SpeechEvent>, keys: Res<ButtonInput<KeyCode>>) {
-    if keys.just_pressed(KeyCode::KeyW)
-        || keys.just_pressed(KeyCode::KeyA)
-        || keys.just_pressed(KeyCode::KeyS)
-        || keys.just_pressed(KeyCode::KeyD)
-    {
-        events.send(SpeechEvent::Close);
-    }
-}
-
 pub struct SpeechBubblePlugin;
 
 impl Plugin for SpeechBubblePlugin {
@@ -149,13 +139,7 @@ impl Plugin for SpeechBubblePlugin {
         app.add_event::<SpeechEvent>();
         app.add_systems(
             Update,
-            (
-                update_speech_bubble,
-                read_speech_events,
-                close_on_move,
-                countup,
-            )
-                .run_if(in_state(GameState::InGame)),
+            (update_speech_bubble, read_speech_events, countup).run_if(in_state(GameState::InGame)),
         );
     }
 }

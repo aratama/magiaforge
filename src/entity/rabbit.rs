@@ -1,9 +1,11 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::controller::player::Player;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::actor::{ActorGroup, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
+use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
 use crate::ui::interaction_marker::spawn_interaction_marker;
 use bevy::prelude::*;
@@ -12,6 +14,9 @@ use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct Rabbit;
+
+#[derive(Component)]
+struct RabbitSensor;
 
 pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
@@ -78,11 +83,77 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
             ));
 
             spawn_interaction_marker(&mut builder, &assets, 28.0);
+
+            builder.spawn((
+                RabbitSensor,
+                Collider::ball(32.0),
+                Sensor,
+                ActiveEvents::COLLISION_EVENTS,
+            ));
         });
+}
+
+fn chat(
+    mut collision_events: EventReader<CollisionEvent>,
+    sensor_query: Query<&RabbitSensor>,
+    player_query: Query<&Player>,
+    mut speech_writer: EventWriter<SpeechEvent>,
+) {
+    for collision_event in collision_events.read() {
+        match collision_event {
+            CollisionEvent::Started(a, b, _option) => {
+                let _ = chat_start(a, b, &sensor_query, &player_query, &mut speech_writer)
+                    || chat_start(b, a, &sensor_query, &player_query, &mut speech_writer);
+            }
+            CollisionEvent::Stopped(a, b, _option) => {
+                let _ = chat_end(a, b, &sensor_query, &player_query, &mut speech_writer)
+                    || chat_end(b, a, &sensor_query, &player_query, &mut speech_writer);
+            }
+        }
+    }
+}
+
+fn chat_start(
+    a: &Entity,
+    b: &Entity,
+    sensor_query: &Query<&RabbitSensor>,
+    player_query: &Query<&Player>,
+    speech_writer: &mut EventWriter<SpeechEvent>,
+) -> bool {
+    if sensor_query.contains(*a) && player_query.contains(*b) {
+        println!("chat start");
+        speech_writer.send(SpeechEvent::Speech(
+            "やあ、君か。\nなにか買っていくかい？？".to_string(),
+        ));
+        return true;
+    }
+    return false;
+}
+
+fn chat_end(
+    a: &Entity,
+    b: &Entity,
+    sensor_query: &Query<&RabbitSensor>,
+    player_query: &Query<&Player>,
+    speech_writer: &mut EventWriter<SpeechEvent>,
+) -> bool {
+    if sensor_query.contains(*a) && player_query.contains(*b) {
+        println!("chat end");
+        speech_writer.send(SpeechEvent::Close);
+        return true;
+    }
+    return false;
 }
 
 pub struct RabbitPlugin;
 
 impl Plugin for RabbitPlugin {
-    fn build(&self, _app: &mut App) {}
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            FixedUpdate,
+            (chat)
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
+        );
+    }
 }

@@ -1,9 +1,8 @@
 use crate::{
     controller::player::Player,
-    entity::{dropped_item::DroppedItemEntity, rabbit::Rabbit},
+    entity::dropped_item::DroppedItemEntity,
     se::{SECommand, SE},
     set::GameSet,
-    speech_bubble::SpeechEvent,
     states::{GameMenuState, GameState},
     ui::interaction_marker::InteractionMarker,
 };
@@ -29,12 +28,10 @@ fn pick_up(
     mut player_query: Query<(&mut Player, &Transform)>,
     interactive_query: Query<(&Parent, &GlobalTransform), With<InteractionMarker>>,
     dropped_spell_query: Query<&DroppedItemEntity>,
-    rabbit_query: Query<&Rabbit>,
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     mut global: EventWriter<SECommand>,
     state: Res<State<GameMenuState>>,
-    mut speech_writer: EventWriter<SpeechEvent>,
 ) {
     if keys.just_pressed(KeyCode::KeyE) && *state.get() == GameMenuState::Closed {
         if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
@@ -63,10 +60,6 @@ fn pick_up(
                     } else {
                         warn!("Inventory is full");
                     }
-                } else if let Ok(_rabbit) = rabbit_query.get(nearest_parent) {
-                    speech_writer.send(SpeechEvent::Speech(
-                        "やあ、君か。\nなにか買っていくかい？？".to_string(),
-                    ));
                 } else {
                     warn!("no item for nrearest {:?}", nearest_parent);
                 }

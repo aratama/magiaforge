@@ -186,8 +186,6 @@ fn drop(
 ) {
     let mut floating = floating_query.single_mut();
     if mouse.just_released(MouseButton::Left) {
-        info!("drop from {:?} to {:?} ", floating.content, floating.target);
-
         let content_optional = floating.content;
         let target_optional = floating.target;
 
@@ -370,7 +368,8 @@ impl Plugin for InventoryItemFloatingPlugin {
                 cancel_on_close,
                 drop,
             )
-                .run_if(in_state(GameState::InGame)),
+                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameMenuState::WandEditOpen)),
         );
     }
 }
