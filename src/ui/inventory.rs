@@ -94,7 +94,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 }
 
 fn update_inventory_slot(
-    query: Query<&Actor, With<Player>>,
+    player_query: Query<&Actor, With<Player>>,
     mut slot_query: Query<(
         &InventoryItemSlot,
         &mut AseUiSlice,
@@ -103,7 +103,7 @@ fn update_inventory_slot(
     )>,
     floating_query: Query<&Floating>,
 ) {
-    if let Ok(actor) = query.get_single() {
+    if let Ok(actor) = player_query.get_single() {
         let floating = floating_query.single();
 
         let mut hidden: HashSet<usize> = HashSet::new();
@@ -150,7 +150,7 @@ fn update_yellow_frame(
             let item_optional = actor.inventory.get(slot.0);
             match item_optional {
                 Some(item) if 0 < item.price => {
-                    aseprite.name = "yellow_frame".into();
+                    aseprite.name = "charge_alert".into();
                 }
                 _ => {
                     aseprite.name = "empty".into();

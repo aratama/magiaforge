@@ -25,6 +25,7 @@ use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_enemy_witch;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
+use crate::equipment::EQUIPMENTS;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -127,7 +128,7 @@ pub fn setup_level(
         &life_bar_res,
         false,
         3.0,
-        10,
+        100,
         player.wands,
         player.inventory,
         player.equipments,
@@ -461,17 +462,31 @@ fn spawn_entities(
                 ));
             }
             GameEntity::Spell => {
-                let spell = SPELL_TYPES[rand::random::<usize>() % SPELL_TYPES.len()];
-                let props = spell.to_props();
-                spawn_dropped_item(
-                    &mut commands,
-                    &assets,
-                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    InventoryItem {
-                        item_type: InventoryItemType::Spell(spell),
-                        price: props.price,
-                    },
-                );
+                if 0.5 < rand::random::<f32>() {
+                    let spell = SPELL_TYPES[rand::random::<usize>() % SPELL_TYPES.len()];
+                    let props = spell.to_props();
+                    spawn_dropped_item(
+                        &mut commands,
+                        &assets,
+                        Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                        InventoryItem {
+                            item_type: InventoryItemType::Spell(spell),
+                            price: props.price,
+                        },
+                    );
+                } else {
+                    let equipment = EQUIPMENTS[rand::random::<usize>() % EQUIPMENTS.len()];
+                    let props = equipment.to_props();
+                    spawn_dropped_item(
+                        &mut commands,
+                        &assets,
+                        Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                        InventoryItem {
+                            item_type: InventoryItemType::Equipment(equipment),
+                            price: props.price,
+                        },
+                    );
+                }
             }
             GameEntity::HugeSlime => {
                 spawn_huge_slime(

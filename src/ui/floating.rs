@@ -5,7 +5,7 @@ use crate::{
     entity::{actor::Actor, dropped_item::spawn_dropped_item},
     hud::DropArea,
     inventory::InventoryItem,
-    inventory_item::{inventory_item_to_props, InventoryItemType},
+    inventory_item::InventoryItemType,
     level::{tile::Tile, CurrentLevel},
     se::{SECommand, SE},
     states::{GameMenuState, GameState},
@@ -27,6 +27,9 @@ pub struct Floating {
     pub content: Option<FloatingContent>,
     pub target: Option<FloatingContent>,
 }
+
+#[derive(Component)]
+struct ChargeAlert;
 
 impl Floating {
     pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
@@ -61,50 +64,53 @@ impl Floating {
 }
 
 pub fn spawn_inventory_floating(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
-    builder.spawn((
-        Floating {
-            content: None,
-            target: None,
-        },
-        Interaction::default(),
-        GlobalZIndex(WAND_EDITOR_FLOATING_Z_INDEX),
-        Visibility::Hidden,
-        // background_color: Color::hsla(0.0, 0.0, 0.0, 0.5).into(),
-        Node {
-            position_type: PositionType::Absolute,
-            top: Val::Px(500.0),
-            left: Val::Px(500.0),
-            width: Val::Px(32.0),
-            height: Val::Px(32.0),
-            // border: UiRect::all(Val::Px(1.0)),
-            ..default()
-        },
-        AseUiSlice {
-            aseprite: assets.atlas.clone(),
-            name: "empty".into(),
-        },
-    ));
+    builder
+        .spawn((
+            Floating {
+                content: None,
+                target: None,
+            },
+            Interaction::default(),
+            GlobalZIndex(WAND_EDITOR_FLOATING_Z_INDEX),
+            Visibility::Hidden,
+            // background_color: Color::hsla(0.0, 0.0, 0.0, 0.5).into(),
+            Node {
+                position_type: PositionType::Absolute,
+                top: Val::Px(500.0),
+                left: Val::Px(500.0),
+                width: Val::Px(32.0),
+                height: Val::Px(32.0),
+                // border: UiRect::all(Val::Px(1.0)),
+                ..default()
+            },
+            AseUiSlice {
+                aseprite: assets.atlas.clone(),
+                name: "empty".into(),
+            },
+        ))
+        .with_child((
+            ChargeAlert,
+            AseUiSlice {
+                aseprite: assets.atlas.clone(),
+                name: "charge_alert".into(),
+            },
+        ));
 }
 
-fn update_inventory_floaing(
+fn update_inventory_floaing_position(
     windows_query: Query<&Window, With<PrimaryWindow>>,
-    mut query: Query<(&mut Node, &mut Floating)>,
-    mouse: Res<ButtonInput<MouseButton>>,
+    mut query: Query<&mut Node, With<Floating>>,
 ) {
-    let (mut style, mut floating) = query.single_mut();
+    let mut style = query.single_mut();
     if let Ok(window) = windows_query.get_single() {
         if let Some(position) = window.cursor_position() {
             style.left = Val::Px(position.x - 16.0);
             style.top = Val::Px(position.y - 16.0);
         }
     }
-
-    if mouse.just_pressed(MouseButton::Right) {
-        floating.content = None;
-    }
 }
 
-fn switch_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
+fn update_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
     let (floating, mut visibility) = query.single_mut();
     *visibility = match floating.content {
         Some(_) => Visibility::Visible,
@@ -112,71 +118,32 @@ fn switch_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
     };
 }
 
-fn switch_floating_slice(
+fn update_alert_visibility(
+    player_query: Query<&Actor, With<Player>>,
+    floating_query: Query<&Floating>,
+    mut alert_query: Query<&mut Visibility, With<ChargeAlert>>,
+) {
+    if let Ok(actor) = player_query.get_single() {
+        let floating = floating_query.single();
+        let mut alert = alert_query.single_mut();
+        *alert = match floating.get_item(actor) {
+            Some(item) if 0 < item.price => Visibility::Inherited,
+            _ => Visibility::Hidden,
+        };
+    }
+}
+
+fn update_floating_slice(
     player_query: Query<&Actor, With<Player>>,
     mut floating_query: Query<(&Floating, &mut AseUiSlice, &mut Node), With<Floating>>,
 ) {
     if let Ok(actor) = player_query.get_single() {
         let (floating, mut floating_slice, mut style) = floating_query.single_mut();
-        match floating.content {
-            Some(FloatingContent::Inventory(index)) => {
-                let item = actor.inventory.get(index);
-
-                let slice = match item {
-                    Some(item) => {
-                        let props = inventory_item_to_props(item.item_type);
-                        Some(props.icon)
-                    }
-                    _ => None,
-                };
-                if let Some(slice) = slice {
-                    floating_slice.name = slice.into();
-                    style.width = Val::Px(32.0);
-                }
-
-                style.width = match item.map(|i| i.item_type) {
-                    Some(InventoryItemType::Wand(_)) => Val::Px(64.0),
-                    _ => Val::Px(32.0),
-                }
-            }
-            Some(FloatingContent::WandSpell(wand_index, spell_index)) => {
-                match &actor.wands[wand_index] {
-                    Some(wand) => match wand.slots[spell_index] {
-                        Some(spell) => {
-                            floating_slice.name = spell.spell_type.to_props().icon.into();
-                            style.width = Val::Px(32.0);
-                        }
-                        _ => {
-                            floating_slice.name = "empty".into();
-                        }
-                    },
-                    None => {
-                        floating_slice.name = "empty".into();
-                    }
-                }
-            }
-            Some(FloatingContent::Wand(wand_index)) => match &actor.wands[wand_index] {
-                Some(wand) => {
-                    let props = wand.wand_type.to_props();
-                    floating_slice.name = props.icon.into();
-                    style.width = Val::Px(64.0);
-                }
-                None => {
-                    floating_slice.name = "empty".into();
-                }
-            },
-            Some(FloatingContent::Equipment(equipment)) => match actor.equipments[equipment] {
-                Some(equipment) => {
-                    floating_slice.name = equipment.equipment_type.to_props().icon.into();
-                    style.width = Val::Px(32.0);
-                }
-                None => {
-                    floating_slice.name = "empty".into();
-                }
-            },
-            None => {
-                floating_slice.name = "empty".into();
-            }
+        if let Some(item) = floating.get_item(actor) {
+            floating_slice.name = item.item_type.get_icon().to_string();
+            style.width = Val::Px(item.item_type.get_icon_width());
+        } else {
+            floating_slice.name = "empty".into();
         }
     }
 }
@@ -420,11 +387,12 @@ impl Plugin for InventoryItemFloatingPlugin {
         app.add_systems(
             Update,
             (
-                update_inventory_floaing,
-                switch_floating_visibility,
-                switch_floating_slice,
+                update_inventory_floaing_position,
+                update_floating_visibility,
+                update_floating_slice,
                 cancel_on_close,
                 drop,
+                update_alert_visibility,
             )
                 .run_if(in_state(GameState::InGame))
                 .run_if(in_state(GameMenuState::WandEditOpen)),

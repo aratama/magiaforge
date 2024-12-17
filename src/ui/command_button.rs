@@ -51,7 +51,7 @@ pub fn command_button<'a, T: Component>(
                 Text::new(""),
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
-                    font_size: 40.0,
+                    font_size: 32.0,
                     font: assets.dotgothic.clone(),
                     ..default()
                 },

@@ -3,6 +3,7 @@ use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
 use crate::controller::player::Equipment;
 use crate::entity::life::LifeBeingSprite;
 use crate::inventory::Inventory;
+use crate::ui::floating::FloatingContent;
 use crate::wand::{Wand, WandSpell};
 use crate::{asset::GameAssets, se::SECommand, states::GameState};
 use bevy::prelude::*;
@@ -81,11 +82,34 @@ pub struct Actor {
 }
 
 impl Actor {
+    pub fn get_item_icon(&self, index: FloatingContent) -> Option<&str> {
+        match index {
+            FloatingContent::Inventory(index) => {
+                self.inventory.get(index).map(|i| i.item_type.get_icon())
+            }
+            FloatingContent::Equipment(index) => {
+                self.equipments[index].map(|i| i.equipment_type.to_props().icon)
+            }
+            FloatingContent::Wand(index) => self.wands[index]
+                .as_ref()
+                .map(|i| i.wand_type.to_props().icon),
+            FloatingContent::WandSpell(w, s) => self.wands[w]
+                .as_ref()
+                .and_then(|wand| wand.slots[s].map(|spell| spell.spell_type.to_props().icon)),
+        }
+    }
+
     pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
         if let Some(ref wand) = self.wands[wand_index] {
             return wand.slots[spell_index];
         }
         None
+    }
+
+    pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
+        self.wands[wand_index]
+            .as_ref()
+            .and_then(|w| w.slots[spell_index])
     }
 
     /// 現在所持している有料呪文の合計金額を返します

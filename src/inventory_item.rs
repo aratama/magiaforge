@@ -30,6 +30,14 @@ impl InventoryItemType {
             InventoryItemType::Equipment(equipment) => equipment.to_props().icon,
         }
     }
+
+    pub fn get_icon_width(&self) -> f32 {
+        match self {
+            InventoryItemType::Spell(..) => 32.0,
+            InventoryItemType::Wand(..) => 64.0,
+            InventoryItemType::Equipment(..) => 32.0,
+        }
+    }
 }
 
 pub struct InventoryItemProps {

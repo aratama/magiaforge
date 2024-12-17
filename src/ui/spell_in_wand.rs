@@ -17,31 +17,42 @@ struct WandSpellSprite {
     spell_index: usize,
 }
 
+#[derive(Component)]
+struct ChargeAlert;
+
 pub fn spawn_wand_spell_slot(
     parent: &mut ChildBuilder,
     assets: &Res<GameAssets>,
     wand_index: usize,
     spell_index: usize,
 ) {
-    parent.spawn((
-        WandSpellSprite {
-            wand_index,
-            spell_index,
-        },
-        Interaction::default(),
-        BackgroundColor(slot_color(wand_index, spell_index)),
-        Node {
-            position_type: PositionType::Absolute,
-            left: Val::Px(64.0 + 32. * (spell_index as f32)),
-            width: Val::Px(32.),
-            height: Val::Px(32.),
-            ..default()
-        },
-        AseUiSlice {
-            aseprite: assets.atlas.clone(),
-            name: "empty".into(),
-        },
-    ));
+    parent
+        .spawn((
+            WandSpellSprite {
+                wand_index,
+                spell_index,
+            },
+            Interaction::default(),
+            BackgroundColor(slot_color(wand_index, spell_index)),
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(64.0 + 32. * (spell_index as f32)),
+                width: Val::Px(32.),
+                height: Val::Px(32.),
+                ..default()
+            },
+            AseUiSlice {
+                aseprite: assets.atlas.clone(),
+                name: "empty".into(),
+            },
+        ))
+        .with_child((
+            ChargeAlert,
+            AseUiSlice {
+                aseprite: assets.atlas.clone(),
+                name: "charge_alert".into(),
+            },
+        ));
 }
 
 fn update_spell_sprite(
@@ -115,13 +126,48 @@ fn interaction_spell_sprite(
     }
 }
 
+fn update_alert_visibility(
+    player_query: Query<&Actor, With<Player>>,
+    slot_query: Query<&WandSpellSprite>,
+    mut alert_query: Query<(&Parent, &mut Visibility), With<ChargeAlert>>,
+    floating_query: Query<&Floating>,
+) {
+    let floating = floating_query.single();
+    if let Ok(actor) = player_query.get_single() {
+        for (parent, mut alert) in alert_query.iter_mut() {
+            if let Ok(slot) = slot_query.get(parent.get()) {
+                match floating.content {
+                    Some(FloatingContent::WandSpell(w, s))
+                        if w == slot.wand_index && s == slot.spell_index =>
+                    {
+                        *alert = Visibility::Hidden;
+                    }
+                    _ => {
+                        *alert = match actor.get_wand_spell(slot.wand_index, slot.spell_index) {
+                            Some(item) if 0 < item.price => Visibility::Inherited,
+                            _ => Visibility::Hidden,
+                        };
+                    }
+                }
+            } else {
+                *alert = Visibility::Hidden;
+            }
+        }
+    }
+}
+
 pub struct SpellInWandPlugin;
 
 impl Plugin for SpellInWandPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_spell_sprite, interaction_spell_sprite).run_if(in_state(GameState::InGame)),
+            (
+                update_spell_sprite,
+                interaction_spell_sprite,
+                update_alert_visibility,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }
