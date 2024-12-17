@@ -22,6 +22,7 @@ use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::stone_lantern::spawn_stone_lantern;
+use crate::entity::witch::spawn_enemy_witch;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::hud::life_bar::LifeBarResource;
@@ -140,6 +141,7 @@ pub fn setup_level(
             last_idle_life: player.life,
             last_idle_max_life: player.max_life,
         },
+        ActorGroup::Player,
     );
 
     current.level = Some(level);
@@ -240,7 +242,7 @@ fn spawn_level(
 
     spawn_wall_collisions(&mut commands, &chunk);
 
-    spawn_entities(&mut commands, &assets, &chunk);
+    spawn_entities(&mut commands, &assets, &life_bar_res, &chunk);
 
     if 30 < empties.len() {
         for _ in 0..10 {
@@ -355,7 +357,12 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
     }
 }
 
-fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelChunk) {
+fn spawn_entities(
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    life_bar_resource: &Res<LifeBarResource>,
+    chunk: &LevelChunk,
+) {
     // エンティティの生成
     for (entity, x, y) in &chunk.entities {
         let tx = TILE_SIZE * *x as f32;
@@ -477,6 +484,14 @@ fn spawn_entities(mut commands: &mut Commands, assets: &Res<GameAssets>, chunk: 
                 spawn_rabbit(
                     &mut commands,
                     &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                );
+            }
+            GameEntity::Witch => {
+                spawn_enemy_witch(
+                    &mut commands,
+                    &assets,
+                    life_bar_resource,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                 );
             }

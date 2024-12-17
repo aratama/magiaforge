@@ -1,5 +1,6 @@
 use crate::constant::*;
 use crate::controller::player::Player;
+use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
 use crate::inventory::Inventory;
@@ -262,6 +263,7 @@ fn receive_events(
                                         golds,
                                         last_update: *frame_count,
                                     },
+                                    ActorGroup::Enemy,
                                 );
                                 info!("Remote player spawned: {}", uuid);
                             }

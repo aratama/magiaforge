@@ -210,6 +210,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::Rabbit, x, y));
                 }
+                (182, 0, 255, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::Witch, x, y));
+                }
                 _ => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Blank,

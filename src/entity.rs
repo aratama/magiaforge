@@ -39,6 +39,7 @@ pub enum GameEntity {
     Crate,
     HugeSlime,
     Rabbit,
+    Witch,
 }
 
 #[derive(Component)]

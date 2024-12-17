@@ -1,12 +1,14 @@
 use super::actor::{ActorGroup, ActorState};
 use super::EntityChildrenAutoDepth;
 use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Equipment;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
 use crate::inventory::Inventory;
+use crate::player_state::PlayerState;
 use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::audio::Volume;
@@ -45,6 +47,7 @@ pub fn spawn_witch<T: Component>(
     inventory: Inventory,
     equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     controller: T,
+    actor_group: ActorGroup,
 ) -> Entity {
     let mut entity = commands.spawn((
         Name::new("witch"),
@@ -59,7 +62,7 @@ pub fn spawn_witch<T: Component>(
             fire_state: ActorFireState::Idle,
             current_wand: 0,
             effects: default(),
-            actor_group: ActorGroup::Player,
+            actor_group,
             golds,
             wands,
             inventory,
@@ -100,7 +103,10 @@ pub fn spawn_witch<T: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             CollisionGroups::new(
-                WITCH_GROUP,
+                match actor_group {
+                    ActorGroup::Player => WITCH_GROUP,
+                    ActorGroup::Enemy => ENEMY_GROUP,
+                },
                 ENTITY_GROUP
                     | WALL_GROUP
                     | WITCH_GROUP
@@ -167,6 +173,38 @@ pub fn spawn_witch<T: Component>(
     });
 
     return entity.id();
+}
+
+#[derive(Component)]
+struct EnemyWitchController;
+
+pub fn spawn_enemy_witch(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    life_bar_res: &Res<LifeBarResource>,
+    position: Vec2,
+) {
+    let player = PlayerState::from_config(&GameConfig::default());
+
+    spawn_witch(
+        commands,
+        &assets,
+        position,
+        0.0,
+        Uuid::new_v4(),
+        None,
+        200,
+        200,
+        &life_bar_res,
+        false,
+        3.0,
+        10,
+        player.wands,
+        player.inventory,
+        player.equipments,
+        EnemyWitchController,
+        ActorGroup::Enemy,
+    );
 }
 
 fn update_witch_animation(
