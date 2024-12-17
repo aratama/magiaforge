@@ -8,6 +8,7 @@ use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::slime_seed::SpawnSlimeSeed;
 use crate::entity::EntityDepth;
+use crate::inventory::Inventory;
 use crate::se::{SECommand, SE};
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -79,6 +80,9 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 current_wand: 0,
                 effects: default(),
                 actor_group: ActorGroup::Enemy,
+                golds: 0,
+                inventory: Inventory::new(),
+                equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,

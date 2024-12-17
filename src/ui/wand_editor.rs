@@ -9,6 +9,7 @@ use crate::{
     asset::GameAssets,
     constant::WAND_EDITOR_Z_INDEX,
     controller::player::Player,
+    entity::actor::Actor,
     language::Dict,
     states::{GameMenuState, GameState},
 };
@@ -86,7 +87,7 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 fn switch_sort_button_disabled(
     floating_query: Query<&Floating>,
     mut query: Query<&mut CommandButton, With<SortButton>>,
-    player_query: Query<&Player>,
+    player_query: Query<&Actor, With<Player>>,
 ) {
     let floating = floating_query.single();
     if let Ok(mut button) = query.get_single_mut() {
@@ -94,10 +95,10 @@ fn switch_sort_button_disabled(
             button.disabled = true;
             return;
         }
-        if let Ok(player) = player_query.get_single() {
-            let mut cloned = player.inventory.clone();
+        if let Ok(actor) = player_query.get_single() {
+            let mut cloned = actor.inventory.clone();
             cloned.sort();
-            button.disabled = cloned == player.inventory;
+            button.disabled = cloned == actor.inventory;
         }
     }
 }
@@ -129,13 +130,13 @@ fn handle_tab_key(
 
 fn sort_button_pressed(
     interaction_query: Query<&Interaction, (With<SortButton>, Changed<Interaction>)>,
-    mut player_query: Query<&mut Player>,
+    mut player_query: Query<&mut Actor, With<Player>>,
 ) {
-    if let Ok(mut player) = player_query.get_single_mut() {
+    if let Ok(mut actor) = player_query.get_single_mut() {
         for interaction in interaction_query.iter() {
             match interaction {
                 Interaction::Pressed => {
-                    player.inventory.sort();
+                    actor.inventory.sort();
                 }
                 _ => {}
             }

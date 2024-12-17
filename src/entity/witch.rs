@@ -2,9 +2,11 @@ use super::actor::{ActorGroup, ActorState};
 use super::EntityChildrenAutoDepth;
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::controller::player::Equipment;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use crate::inventory::Inventory;
 use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::audio::Volume;
@@ -38,7 +40,10 @@ pub fn spawn_witch<T: Component>(
     res: &Res<LifeBarResource>,
     life_bar: bool,
     intensity: f32,
+    golds: i32,
     wands: [Option<Wand>; 4],
+    inventory: Inventory,
+    equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     controller: T,
 ) -> Entity {
     let mut entity = commands.spawn((
@@ -47,7 +52,6 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             spell_delay: 0,
-
             pointer: Vec2::from_angle(angle),
             intensity,
             move_direction: Vec2::ZERO,
@@ -56,7 +60,10 @@ pub fn spawn_witch<T: Component>(
             current_wand: 0,
             effects: default(),
             actor_group: ActorGroup::Player,
+            golds,
             wands,
+            inventory,
+            equipments,
         },
         ActorState::default(),
         Witch,

@@ -1,6 +1,7 @@
 use crate::{
     asset::GameAssets,
     controller::{player::Player, remote::RemotePlayer},
+    entity::actor::Actor,
     level::{CurrentLevel, GameLevel},
     states::GameState,
 };
@@ -89,7 +90,7 @@ fn update_player_list_visibility(
 /// プレイヤーリストを更新
 fn update_player_list(
     mut commands: Commands,
-    player_query: Query<&Player>,
+    player_query: Query<(&Player, &Actor)>,
     remote_query: Query<(Entity, &RemotePlayer)>,
     mut remote_player_items_query: Query<(
         Entity,
@@ -102,10 +103,10 @@ fn update_player_list(
 ) {
     let parent = list_query.single_mut();
     let mut players = Vec::<(String, i32, Color)>::new();
-    if let Ok(player) = player_query.get_single() {
+    if let Ok((player, actor)) = player_query.get_single() {
         players.push((
             player.name.clone(),
-            player.golds,
+            actor.golds,
             Color::hsl(120.0, 1.0, 0.5),
         ));
     }

@@ -5,6 +5,7 @@ use crate::entity::bullet::HomingTarget;
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
+use crate::inventory::Inventory;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandSpell, WandType};
@@ -48,6 +49,9 @@ pub fn spawn_basic_enemy<T: Component>(
                 current_wand: 0,
                 effects: default(),
                 actor_group,
+                golds: gold as i32,
+                inventory: Inventory::new(),
+                equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
                 wands: [
                     Some(Wand {
                         wand_type: WandType::CypressWand,

@@ -154,9 +154,8 @@ fn warp(
                     name: player.name.clone(),
                     life: actor_life.life,
                     max_life: actor_life.max_life,
-                    golds: player.golds,
-                    inventory: player.inventory.clone(),
-                    equipments: player.equipments.clone(),
+                    inventory: actor.inventory.clone(),
+                    equipments: actor.equipments.clone(),
                     wands: actor.wands.clone(),
                 };
 

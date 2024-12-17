@@ -1,6 +1,5 @@
-use bevy::reflect::Reflect;
-
 use crate::{constant::MAX_SPELLS_IN_WAND, spell::SpellType};
+use bevy::reflect::Reflect;
 
 #[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum WandType {

@@ -10,6 +10,9 @@ use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::actor::Actor;
+use super::life::Life;
+
 #[derive(Component)]
 pub struct DroppedItemEntity {
     item: InventoryItem,
@@ -62,23 +65,32 @@ pub fn spawn_dropped_item(
             InheritedVisibility::default(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
-            LockedAxes::ROTATION_LOCKED,
-            RigidBody::Dynamic,
-            Collider::cuboid(collider_width, 8.0),
-            CollisionGroups::new(
-                ENTITY_GROUP,
-                ENTITY_GROUP
-                    | WITCH_GROUP
-                    | WITCH_BULLET_GROUP
-                    | ENEMY_GROUP
-                    | ENEMY_BULLET_GROUP
-                    | WALL_GROUP,
-            ),
-            Damping {
-                linear_damping: 10.0,
-                angular_damping: 1.0,
+            Life {
+                life: 300,
+                max_life: 300,
+                amplitude: 0.0,
             },
-            ActiveEvents::COLLISION_EVENTS,
+            (
+                RigidBody::Dynamic,
+                LockedAxes::ROTATION_LOCKED,
+                Damping {
+                    linear_damping: 1.0,
+                    angular_damping: 1.0,
+                },
+                Collider::cuboid(collider_width, 8.0),
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    ENTITY_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP
+                        | WALL_GROUP,
+                ),
+                ActiveEvents::COLLISION_EVENTS,
+                ExternalForce::default(),
+                ExternalImpulse::default(),
+            ),
         ))
         .with_children(|parent| {
             parent
@@ -136,7 +148,7 @@ fn collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
-    mut player_query: Query<&mut Player>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut global: EventWriter<SECommand>,
 ) {
     for collision_event in collision_events.read() {
@@ -168,12 +180,12 @@ fn chat_start(
     a: &Entity,
     b: &Entity,
     item_query: &Query<&DroppedItemEntity>,
-    player_query: &mut Query<&mut Player>,
+    player_query: &mut Query<&mut Actor, With<Player>>,
     global: &mut EventWriter<SECommand>,
 ) -> bool {
     match (item_query.get(*a), player_query.get_mut(*b)) {
-        (Ok(item), Ok(mut player)) => {
-            if player.inventory.insert(item.item) {
+        (Ok(item), Ok(mut actor)) => {
+            if actor.inventory.insert(item.item) {
                 commands.entity(*a).despawn_recursive();
                 global.send(SECommand::new(SE::PickUp));
                 return true;

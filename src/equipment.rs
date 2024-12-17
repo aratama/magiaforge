@@ -1,6 +1,8 @@
+use bevy::reflect::Reflect;
+
 use crate::language::Dict;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub enum EquipmentType {
     Lantern,
 }

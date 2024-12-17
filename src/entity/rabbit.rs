@@ -5,6 +5,7 @@ use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::actor::{ActorGroup, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
+use crate::inventory::Inventory;
 use crate::se::{SECommand, SE};
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
@@ -38,6 +39,9 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 current_wand: 0,
                 effects: default(),
                 actor_group: ActorGroup::Player,
+                golds: 0,
+                inventory: Inventory::new(),
+                equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
                 wands: [None, None, None, None],
             },
             ActorState::default(),
@@ -106,7 +110,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
 fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitSensor>,
-    mut player_query: Query<(&mut Player, &mut Actor)>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
     mut se: EventWriter<SECommand>,
 ) {
@@ -141,15 +145,15 @@ fn chat_start(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitSensor>,
-    player_query: &mut Query<(&mut Player, &mut Actor)>,
+    player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
     se: &mut EventWriter<SECommand>,
 ) -> bool {
     if sensor_query.contains(*a) {
-        if let Ok((mut player, mut actor)) = player_query.get_mut(*b) {
-            let dept = player.dept(&mut actor);
+        if let Ok(mut actor) = player_query.get_mut(*b) {
+            let dept = actor.dept();
             if 0 < dept {
-                if player.liquidate(&mut actor) {
+                if actor.liquidate() {
                     se.send(SECommand::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech(
                         format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
@@ -158,7 +162,7 @@ fn chat_start(
                     speech_writer.send(SpeechEvent::Speech(
                         format!(
                             "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
-                            dept as i32 - player.golds
+                            dept as i32 - actor.golds
                         )
                         .to_string(),
                     ));
@@ -178,7 +182,7 @@ fn chat_end(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitSensor>,
-    player_query: &Query<(&mut Player, &mut Actor)>,
+    player_query: &Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) && player_query.contains(*b) {
@@ -191,7 +195,7 @@ fn chat_end(
 fn collision_outer_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitOuterSensor>,
-    player_query: Query<(&Player, &Actor)>,
+    player_query: Query<&Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -209,12 +213,12 @@ fn out_sensor(
     a: &Entity,
     b: &Entity,
     sensor_query: &Query<&RabbitOuterSensor>,
-    player_query: &Query<(&Player, &Actor)>,
+    player_query: &Query<&Actor, With<Player>>,
     _speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) {
-        if let Ok((player, actor)) = player_query.get(*b) {
-            if 0 < player.dept(actor) {
+        if let Ok(actor) = player_query.get(*b) {
+            if 0 < actor.dept() {
                 // WIP
                 // speech_writer.send(SpeechEvent::Speech(
                 //     format!("おいおいおいおい\n冗談はよしてくれ\nまだ会計をしてないのに\nどこに行く気だい？")

@@ -1,6 +1,8 @@
 use crate::cast::cast_spell;
-use crate::constant::MAX_WANDS;
+use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
+use crate::controller::player::Equipment;
 use crate::entity::life::LifeBeingSprite;
+use crate::inventory::Inventory;
 use crate::wand::{Wand, WandSpell};
 use crate::{asset::GameAssets, se::SECommand, states::GameState};
 use bevy::prelude::*;
@@ -65,12 +67,17 @@ pub struct Actor {
     /// 内部的にはモンスターも杖を持っていることになっています
     pub wands: [Option<Wand>; MAX_WANDS],
     // pub queue: Vec,
+    pub inventory: Inventory,
+
+    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
 
     // 弾丸へのバフ効果
     // 一回発射するごとにリセットされます
     pub effects: CastEffects,
 
     pub actor_group: ActorGroup,
+
+    pub golds: i32,
 }
 
 impl Actor {
@@ -81,12 +88,62 @@ impl Actor {
         None
     }
 
+    /// 現在所持している有料呪文の合計金額を返します
     pub fn dept(&self) -> u32 {
-        self.wands
+        let mut dept = self.inventory.dept();
+
+        let w: u32 = self
+            .wands
             .iter()
             .filter_map(|wand| wand.as_ref())
             .map(|wand| wand.price + wand.dept())
-            .sum()
+            .sum();
+
+        dept += w;
+
+        for e in self.equipments {
+            if let Some(equipment) = e {
+                dept += equipment.price;
+            }
+        }
+
+        return dept;
+    }
+
+    /// 清算します
+    /// いま所持している有料のスペルをすべて無料に戻します
+    pub fn liquidate(&mut self) -> bool {
+        let dept = self.dept();
+        if self.golds < dept as i32 {
+            return false;
+        }
+
+        self.golds -= dept as i32;
+
+        for item in self.inventory.0.iter_mut() {
+            if let Some(item) = item {
+                item.price = 0;
+            }
+        }
+
+        for e in self.equipments {
+            if let Some(mut equipment) = e {
+                equipment.price = 0;
+            }
+        }
+
+        for w in self.wands.iter_mut() {
+            if let Some(ref mut wand) = w {
+                wand.price = 0;
+                for s in wand.slots.iter_mut() {
+                    if let Some(mut spell) = s {
+                        spell.price = 0;
+                    }
+                }
+            }
+        }
+
+        true
     }
 }
 

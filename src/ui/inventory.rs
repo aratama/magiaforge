@@ -94,7 +94,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 }
 
 fn update_inventory_slot(
-    query: Query<&Player>,
+    query: Query<&Actor, With<Player>>,
     mut slot_query: Query<(
         &InventoryItemSlot,
         &mut AseUiSlice,
@@ -103,13 +103,13 @@ fn update_inventory_slot(
     )>,
     floating_query: Query<&Floating>,
 ) {
-    if let Ok(player) = query.get_single() {
+    if let Ok(actor) = query.get_single() {
         let floating = floating_query.single();
 
         let mut hidden: HashSet<usize> = HashSet::new();
 
         for (slot, mut aseprite, mut style, mut visibility) in slot_query.iter_mut() {
-            let item_optional = player.inventory.get(slot.0);
+            let item_optional = actor.inventory.get(slot.0);
 
             if let Some(item) = item_optional {
                 let width = item.item_type.get_width();
@@ -140,14 +140,14 @@ fn update_inventory_slot(
 }
 
 fn update_yellow_frame(
-    query: Query<&Player>,
+    query: Query<&Actor, With<Player>>,
     slot_query: Query<&InventoryItemSlot>,
     mut children_query: Query<(&Parent, &mut AseUiSlice), With<YellowFrame>>,
 ) {
-    if let Ok(player) = query.get_single() {
+    if let Ok(actor) = query.get_single() {
         for (parent, mut aseprite) in children_query.iter_mut() {
             let slot = slot_query.get(parent.get()).unwrap();
-            let item_optional = player.inventory.get(slot.0);
+            let item_optional = actor.inventory.get(slot.0);
             match item_optional {
                 Some(item) if 0 < item.price => {
                     aseprite.name = "yellow_frame".into();
@@ -163,7 +163,7 @@ fn update_yellow_frame(
 fn interaction(
     mut interaction_query: Query<(&InventoryItemSlot, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
-    player_query: Query<(&Player, &Actor, &Transform)>,
+    player_query: Query<(&Actor, &Transform), With<Player>>,
     mut spell_info_query: Query<&mut SpellInformation>,
 ) {
     for (slot, interaction) in &mut interaction_query {
@@ -182,10 +182,10 @@ fn interaction(
                 floating.target = Some(FloatingContent::Inventory(slot.0));
 
                 let mut spell_info = spell_info_query.single_mut();
-                if let Ok((player, actor, _)) = player_query.get_single() {
-                    let floating_item = floating.get_item(&player, &actor);
-                    if player.inventory.is_settable_optional(slot.0, floating_item) {
-                        *spell_info = match player.inventory.get(slot.0) {
+                if let Ok((actor, _)) = player_query.get_single() {
+                    let floating_item = floating.get_item(&actor);
+                    if actor.inventory.is_settable_optional(slot.0, floating_item) {
+                        *spell_info = match actor.inventory.get(slot.0) {
                             Some(slot_item) => SpellInformation(Some(
                                 SpellInformationItem::InventoryItem(slot_item),
                             )),

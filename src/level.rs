@@ -126,10 +126,12 @@ fn setup_level(
         &life_bar_res,
         false,
         3.0,
+        10,
         player.wands,
+        player.inventory,
+        player.equipments,
         Player {
             name: player.name,
-            golds: player.golds,
             last_idle_frame_count: FrameCount(0),
             last_ilde_x: player_x,
             last_ilde_y: player_y,
@@ -137,8 +139,6 @@ fn setup_level(
             last_idle_vy: 0.0,
             last_idle_life: player.life,
             last_idle_max_life: player.max_life,
-            inventory: player.inventory,
-            equipments: player.equipments,
         },
     );
 

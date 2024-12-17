@@ -29,10 +29,10 @@ pub struct Floating {
 }
 
 impl Floating {
-    pub fn get_item(&self, player: &Player, actor: &Actor) -> Option<InventoryItem> {
+    pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
         match self.content {
             None => None,
-            Some(FloatingContent::Inventory(index)) => player.inventory.get(index),
+            Some(FloatingContent::Inventory(index)) => actor.inventory.get(index),
             Some(FloatingContent::WandSpell(wand_index, spell_index)) => actor.wands[wand_index]
                 .clone()
                 .and_then(|ref wand| match wand.slots[spell_index] {
@@ -51,7 +51,7 @@ impl Floating {
                 })
             }
             Some(FloatingContent::Equipment(index)) => {
-                player.equipments[index].clone().map(|ref e| InventoryItem {
+                actor.equipments[index].clone().map(|ref e| InventoryItem {
                     item_type: InventoryItemType::Equipment(e.equipment_type),
                     price: e.price,
                 })
@@ -113,14 +113,14 @@ fn switch_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
 }
 
 fn switch_floating_slice(
-    player_query: Query<(&Player, &Actor)>,
+    player_query: Query<&Actor, With<Player>>,
     mut floating_query: Query<(&Floating, &mut AseUiSlice, &mut Node), With<Floating>>,
 ) {
-    if let Ok((player, actor)) = player_query.get_single() {
+    if let Ok(actor) = player_query.get_single() {
         let (floating, mut floating_slice, mut style) = floating_query.single_mut();
         match floating.content {
             Some(FloatingContent::Inventory(index)) => {
-                let item = player.inventory.get(index);
+                let item = actor.inventory.get(index);
 
                 let slice = match item {
                     Some(item) => {
@@ -165,7 +165,7 @@ fn switch_floating_slice(
                     floating_slice.name = "empty".into();
                 }
             },
-            Some(FloatingContent::Equipment(equipment)) => match player.equipments[equipment] {
+            Some(FloatingContent::Equipment(equipment)) => match actor.equipments[equipment] {
                 Some(equipment) => {
                     floating_slice.name = equipment.equipment_type.to_props().icon.into();
                     style.width = Val::Px(32.0);
@@ -193,7 +193,7 @@ fn cancel_on_close(state: Res<State<GameMenuState>>, mut floating_query: Query<&
 fn drop(
     mouse: Res<ButtonInput<MouseButton>>,
     mut floating_query: Query<&mut Floating>,
-    mut player_query: Query<(&mut Player, &mut Actor)>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     drop_query: Query<&DropArea>,
     mut commands: Commands,
     assets: Res<GameAssets>,
@@ -210,49 +210,39 @@ fn drop(
         floating.content = None;
         floating.target = None;
 
-        if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
+        if let Ok(mut actor) = player_query.get_single_mut() {
             if let Some(content) = content_optional {
                 let drop = drop_query.single();
 
                 if drop.hover {
                     if let Some(ref chunk) = map.chunk {
-                        if let Ok((mut player, mut actor)) = player_query.get_single_mut() {
-                            if let Ok(window) = q_window.get_single() {
-                                if let Some(cursor_in_screen) = window.cursor_position() {
-                                    if let Ok((camera, camera_global_transform)) =
-                                        camera_query.get_single()
-                                    {
-                                        if let Ok(mouse_in_world) = camera.viewport_to_world(
-                                            camera_global_transform,
-                                            cursor_in_screen,
-                                        ) {
-                                            let pointer_in_world = mouse_in_world.origin.truncate();
+                        if let Ok(window) = q_window.get_single() {
+                            if let Some(cursor_in_screen) = window.cursor_position() {
+                                if let Ok((camera, camera_global_transform)) =
+                                    camera_query.get_single()
+                                {
+                                    if let Ok(mouse_in_world) = camera.viewport_to_world(
+                                        camera_global_transform,
+                                        cursor_in_screen,
+                                    ) {
+                                        let pointer_in_world = mouse_in_world.origin.truncate();
 
-                                            if chunk.get_tile_by_coords(pointer_in_world)
-                                                == Tile::StoneTile
-                                            {
-                                                if let Some(item) =
-                                                    content.get_inventory_item(&player, &actor)
-                                                {
-                                                    let spells = content.get_wand_spells(&actor);
-                                                    content.set_item(
-                                                        None,
-                                                        &spells,
-                                                        &mut player,
-                                                        &mut actor,
-                                                        false,
-                                                    );
+                                        if chunk.get_tile_by_coords(pointer_in_world)
+                                            == Tile::StoneTile
+                                        {
+                                            if let Some(item) = content.get_inventory_item(&actor) {
+                                                let spells = content.get_wand_spells(&actor);
+                                                content.set_item(None, &spells, &mut actor, false);
 
-                                                    spawn_dropped_item(
-                                                        &mut commands,
-                                                        &assets,
-                                                        pointer_in_world,
-                                                        item,
-                                                    );
-                                                    floating.content = None;
+                                                spawn_dropped_item(
+                                                    &mut commands,
+                                                    &assets,
+                                                    pointer_in_world,
+                                                    item,
+                                                );
+                                                floating.content = None;
 
-                                                    se.send(SECommand::new(SE::PickUp));
-                                                }
+                                                se.send(SECommand::new(SE::PickUp));
                                             }
                                         }
                                     }
@@ -262,48 +252,26 @@ fn drop(
                     }
                 } else if let Some(target) = target_optional {
                     // 移動元のアイテムを取得
-                    let item_optional_from = content.get_inventory_item(&player, &actor);
+                    let item_optional_from = content.get_inventory_item(&actor);
                     // 移動先のアイテムを取得
-                    let item_optional_to = target.get_inventory_item(&player, &actor);
+                    let item_optional_to = target.get_inventory_item(&actor);
                     // 移動元が杖の場合は杖に含まれている魔法を取得
                     let spells_from = content.get_wand_spells(&actor);
 
                     let spells_to = target.get_wand_spells(&actor);
 
                     // 移動先に書きこみ
-                    let ok_target = target.set_item(
-                        item_optional_from,
-                        &spells_from,
-                        &mut player,
-                        &mut actor,
-                        true,
-                    );
+                    let ok_target =
+                        target.set_item(item_optional_from, &spells_from, &mut actor, true);
                     // 移動元に書きこみ
-                    let ok_content = content.set_item(
-                        item_optional_to,
-                        &spells_to,
-                        &mut player,
-                        &mut actor,
-                        true,
-                    );
+                    let ok_content =
+                        content.set_item(item_optional_to, &spells_to, &mut actor, true);
 
                     if ok_target && ok_content {
                         // 移動先に書きこみ
-                        target.set_item(
-                            item_optional_from,
-                            &spells_from,
-                            &mut player,
-                            &mut actor,
-                            false,
-                        );
+                        target.set_item(item_optional_from, &spells_from, &mut actor, false);
                         // 移動元に書きこみ
-                        content.set_item(
-                            item_optional_to,
-                            &spells_to,
-                            &mut player,
-                            &mut actor,
-                            false,
-                        );
+                        content.set_item(item_optional_to, &spells_to, &mut actor, false);
                     }
                 }
             }
@@ -312,9 +280,9 @@ fn drop(
 }
 
 impl FloatingContent {
-    pub fn get_inventory_item(&self, player: &Player, actor: &Actor) -> Option<InventoryItem> {
+    pub fn get_inventory_item(&self, actor: &Actor) -> Option<InventoryItem> {
         match self {
-            FloatingContent::Inventory(i) => player.inventory.get(*i),
+            FloatingContent::Inventory(i) => actor.inventory.get(*i),
             FloatingContent::WandSpell(w, i) => actor.get_spell(*w, *i).map(|w| InventoryItem {
                 item_type: InventoryItemType::Spell(w.spell_type),
                 price: w.price,
@@ -329,7 +297,7 @@ impl FloatingContent {
                     None
                 }
             }
-            FloatingContent::Equipment(e) => player.equipments[*e].map(|e| InventoryItem {
+            FloatingContent::Equipment(e) => actor.equipments[*e].map(|e| InventoryItem {
                 item_type: InventoryItemType::Equipment(e.equipment_type),
                 price: e.price,
             }),
@@ -353,17 +321,16 @@ impl FloatingContent {
         &self,
         item: Option<InventoryItem>,
         slots: &[Option<WandSpell>; MAX_SPELLS_IN_WAND],
-        player: &mut Player,
         actor: &mut Actor,
         dry_run: bool,
     ) -> bool {
         match (self, item) {
             (FloatingContent::Inventory(i), _) => {
                 if !dry_run {
-                    player.inventory.set(*i, item);
+                    actor.inventory.set(*i, item);
                     for spell in slots.iter() {
                         if let Some(spell) = spell {
-                            player.inventory.insert(InventoryItem {
+                            actor.inventory.insert(InventoryItem {
                                 item_type: InventoryItemType::Spell(spell.spell_type),
                                 price: spell.price,
                             });
@@ -425,7 +392,7 @@ impl FloatingContent {
                 }),
             ) => {
                 if !dry_run {
-                    player.equipments[*e] = Some(Equipment {
+                    actor.equipments[*e] = Some(Equipment {
                         equipment_type: equipment,
                         price,
                     })
@@ -434,7 +401,7 @@ impl FloatingContent {
             }
             (FloatingContent::Equipment(e), None) => {
                 if !dry_run {
-                    player.equipments[*e] = None;
+                    actor.equipments[*e] = None;
                 }
                 true
             }

@@ -2,6 +2,7 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
+use crate::inventory::Inventory;
 use crate::level::{CurrentLevel, GameLevel, NextLevel};
 use crate::se::SE;
 use crate::{
@@ -102,7 +103,7 @@ fn send_player_states(
                     sender: actor.uuid,
                     uuid: actor.uuid,
                     name: player.name.clone(),
-                    golds: player.golds,
+                    golds: actor.golds,
                     x: translate.x,
                     y: translate.y,
                     vx: velocity.linvel.x,
@@ -252,7 +253,10 @@ fn receive_events(
                                     &life_bar_res,
                                     true,
                                     3.0,
+                                    0,
                                     [None, None, None, None],
+                                    Inventory::new(),
+                                    [None, None, None, None, None, None, None, None],
                                     RemotePlayer {
                                         name,
                                         golds,

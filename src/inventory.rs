@@ -1,15 +1,17 @@
+use bevy::reflect::Reflect;
+
 use crate::{
     constant::{MAX_ITEMS_IN_INVENTORY, MAX_ITEMS_IN_INVENTORY_COLUMN, MAX_ITEMS_IN_INVENTORY_ROW},
     inventory_item::InventoryItemType,
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect)]
 pub struct InventoryItem {
     pub item_type: InventoryItemType,
     pub price: u32,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect)]
 pub struct Inventory(pub [Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY]);
 
 impl Inventory {

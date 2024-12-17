@@ -1,5 +1,5 @@
 use crate::asset::GameAssets;
-use crate::constant::{ENTITY_LAYER_Z, MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
+use crate::constant::{ENTITY_LAYER_Z, MAX_WANDS};
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::{Actor, ActorFireState};
@@ -7,7 +7,6 @@ use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
 use crate::input::{get_direction, get_fire_trigger};
-use crate::inventory::Inventory;
 use crate::se::{SECommand, SE};
 use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
@@ -18,7 +17,7 @@ use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Reflect)]
 pub struct Equipment {
     pub equipment_type: EquipmentType,
     pub price: u32,
@@ -28,7 +27,6 @@ pub struct Equipment {
 #[derive(Component, Debug, Clone)]
 pub struct Player {
     pub name: String,
-    pub golds: i32,
     pub last_idle_frame_count: FrameCount,
     pub last_ilde_x: f32,
     pub last_ilde_y: f32,
@@ -36,57 +34,6 @@ pub struct Player {
     pub last_idle_vy: f32,
     pub last_idle_life: i32,
     pub last_idle_max_life: i32,
-    pub inventory: Inventory,
-    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
-}
-
-impl Player {
-    /// 現在所持している有料呪文の合計金額を返します
-    pub fn dept(&self, actor: &Actor) -> u32 {
-        let mut dept = self.inventory.dept() + actor.dept();
-        for e in self.equipments {
-            if let Some(equipment) = e {
-                dept += equipment.price;
-            }
-        }
-        dept
-    }
-
-    /// 清算します
-    /// いま所持している有料のスペルをすべて無料に戻します
-    pub fn liquidate(&mut self, actor: &mut Actor) -> bool {
-        let dept = self.dept(actor);
-        if self.golds < dept as i32 {
-            return false;
-        }
-
-        self.golds -= dept as i32;
-
-        for item in self.inventory.0.iter_mut() {
-            if let Some(item) = item {
-                item.price = 0;
-            }
-        }
-
-        for e in self.equipments {
-            if let Some(mut equipment) = e {
-                equipment.price = 0;
-            }
-        }
-
-        for w in actor.wands.iter_mut() {
-            if let Some(ref mut wand) = w {
-                wand.price = 0;
-                for s in wand.slots.iter_mut() {
-                    if let Some(mut spell) = s {
-                        spell.price = 0;
-                    }
-                }
-            }
-        }
-
-        true
-    }
 }
 
 /// プレイヤーの移動
@@ -109,9 +56,9 @@ fn move_player(
     }
 }
 
-fn apply_intensity_by_lantern(mut player_query: Query<(&Player, &mut Actor)>) {
-    if let Ok((player, mut actor)) = player_query.get_single_mut() {
-        let equiped_lantern = player.equipments.iter().any(|e| match e {
+fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>) {
+    if let Ok(mut actor) = player_query.get_single_mut() {
+        let equiped_lantern = actor.equipments.iter().any(|e| match e {
             Some(Equipment {
                 equipment_type: EquipmentType::Lantern,
                 ..
@@ -166,17 +113,17 @@ fn switch_wand(
 fn pick_gold(
     mut commands: Commands,
     mut gold_query: Query<(Entity, &Transform, &mut ExternalForce), With<Gold>>,
-    mut player_query: Query<(&mut Player, &Transform)>,
+    mut player_query: Query<(&mut Actor, &Transform), With<Player>>,
     mut writer: EventWriter<SECommand>,
 ) {
-    if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
+    if let Ok((mut actor, player_transform)) = player_query.get_single_mut() {
         let mut got_gold = false;
 
         for (gold, gold_transform, mut gold_force) in gold_query.iter_mut() {
             let diff =
                 player_transform.translation.truncate() - gold_transform.translation.truncate();
             if diff.length() < 16.0 {
-                player.golds += 1;
+                actor.golds += 1;
                 got_gold = true;
                 commands.entity(gold).despawn_recursive();
             } else if diff.length() < 48.0 {

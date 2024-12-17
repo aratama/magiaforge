@@ -1,3 +1,4 @@
+use crate::entity::actor::Actor;
 use crate::{
     asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player, states::GameState,
 };
@@ -61,10 +62,10 @@ fn spawn_equipment_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, ind
 
 fn update_equipment_sprite(
     mut sprite_query: Query<(&EquipmentSprite, &mut AseUiSlice)>,
-    player_query: Query<&Player>,
+    player_query: Query<&Actor, With<Player>>,
     floating_query: Query<&mut Floating>,
 ) {
-    if let Ok(player) = player_query.get_single() {
+    if let Ok(actor) = player_query.get_single() {
         for (sprite, mut slice) in sprite_query.iter_mut() {
             let float = floating_query.single();
             let picked = match float.content {
@@ -73,7 +74,7 @@ fn update_equipment_sprite(
             };
             if picked {
                 slice.name = "empty".into();
-            } else if let Some(ref equipment) = player.equipments[sprite.index] {
+            } else if let Some(ref equipment) = actor.equipments[sprite.index] {
                 slice.name = equipment.equipment_type.to_props().icon.into();
             } else {
                 slice.name = "empty".into();

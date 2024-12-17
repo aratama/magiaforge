@@ -5,8 +5,9 @@ use crate::{
     spell_props::get_spell_appendix,
     wand::WandType,
 };
+use bevy::reflect::Reflect;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect)]
 pub enum InventoryItemType {
     Wand(WandType),
     Spell(SpellType),
