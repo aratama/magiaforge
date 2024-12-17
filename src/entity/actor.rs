@@ -82,6 +82,7 @@ pub struct Actor {
 }
 
 impl Actor {
+    #[allow(dead_code)]
     pub fn get_item_icon(&self, index: FloatingContent) -> Option<&str> {
         match index {
             FloatingContent::Inventory(index) => {
