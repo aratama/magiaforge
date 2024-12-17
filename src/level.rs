@@ -75,7 +75,7 @@ impl Default for NextLevel {
 }
 
 /// レベルとプレイヤーキャラクターを生成します
-fn setup_level(
+pub fn setup_level(
     mut commands: Commands,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,

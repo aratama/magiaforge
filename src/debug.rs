@@ -57,6 +57,13 @@ fn process_debug_command(
             state: PlayerState::from_config(&config),
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
+    } else if local.ends_with("arena") {
+        local.clear();
+        *level = NextLevel {
+            level: GameLevel::MultiPlayArena,
+            state: PlayerState::from_config(&config),
+        };
+        writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("boss") {
         local.clear();
         *level = NextLevel {

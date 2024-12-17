@@ -3,7 +3,7 @@ use crate::controller::player::Player;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
 use crate::inventory::Inventory;
-use crate::level::{CurrentLevel, GameLevel, NextLevel};
+use crate::level::{setup_level, CurrentLevel, GameLevel, NextLevel};
 use crate::se::SE;
 use crate::{
     asset::GameAssets,
@@ -351,7 +351,11 @@ pub struct RemotePlayerPlugin;
 
 impl Plugin for RemotePlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::InGame), on_enter);
+        // setup_level も OnEnter(GameState::InGame) に登録されていますが、
+        // setup_level が完了すると current.level が更新されるため、
+        // on_enter の条件分岐が正しく動かず、オンラインになりません
+        // on_enter を先にやります
+        app.add_systems(OnEnter(GameState::InGame), on_enter.before(setup_level));
 
         app.add_systems(OnExit(GameState::InGame), on_exit);
 
