@@ -9,7 +9,7 @@ use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 const SCALE: f32 = 3.0;
 
-const SPEECH_BUBBLE_WIDTH: f32 = 128.0;
+const SPEECH_BUBBLE_WIDTH: f32 = 160.0;
 
 const SPEECH_BUBBLE_HEIGHT: f32 = 64.0;
 

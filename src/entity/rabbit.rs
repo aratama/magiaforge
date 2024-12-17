@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::{Actor, ActorFireState};
@@ -6,6 +7,7 @@ use crate::entity::actor::{ActorGroup, ActorState};
 use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
+use crate::language::Dict;
 use crate::se::{SECommand, SE};
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
@@ -113,6 +115,7 @@ fn collision_inner_sensor(
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
     mut se: EventWriter<SECommand>,
+    config: Res<GameConfig>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -124,6 +127,7 @@ fn collision_inner_sensor(
                     &mut player_query,
                     &mut speech_writer,
                     &mut se,
+                    &config,
                 ) || chat_start(
                     b,
                     a,
@@ -131,6 +135,7 @@ fn collision_inner_sensor(
                     &mut player_query,
                     &mut speech_writer,
                     &mut se,
+                    &config,
                 );
             }
             CollisionEvent::Stopped(a, b, _option) => {
@@ -148,6 +153,7 @@ fn chat_start(
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
     se: &mut EventWriter<SECommand>,
+    config: &Res<GameConfig>,
 ) -> bool {
     if sensor_query.contains(*a) {
         if let Ok(mut actor) = player_query.get_mut(*b) {
@@ -155,21 +161,29 @@ fn chat_start(
             if 0 < dept {
                 if actor.liquidate() {
                     se.send(SECommand::new(SE::Register));
-                    speech_writer.send(SpeechEvent::Speech(
+                    speech_writer.send(SpeechEvent::Speech(config.language.m17n(
                         format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
-                    ));
+                        format!("Your total is {} Golds\nThank you", dept).to_string(),
+                    )));
                 } else {
-                    speech_writer.send(SpeechEvent::Speech(
+                    speech_writer.send(SpeechEvent::Speech(config.language.m17n(
                         format!(
                             "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
                             dept as i32 - actor.golds
-                        )
-                        .to_string(),
-                    ));
+                        ),
+                        format!(
+                            "Hey, hey!\nYou are {} Golds short!\nPut it back that you woun't buy",
+                            dept as i32 - actor.golds
+                        ),
+                    )));
                 }
             } else {
                 speech_writer.send(SpeechEvent::Speech(
-                    "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
+                    (Dict {
+                        ja: "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて",
+                        en: "Hello\nIs there anything you want?\nIf you have something you want\nbring it here",
+                    })
+                    .get(config.language).to_string(),
                 ));
             }
             return true;

@@ -6,6 +6,15 @@ pub enum Languages {
     En,
 }
 
+impl Languages {
+    pub fn m17n(&self, ja: String, en: String) -> String {
+        match self {
+            Languages::Ja => ja,
+            Languages::En => en,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Dict {
     pub ja: &'static str,
