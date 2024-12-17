@@ -61,7 +61,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 Velocity::default(),
                 Collider::ball(5.0),
                 GravityScale(0.0),
-                LockedAxes::ROTATION_LOCKED,
+                LockedAxes::all(), // 店主が移動可能だと、店主を店の外に追い出すことで会計不能になる恐れがある
                 Damping {
                     linear_damping: 6.0,
                     angular_damping: 1.0,

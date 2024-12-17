@@ -22,6 +22,7 @@ use crate::entity::impact::ImpactPlugin;
 use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::rabbit::RabbitPlugin;
+use crate::entity::shop::ShopPlugin;
 use crate::entity::slime_seed::SlimeSeedPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
@@ -195,6 +196,7 @@ pub fn run_game() {
         .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(SetupPlugin)
+        .add_plugins(ShopPlugin)
         .add_plugins(SlimeControlPlugin)
         .add_plugins(SlimeSeedPlugin)
         .add_plugins(SpeechBubblePlugin)

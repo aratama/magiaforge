@@ -21,6 +21,7 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
+use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_enemy_witch;
 use crate::entity::witch::spawn_witch;
@@ -509,6 +510,9 @@ fn spawn_entities(
                     life_bar_resource,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                 );
+            }
+            GameEntity::ShopDoor => {
+                spawn_shop_door(&mut commands, Vec2::new(tx + TILE_HALF, ty - TILE_HALF));
             }
         }
     }
