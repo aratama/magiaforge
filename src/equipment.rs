@@ -6,6 +6,8 @@ use crate::language::Dict;
 pub enum EquipmentType {
     Lantern,
     SpikeBoots,
+    Telescope,
+    Magnifier,
 }
 
 pub const EQUIPMENTS: [EquipmentType; 1] = [EquipmentType::Lantern];
@@ -35,6 +37,30 @@ impl EquipmentType {
                 description: Dict {
                     ja: "滑り止めのついた革靴。移動速度が上昇する。",
                     en: "Leather shoes with anti-slip. Movement speed increases.",
+                },
+            },
+            EquipmentType::Telescope => EquipmentProps {
+                icon: "zoom_out",
+                name: Dict {
+                    ja: "望遠鏡",
+                    en: "Telecope",
+                },
+                price: 300,
+                description: Dict {
+                    ja: "遠くまで見えるようになる。",
+                    en: "You can see far away.",
+                },
+            },
+            EquipmentType::Magnifier => EquipmentProps {
+                icon: "zoom_in",
+                name: Dict {
+                    ja: "拡大鏡",
+                    en: "Magnifier",
+                },
+                price: 300,
+                description: Dict {
+                    ja: "手元が見やすくなる。",
+                    en: "It is easier to see the details.",
                 },
             },
         }

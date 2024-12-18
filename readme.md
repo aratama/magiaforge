@@ -12,6 +12,12 @@ Online Battle Royale Twin-stick Shooter. WIP.
 
 https://magiaforge.app/ (**Desktop Chrome only** for now)
 
+- w/a/s/d: Move
+- Mouse left button: Cast spells
+- Mouse wheel: Switch wands
+- Tab: Open inventory
+- Esc: Open system menu
+
 ### Development
 
 - `cargo run` to launch app locally

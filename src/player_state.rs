@@ -39,6 +39,10 @@ impl PlayerState {
         inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
         inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
         inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Telescope));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Telescope));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Magnifier));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Magnifier));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));

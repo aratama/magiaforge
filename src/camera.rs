@@ -71,13 +71,8 @@ fn update_camera_position(
                 scale_factor.y + (frame_count.0 as f32 * 5.0).sin() * scale_factor.vibration;
 
             scale_factor.vibration = (scale_factor.vibration - 0.5).max(0.0);
+            scale_factor.scale_factor = actor.get_total_scale_factor();
 
-            if keys.just_pressed(KeyCode::KeyR) {
-                scale_factor.scale_factor = (scale_factor.scale_factor - 0.5).max(-2.0);
-            }
-            if keys.just_pressed(KeyCode::KeyF) {
-                scale_factor.scale_factor = (scale_factor.scale_factor + 0.5).min(1.0);
-            }
             let s = ortho.scale.log2();
             ortho.scale = (2.0_f32).powf(s + (scale_factor.scale_factor - s) * 0.2);
         }

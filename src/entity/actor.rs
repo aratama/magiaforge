@@ -186,6 +186,24 @@ impl Actor {
         }
         force
     }
+
+    pub fn get_total_scale_factor(&self) -> f32 {
+        let mut scale_factor: f32 = -1.0;
+        for equipment in self.equipments {
+            scale_factor += match equipment {
+                Some(Equipment {
+                    equipment_type: EquipmentType::Telescope,
+                    ..
+                }) => 0.5,
+                Some(Equipment {
+                    equipment_type: EquipmentType::Magnifier,
+                    ..
+                }) => -0.5,
+                _ => 0.0,
+            }
+        }
+        scale_factor.max(-2.0).min(1.0)
+    }
 }
 
 #[derive(Reflect, Debug, PartialEq, Clone, Copy)]
