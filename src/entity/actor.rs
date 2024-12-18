@@ -1,7 +1,10 @@
 use crate::cast::cast_spell;
 use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
 use crate::controller::player::Equipment;
+use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
+use crate::entity::slime_seed::SpawnSlimeSeed;
+use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::ui::floating::FloatingContent;
 use crate::wand::{Wand, WandSpell};
@@ -13,9 +16,6 @@ use bevy_rapier2d::prelude::ExternalForce;
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
-
-use super::life::Life;
-use super::slime_seed::SpawnSlimeSeed;
 
 #[derive(Reflect, Clone, Copy, Default)]
 pub struct CastEffects {
@@ -170,6 +170,22 @@ impl Actor {
 
         true
     }
+
+    /// 装備を含めた移動力の合計を返します
+    /// ただし魔法発射中のペナルティは含まれません
+    fn get_total_move_force(&self) -> f32 {
+        let mut force = self.move_force;
+        for equipment in self.equipments {
+            force += match equipment {
+                Some(Equipment {
+                    equipment_type: EquipmentType::SpikeBoots,
+                    ..
+                }) => 40000.0,
+                _ => 0.0,
+            }
+        }
+        force
+    }
 }
 
 #[derive(Reflect, Debug, PartialEq, Clone, Copy)]
@@ -295,7 +311,7 @@ fn fire_bullet(
 fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
     for (actor, mut force) in player_query.iter_mut() {
         force.force = actor.move_direction
-            * actor.move_force
+            * actor.get_total_move_force()
             * match actor.fire_state {
                 ActorFireState::Idle => 1.0,
                 ActorFireState::Fire => 0.5,

@@ -38,6 +38,7 @@ pub struct Player {
 
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません
+/// Actor側で ExternalForce にアクセスして、移動を行います
 fn move_player(
     mut player_query: Query<&mut Actor, With<Player>>,
     keys: Res<ButtonInput<KeyCode>>,

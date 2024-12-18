@@ -36,6 +36,9 @@ impl PlayerState {
         inventory.insert_free(InventoryItemType::Spell(SpellType::DualCast));
         inventory.insert_free(InventoryItemType::Spell(SpellType::TripleCast));
         inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Lantern));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
+        inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
