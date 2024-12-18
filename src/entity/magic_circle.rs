@@ -3,7 +3,7 @@ use crate::{
     constant::*,
     controller::player::Player,
     hud::overlay::OverlayEvent,
-    level::{GameLevel, NextLevel},
+    level::{CurrentLevel, GameLevel},
     player_state::PlayerState,
     se::{SECommand, SE},
     states::GameState,
@@ -134,7 +134,7 @@ fn warp(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Player, &Actor, &Life)>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
-    mut next: ResMut<NextLevel>,
+    mut next: ResMut<CurrentLevel>,
     mut writer: EventWriter<SECommand>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
@@ -161,28 +161,24 @@ fn warp(
 
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {
-                        *next = match next.level {
-                            GameLevel::Level(level) => NextLevel {
-                                level: GameLevel::Level((level + 1) % LEVELS),
-                                state: player_state,
-                            },
-                            GameLevel::MultiPlayArena => NextLevel {
-                                level: GameLevel::Level(1),
-                                state: player_state,
-                            },
+                        match next.next_level {
+                            GameLevel::Level(level) => {
+                                next.next_level = GameLevel::Level((level + 1) % LEVELS);
+                                next.next_state = player_state;
+                            }
+                            GameLevel::MultiPlayArena => {
+                                next.next_level = GameLevel::Level(1);
+                                next.next_state = player_state;
+                            }
                         };
                     }
                     MagicCircleDestination::Home => {
-                        *next = NextLevel {
-                            level: GameLevel::Level(0),
-                            state: player_state,
-                        };
+                        next.next_level = GameLevel::Level(0);
+                        next.next_state = player_state;
                     }
                     MagicCircleDestination::MultiplayArena => {
-                        *next = NextLevel {
-                            level: GameLevel::MultiPlayArena,
-                            state: player_state,
-                        };
+                        next.next_level = GameLevel::MultiPlayArena;
+                        next.next_state = player_state;
                     }
                 }
             }

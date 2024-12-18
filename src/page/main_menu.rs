@@ -3,7 +3,7 @@ use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Languages;
-use crate::level::{CurrentLevel, NextLevel};
+use crate::level::CurrentLevel;
 use crate::se::{SECommand, SE};
 use crate::ui::on_press::OnPress;
 use crate::{
@@ -43,11 +43,9 @@ fn setup_main_menu(
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
     mut current: ResMut<CurrentLevel>,
-    mut next: ResMut<NextLevel>,
 ) {
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
     *current = CurrentLevel::default();
-    *next = NextLevel::default();
 
     commands.spawn((
         Name::new("main_menu"),

@@ -4,7 +4,7 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
 use crate::inventory::Inventory;
-use crate::level::{setup_level, CurrentLevel, GameLevel, NextLevel};
+use crate::level::{setup_level, CurrentLevel, GameLevel};
 use crate::se::SE;
 use crate::{
     asset::GameAssets,
@@ -126,23 +126,19 @@ fn send_player_states(
     }
 }
 
-fn on_enter(
-    mut writer: EventWriter<ClientMessage>,
-    current: Res<CurrentLevel>,
-    next: Res<NextLevel>,
-) {
-    if current.level != Some(GameLevel::MultiPlayArena) && next.level == GameLevel::MultiPlayArena {
+fn on_enter(mut writer: EventWriter<ClientMessage>, current: Res<CurrentLevel>) {
+    if current.level != Some(GameLevel::MultiPlayArena)
+        && current.next_level == GameLevel::MultiPlayArena
+    {
         info!("Connecting to {}", WEBSOCKET_URL);
         writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
     }
 }
 
-fn on_exit(
-    mut writer: EventWriter<ClientMessage>,
-    current: Res<CurrentLevel>,
-    next: Res<NextLevel>,
-) {
-    if current.level == Some(GameLevel::MultiPlayArena) && next.level != GameLevel::MultiPlayArena {
+fn on_exit(mut writer: EventWriter<ClientMessage>, current: Res<CurrentLevel>) {
+    if current.level == Some(GameLevel::MultiPlayArena)
+        && current.next_level != GameLevel::MultiPlayArena
+    {
         info!("Closing {}", WEBSOCKET_URL);
         writer.send(ClientMessage::Close);
     }

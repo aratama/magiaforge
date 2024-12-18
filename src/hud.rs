@@ -9,7 +9,7 @@ use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
-use crate::level::{level_to_name, GameLevel, NextLevel};
+use crate::level::{level_to_name, CurrentLevel, GameLevel};
 use crate::speech_bubble::spawn_speech_bubble;
 use crate::states::GameState;
 use crate::ui::bar::{spawn_status_bar, StatusBar};
@@ -33,7 +33,7 @@ pub struct PlayerGold;
 fn setup_hud(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    next: Res<NextLevel>,
+    next: Res<CurrentLevel>,
     config: Res<GameConfig>,
 ) {
     commands
@@ -96,7 +96,7 @@ fn setup_hud(
 
                     // 右下
 
-                    let level: GameLevel = match next.level {
+                    let level: GameLevel = match next.next_level {
                         GameLevel::Level(i) => GameLevel::Level(i),
                         GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
                     };

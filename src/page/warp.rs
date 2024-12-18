@@ -1,12 +1,12 @@
 use crate::{
     hud::overlay::OverlayEvent,
-    level::{GameLevel, NextLevel},
+    level::{CurrentLevel, GameLevel},
     states::GameState,
 };
 use bevy::prelude::*;
 
-fn on_enter_warp(mut overlay_writer: EventWriter<OverlayEvent>, next_level: Res<NextLevel>) {
-    overlay_writer.send(OverlayEvent::Close(match next_level.level {
+fn on_enter_warp(mut overlay_writer: EventWriter<OverlayEvent>, next_level: Res<CurrentLevel>) {
+    overlay_writer.send(OverlayEvent::Close(match next_level.next_level {
         GameLevel::Level(_) => GameState::InGame,
         GameLevel::MultiPlayArena => GameState::NameInput,
     }));

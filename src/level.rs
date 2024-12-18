@@ -56,23 +56,21 @@ pub enum GameLevel {
     MultiPlayArena,
 }
 
-#[derive(Resource, Debug, Clone, Default)]
+#[derive(Resource, Debug, Clone)]
 pub struct CurrentLevel {
     pub level: Option<GameLevel>,
     pub chunk: Option<LevelChunk>,
+    pub next_level: GameLevel,
+    pub next_state: PlayerState,
 }
 
-#[derive(Resource, Debug, Clone)]
-pub struct NextLevel {
-    pub level: GameLevel,
-    pub state: PlayerState,
-}
-
-impl Default for NextLevel {
+impl Default for CurrentLevel {
     fn default() -> Self {
-        NextLevel {
-            level: GameLevel::Level(INITIAL_LEVEL),
-            state: PlayerState::from_config(&GameConfig::default()),
+        CurrentLevel {
+            level: None,
+            chunk: None,
+            next_level: GameLevel::Level(INITIAL_LEVEL),
+            next_state: PlayerState::from_config(&GameConfig::default()),
         }
     }
 }
@@ -85,15 +83,14 @@ pub fn setup_level(
     assets: Res<GameAssets>,
     life_bar_res: Res<LifeBarResource>,
     mut camera: Query<(&mut GameCamera, &mut Transform), With<Camera2d>>,
-    next: Res<NextLevel>,
     mut current: ResMut<CurrentLevel>,
 ) {
-    let level = match next.level {
+    let level = match current.next_level {
         GameLevel::Level(level) => GameLevel::Level(level % LEVELS),
         GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
     };
 
-    let player = next.state.clone();
+    let player = current.next_state.clone();
 
     let mut chunk = spawn_level(
         &mut commands,
@@ -151,13 +148,13 @@ pub fn setup_level(
 }
 
 fn select_level_bgm(
-    next_level: Res<NextLevel>,
+    next_level: Res<CurrentLevel>,
     mut next_bgm: ResMut<NextBGM>,
     assets: Res<GameAssets>,
 ) {
     if next_level.is_changed() {
-        info!("select_level_bgm {:?}", next_level.level);
-        *next_bgm = NextBGM(Some(match next_level.level {
+        info!("select_level_bgm {:?}", next_level.next_level);
+        *next_bgm = NextBGM(Some(match next_level.next_level {
             GameLevel::Level(0) => assets.dokutsu.clone(),
             GameLevel::Level(3) => {
                 let mut rng = rand::thread_rng();
@@ -559,6 +556,5 @@ impl Plugin for WorldPlugin {
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.init_resource::<CurrentLevel>();
-        app.init_resource::<NextLevel>();
     }
 }

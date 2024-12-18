@@ -3,7 +3,7 @@ use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::{Dict, Languages};
-use crate::level::{GameLevel, NextLevel};
+use crate::level::{CurrentLevel, GameLevel};
 use crate::physics::GamePhysics;
 use crate::se::{SECommand, SE};
 use crate::states::GameMenuState;
@@ -67,9 +67,9 @@ fn exit(
     mut writer: EventWriter<SECommand>,
     mut websocket: EventWriter<ClientMessage>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
-    mut next: ResMut<NextLevel>,
+    mut next: ResMut<CurrentLevel>,
 ) {
-    next.level = GameLevel::Level(0);
+    next.next_level = GameLevel::Level(0);
     overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
     writer.send(SECommand::new(SE::Click));
     websocket.send(ClientMessage::Close);

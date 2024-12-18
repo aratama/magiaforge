@@ -1,3 +1,11 @@
+use crate::{
+    config::GameConfig,
+    hud::overlay::OverlayEvent,
+    level::{CurrentLevel, GameLevel},
+    physics::GamePhysics,
+    player_state::PlayerState,
+    states::GameState,
+};
 use bevy::{
     input::{
         keyboard::{Key, KeyboardInput},
@@ -7,19 +15,10 @@ use bevy::{
 };
 use bevy_rapier2d::plugin::PhysicsSet;
 
-use crate::{
-    config::GameConfig,
-    hud::overlay::OverlayEvent,
-    level::{GameLevel, NextLevel},
-    physics::GamePhysics,
-    player_state::PlayerState,
-    states::GameState,
-};
-
 fn process_debug_command(
     mut evr_kbd: EventReader<KeyboardInput>,
     mut local: Local<String>,
-    mut level: ResMut<NextLevel>,
+    mut level: ResMut<CurrentLevel>,
     config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     mut physics: ResMut<GamePhysics>,
@@ -38,38 +37,31 @@ fn process_debug_command(
 
     if local.ends_with("next") {
         local.clear();
-        let next = level.as_ref();
-        *level = match next.level {
-            GameLevel::Level(n) => NextLevel {
-                level: GameLevel::Level((n + 1) % 4),
-                state: next.state.clone(),
-            },
-            GameLevel::MultiPlayArena => NextLevel {
-                level: GameLevel::Level(0),
-                state: PlayerState::from_config(&config),
-            },
+        match level.next_level {
+            GameLevel::Level(n) => {
+                level.next_level = GameLevel::Level((n + 1) % 4);
+                level.next_state = level.next_state.clone();
+            }
+            GameLevel::MultiPlayArena => {
+                level.next_level = GameLevel::Level(0);
+                level.next_state = PlayerState::from_config(&config);
+            }
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("home") {
         local.clear();
-        *level = NextLevel {
-            level: GameLevel::Level(0),
-            state: PlayerState::from_config(&config),
-        };
+        level.next_level = GameLevel::Level(0);
+        level.next_state = PlayerState::from_config(&config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("arena") {
         local.clear();
-        *level = NextLevel {
-            level: GameLevel::MultiPlayArena,
-            state: PlayerState::from_config(&config),
-        };
+        level.next_level = GameLevel::MultiPlayArena;
+        level.next_state = PlayerState::from_config(&config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("boss") {
         local.clear();
-        *level = NextLevel {
-            level: GameLevel::Level(3),
-            state: PlayerState::from_config(&config),
-        };
+        level.next_level = GameLevel::Level(3);
+        level.next_state = PlayerState::from_config(&config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("ending") {
         local.clear();
