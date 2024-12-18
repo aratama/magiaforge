@@ -32,7 +32,7 @@ use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
-use crate::input::GamepadPlugin;
+use crate::input::GameInputPlugin;
 use crate::level::*;
 use crate::page::ending::EndingPlugin;
 use crate::page::main_menu::MainMenuPlugin;
@@ -172,7 +172,7 @@ pub fn run_game() {
         .add_plugins(SECommandPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)
-        .add_plugins(GamepadPlugin)
+        .add_plugins(GameInputPlugin)
         .add_plugins(GamePhysicsPlugin)
         .add_plugins(GoldPlugin)
         .add_plugins(HoverColorPlugin)

@@ -42,13 +42,12 @@ pub struct Player {
 fn move_player(
     mut player_query: Query<&mut Actor, With<Player>>,
     keys: Res<ButtonInput<KeyCode>>,
-    gamepads: Query<&Gamepad>,
     menu: Res<State<GameMenuState>>,
 ) {
     if let Ok(mut actor) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                actor.move_direction = get_direction(keys, &gamepads);
+                actor.move_direction = get_direction(keys);
             }
             _ => {
                 actor.move_direction = Vec2::ZERO;
@@ -74,13 +73,12 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 fn trigger_bullet(
     mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
-    gamepads: Query<&Gamepad>,
     menu: Res<State<GameMenuState>>,
 ) {
     if let Ok(mut player) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                if get_fire_trigger(&buttons, &gamepads) {
+                if get_fire_trigger(&buttons) {
                     player.fire_state = ActorFireState::Fire;
                 } else {
                     player.fire_state = ActorFireState::Idle;

@@ -314,29 +314,13 @@ fn setup_game_menu(
 
 fn update_game_menu(
     state: Res<State<GameMenuState>>,
-    // mut next: ResMut<NextState<GameMenuState>>,
     mut query: Query<&mut Visibility, With<PauseMenuRoot>>,
-    // gamepad_buttons: Res<ButtonInput<GamepadButton>>,
-    // my_gamepad: Option<Res<MyGamepad>>,
 ) {
     let mut visibility = query.single_mut();
     *visibility = match state.get() {
         GameMenuState::PauseMenuOpen => Visibility::Visible,
         _ => Visibility::Hidden,
     };
-
-    // todo: gamepad
-    // if let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() {
-    //     if gamepad_buttons.just_pressed(GamepadButton {
-    //         gamepad,
-    //         button_type: GamepadButtonType::Start,
-    //     }) {
-    //         next.set(match state.get() {
-    //             GameMenuState::Closed => GameMenuState::PauseMenuOpen,
-    //             _ => GameMenuState::PauseMenuClosing,
-    //         });
-    //     }
-    // }
 }
 
 fn handle_escape_key(

@@ -67,30 +67,6 @@ fn update_pointer_by_mouse(
     }
 }
 
-// todo: gamepad
-// fn update_pointer_by_gamepad(
-//     mut player_query: Query<&mut Actor, With<Player>>,
-//     axes: Res<Axis<GamepadAxis>>,
-//     my_gamepad: Option<Res<MyGamepad>>,
-// ) {
-//     if let Ok(mut player) = player_query.get_single_mut() {
-//         match my_gamepad.as_deref() {
-//             Some(&MyGamepad(gamepad)) => {
-//                 if let (Some(x), Some(y)) = (
-//                     axes.get(GamepadAxis::RightStickX),
-//                     axes.get(GamepadAxis::RightStickY),
-//                 ) {
-//                     let normalized = Vec2::new(x, y).normalize_or_zero();
-//                     if 0.2 < normalized.length() {
-//                         player.pointer = normalized * TILE_SIZE * 4.0;
-//                     }
-//                 }
-//             }
-//             None => {}
-//         }
-//     }
-// }
-
 pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
@@ -99,16 +75,12 @@ impl Plugin for PointerPlugin {
 
         app.add_systems(
             Update,
-            (
-                update_pointer_by_mouse,
-                // update_pointer_by_gamepad
-            )
-                .run_if(in_state(GameState::InGame)),
+            update_pointer_by_mouse.run_if(in_state(GameState::InGame)),
         );
 
         app.add_systems(
             Update,
-            (update_pointer_image_by_angle,).run_if(
+            update_pointer_image_by_angle.run_if(
                 in_state(GameState::InGame).or(in_state(GameState::MainMenu)
                     .or(in_state(GameState::NameInput))
                     .or(in_state(GameState::Ending))),
