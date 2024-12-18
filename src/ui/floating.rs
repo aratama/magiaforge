@@ -162,12 +162,25 @@ fn update_inventory_floaing_position(
     }
 }
 
-fn update_floating_visibility(mut query: Query<(&Floating, &mut Visibility)>) {
-    let (floating, mut visibility) = query.single_mut();
-    *visibility = match floating.content {
-        Some(_) => Visibility::Visible,
-        None => Visibility::Hidden,
-    };
+fn update_floating_visibility(mut query: Query<(&Floating, &mut Visibility), Changed<Floating>>) {
+    if let Ok((floating, mut visibility)) = query.get_single_mut() {
+        *visibility = match floating.content {
+            Some(_) => Visibility::Visible,
+            None => Visibility::Hidden,
+        };
+    }
+}
+
+fn update_floating_visibility_by_menu_close(
+    mut query: Query<&mut Floating>,
+    menu: Res<State<GameMenuState>>,
+) {
+    if menu.is_changed() {
+        if *menu.get() == GameMenuState::Closed {
+            let mut floating = query.single_mut();
+            floating.content = None;
+        }
+    }
 }
 
 fn update_alert_visibility(
@@ -440,7 +453,6 @@ impl Plugin for InventoryItemFloatingPlugin {
             Update,
             (
                 update_inventory_floaing_position,
-                update_floating_visibility,
                 update_floating_slice,
                 cancel_on_close,
                 drop,
@@ -449,6 +461,15 @@ impl Plugin for InventoryItemFloatingPlugin {
             )
                 .run_if(in_state(GameState::InGame))
                 .run_if(in_state(GameMenuState::WandEditOpen)),
+        );
+
+        app.add_systems(
+            Update,
+            (
+                update_floating_visibility,
+                update_floating_visibility_by_menu_close,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }
