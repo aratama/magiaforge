@@ -78,6 +78,7 @@ impl PlayerState {
         inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendSlime));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemySlime));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Dash));
         inventory.sort();
 
         let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
@@ -146,7 +147,7 @@ impl PlayerState {
                 price: 0,
                 slots: [
                     Some(WandSpell {
-                        spell_type: SpellType::PurpleBolt,
+                        spell_type: SpellType::Dash,
                         price: 0,
                     }),
                     None,

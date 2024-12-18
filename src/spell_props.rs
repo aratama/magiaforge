@@ -33,7 +33,8 @@ pub enum SpellCast {
     },
     Homing,
     HeavyShot,
-    SummonSlime { friend: bool } 
+    SummonSlime { friend: bool } ,
+    Dash
 }
 
 /// 呪文の基礎情報
@@ -233,6 +234,18 @@ impl SpellType {
                 price: 200,
                 cast: SpellCast::SummonSlime { friend:false },
             },
+            SpellType::Dash => SpellProps {
+                name: Dict {
+                    ja: "ダッシュ",
+                    en: "Dash",
+                },
+                description: Dict { ja: "短距離を素早く走ります。",
+                en: "Dashes a short distance." },
+                cast_delay: 60,
+                icon: "dash",
+                price: 500,
+                cast: SpellCast::Dash,
+            },
         }
     }
 }   
@@ -311,5 +324,6 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::Homing => format!(""),
         SpellCast::HeavyShot => format!("威力: +5"),
         SpellCast::SummonSlime {..} => format!(""),
+        SpellCast::Dash {..} => format!(""),
     }
 }

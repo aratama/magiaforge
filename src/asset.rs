@@ -120,6 +120,9 @@ pub struct GameAssets {
     #[asset(path = "audio/レジスターで精算.ogg")]
     pub register: Handle<AudioSource>,
 
+    #[asset(path = "audio/手裏剣を投げる.ogg")]
+    pub shuriken: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 

@@ -42,6 +42,7 @@ pub enum SE {
     Bicha,
     Kawaii,
     Register,
+    Shuriken,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -95,6 +96,7 @@ fn se_events(
             SE::Bicha => &assets.bicha,
             SE::Kawaii => &assets.kawaii,
             SE::Register => &assets.register,
+            SE::Shuriken => &assets.shuriken,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

@@ -54,6 +54,7 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - イノシシの鳴き声 https://soundeffect-lab.info/sound/animal/
 - ぷよん https://soundeffect-lab.info/sound/anime/
 - お風呂 https://soundeffect-lab.info/sound/environment/
+- 手裏剣を投げる https://soundeffect-lab.info/sound/battle/battle2.html
 
 #### BGMs
 

@@ -16,6 +16,7 @@ use crate::{
     spell_props::SpellCast,
 };
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use uuid::Uuid;
@@ -32,6 +33,7 @@ pub fn cast_spell(
     actor: &mut Actor,
     actor_life: &mut Life,
     actor_transform: &Transform,
+    actor_impulse: &mut ExternalImpulse,
     online: bool,
     slime_writer: &mut EventWriter<SpawnSlimeSeed>,
     wand_index: usize,
@@ -134,6 +136,7 @@ pub fn cast_spell(
                             actor,
                             actor_life,
                             actor_transform,
+                            actor_impulse,
                             online,
                             slime_writer,
                             wand_index,
@@ -164,6 +167,19 @@ pub fn cast_spell(
                             (ActorGroup::Enemy, false) => ActorGroup::Player,
                         },
                     });
+                    return props.cast_delay as i32;
+                }
+                SpellCast::Dash => {
+                    wand.shift();
+                    actor_impulse.impulse += if 0.0 < actor.move_direction.length() {
+                        actor.move_direction
+                    } else {
+                        actor.pointer.normalize()
+                    } * 50000.0;
+                    se_writer.send(SEEvent::pos(
+                        SE::Shuriken,
+                        actor_transform.translation.truncate(),
+                    ));
                     return props.cast_delay as i32;
                 }
             }

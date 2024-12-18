@@ -12,7 +12,7 @@ use crate::{asset::GameAssets, se::SEEvent, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
-use bevy_rapier2d::prelude::ExternalForce;
+use bevy_rapier2d::prelude::{ExternalForce, ExternalImpulse};
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
@@ -290,7 +290,16 @@ fn update_actor_light(
 
 /// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
-    mut actor_query: Query<(Entity, &mut Actor, &mut Life, &mut Transform), Without<Camera2d>>,
+    mut actor_query: Query<
+        (
+            Entity,
+            &mut Actor,
+            &mut Life,
+            &mut Transform,
+            &mut ExternalImpulse,
+        ),
+        Without<Camera2d>,
+    >,
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut writer: EventWriter<ClientMessage>,
@@ -300,7 +309,9 @@ fn fire_bullet(
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
-    for (actor_entity, mut actor, mut actor_life, actor_transform) in actor_query.iter_mut() {
+    for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse) in
+        actor_query.iter_mut()
+    {
         if actor.fire_state == ActorFireState::Fire {
             let current_wand = actor.current_wand;
             while actor.spell_delay == 0 {
@@ -313,6 +324,7 @@ fn fire_bullet(
                     &mut actor,
                     &mut actor_life,
                     &actor_transform,
+                    &mut actor_impulse,
                     online,
                     &mut slime_writer,
                     current_wand,
@@ -332,6 +344,7 @@ fn fire_bullet(
                     &mut actor,
                     &mut actor_life,
                     &actor_transform,
+                    &mut actor_impulse,
                     online,
                     &mut slime_writer,
                     MAX_WANDS - 1,
