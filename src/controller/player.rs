@@ -80,14 +80,20 @@ fn trigger_bullet(
     if let Ok(mut player) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                if get_fire_trigger(buttons, &gamepads) {
+                if get_fire_trigger(&buttons, &gamepads) {
                     player.fire_state = ActorFireState::Fire;
                 } else {
                     player.fire_state = ActorFireState::Idle;
                 }
+                if buttons.pressed(MouseButton::Right) {
+                    player.fire_state_secondary = ActorFireState::Fire;
+                } else {
+                    player.fire_state_secondary = ActorFireState::Idle;
+                }
             }
             _ => {
                 player.fire_state = ActorFireState::Idle;
+                player.fire_state_secondary = ActorFireState::Idle;
             }
         }
     }
@@ -102,7 +108,7 @@ fn switch_wand(
         if let Ok(mut actor) = witch_query.get_single_mut() {
             let next = (actor.current_wand as i32 - event.y.signum() as i32)
                 .max(0)
-                .min(MAX_WANDS as i32 - 1) as usize;
+                .min(MAX_WANDS as i32 - 2) as usize;
             if next != actor.current_wand {
                 actor.current_wand = next;
                 writer.send(SEEvent::new(SE::Switch));

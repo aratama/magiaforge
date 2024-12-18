@@ -34,12 +34,9 @@ pub fn cast_spell(
     actor_transform: &Transform,
     online: bool,
     slime_writer: &mut EventWriter<SpawnSlimeSeed>,
+    wand_index: usize,
 ) -> i32 {
-    if let Some(ref mut wand) = &mut actor.wands[actor.current_wand] {
-        if 0 < actor.spell_delay {
-            return 0;
-        }
-
+    if let Some(ref mut wand) = &mut actor.wands[wand_index] {
         if let Some(spell) = wand.slots[wand.index] {
             let props = spell.spell_type.to_props();
 
@@ -139,6 +136,7 @@ pub fn cast_spell(
                             actor_transform,
                             online,
                             slime_writer,
+                            wand_index,
                         ));
                     }
                     return delay;

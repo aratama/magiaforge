@@ -55,11 +55,13 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             spell_delay: 0,
+            spell_delay_secondary: 0,
             pointer: Vec2::from_angle(angle),
             intensity,
             move_direction: Vec2::ZERO,
             move_force: PLAYER_MOVE_FORCE,
             fire_state: ActorFireState::Idle,
+            fire_state_secondary: ActorFireState::Idle,
             current_wand: 0,
             effects: default(),
             actor_group,

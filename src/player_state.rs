@@ -141,7 +141,24 @@ impl PlayerState {
                 ],
                 index: 0,
             }),
-            None,
+            Some(Wand {
+                wand_type: WandType::CypressWand,
+                price: 0,
+                slots: [
+                    Some(WandSpell {
+                        spell_type: SpellType::PurpleBolt,
+                        price: 0,
+                    }),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
+                index: 0,
+            }),
         ];
 
         PlayerState {

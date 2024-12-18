@@ -41,7 +41,7 @@ pub fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCo
 }
 
 pub fn get_fire_trigger(
-    mouse_buttons: Res<ButtonInput<MouseButton>>,
+    mouse_buttons: &Res<ButtonInput<MouseButton>>,
     gamepads: &Query<&Gamepad>,
 ) -> bool {
     mouse_buttons.pressed(MouseButton::Left)

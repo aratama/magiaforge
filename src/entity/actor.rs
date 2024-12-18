@@ -43,6 +43,8 @@ pub struct Actor {
     /// 次の魔法を発射できるまでのクールタイム
     pub spell_delay: i32,
 
+    pub spell_delay_secondary: i32,
+
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,
 
@@ -60,6 +62,8 @@ pub struct Actor {
     pub move_force: f32,
 
     pub fire_state: ActorFireState,
+
+    pub fire_state_secondary: ActorFireState,
 
     pub current_wand: usize,
 
@@ -297,11 +301,8 @@ fn fire_bullet(
     let online = websocket.ready_state == ReadyState::OPEN;
 
     for (actor_entity, mut actor, mut actor_life, actor_transform) in actor_query.iter_mut() {
-        if actor_life.life <= 0 {
-            return;
-        }
-
         if actor.fire_state == ActorFireState::Fire {
+            let current_wand = actor.current_wand;
             while actor.spell_delay == 0 {
                 let delay = cast_spell(
                     &mut commands,
@@ -314,13 +315,34 @@ fn fire_bullet(
                     &actor_transform,
                     online,
                     &mut slime_writer,
+                    current_wand,
                 );
-
                 actor.spell_delay += delay.max(1);
             }
         }
 
+        if actor.fire_state_secondary == ActorFireState::Fire {
+            while actor.spell_delay_secondary == 0 {
+                let delay = cast_spell(
+                    &mut commands,
+                    &assets,
+                    &mut writer,
+                    &mut se_writer,
+                    actor_entity,
+                    &mut actor,
+                    &mut actor_life,
+                    &actor_transform,
+                    online,
+                    &mut slime_writer,
+                    MAX_WANDS - 1,
+                );
+
+                actor.spell_delay_secondary += delay.max(1);
+            }
+        }
+
         actor.spell_delay = (actor.spell_delay - 1).max(0);
+        actor.spell_delay_secondary = (actor.spell_delay_secondary - 1).max(0);
     }
 }
 
@@ -330,9 +352,12 @@ fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
     for (actor, mut force) in player_query.iter_mut() {
         force.force = actor.move_direction
             * actor.get_total_move_force()
-            * match actor.fire_state {
-                ActorFireState::Idle => 1.0,
-                ActorFireState::Fire => 0.5,
+            * if actor.fire_state == ActorFireState::Fire
+                || actor.fire_state_secondary == ActorFireState::Fire
+            {
+                0.5
+            } else {
+                1.0
             };
     }
 }

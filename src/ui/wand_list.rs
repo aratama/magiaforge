@@ -1,15 +1,12 @@
-use super::{
-    floating::{Floating, FloatingContent},
-    spell_in_wand::spawn_wand_spell_slot,
-    wand_sprite::spawn_wand_sprite_in_list,
-};
-use crate::{
-    asset::GameAssets,
-    constant::{MAX_SPELLS_IN_WAND, MAX_WANDS},
-    controller::player::Player,
-    entity::actor::Actor,
-    states::GameState,
-};
+use crate::asset::GameAssets;
+use crate::constant::{MAX_SPELLS_IN_WAND, MAX_WANDS};
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::states::GameState;
+use crate::ui::floating::Floating;
+use crate::ui::floating::FloatingContent;
+use crate::ui::spell_in_wand::spawn_wand_spell_slot;
+use crate::ui::wand_sprite::spawn_wand_sprite_in_list;
 use bevy::{
     prelude::*,
     ui::{Display, Node},
@@ -81,7 +78,9 @@ fn update_wand_slot_visibility(
                 _ => Visibility::Inherited,
             };
 
-            if wand_sprite.wand_index == actor.current_wand {
+            if wand_sprite.wand_index == actor.current_wand
+                || wand_sprite.wand_index == MAX_WANDS - 1
+            {
                 *border = Color::hsla(0.0, 0.0, 1.0, 0.3).into();
             } else {
                 *border = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
