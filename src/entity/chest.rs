@@ -1,4 +1,4 @@
-use crate::{asset::GameAssets, constant::*, se::SECommand, states::GameState};
+use crate::{asset::GameAssets, constant::*, se::SEEvent, states::GameState};
 use crate::{
     entity::{
         gold::spawn_gold,
@@ -99,12 +99,12 @@ fn break_chest(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform, &Chest)>,
     assets: Res<GameAssets>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform, chest) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SECommand::pos(SE::Break, transform.translation.truncate()));
+            writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
 
             if chest.chest_type == ChestType::Chest {
                 for _ in 0..(3 + random::<i32>().abs() % 10) {

@@ -1,6 +1,6 @@
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::entity::EntityDepth;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::{constant::*, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -53,12 +53,12 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
 fn break_book_shelf(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform), With<Bookshelf>>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SECommand::pos(
+            writer.send(SEEvent::pos(
                 SE::Break,
                 transform.translation.truncate(),
             ));

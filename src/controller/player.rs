@@ -7,7 +7,7 @@ use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
 use crate::input::{get_direction, get_fire_trigger};
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
@@ -96,7 +96,7 @@ fn trigger_bullet(
 fn switch_wand(
     mut witch_query: Query<&mut Actor, With<Player>>,
     mut wheel: EventReader<MouseWheel>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     for event in wheel.read() {
         if let Ok(mut actor) = witch_query.get_single_mut() {
@@ -105,7 +105,7 @@ fn switch_wand(
                 .min(MAX_WANDS as i32 - 1) as usize;
             if next != actor.current_wand {
                 actor.current_wand = next;
-                writer.send(SECommand::new(SE::Switch));
+                writer.send(SEEvent::new(SE::Switch));
             }
         }
     }
@@ -115,7 +115,7 @@ fn pick_gold(
     mut commands: Commands,
     mut gold_query: Query<(Entity, &Transform, &mut ExternalForce), With<Gold>>,
     mut player_query: Query<(&mut Actor, &Transform), With<Player>>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     if let Ok((mut actor, player_transform)) = player_query.get_single_mut() {
         let mut got_gold = false;
@@ -135,7 +135,7 @@ fn pick_gold(
         }
 
         if got_gold {
-            writer.send(SECommand::pos(
+            writer.send(SEEvent::pos(
                 SE::PickUp,
                 player_transform.translation.truncate(),
             ));
@@ -148,14 +148,14 @@ fn die_player(
     assets: Res<GameAssets>,
     player_query: Query<(Entity, &Actor, &Life, &Transform), With<Player>>,
     mut writer: EventWriter<ClientMessage>,
-    mut game: EventWriter<SECommand>,
+    mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
 ) {
     if let Ok((entity, actor, player_life, transform)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
-            game.send(SECommand::pos(SE::Cry, transform.translation.truncate()));
+            game.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
 
             // ダウンのアニメーションを残す
             commands.spawn((

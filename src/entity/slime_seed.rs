@@ -5,7 +5,7 @@ use crate::enemy::slime::spawn_slime;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::tile::Tile;
 use crate::level::CurrentLevel;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -82,7 +82,7 @@ fn update_slime_seed(
     mut query: Query<(Entity, &mut SlimeSeed, &mut Transform)>,
     assets: Res<GameAssets>,
     life_bar_locals: Res<LifeBarResource>,
-    mut se_writer: EventWriter<SECommand>,
+    mut se_writer: EventWriter<SEEvent>,
     current: Res<CurrentLevel>,
 ) {
     for (entity, mut seed, mut transform) in query.iter_mut() {
@@ -106,7 +106,7 @@ fn update_slime_seed(
                             seed.actor_group,
                             Some(seed.owner),
                         );
-                        se_writer.send(SECommand::pos(SE::Bicha, seed.to));
+                        se_writer.send(SEEvent::pos(SE::Bicha, seed.to));
                     }
                     tile => {
                         warn!("SlimeSeed: Hit non-stone tile: {:?}", tile);

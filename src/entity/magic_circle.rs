@@ -5,7 +5,7 @@ use crate::{
     hud::overlay::OverlayEvent,
     level::{CurrentLevel, GameLevel},
     player_state::PlayerState,
-    se::{SECommand, SE},
+    se::{SEEvent, SE},
     states::GameState,
 };
 use bevy::prelude::*;
@@ -111,7 +111,7 @@ fn power_on_circle(
     player_query: Query<&Player>,
     mut circle_query: Query<&mut MagicCircle>,
     mut events: EventReader<CollisionEvent>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     for event in events.read() {
         match event {
@@ -119,7 +119,7 @@ fn power_on_circle(
                 if process_collision_start_event(a, b, &player_query, &mut circle_query)
                     || process_collision_start_event(b, a, &player_query, &mut circle_query)
                 {
-                    writer.send(SECommand::new(SE::TurnOn));
+                    writer.send(SEEvent::new(SE::TurnOn));
                 }
             }
             CollisionEvent::Stopped(a, b, _) => {
@@ -135,7 +135,7 @@ fn warp(
     mut player_query: Query<(Entity, &Player, &Actor, &Life)>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<CurrentLevel>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
@@ -147,7 +147,7 @@ fn warp(
             }
         } else if circle.step == MAX_POWER {
             if let Ok((entity, player, actor, actor_life)) = player_query.get_single_mut() {
-                writer.send(SECommand::pos(SE::Warp, transform.translation.truncate()));
+                writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
 
                 let player_state = PlayerState {

@@ -1,4 +1,4 @@
-use crate::{asset::GameAssets, constant::*, se::SECommand, states::GameState};
+use crate::{asset::GameAssets, constant::*, se::SEEvent, states::GameState};
 use crate::{
     entity::{
         life::{Life, LifeBeingSprite},
@@ -112,12 +112,12 @@ fn update_lantern(
 fn break_stone_lantern(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform), With<StoneLantern>>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SECommand::pos(SE::Break, transform.translation.truncate()));
+            writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
         }
     }
 }

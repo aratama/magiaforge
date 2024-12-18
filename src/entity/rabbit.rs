@@ -8,7 +8,7 @@ use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
 use crate::language::Dict;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -114,7 +114,7 @@ fn collision_inner_sensor(
     sensor_query: Query<&RabbitSensor>,
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
-    mut se: EventWriter<SECommand>,
+    mut se: EventWriter<SEEvent>,
     config: Res<GameConfig>,
 ) {
     for collision_event in collision_events.read() {
@@ -152,7 +152,7 @@ fn chat_start(
     sensor_query: &Query<&RabbitSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
-    se: &mut EventWriter<SECommand>,
+    se: &mut EventWriter<SEEvent>,
     config: &Res<GameConfig>,
 ) -> bool {
     if sensor_query.contains(*a) {
@@ -160,7 +160,7 @@ fn chat_start(
             let dept = actor.dept();
             if 0 < dept {
                 if actor.liquidate() {
-                    se.send(SECommand::new(SE::Register));
+                    se.send(SEEvent::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech(config.language.m17n(
                         format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
                         format!("Your total is {} Golds\nThank you", dept).to_string(),

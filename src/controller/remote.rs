@@ -10,7 +10,7 @@ use crate::{
     asset::GameAssets,
     entity::{actor::Actor, bullet::spawn_bullet, gold::spawn_gold, witch::spawn_witch},
     hud::life_bar::LifeBarResource,
-    se::SECommand,
+    se::SEEvent,
     states::GameState,
 };
 use bevy::{core::FrameCount, prelude::*, utils::HashMap};
@@ -182,7 +182,7 @@ fn receive_events(
     assets: Res<GameAssets>,
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -295,10 +295,8 @@ fn receive_events(
                                 .find(|(_, _, actor, _, _, _)| actor.uuid == uuid);
 
                             if let Some((entity, _, _, _, transform, _)) = target {
-                                writer.send(SECommand::pos(
-                                    SE::Cry,
-                                    transform.translation.truncate(),
-                                ));
+                                writer
+                                    .send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
 
                                 commands.entity(entity).despawn_recursive();
 

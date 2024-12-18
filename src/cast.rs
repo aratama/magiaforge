@@ -11,7 +11,7 @@ use crate::{
         slime_seed::SpawnSlimeSeed,
         witch::WITCH_COLLIDER_RADIUS,
     },
-    se::{SECommand, SE},
+    se::{SEEvent, SE},
     spell::SpellType,
     spell_props::SpellCast,
 };
@@ -27,7 +27,7 @@ pub fn cast_spell(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     writer: &mut EventWriter<ClientMessage>,
-    se_writer: &mut EventWriter<SECommand>,
+    se_writer: &mut EventWriter<SEEvent>,
     actor_entity: Entity,
     actor: &mut Actor,
     actor_life: &mut Life,
@@ -117,7 +117,7 @@ pub fn cast_spell(
                     }
 
                     actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
-                    se_writer.send(SECommand::pos(
+                    se_writer.send(SEEvent::pos(
                         SE::Heal,
                         actor_transform.translation.truncate(),
                     ));

@@ -2,7 +2,7 @@ use crate::controller::player::Player;
 use crate::entity::EntityDepth;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::{asset::GameAssets, constant::*, states::GameState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -149,7 +149,7 @@ fn collision(
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
     mut player_query: Query<&mut Actor, With<Player>>,
-    mut global: EventWriter<SECommand>,
+    mut global: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -181,13 +181,13 @@ fn chat_start(
     b: &Entity,
     item_query: &Query<&DroppedItemEntity>,
     player_query: &mut Query<&mut Actor, With<Player>>,
-    global: &mut EventWriter<SECommand>,
+    global: &mut EventWriter<SEEvent>,
 ) -> bool {
     match (item_query.get(*a), player_query.get_mut(*b)) {
         (Ok(item), Ok(mut actor)) => {
             if actor.inventory.insert(item.item) {
                 commands.entity(*a).despawn_recursive();
-                global.send(SECommand::new(SE::PickUp));
+                global.send(SEEvent::new(SE::PickUp));
                 return true;
             }
         }

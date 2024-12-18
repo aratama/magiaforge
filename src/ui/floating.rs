@@ -7,7 +7,7 @@ use crate::{
     inventory::InventoryItem,
     inventory_item::InventoryItemType,
     level::{tile::Tile, CurrentLevel},
-    se::{SECommand, SE},
+    se::{SEEvent, SE},
     states::{GameMenuState, GameState},
     wand::{Wand, WandSpell},
 };
@@ -167,7 +167,7 @@ fn drop(
     q_window: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
     map: Res<CurrentLevel>,
-    mut se: EventWriter<SECommand>,
+    mut se: EventWriter<SEEvent>,
 ) {
     let mut floating = floating_query.single_mut();
     if mouse.just_released(MouseButton::Left) {
@@ -209,7 +209,7 @@ fn drop(
                                                 );
                                                 floating.content = None;
 
-                                                se.send(SECommand::new(SE::PickUp));
+                                                se.send(SEEvent::new(SE::PickUp));
                                             }
                                         }
                                     }

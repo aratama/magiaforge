@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::entity::rabbit::Rabbit;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy::text::FontSmoothing;
@@ -112,7 +112,7 @@ fn read_speech_events(
 fn countup(
     mut speech_query: Query<(&Visibility, &mut SpeechBubble)>,
     mut text_query: Query<&mut Text, With<SpeechBubbleText>>,
-    mut se: EventWriter<SECommand>,
+    mut se: EventWriter<SEEvent>,
 ) {
     let (visibility, mut speech) = speech_query.single_mut();
 
@@ -134,7 +134,7 @@ fn countup(
 
         if pos < s {
             if speech.count % DELAY == 0 {
-                se.send(SECommand::new(SE::Kawaii));
+                se.send(SEEvent::new(SE::Kawaii));
             }
 
             speech.count += 1;

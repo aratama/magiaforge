@@ -3,13 +3,13 @@ use bevy::{prelude::*, utils::hashbrown::HashSet};
 use bevy_rapier2d::plugin::PhysicsSet;
 use std::cmp::Ordering;
 
-#[derive(Event, Clone, Copy, Debug, PartialEq)]
-pub struct SECommand {
+#[derive(Event, Clone, Copy)]
+pub struct SEEvent {
     se: SE,
     position: Option<Vec2>,
 }
 
-impl SECommand {
+impl SEEvent {
     pub fn pos(se: SE, position: Vec2) -> Self {
         Self {
             se,
@@ -47,18 +47,18 @@ pub enum SE {
 /// 効果音イベントを順次再生していきます
 /// ただし、同一のフレームに同じ効果音が複数回再生されると極端に音が大きくなり不自然なため、
 /// 同じ効果音が同時に複数回リクエストされても、最も距離が近いもののみが再生されます
-fn process_se_commands(
+fn se_events(
     mut commands: Commands,
     assets: Res<GameAssets>,
     config: Res<GameConfig>,
-    mut reader: EventReader<SECommand>,
+    mut reader: EventReader<SEEvent>,
     camera_query: Query<&Transform, With<Camera2d>>,
 ) {
     let camera_position = camera_query.single().translation.truncate();
 
-    let mut vec = Vec::<SECommand>::new();
-    for command in reader.read() {
-        vec.push(*command);
+    let mut vec = Vec::<SEEvent>::new();
+    for event in reader.read() {
+        vec.push(*event);
     }
 
     vec.sort_by(|a, b| {
@@ -69,7 +69,7 @@ fn process_se_commands(
 
     let mut played = HashSet::<SE>::new();
 
-    for SECommand { se, position } in vec.iter() {
+    for SEEvent { se, position } in vec.iter() {
         if played.contains(se) {
             continue;
         }
@@ -105,9 +105,11 @@ pub struct SECommandPlugin;
 
 impl Plugin for SECommandPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SECommand>().add_systems(
+        app.add_event::<SEEvent>();
+
+        app.add_systems(
             FixedUpdate,
-            process_se_commands
+            se_events
                 .run_if(resource_exists::<GameAssets>)
                 .before(PhysicsSet::SyncBackend),
         );

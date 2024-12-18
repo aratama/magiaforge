@@ -9,7 +9,7 @@ use crate::entity::life::Life;
 use crate::entity::slime_seed::SpawnSlimeSeed;
 use crate::entity::EntityDepth;
 use crate::inventory::Inventory;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::{Wand, WandSpell, WandType};
@@ -187,13 +187,13 @@ fn update_huge_slime(
 fn update_huge_slime_growl(
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
-    mut se_writer: EventWriter<SECommand>,
+    mut se_writer: EventWriter<SEEvent>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
         if let HugeSlimeState::Growl = huge_slime.state {
             if huge_slime.animation == 120 {
-                se_writer.send(SECommand::pos(SE::Growl, transform.translation.truncate()));
+                se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
             } else if 300 <= huge_slime.animation {
                 huge_slime.state = HugeSlimeState::Approach;
                 huge_slime.animation = 0;
@@ -237,7 +237,7 @@ fn update_huge_slime_summon(
     player_query: Query<&Transform, With<Player>>,
     mut huge_slime_query: Query<(Entity, &mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
-    mut se_writer: EventWriter<SECommand>,
+    mut se_writer: EventWriter<SEEvent>,
     mut seed_writer: EventWriter<SpawnSlimeSeed>,
 ) {
     for parent in sprite_query.iter_mut() {
@@ -261,7 +261,7 @@ fn update_huge_slime_summon(
                             owner: huge_slime_entity,
                         });
                     }
-                    se_writer.send(SECommand::pos(SE::Puyon, transform.translation.truncate()));
+                    se_writer.send(SEEvent::pos(SE::Puyon, transform.translation.truncate()));
                 }
             }
 
@@ -276,13 +276,13 @@ fn update_huge_slime_summon(
 fn update_huge_slime_promote(
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
-    mut se_writer: EventWriter<SECommand>,
+    mut se_writer: EventWriter<SEEvent>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
         if let HugeSlimeState::Promote = huge_slime.state {
             if huge_slime.animation == 120 {
-                se_writer.send(SECommand::pos(SE::Growl, transform.translation.truncate()));
+                se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
             } else if 300 <= huge_slime.animation {
                 huge_slime.state = HugeSlimeState::Approach;
                 huge_slime.animation = 0;

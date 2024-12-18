@@ -4,7 +4,7 @@ use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Languages;
 use crate::level::CurrentLevel;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::ui::on_press::OnPress;
 use crate::{
     asset::GameAssets,
@@ -300,7 +300,7 @@ fn start_game(
 fn read_events(
     mut query: Query<&mut Visibility, With<OnPress>>,
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
     mut reader: EventReader<Events>,
     mut next_bgm: ResMut<NextBGM>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
@@ -312,7 +312,7 @@ fn read_events(
                     *visibility = Visibility::Hidden;
                 }
                 menu_next_state.set(MainMenuPhase::Paused);
-                writer.send(SECommand::new(SE::Click));
+                writer.send(SEEvent::new(SE::Click));
                 overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
                 *next_bgm = NextBGM(None);
             }

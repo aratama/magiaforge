@@ -8,7 +8,7 @@ use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::ui::floating::FloatingContent;
 use crate::wand::{Wand, WandSpell};
-use crate::{asset::GameAssets, se::SECommand, states::GameState};
+use crate::{asset::GameAssets, se::SEEvent, states::GameState};
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
@@ -290,7 +290,7 @@ fn fire_bullet(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut writer: EventWriter<ClientMessage>,
-    mut se_writer: EventWriter<SECommand>,
+    mut se_writer: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
     mut slime_writer: EventWriter<SpawnSlimeSeed>,
 ) {

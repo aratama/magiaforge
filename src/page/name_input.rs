@@ -2,7 +2,7 @@ use crate::audio::NextBGM;
 use crate::config::GameConfig;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
-use crate::se::{SECommand, SE};
+use crate::se::{SEEvent, SE};
 use crate::ui::menu_button::menu_button;
 use crate::{
     asset::GameAssets,
@@ -35,7 +35,7 @@ fn start_game(
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
     mut config: ResMut<GameConfig>,
     query: Query<&TextInputValue>,
-    mut writer: EventWriter<SECommand>,
+    mut writer: EventWriter<SEEvent>,
     mut next_bgm: ResMut<NextBGM>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
@@ -46,7 +46,7 @@ fn start_game(
     let q = query.single();
     config.player_name = q.0.clone();
 
-    writer.send(SECommand::new(SE::Click));
+    writer.send(SEEvent::new(SE::Click));
 }
 
 fn setup(
