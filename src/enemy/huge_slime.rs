@@ -248,18 +248,21 @@ fn update_huge_slime_summon(
             if let Ok(player) = player_query.get_single() {
                 if huge_slime.animation == 60 {
                     let slimes = if huge_slime.promoted { 8 } else { 4 };
-                    for i in 0..slimes {
-                        let t = std::f32::consts::PI * 2.0 / slimes as f32; // 等間隔に配置した場合の角度
-                        let a = rand::random::<f32>() * 3.0; // 起点は適当にばらけさせる
-                        let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
-                        let offset = Vec2::from_angle(angle) * 100.0; // 100ピクセルの演習場にばらまく
-                        let to = player.translation.truncate() + offset;
-                        seed_writer.send(SpawnSlimeSeed {
-                            from: transform.translation.truncate(),
-                            to,
-                            actor_group: ActorGroup::Enemy,
-                            owner: huge_slime_entity,
-                        });
+                    let circles = if huge_slime.promoted { 4 } else { 1 };
+                    for n in 0..circles {
+                        for i in 0..slimes {
+                            let t = std::f32::consts::PI * 2.0 / slimes as f32; // 等間隔に配置した場合の角度
+                            let a = rand::random::<f32>() * 3.0; // 起点は適当にばらけさせる
+                            let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
+                            let offset = Vec2::from_angle(angle) * 100.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
+                            let to = player.translation.truncate() + offset;
+                            seed_writer.send(SpawnSlimeSeed {
+                                from: transform.translation.truncate(),
+                                to,
+                                actor_group: ActorGroup::Enemy,
+                                owner: huge_slime_entity,
+                            });
+                        }
                     }
                     se_writer.send(SEEvent::pos(SE::Puyon, transform.translation.truncate()));
                 }

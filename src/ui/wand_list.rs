@@ -90,19 +90,6 @@ fn update_wand_slot_visibility(
     }
 }
 
-pub fn slot_color(wand_index: usize, spell_index: usize) -> Color {
-    return Color::hsla(
-        0.0,
-        0.0,
-        0.4,
-        if (wand_index + spell_index) % 2 == 0 {
-            0.1
-        } else {
-            0.12
-        },
-    );
-}
-
 pub struct WandListPlugin;
 
 impl Plugin for WandListPlugin {

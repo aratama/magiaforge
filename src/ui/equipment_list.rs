@@ -4,10 +4,7 @@ use crate::{
 };
 use crate::{
     states::GameMenuState,
-    ui::{
-        floating::{Floating, FloatingContent},
-        wand_list::slot_color,
-    },
+    ui::floating::{Floating, FloatingContent},
 };
 use bevy::{prelude::*, ui::Display};
 use bevy_aseprite_ultra::prelude::*;
@@ -62,13 +59,15 @@ fn spawn_equipment_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, ind
                 name: "empty".into(),
             },
         ))
-        .with_child((
-            ChargeAlert,
-            AseUiSlice {
-                aseprite: assets.atlas.clone(),
-                name: "charge_alert".into(),
-            },
-        ));
+        .with_children(|builder| {
+            builder.spawn((
+                ChargeAlert,
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "charge_alert".into(),
+                },
+            ));
+        });
 }
 
 fn update_equipment_sprite(
@@ -141,6 +140,19 @@ fn update_alert_visibility(
             }
         }
     }
+}
+
+fn slot_color(wand_index: usize, spell_index: usize) -> Color {
+    return Color::hsla(
+        120.0,
+        0.3,
+        0.4,
+        if (wand_index + spell_index) % 2 == 0 {
+            0.1
+        } else {
+            0.12
+        },
+    );
 }
 
 pub struct EquipmentListPlugin;

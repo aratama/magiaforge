@@ -1,7 +1,4 @@
-use super::{
-    floating::{Floating, FloatingContent},
-    wand_list::slot_color,
-};
+use super::floating::{Floating, FloatingContent};
 use crate::{
     asset::GameAssets,
     controller::player::Player,
@@ -46,27 +43,29 @@ pub fn spawn_wand_spell_slot(
                 name: "empty".into(),
             },
         ))
-        .with_child((
-            ChargeAlert,
-            AseUiSlice {
-                aseprite: assets.atlas.clone(),
-                name: "charge_alert".into(),
-            },
-        ));
+        .with_children(|builder| {
+            builder.spawn((
+                ChargeAlert,
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "charge_alert".into(),
+                },
+            ));
+        });
 }
 
 fn update_spell_sprite(
     player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSpellSprite, &mut AseUiSlice, &mut Visibility)>,
+    mut sprite_query: Query<(&WandSpellSprite, &mut AseUiSlice, &mut Node)>,
     floating_query: Query<&Floating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (spell_sprite, mut aseprite, mut visibility) in sprite_query.iter_mut() {
+        for (spell_sprite, mut aseprite, mut node) in sprite_query.iter_mut() {
             if let Some(wand) = &actor.wands[spell_sprite.wand_index] {
-                *visibility = if spell_sprite.spell_index < wand.wand_type.to_props().capacity {
-                    Visibility::Inherited
+                node.display = if spell_sprite.spell_index < wand.wand_type.to_props().capacity {
+                    Display::default()
                 } else {
-                    Visibility::Hidden
+                    Display::None
                 };
 
                 if spell_sprite.spell_index < wand.slots.len() {
@@ -76,22 +75,24 @@ fn update_spell_sprite(
                             match floating.content {
                                 Some(FloatingContent::WandSpell(wand_index, spell_index))
                                     if wand_index == spell_sprite.wand_index
-                                        && spell_index == spell_sprite.spell_index => {}
+                                        && spell_index == spell_sprite.spell_index =>
+                                {
+                                    aseprite.name = "empty".into();
+                                }
                                 _ => {
                                     let props = spell.spell_type.to_props();
                                     aseprite.name = props.icon.to_string();
-                                    continue;
                                 }
                             }
                         }
-                        None => {}
+                        None => {
+                            aseprite.name = "empty".into();
+                        }
                     }
                 }
             } else {
-                *visibility = Visibility::Hidden;
+                aseprite.name = "empty".into();
             }
-
-            aseprite.name = "empty".into();
         }
     }
 }
@@ -154,6 +155,19 @@ fn update_alert_visibility(
             }
         }
     }
+}
+
+fn slot_color(wand_index: usize, spell_index: usize) -> Color {
+    return Color::hsla(
+        60.0,
+        0.3,
+        0.4,
+        if (wand_index + spell_index) % 2 == 0 {
+            0.1
+        } else {
+            0.12
+        },
+    );
 }
 
 pub struct SpellInWandPlugin;

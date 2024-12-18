@@ -1,3 +1,5 @@
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::ui::floating::{Floating, FloatingContent};
 use crate::ui::item_information::{SpellInformation, SpellInformationItem};
 use crate::{
@@ -17,7 +19,10 @@ pub struct InventoryGrid {
 struct InventoryItemSlot(usize);
 
 #[derive(Component)]
-struct YellowFrame;
+struct ItemFrame;
+
+#[derive(Component)]
+struct ChargeAlert;
 
 pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
@@ -80,14 +85,24 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                                     name: "empty".into(),
                                 },
                             ))
-                            .with_child((
-                                YellowFrame,
-                                AseUiSlice {
-                                    aseprite: assets.atlas.clone(),
-                                    name: "empty".into(),
-                                },
-                                ZIndex(-1),
-                            ));
+                            .with_children(|builder| {
+                                builder.spawn((
+                                    ItemFrame,
+                                    AseUiSlice {
+                                        aseprite: assets.atlas.clone(),
+                                        name: "spell_frame".into(),
+                                    },
+                                    ZIndex(1),
+                                ));
+                                builder.spawn((
+                                    ChargeAlert,
+                                    AseUiSlice {
+                                        aseprite: assets.atlas.clone(),
+                                        name: "empty".into(),
+                                    },
+                                    ZIndex(-1),
+                                ));
+                            });
                     }
                 });
         });
@@ -139,10 +154,46 @@ fn update_inventory_slot(
     }
 }
 
-fn update_yellow_frame(
+fn update_item_frame(
     query: Query<&Actor, With<Player>>,
     slot_query: Query<&InventoryItemSlot>,
-    mut children_query: Query<(&Parent, &mut AseUiSlice), With<YellowFrame>>,
+    mut children_query: Query<(&Parent, &mut AseUiSlice), With<ItemFrame>>,
+) {
+    if let Ok(actor) = query.get_single() {
+        for (parent, mut aseprite) in children_query.iter_mut() {
+            let slot = slot_query.get(parent.get()).unwrap();
+            let item_optional = actor.inventory.get(slot.0);
+            match item_optional {
+                Some(InventoryItem {
+                    item_type: InventoryItemType::Spell(..),
+                    ..
+                }) => {
+                    aseprite.name = "spell_frame".into();
+                }
+                Some(InventoryItem {
+                    item_type: InventoryItemType::Equipment(..),
+                    ..
+                }) => {
+                    aseprite.name = "equipment_frame".into();
+                }
+                Some(InventoryItem {
+                    item_type: InventoryItemType::Wand(..),
+                    ..
+                }) => {
+                    aseprite.name = "wand_frame".into();
+                }
+                _ => {
+                    aseprite.name = "empty".into();
+                }
+            }
+        }
+    }
+}
+
+fn update_charge_alert(
+    query: Query<&Actor, With<Player>>,
+    slot_query: Query<&InventoryItemSlot>,
+    mut children_query: Query<(&Parent, &mut AseUiSlice), With<ChargeAlert>>,
 ) {
     if let Ok(actor) = query.get_single() {
         for (parent, mut aseprite) in children_query.iter_mut() {
@@ -229,7 +280,8 @@ impl Plugin for InventoryPlugin {
                 update_inventory_slot,
                 interaction,
                 root_interaction,
-                update_yellow_frame,
+                update_charge_alert,
+                update_item_frame,
             )
                 .run_if(in_state(GameState::InGame)),
         );

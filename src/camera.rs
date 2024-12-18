@@ -50,7 +50,6 @@ fn update_camera_position(
         (&mut Transform, &mut OrthographicProjection, &mut GameCamera),
         (With<Camera2d>, Without<Player>),
     >,
-    keys: Res<ButtonInput<KeyCode>>,
     frame_count: Res<FrameCount>,
 ) {
     if let Ok((player, actor)) = player_query.get_single() {

@@ -22,6 +22,37 @@ pub enum FloatingContent {
     Equipment(usize),
 }
 
+impl FloatingContent {
+    pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
+        match self {
+            FloatingContent::Inventory(index) => actor.inventory.get(*index),
+            FloatingContent::WandSpell(wand_index, spell_index) => actor.wands[*wand_index]
+                .clone()
+                .and_then(|ref wand| match wand.slots[*spell_index] {
+                    Some(spell) => Some(InventoryItem {
+                        item_type: InventoryItemType::Spell(spell.spell_type),
+                        price: spell.price,
+                    }),
+                    None => None,
+                }),
+            FloatingContent::Wand(wand_index) => {
+                actor.wands[*wand_index].clone().and_then(|ref wand| {
+                    Some(InventoryItem {
+                        item_type: InventoryItemType::Wand(wand.wand_type),
+                        price: wand.price,
+                    })
+                })
+            }
+            FloatingContent::Equipment(index) => {
+                actor.equipments[*index].clone().map(|ref e| InventoryItem {
+                    item_type: InventoryItemType::Equipment(e.equipment_type),
+                    price: e.price,
+                })
+            }
+        }
+    }
+}
+
 #[derive(Component)]
 pub struct Floating {
     pub content: Option<FloatingContent>,
@@ -29,37 +60,14 @@ pub struct Floating {
 }
 
 #[derive(Component)]
+struct ItemFrame;
+
+#[derive(Component)]
 struct ChargeAlert;
 
 impl Floating {
     pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
-        match self.content {
-            None => None,
-            Some(FloatingContent::Inventory(index)) => actor.inventory.get(index),
-            Some(FloatingContent::WandSpell(wand_index, spell_index)) => actor.wands[wand_index]
-                .clone()
-                .and_then(|ref wand| match wand.slots[spell_index] {
-                    Some(spell) => Some(InventoryItem {
-                        item_type: InventoryItemType::Spell(spell.spell_type),
-                        price: spell.price,
-                    }),
-                    None => None,
-                }),
-            Some(FloatingContent::Wand(wand_index)) => {
-                actor.wands[wand_index].clone().and_then(|ref wand| {
-                    Some(InventoryItem {
-                        item_type: InventoryItemType::Wand(wand.wand_type),
-                        price: wand.price,
-                    })
-                })
-            }
-            Some(FloatingContent::Equipment(index)) => {
-                actor.equipments[index].clone().map(|ref e| InventoryItem {
-                    item_type: InventoryItemType::Equipment(e.equipment_type),
-                    price: e.price,
-                })
-            }
-        }
+        self.content.and_then(|c| c.get_item(actor))
     }
 }
 
@@ -88,13 +96,57 @@ pub fn spawn_inventory_floating(builder: &mut ChildBuilder, assets: &Res<GameAss
                 name: "empty".into(),
             },
         ))
-        .with_child((
-            ChargeAlert,
-            AseUiSlice {
-                aseprite: assets.atlas.clone(),
-                name: "charge_alert".into(),
-            },
-        ));
+        .with_children(|builder| {
+            builder.spawn((
+                ItemFrame,
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "spell_frame".into(),
+                },
+                ZIndex(1),
+            ));
+            builder.spawn((
+                ChargeAlert,
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "charge_alert".into(),
+                },
+            ));
+        });
+}
+
+fn update_item_frame(
+    query: Query<&Actor, With<Player>>,
+    floating_query: Query<&Floating>,
+    mut frame_query: Query<&mut AseUiSlice, With<ItemFrame>>,
+) {
+    if let Ok(actor) = query.get_single() {
+        let mut aseprite = frame_query.single_mut();
+        let floating = floating_query.single();
+        match floating.content.and_then(|f| f.get_item(actor)) {
+            Some(InventoryItem {
+                item_type: InventoryItemType::Spell(..),
+                ..
+            }) => {
+                aseprite.name = "spell_frame".into();
+            }
+            Some(InventoryItem {
+                item_type: InventoryItemType::Equipment(..),
+                ..
+            }) => {
+                aseprite.name = "equipment_frame".into();
+            }
+            Some(InventoryItem {
+                item_type: InventoryItemType::Wand(..),
+                ..
+            }) => {
+                aseprite.name = "wand_frame".into();
+            }
+            _ => {
+                aseprite.name = "empty".into();
+            }
+        }
+    }
 }
 
 fn update_inventory_floaing_position(
@@ -393,6 +445,7 @@ impl Plugin for InventoryItemFloatingPlugin {
                 cancel_on_close,
                 drop,
                 update_alert_visibility,
+                update_item_frame,
             )
                 .run_if(in_state(GameState::InGame))
                 .run_if(in_state(GameMenuState::WandEditOpen)),

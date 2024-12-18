@@ -24,7 +24,7 @@ pub fn spawn_wand_sprite_in_list(
     parent.spawn((
         WandSprite { wand_index },
         Interaction::default(),
-        BackgroundColor(Color::hsla(0.0, 0.0, 0.5, 0.1)),
+        BackgroundColor(Color::hsla(0.0, 0.3, 0.5, 0.1)),
         Node {
             width: Val::Px(64.),
             height: Val::Px(32.),
