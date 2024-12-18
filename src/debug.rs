@@ -1,5 +1,7 @@
 use crate::{
     config::GameConfig,
+    controller::player::Player,
+    entity::{actor::Actor, life::Life},
     hud::overlay::OverlayEvent,
     level::{CurrentLevel, GameLevel},
     physics::GamePhysics,
@@ -22,6 +24,7 @@ fn process_debug_command(
     config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     mut physics: ResMut<GamePhysics>,
+    player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     for ev in evr_kbd.read() {
         if ev.state == ButtonState::Released {
@@ -40,28 +43,28 @@ fn process_debug_command(
         match level.next_level {
             GameLevel::Level(n) => {
                 level.next_level = GameLevel::Level((n + 1) % 4);
-                level.next_state = level.next_state.clone();
+                level.next_state = PlayerState::from(player_query.get_single(), &config);
             }
             GameLevel::MultiPlayArena => {
                 level.next_level = GameLevel::Level(0);
-                level.next_state = PlayerState::from_config(&config);
+                level.next_state = PlayerState::from(player_query.get_single(), &config);
             }
         };
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("home") {
         local.clear();
         level.next_level = GameLevel::Level(0);
-        level.next_state = PlayerState::from_config(&config);
+        level.next_state = PlayerState::from(player_query.get_single(), &config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("arena") {
         local.clear();
         level.next_level = GameLevel::MultiPlayArena;
-        level.next_state = PlayerState::from_config(&config);
+        level.next_state = PlayerState::from(player_query.get_single(), &config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("boss") {
         local.clear();
         level.next_level = GameLevel::Level(3);
-        level.next_state = PlayerState::from_config(&config);
+        level.next_state = PlayerState::from(player_query.get_single(), &config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("ending") {
         local.clear();

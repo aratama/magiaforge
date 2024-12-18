@@ -1,7 +1,10 @@
+use bevy::ecs::query::QuerySingleError;
+
 use crate::{
     config::GameConfig,
     constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS},
-    controller::player::Equipment,
+    controller::player::{Equipment, Player},
+    entity::{actor::Actor, life::Life},
     equipment::EquipmentType,
     inventory::Inventory,
     inventory_item::InventoryItemType,
@@ -20,6 +23,28 @@ pub struct PlayerState {
 }
 
 impl PlayerState {
+    pub fn new(player: &Player, actor: &Actor, life: &Life) -> Self {
+        PlayerState {
+            name: player.name.clone(),
+            life: life.life,
+            max_life: life.max_life,
+            inventory: actor.inventory.clone(),
+            equipments: actor.equipments.clone(),
+            wands: actor.wands.clone(),
+        }
+    }
+
+    pub fn from(
+        props: Result<(&Player, &Actor, &Life), QuerySingleError>,
+        config: &GameConfig,
+    ) -> Self {
+        if let Ok((player, actor, life)) = props {
+            PlayerState::new(player, actor, life)
+        } else {
+            PlayerState::from_config(config)
+        }
+    }
+
     pub fn from_config(config: &GameConfig) -> Self {
         let mut inventory = Inventory::new();
         inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
