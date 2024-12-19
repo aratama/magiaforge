@@ -3,8 +3,6 @@ use crate::constant::{MAX_SPELLS_IN_WAND, MAX_WANDS};
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
-use crate::ui::floating::Floating;
-use crate::ui::floating::FloatingContent;
 use crate::ui::spell_in_wand::spawn_wand_spell_slot;
 use crate::ui::wand_sprite::spawn_wand_sprite_in_list;
 use bevy::{
@@ -105,29 +103,13 @@ fn update_trigger_marker(
     }
 }
 
-fn update_wand_slot_visibility(
-    mut sprite_query: Query<(&WandSlot, &mut Visibility)>,
-    floating_query: Query<&Floating>,
-) {
-    let floating = floating_query.single();
-    for (wand_sprite, mut visibility) in sprite_query.iter_mut() {
-        *visibility = match floating.content {
-            Some(FloatingContent::Wand(index)) if index == wand_sprite.wand_index => {
-                Visibility::Hidden
-            }
-            _ => Visibility::Inherited,
-        };
-    }
-}
-
 pub struct WandListPlugin;
 
 impl Plugin for WandListPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_wand_slot_visibility, update_trigger_marker)
-                .run_if(in_state(GameState::InGame)),
+            (update_trigger_marker).run_if(in_state(GameState::InGame)),
         );
     }
 }

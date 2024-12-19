@@ -66,15 +66,24 @@ fn update_panel_item(
 fn update_spell_sprite_visibility(
     player_query: Query<&Actor, With<Player>>,
     mut sprite_query: Query<(&WandSpellSprite, &mut Visibility), With<ItemPanel>>,
+    floating_query: Query<&Floating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
         for (sprite, mut visibility) in sprite_query.iter_mut() {
-            match actor.get_wand(sprite.wand_index) {
-                Some(wand) if sprite.spell_index < wand.wand_type.to_props().capacity => {
-                    *visibility = Visibility::default();
+            let float = floating_query.single();
+            match float.content {
+                Some(FloatingContent::Wand(w)) if w == sprite.wand_index => {
+                    *visibility = Visibility::Hidden;
                 }
-                _ => *visibility = Visibility::Hidden,
-            };
+                _ => {
+                    match actor.get_wand(sprite.wand_index) {
+                        Some(wand) if sprite.spell_index < wand.wand_type.to_props().capacity => {
+                            *visibility = Visibility::default();
+                        }
+                        _ => *visibility = Visibility::Hidden,
+                    };
+                }
+            }
         }
     }
 }
