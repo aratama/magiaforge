@@ -97,12 +97,19 @@ fn update_inventory_slot(mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>) {
     }
 }
 
-fn update_panel_width(mut slot_query: Query<(&ItemPanel, &mut Node)>) {
-    for (slot, mut node) in slot_query.iter_mut() {
+fn update_panel_width(
+    mut frame_query: Query<(&Parent, &mut Node), With<ItemFrame>>,
+    mut slot_query: Query<(&ItemPanel, &mut Node), Without<ItemFrame>>,
+) {
+    for (parent, mut node) in frame_query.iter_mut() {
+        let (slot, mut aseprite) = slot_query.get_mut(parent.get()).unwrap();
         if let Some(item) = slot.0 {
-            node.width = Val::Px(item.item_type.get_icon_width());
+            let width = Val::Px(item.item_type.get_icon_width());
+            node.width = width;
+            aseprite.width = width;
         } else {
             node.width = Val::Px(32.0);
+            node.height = Val::Px(32.0);
         }
     }
 }
