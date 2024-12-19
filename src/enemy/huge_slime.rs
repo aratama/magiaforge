@@ -71,8 +71,6 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             },
             Actor {
                 uuid: Uuid::new_v4(),
-                spell_delay: 0,
-                spell_delay_secondary: 0,
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
                 move_direction: Vec2::ZERO,
@@ -86,12 +84,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 inventory: Inventory::new(),
                 equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
                 wands: [
-                    Some(Wand {
-                        wand_type: WandType::CypressWand,
-                        price: 0,
-                        slots,
-                        index: 0,
-                    }),
+                    Some(Wand::with_slots(WandType::CypressWand, slots)),
                     None,
                     None,
                     None,

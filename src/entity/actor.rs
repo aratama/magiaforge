@@ -40,11 +40,6 @@ pub enum ActorState {
 pub struct Actor {
     pub uuid: Uuid,
 
-    /// 次の魔法を発射できるまでのクールタイム
-    pub spell_delay: i32,
-
-    pub spell_delay_secondary: i32,
-
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,
 
@@ -294,6 +289,8 @@ fn update_actor_light(
 
 /// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
     mut actor_query: Query<
         (
             Entity,
@@ -304,12 +301,10 @@ fn fire_bullet(
         ),
         Without<Camera2d>,
     >,
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut writer: EventWriter<ClientMessage>,
+    mut remote_writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SEEvent>,
-    websocket: Res<WebSocketState>,
     mut slime_writer: EventWriter<SpawnSlimeSeed>,
+    websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
@@ -318,48 +313,44 @@ fn fire_bullet(
     {
         if actor.fire_state == ActorFireState::Fire {
             let current_wand = actor.current_wand;
-            while actor.spell_delay == 0 {
-                let delay = cast_spell(
-                    &mut commands,
-                    &assets,
-                    &mut writer,
-                    &mut se_writer,
-                    actor_entity,
-                    &mut actor,
-                    &mut actor_life,
-                    &actor_transform,
-                    &mut actor_impulse,
-                    online,
-                    &mut slime_writer,
-                    current_wand,
-                );
-                actor.spell_delay += delay.max(1);
-            }
+            cast_spell(
+                &mut commands,
+                &assets,
+                actor_entity,
+                &mut actor,
+                &mut actor_life,
+                &actor_transform,
+                &mut actor_impulse,
+                online,
+                &mut remote_writer,
+                &mut se_writer,
+                &mut slime_writer,
+                current_wand,
+            );
         }
 
         if actor.fire_state_secondary == ActorFireState::Fire {
-            while actor.spell_delay_secondary == 0 {
-                let delay = cast_spell(
-                    &mut commands,
-                    &assets,
-                    &mut writer,
-                    &mut se_writer,
-                    actor_entity,
-                    &mut actor,
-                    &mut actor_life,
-                    &actor_transform,
-                    &mut actor_impulse,
-                    online,
-                    &mut slime_writer,
-                    MAX_WANDS - 1,
-                );
-
-                actor.spell_delay_secondary += delay.max(1);
-            }
+            cast_spell(
+                &mut commands,
+                &assets,
+                actor_entity,
+                &mut actor,
+                &mut actor_life,
+                &actor_transform,
+                &mut actor_impulse,
+                online,
+                &mut remote_writer,
+                &mut se_writer,
+                &mut slime_writer,
+                MAX_WANDS - 1,
+            );
         }
 
-        actor.spell_delay = (actor.spell_delay - 1).max(0);
-        actor.spell_delay_secondary = (actor.spell_delay_secondary - 1).max(0);
+        for wand_option in actor.wands.iter_mut() {
+            if let Some(ref mut wand) = wand_option {
+                wand.delay = (wand.delay as i32 - 1).max(0) as u32;
+            }
+        }
     }
 }
 

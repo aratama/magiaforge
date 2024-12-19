@@ -19,9 +19,30 @@ pub struct Wand {
     pub price: u32,
     pub slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND],
     pub index: usize,
+    pub delay: u32,
 }
 
 impl Wand {
+    pub fn new(wand_type: WandType) -> Self {
+        Self {
+            wand_type,
+            price: 0,
+            slots: [None; MAX_SPELLS_IN_WAND],
+            index: 0,
+            delay: 0,
+        }
+    }
+
+    pub fn with_slots(wand_type: WandType, slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND]) -> Self {
+        Self {
+            wand_type,
+            price: 0,
+            slots,
+            index: 0,
+            delay: 0,
+        }
+    }
+
     pub fn dept(&self) -> u32 {
         self.slots
             .iter()

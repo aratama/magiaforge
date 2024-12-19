@@ -88,10 +88,9 @@ impl PlayerState {
         });
 
         let wands = [
-            Some(Wand {
-                wand_type: WandType::CypressWand,
-                price: 0,
-                slots: [
+            Some(Wand::with_slots(
+                WandType::CypressWand,
+                [
                     Some(WandSpell {
                         spell_type: SpellType::MagicBolt,
                         price: 0,
@@ -104,12 +103,10 @@ impl PlayerState {
                     None,
                     None,
                 ],
-                index: 0,
-            }),
-            Some(Wand {
-                wand_type: WandType::CypressWand,
-                price: 0,
-                slots: [
+            )),
+            Some(Wand::with_slots(
+                WandType::CypressWand,
+                [
                     Some(WandSpell {
                         spell_type: SpellType::SummonFriendSlime,
                         price: 0,
@@ -122,12 +119,10 @@ impl PlayerState {
                     None,
                     None,
                 ],
-                index: 0,
-            }),
-            Some(Wand {
-                wand_type: WandType::KeyWand,
-                price: 0,
-                slots: [
+            )),
+            Some(Wand::with_slots(
+                WandType::KeyWand,
+                [
                     Some(WandSpell {
                         spell_type: SpellType::SummonEnemySlime,
                         price: 0,
@@ -140,12 +135,10 @@ impl PlayerState {
                     None,
                     None,
                 ],
-                index: 0,
-            }),
-            Some(Wand {
-                wand_type: WandType::CypressWand,
-                price: 0,
-                slots: [
+            )),
+            Some(Wand::with_slots(
+                WandType::CypressWand,
+                [
                     Some(WandSpell {
                         spell_type: SpellType::Dash,
                         price: 0,
@@ -158,8 +151,7 @@ impl PlayerState {
                     None,
                     None,
                 ],
-                index: 0,
-            }),
+            )),
         ];
 
         PlayerState {

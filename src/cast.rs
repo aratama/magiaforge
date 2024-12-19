@@ -27,20 +27,26 @@ use uuid::Uuid;
 pub fn cast_spell(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    writer: &mut EventWriter<ClientMessage>,
-    se_writer: &mut EventWriter<SEEvent>,
     actor_entity: Entity,
     actor: &mut Actor,
     actor_life: &mut Life,
     actor_transform: &Transform,
     actor_impulse: &mut ExternalImpulse,
     online: bool,
+    writer: &mut EventWriter<ClientMessage>,
+    se_writer: &mut EventWriter<SEEvent>,
     slime_writer: &mut EventWriter<SpawnSlimeSeed>,
     wand_index: usize,
-) -> i32 {
+) {
     if let Some(ref mut wand) = &mut actor.wands[wand_index] {
+        if 0 < wand.delay {
+            return;
+        }
+
         if let Some(spell) = wand.slots[wand.index] {
             let props = spell.spell_type.to_props();
+
+            wand.delay += props.cast_delay;
 
             match props.cast {
                 SpellCast::Bullet {
@@ -96,7 +102,7 @@ pub fn cast_spell(
 
                     send_remote_message(writer, online, &RemoteMessage::Fire(spawn));
 
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
                 SpellCast::BulletSpeedUpDown { delta } => {
                     wand.shift();
@@ -105,14 +111,14 @@ pub fn cast_spell(
                             .max(-0.9)
                             .min(3.0);
 
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
                 SpellCast::Heal => {
                     wand.shift();
 
                     if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
                     {
-                        return 0;
+                        wand.delay += 1;
                     }
 
                     actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
@@ -121,38 +127,36 @@ pub fn cast_spell(
                         actor_transform.translation.truncate(),
                     ));
 
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
                 SpellCast::MultipleCast { amount } => {
                     wand.shift();
-                    let mut delay = 0;
                     for _ in 0..amount {
-                        delay = delay.max(cast_spell(
+                        cast_spell(
                             commands,
                             assets,
-                            writer,
-                            se_writer,
                             actor_entity,
                             actor,
                             actor_life,
                             actor_transform,
                             actor_impulse,
                             online,
+                            writer,
+                            se_writer,
                             slime_writer,
                             wand_index,
-                        ));
+                        );
                     }
-                    return delay;
                 }
                 SpellCast::Homing => {
                     wand.shift();
                     actor.effects.homing = (actor.effects.homing + 0.01).max(-0.1).min(0.1);
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
                 SpellCast::HeavyShot => {
                     wand.shift();
                     actor.effects.bullet_damage_buff_amount += 5;
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
                 SpellCast::SummonSlime { friend } => {
                     wand.shift();
@@ -167,7 +171,7 @@ pub fn cast_spell(
                             (ActorGroup::Enemy, false) => ActorGroup::Player,
                         },
                     });
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
                 SpellCast::Dash => {
                     wand.shift();
@@ -180,14 +184,12 @@ pub fn cast_spell(
                         SE::Shuriken,
                         actor_transform.translation.truncate(),
                     ));
-                    return props.cast_delay as i32;
+                    wand.delay += props.cast_delay;
                 }
             }
         } else {
             wand.shift();
-            return 0;
+            wand.delay += 1;
         }
-    } else {
-        return 0;
     }
 }

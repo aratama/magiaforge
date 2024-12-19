@@ -54,8 +54,6 @@ pub fn spawn_witch<T: Component>(
         StateScoped(GameState::InGame),
         Actor {
             uuid,
-            spell_delay: 0,
-            spell_delay_secondary: 0,
             pointer: Vec2::from_angle(angle),
             intensity,
             move_direction: Vec2::ZERO,

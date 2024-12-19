@@ -32,8 +32,6 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
             StateScoped(GameState::InGame),
             Actor {
                 uuid: uuid::Uuid::new_v4(),
-                spell_delay: 0,
-                spell_delay_secondary: 0,
                 pointer: Vec2::from_angle(0.0),
                 intensity: 0.5,
                 move_direction: Vec2::ZERO,

@@ -297,6 +297,7 @@ impl FloatingContent {
                         price,
                         slots: *slots,
                         index: 0,
+                        delay: 0,
                     });
                 }
                 true
