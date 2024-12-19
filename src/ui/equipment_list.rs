@@ -1,4 +1,7 @@
+use super::item_panel::{spawn_item_panel, ItemPanel};
 use crate::entity::actor::Actor;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::{
     asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player, states::GameState,
 };
@@ -7,7 +10,6 @@ use crate::{
     ui::floating::{Floating, FloatingContent},
 };
 use bevy::{prelude::*, ui::Display};
-use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component)]
 pub struct EquipmentContainer;
@@ -16,9 +18,6 @@ pub struct EquipmentContainer;
 struct EquipmentSprite {
     index: usize,
 }
-
-#[derive(Component)]
-struct ChargeAlert;
 
 pub fn spawn_equipment_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
     parent
@@ -36,59 +35,34 @@ pub fn spawn_equipment_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>)
         ))
         .with_children(|mut parent| {
             for index in 0..MAX_SPELLS_IN_WAND {
-                spawn_equipment_slot(&mut parent, &assets, index);
+                spawn_item_panel(
+                    &mut parent,
+                    &assets,
+                    EquipmentSprite { index },
+                    64.0 + 32. * (index as f32),
+                    0.0,
+                    None,
+                    Some(BackgroundColor(slot_color(5, index))),
+                );
             }
-        });
-}
-
-fn spawn_equipment_slot(parent: &mut ChildBuilder, assets: &Res<GameAssets>, index: usize) {
-    parent
-        .spawn((
-            EquipmentSprite { index },
-            Interaction::default(),
-            BackgroundColor(slot_color(5, index)),
-            Node {
-                position_type: PositionType::Absolute,
-                left: Val::Px(64.0 + 32. * (index as f32)),
-                width: Val::Px(32.),
-                height: Val::Px(32.),
-                ..default()
-            },
-            AseUiSlice {
-                aseprite: assets.atlas.clone(),
-                name: "empty".into(),
-            },
-        ))
-        .with_children(|builder| {
-            builder.spawn((
-                ChargeAlert,
-                AseUiSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "charge_alert".into(),
-                },
-            ));
         });
 }
 
 fn update_equipment_sprite(
-    mut sprite_query: Query<(&EquipmentSprite, &mut AseUiSlice)>,
+    mut sprite_query: Query<(&EquipmentSprite, &mut ItemPanel)>,
     player_query: Query<&Actor, With<Player>>,
     floating_query: Query<&mut Floating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
-        for (sprite, mut slice) in sprite_query.iter_mut() {
-            let float = floating_query.single();
-            let picked = match float.content {
-                Some(FloatingContent::Equipment(index)) => index == sprite.index,
-                _ => false,
+        let float = floating_query.single();
+        for (sprite, mut panel) in sprite_query.iter_mut() {
+            panel.0 = match float.content {
+                Some(FloatingContent::Equipment(index)) if index == sprite.index => None,
+                _ => actor.equipments[sprite.index].map(|e| InventoryItem {
+                    item_type: InventoryItemType::Equipment(e.equipment_type),
+                    price: e.price,
+                }),
             };
-            if picked {
-                slice.name = "empty".into();
-            } else if let Some(ref equipment) = actor.equipments[sprite.index] {
-                slice.name = equipment.equipment_type.to_props().icon.into();
-            } else {
-                slice.name = "empty".into();
-            }
         }
     }
 }
@@ -114,34 +88,6 @@ fn interact(
     }
 }
 
-fn update_alert_visibility(
-    player_query: Query<&Actor, With<Player>>,
-    slot_query: Query<&EquipmentSprite>,
-    mut alert_query: Query<(&Parent, &mut Visibility), With<ChargeAlert>>,
-    floating_query: Query<&Floating>,
-) {
-    let floating = floating_query.single();
-    if let Ok(actor) = player_query.get_single() {
-        for (parent, mut alert) in alert_query.iter_mut() {
-            if let Ok(slot) = slot_query.get(parent.get()) {
-                match floating.content {
-                    Some(FloatingContent::Equipment(index)) if index == slot.index => {
-                        *alert = Visibility::Hidden;
-                    }
-                    _ => {
-                        *alert = match actor.equipments[slot.index] {
-                            Some(item) if 0 < item.price => Visibility::Inherited,
-                            _ => Visibility::Hidden,
-                        };
-                    }
-                }
-            } else {
-                *alert = Visibility::Hidden;
-            }
-        }
-    }
-}
-
 fn slot_color(wand_index: usize, spell_index: usize) -> Color {
     return Color::hsla(
         120.0,
@@ -161,8 +107,7 @@ impl Plugin for EquipmentListPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_equipment_sprite, interact, update_alert_visibility)
-                .run_if(in_state(GameState::InGame)),
+            (update_equipment_sprite, interact).run_if(in_state(GameState::InGame)),
         );
     }
 }

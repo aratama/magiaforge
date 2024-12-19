@@ -1,14 +1,13 @@
-use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
+use crate::asset::GameAssets;
+use crate::constant::MAX_ITEMS_IN_INVENTORY;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::states::GameState;
 use crate::ui::floating::{Floating, FloatingContent};
 use crate::ui::item_information::{SpellInformation, SpellInformationItem};
-use crate::{
-    asset::GameAssets, constant::MAX_ITEMS_IN_INVENTORY, controller::player::Player,
-    entity::actor::Actor, states::GameState,
-};
+use crate::ui::item_panel::{spawn_item_panel, ItemPanel};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use std::collections::HashSet;
 
 #[derive(Component)]
 pub struct InventoryGrid {
@@ -18,17 +17,13 @@ pub struct InventoryGrid {
 #[derive(Component)]
 struct InventoryItemSlot(usize);
 
-#[derive(Component)]
-struct ItemFrame;
-
-#[derive(Component)]
-struct ChargeAlert;
+pub const INVENTORY_IMAGE_HEIGHT: f32 = 168.0;
 
 pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((Node {
             width: Val::Px(151.0 * 2.0),
-            height: Val::Px(160.0 * 2.0),
+            height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
             ..default()
         },))
         .with_children(|builder| {
@@ -38,7 +33,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 Node {
                     position_type: PositionType::Absolute,
                     width: Val::Px(151.0 * 2.0),
-                    height: Val::Px(160.0 * 2.0),
+                    height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
                     left: Val::Px(0.0),
                     top: Val::Px(0.0),
                     ..default()
@@ -62,47 +57,18 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                         ..default()
                     },
                 ))
-                .with_children(|builder| {
+                .with_children(|mut builder| {
                     //スロット
                     for i in 0..MAX_ITEMS_IN_INVENTORY {
-                        builder
-                            .spawn((
-                                InventoryItemSlot(i),
-                                Interaction::default(),
-                                ZIndex(1),
-                                Node {
-                                    width: Val::Px(32.0),
-                                    height: Val::Px(32.0),
-                                    // gird layoutだと、兄弟要素の大きさに左右されてレイアウトが崩れてしまう場合があるので、
-                                    // Absoluteでずれないようにする
-                                    position_type: PositionType::Absolute,
-                                    left: Val::Px((i % 8) as f32 * 32.0),
-                                    top: Val::Px((i / 8) as f32 * 32.0),
-                                    ..default()
-                                },
-                                AseUiSlice {
-                                    aseprite: assets.atlas.clone(),
-                                    name: "empty".into(),
-                                },
-                            ))
-                            .with_children(|builder| {
-                                builder.spawn((
-                                    ItemFrame,
-                                    AseUiSlice {
-                                        aseprite: assets.atlas.clone(),
-                                        name: "spell_frame".into(),
-                                    },
-                                    ZIndex(1),
-                                ));
-                                builder.spawn((
-                                    ChargeAlert,
-                                    AseUiSlice {
-                                        aseprite: assets.atlas.clone(),
-                                        name: "empty".into(),
-                                    },
-                                    ZIndex(-1),
-                                ));
-                            });
+                        spawn_item_panel(
+                            &mut builder,
+                            &assets,
+                            InventoryItemSlot(i),
+                            (i % 8) as f32 * 32.0,
+                            (i / 8) as f32 * 32.0,
+                            None,
+                            None,
+                        );
                     }
                 });
         });
@@ -110,101 +76,18 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
 
 fn update_inventory_slot(
     player_query: Query<&Actor, With<Player>>,
-    mut slot_query: Query<(
-        &InventoryItemSlot,
-        &mut AseUiSlice,
-        &mut Node,
-        &mut Visibility,
-    )>,
+    mut slot_query: Query<(&InventoryItemSlot, &mut ItemPanel)>,
     floating_query: Query<&Floating>,
 ) {
     if let Ok(actor) = player_query.get_single() {
         let floating = floating_query.single();
-
-        let mut hidden: HashSet<usize> = HashSet::new();
-
-        for (slot, mut aseprite, mut style, mut visibility) in slot_query.iter_mut() {
-            let item_optional = actor.inventory.get(slot.0);
-
-            if let Some(item) = item_optional {
-                let width = item.item_type.get_width();
-                aseprite.name = match floating.content {
-                    Some(FloatingContent::Inventory(index)) if index == slot.0 => "empty".into(),
-                    _ => item.item_type.get_icon().into(),
-                };
-                style.width = Val::Px(32.0 * width as f32);
-                *visibility = Visibility::Inherited;
-
-                for d in 1..width {
-                    hidden.insert(slot.0 + d);
-                }
-            } else {
-                style.width = Val::Px(32.0);
-                aseprite.name = "empty".into();
-            }
-        }
-
-        for (sprite, _, _, mut visibility) in slot_query.iter_mut() {
-            if hidden.contains(&sprite.0) {
-                *visibility = Visibility::Hidden;
-            } else {
-                *visibility = Visibility::Inherited;
-            }
-        }
-    }
-}
-
-fn update_item_frame(
-    query: Query<&Actor, With<Player>>,
-    slot_query: Query<&InventoryItemSlot>,
-    mut children_query: Query<(&Parent, &mut AseUiSlice), With<ItemFrame>>,
-) {
-    if let Ok(actor) = query.get_single() {
-        for (parent, mut aseprite) in children_query.iter_mut() {
-            let slot = slot_query.get(parent.get()).unwrap();
-            let item_optional = actor.inventory.get(slot.0);
-            match item_optional {
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Spell(..),
-                    ..
-                }) => {
-                    aseprite.name = "spell_frame".into();
-                }
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Equipment(..),
-                    ..
-                }) => {
-                    aseprite.name = "equipment_frame".into();
-                }
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Wand(..),
-                    ..
-                }) => {
-                    aseprite.name = "wand_frame".into();
+        for (slot, mut panel) in slot_query.iter_mut() {
+            match floating.content {
+                Some(FloatingContent::Inventory(i)) if i == slot.0 => {
+                    panel.0 = None;
                 }
                 _ => {
-                    aseprite.name = "empty".into();
-                }
-            }
-        }
-    }
-}
-
-fn update_charge_alert(
-    query: Query<&Actor, With<Player>>,
-    slot_query: Query<&InventoryItemSlot>,
-    mut children_query: Query<(&Parent, &mut AseUiSlice), With<ChargeAlert>>,
-) {
-    if let Ok(actor) = query.get_single() {
-        for (parent, mut aseprite) in children_query.iter_mut() {
-            let slot = slot_query.get(parent.get()).unwrap();
-            let item_optional = actor.inventory.get(slot.0);
-            match item_optional {
-                Some(item) if 0 < item.price => {
-                    aseprite.name = "charge_alert".into();
-                }
-                _ => {
-                    aseprite.name = "empty".into();
+                    panel.0 = actor.inventory.get(slot.0);
                 }
             }
         }
@@ -276,13 +159,7 @@ impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (
-                update_inventory_slot,
-                interaction,
-                root_interaction,
-                update_charge_alert,
-                update_item_frame,
-            )
+            (update_inventory_slot, interaction, root_interaction)
                 .run_if(in_state(GameState::InGame)),
         );
     }

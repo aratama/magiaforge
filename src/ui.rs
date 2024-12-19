@@ -6,6 +6,7 @@ pub mod floating;
 pub mod hover_color;
 pub mod inventory;
 pub mod item_information;
+pub mod item_panel;
 pub mod label;
 pub mod menu_button;
 pub mod menu_left;

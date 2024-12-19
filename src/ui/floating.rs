@@ -1,3 +1,4 @@
+use super::item_panel::{spawn_item_panel, ItemPanel};
 use crate::{
     asset::GameAssets,
     constant::{MAX_SPELLS_IN_WAND, WAND_EDITOR_FLOATING_Z_INDEX},
@@ -12,7 +13,6 @@ use crate::{
     wand::{Wand, WandSpell},
 };
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum FloatingContent {
@@ -59,93 +59,34 @@ pub struct Floating {
     pub target: Option<FloatingContent>,
 }
 
-#[derive(Component)]
-struct ItemFrame;
-
-#[derive(Component)]
-struct ChargeAlert;
-
 impl Floating {
     pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
         self.content.and_then(|c| c.get_item(actor))
     }
 }
 
-pub fn spawn_inventory_floating(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
-    builder
-        .spawn((
-            Floating {
-                content: None,
-                target: None,
-            },
-            Interaction::default(),
-            GlobalZIndex(WAND_EDITOR_FLOATING_Z_INDEX),
-            Visibility::Hidden,
-            // background_color: Color::hsla(0.0, 0.0, 0.0, 0.5).into(),
-            Node {
-                position_type: PositionType::Absolute,
-                top: Val::Px(500.0),
-                left: Val::Px(500.0),
-                width: Val::Px(32.0),
-                height: Val::Px(32.0),
-                // border: UiRect::all(Val::Px(1.0)),
-                ..default()
-            },
-            AseUiSlice {
-                aseprite: assets.atlas.clone(),
-                name: "empty".into(),
-            },
-        ))
-        .with_children(|builder| {
-            builder.spawn((
-                ItemFrame,
-                AseUiSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "spell_frame".into(),
-                },
-                ZIndex(1),
-            ));
-            builder.spawn((
-                ChargeAlert,
-                AseUiSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "charge_alert".into(),
-                },
-            ));
-        });
+pub fn spawn_inventory_floating(mut builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+    spawn_item_panel(
+        &mut builder,
+        &assets,
+        Floating {
+            content: Some(FloatingContent::Inventory(2)),
+            target: None,
+        },
+        500.0,
+        500.0,
+        Some(GlobalZIndex(WAND_EDITOR_FLOATING_Z_INDEX)),
+        None,
+    );
 }
 
 fn update_item_frame(
     query: Query<&Actor, With<Player>>,
-    floating_query: Query<&Floating>,
-    mut frame_query: Query<&mut AseUiSlice, With<ItemFrame>>,
+    mut frame_query: Query<(&Floating, &mut ItemPanel)>,
 ) {
     if let Ok(actor) = query.get_single() {
-        let mut aseprite = frame_query.single_mut();
-        let floating = floating_query.single();
-        match floating.content.and_then(|f| f.get_item(actor)) {
-            Some(InventoryItem {
-                item_type: InventoryItemType::Spell(..),
-                ..
-            }) => {
-                aseprite.name = "spell_frame".into();
-            }
-            Some(InventoryItem {
-                item_type: InventoryItemType::Equipment(..),
-                ..
-            }) => {
-                aseprite.name = "equipment_frame".into();
-            }
-            Some(InventoryItem {
-                item_type: InventoryItemType::Wand(..),
-                ..
-            }) => {
-                aseprite.name = "wand_frame".into();
-            }
-            _ => {
-                aseprite.name = "empty".into();
-            }
-        }
+        let (floating, mut panel) = frame_query.single_mut();
+        panel.0 = floating.content.and_then(|f| f.get_item(actor));
     }
 }
 
@@ -183,36 +124,6 @@ fn update_floating_visibility_by_menu_close(
     }
 }
 
-fn update_alert_visibility(
-    player_query: Query<&Actor, With<Player>>,
-    floating_query: Query<&Floating>,
-    mut alert_query: Query<&mut Visibility, With<ChargeAlert>>,
-) {
-    if let Ok(actor) = player_query.get_single() {
-        let floating = floating_query.single();
-        let mut alert = alert_query.single_mut();
-        *alert = match floating.get_item(actor) {
-            Some(item) if 0 < item.price => Visibility::Inherited,
-            _ => Visibility::Hidden,
-        };
-    }
-}
-
-fn update_floating_slice(
-    player_query: Query<&Actor, With<Player>>,
-    mut floating_query: Query<(&Floating, &mut AseUiSlice, &mut Node), With<Floating>>,
-) {
-    if let Ok(actor) = player_query.get_single() {
-        let (floating, mut floating_slice, mut style) = floating_query.single_mut();
-        if let Some(item) = floating.get_item(actor) {
-            floating_slice.name = item.item_type.get_icon().to_string();
-            style.width = Val::Px(item.item_type.get_icon_width());
-        } else {
-            floating_slice.name = "empty".into();
-        }
-    }
-}
-
 fn cancel_on_close(state: Res<State<GameMenuState>>, mut floating_query: Query<&mut Floating>) {
     if state.is_changed() {
         if *state.get() == GameMenuState::Closed {
@@ -238,6 +149,8 @@ fn drop(
     if mouse.just_released(MouseButton::Left) {
         let content_optional = floating.content;
         let target_optional = floating.target;
+
+        info!("from {:?} to {:?}", content_optional, target_optional);
 
         floating.content = None;
         floating.target = None;
@@ -453,10 +366,8 @@ impl Plugin for InventoryItemFloatingPlugin {
             Update,
             (
                 update_inventory_floaing_position,
-                update_floating_slice,
                 cancel_on_close,
                 drop,
-                update_alert_visibility,
                 update_item_frame,
             )
                 .run_if(in_state(GameState::InGame))

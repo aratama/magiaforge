@@ -1,7 +1,7 @@
 use super::{
     command_button::{command_button, CommandButton},
     floating::Floating,
-    inventory::spawn_inventory,
+    inventory::{spawn_inventory, INVENTORY_IMAGE_HEIGHT},
     item_information::{spawn_spell_information, SpellInformationRoot},
     menu_left::MenuLeft,
 };
@@ -34,11 +34,11 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 left: Val::Px(20.0),
                 top: Val::Px(100.0),
                 width: Val::Px(151.0 * 2.0),
-                height: Val::Px(160.0 * 2.0),
+                height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
                 display: Display::Flex,
                 flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(20.0),
-                justify_content: JustifyContent::Center,
+                row_gap: Val::Px(4.0),
+                justify_content: JustifyContent::Start,
                 align_items: AlignItems::Center,
                 ..default()
             },
@@ -51,7 +51,7 @@ pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 assets,
                 SortButton,
                 160.0,
-                40.0,
+                32.0,
                 false,
                 Dict {
                     ja: "並び替え",

@@ -51,6 +51,7 @@ use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
 use crate::ui::item_information::SpellInformationPlugin;
+use crate::ui::item_panel::ItemPanelPlugin;
 use crate::ui::label::LabelPlugin;
 use crate::ui::menu_button::MenuButtonPlugin;
 use crate::ui::menu_left::MenuLeftPlugin;
@@ -181,6 +182,7 @@ pub fn run_game() {
         .add_plugins(ImpactPlugin)
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
+        .add_plugins(ItemPanelPlugin)
         .add_plugins(LabelPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(MagicCirclePlugin)
