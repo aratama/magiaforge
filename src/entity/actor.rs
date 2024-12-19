@@ -111,6 +111,10 @@ impl Actor {
         None
     }
 
+    pub fn get_wand(&self, wand_index: usize) -> Option<&Wand> {
+        self.wands[wand_index].as_ref()
+    }
+
     pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
         self.wands[wand_index]
             .as_ref()

@@ -33,7 +33,7 @@ const KEY_WAND: WandProps = WandProps {
     },
     slice: "wand_key",
     icon: "wand_icon_key",
-    capacity: 8,
+    capacity: 4,
 };
 
 impl WandType {

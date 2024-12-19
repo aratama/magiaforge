@@ -125,7 +125,7 @@ impl PlayerState {
                 index: 0,
             }),
             Some(Wand {
-                wand_type: WandType::CypressWand,
+                wand_type: WandType::KeyWand,
                 price: 0,
                 slots: [
                     Some(WandSpell {
