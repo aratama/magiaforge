@@ -1,7 +1,8 @@
 use crate::{
     asset::GameAssets,
     constant::{
-        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
+        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, MAX_SPELLS_IN_WAND, MAX_WANDS, WALL_GROUP,
+        WITCH_BULLET_GROUP, WITCH_GROUP,
     },
     controller::remote::{send_remote_message, RemoteMessage},
     entity::{
@@ -39,157 +40,135 @@ pub fn cast_spell(
     wand_index: usize,
 ) {
     if let Some(ref mut wand) = &mut actor.wands[wand_index] {
+        // 1フレームあたりの残りの呪文詠唱回数
+        // MultipleCast で増加することがあります
+        let mut multicast = 1;
+
         if 0 < wand.delay {
             return;
         }
 
-        if let Some(spell) = wand.slots[wand.index] {
-            let props = spell.spell_type.to_props();
+        while 0 < multicast && wand.index < MAX_SPELLS_IN_WAND {
+            if let Some(spell) = wand.slots[wand.index] {
+                let props = spell.spell_type.to_props();
 
-            wand.delay += props.cast_delay;
+                wand.delay += props.cast_delay.max(1);
+                multicast -= 1;
 
-            match props.cast {
-                SpellCast::Bullet {
-                    slice,
-                    collier_radius,
-                    speed,
-                    lifetime,
-                    damage,
-                    impulse,
-                    scattering,
-                    light_intensity,
-                    light_radius,
-                    light_color_hlsa,
-                } => {
-                    let normalized = actor.pointer.normalize();
-                    let angle = actor.pointer.to_angle();
-                    let angle_with_random = angle + (random::<f32>() - 0.5) * scattering;
-                    let direction = Vec2::from_angle(angle_with_random);
-                    let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
-                    let bullet_position =
-                        actor_transform.translation.truncate() + range * normalized;
-
-                    let spawn = SpawnBullet {
-                        uuid: Uuid::new_v4(),
-                        position: bullet_position,
-                        velocity: direction
-                            * speed
-                            * (1.0 + actor.effects.bullet_speed_buff_factor),
-                        bullet_lifetime: lifetime,
-                        sender: Some(actor.uuid),
-                        damage: damage + actor.effects.bullet_damage_buff_amount,
-                        impulse,
-                        slice: slice.to_string(),
+                match props.cast {
+                    SpellCast::Bullet {
+                        slice,
                         collier_radius,
+                        speed,
+                        lifetime,
+                        damage,
+                        impulse,
+                        scattering,
                         light_intensity,
                         light_radius,
                         light_color_hlsa,
-                        homing: actor.effects.homing,
-                        group: match actor.actor_group {
-                            ActorGroup::Player => WITCH_BULLET_GROUP,
-                            ActorGroup::Enemy => ENEMY_BULLET_GROUP,
-                        },
-                        filter: match actor.actor_group {
-                            ActorGroup::Player => ENEMY_GROUP,
-                            ActorGroup::Enemy => WITCH_GROUP,
-                        } | ENTITY_GROUP
-                            | WALL_GROUP,
-                    };
+                    } => {
+                        let normalized = actor.pointer.normalize();
+                        let angle = actor.pointer.to_angle();
+                        let angle_with_random = angle + (random::<f32>() - 0.5) * scattering;
+                        let direction = Vec2::from_angle(angle_with_random);
+                        let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
+                        let bullet_position =
+                            actor_transform.translation.truncate() + range * normalized;
 
-                    spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
-                    actor.effects = default();
-                    wand.shift();
+                        let spawn = SpawnBullet {
+                            uuid: Uuid::new_v4(),
+                            position: bullet_position,
+                            velocity: direction
+                                * speed
+                                * (1.0 + actor.effects.bullet_speed_buff_factor),
+                            bullet_lifetime: lifetime,
+                            sender: Some(actor.uuid),
+                            damage: damage + actor.effects.bullet_damage_buff_amount,
+                            impulse,
+                            slice: slice.to_string(),
+                            collier_radius,
+                            light_intensity,
+                            light_radius,
+                            light_color_hlsa,
+                            homing: actor.effects.homing,
+                            group: match actor.actor_group {
+                                ActorGroup::Player => WITCH_BULLET_GROUP,
+                                ActorGroup::Enemy => ENEMY_BULLET_GROUP,
+                            },
+                            filter: match actor.actor_group {
+                                ActorGroup::Player => ENEMY_GROUP,
+                                ActorGroup::Enemy => WITCH_GROUP,
+                            } | ENTITY_GROUP
+                                | WALL_GROUP,
+                        };
 
-                    send_remote_message(writer, online, &RemoteMessage::Fire(spawn));
+                        spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
+                        actor.effects = default();
 
-                    wand.delay += props.cast_delay;
-                }
-                SpellCast::BulletSpeedUpDown { delta } => {
-                    wand.shift();
-                    actor.effects.bullet_speed_buff_factor =
-                        (actor.effects.bullet_speed_buff_factor + delta)
-                            .max(-0.9)
-                            .min(3.0);
-
-                    wand.delay += props.cast_delay;
-                }
-                SpellCast::Heal => {
-                    wand.shift();
-
-                    if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
-                    {
-                        wand.delay += 1;
+                        send_remote_message(writer, online, &RemoteMessage::Fire(spawn));
                     }
+                    SpellCast::BulletSpeedUpDown { delta } => {
+                        actor.effects.bullet_speed_buff_factor =
+                            (actor.effects.bullet_speed_buff_factor + delta)
+                                .max(-0.9)
+                                .min(3.0);
+                    }
+                    SpellCast::Heal => {
+                        if spell.spell_type == SpellType::Heal
+                            && actor_life.life == actor_life.max_life
+                        {
+                            wand.delay += 1;
+                        }
 
-                    actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
-                    se_writer.send(SEEvent::pos(
-                        SE::Heal,
-                        actor_transform.translation.truncate(),
-                    ));
-
-                    wand.delay += props.cast_delay;
-                }
-                SpellCast::MultipleCast { amount } => {
-                    wand.shift();
-                    for _ in 0..amount {
-                        cast_spell(
-                            commands,
-                            assets,
-                            actor_entity,
-                            actor,
-                            actor_life,
-                            actor_transform,
-                            actor_impulse,
-                            online,
-                            writer,
-                            se_writer,
-                            slime_writer,
-                            wand_index,
-                        );
+                        actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
+                        se_writer.send(SEEvent::pos(
+                            SE::Heal,
+                            actor_transform.translation.truncate(),
+                        ));
+                    }
+                    SpellCast::MultipleCast { amount } => {
+                        multicast += amount;
+                    }
+                    SpellCast::Homing => {
+                        actor.effects.homing = (actor.effects.homing + 0.01).max(-0.1).min(0.1);
+                    }
+                    SpellCast::HeavyShot => {
+                        actor.effects.bullet_damage_buff_amount += 5;
+                    }
+                    SpellCast::SummonSlime { friend } => {
+                        slime_writer.send(SpawnSlimeSeed {
+                            from: actor_transform.translation.truncate(),
+                            to: actor_transform.translation.truncate() + actor.pointer,
+                            owner: actor_entity,
+                            actor_group: match (actor.actor_group, friend) {
+                                (ActorGroup::Player, true) => ActorGroup::Player,
+                                (ActorGroup::Player, false) => ActorGroup::Enemy,
+                                (ActorGroup::Enemy, true) => ActorGroup::Enemy,
+                                (ActorGroup::Enemy, false) => ActorGroup::Player,
+                            },
+                        });
+                    }
+                    SpellCast::Dash => {
+                        actor_impulse.impulse += if 0.0 < actor.move_direction.length() {
+                            actor.move_direction
+                        } else {
+                            actor.pointer.normalize()
+                        } * 50000.0;
+                        se_writer.send(SEEvent::pos(
+                            SE::Shuriken,
+                            actor_transform.translation.truncate(),
+                        ));
                     }
                 }
-                SpellCast::Homing => {
-                    wand.shift();
-                    actor.effects.homing = (actor.effects.homing + 0.01).max(-0.1).min(0.1);
-                    wand.delay += props.cast_delay;
-                }
-                SpellCast::HeavyShot => {
-                    wand.shift();
-                    actor.effects.bullet_damage_buff_amount += 5;
-                    wand.delay += props.cast_delay;
-                }
-                SpellCast::SummonSlime { friend } => {
-                    wand.shift();
-                    slime_writer.send(SpawnSlimeSeed {
-                        from: actor_transform.translation.truncate(),
-                        to: actor_transform.translation.truncate() + actor.pointer,
-                        owner: actor_entity,
-                        actor_group: match (actor.actor_group, friend) {
-                            (ActorGroup::Player, true) => ActorGroup::Player,
-                            (ActorGroup::Player, false) => ActorGroup::Enemy,
-                            (ActorGroup::Enemy, true) => ActorGroup::Enemy,
-                            (ActorGroup::Enemy, false) => ActorGroup::Player,
-                        },
-                    });
-                    wand.delay += props.cast_delay;
-                }
-                SpellCast::Dash => {
-                    wand.shift();
-                    actor_impulse.impulse += if 0.0 < actor.move_direction.length() {
-                        actor.move_direction
-                    } else {
-                        actor.pointer.normalize()
-                    } * 50000.0;
-                    se_writer.send(SEEvent::pos(
-                        SE::Shuriken,
-                        actor_transform.translation.truncate(),
-                    ));
-                    wand.delay += props.cast_delay;
-                }
+            } else {
+                // 空欄の場合は残り詠唱回数は減りません
             }
-        } else {
-            wand.shift();
-            wand.delay += 1;
+
+            wand.index = wand.index + 1;
         }
+
+        actor.effects = default();
+        wand.index %= MAX_SPELLS_IN_WAND;
     }
 }
