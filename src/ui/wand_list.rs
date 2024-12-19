@@ -11,6 +11,7 @@ use bevy::{
     prelude::*,
     ui::{Display, Node},
 };
+use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 #[derive(Component)]
 pub struct WandList;
@@ -19,6 +20,9 @@ pub struct WandList;
 pub struct WandSlot {
     wand_index: usize,
 }
+
+#[derive(Component)]
+struct TriggerMarker;
 
 pub fn spawn_wand_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
     parent
@@ -46,11 +50,9 @@ fn spawn_wand_and_spell_slot(
     parent
         .spawn((
             WandSlot { wand_index },
-            BorderColor(Color::hsla(0.0, 0.0, 1.0, 0.0)),
             Node {
                 display: Display::Flex,
                 flex_direction: FlexDirection::Row,
-                border: UiRect::all(Val::Px(1.)),
                 ..default()
             },
         ))
@@ -60,32 +62,61 @@ fn spawn_wand_and_spell_slot(
             for spell_index in 0..MAX_SPELLS_IN_WAND {
                 spawn_wand_spell_slot(&mut parent, &assets, wand_index, spell_index);
             }
+
+            parent.spawn((
+                TriggerMarker,
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: if wand_index == MAX_WANDS - 1 {
+                        "rt".to_string()
+                    } else {
+                        "lt".to_string()
+                    },
+                    ..default()
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(0.),
+                    left: Val::Px(0.),
+                    width: Val::Px(18.),
+                    height: Val::Px(14.),
+                    ..default()
+                },
+                ZIndex(100),
+            ));
         });
 }
 
+fn update_trigger_marker(
+    mut marker_query: Query<(&Parent, &mut Node), With<TriggerMarker>>,
+    slot_query: Query<&WandSlot>,
+    actor_query: Query<&Actor, With<Player>>,
+) {
+    if let Ok(actor) = actor_query.get_single() {
+        for (parent, mut node) in marker_query.iter_mut() {
+            let slot = slot_query.get(parent.get()).unwrap();
+            node.display =
+                if slot.wand_index == actor.current_wand || slot.wand_index == MAX_WANDS - 1 {
+                    Display::Flex
+                } else {
+                    Display::None
+                };
+        }
+    }
+}
+
 fn update_wand_slot_visibility(
-    player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSlot, &mut BorderColor, &mut Visibility)>,
+    mut sprite_query: Query<(&WandSlot, &mut Visibility)>,
     floating_query: Query<&Floating>,
 ) {
     let floating = floating_query.single();
-    if let Ok(actor) = player_query.get_single() {
-        for (wand_sprite, mut border, mut visibility) in sprite_query.iter_mut() {
-            *visibility = match floating.content {
-                Some(FloatingContent::Wand(index)) if index == wand_sprite.wand_index => {
-                    Visibility::Hidden
-                }
-                _ => Visibility::Inherited,
-            };
-
-            if wand_sprite.wand_index == actor.current_wand
-                || wand_sprite.wand_index == MAX_WANDS - 1
-            {
-                *border = Color::hsla(0.0, 0.0, 1.0, 0.3).into();
-            } else {
-                *border = Color::hsla(0.0, 0.0, 1.0, 0.0).into();
-            };
-        }
+    for (wand_sprite, mut visibility) in sprite_query.iter_mut() {
+        *visibility = match floating.content {
+            Some(FloatingContent::Wand(index)) if index == wand_sprite.wand_index => {
+                Visibility::Hidden
+            }
+            _ => Visibility::Inherited,
+        };
     }
 }
 
@@ -95,7 +126,8 @@ impl Plugin for WandListPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_wand_slot_visibility,).run_if(in_state(GameState::InGame)),
+            (update_wand_slot_visibility, update_trigger_marker)
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }
