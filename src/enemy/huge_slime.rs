@@ -6,7 +6,7 @@ use crate::entity::actor::{Actor, ActorFireState, ActorGroup, ActorState};
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
-use crate::entity::slime_seed::SpawnSlimeSeed;
+use crate::entity::servant_seed::{ServantType, SpawnServantSeed};
 use crate::entity::EntityDepth;
 use crate::inventory::Inventory;
 use crate::se::{SEEvent, SE};
@@ -233,7 +233,7 @@ fn update_huge_slime_summon(
     mut huge_slime_query: Query<(Entity, &mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
-    mut seed_writer: EventWriter<SpawnSlimeSeed>,
+    mut seed_writer: EventWriter<SpawnServantSeed>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (huge_slime_entity, mut huge_slime, transform) =
@@ -251,11 +251,12 @@ fn update_huge_slime_summon(
                             let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
                             let offset = Vec2::from_angle(angle) * 100.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
                             let to = player.translation.truncate() + offset;
-                            seed_writer.send(SpawnSlimeSeed {
+                            seed_writer.send(SpawnServantSeed {
                                 from: transform.translation.truncate(),
                                 to,
                                 actor_group: ActorGroup::Enemy,
                                 owner: huge_slime_entity,
+                                servant_type: ServantType::Slime,
                             });
                         }
                     }

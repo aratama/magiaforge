@@ -80,6 +80,8 @@ impl PlayerState {
         inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendSlime));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemySlime));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendEyeball));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemyEyeball));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Dash));
         inventory.sort();
 

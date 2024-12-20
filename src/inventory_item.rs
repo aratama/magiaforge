@@ -1,8 +1,7 @@
 use crate::{
     equipment::EquipmentType,
     language::{Dict, Languages},
-    spell::SpellType,
-    spell_props::get_spell_appendix,
+    spell::{get_spell_appendix, SpellType},
     wand::WandType,
 };
 use bevy::reflect::Reflect;

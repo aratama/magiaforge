@@ -48,8 +48,8 @@ pub const WALL_HEIGHT: f32 = 8.0;
 
 // レイヤー ///////////////////////////////////////////////////////////////////////
 
-/// スライムシードは空中にあるので一番上
-pub const SLIME_SEED_LAYER_Z: f32 = 21.0;
+/// シードは空中にあるので一番上
+pub const SERVANT_SEED_LAYER_Z: f32 = 21.0;
 
 /// キャラクターやチェストなどのレイヤー
 pub const ENTITY_LAYER_Z: f32 = 20.0;

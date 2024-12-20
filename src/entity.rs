@@ -11,8 +11,8 @@ pub mod impact;
 pub mod life;
 pub mod magic_circle;
 pub mod rabbit;
+pub mod servant_seed;
 pub mod shop;
-pub mod slime_seed;
 pub mod stone_lantern;
 pub mod witch;
 

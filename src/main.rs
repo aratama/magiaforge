@@ -30,7 +30,6 @@ mod se;
 mod set;
 mod speech_bubble;
 mod spell;
-mod spell_props;
 mod states;
 mod ui;
 mod wand;

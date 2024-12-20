@@ -22,13 +22,17 @@ const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 8.0;
 
 pub fn spawn_eyeball(
     mut commands: &mut Commands,
-    aseprite: &Res<GameAssets>,
+    assets: &Res<GameAssets>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
+    actor_group: ActorGroup,
 ) {
     spawn_basic_enemy(
         &mut commands,
-        aseprite.eyeball.clone(),
+        match actor_group {
+            ActorGroup::Player => assets.eyeball_friend.clone(),
+            ActorGroup::Enemy => assets.eyeball.clone(),
+        },
         position,
         life_bar_locals,
         EyeballControl,
@@ -36,7 +40,8 @@ pub fn spawn_eyeball(
         SpellType::PurpleBolt,
         ENEMY_MOVE_FORCE,
         3,
-        ActorGroup::Enemy,
+        actor_group,
+        None,
     );
 }
 

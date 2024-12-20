@@ -272,6 +272,7 @@ fn spawn_level(
                     TILE_SIZE * -y as f32 - TILE_HALF,
                 ),
                 &life_bar_res,
+                ActorGroup::Enemy,
             );
         }
 

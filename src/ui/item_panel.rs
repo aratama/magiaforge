@@ -1,5 +1,6 @@
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
+use crate::spell::SpellType;
 use crate::{asset::GameAssets, states::GameState};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -12,6 +13,9 @@ struct ItemFrame;
 
 #[derive(Component)]
 struct ChargeAlert;
+
+#[derive(Component)]
+struct FriendMarker;
 
 pub fn spawn_item_panel<T: Component>(
     builder: &mut ChildBuilder,
@@ -52,6 +56,22 @@ pub fn spawn_item_panel<T: Component>(
     }
 
     b.with_children(|builder| {
+        builder.spawn((
+            FriendMarker,
+            AseUiSlice {
+                aseprite: assets.atlas.clone(),
+                name: "friend".into(),
+            },
+            ZIndex(-10),
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(0.0),
+                top: Val::Px(0.0),
+                width: Val::Px(32.0),
+                height: Val::Px(32.0),
+                ..default()
+            },
+        ));
         builder.spawn((
             ItemFrame,
             AseUiSlice {
@@ -163,6 +183,28 @@ fn update_charge_alert(
     }
 }
 
+fn update_friend_marker(
+    slot_query: Query<&ItemPanel>,
+    mut children_query: Query<(&Parent, &mut Node), With<FriendMarker>>,
+) {
+    for (parent, mut aseprite) in children_query.iter_mut() {
+        let slot = slot_query.get(parent.get()).unwrap();
+        let visible = match slot.0 {
+            Some(item) => match item.item_type {
+                InventoryItemType::Spell(SpellType::SummonFriendSlime) => true,
+                InventoryItemType::Spell(SpellType::SummonFriendEyeball) => true,
+                _ => false,
+            },
+            _ => false,
+        };
+        aseprite.display = if visible {
+            Display::DEFAULT
+        } else {
+            Display::None
+        };
+    }
+}
+
 pub struct ItemPanelPlugin;
 
 impl Plugin for ItemPanelPlugin {
@@ -174,6 +216,7 @@ impl Plugin for ItemPanelPlugin {
                 update_charge_alert,
                 update_item_frame,
                 update_panel_width,
+                update_friend_marker,
             )
                 .run_if(in_state(GameState::InGame)),
         );

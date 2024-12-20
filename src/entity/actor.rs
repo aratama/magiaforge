@@ -3,7 +3,7 @@ use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
 use crate::controller::player::Equipment;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
-use crate::entity::slime_seed::SpawnSlimeSeed;
+use crate::entity::servant_seed::SpawnServantSeed;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::ui::floating::FloatingContent;
@@ -303,7 +303,7 @@ fn fire_bullet(
     >,
     mut remote_writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SEEvent>,
-    mut slime_writer: EventWriter<SpawnSlimeSeed>,
+    mut slime_writer: EventWriter<SpawnServantSeed>,
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;

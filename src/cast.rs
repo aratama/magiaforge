@@ -9,12 +9,11 @@ use crate::{
         actor::{Actor, ActorGroup},
         bullet::{spawn_bullet, SpawnBullet, BULLET_SPAWNING_MARGIN},
         life::Life,
-        slime_seed::SpawnSlimeSeed,
+        servant_seed::SpawnServantSeed,
         witch::WITCH_COLLIDER_RADIUS,
     },
     se::{SEEvent, SE},
-    spell::SpellType,
-    spell_props::SpellCast,
+    spell::{SpellCast, SpellType},
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::ExternalImpulse;
@@ -36,7 +35,7 @@ pub fn cast_spell(
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
     se_writer: &mut EventWriter<SEEvent>,
-    slime_writer: &mut EventWriter<SpawnSlimeSeed>,
+    slime_writer: &mut EventWriter<SpawnServantSeed>,
     wand_index: usize,
 ) {
     if let Some(ref mut wand) = &mut actor.wands[wand_index] {
@@ -136,11 +135,15 @@ pub fn cast_spell(
                     SpellCast::HeavyShot => {
                         actor.effects.bullet_damage_buff_amount += 5;
                     }
-                    SpellCast::SummonSlime { friend } => {
-                        slime_writer.send(SpawnSlimeSeed {
+                    SpellCast::Summon {
+                        friend,
+                        servant_type,
+                    } => {
+                        slime_writer.send(SpawnServantSeed {
                             from: actor_transform.translation.truncate(),
                             to: actor_transform.translation.truncate() + actor.pointer,
                             owner: actor_entity,
+                            servant_type,
                             actor_group: match (actor.actor_group, friend) {
                                 (ActorGroup::Player, true) => ActorGroup::Player,
                                 (ActorGroup::Player, false) => ActorGroup::Enemy,
