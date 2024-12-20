@@ -318,6 +318,7 @@ impl FloatingContent {
                 if !dry_run {
                     if let Some(ref mut wand) = actor.wands[*w] {
                         wand.slots[*s] = Some(WandSpell { spell_type, price });
+                        wand.index = 0;
                     }
                 }
                 true

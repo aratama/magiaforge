@@ -23,15 +23,15 @@ pub struct Wand {
 }
 
 impl Wand {
-    pub fn new(wand_type: WandType) -> Self {
-        Self {
-            wand_type,
-            price: 0,
-            slots: [None; MAX_SPELLS_IN_WAND],
-            index: 0,
-            delay: 0,
-        }
-    }
+    // pub fn new(wand_type: WandType) -> Self {
+    //     Self {
+    //         wand_type,
+    //         price: 0,
+    //         slots: [None; MAX_SPELLS_IN_WAND],
+    //         index: 0,
+    //         delay: 0,
+    //     }
+    // }
 
     pub fn with_slots(wand_type: WandType, slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND]) -> Self {
         Self {
@@ -49,18 +49,5 @@ impl Wand {
             .filter_map(|spell| spell.as_ref())
             .map(|spell| spell.price)
             .sum()
-    }
-
-    pub fn shift(&mut self) {
-        let props = self.wand_type.to_props();
-        self.index = (self.index + 1) % props.capacity;
-        for _ in 0..MAX_SPELLS_IN_WAND {
-            if self.slots[self.index].is_none() {
-                self.index = (self.index + 1) % props.capacity;
-                continue;
-            } else {
-                break;
-            }
-        }
     }
 }

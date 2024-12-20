@@ -1,7 +1,7 @@
 use crate::{
     asset::GameAssets,
     constant::{
-        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, MAX_SPELLS_IN_WAND, MAX_WANDS, WALL_GROUP,
+        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, MAX_SPELLS_IN_WAND, WALL_GROUP,
         WITCH_BULLET_GROUP, WITCH_GROUP,
     },
     controller::remote::{send_remote_message, RemoteMessage},

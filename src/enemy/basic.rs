@@ -23,7 +23,7 @@ pub fn spawn_basic_enemy<T: Component>(
     name: &str,
     spell: SpellType,
     move_force: f32,
-    gold: u32,
+    golds: u32,
     actor_group: ActorGroup,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
@@ -36,7 +36,7 @@ pub fn spawn_basic_enemy<T: Component>(
         .spawn((
             Name::new(name.to_string()),
             StateScoped(GameState::InGame),
-            DespawnWithGold { gold },
+            DespawnWithGold { golds },
             marker,
             Actor {
                 uuid: Uuid::new_v4(),
@@ -49,7 +49,7 @@ pub fn spawn_basic_enemy<T: Component>(
                 current_wand: 0,
                 effects: default(),
                 actor_group,
-                golds: gold as i32,
+                golds,
                 inventory: Inventory::new(),
                 equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
                 wands: [

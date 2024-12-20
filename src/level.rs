@@ -126,7 +126,7 @@ pub fn setup_level(
         &life_bar_res,
         false,
         3.0,
-        100,
+        player.golds,
         player.wands,
         player.inventory,
         player.equipments,

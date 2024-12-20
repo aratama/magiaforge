@@ -10,7 +10,12 @@ pub enum EquipmentType {
     Magnifier,
 }
 
-pub const EQUIPMENTS: [EquipmentType; 1] = [EquipmentType::Lantern];
+pub const EQUIPMENTS: [EquipmentType; 4] = [
+    EquipmentType::Lantern,
+    EquipmentType::SpikeBoots,
+    EquipmentType::Telescope,
+    EquipmentType::Magnifier,
+];
 
 impl EquipmentType {
     pub fn to_props(&self) -> EquipmentProps {

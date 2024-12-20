@@ -157,6 +157,7 @@ fn warp(
                     inventory: actor.inventory.clone(),
                     equipments: actor.equipments.clone(),
                     wands: actor.wands.clone(),
+                    golds: actor.golds,
                 };
 
                 match circle.destination {

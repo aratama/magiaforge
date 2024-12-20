@@ -102,7 +102,7 @@ fn update_player_list(
     assets: Res<GameAssets>,
 ) {
     let parent = list_query.single_mut();
-    let mut players = Vec::<(String, i32, Color)>::new();
+    let mut players = Vec::<(String, u32, Color)>::new();
     if let Ok((player, actor)) = player_query.get_single() {
         players.push((
             player.name.clone(),
@@ -154,7 +154,7 @@ fn update_player_list(
     }
 }
 
-fn format_remote_player_name(name: &str, golds: i32) -> String {
+fn format_remote_player_name(name: &str, golds: u32) -> String {
     if name.is_empty() {
         format!("(anonymous) ({})", golds).to_string()
     } else {

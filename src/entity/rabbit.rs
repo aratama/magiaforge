@@ -169,11 +169,11 @@ fn chat_start(
                     speech_writer.send(SpeechEvent::Speech(config.language.m17n(
                         format!(
                             "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
-                            dept as i32 - actor.golds
+                            dept - actor.golds
                         ),
                         format!(
                             "Hey, hey!\nYou are {} Golds short!\nPut it back that you woun't buy",
-                            dept as i32 - actor.golds
+                            dept - actor.golds
                         ),
                     )));
                 }

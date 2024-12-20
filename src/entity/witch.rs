@@ -42,7 +42,7 @@ pub fn spawn_witch<T: Component>(
     res: &Res<LifeBarResource>,
     life_bar: bool,
     intensity: f32,
-    golds: i32,
+    golds: u32,
     wands: [Option<Wand>; 4],
     inventory: Inventory,
     equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],

@@ -77,7 +77,7 @@ pub struct Actor {
 
     pub actor_group: ActorGroup,
 
-    pub golds: i32,
+    pub golds: u32,
 }
 
 impl Actor {
@@ -142,11 +142,11 @@ impl Actor {
     /// いま所持している有料のスペルをすべて無料に戻します
     pub fn liquidate(&mut self) -> bool {
         let dept = self.dept();
-        if self.golds < dept as i32 {
+        if self.golds < dept {
             return false;
         }
 
-        self.golds -= dept as i32;
+        self.golds -= dept;
 
         for item in self.inventory.0.iter_mut() {
             if let Some(item) = item {

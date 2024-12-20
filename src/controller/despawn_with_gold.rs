@@ -8,7 +8,7 @@ use bevy_rapier2d::prelude::*;
 /// 攻撃されてライフがゼロになったら金塊を残して消滅するアクターを表します
 #[derive(Component)]
 pub struct DespawnWithGold {
-    pub gold: u32,
+    pub golds: u32,
 }
 
 /// 敵のライフが0以下になったら消滅させます
@@ -25,7 +25,7 @@ fn dead_enemy(
             commands.entity(entity).despawn_recursive();
             writer.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
 
-            for _ in 0..enemy.gold {
+            for _ in 0..enemy.golds {
                 spawn_gold(
                     &mut commands,
                     &assets,

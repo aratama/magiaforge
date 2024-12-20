@@ -42,7 +42,7 @@ use uuid::Uuid;
 #[derive(Component)]
 pub struct RemotePlayer {
     pub name: String,
-    pub golds: i32,
+    pub golds: u32,
     pub last_update: FrameCount,
 }
 
@@ -55,7 +55,7 @@ pub enum RemoteMessage {
         sender: Uuid,
         uuid: Uuid,
         name: String,
-        golds: i32,
+        golds: u32,
         x: f32,
         y: f32,
         vx: f32,
