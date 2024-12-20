@@ -119,10 +119,10 @@ fn setup_hud(
 
             spawn_boss_hitpoint_bar(&mut parent);
 
-            spawn_speech_bubble(&mut parent, &assets);
-
             spawn_drop_area(&mut parent);
         });
+
+    spawn_speech_bubble(&mut commands, &assets);
 }
 
 #[derive(Component)]

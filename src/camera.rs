@@ -12,6 +12,7 @@ pub struct GameCamera {
     pub y: f32,
     pub scale_factor: f32,
     pub vibration: f32,
+    pub target: Option<Entity>,
 }
 
 static BLIGHTNESS_IN_GAME: f32 = 0.01;
@@ -34,6 +35,7 @@ fn setup_camera(mut commands: Commands) {
             y: 0.0,
             scale_factor: initial_scale_factor,
             vibration: 0.0,
+            target: None,
         },
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
@@ -51,29 +53,49 @@ fn update_camera_position(
         (With<Camera2d>, Without<Player>),
     >,
     frame_count: Res<FrameCount>,
+    target_query: Query<&GlobalTransform, (Without<Player>, Without<Camera2d>)>,
 ) {
     if let Ok((player, actor)) = player_query.get_single() {
-        if let Ok((mut camera, mut ortho, mut scale_factor)) = camera_query.get_single_mut() {
+        if let Ok((mut camera_transform, mut ortho, mut game_camera)) =
+            camera_query.get_single_mut()
+        {
             // ポインターのある方向にカメラをずらして遠方を見やすくする係数
             // カメラがブレるように感じて酔いやすい？
             let point_by_mouse_factor = 0.0; // 0.2;
 
-            let vrp = player.translation.truncate()
+            let p = player.translation.truncate()
                 + actor.pointer.normalize_or_zero()
                     * (actor.pointer.length() * point_by_mouse_factor).min(50.0);
 
-            scale_factor.x += (vrp.x - scale_factor.x) * CAMERA_SPEED;
-            scale_factor.y += (vrp.y - scale_factor.y) * CAMERA_SPEED;
+            let vrp: Vec2 = match game_camera.target {
+                Some(target) => {
+                    if let Ok(global_transform) = target_query.get(target) {
+                        global_transform.translation().truncate()
+                    } else {
+                        p
+                    }
+                }
+                _ => p,
+            };
 
-            camera.translation.x = scale_factor.x;
-            camera.translation.y =
-                scale_factor.y + (frame_count.0 as f32 * 5.0).sin() * scale_factor.vibration;
+            // 目的の値を計算
+            game_camera.x = vrp.x;
+            game_camera.y = vrp.y;
+            game_camera.vibration = (game_camera.vibration - 0.5).max(0.0);
+            game_camera.scale_factor = match game_camera.target {
+                Some(_) => -2.0,
+                _ => actor.get_total_scale_factor(),
+            };
 
-            scale_factor.vibration = (scale_factor.vibration - 0.5).max(0.0);
-            scale_factor.scale_factor = actor.get_total_scale_factor();
+            // 実際の値を設定
+            let vibration = (frame_count.0 as f32 * 5.0).sin() * game_camera.vibration;
+            camera_transform.translation.x +=
+                (vrp.x - camera_transform.translation.x) * CAMERA_SPEED;
+            camera_transform.translation.y +=
+                (vrp.y - camera_transform.translation.y) * CAMERA_SPEED + vibration;
 
             let s = ortho.scale.log2();
-            ortho.scale = (2.0_f32).powf(s + (scale_factor.scale_factor - s) * 0.2);
+            ortho.scale = (2.0_f32).powf(s + (game_camera.scale_factor - s) * 0.2);
         }
     }
 }

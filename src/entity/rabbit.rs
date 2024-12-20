@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::camera::GameCamera;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -112,6 +113,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
 fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&RabbitSensor>,
+    mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
     mut se: EventWriter<SEEvent>,
@@ -123,6 +125,7 @@ fn collision_inner_sensor(
                 let _ = chat_start(
                     a,
                     b,
+                    &mut camera_query,
                     &sensor_query,
                     &mut player_query,
                     &mut speech_writer,
@@ -131,6 +134,7 @@ fn collision_inner_sensor(
                 ) || chat_start(
                     b,
                     a,
+                    &mut camera_query,
                     &sensor_query,
                     &mut player_query,
                     &mut speech_writer,
@@ -149,23 +153,28 @@ fn collision_inner_sensor(
 fn chat_start(
     a: &Entity,
     b: &Entity,
+    camera_query: &mut Query<&mut GameCamera>,
     sensor_query: &Query<&RabbitSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
     se: &mut EventWriter<SEEvent>,
     config: &Res<GameConfig>,
 ) -> bool {
-    if sensor_query.contains(*a) {
+    let mut camera = camera_query.single_mut();
+
+    if let Ok(_) = sensor_query.get(*a) {
         if let Ok(mut actor) = player_query.get_mut(*b) {
             let dept = actor.dept();
             if 0 < dept {
                 if actor.liquidate() {
+                    camera.target = Some(*a);
                     se.send(SEEvent::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech(config.language.m17n(
                         format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
                         format!("Your total is {} Golds\nThank you", dept).to_string(),
                     )));
                 } else {
+                    camera.target = Some(*a);
                     speech_writer.send(SpeechEvent::Speech(config.language.m17n(
                         format!(
                             "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
@@ -178,6 +187,7 @@ fn chat_start(
                     )));
                 }
             } else {
+                camera.target = Some(*a);
                 speech_writer.send(SpeechEvent::Speech(
                     (Dict {
                         ja: "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて",
@@ -208,6 +218,7 @@ fn chat_end(
 
 fn collision_outer_sensor(
     mut collision_events: EventReader<CollisionEvent>,
+    mut camera_query: Query<&mut GameCamera>,
     sensor_query: Query<&RabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
@@ -216,8 +227,21 @@ fn collision_outer_sensor(
         match collision_event {
             CollisionEvent::Started(..) => {}
             CollisionEvent::Stopped(a, b, _option) => {
-                let _ = out_sensor(a, b, &sensor_query, &player_query, &mut speech_writer)
-                    || out_sensor(b, a, &sensor_query, &player_query, &mut speech_writer);
+                let _ = out_sensor(
+                    a,
+                    b,
+                    &mut camera_query,
+                    &sensor_query,
+                    &player_query,
+                    &mut speech_writer,
+                ) || out_sensor(
+                    b,
+                    a,
+                    &mut camera_query,
+                    &sensor_query,
+                    &player_query,
+                    &mut speech_writer,
+                );
             }
         }
     }
@@ -226,12 +250,15 @@ fn collision_outer_sensor(
 fn out_sensor(
     a: &Entity,
     b: &Entity,
+    camera_query: &mut Query<&mut GameCamera>,
     sensor_query: &Query<&RabbitOuterSensor>,
     player_query: &Query<&Actor, With<Player>>,
     _speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) {
         if let Ok(actor) = player_query.get(*b) {
+            let mut camera = camera_query.single_mut();
+            camera.target = None;
             if 0 < actor.dept() {
                 // WIP
                 // speech_writer.send(SpeechEvent::Speech(

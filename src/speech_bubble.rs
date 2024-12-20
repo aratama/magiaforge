@@ -1,5 +1,4 @@
 use crate::asset::GameAssets;
-use crate::camera::GameCamera;
 use crate::entity::rabbit::Rabbit;
 use crate::se::{SEEvent, SE};
 use crate::states::GameState;
@@ -28,9 +27,10 @@ pub enum SpeechEvent {
     Close,
 }
 
-pub fn spawn_speech_bubble(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
     parent
         .spawn((
+            StateScoped(GameState::InGame),
             SpeechBubble {
                 count: 0,
                 text: "".to_string(),
@@ -77,7 +77,7 @@ fn update_speech_bubble(
                 camera_transform,
                 rabbit.translation() + Vec3::new(0.0, 20.0, 0.0),
             ) {
-                speech.left = Val::Px(p.x - 128.0 * 0.5 * SCALE);
+                speech.left = Val::Px(p.x - SPEECH_BUBBLE_WIDTH * 0.5 * SCALE);
                 speech.top = Val::Px(p.y - 128.0 * 0.5 * SCALE);
             }
         }
@@ -87,22 +87,17 @@ fn update_speech_bubble(
 fn read_speech_events(
     mut events: EventReader<SpeechEvent>,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
-    mut camera_query: Query<&mut GameCamera>,
 ) {
-    let mut camera = camera_query.single_mut();
-
     for event in events.read() {
         let (mut visibility, mut speech) = speech_query.single_mut();
 
         match event {
             SpeechEvent::Speech(s) => {
-                camera.scale_factor = -2.0;
                 *visibility = Visibility::Inherited;
                 speech.count = 0;
                 speech.text = s.clone();
             }
             SpeechEvent::Close => {
-                camera.scale_factor = -1.0;
                 *visibility = Visibility::Hidden;
             }
         }
