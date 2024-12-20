@@ -72,11 +72,7 @@ pub fn spawn_dropped_item(
             },
             (
                 RigidBody::Dynamic,
-                if 0 < item.price {
-                    LockedAxes::all()
-                } else {
-                    LockedAxes::ROTATION_LOCKED
-                },
+                LockedAxes::ROTATION_LOCKED,
                 Damping {
                     linear_damping: 1.0,
                     angular_damping: 1.0,
@@ -89,7 +85,8 @@ pub fn spawn_dropped_item(
                         | WITCH_BULLET_GROUP
                         | ENEMY_GROUP
                         | ENEMY_BULLET_GROUP
-                        | WALL_GROUP,
+                        | WALL_GROUP
+                        | DOOR_GROUP,
                 ),
                 ActiveEvents::COLLISION_EVENTS,
                 ExternalForce::default(),

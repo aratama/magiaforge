@@ -1,8 +1,8 @@
 use crate::{
     asset::GameAssets,
     constant::{
-        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, SENSOR_GROUP, TILE_HALF, TILE_SIZE,
-        WITCH_BULLET_GROUP, WITCH_GROUP,
+        DOOR_GROUP, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, SENSOR_GROUP, TILE_HALF,
+        TILE_SIZE, WITCH_BULLET_GROUP, WITCH_GROUP,
     },
     controller::player::Player,
     language::Dict,
@@ -29,6 +29,7 @@ struct ShopDoor {
 pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
         .spawn((
+            // ドアを開くセンサー
             ShopDoorSensor { open: false },
             StateScoped(GameState::InGame),
             Sensor,
@@ -38,12 +39,21 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
             CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
         ))
         .with_children(|builder| {
+            // 商品が外に出ないようにする壁
+            builder.spawn((
+                RigidBody::Fixed,
+                Collider::cuboid(TILE_SIZE * 1.0, TILE_SIZE * 1.5),
+                Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+                ActiveEvents::COLLISION_EVENTS,
+                CollisionGroups::new(DOOR_GROUP, ENTITY_GROUP),
+            ));
+
+            // 左側のドア
             builder.spawn((
                 ShopDoor {
                     sign: -1.0,
                     state: 0.0,
                 },
-                StateScoped(GameState::InGame),
                 RigidBody::KinematicPositionBased,
                 Collider::cuboid(8.0, 10.0),
                 Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
@@ -64,12 +74,12 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 },
             ));
 
+            // 右側のドア
             builder.spawn((
                 ShopDoor {
                     sign: 1.0,
                     state: 0.0,
                 },
-                StateScoped(GameState::InGame),
                 RigidBody::KinematicPositionBased,
                 Collider::cuboid(8.0, 10.0),
                 Transform::from_translation(Vec3::new(TILE_SIZE, 0.0, 0.0)),
