@@ -6,6 +6,7 @@ use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
+use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
@@ -207,6 +208,7 @@ pub fn run_game() {
         .add_plugins(SpellInWandPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
+        .add_plugins(TrainingDummyPlugin)
         .add_plugins(WallPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)

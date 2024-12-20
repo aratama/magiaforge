@@ -72,7 +72,11 @@ pub fn spawn_dropped_item(
             },
             (
                 RigidBody::Dynamic,
-                LockedAxes::ROTATION_LOCKED,
+                if 0 < item.price {
+                    LockedAxes::all()
+                } else {
+                    LockedAxes::ROTATION_LOCKED
+                },
                 Damping {
                     linear_damping: 1.0,
                     angular_damping: 1.0,

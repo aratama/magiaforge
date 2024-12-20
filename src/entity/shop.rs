@@ -1,6 +1,6 @@
 use crate::{
     config::GameConfig,
-    constant::{EMPTY_GROUP, TILE_SIZE, WALL_GROUP, WITCH_GROUP},
+    constant::{EMPTY_GROUP, ENTITY_GROUP, TILE_SIZE, WALL_GROUP, WITCH_GROUP},
     controller::player::Player,
     speech_bubble::SpeechEvent,
     states::GameState,

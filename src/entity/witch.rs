@@ -3,7 +3,8 @@ use super::EntityChildrenAutoDepth;
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::constant::*;
-use crate::controller::player::{Equipment, Player};
+use crate::controller::player::Equipment;
+use crate::controller::training_dummy::TraningDummyController;
 use crate::entity::actor::{Actor, ActorFireState};
 use crate::entity::life::{Life, LifeBeingSprite};
 use crate::hud::life_bar::{spawn_life_bar, LifeBarResource};
@@ -175,9 +176,6 @@ pub fn spawn_witch<T: Component>(
     return entity.id();
 }
 
-#[derive(Component)]
-struct EnemyWitchController;
-
 pub fn spawn_enemy_witch(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
@@ -202,31 +200,12 @@ pub fn spawn_enemy_witch(
         player.wands,
         player.inventory,
         player.equipments,
-        EnemyWitchController,
+        TraningDummyController {
+            home: position,
+            fire: false,
+        },
         ActorGroup::Enemy,
     );
-}
-
-fn update_enemy_witch_controller(
-    mut query: Query<(&mut Actor, &Transform), With<EnemyWitchController>>,
-    player_query: Query<&Transform, With<Player>>,
-) {
-    for (mut actor, witch_transform) in query.iter_mut() {
-        if let Ok(player_transform) = player_query.get_single() {
-            if player_transform
-                .translation
-                .truncate()
-                .distance(witch_transform.translation.truncate())
-                < 128.0
-            {
-                actor.fire_state = ActorFireState::Fire;
-            } else {
-                actor.fire_state = ActorFireState::Idle;
-            }
-        } else {
-            actor.fire_state = ActorFireState::Idle;
-        }
-    }
 }
 
 fn update_witch_animation(
@@ -352,13 +331,6 @@ impl Plugin for WitchPlugin {
         app.add_systems(
             Update,
             (update_witch_animation, update_wand).run_if(in_state(GameState::InGame)),
-        );
-
-        app.add_systems(
-            FixedUpdate,
-            update_enemy_witch_controller
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
         );
     }
 }
