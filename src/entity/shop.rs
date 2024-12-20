@@ -1,55 +1,110 @@
 use crate::{
-    config::GameConfig,
-    constant::{EMPTY_GROUP, ENTITY_GROUP, TILE_SIZE, WALL_GROUP, WITCH_GROUP},
+    asset::GameAssets,
+    constant::{
+        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, SENSOR_GROUP, TILE_HALF, TILE_SIZE,
+        WITCH_BULLET_GROUP, WITCH_GROUP,
+    },
     controller::player::Player,
-    speech_bubble::SpeechEvent,
     states::GameState,
 };
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 
-use super::actor::Actor;
+use super::{actor::Actor, EntityDepth};
 
 #[derive(Component)]
-struct ShopDoor;
+struct ShopDoorSensor {
+    open: bool,
+}
 
-pub fn spawn_shop_door(commands: &mut Commands, position: Vec2) {
-    commands.spawn((
-        ShopDoor,
-        RigidBody::Fixed,
-        Collider::cuboid(TILE_SIZE * 3.0, TILE_SIZE * 2.0),
-        Transform::from_translation(position.extend(0.0)),
-        CollisionGroups::new(WALL_GROUP, WITCH_GROUP),
-    ));
+#[derive(Component)]
+struct ShopDoor {
+    sign: f32,
+    state: f32,
+}
+
+pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+    commands
+        .spawn((
+            ShopDoorSensor { open: false },
+            StateScoped(GameState::InGame),
+            Sensor,
+            Collider::cuboid(TILE_SIZE * 2.0, TILE_SIZE * 3.5),
+            Transform::from_translation(Vec3::new(position.x + TILE_HALF, position.y, 0.0)),
+            ActiveEvents::COLLISION_EVENTS,
+            CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+        ))
+        .with_children(|builder| {
+            builder.spawn((
+                ShopDoor {
+                    sign: -1.0,
+                    state: 0.0,
+                },
+                StateScoped(GameState::InGame),
+                RigidBody::KinematicPositionBased,
+                Collider::cuboid(8.0, 10.0),
+                Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+                EntityDepth,
+                LockedAxes::ROTATION_LOCKED,
+                ActiveCollisionTypes::DYNAMIC_KINEMATIC,
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    ENTITY_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP,
+                ),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "door_left".into(),
+                },
+            ));
+
+            builder.spawn((
+                ShopDoor {
+                    sign: 1.0,
+                    state: 0.0,
+                },
+                StateScoped(GameState::InGame),
+                RigidBody::KinematicPositionBased,
+                Collider::cuboid(8.0, 10.0),
+                Transform::from_translation(Vec3::new(TILE_SIZE, 0.0, 0.0)),
+                EntityDepth,
+                LockedAxes::ROTATION_LOCKED,
+                ActiveCollisionTypes::DYNAMIC_KINEMATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    ENTITY_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP,
+                ),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "door_left".into(),
+                },
+            ));
+        });
 }
 
 fn sensor(
     mut collision_events: EventReader<CollisionEvent>,
-    door_query: Query<&ShopDoor>,
+    mut door_query: Query<&mut ShopDoorSensor>,
     mut player_query: Query<&mut Actor, With<Player>>,
-    mut speech_writer: EventWriter<SpeechEvent>,
-    config: Res<GameConfig>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
-            CollisionEvent::Started(a, b, _option) => {
-                let _ = enter(
-                    a,
-                    b,
-                    &door_query,
-                    &mut player_query,
-                    &mut speech_writer,
-                    &config,
-                ) || enter(
-                    b,
-                    a,
-                    &door_query,
-                    &mut player_query,
-                    &mut speech_writer,
-                    &config,
-                );
+            CollisionEvent::Started(a, b, ..) => {
+                let _ = enter(a, b, &mut door_query, &mut player_query)
+                    || enter(b, a, &mut door_query, &mut player_query);
             }
-            CollisionEvent::Stopped(..) => {}
+            CollisionEvent::Stopped(a, b, ..) => {
+                let _ = exit(a, b, &mut door_query, &mut player_query)
+                    || exit(b, a, &mut door_query, &mut player_query);
+            }
         }
     }
 }
@@ -57,48 +112,48 @@ fn sensor(
 fn enter(
     a: &Entity,
     b: &Entity,
-    sensor_query: &Query<&ShopDoor>,
+    sensor_query: &mut Query<&mut ShopDoorSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
-    speech_writer: &mut EventWriter<SpeechEvent>,
-    config: &Res<GameConfig>,
 ) -> bool {
-    if sensor_query.contains(*a) {
-        info!("Enter shop");
-        if sensor_query.contains(*a) {
-            if let Ok(actor) = player_query.get(*b) {
-                if 0 < actor.dept() {
-                    speech_writer.send(SpeechEvent::Speech(
-                        config
-                            .language
-                            .m17n(
-                                "おいおい!\nまだ会計してない商品があるよ".to_string(),
-                                "Hey, you!\n That item hasn't been paid for yet".to_string(),
-                            )
-                            .to_string(),
-                    ));
-                }
-
-                return true;
+    if let Ok(mut sensor) = sensor_query.get_mut(*a) {
+        if let Ok(actor) = player_query.get(*b) {
+            info!("enter");
+            if 0 < actor.dept() {
+                sensor.open = false;
+            } else {
+                sensor.open = true;
             }
+            return true;
         }
-
-        return true;
     }
     return false;
 }
 
-fn update_door_collision(
-    player_query: Query<&mut Actor, (With<Player>, Changed<Actor>)>,
-    mut door_query: Query<&mut CollisionGroups, With<ShopDoor>>,
-) {
-    if let Ok(actor) = player_query.get_single() {
-        for mut door in door_query.iter_mut() {
-            if actor.dept() == 0 {
-                door.memberships = EMPTY_GROUP;
-            } else {
-                door.memberships = WALL_GROUP;
-            }
+fn exit(
+    a: &Entity,
+    b: &Entity,
+    sensor_query: &mut Query<&mut ShopDoorSensor>,
+    player_query: &mut Query<&mut Actor, With<Player>>,
+) -> bool {
+    if let Ok(mut sensor) = sensor_query.get_mut(*a) {
+        if let Ok(_) = player_query.get(*b) {
+            sensor.open = false;
+            return true;
         }
+    }
+    return false;
+}
+
+fn update_door_position(
+    sensor_query: Query<&ShopDoorSensor>,
+    mut door_query: Query<(&Parent, &mut ShopDoor, &mut Transform)>,
+) {
+    for (parent, mut door, mut transform) in door_query.iter_mut() {
+        let sensor = sensor_query.get(parent.get()).unwrap();
+        let delta = if sensor.open { 0.1 } else { -0.1 };
+        let offset = if door.sign == -1.0 { 0.0 } else { TILE_SIZE } - TILE_HALF;
+        door.state = (door.state + delta).max(0.0).min(1.0);
+        transform.translation.x = offset + door.sign * door.state * TILE_SIZE;
     }
 }
 
@@ -108,7 +163,7 @@ impl Plugin for ShopPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (sensor, update_door_collision)
+            (sensor, update_door_position)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

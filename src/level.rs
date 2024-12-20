@@ -514,7 +514,11 @@ fn spawn_entities(
                 );
             }
             GameEntity::ShopDoor => {
-                spawn_shop_door(&mut commands, Vec2::new(tx + TILE_HALF, ty - TILE_HALF));
+                spawn_shop_door(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                );
             }
         }
     }
