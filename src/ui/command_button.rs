@@ -7,7 +7,7 @@ use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct CommandButton {
-    pub text: Dict,
+    pub text: Dict<&'static str>,
     pub disabled: bool,
 }
 
@@ -25,7 +25,7 @@ pub fn command_button<'a, T: Component>(
     w: f32,
     h: f32,
     disabled: bool,
-    text: Dict,
+    text: Dict<&'static str>,
 ) {
     parent
         .spawn((

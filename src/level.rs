@@ -17,6 +17,7 @@ use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestType;
+use crate::entity::chest::CHEST_OR_BARREL;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
@@ -396,6 +397,18 @@ fn spawn_entities(
                     ChestType::Crate,
                 );
             }
+            GameEntity::CrateOrBarrel => {
+                spawn_chest(
+                    &mut commands,
+                    assets.atlas.clone(),
+                    tx + TILE_HALF,
+                    ty - TILE_HALF,
+                    *CHEST_OR_BARREL
+                        .iter()
+                        .choose(&mut rand::thread_rng())
+                        .unwrap(),
+                );
+            }
             GameEntity::MagicCircle => {
                 spawn_magic_circle(
                     &mut commands,
@@ -524,7 +537,7 @@ fn spawn_entities(
     }
 }
 
-pub fn level_to_name(level: GameLevel) -> Dict {
+pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
     match level {
         GameLevel::Level(0) => Dict {
             ja: "見捨てられた工房",

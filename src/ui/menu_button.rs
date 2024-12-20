@@ -9,7 +9,7 @@ use bevy::prelude::*;
 
 #[derive(Component)]
 struct MenuButtonText {
-    text: Dict,
+    text: Dict<&'static str>,
 }
 
 pub fn menu_button<'a>(
@@ -18,7 +18,7 @@ pub fn menu_button<'a>(
     button_type: SystemId,
     w: f32,
     h: f32,
-    text: Dict,
+    text: Dict<&'static str>,
 ) {
     let hovered = Color::hsla(0.0, 0.0, 1.0, 0.1).into();
     let none = Color::hsla(0.0, 0.0, 1.0, 0.05).into();

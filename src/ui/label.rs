@@ -6,10 +6,14 @@ use bevy::prelude::*;
 
 #[derive(Component)]
 struct LabelText {
-    text: Dict,
+    text: Dict<&'static str>,
 }
 
-pub fn spawn_label<'a>(parent: &mut ChildBuilder, assets: &Res<GameAssets>, text: Dict) {
+pub fn spawn_label<'a>(
+    parent: &mut ChildBuilder,
+    assets: &Res<GameAssets>,
+    text: Dict<&'static str>,
+) {
     parent.spawn((
         LabelText { text },
         Text::new(""),

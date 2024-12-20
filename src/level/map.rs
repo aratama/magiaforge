@@ -132,6 +132,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::Chest, x, y));
                 }
+                (255, 155, 87, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::CrateOrBarrel, x, y));
+                }
                 (48, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,

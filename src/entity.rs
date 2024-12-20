@@ -28,6 +28,8 @@ use bevy::{
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum GameEntity {
     Chest,
+    Crate,
+    CrateOrBarrel,
     BookShelf,
     MagicCircle,
     MagicCircleHome,
@@ -37,7 +39,6 @@ pub enum GameEntity {
     Routes,
     StoneLantern,
     Spell,
-    Crate,
     HugeSlime,
     Rabbit,
     Witch,

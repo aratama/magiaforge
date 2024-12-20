@@ -12,7 +12,7 @@ pub fn spawn_range<T: Component>(
     value: u32,
     up: SystemId,
     down: SystemId,
-    label: Dict,
+    label: Dict<&'static str>,
 ) {
     child_builder
         .spawn((Node {

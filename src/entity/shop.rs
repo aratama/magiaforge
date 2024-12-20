@@ -5,6 +5,8 @@ use crate::{
         WITCH_BULLET_GROUP, WITCH_GROUP,
     },
     controller::player::Player,
+    language::Dict,
+    speech_bubble::SpeechEvent,
     states::GameState,
 };
 use bevy::prelude::*;
@@ -94,16 +96,17 @@ fn sensor(
     mut collision_events: EventReader<CollisionEvent>,
     mut door_query: Query<&mut ShopDoorSensor>,
     mut player_query: Query<&mut Actor, With<Player>>,
+    mut speech_writer: EventWriter<SpeechEvent>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
             CollisionEvent::Started(a, b, ..) => {
-                let _ = enter(a, b, &mut door_query, &mut player_query)
-                    || enter(b, a, &mut door_query, &mut player_query);
+                let _ = enter(a, b, &mut door_query, &mut player_query, &mut speech_writer)
+                    || enter(b, a, &mut door_query, &mut player_query, &mut speech_writer);
             }
             CollisionEvent::Stopped(a, b, ..) => {
-                let _ = exit(a, b, &mut door_query, &mut player_query)
-                    || exit(b, a, &mut door_query, &mut player_query);
+                let _ = exit(a, b, &mut door_query, &mut player_query, &mut speech_writer)
+                    || exit(b, a, &mut door_query, &mut player_query, &mut speech_writer);
             }
         }
     }
@@ -114,12 +117,17 @@ fn enter(
     b: &Entity,
     sensor_query: &mut Query<&mut ShopDoorSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
+    speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if let Ok(mut sensor) = sensor_query.get_mut(*a) {
         if let Ok(actor) = player_query.get(*b) {
             info!("enter");
             if 0 < actor.dept() {
                 sensor.open = false;
+                speech_writer.send(SpeechEvent::Speech(Dict {
+                    ja: "おいおい、代金を払ってから行ってくれ".to_string(),
+                    en: "Hey, pay first".to_string(),
+                }));
             } else {
                 sensor.open = true;
             }
@@ -134,10 +142,12 @@ fn exit(
     b: &Entity,
     sensor_query: &mut Query<&mut ShopDoorSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
+    speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if let Ok(mut sensor) = sensor_query.get_mut(*a) {
         if let Ok(_) = player_query.get(*b) {
             sensor.open = false;
+            speech_writer.send(SpeechEvent::Close);
             return true;
         }
     }

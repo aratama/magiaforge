@@ -41,8 +41,8 @@ impl InventoryItemType {
 
 pub struct InventoryItemProps {
     pub icon: &'static str,
-    pub name: Dict,
-    pub description: Dict,
+    pub name: Dict<&'static str>,
+    pub description: Dict<&'static str>,
 }
 
 pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {

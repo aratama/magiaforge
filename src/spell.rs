@@ -62,8 +62,8 @@ pub enum SpellCast {
 
 /// 呪文の基礎情報
 pub struct SpellProps {
-    pub name: Dict,
-    pub description: Dict,
+    pub name: Dict<&'static str>,
+    pub description: Dict<&'static str>,
     pub cast_delay: u32,
     pub icon: &'static str,
     pub price: u32,
@@ -298,37 +298,37 @@ impl SpellType {
 }   
 
 
-const DAMAGE: Dict = Dict {
+const DAMAGE: Dict<&'static str> = Dict {
     ja: "ダメージ",
     en: "Damage",
 };
 
-const KNOCKBACK: Dict = Dict {
+const KNOCKBACK: Dict<&'static str> = Dict {
     ja: "ノックバック",
     en: "Knockback",
 };
 
-const SPEED: Dict = Dict {
+const SPEED: Dict<&'static str> = Dict {
     ja: "射出速度",
     en: "Speed",
 };
 
-const LIFETIME: Dict = Dict {
+const LIFETIME: Dict<&'static str> = Dict {
     ja: "持続時間",
     en: "Lifetime",
 };
 
-const SCATTERING: Dict = Dict {
+const SCATTERING: Dict<&'static str> = Dict {
     ja: "拡散",
     en: "Scattering",
 };
 
-const SIZE: Dict = Dict {
+const SIZE: Dict<&'static str> = Dict {
     ja: "大きさ",
     en: "Size",
 };
 
-const HEAL_TEXT: Dict = Dict {
+const HEAL_TEXT: Dict<&'static str> = Dict {
     ja: "回復",
     en: "Heal",
 };

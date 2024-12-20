@@ -1,8 +1,8 @@
 use crate::{language::Dict, wand::WandType};
 
 pub struct WandProps {
-    pub name: Dict,
-    pub description: Dict,
+    pub name: Dict<&'static str>,
+    pub description: Dict<&'static str>,
     pub slice: &'static str,
     pub icon: &'static str,
     pub capacity: usize,

@@ -10,18 +10,20 @@ use crate::{
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use rand::random;
 
 const ENTITY_WIDTH: f32 = 8.0;
 
 const ENTITY_HEIGHT: f32 = 8.0;
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, strum::EnumIter)]
 pub enum ChestType {
     #[default]
     Chest,
     Crate,
+    Barrel,
 }
+
+pub const CHEST_OR_BARREL: [ChestType; 2] = [ChestType::Crate, ChestType::Barrel];
 
 #[derive(Default, Component, Reflect)]
 struct Chest {
@@ -53,7 +55,8 @@ pub fn spawn_chest(
                 chest_type,
                 golds: match chest_type {
                     ChestType::Chest => 10,
-                    ChestType::Crate => 0,
+                    ChestType::Crate => 1,
+                    ChestType::Barrel => 1,
                 },
             },
             EntityDepth,
@@ -88,6 +91,7 @@ pub fn spawn_chest(
                     name: match chest_type {
                         ChestType::Chest => "chest",
                         ChestType::Crate => "crate",
+                        ChestType::Barrel => "barrel",
                     }
                     .into(),
                 },
@@ -105,16 +109,13 @@ fn break_chest(
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
             writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
-
-            if chest.chest_type == ChestType::Chest {
-                for _ in 0..(3 + random::<i32>().abs() % 10) {
-                    spawn_gold(
-                        &mut commands,
-                        &assets,
-                        transform.translation.x,
-                        transform.translation.y,
-                    );
-                }
+            for _ in 0..chest.golds {
+                spawn_gold(
+                    &mut commands,
+                    &assets,
+                    transform.translation.x,
+                    transform.translation.y,
+                );
             }
         }
     }

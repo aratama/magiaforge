@@ -6,26 +6,26 @@ pub enum Languages {
     En,
 }
 
-impl Languages {
-    pub fn m17n(&self, ja: String, en: String) -> String {
-        match self {
-            Languages::Ja => ja,
-            Languages::En => en,
+#[derive(Debug)]
+pub struct Dict<T: ToString> {
+    pub ja: T,
+    pub en: T,
+}
+
+impl Dict<&'static str> {
+    pub fn get(&self, lang: Languages) -> String {
+        match lang {
+            Languages::Ja => self.ja.to_string(),
+            Languages::En => self.en.to_string(),
         }
     }
 }
 
-#[derive(Debug)]
-pub struct Dict {
-    pub ja: &'static str,
-    pub en: &'static str,
-}
-
-impl Dict {
-    pub fn get(&self, lang: Languages) -> &str {
+impl Dict<String> {
+    pub fn get(&self, lang: Languages) -> String {
         match lang {
-            Languages::Ja => self.ja,
-            Languages::En => self.en,
+            Languages::Ja => self.ja.to_string(),
+            Languages::En => self.en.to_string(),
         }
     }
 }

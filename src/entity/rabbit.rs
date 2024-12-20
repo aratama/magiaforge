@@ -1,6 +1,5 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
-use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::{Actor, ActorFireState};
@@ -117,7 +116,6 @@ fn collision_inner_sensor(
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
     mut se: EventWriter<SEEvent>,
-    config: Res<GameConfig>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -130,7 +128,6 @@ fn collision_inner_sensor(
                     &mut player_query,
                     &mut speech_writer,
                     &mut se,
-                    &config,
                 ) || chat_start(
                     b,
                     a,
@@ -139,7 +136,6 @@ fn collision_inner_sensor(
                     &mut player_query,
                     &mut speech_writer,
                     &mut se,
-                    &config,
                 );
             }
             CollisionEvent::Stopped(a, b, _option) => {
@@ -158,7 +154,6 @@ fn chat_start(
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
     se: &mut EventWriter<SEEvent>,
-    config: &Res<GameConfig>,
 ) -> bool {
     let mut camera = camera_query.single_mut();
 
@@ -169,31 +164,32 @@ fn chat_start(
                 if actor.liquidate() {
                     camera.target = Some(*a);
                     se.send(SEEvent::new(SE::Register));
-                    speech_writer.send(SpeechEvent::Speech(config.language.m17n(
-                        format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
-                        format!("Your total is {} Golds\nThank you", dept).to_string(),
-                    )));
+                    speech_writer.send(SpeechEvent::Speech(Dict {
+                        ja: format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
+                        en: format!("Your total is {} Golds\nThank you", dept).to_string(),
+                    }));
                 } else {
                     camera.target = Some(*a);
-                    speech_writer.send(SpeechEvent::Speech(config.language.m17n(
-                        format!(
+                    speech_writer.send(SpeechEvent::Speech(Dict {
+                        ja: format!(
                             "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
                             dept - actor.golds
-                        ),
-                        format!(
+                        )
+                        .to_string(),
+                        en: format!(
                             "Hey, hey!\nYou are {} Golds short!\nPut it back that you woun't buy",
                             dept - actor.golds
-                        ),
-                    )));
+                        )
+                        .to_string(),
+                    }));
                 }
             } else {
                 camera.target = Some(*a);
                 speech_writer.send(SpeechEvent::Speech(
-                    (Dict {
-                        ja: "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて",
-                        en: "Hello\nIs there anything you want?\nIf you have something you want\nbring it here",
-                    })
-                    .get(config.language).to_string(),
+                    Dict {
+                        ja: "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
+                        en: "Hello\nIs there anything you want?\nIf you have something you want\nbring it here".to_string(),
+                    },
                 ));
             }
             return true;
@@ -256,17 +252,9 @@ fn out_sensor(
     _speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     if sensor_query.contains(*a) {
-        if let Ok(actor) = player_query.get(*b) {
+        if let Ok(_) = player_query.get(*b) {
             let mut camera = camera_query.single_mut();
             camera.target = None;
-            if 0 < actor.dept() {
-                // WIP
-                // speech_writer.send(SpeechEvent::Speech(
-                //     format!("おいおいおいおい\n冗談はよしてくれ\nまだ会計をしてないのに\nどこに行く気だい？")
-                //         .to_string(),
-                // ));
-                return true;
-            }
         }
     }
     return false;

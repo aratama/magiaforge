@@ -67,7 +67,7 @@ impl EquipmentType {
 
 pub struct EquipmentProps {
     pub icon: &'static str,
-    pub name: Dict,
+    pub name: Dict<&'static str>,
     pub price: u32,
-    pub description: Dict,
+    pub description: Dict<&'static str>,
 }

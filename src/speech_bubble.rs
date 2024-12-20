@@ -1,5 +1,7 @@
 use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use crate::entity::rabbit::Rabbit;
+use crate::language::Dict;
 use crate::se::{SEEvent, SE};
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -23,7 +25,7 @@ pub struct SpeechBubbleText;
 
 #[derive(Event)]
 pub enum SpeechEvent {
-    Speech(String),
+    Speech(Dict<String>),
     Close,
 }
 
@@ -87,6 +89,7 @@ fn update_speech_bubble(
 fn read_speech_events(
     mut events: EventReader<SpeechEvent>,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
+    config: Res<GameConfig>,
 ) {
     for event in events.read() {
         let (mut visibility, mut speech) = speech_query.single_mut();
@@ -95,7 +98,7 @@ fn read_speech_events(
             SpeechEvent::Speech(s) => {
                 *visibility = Visibility::Inherited;
                 speech.count = 0;
-                speech.text = s.clone();
+                speech.text = s.get(config.language).to_string();
             }
             SpeechEvent::Close => {
                 *visibility = Visibility::Hidden;
