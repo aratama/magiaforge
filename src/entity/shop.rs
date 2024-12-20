@@ -136,7 +136,7 @@ fn enter(
                 sensor.open = false;
                 speech_writer.send(SpeechEvent::Speech(Dict {
                     ja: "おいおい、代金を払ってから行ってくれ".to_string(),
-                    en: "Hey, pay first".to_string(),
+                    en: "Hey Hey, pay first before you go".to_string(),
                 }));
             } else {
                 sensor.open = true;

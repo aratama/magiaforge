@@ -6,6 +6,7 @@ use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
+use crate::controller::servant::ServantPlugin;
 use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
@@ -199,6 +200,7 @@ pub fn run_game() {
         .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(SetupPlugin)
+        .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
         .add_plugins(SlimeControlPlugin)
         .add_plugins(ServantSeedPlugin)
