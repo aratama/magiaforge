@@ -17,7 +17,7 @@ use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
 use std::f32::consts::PI;
 use uuid::Uuid;
 
-#[derive(Reflect, Clone, Copy, Default)]
+#[derive(Reflect, Clone, Copy, Default, Debug)]
 pub struct CastEffects {
     // pub queue: Vec,
     pub bullet_speed_buff_factor: f32,
@@ -36,7 +36,7 @@ pub enum ActorState {
 }
 
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Debug)]
 pub struct Actor {
     pub uuid: Uuid,
 
@@ -154,8 +154,8 @@ impl Actor {
             }
         }
 
-        for e in self.equipments {
-            if let Some(mut equipment) = e {
+        for e in self.equipments.iter_mut() {
+            if let Some(equipment) = e {
                 equipment.price = 0;
             }
         }
