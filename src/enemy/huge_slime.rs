@@ -216,12 +216,7 @@ fn update_huge_slime_approach(
                 // 60フレームに一度ジャンプ
                 if huge_slime.animation % timespan == 0 {
                     huge_slime.up_velocity = JUMP_POWER;
-                    info!("jump");
-                } else {
-                    warn!("Jumping");
                 }
-            } else {
-                warn!("Player not found");
             }
 
             // 6秒ごとに召喚フェイズに移行

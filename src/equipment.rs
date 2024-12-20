@@ -2,20 +2,13 @@ use bevy::reflect::Reflect;
 
 use crate::language::Dict;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, strum::EnumIter)]
 pub enum EquipmentType {
     Lantern,
     SpikeBoots,
     Telescope,
     Magnifier,
 }
-
-pub const EQUIPMENTS: [EquipmentType; 4] = [
-    EquipmentType::Lantern,
-    EquipmentType::SpikeBoots,
-    EquipmentType::Telescope,
-    EquipmentType::Magnifier,
-];
 
 impl EquipmentType {
     pub fn to_props(&self) -> EquipmentProps {

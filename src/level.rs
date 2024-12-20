@@ -26,7 +26,7 @@ use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::witch::spawn_enemy_witch;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
-use crate::equipment::EQUIPMENTS;
+use crate::equipment::EquipmentType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -36,16 +36,17 @@ use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
 use crate::player_state::PlayerState;
-use crate::random::random_select;
 use crate::random::random_select_mut;
-use crate::spell::SPELL_TYPES;
+use crate::spell::SpellType;
 use crate::states::GameState;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use map::image_to_spawn_tiles;
+use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
+use strum::IntoEnumIterator;
 use uuid::Uuid;
 use wall::spawn_wall_collisions;
 use wall::WallCollider;
@@ -274,9 +275,10 @@ fn spawn_level(
             );
         }
 
-        let mut spells = Vec::from(SPELL_TYPES);
+        let mut rng = rand::thread_rng();
         for _ in 0..3 {
             let (x, y) = random_select_mut(&mut empties);
+            let spell = SpellType::iter().choose(&mut rng).unwrap();
             spawn_dropped_item(
                 &mut commands,
                 &assets,
@@ -285,7 +287,7 @@ fn spawn_level(
                     TILE_SIZE * -y as f32 - TILE_HALF,
                 ),
                 InventoryItem {
-                    item_type: InventoryItemType::Spell(*random_select(&mut spells)),
+                    item_type: InventoryItemType::Spell(spell),
                     price: 0,
                 },
             );
@@ -460,8 +462,9 @@ fn spawn_entities(
                 ));
             }
             GameEntity::Spell => {
+                let mut rng = rand::thread_rng();
                 if 0.5 < rand::random::<f32>() {
-                    let spell = SPELL_TYPES[rand::random::<usize>() % SPELL_TYPES.len()];
+                    let spell = SpellType::iter().choose(&mut rng).unwrap();
                     let props = spell.to_props();
                     spawn_dropped_item(
                         &mut commands,
@@ -473,7 +476,8 @@ fn spawn_entities(
                         },
                     );
                 } else {
-                    let equipment = EQUIPMENTS[rand::random::<usize>() % EQUIPMENTS.len()];
+                    let mut rng = rand::thread_rng();
+                    let equipment = EquipmentType::iter().choose(&mut rng).unwrap();
                     let props = equipment.to_props();
                     spawn_dropped_item(
                         &mut commands,
