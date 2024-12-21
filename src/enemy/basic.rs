@@ -95,7 +95,8 @@ pub fn spawn_basic_enemy<T: Component>(
                 } | ENTITY_GROUP
                     | WALL_GROUP
                     | WITCH_GROUP
-                    | ENEMY_GROUP,
+                    | ENEMY_GROUP
+                    | RABBIT_GROUP,
             ),
         ),
     ));

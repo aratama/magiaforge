@@ -9,6 +9,8 @@ use bevy_rapier2d::prelude::{
 };
 use std::collections::HashMap;
 
+use super::RABBIT_GROUP;
+
 /// 壁タイルから衝突矩形を計算します
 /// チェストや本棚なども侵入不可能ですが、それらは個別に衝突形状を持つため、ここでは壁のみを扱います
 /// TODO: 本棚などのエンティティもここで一括で生成したほうが効率はいい？
@@ -113,7 +115,12 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
             },
             CollisionGroups::new(
                 WALL_GROUP,
-                ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+                ENTITY_GROUP
+                    | WITCH_GROUP
+                    | WITCH_BULLET_GROUP
+                    | ENEMY_GROUP
+                    | ENEMY_BULLET_GROUP
+                    | RABBIT_GROUP,
             ),
         ));
     }

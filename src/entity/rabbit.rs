@@ -63,7 +63,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
                 Damping {
-                    linear_damping: 6.0,
+                    linear_damping: 1.0,
                     angular_damping: 1.0,
                 },
                 ExternalForce::default(),

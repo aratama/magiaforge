@@ -56,7 +56,8 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                         | WITCH_BULLET_GROUP
                         | ENEMY_GROUP
                         | ENEMY_BULLET_GROUP
-                        | WALL_GROUP,
+                        | WALL_GROUP
+                        | RABBIT_GROUP,
                 ),
                 ExternalImpulse::default(),
             ),

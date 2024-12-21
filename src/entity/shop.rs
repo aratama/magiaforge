@@ -96,7 +96,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 ),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
-                    name: "door_left".into(),
+                    name: "door_right".into(),
                 },
             ));
         });

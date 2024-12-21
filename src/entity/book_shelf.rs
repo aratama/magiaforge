@@ -35,7 +35,12 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
         CollisionGroups::new(
             WALL_GROUP,
-            ENTITY_GROUP | WITCH_GROUP | WITCH_BULLET_GROUP | ENEMY_GROUP | ENEMY_BULLET_GROUP,
+            ENTITY_GROUP
+                | WITCH_GROUP
+                | WITCH_BULLET_GROUP
+                | ENEMY_GROUP
+                | ENEMY_BULLET_GROUP
+                | RABBIT_GROUP,
         ),
     ));
 
@@ -58,10 +63,7 @@ fn break_book_shelf(
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SEEvent::pos(
-                SE::Break,
-                transform.translation.truncate(),
-            ));
+            writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
         }
     }
 }

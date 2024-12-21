@@ -86,7 +86,8 @@ pub fn spawn_dropped_item(
                         | ENEMY_GROUP
                         | ENEMY_BULLET_GROUP
                         | WALL_GROUP
-                        | DOOR_GROUP,
+                        | DOOR_GROUP
+                        | RABBIT_GROUP,
                 ),
                 ActiveEvents::COLLISION_EVENTS,
                 ExternalForce::default(),
