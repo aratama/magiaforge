@@ -56,16 +56,16 @@ default-features = false
 # https://docs.rs/crate/bevy/latest/features
 features = [
     # "android_shared_stdcxx",
-    "animation",
+    # "animation",
     "bevy_asset",
     "bevy_audio",
     "bevy_color",
     "bevy_core_pipeline",
-    "bevy_gilrs",
+    # "bevy_gilrs",
     # "bevy_gizmos",
     # "bevy_gltf",
     # "bevy_pbr",
-    "bevy_render",
+    # "bevy_render",
     # "bevy_scene",
     "bevy_sprite",
     "bevy_state",
@@ -77,7 +77,7 @@ features = [
     "multi_threaded",
     "png",
     # "smaa_luts",
-    "sysinfo_plugin",
+    # "sysinfo_plugin",
     # "tonemapping_luts",
     "vorbis", # bevy_kira_audioでoggを使う場合は不要
     # "webgl2",
