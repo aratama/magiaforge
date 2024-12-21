@@ -1,12 +1,13 @@
-use crate::{constant::LOADING_Z_INDEX, states::GameState};
+use crate::{asset::GameAssets, constant::LOADING_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, assets: Res<GameAssets>) {
     commands.spawn((
         StateScoped(GameState::Setup),
         Text::new("Loading..."),
         TextColor(Color::WHITE),
         TextFont {
+            font: assets.dotgothic.clone(),
             font_size: 20.0,
             ..default()
         },

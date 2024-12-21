@@ -114,6 +114,7 @@ fn setup(
                                 BackgroundColor::from(BACKGROUND_COLOR),
                                 TextInput,
                                 TextInputTextFont(TextFont {
+                                    font: assets.dotgothic.clone(),
                                     font_size: 40.,
                                     ..default()
                                 }),

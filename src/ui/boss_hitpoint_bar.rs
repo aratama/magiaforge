@@ -1,4 +1,4 @@
-use crate::{enemy::huge_slime::Boss, entity::life::Life, states::GameState};
+use crate::{asset::GameAssets, enemy::huge_slime::Boss, entity::life::Life, states::GameState};
 use bevy::prelude::*;
 
 const BAR_WIDTH: f32 = 800.0;
@@ -22,7 +22,7 @@ pub struct StatusBarText;
 #[derive(Component)]
 pub struct BossNameText;
 
-pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder) {
+pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
     parent
         .spawn((
             Name::new("boss_hitpoint_bar"),
@@ -85,6 +85,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder) {
                 Text::new(""),
                 TextColor(Color::WHITE),
                 TextFont {
+                    font: assets.dotgothic.clone(),
                     font_size: 15.0,
                     ..default()
                 },
@@ -102,6 +103,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder) {
                 Text::new(""),
                 TextColor(Color::hsva(0.0, 0.0, 1.0, 0.5)),
                 TextFont {
+                    font: assets.dotgothic.clone(),
                     font_size: 15.0,
                     ..default()
                 },

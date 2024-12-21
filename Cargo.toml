@@ -72,7 +72,7 @@ features = [
     "bevy_text",
     "bevy_ui",
     "bevy_winit",
-    "default_font",
+    # "default_font",
     # "hdr",
     "multi_threaded",
     "png",

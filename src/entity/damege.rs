@@ -1,4 +1,4 @@
-use crate::states::GameState;
+use crate::{asset::GameAssets, states::GameState};
 use bevy::{prelude::*, text::FontSmoothing};
 
 #[derive(Component)]
@@ -6,20 +6,34 @@ struct DamageParticle {
     lifetime: usize,
 }
 
-pub fn spawn_damage_number(commands: &mut Commands, damage: i32, position: Vec2) {
-    commands.spawn((
-        Name::new("Damage Number"),
-        StateScoped(GameState::InGame),
-        DamageParticle { lifetime: 40 },
-        Text2d(format!("{}", damage).to_string()),
-        TextColor(Color::WHITE),
-        TextFont {
-            font_size: 8.0,
-            font_smoothing: FontSmoothing::None,
-            ..default()
-        },
-        Transform::from_translation(position.extend(11.0)),
-    ));
+#[derive(Event)]
+pub struct SpawnDamageNumber {
+    pub damage: i32,
+    pub position: Vec2,
+}
+
+fn spawn_damage_number(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    mut reader: EventReader<SpawnDamageNumber>,
+) {
+    for event in reader.read() {
+        commands.spawn((
+            Name::new("Damage Number"),
+            StateScoped(GameState::InGame),
+            DamageParticle { lifetime: 40 },
+            Text2d(event.damage.to_string()),
+            TextColor(Color::WHITE),
+            TextFont {
+                font: assets.dotgothic.clone(),
+                font_size: 32.0,
+                font_smoothing: FontSmoothing::AntiAliased,
+                ..default()
+            },
+            Transform::from_translation(event.position.extend(11.0))
+                .with_scale(Vec3::new(0.25, 0.25, 1.0)),
+        ));
+    }
 }
 
 fn update_damage(
@@ -38,6 +52,10 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_damage.run_if(in_state(GameState::InGame)));
+        app.add_event::<SpawnDamageNumber>();
+        app.add_systems(
+            Update,
+            (spawn_damage_number, update_damage).run_if(in_state(GameState::InGame)),
+        );
     }
 }

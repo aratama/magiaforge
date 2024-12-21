@@ -163,6 +163,7 @@ pub fn spawn_witch<T: Component>(
                 Text2d::new(name),
                 TextColor(Color::hsla(120.0, 1.0, 0.5, 0.3)),
                 TextFont {
+                    font: assets.dotgothic.clone(),
                     font_size: 10.0,
                     ..default()
                 },

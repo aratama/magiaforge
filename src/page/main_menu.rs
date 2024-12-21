@@ -182,6 +182,7 @@ fn setup_main_menu(
         )),
         TextColor::from(Color::srgba(1.0, 1.0, 1.0, 0.3)),
         TextFont {
+            font: assets.dotgothic.clone(),
             font_size: 12.0,
             ..default()
         },

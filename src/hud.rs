@@ -117,7 +117,7 @@ fn setup_hud(
 
             spawn_inventory_floating(&mut parent, &assets);
 
-            spawn_boss_hitpoint_bar(&mut parent);
+            spawn_boss_hitpoint_bar(&mut parent, &assets);
 
             spawn_drop_area(&mut parent);
         });
@@ -193,6 +193,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
         .with_children(|mut parent| {
             spawn_status_bar(
                 &mut parent,
+                &assets,
                 PlayerLifeBar,
                 0,
                 0,
@@ -223,6 +224,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
                         Text::new(""),
                         TextColor(Color::hsla(57.0, 1.0, 0.5, 0.7)),
                         TextFont {
+                            font: assets.dotgothic.clone(),
                             font_size: 18.0,
                             ..default()
                         },

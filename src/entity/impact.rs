@@ -4,13 +4,14 @@ use crate::{
     asset::GameAssets,
     camera::GameCamera,
     constant::{ENEMY_GROUP, ENTITY_GROUP, PAINT_LAYER_Z, WITCH_GROUP},
-    entity::damege::spawn_damage_number,
     se::SEEvent,
     states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
+
+use super::damege::SpawnDamageNumber;
 
 #[derive(Component)]
 struct Impact {
@@ -35,6 +36,7 @@ fn read_impact_event(
     mut reader: EventReader<SpawnImpact>,
     mut life_query: Query<(&mut Life, &Transform, Option<&mut ExternalImpulse>)>,
     mut camera_query: Query<(&mut GameCamera, &Transform), Without<Life>>,
+    mut damage_writer: EventWriter<SpawnDamageNumber>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
@@ -78,7 +80,10 @@ fn read_impact_event(
                 let damage = 10;
                 let p = life_transform.translation.truncate();
                 life.life = (life.life - damage).max(0);
-                spawn_damage_number(&mut commands, 10, p);
+                damage_writer.send(SpawnDamageNumber {
+                    damage: 10,
+                    position: p,
+                });
                 writer.send(SEEvent::pos(SE::Damage, p));
                 if let Some(ref mut ex) = external_impulse {
                     ex.impulse = (p - position).normalize_or_zero() * impulse;

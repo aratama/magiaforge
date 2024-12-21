@@ -1,4 +1,4 @@
-use crate::states::GameState;
+use crate::{asset::GameAssets, states::GameState};
 use bevy::prelude::*;
 
 const BAR_HEIGHT: f32 = 16.0;
@@ -23,6 +23,7 @@ pub struct StatusBarText;
 
 pub fn spawn_status_bar<T: Component>(
     parent: &mut ChildBuilder,
+    assets: &Res<GameAssets>,
     marker: T,
     value: i32,
     max_value: i32,
@@ -85,6 +86,7 @@ pub fn spawn_status_bar<T: Component>(
                 Text::new(""),
                 TextColor(Color::WHITE),
                 TextFont {
+                    font: assets.dotgothic.clone(),
                     font_size: 15.0,
                     ..default()
                 },
