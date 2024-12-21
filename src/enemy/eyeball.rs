@@ -42,6 +42,7 @@ pub fn spawn_eyeball(
         3,
         actor_group,
         None,
+        25,
     );
 }
 

@@ -47,6 +47,7 @@ pub fn spawn_slime(
         gold,
         group,
         owner,
+        15,
     );
 }
 

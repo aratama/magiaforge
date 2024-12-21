@@ -41,7 +41,7 @@ pub enum GameEntity {
     Spell,
     HugeSlime,
     Rabbit,
-    Witch,
+    Sandbug,
     ShopDoor,
 }
 

@@ -222,7 +222,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                         biome: Biome::SafeZone,
                     });
-                    entities.push((GameEntity::Witch, x, y));
+                    entities.push((GameEntity::Sandbug, x, y));
                 }
                 (197, 255, 142, 255) => {
                     tiles.push(LevelTileMapile {

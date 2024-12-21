@@ -11,6 +11,7 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::huge_slime::spawn_huge_slime;
+use crate::enemy::sandbug::spawn_sandbag;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
 use crate::entity::book_shelf::spawn_book_shelf;
@@ -24,7 +25,6 @@ use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
-use crate::entity::witch::spawn_enemy_witch;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::equipment::EquipmentType;
@@ -518,12 +518,12 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                 );
             }
-            GameEntity::Witch => {
-                spawn_enemy_witch(
+            GameEntity::Sandbug => {
+                spawn_sandbag(
                     &mut commands,
                     &assets,
-                    life_bar_resource,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    life_bar_resource,
                 );
             }
             GameEntity::ShopDoor => {

@@ -35,7 +35,7 @@ fn update_enemy_witch_controller(
         }
 
         let diff = dummy.home - witch_transform.translation.truncate();
-        actor.move_direction = if 16.0 < diff.length() {
+        actor.move_direction = if 8.0 < diff.length() {
             diff.normalize_or_zero()
         } else {
             Vec2::ZERO

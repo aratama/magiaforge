@@ -27,6 +27,7 @@ pub fn spawn_basic_enemy<T: Component>(
     golds: u32,
     actor_group: ActorGroup,
     master: Option<Entity>,
+    max_life: i32,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(WandSpell {
@@ -63,8 +64,8 @@ pub fn spawn_basic_enemy<T: Component>(
         ActorState::default(),
         EntityDepth,
         Life {
-            life: 15,
-            max_life: 15,
+            life: max_life,
+            max_life,
             amplitude: 0.0,
         },
         HomingTarget,

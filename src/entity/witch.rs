@@ -176,6 +176,7 @@ pub fn spawn_witch<T: Component>(
     return entity.id();
 }
 
+#[allow(dead_code)]
 pub fn spawn_enemy_witch(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
