@@ -2,8 +2,8 @@ use super::{
     command_button::{command_button, CommandButton},
     floating::Floating,
     inventory::{spawn_inventory, INVENTORY_IMAGE_HEIGHT},
-    item_information::{spawn_spell_information, SpellInformationRoot},
     menu_left::MenuLeft,
+    popup::spawn_spell_information,
 };
 use crate::{
     asset::GameAssets,
@@ -21,67 +21,46 @@ struct WandEditorRoot;
 #[derive(Component)]
 struct SortButton;
 
-const MENU_THEME_COLOR: Color = Color::hsla(63.0, 0.12, 0.5, 0.95);
+pub const MENU_THEME_COLOR: Color = Color::hsla(63.0, 0.12, 0.5, 0.95);
 
-pub fn spawn_wand_editor(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
-    builder
-        .spawn((
-            WandEditorRoot,
-            MenuLeft::new(16.0, -144.0 * 2.0),
-            GlobalZIndex(WAND_EDITOR_Z_INDEX),
-            Node {
-                position_type: PositionType::Absolute,
-                left: Val::Px(20.0),
-                top: Val::Px(100.0),
-                width: Val::Px(151.0 * 2.0),
-                height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
-                display: Display::Flex,
-                flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(4.0),
-                justify_content: JustifyContent::Start,
-                align_items: AlignItems::Center,
-                ..default()
+pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+    let mut editor_builder = builder.spawn((
+        WandEditorRoot,
+        MenuLeft::new(16.0, -144.0 * 2.0),
+        GlobalZIndex(WAND_EDITOR_Z_INDEX),
+        Node {
+            position_type: PositionType::Absolute,
+            left: Val::Px(20.0),
+            top: Val::Px(100.0),
+            width: Val::Px(151.0 * 2.0),
+            height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
+            display: Display::Flex,
+            flex_direction: FlexDirection::Column,
+            row_gap: Val::Px(4.0),
+            justify_content: JustifyContent::Start,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+    ));
+
+    editor_builder.with_children(|mut parent| {
+        spawn_inventory(&mut parent, &assets);
+
+        command_button(
+            parent,
+            assets,
+            SortButton,
+            160.0,
+            32.0,
+            false,
+            Dict {
+                ja: "並び替え",
+                en: "Sort",
             },
-        ))
-        .with_children(|mut parent| {
-            spawn_inventory(&mut parent, &assets);
+        );
+    });
 
-            command_button(
-                parent,
-                assets,
-                SortButton,
-                160.0,
-                32.0,
-                false,
-                Dict {
-                    ja: "並び替え",
-                    en: "Sort",
-                },
-            );
-        });
-
-    builder
-        .spawn((
-            SpellInformationRoot,
-            BackgroundColor(MENU_THEME_COLOR),
-            GlobalZIndex(WAND_EDITOR_Z_INDEX),
-            Node {
-                position_type: PositionType::Absolute,
-                top: Val::Px(100.0),
-                display: Display::None,
-                // display: Display::Flex,
-                //
-                flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(8.0),
-                padding: UiRect::all(Val::Px(4.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-        ))
-        .with_children(|mut parent| {
-            spawn_spell_information(&mut parent, &assets);
-        });
+    spawn_spell_information(&mut builder, &assets);
 }
 
 fn switch_sort_button_disabled(

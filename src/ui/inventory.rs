@@ -4,8 +4,8 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::floating::{Floating, FloatingContent};
-use crate::ui::item_information::{SpellInformation, SpellInformationItem};
 use crate::ui::item_panel::{spawn_item_panel, ItemPanel};
+use crate::ui::popup::PopUp;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 
@@ -97,42 +97,27 @@ fn update_inventory_slot(
 fn interaction(
     mut interaction_query: Query<(&InventoryItemSlot, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
-    player_query: Query<(&Actor, &Transform), With<Player>>,
-    mut spell_info_query: Query<&mut SpellInformation>,
+    mut popup_query: Query<&mut PopUp>,
 ) {
+    let mut popup = popup_query.single_mut();
+    let mut floating = floating_query.single_mut();
     for (slot, interaction) in &mut interaction_query {
+        let content = FloatingContent::Inventory(slot.0);
         match *interaction {
-            Interaction::Pressed => {
-                let mut floating = floating_query.single_mut();
-                match floating.content {
-                    None => {
-                        floating.content = Some(FloatingContent::Inventory(slot.0));
-                    }
-                    _ => {}
+            Interaction::Pressed => match floating.content {
+                None => {
+                    floating.content = Some(FloatingContent::Inventory(slot.0));
                 }
-            }
+                _ => {}
+            },
             Interaction::Hovered => {
-                let mut floating = floating_query.single_mut();
-                floating.target = Some(FloatingContent::Inventory(slot.0));
-
-                let mut spell_info = spell_info_query.single_mut();
-                if let Ok((actor, _)) = player_query.get_single() {
-                    let floating_item = floating.get_item(&actor);
-                    if actor.inventory.is_settable_optional(slot.0, floating_item) {
-                        *spell_info = match actor.inventory.get(slot.0) {
-                            Some(slot_item) => SpellInformation(Some(
-                                SpellInformationItem::InventoryItem(slot_item),
-                            )),
-                            None => SpellInformation(None),
-                        };
-                    } else {
-                        *spell_info = SpellInformation(None);
-                    }
-                } else {
-                    *spell_info = SpellInformation(None);
-                }
+                floating.target = Some(content);
+                popup.set.insert(content);
+                popup.hang = true;
             }
-            Interaction::None => {}
+            Interaction::None => {
+                popup.set.remove(&content);
+            }
         }
     }
 }

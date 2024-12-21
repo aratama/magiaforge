@@ -21,7 +21,7 @@ impl EquipmentType {
                 },
                 price: 100,
                 description: Dict {
-                    ja: "暗闇を照らすランタン",
+                    ja: "暗闇を照らすランタン。装備すると周囲が明るくなります。",
                     en: "A lantern that illuminates the darkness",
                 },
             },
@@ -33,7 +33,7 @@ impl EquipmentType {
                 },
                 price: 100,
                 description: Dict {
-                    ja: "滑り止めのついた革靴。移動速度が上昇する。",
+                    ja: "滑り止めのついた革靴。装備すると移動速度が上昇します。",
                     en: "Leather shoes with anti-slip. Movement speed increases.",
                 },
             },
@@ -45,7 +45,7 @@ impl EquipmentType {
                 },
                 price: 300,
                 description: Dict {
-                    ja: "遠くまで見えるようになる。",
+                    ja: "細かい装飾のついか望遠鏡。装備すると遠くまで見えるようになります。",
                     en: "You can see far away.",
                 },
             },
@@ -57,7 +57,7 @@ impl EquipmentType {
                 },
                 price: 300,
                 description: Dict {
-                    ja: "手元が見やすくなる。",
+                    ja: "大きなレンズのついた拡大鏡。装備すると手元が見やすくなります。",
                     en: "It is easier to see the details.",
                 },
             },

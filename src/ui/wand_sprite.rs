@@ -1,6 +1,6 @@
 use super::{
     floating::{Floating, FloatingContent},
-    item_information::{SpellInformation, SpellInformationItem},
+    popup::PopUp,
 };
 use crate::{
     asset::GameAssets,
@@ -63,46 +63,29 @@ fn interact_wand_sprite(
     mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
+    mut popup_query: Query<&mut PopUp>,
 ) {
     if *state.get() != GameMenuState::WandEditOpen {
         return;
     }
 
     let mut floating = floating_query.single_mut();
+    let mut popup = popup_query.single_mut();
     for (slot, interaction) in &mut interaction_query {
+        let content = FloatingContent::Wand(slot.wand_index);
         match *interaction {
             Interaction::Pressed => {
-                floating.content = Some(FloatingContent::Wand(slot.wand_index));
+                floating.content = Some(content);
             }
             Interaction::Hovered => {
-                floating.target = Some(FloatingContent::Wand(slot.wand_index));
+                floating.target = Some(content);
+                popup.set.insert(content);
+                popup.hang = false;
             }
-            _ => {}
-        }
-    }
-}
-
-fn update_wand_information(
-    mut interaction_query: Query<(&WandSprite, &Interaction), Changed<Interaction>>,
-    mut player_query: Query<&Actor>,
-    mut spell_information_query: Query<&mut SpellInformation>,
-    state: Res<State<GameMenuState>>,
-) {
-    if *state.get() != GameMenuState::WandEditOpen {
-        return;
-    }
-
-    for (slot, interaction) in &mut interaction_query {
-        match *interaction {
-            Interaction::Hovered => {
-                if let Ok(actor) = player_query.get_single_mut() {
-                    if let Some(ref wand) = actor.wands[slot.wand_index] {
-                        let mut info = spell_information_query.single_mut();
-                        *info = SpellInformation(Some(SpellInformationItem::Wand(wand.wand_type)));
-                    }
-                }
+            Interaction::None => {
+                floating.target = Some(content);
+                popup.set.remove(&content);
             }
-            _ => {}
         }
     }
 }
@@ -113,12 +96,7 @@ impl Plugin for WandSpritePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (
-                update_wand_sprite,
-                interact_wand_sprite,
-                update_wand_information,
-            )
-                .run_if(in_state(GameState::InGame)),
+            (update_wand_sprite, interact_wand_sprite).run_if(in_state(GameState::InGame)),
         );
     }
 }

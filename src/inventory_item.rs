@@ -43,32 +43,38 @@ pub struct InventoryItemProps {
     pub icon: &'static str,
     pub name: Dict<&'static str>,
     pub description: Dict<&'static str>,
+    pub appendix: Dict<&'static str>,
 }
 
-pub fn inventory_item_to_props(item: InventoryItemType) -> InventoryItemProps {
-    match item {
-        InventoryItemType::Spell(spell) => {
-            let props = spell.to_props();
-            InventoryItemProps {
-                icon: props.icon,
-                name: props.name,
-                description: props.description,
+impl InventoryItemType {
+    pub fn to_props(&self) -> InventoryItemProps {
+        match self {
+            InventoryItemType::Spell(spell) => {
+                let props = spell.to_props();
+                InventoryItemProps {
+                    icon: props.icon,
+                    name: props.name,
+                    description: props.description,
+                    appendix: Dict::empty(),
+                }
             }
-        }
-        InventoryItemType::Wand(wand) => {
-            let props = wand.to_props();
-            InventoryItemProps {
-                icon: props.icon,
-                name: props.name,
-                description: props.description,
+            InventoryItemType::Wand(wand) => {
+                let props = wand.to_props();
+                InventoryItemProps {
+                    icon: props.icon,
+                    name: props.name,
+                    description: props.description,
+                    appendix: Dict::empty(),
+                }
             }
-        }
-        InventoryItemType::Equipment(equipment) => {
-            let props = equipment.to_props();
-            InventoryItemProps {
-                icon: props.icon,
-                name: props.name,
-                description: props.description,
+            InventoryItemType::Equipment(equipment) => {
+                let props = equipment.to_props();
+                InventoryItemProps {
+                    icon: props.icon,
+                    name: props.name,
+                    description: props.description,
+                    appendix: Dict::empty(),
+                }
             }
         }
     }
@@ -95,9 +101,6 @@ pub fn get_inventory_item_description(item: InventoryItemType, language: Languag
                 appendix
             );
         }
-        other => inventory_item_to_props(other)
-            .description
-            .get(language)
-            .to_string(),
+        other => other.to_props().description.get(language).to_string(),
     }
 }

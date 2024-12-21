@@ -333,6 +333,8 @@ const HEAL_TEXT: Dict<&'static str> = Dict {
     en: "Heal",
 };
  
+
+
 pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
     match cast {
         SpellCast::Bullet {
@@ -374,3 +376,5 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::Dash {..} => format!(""),
     }
 }
+
+

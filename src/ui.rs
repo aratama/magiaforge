@@ -5,7 +5,7 @@ pub mod equipment_list;
 pub mod floating;
 pub mod hover_color;
 pub mod inventory;
-pub mod item_information;
+pub mod popup;
 pub mod item_panel;
 pub mod label;
 pub mod menu_button;

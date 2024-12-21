@@ -14,7 +14,7 @@ use crate::{
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum FloatingContent {
     Inventory(usize),
     WandSpell(usize, usize),
@@ -57,12 +57,6 @@ impl FloatingContent {
 pub struct Floating {
     pub content: Option<FloatingContent>,
     pub target: Option<FloatingContent>,
-}
-
-impl Floating {
-    pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
-        self.content.and_then(|c| c.get_item(actor))
-    }
 }
 
 pub fn spawn_inventory_floating(mut builder: &mut ChildBuilder, assets: &Res<GameAssets>) {

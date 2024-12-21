@@ -1,4 +1,5 @@
 use super::item_panel::{spawn_item_panel, ItemPanel};
+use super::popup::PopUp;
 use crate::entity::actor::Actor;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -71,18 +72,25 @@ fn interact(
     sprite_query: Query<(&EquipmentSprite, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
+    mut popup_query: Query<&mut PopUp>,
 ) {
+    let mut floating = floating_query.single_mut();
+    let mut popup = popup_query.single_mut();
     if *state == GameMenuState::WandEditOpen {
-        let mut floating = floating_query.single_mut();
         for (sprite, interaction) in sprite_query.iter() {
+            let content = FloatingContent::Equipment(sprite.index);
             match interaction {
                 Interaction::Pressed => {
-                    floating.content = Some(FloatingContent::Equipment(sprite.index));
+                    floating.content = Some(content);
                 }
                 Interaction::Hovered => {
-                    floating.target = Some(FloatingContent::Equipment(sprite.index));
+                    floating.target = Some(content);
+                    popup.set.insert(content);
+                    popup.hang = false;
                 }
-                _ => {}
+                Interaction::None => {
+                    popup.set.remove(&content);
+                }
             }
         }
     }

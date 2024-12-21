@@ -52,7 +52,6 @@ use crate::ui::equipment_list::EquipmentListPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
-use crate::ui::item_information::SpellInformationPlugin;
 use crate::ui::item_panel::ItemPanelPlugin;
 use crate::ui::label::LabelPlugin;
 use crate::ui::menu_button::MenuButtonPlugin;
@@ -60,6 +59,7 @@ use crate::ui::menu_left::MenuLeftPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::pause_menu::GameMenuPlugin;
 use crate::ui::player_list::PlayerListPlugin;
+use crate::ui::popup::PopUpPlugin;
 use crate::ui::spell_in_wand::SpellInWandPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
@@ -205,7 +205,7 @@ pub fn run_game() {
         .add_plugins(SlimeControlPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
-        .add_plugins(SpellInformationPlugin)
+        .add_plugins(PopUpPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
         .add_plugins(StatusBarPlugin)

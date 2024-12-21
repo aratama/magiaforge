@@ -1,6 +1,7 @@
 use super::{
     floating::{Floating, FloatingContent},
     item_panel::{spawn_item_panel, ItemPanel},
+    popup::PopUp,
 };
 use crate::{
     asset::GameAssets,
@@ -92,14 +93,17 @@ fn interaction_spell_sprite(
     mut interaction_query: Query<(&WandSpellSprite, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
+    mut popup_query: Query<&mut PopUp>,
 ) {
     if *state.get() != GameMenuState::WandEditOpen {
         return;
     }
 
     let mut floating = floating_query.single_mut();
+    let mut popup = popup_query.single_mut();
 
     for (slot, interaction) in &mut interaction_query {
+        let content = FloatingContent::WandSpell(slot.wand_index, slot.spell_index);
         match *interaction {
             Interaction::Pressed => {
                 floating.content = Some(FloatingContent::WandSpell(
@@ -108,12 +112,13 @@ fn interaction_spell_sprite(
                 ));
             }
             Interaction::Hovered => {
-                floating.target = Some(FloatingContent::WandSpell(
-                    slot.wand_index,
-                    slot.spell_index,
-                ));
+                floating.target = Some(content);
+                popup.set.insert(content);
+                popup.hang = false;
             }
-            _ => {}
+            Interaction::None => {
+                popup.set.remove(&content);
+            }
         }
     }
 }
