@@ -1,8 +1,8 @@
 use crate::{
     asset::GameAssets,
     constant::{
-        DOOR_GROUP, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, SENSOR_GROUP, TILE_HALF,
-        TILE_SIZE, WITCH_BULLET_GROUP, WITCH_GROUP,
+        DOOR_GROUP, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, RABBIT_GROUP, SENSOR_GROUP,
+        TILE_HALF, TILE_SIZE, WITCH_BULLET_GROUP, WITCH_GROUP,
     },
     controller::player::Player,
     language::Dict,
@@ -45,7 +45,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 Collider::cuboid(TILE_SIZE * 1.0, TILE_SIZE * 1.5),
                 Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                 ActiveEvents::COLLISION_EVENTS,
-                CollisionGroups::new(DOOR_GROUP, ENTITY_GROUP),
+                CollisionGroups::new(DOOR_GROUP, ENTITY_GROUP | RABBIT_GROUP),
             ));
 
             // 左側のドア

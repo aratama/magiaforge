@@ -95,6 +95,8 @@ pub const SENSOR_GROUP: Group = Group::GROUP_9;
 
 pub const DOOR_GROUP: Group = Group::GROUP_10;
 
+pub const RABBIT_GROUP: Group = Group::GROUP_11;
+
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
 pub const PIXELS_PER_METER: f32 = 16.0;

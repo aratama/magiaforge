@@ -61,16 +61,23 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
                 Velocity::default(),
                 Collider::ball(5.0),
                 GravityScale(0.0),
-                LockedAxes::all(), // 店主が移動可能だと、店主を店の外に追い出すことで会計不能になる恐れがある
+                LockedAxes::ROTATION_LOCKED,
                 Damping {
                     linear_damping: 6.0,
                     angular_damping: 1.0,
                 },
                 ExternalForce::default(),
                 ExternalImpulse::default(),
+                ActiveCollisionTypes::DYNAMIC_KINEMATIC,
                 CollisionGroups::new(
-                    ENTITY_GROUP,
-                    ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP,
+                    RABBIT_GROUP,
+                    ENTITY_GROUP
+                        | WALL_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP
+                        | DOOR_GROUP,
                 ),
             ),
         ))
