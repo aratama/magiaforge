@@ -1,5 +1,6 @@
 use crate::{
     config::GameConfig,
+    constant::LAST_BOSS_LEVEL,
     controller::player::Player,
     entity::{actor::Actor, life::Life},
     hud::overlay::OverlayEvent,
@@ -42,7 +43,7 @@ fn process_debug_command(
         local.clear();
         match level.next_level {
             GameLevel::Level(n) => {
-                level.next_level = GameLevel::Level((n + 1) % 4);
+                level.next_level = GameLevel::Level((n + 1) % LAST_BOSS_LEVEL);
                 level.next_state = PlayerState::from(player_query.get_single(), &config);
             }
             GameLevel::MultiPlayArena => {
@@ -63,7 +64,7 @@ fn process_debug_command(
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("boss") {
         local.clear();
-        level.next_level = GameLevel::Level(3);
+        level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
         level.next_state = PlayerState::from(player_query.get_single(), &config);
         writer.send(OverlayEvent::Close(GameState::Warp));
     } else if local.ends_with("ending") {

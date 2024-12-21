@@ -1,6 +1,7 @@
 use crate::{
     asset::GameAssets,
     audio::NextBGM,
+    constant::LAST_BOSS_LEVEL,
     enemy::huge_slime::HugeSlime,
     hud::overlay::OverlayEvent,
     level::{CurrentLevel, GameLevel},
@@ -53,7 +54,7 @@ fn start_ending(
     mut writer: EventWriter<OverlayEvent>,
     current: Res<CurrentLevel>,
 ) {
-    if current.level == Some(GameLevel::Level(3)) && boss_query.is_empty() {
+    if current.level == Some(GameLevel::Level(LAST_BOSS_LEVEL)) && boss_query.is_empty() {
         *local += 1;
         if *local == 120 {
             writer.send(OverlayEvent::Close(GameState::Ending));

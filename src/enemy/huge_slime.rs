@@ -281,12 +281,15 @@ fn update_huge_slime_promote(
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
+    assets: Res<GameAssets>,
+    mut next_bgm: ResMut<NextBGM>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
         if let HugeSlimeState::Promote = huge_slime.state {
             if huge_slime.animation == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
+                *next_bgm = NextBGM(Some(assets.sacred.clone()));
             } else if 300 <= huge_slime.animation {
                 huge_slime.state = HugeSlimeState::Approach;
                 huge_slime.animation = 0;

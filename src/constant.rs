@@ -29,8 +29,12 @@ pub const MAX_ITEMS_IN_INVENTORY: usize =
 
 pub const MAX_ITEMS_IN_EQUIPMENT: usize = 8;
 
+/// 拠点を含むシングルプレイ用ステージの数
 /// level.aseprite のスライスの最大値 - 1
-pub const LEVELS: i32 = 4;
+pub const LEVELS: i32 = 5;
+
+/// このレベルにボスがいなくなったらエンディングへ移行
+pub const LAST_BOSS_LEVEL: i32 = LEVELS - 1;
 
 /// 1タイルのサイズのピクセル数
 /// タイルサイズは意味合いとしてゃ u32 ですが、f32 で扱うことが多いので f32 にしています

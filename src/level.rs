@@ -158,14 +158,14 @@ fn select_level_bgm(
         info!("select_level_bgm {:?}", next_level.next_level);
         *next_bgm = NextBGM(Some(match next_level.next_level {
             GameLevel::Level(0) => assets.dokutsu.clone(),
-            GameLevel::Level(3) => {
+            GameLevel::Level(LAST_BOSS_LEVEL) => {
                 let mut rng = rand::thread_rng();
                 let mut bgms = vec![
                     assets.deamon.clone(),
                     assets.action.clone(),
                     assets.decisive.clone(),
                     assets.enjin.clone(),
-                    assets.sacred.clone(),
+                    // assets.sacred.clone(), // ボスのプロモート後用BGM
                     assets.battle_cinematic.clone(),
                     assets.battle_fight.clone(),
                     assets.final_battle.clone(),
