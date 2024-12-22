@@ -211,8 +211,8 @@ impl SpellType {
             },
             SpellType::Homing => SpellProps {
                 name: Dict {
-                    ja: "追尾",
-                    en: "Homing",
+                    ja: "自律型追尾",
+                    en: "Self-directed Homing",
                 },
                 description: Dict { ja: "次に発射する魔法弾が近くの敵に向かって追尾します。", 
                 en: "The next magic bullet you fire will home in on the enemy." },

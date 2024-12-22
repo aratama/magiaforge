@@ -5,8 +5,18 @@ pub const HELLO: Dict<&'static str> = Dict {
     en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome\nbut it depends on the payment",
 };
 
+pub const SINGLEPLAY: Dict<&'static str> = Dict {
+    ja: "この先は地下迷宮の入り口だよ\n気をつけてね",
+    en: "This is the entrance to the underground labyrinth\nBe careful",
+};
+
+pub const WITCHES_ARE: Dict<&'static str> = Dict {
+    ja: "きみたち魔法使いは不思議なものだね\n危険な地下深くまで潜ってまで\nいったい何を探しているのやら",
+    en: "You witches are mysterious\nWhat are you looking for\nby diving deep underground",
+};
+
 pub const MULTIPLAY : Dict<&'static str> = Dict {
-    ja: "この先はマルチプレイ用レベルだよ\n気軽に遊んでいってね\n誰かいるのかはわからないけど",
+    ja: "この先はマルチプレイ用レベルだよ\n気軽に遊んでいってね\n誰かいるかはわからないけど",
     en: "It seems that this is a level for multiplayer\nFeel free to play\nI don't know if anyone is there",
 };
 

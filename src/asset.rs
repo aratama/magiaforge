@@ -70,6 +70,9 @@ pub struct GameAssets {
     #[asset(path = "entity/rabbit_blue.aseprite")]
     pub rabbit_blue: Handle<Aseprite>,
 
+    #[asset(path = "entity/rabbit_black.aseprite")]
+    pub rabbit_black: Handle<Aseprite>,
+
     #[asset(path = "entity/rabbit_white.aseprite")]
     pub rabbit_white: Handle<Aseprite>,
 

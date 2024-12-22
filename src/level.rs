@@ -50,6 +50,7 @@ use crate::message::LEVEL2;
 use crate::message::LEVEL3;
 use crate::message::MULTIPLAY;
 use crate::message::MULTIPLAY_ARENA;
+use crate::message::SINGLEPLAY;
 use crate::message::TRAINING_RABBIT;
 use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
@@ -548,6 +549,19 @@ fn spawn_entities(
                     MessageRabbitOuterSensor,
                 );
             }
+            GameEntity::SinglePlayRabbit => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_white,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    MessageRabbit {
+                        message: SINGLEPLAY.to_string(),
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
             GameEntity::GuideRabbit => {
                 spawn_rabbit(
                     &mut commands,
@@ -565,7 +579,7 @@ fn spawn_entities(
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_white,
+                    &assets.rabbit_black,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         message: MULTIPLAY.to_string(),
