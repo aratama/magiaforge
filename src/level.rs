@@ -43,6 +43,15 @@ use crate::level::ceil::spawn_roof_tiles;
 use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
+use crate::message::HELLO;
+use crate::message::LEVEL0;
+use crate::message::LEVEL1;
+use crate::message::LEVEL2;
+use crate::message::LEVEL3;
+use crate::message::MULTIPLAY;
+use crate::message::MULTIPLAY_ARENA;
+use crate::message::TRAINING_RABBIT;
+use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
 use crate::random::random_select_mut;
 use crate::spell::SpellType;
@@ -533,11 +542,7 @@ fn spawn_entities(
                     &assets.rabbit_red,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: Dict {
-                            ja: "キミも強くなりたいのかい？\nここで練習していくといい\nサンドバッグが相手になってくれる ".to_string(),
-                            en: "Do you want to be strong too?\nIt's good to practice here\nThe sandbag will be your opponent"
-                                .to_string(),
-                        },
+                        message: TRAINING_RABBIT.to_string(),
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -550,14 +555,10 @@ fn spawn_entities(
                     &assets.rabbit_blue,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: Dict {
-                            ja: "やあ、見慣れない顔だね\nここは商人キャンプだよ\n来客は歓迎さ\nまあ金払い次第だけどね".to_string(),
-                            en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome\nbut it depends on the payment"
-                                .to_string(),
-                        },
+                        message: HELLO.to_string(),
                     },
                     MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor
+                    MessageRabbitOuterSensor,
                 );
             }
             GameEntity::MultiplayerRabbit => {
@@ -567,12 +568,7 @@ fn spawn_entities(
                     &assets.rabbit_white,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: Dict {
-                            ja: "この先はマルチプレイ用レベルだよ\n気軽に遊んでいってね"
-                                .to_string(),
-                            en: "It seems that this is a level for multiplayer\nFeel free to play"
-                                .to_string(),
-                        },
+                        message: MULTIPLAY.to_string(),
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -606,35 +602,12 @@ fn spawn_entities(
 
 pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
     match level {
-        GameLevel::Level(0) => Dict {
-            ja: "見捨てられた工房",
-            en: "Abandoned Workshop",
-        },
-
-        GameLevel::Level(1) => Dict {
-            ja: "図書館跡",
-            en: "Library Ruins",
-        },
-
-        GameLevel::Level(2) => Dict {
-            ja: "洞窟",
-            en: "Cave",
-        },
-
-        GameLevel::Level(3) => Dict {
-            ja: "スライムの巣窟",
-            en: "Slime Nest",
-        },
-
-        GameLevel::MultiPlayArena => Dict {
-            ja: "対決の洞窟",
-            en: "Arena Cave",
-        },
-
-        _ => Dict {
-            ja: "不明",
-            en: "Unknown",
-        },
+        GameLevel::Level(0) => LEVEL0,
+        GameLevel::Level(1) => LEVEL1,
+        GameLevel::Level(2) => LEVEL2,
+        GameLevel::Level(3) => LEVEL3,
+        GameLevel::MultiPlayArena => MULTIPLAY_ARENA,
+        _ => UNKNOWN_LEVEL,
     }
 }
 

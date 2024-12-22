@@ -1,7 +1,7 @@
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::language::Dict;
+use crate::message::{shop_rabbit, too_few_golds, SHOP_RABBIT};
 use crate::se::{SEEvent, SE};
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
@@ -74,42 +74,20 @@ fn chat_start(
                     se.send(SEEvent::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech {
                         speaker: *sensor_entity,
-                        text: Dict {
-                            ja: format!(
-                                "合計{}ゴールドのお買い上げです！\nありがとうございます",
-                                dept
-                            )
-                            .to_string(),
-                            en: format!("Your total is {} Golds\nThank you", dept).to_string(),
-                        },
+                        text: shop_rabbit(dept),
                     });
                 } else {
                     camera.target = Some(*sensor_entity);
                     speech_writer.send(SpeechEvent::Speech {
                         speaker: *sensor_entity,
-                        text: Dict {
-                            ja: format!(
-                                "おいおい\n{}ゴールド足りませんよ\n買わない商品は\n戻しておいてくださいね",
-                                dept - actor.golds
-                            )
-                            .to_string(),
-                            en: format!(
-                            "Hey, hey!\nYou are {} Golds short!\nPut it back that you woun't buy",
-                            dept - actor.golds
-                        )
-                            .to_string(),
-                        },
+                        text: too_few_golds(dept - actor.golds),
                     });
                 }
             } else {
                 camera.target = Some(*sensor_entity);
                 speech_writer.send(SpeechEvent::Speech {
                     speaker: *sensor_entity,
-                    text: Dict {
-                        ja: "いらっしゃいませ！\n欲しい商品があったら\n持ってきてくださいね"
-                            .to_string(),
-                        en: "Welcome!\nBring me the item\nyou want to buy".to_string(),
-                    },
+                    text: SHOP_RABBIT.to_string(),
                 });
             }
             return true;

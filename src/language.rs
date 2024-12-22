@@ -23,6 +23,13 @@ impl Dict<&'static str> {
             Languages::En => self.en.to_string(),
         }
     }
+
+    pub fn to_string(&self) -> Dict<String> {
+        Dict {
+            ja: self.ja.to_string(),
+            en: self.en.to_string(),
+        }
+    }
 }
 
 impl Dict<String> {

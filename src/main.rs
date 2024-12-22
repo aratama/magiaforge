@@ -22,6 +22,7 @@ mod inventory;
 mod inventory_item;
 mod language;
 mod level;
+mod message;
 mod page;
 mod physics;
 mod player_state;
