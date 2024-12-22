@@ -7,12 +7,13 @@ use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseSpriteSlice};
+use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseSpriteSlice, Aseprite};
 use bevy_rapier2d::prelude::*;
 
 pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
+    sprite: &Handle<Aseprite>,
     position: Vec2,
     marker: T,
     sensor_marker: S,
@@ -85,7 +86,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
 
             builder.spawn((
                 AseSpriteAnimation {
-                    aseprite: assets.rabbit.clone(),
+                    aseprite: sprite.clone(),
                     animation: "idle_d".into(),
                 },
                 EntityChildrenAutoDepth { offset: 0.0 },

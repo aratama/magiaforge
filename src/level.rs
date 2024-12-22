@@ -516,6 +516,7 @@ fn spawn_entities(
                 spawn_rabbit(
                     &mut commands,
                     &assets,
+                    &assets.rabbit_yellow,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     ShopRabbit,
                     ShopRabbitSensor,
@@ -526,11 +527,12 @@ fn spawn_entities(
                 spawn_rabbit(
                     &mut commands,
                     &assets,
+                    &assets.rabbit_red,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         message: Dict {
-                            ja: "キミも強くなりたいのかい？\nここで練習していくといい".to_string(),
-                            en: "Do you want to be strong too?\nIt's good to practice here"
+                            ja: "キミも強くなりたいのかい？\nここで練習していくといい\nサンドバッグが相手になってくれる ".to_string(),
+                            en: "Do you want to be strong too?\nIt's good to practice here\nThe sandbag will be your opponent"
                                 .to_string(),
                         },
                     },
@@ -542,16 +544,35 @@ fn spawn_entities(
                 spawn_rabbit(
                     &mut commands,
                     &assets,
+                    &assets.rabbit_blue,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         message: Dict {
-                            ja: "やあ、見慣れない顔だね\nここはウサギ族のキャンプだよ\n客人は歓迎さ".to_string(),
-                            en: "Hey, you look unfamiliar\nThis is a rabbit camp\nGuests are welcome"
+                            ja: "やあ、見慣れない顔だね\nここはウサギ族商人のキャンプだよ\n来客は歓迎さ\nまあ金払い次第だけどね".to_string(),
+                            en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome\nbut it depends on the payment"
                                 .to_string(),
                         },
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor
+                );
+            }
+            GameEntity::MultiplayerRabbit => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_white,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    MessageRabbit {
+                        message: Dict {
+                            ja: "この先はマルチプレイ用レベルらしいよ\n気軽に遊んでいくといい"
+                                .to_string(),
+                            en: "It seems that this is a level for multiplayer\nFeel free to play"
+                                .to_string(),
+                        },
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
                 );
             }
             GameEntity::Sandbug => {

@@ -75,8 +75,11 @@ fn chat_start(
                     speech_writer.send(SpeechEvent::Speech {
                         speaker: *sensor_entity,
                         text: Dict {
-                            ja: format!("合計{}ゴールドのお買い上げ！\nありがとう", dept)
-                                .to_string(),
+                            ja: format!(
+                                "合計{}ゴールドのお買い上げです！\nありがとうございます",
+                                dept
+                            )
+                            .to_string(),
                             en: format!("Your total is {} Golds\nThank you", dept).to_string(),
                         },
                     });
@@ -86,7 +89,7 @@ fn chat_start(
                         speaker: *sensor_entity,
                         text: Dict {
                             ja: format!(
-                                "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
+                                "おいおい\n{}ゴールド足りませんよ\n買わない商品は\n戻しておいてくださいね",
                                 dept - actor.golds
                             )
                             .to_string(),
@@ -102,9 +105,10 @@ fn chat_start(
                 camera.target = Some(*sensor_entity);
                 speech_writer.send(SpeechEvent::Speech {
                     speaker: *sensor_entity,
-                    text:  Dict {
-                        ja: "なにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
-                        en: "Is there anything you want?\nIf you have something you want\nbring it here".to_string(),
+                    text: Dict {
+                        ja: "いらっしゃいませ！\n欲しい商品があったら\n持ってきてくださいね"
+                            .to_string(),
+                        en: "Welcome!\nBring me the item\nyou want to buy".to_string(),
                     },
                 });
             }

@@ -68,7 +68,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
         ));
 }
 
-fn update_speech_bubble(
+fn update_speech_bubble_position(
     mut speech_query: Query<(&mut Node, &SpeechBubble)>,
     camera_query: Query<(&Camera, &GlobalTransform), Without<SpeechBubble>>,
     rabbit_query: Query<&GlobalTransform, (Without<SpeechBubble>, Without<Camera>)>,
@@ -153,7 +153,11 @@ impl Plugin for SpeechBubblePlugin {
         app.add_event::<SpeechEvent>();
         app.add_systems(
             Update,
-            (update_speech_bubble, read_speech_events, countup).run_if(in_state(GameState::InGame)),
+            (
+                (read_speech_events, update_speech_bubble_position).chain(),
+                countup,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }

@@ -44,6 +44,7 @@ pub enum GameEntity {
     ShopRabbit,
     TrainingRabbit,
     GuideRabbit,
+    MultiplayerRabbit,
     Sandbug,
     ShopDoor,
     BGM,
