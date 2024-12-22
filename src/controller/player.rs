@@ -65,7 +65,9 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
             }) => true,
             _ => false,
         });
-        actor.intensity = if equiped_lantern { 3.0 } else { 0.0 };
+
+        // 3.0だと明るすぎて白飛びしてしまいます
+        actor.intensity = if equiped_lantern { 2.0 } else { 0.0 };
     }
 }
 

@@ -304,6 +304,9 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
     // 床と壁の生成
     for y in chunk.min_y..chunk.max_y as i32 {
         for x in chunk.min_x..chunk.max_x as i32 {
+            let r = rand::random::<u32>() % 3;
+            let slice = format!("stone_tile{}", r);
+
             match chunk.get_tile(x, y) {
                 Tile::StoneTile => {
                     commands.spawn((
@@ -317,7 +320,7 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
                         )),
                         AseSpriteSlice {
                             aseprite: assets.atlas.clone(),
-                            name: "stone tile".into(),
+                            name: slice.into(),
                         },
                     ));
                 }
@@ -548,7 +551,7 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         message: Dict {
-                            ja: "やあ、見慣れない顔だね\nここはウサギ族商人のキャンプだよ\n来客は歓迎さ\nまあ金払い次第だけどね".to_string(),
+                            ja: "やあ、見慣れない顔だね\nここは商人キャンプだよ\n来客は歓迎さ\nまあ金払い次第だけどね".to_string(),
                             en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome\nbut it depends on the payment"
                                 .to_string(),
                         },
