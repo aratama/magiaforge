@@ -5,6 +5,7 @@ pub mod wall;
 
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
+use crate::camera::setup_camera;
 use crate::camera::GameCamera;
 use crate::config::GameConfig;
 use crate::constant::*;
@@ -89,7 +90,6 @@ pub fn setup_level(
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
     life_bar_res: Res<LifeBarResource>,
-    mut camera: Query<(&mut GameCamera, &mut Transform), With<Camera2d>>,
     mut current: ResMut<CurrentLevel>,
 ) {
     let level = match current.next_level {
@@ -113,12 +113,7 @@ pub fn setup_level(
     let player_x = TILE_SIZE * entry_point.x as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.y as f32 - TILE_HALF;
 
-    if let Ok((mut game_camera, mut camera)) = camera.get_single_mut() {
-        game_camera.x = player_x;
-        game_camera.y = player_y;
-        camera.translation.x = player_x;
-        camera.translation.y = player_y;
-    }
+    setup_camera(&mut commands, Vec2::new(player_x, player_y));
 
     // プレイヤーキャラクターの魔法使いを生成
     spawn_witch(

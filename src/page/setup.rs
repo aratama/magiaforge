@@ -2,6 +2,7 @@ use crate::{constant::LOADING_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn((Camera2d::default(), StateScoped(GameState::Setup)));
     commands.spawn((
         StateScoped(GameState::Setup),
         ImageNode {

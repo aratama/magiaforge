@@ -14,6 +14,8 @@ use bevy_aseprite_ultra::prelude::AseUiAnimation;
 pub struct EndingImage;
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm: ResMut<NextBGM>) {
+    commands.spawn((StateScoped(GameState::Ending), Camera2d::default()));
+
     next_bgm.0 = Some(assets.ending_bgm.clone());
 
     commands.spawn((

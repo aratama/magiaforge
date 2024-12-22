@@ -38,12 +38,14 @@ struct LanguageButton;
 #[derive(Component)]
 struct ClickToStart;
 
-fn setup_main_menu(
+fn setup(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
     mut current: ResMut<CurrentLevel>,
 ) {
+    commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
+
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
     *current = CurrentLevel::default();
 
@@ -347,7 +349,7 @@ impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<LanguageChanged>();
         app.add_event::<Events>();
-        app.add_systems(OnEnter(GameState::MainMenu), setup_main_menu);
+        app.add_systems(OnEnter(GameState::MainMenu), setup);
         app.add_systems(
             Update,
             (

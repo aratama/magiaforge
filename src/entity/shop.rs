@@ -147,7 +147,6 @@ fn enter(
 ) -> bool {
     if let Ok((mut sensor, sensor_transform)) = sensor_query.get_mut(*a) {
         if let Ok(actor) = player_query.get(*b) {
-            info!("enter");
             if 0 < actor.dept() {
                 sensor.open = false;
                 speech_writer.send(SpeechEvent::Speech {

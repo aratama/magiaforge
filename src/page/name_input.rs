@@ -55,6 +55,8 @@ fn setup(
     shots: Res<ButtonShots>,
     config: Res<GameConfig>,
 ) {
+    commands.spawn((Camera2d::default(), StateScoped(GameState::NameInput)));
+
     commands
         .spawn((
             Name::new("name_input"),

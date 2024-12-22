@@ -56,7 +56,9 @@ fn se_events(
     mut reader: EventReader<SEEvent>,
     camera_query: Query<&Transform, With<Camera2d>>,
 ) {
-    let camera_position = camera_query.single().translation.truncate();
+    let camera_position = camera_query
+        .get_single()
+        .map_or(Vec2::ZERO, |c| c.translation.truncate());
 
     let mut vec = Vec::<SEEvent>::new();
     for event in reader.read() {

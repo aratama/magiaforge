@@ -17,7 +17,7 @@ pub struct GameCamera {
 
 static BLIGHTNESS_IN_GAME: f32 = 0.01;
 
-fn setup_camera(mut commands: Commands) {
+pub fn setup_camera(commands: &mut Commands, position: Vec2) {
     let initial_scale_factor = -1.0;
 
     // デフォルトでは far: 1000, near: -1000でカメラが作成される
@@ -28,15 +28,17 @@ fn setup_camera(mut commands: Commands) {
 
     commands.spawn((
         Name::new("default camera"),
+        StateScoped(GameState::InGame),
         camera,
         projection,
         GameCamera {
-            x: 0.0,
-            y: 0.0,
+            x: position.x,
+            y: position.y,
             scale_factor: initial_scale_factor,
             vibration: 0.0,
             target: None,
         },
+        Transform::from_xyz(position.x, position.y, 0.0),
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
         // 光が当たっていない部分の明るさを設定できます
         AmbientLight2d {
@@ -116,7 +118,6 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Setup), setup_camera);
         app.add_systems(
             FixedUpdate,
             (update_camera_position, update_camera_brightness)

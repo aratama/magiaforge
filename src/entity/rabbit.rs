@@ -209,8 +209,8 @@ fn chat_start(
                 speech_writer.send(SpeechEvent::Speech {
                     speaker: *sensor_entity,
                     text:  Dict {
-                        ja: "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
-                        en: "Hello\nIs there anything you want?\nIf you have something you want\nbring it here".to_string(),
+                        ja: "なにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
+                        en: "Is there anything you want?\nIf you have something you want\nbring it here".to_string(),
                     },
                 });
             }
