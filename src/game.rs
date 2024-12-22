@@ -4,9 +4,11 @@ use crate::camera::*;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
+use crate::controller::message_rabbit::MessageRabbitPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
 use crate::controller::servant::ServantPlugin;
+use crate::controller::shop_rabbit::ShopRabbitPlugin;
 use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
@@ -28,7 +30,6 @@ use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
-use crate::entity::training_rabbit::TrainingRabbitPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
 use crate::footsteps::FootStepsPlugin;
@@ -213,12 +214,13 @@ pub fn run_game() {
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
         .add_plugins(PopUpPlugin)
+        .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
-        .add_plugins(TrainingRabbitPlugin)
+        .add_plugins(MessageRabbitPlugin)
         .add_plugins(WallPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)

@@ -1,6 +1,5 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
-use crate::entity::rabbit::ShopRabbit;
 use crate::language::Dict;
 use crate::se::{SEEvent, SE};
 use crate::states::GameState;

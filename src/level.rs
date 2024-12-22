@@ -6,10 +6,15 @@ pub mod wall;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
-use crate::camera::GameCamera;
 use crate::config::GameConfig;
 use crate::constant::*;
+use crate::controller::message_rabbit::MessageRabbit;
+use crate::controller::message_rabbit::MessageRabbitInnerSensor;
+use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::player::Player;
+use crate::controller::shop_rabbit::ShopRabbit;
+use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
+use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
@@ -25,12 +30,8 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
-use crate::entity::rabbit::ShopRabbit;
-use crate::entity::rabbit::ShopRabbitSensor;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
-use crate::entity::training_rabbit::TrainingRabbit;
-use crate::entity::training_rabbit::TrainingRabbitSensor;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::equipment::EquipmentType;
@@ -518,6 +519,7 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     ShopRabbit,
                     ShopRabbitSensor,
+                    ShopRabbitOuterSensor,
                 );
             }
             GameEntity::TrainingRabbit => {
@@ -525,14 +527,15 @@ fn spawn_entities(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    TrainingRabbit {
+                    MessageRabbit {
                         message: Dict {
                             ja: "キミも強くなりたいのかい？\nここで練習していくといい".to_string(),
                             en: "Do you want to be strong too?\nIt's good to practice here"
                                 .to_string(),
                         },
                     },
-                    TrainingRabbitSensor,
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
                 );
             }
             GameEntity::GuideRabbit => {
@@ -540,14 +543,15 @@ fn spawn_entities(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    TrainingRabbit {
+                    MessageRabbit {
                         message: Dict {
                             ja: "やあ、見慣れない顔だね\nここはウサギ族のキャンプだよ\n客人は歓迎さ".to_string(),
                             en: "Hey, you look unfamiliar\nThis is a rabbit camp\nGuests are welcome"
                                 .to_string(),
                         },
                     },
-                    TrainingRabbitSensor,
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor
                 );
             }
             GameEntity::Sandbug => {

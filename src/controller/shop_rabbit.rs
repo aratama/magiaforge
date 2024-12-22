@@ -2,29 +2,28 @@ use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::language::Dict;
+use crate::se::{SEEvent, SE};
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
-pub struct TrainingRabbit {
-    pub message: Dict<String>,
-}
+pub struct ShopRabbit;
 
 #[derive(Component)]
-pub struct TrainingRabbitSensor;
+pub struct ShopRabbitSensor;
 
 #[derive(Component)]
-struct RabbitOuterSensor;
+pub struct ShopRabbitOuterSensor;
 
 fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
-    rabbit_query: Query<&TrainingRabbit>,
-    sensor_query: Query<&Parent, With<TrainingRabbitSensor>>,
+    sensor_query: Query<&ShopRabbitSensor>,
     mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
+    mut se: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
         match collision_event {
@@ -33,18 +32,18 @@ fn collision_inner_sensor(
                     a,
                     b,
                     &mut camera_query,
-                    &rabbit_query,
                     &sensor_query,
                     &mut player_query,
                     &mut speech_writer,
+                    &mut se,
                 ) || chat_start(
                     b,
                     a,
                     &mut camera_query,
-                    &rabbit_query,
                     &sensor_query,
                     &mut player_query,
                     &mut speech_writer,
+                    &mut se,
                 );
             }
             CollisionEvent::Stopped(a, b, _option) => {
@@ -59,20 +58,56 @@ fn chat_start(
     sensor_entity: &Entity,
     player_entity: &Entity,
     camera_query: &mut Query<&mut GameCamera>,
-    rabbit_query: &Query<&TrainingRabbit>,
-    sensor_query: &Query<&Parent, With<TrainingRabbitSensor>>,
+    sensor_query: &Query<&ShopRabbitSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
+    se: &mut EventWriter<SEEvent>,
 ) -> bool {
     let mut camera = camera_query.single_mut();
-    if let Ok(parent) = sensor_query.get(*sensor_entity) {
-        if let Ok(_) = player_query.get_mut(*player_entity) {
-            let rabbit = rabbit_query.get(parent.get()).unwrap();
-            camera.target = Some(*sensor_entity);
-            speech_writer.send(SpeechEvent::Speech {
-                speaker: *sensor_entity,
-                text: rabbit.message.clone(),
-            });
+
+    if let Ok(_) = sensor_query.get(*sensor_entity) {
+        if let Ok(mut actor) = player_query.get_mut(*player_entity) {
+            let dept = actor.dept();
+            if 0 < dept {
+                if actor.liquidate() {
+                    camera.target = Some(*sensor_entity);
+                    se.send(SEEvent::new(SE::Register));
+                    speech_writer.send(SpeechEvent::Speech {
+                        speaker: *sensor_entity,
+                        text: Dict {
+                            ja: format!("合計{}ゴールドのお買い上げ！\nありがとう", dept)
+                                .to_string(),
+                            en: format!("Your total is {} Golds\nThank you", dept).to_string(),
+                        },
+                    });
+                } else {
+                    camera.target = Some(*sensor_entity);
+                    speech_writer.send(SpeechEvent::Speech {
+                        speaker: *sensor_entity,
+                        text: Dict {
+                            ja: format!(
+                                "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
+                                dept - actor.golds
+                            )
+                            .to_string(),
+                            en: format!(
+                            "Hey, hey!\nYou are {} Golds short!\nPut it back that you woun't buy",
+                            dept - actor.golds
+                        )
+                            .to_string(),
+                        },
+                    });
+                }
+            } else {
+                camera.target = Some(*sensor_entity);
+                speech_writer.send(SpeechEvent::Speech {
+                    speaker: *sensor_entity,
+                    text:  Dict {
+                        ja: "なにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
+                        en: "Is there anything you want?\nIf you have something you want\nbring it here".to_string(),
+                    },
+                });
+            }
             return true;
         }
     }
@@ -82,7 +117,7 @@ fn chat_start(
 fn chat_end(
     a: &Entity,
     b: &Entity,
-    sensor_query: &Query<&Parent, With<TrainingRabbitSensor>>,
+    sensor_query: &Query<&ShopRabbitSensor>,
     player_query: &Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
@@ -96,7 +131,7 @@ fn chat_end(
 fn collision_outer_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     mut camera_query: Query<&mut GameCamera>,
-    sensor_query: Query<&RabbitOuterSensor>,
+    sensor_query: Query<&ShopRabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
 ) {
@@ -128,7 +163,7 @@ fn out_sensor(
     a: &Entity,
     b: &Entity,
     camera_query: &mut Query<&mut GameCamera>,
-    sensor_query: &Query<&RabbitOuterSensor>,
+    sensor_query: &Query<&ShopRabbitOuterSensor>,
     player_query: &Query<&Actor, With<Player>>,
     _speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
@@ -141,9 +176,9 @@ fn out_sensor(
     return false;
 }
 
-pub struct TrainingRabbitPlugin;
+pub struct ShopRabbitPlugin;
 
-impl Plugin for TrainingRabbitPlugin {
+impl Plugin for ShopRabbitPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,

@@ -1,11 +1,8 @@
-use super::actor::Actor;
 use crate::{
     asset::GameAssets,
     audio::NextBGM,
     constant::{SENSOR_GROUP, TILE_SIZE, WITCH_GROUP},
     controller::player::Player,
-    se::{SEEvent, SE},
-    speech_bubble::SpeechEvent,
     states::GameState,
 };
 use bevy::prelude::*;
