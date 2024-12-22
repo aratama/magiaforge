@@ -31,6 +31,10 @@ pub fn setup_camera(commands: &mut Commands, position: Vec2) {
         StateScoped(GameState::InGame),
         camera,
         projection,
+        // 1ピクセルのアーティファクトが出ることがありますが、Msaa::Offで直るっぽい
+        // 特にショップの扉でアーティファクトが出てました
+        // https://github.com/bevyengine/bevy/issues/16918#issuecomment-2557851700
+        Msaa::Off,
         GameCamera {
             x: position.x,
             y: position.y,
