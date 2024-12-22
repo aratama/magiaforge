@@ -28,6 +28,7 @@ use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
+use crate::entity::training_rabbit::TrainingRabbitPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::entity::EntityPlugin;
 use crate::footsteps::FootStepsPlugin;
@@ -217,6 +218,7 @@ pub fn run_game() {
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
+        .add_plugins(TrainingRabbitPlugin)
         .add_plugins(WallPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)

@@ -16,19 +16,25 @@ use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseSpriteSlice};
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
-pub struct Rabbit;
+pub struct ShopRabbit;
 
 #[derive(Component)]
-struct RabbitSensor;
+pub struct ShopRabbitSensor;
 
 #[derive(Component)]
 struct RabbitOuterSensor;
 
-pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_rabbit<T: Component, S: Component>(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    position: Vec2,
+    marker: T,
+    sensor_marker: S,
+) {
     commands
         .spawn((
             Name::new("rabbit"),
-            Rabbit,
+            marker,
             StateScoped(GameState::InGame),
             Actor {
                 uuid: uuid::Uuid::new_v4(),
@@ -99,11 +105,12 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
             ));
 
             builder.spawn((
-                RabbitSensor,
+                sensor_marker,
                 Collider::ball(16.0),
                 Sensor,
                 ActiveEvents::COLLISION_EVENTS,
                 CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+                Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
             ));
 
             builder.spawn((
@@ -118,7 +125,7 @@ pub fn spawn_rabbit(commands: &mut Commands, assets: &Res<GameAssets>, position:
 
 fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
-    sensor_query: Query<&RabbitSensor>,
+    sensor_query: Query<&ShopRabbitSensor>,
     mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
@@ -154,50 +161,58 @@ fn collision_inner_sensor(
 }
 
 fn chat_start(
-    a: &Entity,
-    b: &Entity,
+    sensor_entity: &Entity,
+    player_entity: &Entity,
     camera_query: &mut Query<&mut GameCamera>,
-    sensor_query: &Query<&RabbitSensor>,
+    sensor_query: &Query<&ShopRabbitSensor>,
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
     se: &mut EventWriter<SEEvent>,
 ) -> bool {
     let mut camera = camera_query.single_mut();
 
-    if let Ok(_) = sensor_query.get(*a) {
-        if let Ok(mut actor) = player_query.get_mut(*b) {
+    if let Ok(_) = sensor_query.get(*sensor_entity) {
+        if let Ok(mut actor) = player_query.get_mut(*player_entity) {
             let dept = actor.dept();
             if 0 < dept {
                 if actor.liquidate() {
-                    camera.target = Some(*a);
+                    camera.target = Some(*sensor_entity);
                     se.send(SEEvent::new(SE::Register));
-                    speech_writer.send(SpeechEvent::Speech(Dict {
-                        ja: format!("合計{}ゴールドのお買い上げ！\nありがとう", dept).to_string(),
-                        en: format!("Your total is {} Golds\nThank you", dept).to_string(),
-                    }));
+                    speech_writer.send(SpeechEvent::Speech {
+                        speaker: *sensor_entity,
+                        text: Dict {
+                            ja: format!("合計{}ゴールドのお買い上げ！\nありがとう", dept)
+                                .to_string(),
+                            en: format!("Your total is {} Golds\nThank you", dept).to_string(),
+                        },
+                    });
                 } else {
-                    camera.target = Some(*a);
-                    speech_writer.send(SpeechEvent::Speech(Dict {
-                        ja: format!(
-                            "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
-                            dept - actor.golds
-                        )
-                        .to_string(),
-                        en: format!(
+                    camera.target = Some(*sensor_entity);
+                    speech_writer.send(SpeechEvent::Speech {
+                        speaker: *sensor_entity,
+                        text: Dict {
+                            ja: format!(
+                                "おいおい\n{}ゴールド足りないよ\n買わない商品は\n戻しておいてね",
+                                dept - actor.golds
+                            )
+                            .to_string(),
+                            en: format!(
                             "Hey, hey!\nYou are {} Golds short!\nPut it back that you woun't buy",
                             dept - actor.golds
                         )
-                        .to_string(),
-                    }));
+                            .to_string(),
+                        },
+                    });
                 }
             } else {
-                camera.target = Some(*a);
-                speech_writer.send(SpeechEvent::Speech(
-                    Dict {
+                camera.target = Some(*sensor_entity);
+                speech_writer.send(SpeechEvent::Speech {
+                    speaker: *sensor_entity,
+                    text:  Dict {
                         ja: "やあ\nなにか買っていくかい？\n欲しい商品があったら\n持ってきて".to_string(),
                         en: "Hello\nIs there anything you want?\nIf you have something you want\nbring it here".to_string(),
                     },
-                ));
+                });
             }
             return true;
         }
@@ -208,7 +223,7 @@ fn chat_start(
 fn chat_end(
     a: &Entity,
     b: &Entity,
-    sensor_query: &Query<&RabbitSensor>,
+    sensor_query: &Query<&ShopRabbitSensor>,
     player_query: &Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {

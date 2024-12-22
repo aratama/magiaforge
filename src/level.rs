@@ -24,8 +24,12 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
+use crate::entity::rabbit::ShopRabbit;
+use crate::entity::rabbit::ShopRabbitSensor;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
+use crate::entity::training_rabbit::TrainingRabbit;
+use crate::entity::training_rabbit::TrainingRabbitSensor;
 use crate::entity::witch::spawn_witch;
 use crate::entity::GameEntity;
 use crate::equipment::EquipmentType;
@@ -512,11 +516,22 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                 );
             }
-            GameEntity::Rabbit => {
+            GameEntity::ShopRabbit => {
                 spawn_rabbit(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    ShopRabbit,
+                    ShopRabbitSensor,
+                );
+            }
+            GameEntity::TrainingRabbit => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    TrainingRabbit,
+                    TrainingRabbitSensor,
                 );
             }
             GameEntity::Sandbug => {

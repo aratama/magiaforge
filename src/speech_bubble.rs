@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
-use crate::entity::rabbit::Rabbit;
+use crate::entity::rabbit::ShopRabbit;
 use crate::language::Dict;
 use crate::se::{SEEvent, SE};
 use crate::states::GameState;
@@ -15,9 +15,10 @@ const SPEECH_BUBBLE_WIDTH: f32 = 160.0;
 const SPEECH_BUBBLE_HEIGHT: f32 = 64.0;
 
 #[derive(Component)]
-pub struct SpeechBubble {
+struct SpeechBubble {
     count: usize,
     text: String,
+    entity: Option<Entity>,
 }
 
 #[derive(Component)]
@@ -25,7 +26,7 @@ pub struct SpeechBubbleText;
 
 #[derive(Event)]
 pub enum SpeechEvent {
-    Speech(Dict<String>),
+    Speech { text: Dict<String>, speaker: Entity },
     Close,
 }
 
@@ -36,6 +37,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
             SpeechBubble {
                 count: 0,
                 text: "".to_string(),
+                entity: None,
             },
             AseUiSlice {
                 aseprite: assets.atlas.clone(),
@@ -68,19 +70,23 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
 }
 
 fn update_speech_bubble(
-    mut speech_query: Query<&mut Node, With<SpeechBubble>>,
-    rabbit_query: Query<&GlobalTransform, With<Rabbit>>,
-    camera_query: Query<(&Camera, &GlobalTransform)>,
+    mut speech_query: Query<(&mut Node, &SpeechBubble)>,
+    camera_query: Query<(&Camera, &GlobalTransform), Without<SpeechBubble>>,
+    rabbit_query: Query<&GlobalTransform, (Without<SpeechBubble>, Without<Camera>)>,
 ) {
-    if let Ok(mut speech) = speech_query.get_single_mut() {
-        if let Ok(rabbit) = rabbit_query.get_single() {
-            let (camera, camera_transform) = camera_query.single();
-            if let Ok(p) = camera.world_to_viewport(
-                camera_transform,
-                rabbit.translation() + Vec3::new(0.0, 20.0, 0.0),
-            ) {
-                speech.left = Val::Px(p.x - SPEECH_BUBBLE_WIDTH * 0.5 * SCALE);
-                speech.top = Val::Px(p.y - 128.0 * 0.5 * SCALE);
+    if let Ok((mut speech_node, speech)) = speech_query.get_single_mut() {
+        if let Some(entity) = speech.entity {
+            if let Ok(rabbit) = rabbit_query.get(entity) {
+                let (camera, camera_transform) = camera_query.single();
+                if let Ok(p) = camera.world_to_viewport(
+                    camera_transform,
+                    rabbit.translation() + Vec3::new(0.0, 20.0, 0.0),
+                ) {
+                    speech_node.left = Val::Px(p.x - SPEECH_BUBBLE_WIDTH * 0.5 * SCALE);
+                    speech_node.top = Val::Px(p.y - 128.0 * 0.5 * SCALE);
+                }
+            } else {
+                warn!("Failed to get rabbit entity");
             }
         }
     }
@@ -95,10 +101,11 @@ fn read_speech_events(
         let (mut visibility, mut speech) = speech_query.single_mut();
 
         match event {
-            SpeechEvent::Speech(s) => {
+            SpeechEvent::Speech { text, speaker } => {
                 *visibility = Visibility::Inherited;
                 speech.count = 0;
-                speech.text = s.get(config.language).to_string();
+                speech.text = text.get(config.language).to_string();
+                speech.entity = Some(*speaker);
             }
             SpeechEvent::Close => {
                 *visibility = Visibility::Hidden;

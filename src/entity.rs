@@ -15,6 +15,7 @@ pub mod rabbit;
 pub mod servant_seed;
 pub mod shop;
 pub mod stone_lantern;
+pub mod training_rabbit;
 pub mod witch;
 
 use crate::{
@@ -41,7 +42,8 @@ pub enum GameEntity {
     StoneLantern,
     Spell,
     HugeSlime,
-    Rabbit,
+    ShopRabbit,
+    TrainingRabbit,
     Sandbug,
     ShopDoor,
     BGM,

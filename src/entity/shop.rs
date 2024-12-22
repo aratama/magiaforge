@@ -150,10 +150,13 @@ fn enter(
             info!("enter");
             if 0 < actor.dept() {
                 sensor.open = false;
-                speech_writer.send(SpeechEvent::Speech(Dict {
-                    ja: "おいおい、代金を払ってから行ってくれ".to_string(),
-                    en: "Hey Hey, pay first before you go".to_string(),
-                }));
+                speech_writer.send(SpeechEvent::Speech {
+                    speaker: *a,
+                    text: Dict {
+                        ja: "おいおい、代金を払ってから行ってくれ".to_string(),
+                        en: "Hey Hey, pay first before you go".to_string(),
+                    },
+                });
             } else {
                 sensor.open = true;
                 se_writer.send(SEEvent::pos(
