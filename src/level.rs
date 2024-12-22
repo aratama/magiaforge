@@ -53,6 +53,7 @@ use crate::message::MULTIPLAY_ARENA;
 use crate::message::SINGLEPLAY;
 use crate::message::TRAINING_RABBIT;
 use crate::message::UNKNOWN_LEVEL;
+use crate::message::WITCHES_ARE;
 use crate::player_state::PlayerState;
 use crate::random::random_select_mut;
 use crate::spell::SpellType;
@@ -583,6 +584,19 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         message: MULTIPLAY.to_string(),
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
+            GameEntity::ReadingRabbit => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_green,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    MessageRabbit {
+                        message: WITCHES_ARE.to_string(),
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,

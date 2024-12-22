@@ -245,6 +245,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::SinglePlayRabbit, x, y));
                 }
+                (255, 248, 0, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        biome: Biome::SafeZone,
+                    });
+                    entities.push((GameEntity::ReadingRabbit, x, y));
+                }
                 (182, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,

@@ -6,8 +6,8 @@ pub const HELLO: Dict<&'static str> = Dict {
 };
 
 pub const SINGLEPLAY: Dict<&'static str> = Dict {
-    ja: "この先は地下迷宮の入り口だよ\n気をつけてね",
-    en: "This is the entrance to the underground labyrinth\nBe careful",
+    ja: "この先は地下迷宮の入り口だよ\n気をつけてね\nあなたは魔法使いだから\n大丈夫だと思うけど",
+    en: "This is the entrance to the underground labyrinth\nBe careful\nI think you'll be fine\nbecause you are a witch",
 };
 
 pub const WITCHES_ARE: Dict<&'static str> = Dict {
