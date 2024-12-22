@@ -82,7 +82,7 @@ fn switch_sort_button_disabled(
     }
 }
 
-fn handle_tab_key(
+fn toggle_inventory(
     keys: Res<ButtonInput<KeyCode>>,
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
@@ -130,7 +130,7 @@ impl Plugin for WandEditorPlugin {
         app.add_systems(
             Update,
             (
-                handle_tab_key,
+                toggle_inventory,
                 sort_button_pressed,
                 switch_sort_button_disabled,
             )

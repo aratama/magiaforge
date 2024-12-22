@@ -70,7 +70,7 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 }
 
 /// 魔法の発射
-fn trigger_bullet(
+fn cast(
     mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
@@ -78,11 +78,11 @@ fn trigger_bullet(
     if let Ok(mut player) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                if get_fire_trigger(&buttons) {
-                    player.fire_state = ActorFireState::Fire;
+                player.fire_state = if get_fire_trigger(&buttons) {
+                    ActorFireState::Fire
                 } else {
-                    player.fire_state = ActorFireState::Idle;
-                }
+                    ActorFireState::Idle
+                };
                 if buttons.pressed(MouseButton::Right) {
                     player.fire_state_secondary = ActorFireState::Fire;
                 } else {
@@ -203,7 +203,7 @@ impl Plugin for PlayerPlugin {
             FixedUpdate,
             (
                 move_player,
-                trigger_bullet,
+                cast,
                 pick_gold,
                 die_player,
                 apply_intensity_by_lantern,

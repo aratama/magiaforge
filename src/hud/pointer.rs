@@ -22,10 +22,10 @@ fn setup_pointer(mut commands: Commands, assets: Res<GameAssets>) {
 
 fn update_pointer_image_by_angle(
     mut pointer_query: Query<&mut Node, With<Pointer>>,
-    q_window: Query<&Window, With<PrimaryWindow>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     if let Ok(mut pointer_style) = pointer_query.get_single_mut() {
-        if let Ok(window) = q_window.get_single() {
+        if let Ok(window) = window_query.get_single() {
             if let Some(cursor_in_screen) = window.cursor_position() {
                 // AsepriteSliceUiBundle に Aseprite のアンカーは効かないことに注意
                 // スライスのサイズは 13ピクセルで、それを２倍に拡大してその半分だけずらして中央ぞろえするので -13

@@ -134,7 +134,7 @@ fn drop(
     drop_query: Query<&DropArea>,
     mut commands: Commands,
     assets: Res<GameAssets>,
-    q_window: Query<&Window, With<PrimaryWindow>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
     map: Res<CurrentLevel>,
     mut se: EventWriter<SEEvent>,
@@ -155,34 +155,30 @@ fn drop(
 
                 if drop.hover {
                     if let Some(ref chunk) = map.chunk {
-                        if let Ok(window) = q_window.get_single() {
+                        if let Ok(window) = window_query.get_single() {
                             if let Some(cursor_in_screen) = window.cursor_position() {
-                                if let Ok((camera, camera_global_transform)) =
-                                    camera_query.get_single()
+                                let (camera, camera_global_transform) = camera_query.single();
+
+                                if let Ok(mouse_in_world) = camera
+                                    .viewport_to_world(camera_global_transform, cursor_in_screen)
                                 {
-                                    if let Ok(mouse_in_world) = camera.viewport_to_world(
-                                        camera_global_transform,
-                                        cursor_in_screen,
-                                    ) {
-                                        let pointer_in_world = mouse_in_world.origin.truncate();
+                                    let pointer_in_world = mouse_in_world.origin.truncate();
 
-                                        if chunk.get_tile_by_coords(pointer_in_world)
-                                            == Tile::StoneTile
-                                        {
-                                            if let Some(item) = content.get_inventory_item(&actor) {
-                                                let spells = content.get_wand_spells(&actor);
-                                                content.set_item(None, &spells, &mut actor, false);
+                                    if chunk.get_tile_by_coords(pointer_in_world) == Tile::StoneTile
+                                    {
+                                        if let Some(item) = content.get_inventory_item(&actor) {
+                                            let spells = content.get_wand_spells(&actor);
+                                            content.set_item(None, &spells, &mut actor, false);
 
-                                                spawn_dropped_item(
-                                                    &mut commands,
-                                                    &assets,
-                                                    pointer_in_world,
-                                                    item,
-                                                );
-                                                floating.content = None;
+                                            spawn_dropped_item(
+                                                &mut commands,
+                                                &assets,
+                                                pointer_in_world,
+                                                item,
+                                            );
+                                            floating.content = None;
 
-                                                se.send(SEEvent::new(SE::PickUp));
-                                            }
+                                            se.send(SEEvent::new(SE::PickUp));
                                         }
                                     }
                                 }

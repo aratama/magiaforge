@@ -34,7 +34,7 @@ impl FromWorld for ButtonShots {
 fn start_game(
     mut menu_next_state: ResMut<NextState<MainMenuPhase>>,
     mut config: ResMut<GameConfig>,
-    query: Query<&TextInputValue>,
+    text_input_query: Query<&TextInputValue>,
     mut writer: EventWriter<SEEvent>,
     mut next_bgm: ResMut<NextBGM>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
@@ -43,8 +43,8 @@ fn start_game(
     overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
     *next_bgm = NextBGM(None);
 
-    let q = query.single();
-    config.player_name = q.0.clone();
+    let TextInputValue(text_input) = text_input_query.single();
+    config.player_name = text_input.clone();
 
     writer.send(SEEvent::new(SE::Click));
 }
