@@ -223,6 +223,15 @@ pub enum ActorGroup {
     Enemy,
 }
 
+#[derive(Event, Debug, Clone)]
+pub enum ActorEvent {
+    Damaged {
+        actor: Entity,
+        position: Vec2,
+        damage: u32,
+    },
+}
+
 fn update_sprite_flip(
     actor_query: Query<&Actor>,
     mut sprite_query: Query<(&Parent, &mut Sprite), With<LifeBeingSprite>>,
@@ -389,6 +398,7 @@ pub struct ActorPlugin;
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Actor>();
+        app.add_event::<ActorEvent>();
         app.add_systems(
             Update,
             (update_sprite_flip, update_actor_light, update_actor_state)

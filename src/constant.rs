@@ -53,7 +53,9 @@ pub const WALL_HEIGHT: f32 = 8.0;
 // レイヤー ///////////////////////////////////////////////////////////////////////
 
 /// シードは空中にあるので一番上
-pub const SERVANT_SEED_LAYER_Z: f32 = 21.0;
+pub const SERVANT_SEED_LAYER_Z: f32 = 22.0;
+
+pub const DAMAGE_NUMBER_LAYER_Z: f32 = 21.0;
 
 /// キャラクターやチェストなどのレイヤー
 pub const ENTITY_LAYER_Z: f32 = 20.0;

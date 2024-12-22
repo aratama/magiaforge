@@ -13,6 +13,7 @@ use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
+use crate::enemy::sandbug::SandbagPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
@@ -214,6 +215,7 @@ pub fn run_game() {
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
         .add_plugins(PopUpPlugin)
+        .add_plugins(SandbagPlugin)
         .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)

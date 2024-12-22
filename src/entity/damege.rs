@@ -1,38 +1,40 @@
-use crate::{asset::GameAssets, states::GameState};
+use crate::{asset::GameAssets, constant::DAMAGE_NUMBER_LAYER_Z, states::GameState};
 use bevy::{prelude::*, text::FontSmoothing};
+
+use super::actor::ActorEvent;
 
 #[derive(Component)]
 struct DamageParticle {
     lifetime: usize,
 }
 
-#[derive(Event)]
-pub struct SpawnDamageNumber {
-    pub damage: i32,
-    pub position: Vec2,
-}
-
 fn spawn_damage_number(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut reader: EventReader<SpawnDamageNumber>,
+    mut reader: EventReader<ActorEvent>,
 ) {
     for event in reader.read() {
-        commands.spawn((
-            Name::new("Damage Number"),
-            StateScoped(GameState::InGame),
-            DamageParticle { lifetime: 40 },
-            Text2d(event.damage.to_string()),
-            TextColor(Color::WHITE),
-            TextFont {
-                font: assets.dotgothic.clone(),
-                font_size: 32.0,
-                font_smoothing: FontSmoothing::AntiAliased,
-                ..default()
-            },
-            Transform::from_translation(event.position.extend(11.0))
-                .with_scale(Vec3::new(0.25, 0.25, 1.0)),
-        ));
+        match event {
+            ActorEvent::Damaged {
+                damage, position, ..
+            } => {
+                commands.spawn((
+                    Name::new("Damage Number"),
+                    StateScoped(GameState::InGame),
+                    DamageParticle { lifetime: 40 },
+                    Text2d(damage.to_string()),
+                    TextColor(Color::WHITE),
+                    TextFont {
+                        font: assets.dotgothic.clone(),
+                        font_size: 32.0,
+                        font_smoothing: FontSmoothing::AntiAliased,
+                        ..default()
+                    },
+                    Transform::from_translation(position.extend(DAMAGE_NUMBER_LAYER_Z))
+                        .with_scale(Vec3::new(0.25, 0.25, 1.0)),
+                ));
+            }
+        }
     }
 }
 
@@ -52,7 +54,6 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnDamageNumber>();
         app.add_systems(
             Update,
             (spawn_damage_number, update_damage).run_if(in_state(GameState::InGame)),

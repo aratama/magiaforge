@@ -1,3 +1,4 @@
+use super::actor::ActorEvent;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::bullet_particle::BulletParticleResource;
@@ -14,8 +15,6 @@ use bevy_rapier2d::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
-
-use super::damege::SpawnDamageNumber;
 
 static BULLET_Z: f32 = 10.0;
 
@@ -201,7 +200,7 @@ fn bullet_collision(
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut writer: EventWriter<SEEvent>,
-    mut damage: EventWriter<SpawnDamageNumber>,
+    mut actor_event: EventWriter<ActorEvent>,
     resource: Res<BulletParticleResource>,
 ) {
     // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
@@ -223,7 +222,7 @@ fn bullet_collision(
                     &b,
                     &wall_collider_query,
                     &mut writer,
-                    &mut damage,
+                    &mut actor_event,
                     &resource,
                 ) {
                     process_bullet_event(
@@ -236,7 +235,7 @@ fn bullet_collision(
                         &a,
                         &wall_collider_query,
                         &mut writer,
-                        &mut damage,
+                        &mut actor_event,
                         &resource,
                     );
                 }
@@ -259,7 +258,7 @@ fn process_bullet_event(
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
     writer: &mut EventWriter<SEEvent>,
-    damage: &mut EventWriter<SpawnDamageNumber>,
+    actor_event: &mut EventWriter<ActorEvent>,
     resource: &Res<BulletParticleResource>,
 ) -> bool {
     if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
@@ -283,11 +282,12 @@ fn process_bullet_event(
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position, resource);
-                    damage.send(SpawnDamageNumber {
-                        damage: bullet.damage,
+                    writer.send(SEEvent::pos(SE::Damage, bullet_position));
+                    actor_event.send(ActorEvent::Damaged {
+                        actor: *b,
+                        damage: bullet.damage as u32,
                         position: bullet_position,
                     });
-                    writer.send(SEEvent::pos(SE::Damage, bullet_position));
                 }
             } else if let Ok((mut breakabke, impulse_optional)) = breakabke_query.get_mut(*b) {
                 trace!("bullet hit: {:?}", b);
@@ -296,8 +296,9 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
-                damage.send(SpawnDamageNumber {
-                    damage: bullet.damage,
+                actor_event.send(ActorEvent::Damaged {
+                    actor: *b,
+                    damage: bullet.damage as u32,
                     position: bullet_position,
                 });
                 writer.send(SEEvent::pos(SE::Damage, bullet_position));

@@ -11,7 +11,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
 
-use super::damege::SpawnDamageNumber;
+use super::actor::ActorEvent;
 
 #[derive(Component)]
 struct Impact {
@@ -36,7 +36,7 @@ fn read_impact_event(
     mut reader: EventReader<SpawnImpact>,
     mut life_query: Query<(&mut Life, &Transform, Option<&mut ExternalImpulse>)>,
     mut camera_query: Query<(&mut GameCamera, &Transform), Without<Life>>,
-    mut damage_writer: EventWriter<SpawnDamageNumber>,
+    mut damage_writer: EventWriter<ActorEvent>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
@@ -80,7 +80,8 @@ fn read_impact_event(
                 let damage = 10;
                 let p = life_transform.translation.truncate();
                 life.life = (life.life - damage).max(0);
-                damage_writer.send(SpawnDamageNumber {
+                damage_writer.send(ActorEvent::Damaged {
+                    actor: entity,
                     damage: 10,
                     position: p,
                 });
