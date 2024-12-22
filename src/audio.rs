@@ -72,13 +72,13 @@ fn change_bgm(
                     spawn_bgm(&mut commands, next, &config);
                 }
             }
+        } else {
+            bgm.volume = (bgm.volume - 0.01).max(0.0);
+            sink.set_volume(config.bgm_volume * bgm.volume);
         }
-    } else {
-        info!("BGM not found, starting new BGM");
-        if let Some(ref next) = next_bgm.0 {
-            info!("BGM started: {:?}", next);
-            spawn_bgm(&mut commands, next, &config);
-        }
+    } else if let Some(ref next) = next_bgm.0 {
+        info!("BGM started: {:?}", next);
+        spawn_bgm(&mut commands, next, &config);
     }
 }
 

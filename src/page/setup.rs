@@ -1,22 +1,14 @@
-use crate::{asset::GameAssets, constant::LOADING_Z_INDEX, states::GameState};
+use crate::{constant::LOADING_Z_INDEX, states::GameState};
 use bevy::prelude::*;
 
-fn setup(mut commands: Commands, assets: Res<GameAssets>) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         StateScoped(GameState::Setup),
-        Text::new("Loading..."),
-        TextColor(Color::WHITE),
-        TextFont {
-            font: assets.dotgothic.clone(),
-            font_size: 20.0,
+        ImageNode {
+            image: asset_server.load("image/loading.png"),
             ..default()
         },
-        Node {
-            position_type: PositionType::Absolute,
-            left: Val::Px(1100.0),
-            top: Val::Px(670.0),
-            ..default()
-        },
+        // 最初は Overlay で暗くなっているので loading は一番手前にする
         GlobalZIndex(LOADING_Z_INDEX),
     ));
 }

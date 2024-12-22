@@ -66,8 +66,8 @@ pub struct SpawnBullet {
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
-    pub group: Group,
-    pub filter: Group,
+    pub memberships: Group,
+    pub filters: Group,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -118,7 +118,7 @@ pub fn spawn_bullet(
             // 衝突を発生されるには ActiveEvents も必要
             ActiveEvents::COLLISION_EVENTS,
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(spawn.group, spawn.filter),
+            CollisionGroups::new(spawn.memberships, spawn.filters),
             //
             Velocity {
                 linvel: spawn.velocity,

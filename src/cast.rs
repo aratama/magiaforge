@@ -91,11 +91,11 @@ pub fn cast_spell(
                             light_radius,
                             light_color_hlsa,
                             homing: actor.effects.homing,
-                            group: match actor.actor_group {
+                            memberships: match actor.actor_group {
                                 ActorGroup::Player => WITCH_BULLET_GROUP,
                                 ActorGroup::Enemy => ENEMY_BULLET_GROUP,
                             },
-                            filter: match actor.actor_group {
+                            filters: match actor.actor_group {
                                 ActorGroup::Player => ENEMY_GROUP,
                                 ActorGroup::Enemy => WITCH_GROUP,
                             } | ENTITY_GROUP
