@@ -13,6 +13,7 @@ use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
+use crate::entity::bgm::BGMSwitchPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
@@ -89,8 +90,6 @@ use bevy_pkv::PkvStore;
 use bevy::diagnostic::EntityCountDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
-#[cfg(feature = "debug")]
-use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
 #[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
 use bevy_remote_inspector::RemoteInspectorPlugins;
 
@@ -160,6 +159,7 @@ pub fn run_game() {
         //
         .add_systems(Update, toggle_fullscreen)
         .add_plugins(ActorPlugin)
+        .add_plugins(BGMSwitchPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BossHitpointBarPlugin)
         .add_plugins(LifePlugin)
@@ -248,7 +248,6 @@ pub fn run_game() {
     #[cfg(feature = "debug")]
     app.add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(EntityCountDiagnosticsPlugin)
-        .add_plugins(SystemInformationDiagnosticsPlugin)
         .add_plugins(RapierDebugRenderPlugin {
             enabled: true,
             mode: DebugRenderMode::COLLIDER_SHAPES,

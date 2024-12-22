@@ -14,6 +14,7 @@ use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
+use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
@@ -528,6 +529,13 @@ fn spawn_entities(
             }
             GameEntity::ShopDoor => {
                 spawn_shop_door(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                );
+            }
+            GameEntity::BGM => {
+                spawn_bgm_switch(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),

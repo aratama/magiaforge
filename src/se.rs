@@ -43,6 +43,7 @@ pub enum SE {
     Kawaii,
     Register,
     Shuriken,
+    Bus,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -97,6 +98,7 @@ fn se_events(
             SE::Kawaii => &assets.kawaii,
             SE::Register => &assets.register,
             SE::Shuriken => &assets.shuriken,
+            SE::Bus => &assets.bus,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

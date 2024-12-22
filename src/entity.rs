@@ -1,4 +1,5 @@
 pub mod actor;
+pub mod bgm;
 pub mod book_shelf;
 pub mod broken_magic_circle;
 pub mod bullet;
@@ -43,6 +44,7 @@ pub enum GameEntity {
     Rabbit,
     Sandbug,
     ShopDoor,
+    BGM,
 }
 
 #[derive(Component)]

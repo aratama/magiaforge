@@ -129,6 +129,9 @@ pub struct GameAssets {
     #[asset(path = "audio/手裏剣を投げる.ogg")]
     pub shuriken: Handle<AudioSource>,
 
+    #[asset(path = "audio/バスのドアが開く2.ogg")]
+    pub bus: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 
@@ -140,8 +143,15 @@ pub struct GameAssets {
     #[asset(path = "bgm/荒れ地の先へ.ogg")]
     pub arechi: Handle<AudioSource>,
 
+    // 拠点 //////////////////////////////////////////////////////////////////////
     #[asset(path = "bgm/水のしたたる洞窟.ogg")]
     pub dokutsu: Handle<AudioSource>,
+
+    #[asset(path = "bgm/最果てのルージュ.ogg")]
+    pub saihate: Handle<AudioSource>,
+
+    #[asset(path = "bgm/古都の幻影.ogg")]
+    pub koto: Handle<AudioSource>,
 
     // 通常フロア ////////////////////////////////////////////////////////////////
     #[asset(path = "bgm/Tides_of_Adventure.ogg")]

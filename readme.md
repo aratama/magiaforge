@@ -55,6 +55,7 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - ぷよん https://soundeffect-lab.info/sound/anime/
 - お風呂 https://soundeffect-lab.info/sound/environment/
 - 手裏剣を投げる https://soundeffect-lab.info/sound/battle/battle2.html
+- バスのドアが開く 2 https://soundeffect-lab.info/sound/machine/machine2.html
 
 #### BGMs
 
@@ -77,6 +78,8 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - Battle Cinematic Trailer (Royalty Free Music) https://pixabay.com/music/main-title-battle-cinematic-trailer-royalty-free-music-210434/
 - Human vs Machine (dark orchestral cinematic epic action) https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/
 - Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/
+- 古都の幻影 https://dova-s.jp/bgm/play20331.html
+- 最果てのルージュ https://dova-s.jp/bgm/play19795.html
 
 #### Fonts
 
