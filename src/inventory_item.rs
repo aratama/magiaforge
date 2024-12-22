@@ -1,9 +1,4 @@
-use crate::{
-    equipment::EquipmentType,
-    language::{Dict, Languages},
-    spell::{get_spell_appendix, SpellType},
-    wand::WandType,
-};
+use crate::{equipment::EquipmentType, language::Dict, spell::SpellType, wand::WandType};
 use bevy::reflect::Reflect;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect)]
@@ -43,7 +38,6 @@ pub struct InventoryItemProps {
     pub icon: &'static str,
     pub name: Dict<&'static str>,
     pub description: Dict<&'static str>,
-    pub appendix: Dict<&'static str>,
 }
 
 impl InventoryItemType {
@@ -55,7 +49,6 @@ impl InventoryItemType {
                     icon: props.icon,
                     name: props.name,
                     description: props.description,
-                    appendix: Dict::empty(),
                 }
             }
             InventoryItemType::Wand(wand) => {
@@ -64,7 +57,6 @@ impl InventoryItemType {
                     icon: props.icon,
                     name: props.name,
                     description: props.description,
-                    appendix: Dict::empty(),
                 }
             }
             InventoryItemType::Equipment(equipment) => {
@@ -73,34 +65,8 @@ impl InventoryItemType {
                     icon: props.icon,
                     name: props.name,
                     description: props.description,
-                    appendix: Dict::empty(),
                 }
             }
         }
-    }
-}
-
-pub fn get_inventory_item_description(item: InventoryItemType, language: Languages) -> String {
-    match item {
-        InventoryItemType::Spell(spell) => {
-            let props = spell.to_props();
-            let cast = format!(
-                "{}:{}",
-                Dict {
-                    ja: "詠唱遅延",
-                    en: "Cast Delay"
-                }
-                .get(language),
-                props.cast_delay
-            );
-            let appendix = get_spell_appendix(props.cast, language);
-            return format!(
-                "{}\n{}\n{}",
-                props.description.get(language),
-                cast,
-                appendix
-            );
-        }
-        other => other.to_props().description.get(language).to_string(),
     }
 }

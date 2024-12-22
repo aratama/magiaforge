@@ -565,7 +565,7 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         message: Dict {
-                            ja: "この先はマルチプレイ用レベルらしいよ\n気軽に遊んでいくといい"
+                            ja: "この先はマルチプレイ用レベルだよ\n気軽に遊んでいってね"
                                 .to_string(),
                             en: "It seems that this is a level for multiplayer\nFeel free to play"
                                 .to_string(),

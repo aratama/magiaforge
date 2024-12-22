@@ -1,6 +1,8 @@
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::inventory_item::InventoryItemType;
+use crate::spell::get_spell_appendix;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;
 use crate::ui::wand_editor::MENU_THEME_COLOR;
@@ -154,7 +156,7 @@ fn update_spell_name(
     }
 }
 
-fn update_spell_description(
+fn update_item_description(
     mut query: Query<&mut Text, With<PopUpItemDescription>>,
     config: Res<GameConfig>,
     floating_query: Query<&Floating>,
@@ -171,6 +173,17 @@ fn update_spell_description(
         let first = popup.set.iter().next();
         if let Some(first) = first.and_then(|f| f.get_item(actor)) {
             text.0 = first.item_type.to_props().description.get(config.language);
+
+            if let InventoryItemType::Spell(spell) = first.item_type {
+                info!("spell:{}", spell.to_props().name.get(config.language));
+                let props = spell.to_props();
+                let cast: crate::spell::SpellCast = props.cast;
+                let appendix = get_spell_appendix(cast, config.language);
+                text.0 += format!("\n{}", appendix).as_str();
+            } else {
+                info!("not spell");
+            }
+
             if 0 < first.price {
                 text.0 += &format!("\n未清算:{}ゴールド", first.price);
             }
@@ -219,7 +232,7 @@ impl Plugin for PopUpPlugin {
             Update,
             (
                 update_spell_name,
-                update_spell_description,
+                update_item_description,
                 update_spell_icon,
                 update_information_position,
                 update_visible,

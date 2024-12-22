@@ -159,9 +159,6 @@ pub struct GameAssets {
     #[asset(path = "bgm/最果てのルージュ.ogg")]
     pub saihate: Handle<AudioSource>,
 
-    #[asset(path = "bgm/古都の幻影.ogg")]
-    pub koto: Handle<AudioSource>,
-
     // 通常フロア ////////////////////////////////////////////////////////////////
     #[asset(path = "bgm/Tides_of_Adventure.ogg")]
     pub ending_bgm: Handle<AudioSource>,

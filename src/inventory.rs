@@ -1,9 +1,5 @@
+use crate::{constant::MAX_ITEMS_IN_INVENTORY, inventory_item::InventoryItemType};
 use bevy::reflect::Reflect;
-
-use crate::{
-    constant::{MAX_ITEMS_IN_INVENTORY, MAX_ITEMS_IN_INVENTORY_COLUMN, MAX_ITEMS_IN_INVENTORY_ROW},
-    inventory_item::InventoryItemType,
-};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect)]
 pub struct InventoryItem {
@@ -29,29 +25,29 @@ impl Inventory {
         inventory[index] = item;
     }
 
-    pub fn is_settable(&self, index: usize, item: InventoryItem) -> bool {
-        let x = index % MAX_ITEMS_IN_INVENTORY_ROW;
-        let y = index / MAX_ITEMS_IN_INVENTORY_ROW;
-        if MAX_ITEMS_IN_INVENTORY_COLUMN <= y {
-            return false;
-        }
-        for i in 0..item.item_type.get_width() {
-            if MAX_ITEMS_IN_INVENTORY_ROW <= x + i {
-                return false;
-            }
-            if self.0[index + i].is_some() {
-                return false;
-            }
-        }
-        return true;
-    }
+    // pub fn is_settable(&self, index: usize, item: InventoryItem) -> bool {
+    //     let x = index % MAX_ITEMS_IN_INVENTORY_ROW;
+    //     let y = index / MAX_ITEMS_IN_INVENTORY_ROW;
+    //     if MAX_ITEMS_IN_INVENTORY_COLUMN <= y {
+    //         return false;
+    //     }
+    //     for i in 0..item.item_type.get_width() {
+    //         if MAX_ITEMS_IN_INVENTORY_ROW <= x + i {
+    //             return false;
+    //         }
+    //         if self.0[index + i].is_some() {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
-    pub fn is_settable_optional(&self, index: usize, item: Option<InventoryItem>) -> bool {
-        if let Some(item) = item {
-            return self.is_settable(index, item);
-        }
-        return true;
-    }
+    // pub fn is_settable_optional(&self, index: usize, item: Option<InventoryItem>) -> bool {
+    //     if let Some(item) = item {
+    //         return self.is_settable(index, item);
+    //     }
+    //     return true;
+    // }
 
     pub fn insert(&mut self, item: InventoryItem) -> bool {
         let Inventory(ref mut inventory) = *self;

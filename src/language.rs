@@ -13,9 +13,9 @@ pub struct Dict<T: ToString> {
 }
 
 impl Dict<&'static str> {
-    pub fn empty() -> Self {
-        Dict { ja: "", en: "" }
-    }
+    // pub fn empty() -> Self {
+    //     Dict { ja: "", en: "" }
+    // }
 
     pub fn get(&self, lang: Languages) -> String {
         match lang {
