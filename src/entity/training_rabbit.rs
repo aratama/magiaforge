@@ -8,7 +8,9 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
-pub struct TrainingRabbit;
+pub struct TrainingRabbit {
+    pub message: Dict<String>,
+}
 
 #[derive(Component)]
 pub struct TrainingRabbitSensor;
@@ -18,7 +20,8 @@ struct RabbitOuterSensor;
 
 fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
-    sensor_query: Query<&TrainingRabbitSensor>,
+    rabbit_query: Query<&TrainingRabbit>,
+    sensor_query: Query<&Parent, With<TrainingRabbitSensor>>,
     mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<SpeechEvent>,
@@ -30,6 +33,7 @@ fn collision_inner_sensor(
                     a,
                     b,
                     &mut camera_query,
+                    &rabbit_query,
                     &sensor_query,
                     &mut player_query,
                     &mut speech_writer,
@@ -37,6 +41,7 @@ fn collision_inner_sensor(
                     b,
                     a,
                     &mut camera_query,
+                    &rabbit_query,
                     &sensor_query,
                     &mut player_query,
                     &mut speech_writer,
@@ -54,20 +59,19 @@ fn chat_start(
     sensor_entity: &Entity,
     player_entity: &Entity,
     camera_query: &mut Query<&mut GameCamera>,
-    sensor_query: &Query<&TrainingRabbitSensor>,
+    rabbit_query: &Query<&TrainingRabbit>,
+    sensor_query: &Query<&Parent, With<TrainingRabbitSensor>>,
     player_query: &mut Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {
     let mut camera = camera_query.single_mut();
-    if let Ok(_) = sensor_query.get(*sensor_entity) {
+    if let Ok(parent) = sensor_query.get(*sensor_entity) {
         if let Ok(_) = player_query.get_mut(*player_entity) {
+            let rabbit = rabbit_query.get(parent.get()).unwrap();
             camera.target = Some(*sensor_entity);
             speech_writer.send(SpeechEvent::Speech {
                 speaker: *sensor_entity,
-                text: Dict {
-                    ja: "キミも強くなりたいのかい？\nここで練習していくといい".to_string(),
-                    en: "Do you want to be strong too?\nIt's good to practice here".to_string(),
-                },
+                text: rabbit.message.clone(),
             });
             return true;
         }
@@ -78,7 +82,7 @@ fn chat_start(
 fn chat_end(
     a: &Entity,
     b: &Entity,
-    sensor_query: &Query<&TrainingRabbitSensor>,
+    sensor_query: &Query<&Parent, With<TrainingRabbitSensor>>,
     player_query: &Query<&mut Actor, With<Player>>,
     speech_writer: &mut EventWriter<SpeechEvent>,
 ) -> bool {

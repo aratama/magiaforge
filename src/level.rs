@@ -530,7 +530,28 @@ fn spawn_entities(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    TrainingRabbit,
+                    TrainingRabbit {
+                        message: Dict {
+                            ja: "キミも強くなりたいのかい？\nここで練習していくといい".to_string(),
+                            en: "Do you want to be strong too?\nIt's good to practice here"
+                                .to_string(),
+                        },
+                    },
+                    TrainingRabbitSensor,
+                );
+            }
+            GameEntity::GuideRabbit => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    TrainingRabbit {
+                        message: Dict {
+                            ja: "やあ、見慣れない顔だね\nここはウサギ族のキャンプだよ\n客人は歓迎さ".to_string(),
+                            en: "Hey, you look unfamiliar\nThis is a rabbit camp\nGuests are welcome"
+                                .to_string(),
+                        },
+                    },
                     TrainingRabbitSensor,
                 );
             }

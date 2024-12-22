@@ -103,6 +103,8 @@ pub fn cast_spell(
                                 | RABBIT_GROUP,
                         };
 
+                        info!("damage {}", spawn.damage);
+
                         spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
                         actor.effects = default();
 
@@ -172,7 +174,7 @@ pub fn cast_spell(
             wand.index = wand.index + 1;
         }
 
-        actor.effects = default();
+        // actor.effects = default();
         wand.index %= MAX_SPELLS_IN_WAND;
     }
 }

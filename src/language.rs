@@ -6,7 +6,7 @@ pub enum Languages {
     En,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Dict<T: ToString> {
     pub ja: T,
     pub en: T,

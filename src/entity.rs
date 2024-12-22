@@ -44,6 +44,7 @@ pub enum GameEntity {
     HugeSlime,
     ShopRabbit,
     TrainingRabbit,
+    GuideRabbit,
     Sandbug,
     ShopDoor,
     BGM,

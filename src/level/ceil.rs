@@ -91,7 +91,9 @@ fn spawn_roof_tile(
         Name::new("ceil"),
         WorldTile,
         StateScoped(GameState::InGame),
-        Transform::from_xyz(x, y, z),
+        // ドアと重なった部分にアーティファクトが出る？
+        // 仕方ないので隙間ができないようにわずかに広げる
+        Transform::from_xyz(x, y, z).with_scale(Vec3::new(1.1, 1.1, 1.0)),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),
             name: format!("roof{:?}", roof_index).to_string(),
