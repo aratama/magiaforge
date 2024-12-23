@@ -1,6 +1,6 @@
-use super::label::spawn_label;
 use crate::asset::GameAssets;
 use crate::language::Dict;
+use crate::ui::label::spawn_label;
 use crate::ui::menu_button::menu_button;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;

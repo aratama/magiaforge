@@ -1,12 +1,13 @@
-use crate::{
-    asset::GameAssets,
-    controller::{player::Player, remote::RemotePlayer},
-    entity::actor::Actor,
-    level::{CurrentLevel, GameLevel},
-    states::GameState,
-};
+use crate::asset::GameAssets;
+use crate::controller::player::Player;
+use crate::controller::remote::RemotePlayer;
+use crate::entity::actor::Actor;
+use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::GameLevel;
+use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_simple_websocket::{ReadyState, WebSocketState};
+use bevy_simple_websocket::ReadyState;
+use bevy_simple_websocket::WebSocketState;
 
 #[derive(Component)]
 struct PlayerListRoot;

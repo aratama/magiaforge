@@ -1,14 +1,14 @@
 use crate::asset::GameAssets;
-use crate::constant::{MAX_SPELLS_IN_WAND, MAX_WANDS};
+use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::spell_in_wand::spawn_wand_spell_slot;
 use crate::ui::wand_sprite::spawn_wand_sprite_in_list;
-use bevy::{
-    prelude::*,
-    ui::{Display, Node},
-};
+use bevy::prelude::*;
+use bevy::ui::Display;
+use bevy::ui::Node;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 #[derive(Component)]

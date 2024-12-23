@@ -1,8 +1,9 @@
-use std::cmp::Ordering;
-
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_rapier2d::plugin::{DefaultRapierContext, PhysicsSet, RapierConfiguration};
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::PhysicsSet;
+use bevy_rapier2d::plugin::RapierConfiguration;
+use std::cmp::Ordering;
 
 #[derive(Resource)]
 pub struct GamePhysics {

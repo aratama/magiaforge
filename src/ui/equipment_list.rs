@@ -1,16 +1,18 @@
-use super::item_panel::{spawn_item_panel, ItemPanel};
-use super::popup::PopUp;
+use crate::asset::GameAssets;
+use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
-use crate::{
-    asset::GameAssets, constant::MAX_SPELLS_IN_WAND, controller::player::Player, states::GameState,
-};
-use crate::{
-    states::GameMenuState,
-    ui::floating::{Floating, FloatingContent},
-};
-use bevy::{prelude::*, ui::Display};
+use crate::states::GameMenuState;
+use crate::states::GameState;
+use crate::ui::floating::Floating;
+use crate::ui::floating::FloatingContent;
+use crate::ui::item_panel::spawn_item_panel;
+use crate::ui::item_panel::ItemPanel;
+use crate::ui::popup::PopUp;
+use bevy::prelude::*;
+use bevy::ui::Display;
 
 #[derive(Component)]
 pub struct EquipmentContainer;

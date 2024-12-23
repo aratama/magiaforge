@@ -1,5 +1,12 @@
-use crate::level::{map::LevelChunk, Tile, WorldTile, TILE_HALF, TILE_SIZE, WALL_HEIGHT};
-use crate::{asset::GameAssets, entity::get_entity_z, states::GameState};
+use crate::asset::GameAssets;
+use crate::constant::TILE_HALF;
+use crate::constant::TILE_SIZE;
+use crate::constant::WALL_HEIGHT;
+use crate::entity::get_entity_z;
+use crate::level::map::LevelChunk;
+use crate::level::tile::Tile;
+use crate::level::tile::WorldTile;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 

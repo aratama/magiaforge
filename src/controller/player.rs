@@ -1,23 +1,31 @@
 use crate::asset::GameAssets;
-use crate::constant::{ENTITY_LAYER_Z, MAX_WANDS};
+use crate::constant::ENTITY_LAYER_Z;
+use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
-use crate::entity::actor::{Actor, ActorFireState};
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorFireState;
 use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
-use crate::input::{get_direction, get_fire_trigger};
-use crate::level::{CurrentLevel, GameLevel};
+use crate::input::get_direction;
+use crate::input::get_fire_trigger;
+use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::GameLevel;
 use crate::player_state::PlayerState;
-use crate::se::{SEEvent, SE};
-use crate::states::{GameMenuState, GameState};
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameMenuState;
+use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
-use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
+use bevy_simple_websocket::ClientMessage;
+use bevy_simple_websocket::ReadyState;
+use bevy_simple_websocket::WebSocketState;
 
 #[derive(Debug, Clone, Copy, Reflect)]
 pub struct Equipment {

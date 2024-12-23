@@ -7,14 +7,18 @@ use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::tile::Tile;
-use crate::level::CurrentLevel;
-use crate::se::{SEEvent, SE};
+use crate::page::in_game::CurrentLevel;
+use crate::se::SEEvent;
+use crate::se::SE;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
-use serde::{Deserialize, Serialize};
+use bevy_simple_websocket::ClientMessage;
+use bevy_simple_websocket::ReadyState;
+use bevy_simple_websocket::WebSocketState;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Component)]
 pub struct ServantSeed {

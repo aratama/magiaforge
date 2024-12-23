@@ -1,18 +1,17 @@
-use super::{
-    command_button::{command_button, CommandButton},
-    floating::Floating,
-    inventory::{spawn_inventory, INVENTORY_IMAGE_HEIGHT},
-    menu_left::MenuLeft,
-    popup::spawn_spell_information,
-};
-use crate::{
-    asset::GameAssets,
-    constant::WAND_EDITOR_Z_INDEX,
-    controller::player::Player,
-    entity::actor::Actor,
-    language::Dict,
-    states::{GameMenuState, GameState},
-};
+use crate::asset::GameAssets;
+use crate::constant::WAND_EDITOR_Z_INDEX;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::language::Dict;
+use crate::states::GameMenuState;
+use crate::states::GameState;
+use crate::ui::command_button::command_button;
+use crate::ui::command_button::CommandButton;
+use crate::ui::floating::Floating;
+use crate::ui::inventory::spawn_inventory;
+use crate::ui::inventory::INVENTORY_IMAGE_HEIGHT;
+use crate::ui::menu_left::MenuLeft;
+use crate::ui::popup::spawn_spell_information;
 use bevy::prelude::*;
 
 #[derive(Component)]

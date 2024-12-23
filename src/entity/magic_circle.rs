@@ -1,22 +1,24 @@
-use crate::{
-    asset::GameAssets,
-    constant::*,
-    controller::player::Player,
-    hud::overlay::OverlayEvent,
-    level::{CurrentLevel, GameLevel},
-    player_state::PlayerState,
-    se::{SEEvent, SE},
-    states::GameState,
-};
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::entity::life::Life;
+use crate::hud::overlay::OverlayEvent;
+use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::GameLevel;
+use crate::player_state::PlayerState;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-use bevy_rapier2d::{
-    plugin::PhysicsSet,
-    prelude::{ActiveEvents, Collider, CollisionEvent, CollisionGroups, Sensor},
-};
-
-use super::{actor::Actor, life::Life};
+use bevy_rapier2d::plugin::PhysicsSet;
+use bevy_rapier2d::prelude::ActiveEvents;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::CollisionEvent;
+use bevy_rapier2d::prelude::CollisionGroups;
+use bevy_rapier2d::prelude::Sensor;
 
 const MAX_POWER: i32 = 360;
 const MIN_RADIUS_ON: f32 = 100.0;

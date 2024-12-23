@@ -1,16 +1,15 @@
-use super::{
-    floating::{Floating, FloatingContent},
-    item_panel::{spawn_item_panel, ItemPanel},
-    popup::PopUp,
-};
-use crate::{
-    asset::GameAssets,
-    controller::player::Player,
-    entity::actor::Actor,
-    inventory::InventoryItem,
-    inventory_item::InventoryItemType,
-    states::{GameMenuState, GameState},
-};
+use crate::asset::GameAssets;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
+use crate::states::GameMenuState;
+use crate::states::GameState;
+use crate::ui::floating::Floating;
+use crate::ui::floating::FloatingContent;
+use crate::ui::item_panel::spawn_item_panel;
+use crate::ui::item_panel::ItemPanel;
+use crate::ui::popup::PopUp;
 use bevy::prelude::*;
 
 #[derive(Component, Debug, Clone)]

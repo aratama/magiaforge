@@ -1,4 +1,5 @@
-use crate::{constant::MAX_SPELLS_IN_WAND, spell::SpellType};
+use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::spell::SpellType;
 use bevy::reflect::Reflect;
 
 #[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]

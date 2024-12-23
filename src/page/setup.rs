@@ -1,4 +1,5 @@
-use crate::{constant::LOADING_Z_INDEX, states::GameState};
+use crate::constant::LOADING_Z_INDEX;
+use crate::states::GameState;
 use bevy::prelude::*;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {

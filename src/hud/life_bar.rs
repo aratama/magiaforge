@@ -1,5 +1,6 @@
 use crate::entity::life::Life;
-use crate::{set::GameSet, states::GameState};
+use crate::set::GameSet;
+use crate::states::GameState;
 use bevy::prelude::*;
 
 const LIFE_BAR_WIDTH: f32 = 16.0;

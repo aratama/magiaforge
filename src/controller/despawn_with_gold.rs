@@ -1,7 +1,10 @@
+use crate::asset::GameAssets;
 use crate::entity::gold::spawn_gold;
 use crate::entity::life::Life;
-use crate::se::{SEEvent, SE};
-use crate::{asset::GameAssets, set::GameSet, states::GameState};
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::set::GameSet;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

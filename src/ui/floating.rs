@@ -1,18 +1,25 @@
-use super::item_panel::{spawn_item_panel, ItemPanel};
-use crate::{
-    asset::GameAssets,
-    constant::{MAX_SPELLS_IN_WAND, WAND_EDITOR_FLOATING_Z_INDEX},
-    controller::player::{Equipment, Player},
-    entity::{actor::Actor, dropped_item::spawn_dropped_item},
-    hud::DropArea,
-    inventory::InventoryItem,
-    inventory_item::InventoryItemType,
-    level::{tile::Tile, CurrentLevel},
-    se::{SEEvent, SE},
-    states::{GameMenuState, GameState},
-    wand::{Wand, WandSpell},
-};
-use bevy::{prelude::*, window::PrimaryWindow};
+use crate::asset::GameAssets;
+use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
+use crate::controller::player::Equipment;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::entity::dropped_item::spawn_dropped_item;
+use crate::hud::DropArea;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
+use crate::level::tile::Tile;
+use crate::page::in_game::CurrentLevel;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameMenuState;
+use crate::states::GameState;
+use crate::ui::item_panel::spawn_item_panel;
+use crate::ui::item_panel::ItemPanel;
+use crate::wand::Wand;
+use crate::wand::WandSpell;
+use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum FloatingContent {

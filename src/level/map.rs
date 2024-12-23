@@ -1,7 +1,7 @@
-use crate::{entity::GameEntity, level::tile::Tile};
+use crate::constant::TILE_SIZE;
+use crate::entity::GameEntity;
+use crate::level::tile::Tile;
 use bevy::prelude::*;
-
-use super::TILE_SIZE;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Biome {

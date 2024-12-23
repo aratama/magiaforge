@@ -1,5 +1,7 @@
+use crate::entity::servant_seed::ServantType;
+use crate::language::Dict;
+use crate::language::Languages;
 use bevy::reflect::Reflect;
-use crate::{entity::servant_seed::ServantType, language::{Dict, Languages}};
 
 #[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter)]
 pub enum SpellType {
@@ -19,9 +21,6 @@ pub enum SpellType {
     SummonEnemyEyeball,
     Dash,
 }
-
-
-
 
 /// 呪文を詠唱したときの動作を表します
 /// 弾丸系魔法は Bullet にまとめられており、
@@ -56,8 +55,11 @@ pub enum SpellCast {
     },
     Homing,
     HeavyShot,
-    Summon { friend: bool, servant_type: ServantType } ,
-    Dash
+    Summon {
+        friend: bool,
+        servant_type: ServantType,
+    },
+    Dash,
 }
 
 /// 呪文の基礎情報
@@ -129,7 +131,7 @@ impl SpellType {
                     ja: "スライムの塊",
                     en: "Slime Limp",
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "ぷにぷにとした塊で殴りつけます。痛くはありませんが、相手を大きく吹き飛ばします。",
                     en: "Slap with a soft, squishy lump. It doesn't hurt much, but it knocks the opponent backward."
                 },
@@ -295,8 +297,7 @@ impl SpellType {
             },
         }
     }
-}   
-
+}
 
 const DAMAGE: Dict<&'static str> = Dict {
     ja: "ダメージ",
@@ -332,8 +333,6 @@ const HEAL_TEXT: Dict<&'static str> = Dict {
     ja: "回復",
     en: "Heal",
 };
- 
-
 
 pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
     match cast {
@@ -372,9 +371,7 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::MultipleCast { amount: _ } => format!(""),
         SpellCast::Homing => format!(""),
         SpellCast::HeavyShot => format!("威力: +5"),
-        SpellCast::Summon {..} => format!(""),
-        SpellCast::Dash {..} => format!(""),
+        SpellCast::Summon { .. } => format!(""),
+        SpellCast::Dash { .. } => format!(""),
     }
 }
-
-

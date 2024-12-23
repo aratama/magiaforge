@@ -1,8 +1,7 @@
 use crate::config::GameConfig;
-use bevy::{
-    audio::{PlaybackMode, Volume},
-    prelude::*,
-};
+use bevy::audio::PlaybackMode;
+use bevy::audio::Volume;
+use bevy::prelude::*;
 
 const SPATIAL_AUDIO_MAX_DISTANCE: f32 = 400.0;
 

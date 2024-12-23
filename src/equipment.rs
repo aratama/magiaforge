@@ -1,6 +1,5 @@
-use bevy::reflect::Reflect;
-
 use crate::language::Dict;
+use bevy::reflect::Reflect;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, strum::EnumIter)]
 pub enum EquipmentType {

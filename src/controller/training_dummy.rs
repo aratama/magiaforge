@@ -1,5 +1,6 @@
 use crate::controller::player::Player;
-use crate::entity::actor::{Actor, ActorFireState};
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorFireState;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;

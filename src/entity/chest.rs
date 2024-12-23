@@ -1,12 +1,12 @@
-use crate::{asset::GameAssets, constant::*, se::SEEvent, states::GameState};
-use crate::{
-    entity::{
-        gold::spawn_gold,
-        life::{Life, LifeBeingSprite},
-        EntityDepth,
-    },
-    se::SE,
-};
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::entity::gold::spawn_gold;
+use crate::entity::life::Life;
+use crate::entity::life::LifeBeingSprite;
+use crate::entity::EntityDepth;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

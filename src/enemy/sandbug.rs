@@ -1,12 +1,15 @@
 use crate::asset::GameAssets;
 use crate::enemy::basic::spawn_basic_enemy;
-use crate::entity::actor::{Actor, ActorEvent, ActorGroup};
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorEvent;
+use crate::entity::actor::ActorGroup;
 use crate::entity::life::LifeBeingSprite;
 use crate::hud::life_bar::LifeBarResource;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AnimationState, AseSpriteAnimation};
+use bevy_aseprite_ultra::prelude::AnimationState;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::plugin::PhysicsSet;
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;

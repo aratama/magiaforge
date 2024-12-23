@@ -1,17 +1,17 @@
+use crate::asset::GameAssets;
+use crate::camera::GameCamera;
+use crate::constant::ENEMY_GROUP;
+use crate::constant::ENTITY_GROUP;
+use crate::constant::PAINT_LAYER_Z;
+use crate::constant::WITCH_GROUP;
+use crate::entity::actor::ActorEvent;
 use crate::entity::life::Life;
+use crate::se::SEEvent;
 use crate::se::SE;
-use crate::{
-    asset::GameAssets,
-    camera::GameCamera,
-    constant::{ENEMY_GROUP, ENTITY_GROUP, PAINT_LAYER_Z, WITCH_GROUP},
-    se::SEEvent,
-    states::GameState,
-};
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
-
-use super::actor::ActorEvent;
 
 #[derive(Component)]
 struct Impact {

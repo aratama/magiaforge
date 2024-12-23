@@ -1,12 +1,14 @@
+use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory_item::InventoryItemType;
 use crate::spell::get_spell_appendix;
+use crate::states::GameState;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;
 use crate::ui::wand_editor::MENU_THEME_COLOR;
-use crate::{asset::GameAssets, config::GameConfig, states::GameState};
 use bevy::prelude::*;
 use bevy::utils::HashSet;
 use bevy::window::PrimaryWindow;

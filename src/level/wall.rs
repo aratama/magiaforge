@@ -1,15 +1,15 @@
-use crate::level::{
-    map::LevelChunk, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, TILE_HALF, TILE_SIZE,
-    WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
-};
-use crate::{level::Tile, states::GameState};
+use crate::constant::WALL_GROUP;
+use crate::constant::*;
+use crate::level::map::LevelChunk;
+use crate::level::tile::Tile;
+use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{
-    CoefficientCombineRule, Collider, CollisionGroups, Friction, RigidBody,
-};
+use bevy_rapier2d::prelude::CoefficientCombineRule;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::CollisionGroups;
+use bevy_rapier2d::prelude::Friction;
+use bevy_rapier2d::prelude::RigidBody;
 use std::collections::HashMap;
-
-use super::RABBIT_GROUP;
 
 /// 壁タイルから衝突矩形を計算します
 /// チェストや本棚なども侵入不可能ですが、それらは個別に衝突形状を持つため、ここでは壁のみを扱います

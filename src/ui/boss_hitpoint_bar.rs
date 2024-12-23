@@ -1,4 +1,7 @@
-use crate::{asset::GameAssets, enemy::huge_slime::Boss, entity::life::Life, states::GameState};
+use crate::asset::GameAssets;
+use crate::enemy::huge_slime::Boss;
+use crate::entity::life::Life;
+use crate::states::GameState;
 use bevy::prelude::*;
 
 const BAR_WIDTH: f32 = 800.0;

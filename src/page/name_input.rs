@@ -1,18 +1,20 @@
+use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::config::GameConfig;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
-use crate::se::{SEEvent, SE};
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
+use crate::states::MainMenuPhase;
 use crate::ui::menu_button::menu_button;
-use crate::{
-    asset::GameAssets,
-    states::{GameState, MainMenuPhase},
-};
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
-use bevy_simple_text_input::{
-    TextInput, TextInputSettings, TextInputTextColor, TextInputTextFont, TextInputValue,
-};
+use bevy_simple_text_input::TextInput;
+use bevy_simple_text_input::TextInputSettings;
+use bevy_simple_text_input::TextInputTextColor;
+use bevy_simple_text_input::TextInputTextFont;
+use bevy_simple_text_input::TextInputValue;
 
 const BORDER_COLOR_ACTIVE: Color = Color::srgb(0.75, 0.52, 0.99);
 const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);

@@ -1,4 +1,5 @@
-use crate::{constant::MAX_ITEMS_IN_INVENTORY, inventory_item::InventoryItemType};
+use crate::constant::MAX_ITEMS_IN_INVENTORY;
+use crate::inventory_item::InventoryItemType;
 use bevy::reflect::Reflect;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect)]

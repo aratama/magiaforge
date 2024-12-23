@@ -41,6 +41,7 @@ use crate::hud::*;
 use crate::input::GameInputPlugin;
 use crate::level::*;
 use crate::page::ending::EndingPlugin;
+use crate::page::in_game::WorldPlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
 use crate::page::setup::SetupPlugin;
@@ -69,32 +70,31 @@ use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use crate::ui::wand_sprite::WandSpritePlugin;
 use bevy::asset::AssetMetaCheck;
-use bevy::log::*;
-use bevy::prelude::*;
-use bevy::window::WindowMode;
-use bevy::window::{CursorOptions, EnabledButtons};
-use bevy_aseprite_ultra::AsepriteUltraPlugin;
-use bevy_asset_loader::prelude::*;
-use bevy_light_2d::plugin::Light2dPlugin;
-use bevy_rapier2d::prelude::*;
-use bevy_simple_text_input::TextInputPlugin;
-use bevy_simple_websocket::WebSocketPlugin;
-use gameover::GameoverPlugin;
-use wall::WallPlugin;
-
-#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
-use bevy_embedded_assets::EmbeddedAssetPlugin;
-#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
-use bevy_embedded_assets::PluginMode;
-#[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
-use bevy_pkv::PkvStore;
-
 #[cfg(feature = "debug")]
 use bevy::diagnostic::EntityCountDiagnosticsPlugin;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::log::*;
+use bevy::prelude::*;
+use bevy::window::CursorOptions;
+use bevy::window::EnabledButtons;
+use bevy::window::WindowMode;
+use bevy_aseprite_ultra::AsepriteUltraPlugin;
+use bevy_asset_loader::prelude::*;
+#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
+use bevy_embedded_assets::EmbeddedAssetPlugin;
+#[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
+use bevy_embedded_assets::PluginMode;
+use bevy_light_2d::plugin::Light2dPlugin;
+#[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+use bevy_pkv::PkvStore;
+use bevy_rapier2d::prelude::*;
 #[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
 use bevy_remote_inspector::RemoteInspectorPlugins;
+use bevy_simple_text_input::TextInputPlugin;
+use bevy_simple_websocket::WebSocketPlugin;
+use gameover::GameoverPlugin;
+use wall::WallPlugin;
 
 pub fn run_game() {
     let mut app = App::new();

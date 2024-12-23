@@ -1,4 +1,5 @@
-use crate::{language::Dict, wand::WandType};
+use crate::language::Dict;
+use crate::wand::WandType;
 
 pub struct WandProps {
     pub name: Dict<&'static str>,

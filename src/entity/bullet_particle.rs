@@ -1,7 +1,6 @@
+use crate::states::GameState;
 use bevy::prelude::*;
 use std::f32::consts::PI;
-
-use crate::states::GameState;
 
 #[derive(Resource)]
 pub struct BulletParticleResource {

@@ -1,7 +1,9 @@
-use crate::{constant::*, language::*};
+use crate::constant::*;
+use crate::language::*;
 use bevy::prelude::*;
 use bevy_pkv::PkvStore;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Resource, Clone, Debug, Serialize, Deserialize)]
 pub struct GameConfig {

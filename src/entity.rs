@@ -17,14 +17,13 @@ pub mod shop;
 pub mod stone_lantern;
 pub mod witch;
 
-use crate::{
-    constant::{ENTITY_LAYER_Z, Z_ORDER_SCALE},
-    states::GameState,
-};
-use bevy::{
-    ecs::query::{QueryData, QueryFilter, ROQueryItem},
-    prelude::*,
-};
+use crate::constant::ENTITY_LAYER_Z;
+use crate::constant::Z_ORDER_SCALE;
+use crate::states::GameState;
+use bevy::ecs::query::QueryData;
+use bevy::ecs::query::QueryFilter;
+use bevy::ecs::query::ROQueryItem;
+use bevy::prelude::*;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum GameEntity {

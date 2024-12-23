@@ -1,20 +1,26 @@
-use crate::{
-    asset::GameAssets,
-    constant::{
-        DOOR_GROUP, ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, RABBIT_GROUP, SENSOR_GROUP,
-        TILE_HALF, TILE_SIZE, WITCH_BULLET_GROUP, WITCH_GROUP,
-    },
-    controller::{player::Player, shop_rabbit::ShopRabbit},
-    language::Dict,
-    se::{SEEvent, SE},
-    speech_bubble::SpeechEvent,
-    states::GameState,
-};
+use crate::asset::GameAssets;
+use crate::constant::DOOR_GROUP;
+use crate::constant::ENEMY_BULLET_GROUP;
+use crate::constant::ENEMY_GROUP;
+use crate::constant::ENTITY_GROUP;
+use crate::constant::RABBIT_GROUP;
+use crate::constant::SENSOR_GROUP;
+use crate::constant::TILE_HALF;
+use crate::constant::TILE_SIZE;
+use crate::constant::WITCH_BULLET_GROUP;
+use crate::constant::WITCH_GROUP;
+use crate::controller::player::Player;
+use crate::controller::shop_rabbit::ShopRabbit;
+use crate::entity::actor::Actor;
+use crate::entity::EntityDepth;
+use crate::language::Dict;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::speech_bubble::SpeechEvent;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
-
-use super::{actor::Actor, EntityDepth};
 
 #[derive(Component)]
 struct ShopDoorSensor {

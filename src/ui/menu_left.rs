@@ -1,6 +1,6 @@
+use crate::states::GameMenuState;
+use crate::states::GameState;
 use bevy::prelude::*;
-
-use crate::states::{GameMenuState, GameState};
 
 #[derive(Component)]
 pub struct MenuLeft {

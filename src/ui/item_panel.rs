@@ -1,7 +1,8 @@
+use crate::asset::GameAssets;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::spell::SpellType;
-use crate::{asset::GameAssets, states::GameState};
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 

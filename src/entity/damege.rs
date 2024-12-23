@@ -1,7 +1,9 @@
-use crate::{asset::GameAssets, constant::DAMAGE_NUMBER_LAYER_Z, states::GameState};
-use bevy::{prelude::*, text::FontSmoothing};
-
-use super::actor::ActorEvent;
+use crate::asset::GameAssets;
+use crate::constant::DAMAGE_NUMBER_LAYER_Z;
+use crate::entity::actor::ActorEvent;
+use crate::states::GameState;
+use bevy::prelude::*;
+use bevy::text::FontSmoothing;
 
 #[derive(Component)]
 struct DamageParticle {

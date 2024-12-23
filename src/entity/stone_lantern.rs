@@ -1,12 +1,14 @@
-use crate::{asset::GameAssets, constant::*, se::SEEvent, states::GameState};
-use crate::{
-    entity::{
-        life::{Life, LifeBeingSprite},
-        EntityDepth,
-    },
-    se::SE,
-};
-use bevy::{core::FrameCount, prelude::*, sprite::Anchor};
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::entity::life::Life;
+use crate::entity::life::LifeBeingSprite;
+use crate::entity::EntityDepth;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
+use bevy::core::FrameCount;
+use bevy::prelude::*;
+use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;

@@ -1,17 +1,19 @@
+use crate::asset::GameAssets;
+use crate::constant::*;
 use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
-use crate::se::{SEEvent, SE};
-use crate::{asset::GameAssets, constant::*, states::GameState};
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::actor::Actor;
-use super::life::Life;
 
 #[derive(Component)]
 pub struct DroppedItemEntity {

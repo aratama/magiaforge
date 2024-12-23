@@ -1,8 +1,11 @@
+use crate::asset::GameAssets;
 use crate::constant::POINTER_Z_INDEX;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
 use crate::states::GameMenuState;
-use crate::{asset::GameAssets, states::GameState};
-use crate::{controller::player::Player, entity::actor::Actor};
-use bevy::{prelude::*, window::PrimaryWindow};
+use crate::states::GameState;
+use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 #[derive(Component)]

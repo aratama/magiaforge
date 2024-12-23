@@ -1,5 +1,8 @@
-use crate::{asset::GameAssets, audio::play_se, config::GameConfig};
-use bevy::{prelude::*, utils::hashbrown::HashSet};
+use crate::asset::GameAssets;
+use crate::audio::play_se;
+use crate::config::GameConfig;
+use bevy::prelude::*;
+use bevy::utils::hashbrown::HashSet;
 use bevy_rapier2d::plugin::PhysicsSet;
 use std::cmp::Ordering;
 

@@ -1,4 +1,7 @@
-use crate::{equipment::EquipmentType, language::Dict, spell::SpellType, wand::WandType};
+use crate::equipment::EquipmentType;
+use crate::language::Dict;
+use crate::spell::SpellType;
+use crate::wand::WandType;
 use bevy::reflect::Reflect;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect)]

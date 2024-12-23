@@ -1,7 +1,9 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
-use crate::entity::actor::{Actor, ActorFireState, ActorGroup};
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorFireState;
+use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::physics::compare_distance;
 use crate::set::GameSet;

@@ -1,18 +1,22 @@
-use super::actor::{ActorEvent, ActorGroup};
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
+use crate::entity::actor::ActorEvent;
+use crate::entity::actor::ActorGroup;
+use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::level::wall::WallCollider;
+use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
-use crate::{entity::bullet_particle::spawn_particle_system, se::SEEvent};
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AseSpriteSlice, Aseprite};
+use bevy_aseprite_ultra::prelude::AseSpriteSlice;
+use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashSet;
 use uuid::Uuid;
 

@@ -1,20 +1,26 @@
-use crate::{
-    asset::GameAssets,
-    constant::{
-        ENEMY_BULLET_GROUP, ENEMY_GROUP, ENTITY_GROUP, MAX_SPELLS_IN_WAND, RABBIT_GROUP,
-        WALL_GROUP, WITCH_BULLET_GROUP, WITCH_GROUP,
-    },
-    controller::remote::{send_remote_message, RemoteMessage},
-    entity::{
-        actor::{Actor, ActorGroup},
-        bullet::{spawn_bullet, SpawnBullet, BULLET_SPAWNING_MARGIN},
-        life::Life,
-        servant_seed::SpawnServantSeed,
-        witch::WITCH_COLLIDER_RADIUS,
-    },
-    se::{SEEvent, SE},
-    spell::{SpellCast, SpellType},
-};
+use crate::asset::GameAssets;
+use crate::constant::ENEMY_BULLET_GROUP;
+use crate::constant::ENEMY_GROUP;
+use crate::constant::ENTITY_GROUP;
+use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::constant::RABBIT_GROUP;
+use crate::constant::WALL_GROUP;
+use crate::constant::WITCH_BULLET_GROUP;
+use crate::constant::WITCH_GROUP;
+use crate::controller::remote::send_remote_message;
+use crate::controller::remote::RemoteMessage;
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorGroup;
+use crate::entity::bullet::spawn_bullet;
+use crate::entity::bullet::SpawnBullet;
+use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
+use crate::entity::life::Life;
+use crate::entity::servant_seed::SpawnServantSeed;
+use crate::entity::witch::WITCH_COLLIDER_RADIUS;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::spell::SpellCast;
+use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_simple_websocket::ClientMessage;
@@ -142,13 +148,6 @@ pub fn cast_spell(
                                 writer,
                                 online,
                                 &RemoteMessage::Fire(remove_bullet_props.clone()),
-                            );
-
-                            info!("online {:?}", online);
-
-                            info!(
-                                "fire message: {:?}",
-                                RemoteMessage::Fire(remove_bullet_props)
                             );
                         }
                     }

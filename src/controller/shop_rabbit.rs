@@ -1,8 +1,11 @@
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::message::{shop_rabbit, too_few_golds, SHOP_RABBIT};
-use crate::se::{SEEvent, SE};
+use crate::message::shop_rabbit;
+use crate::message::too_few_golds;
+use crate::message::SHOP_RABBIT;
+use crate::se::SEEvent;
+use crate::se::SE;
 use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
 use bevy::prelude::*;

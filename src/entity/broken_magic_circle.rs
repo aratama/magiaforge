@@ -1,4 +1,5 @@
-use crate::{constant::*, states::GameState};
+use crate::constant::*;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 

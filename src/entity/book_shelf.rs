@@ -1,7 +1,10 @@
-use crate::entity::life::{Life, LifeBeingSprite};
+use crate::constant::*;
+use crate::entity::life::Life;
+use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
-use crate::se::{SEEvent, SE};
-use crate::{constant::*, states::GameState};
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;

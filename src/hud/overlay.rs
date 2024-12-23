@@ -1,4 +1,5 @@
-use crate::{constant::OVERLAY_Z_INDEX, states::GameState};
+use crate::constant::OVERLAY_Z_INDEX;
+use crate::states::GameState;
 use bevy::prelude::*;
 
 const SPEED: f32 = 0.02;

@@ -1,25 +1,24 @@
-use crate::{
-    config::GameConfig,
-    constant::LAST_BOSS_LEVEL,
-    controller::player::Player,
-    entity::{actor::Actor, life::Life},
-    equipment::EquipmentType,
-    hud::overlay::OverlayEvent,
-    inventory_item::InventoryItemType,
-    level::{CurrentLevel, GameLevel},
-    physics::GamePhysics,
-    player_state::PlayerState,
-    spell::SpellType,
-    states::GameState,
-    wand::{Wand, WandSpell, WandType},
-};
-use bevy::{
-    input::{
-        keyboard::{Key, KeyboardInput},
-        ButtonState,
-    },
-    prelude::*,
-};
+use crate::config::GameConfig;
+use crate::constant::LAST_BOSS_LEVEL;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::entity::life::Life;
+use crate::equipment::EquipmentType;
+use crate::hud::overlay::OverlayEvent;
+use crate::inventory_item::InventoryItemType;
+use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::GameLevel;
+use crate::physics::GamePhysics;
+use crate::player_state::PlayerState;
+use crate::spell::SpellType;
+use crate::states::GameState;
+use crate::wand::Wand;
+use crate::wand::WandSpell;
+use crate::wand::WandType;
+use bevy::input::keyboard::Key;
+use bevy::input::keyboard::KeyboardInput;
+use bevy::input::ButtonState;
+use bevy::prelude::*;
 use bevy_rapier2d::plugin::PhysicsSet;
 
 fn process_debug_command(

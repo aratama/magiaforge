@@ -1,7 +1,8 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::language::Dict;
-use crate::se::{SEEvent, SE};
+use crate::se::SEEvent;
+use crate::se::SE;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy::text::FontSmoothing;

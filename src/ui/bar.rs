@@ -1,4 +1,5 @@
-use crate::{asset::GameAssets, states::GameState};
+use crate::asset::GameAssets;
+use crate::states::GameState;
 use bevy::prelude::*;
 
 const BAR_HEIGHT: f32 = 16.0;

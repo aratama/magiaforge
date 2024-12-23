@@ -1,8 +1,7 @@
+use crate::controller::player::Player;
+use crate::hud::overlay::OverlayEvent;
+use crate::states::GameState;
 use bevy::prelude::*;
-
-use crate::{controller::player::Player, states::GameState};
-
-use super::overlay::OverlayEvent;
 
 #[derive(Resource, Default)]
 struct GameOver {

@@ -1,6 +1,7 @@
 use crate::constant::CAMERA_SPEED;
+use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::{controller::player::Player, states::GameState};
+use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;

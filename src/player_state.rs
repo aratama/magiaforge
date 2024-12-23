@@ -1,16 +1,17 @@
+use crate::config::GameConfig;
+use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
+use crate::constant::MAX_WANDS;
+use crate::controller::player::Equipment;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::entity::life::Life;
+use crate::equipment::EquipmentType;
+use crate::inventory::Inventory;
+use crate::spell::SpellType;
+use crate::wand::Wand;
+use crate::wand::WandSpell;
+use crate::wand::WandType;
 use bevy::ecs::query::QuerySingleError;
-
-use crate::{
-    config::GameConfig,
-    constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS},
-    controller::player::{Equipment, Player},
-    entity::{actor::Actor, life::Life},
-    equipment::EquipmentType,
-    inventory::Inventory,
-    inventory_item::InventoryItemType,
-    spell::SpellType,
-    wand::{Wand, WandSpell, WandType},
-};
 
 #[derive(Debug, Clone)]
 pub struct PlayerState {

@@ -1,14 +1,13 @@
-use super::{
-    floating::{Floating, FloatingContent},
-    popup::PopUp,
-};
-use crate::{
-    asset::GameAssets,
-    controller::player::Player,
-    entity::actor::Actor,
-    states::{GameMenuState, GameState},
-};
-use bevy::{prelude::*, ui::Node};
+use crate::asset::GameAssets;
+use crate::controller::player::Player;
+use crate::entity::actor::Actor;
+use crate::states::GameMenuState;
+use crate::states::GameState;
+use crate::ui::floating::Floating;
+use crate::ui::floating::FloatingContent;
+use crate::ui::popup::PopUp;
+use bevy::prelude::*;
+use bevy::ui::Node;
 use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component)]

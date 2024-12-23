@@ -1,12 +1,11 @@
-use crate::{
-    asset::GameAssets,
-    audio::NextBGM,
-    constant::LAST_BOSS_LEVEL,
-    enemy::huge_slime::HugeSlime,
-    hud::overlay::OverlayEvent,
-    level::{CurrentLevel, GameLevel},
-    states::GameState,
-};
+use crate::asset::GameAssets;
+use crate::audio::NextBGM;
+use crate::constant::LAST_BOSS_LEVEL;
+use crate::enemy::huge_slime::HugeSlime;
+use crate::hud::overlay::OverlayEvent;
+use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::GameLevel;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
 

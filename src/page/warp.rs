@@ -1,8 +1,7 @@
-use crate::{
-    hud::overlay::OverlayEvent,
-    level::{CurrentLevel, GameLevel},
-    states::GameState,
-};
+use crate::hud::overlay::OverlayEvent;
+use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::GameLevel;
+use crate::states::GameState;
 use bevy::prelude::*;
 
 fn setup(

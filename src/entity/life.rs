@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use crate::states::GameState;
+use bevy::prelude::*;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます

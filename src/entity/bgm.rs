@@ -1,10 +1,10 @@
-use crate::{
-    asset::GameAssets,
-    audio::NextBGM,
-    constant::{SENSOR_GROUP, TILE_SIZE, WITCH_GROUP},
-    controller::player::Player,
-    states::GameState,
-};
+use crate::asset::GameAssets;
+use crate::audio::NextBGM;
+use crate::constant::SENSOR_GROUP;
+use crate::constant::TILE_SIZE;
+use crate::constant::WITCH_GROUP;
+use crate::controller::player::Player;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
