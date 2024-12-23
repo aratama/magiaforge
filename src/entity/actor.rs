@@ -1,6 +1,6 @@
 use crate::cast::cast_spell;
 use crate::constant::{MAX_ITEMS_IN_EQUIPMENT, MAX_WANDS};
-use crate::controller::player::Equipment;
+use crate::controller::player::{Equipment, Player};
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
 use crate::entity::servant_seed::SpawnServantSeed;
@@ -308,6 +308,7 @@ fn fire_bullet(
             &mut Life,
             &mut Transform,
             &mut ExternalImpulse,
+            Option<&Player>,
         ),
         Without<Camera2d>,
     >,
@@ -318,7 +319,7 @@ fn fire_bullet(
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
-    for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse) in
+    for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse, player) in
         actor_query.iter_mut()
     {
         if actor.fire_state == ActorFireState::Fire {
@@ -336,6 +337,7 @@ fn fire_bullet(
                 &mut se_writer,
                 &mut slime_writer,
                 current_wand,
+                player.is_some(),
             );
         }
 
@@ -353,6 +355,7 @@ fn fire_bullet(
                 &mut se_writer,
                 &mut slime_writer,
                 MAX_WANDS - 1,
+                player.is_some(),
             );
         }
 

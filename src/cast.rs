@@ -37,6 +37,7 @@ pub fn cast_spell(
     se_writer: &mut EventWriter<SEEvent>,
     slime_writer: &mut EventWriter<SpawnServantSeed>,
     wand_index: usize,
+    is_player: bool,
 ) {
     if let Some(ref mut wand) = &mut actor.wands[wand_index] {
         // 1フレームあたりの残りの呪文詠唱回数
@@ -107,27 +108,41 @@ pub fn cast_spell(
                         spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
                         actor.effects = default();
 
-                        // リモートの詠唱イベントを送信します
-                        // ここでは、受信で生成される弾丸のプロパティは送信側で設定しています
-                        let mut remove_bullet_props = spawn.clone();
+                        // リモートへ呪文詠唱を伝えます
+                        // リモートへ呪文詠唱を伝えるのはプレイヤーキャラクターのみです
+                        // 味方モンスター召喚を行うと味方モンスターが敵プレイヤーへ攻撃を行っているように見えますが、
+                        // 実際にはその攻撃は当たりません。マルチプレイ対戦における召喚は、
+                        // あくまで相手ワールドに相手の敵となるモンスターを指定した位置に生成することで、
+                        // それ以上の同期は行われません
+                        //
+                        // 味方モンスターと敵プレイヤーが戦っているように見えても、
+                        // リモートのプレイヤーからはまた違う状況に見えている可能性があります
+                        // たとえば、味方モンスターが敵プレイヤーを攻撃しているはずなのに、敵プレイヤーにダメージが入らないなどです
+                        // これは、ホーム世界では味方モンスターが生き残っているのに、リモート世界ではその味方モンスターは既に倒されているということです
+                        // 逆に、味方モンスターはいないはずなのに、敵プレイヤーが攻撃を受けているように見える、という状況もありえます
+                        if is_player {
+                            // リモートの詠唱イベントを送信します
+                            // ここでは、受信で生成される弾丸のプロパティは送信側で設定しています
+                            let mut remove_bullet_props = spawn.clone();
 
-                        // 送信側の魔女が発射した弾丸は、受信側では敵が発射した弾丸として扱われ、
-                        // membershipsやfilterが逆になります
-                        remove_bullet_props.memberships = match actor.actor_group {
-                            ActorGroup::Player => ENEMY_BULLET_GROUP,
-                            ActorGroup::Enemy => WITCH_BULLET_GROUP,
-                        };
-                        // ややこしいが、受信側にとってはプレイヤーキャラクター自信は WITCH_GROUP
-                        remove_bullet_props.filters = match actor.actor_group {
-                            ActorGroup::Player => WITCH_GROUP,
-                            ActorGroup::Enemy => ENEMY_GROUP,
-                        } | filter_base;
+                            // 送信側の魔女が発射した弾丸は、受信側では敵が発射した弾丸として扱われ、
+                            // membershipsやfilterが逆になります
+                            remove_bullet_props.memberships = match actor.actor_group {
+                                ActorGroup::Player => ENEMY_BULLET_GROUP,
+                                ActorGroup::Enemy => WITCH_BULLET_GROUP,
+                            };
+                            // ややこしいが、受信側にとってはプレイヤーキャラクター自信は WITCH_GROUP
+                            remove_bullet_props.filters = match actor.actor_group {
+                                ActorGroup::Player => WITCH_GROUP,
+                                ActorGroup::Enemy => ENEMY_GROUP,
+                            } | filter_base;
 
-                        send_remote_message(
-                            writer,
-                            online,
-                            &RemoteMessage::Fire(remove_bullet_props),
-                        );
+                            send_remote_message(
+                                writer,
+                                online,
+                                &RemoteMessage::Fire(remove_bullet_props),
+                            );
+                        }
                     }
                     SpellCast::BulletSpeedUpDown { delta } => {
                         actor.effects.bullet_speed_buff_factor =
