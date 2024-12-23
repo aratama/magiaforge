@@ -14,6 +14,7 @@ use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::{ExternalForce, ExternalImpulse};
 use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
+use serde::{Deserialize, Serialize};
 use std::f32::consts::PI;
 use uuid::Uuid;
 
@@ -217,7 +218,7 @@ pub enum ActorFireState {
     Fire,
 }
 
-#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActorGroup {
     Player,
     Enemy,

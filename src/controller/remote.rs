@@ -3,6 +3,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::life::Life;
+use crate::entity::servant_seed::{ServantType, SpawnServantSeed};
 use crate::inventory::Inventory;
 use crate::level::{setup_level, CurrentLevel, GameLevel};
 use crate::se::SE;
@@ -67,6 +68,14 @@ pub enum RemoteMessage {
     },
     // 弾を発射したことを通知します
     Fire(SpawnBullet),
+
+    ServantSeed {
+        from: Vec2,
+        to: Vec2,
+        actor_group: ActorGroup,
+        servant_type: ServantType,
+    },
+
     // ダメージを受けたことを通知します
     Hit {
         sender: Uuid,
@@ -183,6 +192,7 @@ fn receive_events(
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
     mut writer: EventWriter<SEEvent>,
+    mut servant_seed_writer: EventWriter<SpawnServantSeed>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -309,6 +319,21 @@ fn receive_events(
                                     );
                                 }
                             }
+                        }
+                        RemoteMessage::ServantSeed {
+                            from,
+                            to,
+                            actor_group,
+                            servant_type,
+                        } => {
+                            servant_seed_writer.send(SpawnServantSeed {
+                                from,
+                                to,
+                                actor_group,
+                                owner: None,
+                                servant_type,
+                                remote: false,
+                            });
                         }
                     };
                 }

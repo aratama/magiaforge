@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::slime::spawn_slime;
@@ -12,6 +13,8 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_simple_websocket::{ClientMessage, ReadyState, WebSocketState};
+use serde::{Deserialize, Serialize};
 
 #[derive(Component)]
 pub struct ServantSeed {
@@ -20,11 +23,11 @@ pub struct ServantSeed {
     to: Vec2,
     speed: u32,
     actor_group: ActorGroup,
-    master: Entity,
+    master: Option<Entity>,
     servant_type: ServantType,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum ServantType {
     Slime,
     Eyeball,
@@ -49,21 +52,27 @@ pub struct SpawnServantSeed {
     pub from: Vec2,
     pub to: Vec2,
     pub actor_group: ActorGroup,
-    pub owner: Entity,
+    pub owner: Option<Entity>,
     pub servant_type: ServantType,
+    pub remote: bool,
 }
 
 pub fn spawn_servant_seed(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut reader: EventReader<SpawnServantSeed>,
+    mut writer: EventWriter<ClientMessage>,
+    websocket: Res<WebSocketState>,
 ) {
+    let online = websocket.ready_state == ReadyState::OPEN;
+
     for SpawnServantSeed {
         from,
         to,
         actor_group,
         owner,
         servant_type,
+        remote,
     } in reader.read()
     {
         commands
@@ -95,6 +104,20 @@ pub fn spawn_servant_seed(
                     animation: "idle".into(),
                 },
             ));
+
+        if *remote && online {
+            let message = RemoteMessage::ServantSeed {
+                from: *from,
+                to: *to,
+                actor_group: match actor_group {
+                    ActorGroup::Player => ActorGroup::Enemy,
+                    ActorGroup::Enemy => ActorGroup::Player,
+                },
+                servant_type: *servant_type,
+            };
+            let serialized = bincode::serialize::<RemoteMessage>(&message).unwrap();
+            writer.send(ClientMessage::Binary(serialized));
+        }
     }
 }
 
@@ -138,7 +161,7 @@ struct SpawnEvent {
     servant_type: ServantType,
     position: Vec2,
     actor_group: ActorGroup,
-    master: Entity,
+    master: Option<Entity>,
 }
 
 fn spawn_servant(
@@ -158,7 +181,7 @@ fn spawn_servant(
                     30 + rand::random::<u32>() % 30,
                     0,
                     event.actor_group,
-                    Some(event.master),
+                    event.master,
                 );
             }
             ServantType::Eyeball => {

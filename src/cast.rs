@@ -164,7 +164,7 @@ pub fn cast_spell(
                         slime_writer.send(SpawnServantSeed {
                             from: actor_transform.translation.truncate(),
                             to: actor_transform.translation.truncate() + actor.pointer,
-                            owner: actor_entity,
+                            owner: Some(actor_entity),
                             servant_type,
                             actor_group: match (actor.actor_group, friend) {
                                 (ActorGroup::Player, true) => ActorGroup::Player,
@@ -172,6 +172,7 @@ pub fn cast_spell(
                                 (ActorGroup::Enemy, true) => ActorGroup::Enemy,
                                 (ActorGroup::Enemy, false) => ActorGroup::Player,
                             },
+                            remote: true,
                         });
                     }
                     SpellCast::Dash => {

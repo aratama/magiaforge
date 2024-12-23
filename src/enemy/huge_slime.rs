@@ -260,8 +260,9 @@ fn update_huge_slime_summon(
                                 from: transform.translation.truncate(),
                                 to,
                                 actor_group: ActorGroup::Enemy,
-                                owner: huge_slime_entity,
+                                owner: Some(huge_slime_entity),
                                 servant_type: ServantType::Slime,
+                                remote: false,
                             });
                         }
                     }
