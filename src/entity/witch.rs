@@ -62,6 +62,7 @@ pub fn spawn_witch<T: Component>(
             uuid,
             pointer: Vec2::from_angle(angle),
             intensity,
+            radius: WITCH_COLLIDER_RADIUS,
             move_direction: Vec2::ZERO,
             move_force: PLAYER_MOVE_FORCE,
             fire_state: ActorFireState::Idle,

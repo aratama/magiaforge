@@ -90,6 +90,10 @@ pub struct Actor {
     pub actor_group: ActorGroup,
 
     pub golds: u32,
+
+    // コリジョンの半径です
+    // 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
+    pub radius: f32,
 }
 
 impl Actor {

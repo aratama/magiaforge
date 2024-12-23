@@ -80,6 +80,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 uuid: Uuid::new_v4(),
                 pointer: Vec2::ZERO,
                 intensity: 0.0,
+                radius: HUGE_SLIME_COLLIDER_RADIUS,
                 move_direction: Vec2::ZERO,
                 move_force: 0.0,
                 fire_state: ActorFireState::Idle,

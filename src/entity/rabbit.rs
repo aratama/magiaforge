@@ -14,6 +14,8 @@ use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_rapier2d::prelude::*;
 
+const RABBIT_RADIUS: f32 = 5.0;
+
 pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
@@ -32,6 +34,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
                 uuid: uuid::Uuid::new_v4(),
                 pointer: Vec2::from_angle(0.0),
                 intensity: 0.5,
+                radius: RABBIT_RADIUS,
                 move_direction: Vec2::ZERO,
                 move_force: 0.0,
                 fire_state: ActorFireState::Idle,
@@ -57,7 +60,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             (
                 RigidBody::Dynamic,
                 Velocity::default(),
-                Collider::ball(5.0),
+                Collider::ball(RABBIT_RADIUS),
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
                 Damping {

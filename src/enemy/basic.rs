@@ -22,6 +22,8 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
 
+const BASIC_ACTOR_RADIUS: f32 = 8.0;
+
 pub fn spawn_basic_enemy<T: Component>(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
@@ -51,6 +53,7 @@ pub fn spawn_basic_enemy<T: Component>(
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
             intensity: 0.0,
+            radius: BASIC_ACTOR_RADIUS,
             move_direction: Vec2::ZERO,
             move_force: move_force,
             fire_state: ActorFireState::Idle,
@@ -81,7 +84,7 @@ pub fn spawn_basic_enemy<T: Component>(
         InheritedVisibility::default(),
         (
             RigidBody::Dynamic,
-            Collider::ball(8.0),
+            Collider::ball(BASIC_ACTOR_RADIUS),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
             Damping {
