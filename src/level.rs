@@ -103,13 +103,15 @@ pub fn setup_level(
     assets: Res<GameAssets>,
     life_bar_res: Res<LifeBarResource>,
     mut current: ResMut<CurrentLevel>,
+    config: Res<GameConfig>,
 ) {
     let level = match current.next_level {
         GameLevel::Level(level) => GameLevel::Level(level % LEVELS),
         GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
     };
 
-    let player = current.next_state.clone();
+    let mut player = current.next_state.clone();
+    player.name = config.player_name.clone();
 
     let mut chunk = spawn_level(
         &mut commands,

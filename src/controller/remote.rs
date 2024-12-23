@@ -310,7 +310,8 @@ fn receive_events(
 
                                 commands.entity(entity).despawn_recursive();
 
-                                for _ in 0..20 {
+                                let player_defeat_bonus = 100;
+                                for _ in 0..player_defeat_bonus {
                                     spawn_gold(
                                         &mut commands,
                                         &assets,
@@ -366,6 +367,8 @@ pub fn send_remote_message(
         info!("send remote message: {:?}", message);
         let serialized = bincode::serialize::<RemoteMessage>(message).unwrap();
         writer.send(ClientMessage::Binary(serialized));
+    } else {
+        info!("offline");
     }
 }
 
