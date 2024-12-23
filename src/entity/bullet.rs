@@ -313,6 +313,8 @@ fn process_bullet_event(
                 spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(SEEvent::pos(SE::Steps, bullet_position));
             } else {
+                // リモートプレイヤーに命中した場合もここ
+                // ヒット判定やダメージなどはリモート側で処理します
                 trace!("bullet hit unknown entity: {:?}", b);
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();

@@ -20,7 +20,7 @@ fn gameover(
 ) {
     if player_query.is_empty() {
         if gameover.animation == 300 {
-            overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
+            overlay_event_writer.send(OverlayEvent::Close(GameState::Warp));
         }
         gameover.animation += 1;
     }

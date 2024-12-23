@@ -7,6 +7,8 @@ use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
 use crate::input::{get_direction, get_fire_trigger};
+use crate::level::{CurrentLevel, GameLevel};
+use crate::player_state::PlayerState;
 use crate::se::{SEEvent, SE};
 use crate::states::{GameMenuState, GameState};
 use bevy::core::FrameCount;
@@ -156,12 +158,27 @@ fn die_player(
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
+    mut next: ResMut<CurrentLevel>,
 ) {
     if let Ok((entity, actor, player_life, transform)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
             game.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
+
+            // ダウン後はキャンプに戻る
+            next.next_level = GameLevel::Level(0);
+
+            // 次のシーンのためにプレイヤーの状態を保存
+            next.next_state = PlayerState {
+                name: "".to_string(),
+                life: player_life.max_life,
+                max_life: player_life.max_life, // 全回復させる
+                inventory: actor.inventory.clone(),
+                equipments: actor.equipments.clone(),
+                wands: actor.wands.clone(),
+                golds: actor.golds,
+            };
 
             // ダウンのアニメーションを残す
             commands.spawn((

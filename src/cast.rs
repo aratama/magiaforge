@@ -75,6 +75,9 @@ pub fn cast_spell(
                         let bullet_position =
                             actor_transform.translation.truncate() + range * normalized;
 
+                        // 誰が発射したかに関わらず、弾丸は以下のグループに衝突します
+                        let filter_base = ENTITY_GROUP | WALL_GROUP | RABBIT_GROUP;
+
                         let spawn = SpawnBullet {
                             uuid: Uuid::new_v4(),
                             position: bullet_position,
@@ -98,15 +101,33 @@ pub fn cast_spell(
                             filters: match actor.actor_group {
                                 ActorGroup::Player => ENEMY_GROUP,
                                 ActorGroup::Enemy => WITCH_GROUP,
-                            } | ENTITY_GROUP
-                                | WALL_GROUP
-                                | RABBIT_GROUP,
+                            } | filter_base,
                         };
 
                         spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
                         actor.effects = default();
 
-                        send_remote_message(writer, online, &RemoteMessage::Fire(spawn));
+                        // リモートの詠唱イベントを送信します
+                        // ここでは、受信で生成される弾丸のプロパティは送信側で設定しています
+                        let mut remove_bullet_props = spawn.clone();
+
+                        // 送信側の魔女が発射した弾丸は、受信側では敵が発射した弾丸として扱われ、
+                        // membershipsやfilterが逆になります
+                        remove_bullet_props.memberships = match actor.actor_group {
+                            ActorGroup::Player => ENEMY_BULLET_GROUP,
+                            ActorGroup::Enemy => WITCH_BULLET_GROUP,
+                        };
+                        // ややこしいが、受信側にとってはプレイヤーキャラクター自信は WITCH_GROUP
+                        remove_bullet_props.filters = match actor.actor_group {
+                            ActorGroup::Player => WITCH_GROUP,
+                            ActorGroup::Enemy => ENEMY_GROUP,
+                        } | filter_base;
+
+                        send_remote_message(
+                            writer,
+                            online,
+                            &RemoteMessage::Fire(remove_bullet_props),
+                        );
                     }
                     SpellCast::BulletSpeedUpDown { delta } => {
                         actor.effects.bullet_speed_buff_factor =
