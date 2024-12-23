@@ -13,6 +13,15 @@ pub struct WandSpell {
     pub price: u32,
 }
 
+impl WandSpell {
+    pub fn new(spell_type: SpellType) -> Self {
+        Self {
+            spell_type,
+            price: 0,
+        }
+    }
+}
+
 #[derive(Reflect, Clone, Debug)]
 pub struct Wand {
     pub wand_type: WandType,

@@ -175,13 +175,10 @@ fn update_item_description(
             text.0 = first.item_type.to_props().description.get(config.language);
 
             if let InventoryItemType::Spell(spell) = first.item_type {
-                info!("spell:{}", spell.to_props().name.get(config.language));
                 let props = spell.to_props();
                 let cast: crate::spell::SpellCast = props.cast;
                 let appendix = get_spell_appendix(cast, config.language);
                 text.0 += format!("\n{}", appendix).as_str();
-            } else {
-                info!("not spell");
             }
 
             if 0 < first.price {
