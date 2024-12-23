@@ -43,6 +43,8 @@ fn process_debug_command(
     }
 
     if local.ends_with("item") {
+        local.clear();
+
         if let Ok((_, mut actor, _)) = player_query.get_single_mut() {
             let ref mut inventory = actor.inventory;
 
@@ -64,8 +66,6 @@ fn process_debug_command(
             inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
             inventory.insert_free(InventoryItemType::Equipment(EquipmentType::SpikeBoots));
             inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Telescope));
-            inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Telescope));
-            inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Magnifier));
             inventory.insert_free(InventoryItemType::Equipment(EquipmentType::Magnifier));
             inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
             inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
@@ -80,6 +80,12 @@ fn process_debug_command(
             inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendEyeball));
             inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemyEyeball));
             inventory.insert_free(InventoryItemType::Spell(SpellType::Dash));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
             inventory.sort();
 
             actor.wands[1] = Some(Wand::with_slots(

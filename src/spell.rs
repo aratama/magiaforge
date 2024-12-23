@@ -20,6 +20,7 @@ pub enum SpellType {
     SummonFriendEyeball,
     SummonEnemyEyeball,
     Dash,
+    QuickCast,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -60,6 +61,7 @@ pub enum SpellCast {
         servant_type: ServantType,
     },
     Dash,
+    QuickCast,
 }
 
 /// 呪文の基礎情報
@@ -295,6 +297,18 @@ impl SpellType {
                 price: 500,
                 cast: SpellCast::Dash,
             },
+            SpellType::QuickCast => SpellProps {
+                name: Dict {
+                    ja: "高速詠唱",
+                    en: "Quick Cast",
+                },
+                description: Dict { ja: "次に詠唱する呪文の詠唱時間を減らします。",
+                en: "Reduces the casting time of the next spell." },
+                cast_delay: 2,
+                icon: "quick_cast",
+                price: 500,
+                cast: SpellCast::QuickCast,
+            },
         }
     }
 }
@@ -367,11 +381,7 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
         SpellCast::Heal => {
             format!("{}:{}", HEAL_TEXT.get(language), 10)
         }
-        SpellCast::BulletSpeedUpDown { delta: _ } => format!(""),
-        SpellCast::MultipleCast { amount: _ } => format!(""),
-        SpellCast::Homing => format!(""),
         SpellCast::HeavyShot => format!("威力: +5"),
-        SpellCast::Summon { .. } => format!(""),
-        SpellCast::Dash { .. } => format!(""),
+        _ => format!(""),
     }
 }

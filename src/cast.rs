@@ -22,6 +22,7 @@ use crate::se::SE;
 use crate::spell::SpellCast;
 use crate::spell::SpellType;
 use bevy::prelude::*;
+use bevy::scene::ron::de;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
@@ -57,8 +58,10 @@ pub fn cast_spell(
         while 0 < multicast && wand.index < MAX_SPELLS_IN_WAND {
             if let Some(spell) = wand.slots[wand.index] {
                 let props = spell.spell_type.to_props();
-
-                wand.delay += props.cast_delay.max(1);
+                let original_delay = props.cast_delay.max(1) as i32;
+                let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
+                actor.effects.quick_cast -= (original_delay - delay) as u32;
+                wand.delay += delay as u32;
                 multicast -= 1;
 
                 match props.cast {
@@ -207,6 +210,9 @@ pub fn cast_spell(
                             SE::Shuriken,
                             actor_transform.translation.truncate(),
                         ));
+                    }
+                    SpellCast::QuickCast => {
+                        actor.effects.quick_cast += 5;
                     }
                 }
             } else {

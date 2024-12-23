@@ -28,6 +28,7 @@ pub fn spawn_eyeball(
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
     actor_group: ActorGroup,
+    golds: u32,
 ) {
     spawn_basic_enemy(
         &mut commands,
@@ -41,7 +42,7 @@ pub fn spawn_eyeball(
         "eyeball",
         SpellType::PurpleBolt,
         ENEMY_MOVE_FORCE,
-        3,
+        golds,
         actor_group,
         None,
         25,

@@ -195,6 +195,7 @@ fn spawn_servant(
                     event.position,
                     &life_bar_locals,
                     event.actor_group,
+                    0,
                 );
             }
         }

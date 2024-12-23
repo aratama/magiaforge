@@ -36,6 +36,8 @@ pub struct CastEffects {
     pub homing: f32,
 
     pub bullet_damage_buff_amount: i32,
+
+    pub quick_cast: u32,
 }
 
 #[derive(Component, Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]

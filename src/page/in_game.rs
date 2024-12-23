@@ -255,35 +255,35 @@ fn spawn_level(
     spawn_entities(&mut commands, &assets, &life_bar_res, &chunk);
 
     if 30 < empties.len() {
-        for _ in 0..10 {
+        for _ in 0..20 {
             let (x, y) = random_select_mut(&mut empties);
-            spawn_slime(
-                &mut commands,
-                &assets,
-                Vec2::new(
-                    TILE_SIZE * x as f32 + TILE_HALF,
-                    TILE_SIZE * -y as f32 - TILE_HALF,
-                ),
-                &life_bar_res,
-                0,
-                2,
-                ActorGroup::Enemy,
-                None,
-            );
-        }
-
-        for _ in 0..10 {
-            let (x, y) = random_select_mut(&mut empties);
-            spawn_eyeball(
-                &mut commands,
-                &assets,
-                Vec2::new(
-                    TILE_SIZE * x as f32 + TILE_HALF,
-                    TILE_SIZE * -y as f32 - TILE_HALF,
-                ),
-                &life_bar_res,
-                ActorGroup::Enemy,
-            );
+            if level != GameLevel::Level(1) && rand::random::<usize>() % 2 == 0 {
+                spawn_eyeball(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(
+                        TILE_SIZE * x as f32 + TILE_HALF,
+                        TILE_SIZE * -y as f32 - TILE_HALF,
+                    ),
+                    &life_bar_res,
+                    ActorGroup::Enemy,
+                    8,
+                );
+            } else {
+                spawn_slime(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(
+                        TILE_SIZE * x as f32 + TILE_HALF,
+                        TILE_SIZE * -y as f32 - TILE_HALF,
+                    ),
+                    &life_bar_res,
+                    0,
+                    5,
+                    ActorGroup::Enemy,
+                    None,
+                );
+            }
         }
 
         let mut rng = rand::thread_rng();
