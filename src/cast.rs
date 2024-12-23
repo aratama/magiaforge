@@ -81,6 +81,7 @@ pub fn cast_spell(
 
                         let spawn = SpawnBullet {
                             uuid: Uuid::new_v4(),
+                            actor_group: actor.actor_group,
                             position: bullet_position,
                             velocity: direction
                                 * speed
@@ -140,7 +141,14 @@ pub fn cast_spell(
                             send_remote_message(
                                 writer,
                                 online,
-                                &RemoteMessage::Fire(remove_bullet_props),
+                                &RemoteMessage::Fire(remove_bullet_props.clone()),
+                            );
+
+                            info!("online {:?}", online);
+
+                            info!(
+                                "fire message: {:?}",
+                                RemoteMessage::Fire(remove_bullet_props)
                             );
                         }
                     }

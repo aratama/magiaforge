@@ -363,6 +363,7 @@ pub fn send_remote_message(
     message: &RemoteMessage,
 ) {
     if online {
+        info!("send remote message: {:?}", message);
         let serialized = bincode::serialize::<RemoteMessage>(message).unwrap();
         writer.send(ClientMessage::Binary(serialized));
     }

@@ -1,4 +1,5 @@
 use super::actor::{ActorGroup, ActorState};
+use super::bullet::HomingTarget;
 use super::EntityChildrenAutoDepth;
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
@@ -77,6 +78,7 @@ pub fn spawn_witch<T: Component>(
             max_life,
             amplitude: 0.0,
         },
+        HomingTarget,
         // 足音
         // footsteps.rsで音量を調整
         AudioPlayer::new(assets.taiikukan.clone()),

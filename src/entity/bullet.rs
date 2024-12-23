@@ -1,4 +1,4 @@
-use super::actor::ActorEvent;
+use super::actor::{ActorEvent, ActorGroup};
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::bullet_particle::BulletParticleResource;
@@ -33,6 +33,7 @@ pub struct Bullet {
     impulse: f32,
     owner: Option<Uuid>,
     homing: f32,
+    actor_group: ActorGroup,
 }
 
 #[derive(Bundle)]
@@ -52,7 +53,12 @@ pub struct HomingTarget;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 
 pub struct SpawnBullet {
+    /// 発射したアクターのUUID
     pub sender: Option<Uuid>,
+
+    /// 発射したアクターのグループ
+    pub actor_group: ActorGroup,
+
     pub uuid: Uuid,
     pub position: Vec2,
     pub velocity: Vec2,
@@ -93,6 +99,7 @@ pub fn spawn_bullet(
             impulse: spawn.impulse,
             owner: spawn.sender,
             homing: spawn.homing,
+            actor_group: spawn.actor_group,
         },
         EntityDepth,
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -160,22 +167,27 @@ fn despawn_bullet_by_lifetime(
 
 fn bullet_homing(
     mut bullet_query: Query<(&mut Bullet, &mut Transform, &mut Velocity)>,
-    enemy_query: Query<(Option<&Actor>, &Transform), (With<HomingTarget>, Without<Bullet>)>,
+    enemy_query: Query<(&Actor, &Transform), (With<HomingTarget>, Without<Bullet>)>,
 ) {
     for (bullet, mut bullet_transform, mut velocity) in bullet_query.iter_mut() {
         if 0.0 < bullet.homing {
-            let bullet_position = bullet_transform.translation.truncate();
+            // ターゲットを絞り込む
             let mut enemies = Vec::<Transform>::new();
             for (enemy, enemy_transform) in enemy_query.iter() {
-                if enemy.map(|e| e.uuid) != bullet.owner {
+                if bullet.actor_group != enemy.actor_group {
                     enemies.push(*enemy_transform);
                 }
             }
+
+            // 最も近いターゲットを選択
+            let bullet_position = bullet_transform.translation.truncate();
             enemies.sort_by(|a, b| {
                 let x = a.translation.truncate().distance(bullet_position);
                 let y = b.translation.truncate().distance(bullet_position);
                 x.total_cmp(&y)
             });
+
+            // 選択したターゲットの方向へ回転
             if let Some(nearest) = enemies.first() {
                 let bullet_angle = velocity.linvel.to_angle();
                 let target_angle = (nearest.translation.truncate() - bullet_position).to_angle();
