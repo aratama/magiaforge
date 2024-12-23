@@ -378,6 +378,14 @@ fn spawn_entities(
     life_bar_resource: &Res<LifeBarResource>,
     chunk: &LevelChunk,
 ) {
+    let mut rng = rand::thread_rng();
+
+    let mut dropped_spells: Vec<SpellType> = SpellType::iter().collect();
+    dropped_spells.shuffle(&mut rng);
+
+    let mut equipments: Vec<EquipmentType> = EquipmentType::iter().collect();
+    equipments.shuffle(&mut rng);
+
     // エンティティの生成
     for (entity, x, y) in &chunk.entities {
         let tx = TILE_SIZE * *x as f32;
@@ -488,9 +496,8 @@ fn spawn_entities(
                 ));
             }
             GameEntity::Spell => {
-                let mut rng = rand::thread_rng();
                 if 0.5 < rand::random::<f32>() {
-                    let spell = SpellType::iter().choose(&mut rng).unwrap();
+                    let spell = dropped_spells.pop().unwrap_or(SpellType::MagicBolt);
                     let props = spell.to_props();
                     spawn_dropped_item(
                         &mut commands,
@@ -502,8 +509,7 @@ fn spawn_entities(
                         },
                     );
                 } else {
-                    let mut rng = rand::thread_rng();
-                    let equipment = EquipmentType::iter().choose(&mut rng).unwrap();
+                    let equipment = equipments.pop().unwrap_or(EquipmentType::Lantern);
                     let props = equipment.to_props();
                     spawn_dropped_item(
                         &mut commands,
