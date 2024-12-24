@@ -71,6 +71,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
 
         inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
         inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::WaterBall));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SlimeCharge));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Heal));
         inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
@@ -163,15 +164,18 @@ fn debug_next(
     mut level: ResMut<CurrentLevel>,
     config: Res<GameConfig>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
+    mut writer: EventWriter<OverlayEvent>,
 ) {
     match level.next_level {
         GameLevel::Level(n) => {
             level.next_level = GameLevel::Level((n + 1) % LAST_BOSS_LEVEL);
             level.next_state = PlayerState::from(player_query.get_single(), &config);
+            writer.send(OverlayEvent::Close(GameState::Warp));
         }
         GameLevel::MultiPlayArena => {
             level.next_level = GameLevel::Level(0);
             level.next_state = PlayerState::from(player_query.get_single(), &config);
+            writer.send(OverlayEvent::Close(GameState::Warp));
         }
     };
 }

@@ -281,7 +281,7 @@ fn process_bullet_event(
         let bullet_position = bullet_transform.translation.truncate();
 
         if !despownings.contains(&bullet_entity) {
-            if let Ok((actor, impilse, mut lifebeing)) = actors.get_mut(*b) {
+            if let Ok((actor, actor_impilse, mut lifebeing)) = actors.get_mut(*b) {
                 trace!("bullet hit actor: {:?}", actor.uuid);
 
                 // 弾丸がアクターに衝突したとき
@@ -291,7 +291,7 @@ fn process_bullet_event(
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     lifebeing.life = (lifebeing.life - bullet.damage).max(0);
                     lifebeing.amplitude = 6.0;
-                    if let Some(mut impilse) = impilse {
+                    if let Some(mut impilse) = actor_impilse {
                         impilse.impulse +=
                             bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
                     }

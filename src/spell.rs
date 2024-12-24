@@ -6,6 +6,7 @@ use bevy::reflect::Reflect;
 #[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter)]
 pub enum SpellType {
     MagicBolt,
+    WaterBall,
     PurpleBolt,
     SlimeCharge,
     Heal,
@@ -26,6 +27,7 @@ pub enum SpellType {
 /// 呪文を詠唱したときの動作を表します
 /// 弾丸系魔法は Bullet にまとめられており、
 /// そのほかの魔法も動作の種別によって分類されています
+#[derive(Debug)]
 pub enum SpellCast {
     Bullet {
         slice: &'static str,
@@ -95,7 +97,32 @@ impl SpellType {
                     speed: 100.0,
                     lifetime: 240,
                     damage: 8,
-                    impulse: 20000.0,
+                    impulse: 0.0,
+                    scattering: 0.4,
+                    light_intensity: 1.0,
+                    light_radius: 50.0,
+                    light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                },
+            },
+            SpellType::WaterBall =>  SpellProps {
+                name: Dict {
+                    ja: "水の塊",
+                    en: "Water Ball",
+                },
+                description: Dict {
+                    ja: "水の塊を発射します。威力は低いですが、相手を押し返すことができます。",
+                    en: "Fires a ball of water. It is weak but can push the opponent back.",
+                },
+                cast_delay: 8,
+                icon: "spell_water_ball",
+                price: 15,
+                cast: SpellCast::Bullet {
+                    slice: "water_ball",
+                    collier_radius: 5.0,
+                    speed: 80.0,
+                    lifetime: 240,
+                    damage: 1,
+                    impulse: 80000.0,
                     scattering: 0.4,
                     light_intensity: 1.0,
                     light_radius: 50.0,
@@ -304,7 +331,7 @@ impl SpellType {
                 },
                 description: Dict { ja: "次に詠唱する呪文の詠唱時間を減らします。",
                 en: "Reduces the casting time of the next spell." },
-                cast_delay: 2,
+                cast_delay: 1,
                 icon: "quick_cast",
                 price: 500,
                 cast: SpellCast::QuickCast,
