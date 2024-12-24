@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
+use crate::constant::TILE_SIZE;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::life::Life;
@@ -55,7 +56,7 @@ pub struct Actor {
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,
 
-    pub intensity: f32,
+    pub point_light_radius: f32,
 
     /// アクターが移動しようとしている方向を表します
     /// この値と各アクターの移動力係数の積が、実際の ExternalForce になります
@@ -273,9 +274,9 @@ pub struct ActorLight {
 fn update_actor_light(
     mut commands: Commands,
     mut light_query: Query<(Entity, &ActorLight, &mut PointLight2d, &mut Transform)>,
-    actor_query: Query<(Entity, &Actor, &Transform), Without<ActorLight>>,
+    actor_query: Query<(Entity, &Actor, &Transform, Option<&Player>), Without<ActorLight>>,
 ) {
-    for (actor_entity, actor, transform) in actor_query.iter() {
+    for (actor_entity, actor, transform, _) in actor_query.iter() {
         if light_query
             .iter()
             .find(|(_, light, _, _)| light.owner == actor_entity)
@@ -292,8 +293,8 @@ fn update_actor_light(
                 },
                 transform.clone(),
                 PointLight2d {
-                    radius: 160.0,
-                    intensity: actor.intensity,
+                    radius: actor.point_light_radius,
+                    intensity: 1.0,
                     falloff: 10.0,
                     ..default()
                 },
@@ -302,8 +303,16 @@ fn update_actor_light(
     }
 
     for (light_entity, light, mut point_light, mut light_transform) in light_query.iter_mut() {
-        if let Ok((_, actor, actor_transform)) = actor_query.get(light.owner) {
-            point_light.intensity = actor.intensity;
+        if let Ok((_, actor, actor_transform, player)) = actor_query.get(light.owner) {
+            if 0.0 < actor.point_light_radius {
+                point_light.intensity = 2.5;
+                point_light.color = Color::WHITE;
+                point_light.radius = actor.point_light_radius;
+            } else if player.is_some() {
+                point_light.intensity = 1.0;
+                point_light.color = Color::hsv(240.0, 0.5, 1.0);
+                point_light.radius = TILE_SIZE * 3.0;
+            };
             light_transform.translation.x = actor_transform.translation.x;
             light_transform.translation.y = actor_transform.translation.y;
         } else {

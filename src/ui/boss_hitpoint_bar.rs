@@ -32,7 +32,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
             BossHitpointBar,
             Node {
                 position_type: PositionType::Absolute,
-                top: Val::Px(600.0),
+                top: Val::Px(50.0),
                 left: Val::Px(240.0),
                 width: Val::Px(BAR_WIDTH),
                 height: Val::Px(BAR_HEIGHT),

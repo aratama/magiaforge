@@ -47,7 +47,7 @@ pub fn spawn_witch<T: Component>(
     max_life: i32,
     res: &Res<LifeBarResource>,
     life_bar: bool,
-    intensity: f32,
+    point_light_radius: f32,
     golds: u32,
     wands: [Option<Wand>; 4],
     inventory: Inventory,
@@ -61,7 +61,7 @@ pub fn spawn_witch<T: Component>(
         Actor {
             uuid,
             pointer: Vec2::from_angle(angle),
-            intensity,
+            point_light_radius,
             radius: WITCH_COLLIDER_RADIUS,
             move_direction: Vec2::ZERO,
             move_force: PLAYER_MOVE_FORCE,

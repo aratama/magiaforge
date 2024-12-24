@@ -52,7 +52,7 @@ pub fn spawn_basic_enemy<T: Component>(
         Actor {
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
-            intensity: 0.0,
+            point_light_radius: 0.0,
             radius: BASIC_ACTOR_RADIUS,
             move_direction: Vec2::ZERO,
             move_force: move_force,

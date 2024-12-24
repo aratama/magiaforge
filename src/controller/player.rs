@@ -68,16 +68,19 @@ fn move_player(
 
 fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>) {
     if let Ok(mut actor) = player_query.get_single_mut() {
-        let equiped_lantern = actor.equipments.iter().any(|e| match e {
-            Some(Equipment {
-                equipment_type: EquipmentType::Lantern,
-                ..
-            }) => true,
-            _ => false,
-        });
-
-        // 3.0だと明るすぎて白飛びしてしまいます
-        actor.intensity = if equiped_lantern { 2.0 } else { 0.0 };
+        let mut point_light_radius: f32 = 0.0;
+        for equiped_lantern in actor.equipments {
+            match equiped_lantern {
+                Some(Equipment {
+                    equipment_type: EquipmentType::Lantern,
+                    ..
+                }) => {
+                    point_light_radius += 160.0;
+                }
+                _ => {}
+            }
+        }
+        actor.point_light_radius = point_light_radius;
     }
 }
 

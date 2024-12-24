@@ -33,7 +33,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             Actor {
                 uuid: uuid::Uuid::new_v4(),
                 pointer: Vec2::from_angle(0.0),
-                intensity: 0.5,
+                point_light_radius: 0.0,
                 radius: RABBIT_RADIUS,
                 move_direction: Vec2::ZERO,
                 move_force: 0.0,
