@@ -3,7 +3,6 @@ use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
 use crate::constant::MAX_SPELLS_IN_WAND;
-use crate::constant::RABBIT_GROUP;
 use crate::constant::WALL_GROUP;
 use crate::constant::WITCH_BULLET_GROUP;
 use crate::constant::WITCH_GROUP;
@@ -85,7 +84,7 @@ pub fn cast_spell(
                             actor_transform.translation.truncate() + range * normalized;
 
                         // 誰が発射したかに関わらず、弾丸は以下のグループに衝突します
-                        let filter_base = ENTITY_GROUP | WALL_GROUP | RABBIT_GROUP;
+                        let filter_base = ENTITY_GROUP | WALL_GROUP;
 
                         let spawn = SpawnBullet {
                             uuid: Uuid::new_v4(),

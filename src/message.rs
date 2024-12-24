@@ -38,18 +38,13 @@ pub const HUGE_SLIME3: Dict<&'static str> = Dict {
 };
 
 pub const HUGE_SLIME4: Dict<&'static str> = Dict {
-    ja: "その大きなスライムについて何か知らないかって？そうだな、あいつは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
-    en: "Do you know anything about that big slime? Well, it attacks by ramming, but if you have fast legs, it's not hard to escape.",
+    ja: "その大きなスライムは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
+    en: "The huge slime attacks with a body blow, but if you have fast legs, it's not hard to escape.",
 };
 
 pub const HUGE_SLIME5: Dict<&'static str> = Dict {
     ja: "それと、あいつは仲間の小さなスライムを呼び寄せるんだ。囲まれると逃げ道を失う。周囲のスライムは素早く倒したほうがいい。",
     en: "And it calls small slimes to its side. If you are surrounded, you will lose your escape route. It's better to defeat the surrounding slimes quickly.",
-};
-
-pub const HUGE_SLIME6: Dict<&'static str> = Dict {
-    ja: "そういえば、大きなスライムの討伐に、ひょっとしてこれが役に立つんじゃないかな。ぼくには不要だから君にあげるよ。",
-    en: "By the way, this might be useful for defeating the big slime. I don't need it, so I'll give it to you.",
 };
 
 pub const MULTIPLAY : Dict<&'static str> = Dict {

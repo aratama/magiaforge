@@ -163,7 +163,7 @@ fn enter(
                     sensor.open = false;
                     speech_writer.send(SpeechEvent::Speech {
                         pages: vec![
-                            SpeechAction::Bubble(shop_rabbit_entity),
+                            SpeechAction::Focus(shop_rabbit_entity),
                             SpeechAction::Speech(Dict {
                                 ja: "おいおい、代金を払ってから行ってくれ".to_string(),
                                 en: "Hey Hey, pay first before you go".to_string(),

@@ -78,7 +78,7 @@ fn chat_start(
                     se.send(SEEvent::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech {
                         pages: vec![
-                            SpeechAction::Bubble(*sensor_entity),
+                            SpeechAction::Focus(*sensor_entity),
                             SpeechAction::Speech(shop_rabbit(dept)),
                         ],
                     });
@@ -86,7 +86,7 @@ fn chat_start(
                     camera.target = Some(*sensor_entity);
                     speech_writer.send(SpeechEvent::Speech {
                         pages: vec![
-                            SpeechAction::Bubble(*sensor_entity),
+                            SpeechAction::Focus(*sensor_entity),
                             SpeechAction::Speech(too_few_golds(dept - actor.golds)),
                         ],
                     });
@@ -95,7 +95,7 @@ fn chat_start(
                 camera.target = Some(*sensor_entity);
                 speech_writer.send(SpeechEvent::Speech {
                     pages: vec![
-                        SpeechAction::Bubble(*sensor_entity),
+                        SpeechAction::Focus(*sensor_entity),
                         SpeechAction::Speech(SHOP_RABBIT.to_string()),
                     ],
                 });

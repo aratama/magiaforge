@@ -48,7 +48,6 @@ use crate::message::HUGE_SLIME2;
 use crate::message::HUGE_SLIME3;
 use crate::message::HUGE_SLIME4;
 use crate::message::HUGE_SLIME5;
-use crate::message::HUGE_SLIME6;
 use crate::message::LEVEL0;
 use crate::message::LEVEL1;
 use crate::message::LEVEL2;
@@ -631,8 +630,6 @@ fn spawn_entities(
                             SpeechAction::Speech(HUGE_SLIME3.to_string()),
                             SpeechAction::Speech(HUGE_SLIME4.to_string()),
                             SpeechAction::Speech(HUGE_SLIME5.to_string()),
-                            SpeechAction::Speech(HUGE_SLIME6.to_string()),
-                            SpeechAction::GetItem(InventoryItemType::Wand(WandType::CypressWand)),
                         ],
                     },
                     MessageRabbitInnerSensor,

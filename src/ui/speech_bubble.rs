@@ -12,7 +12,6 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy::render::view::visibility;
 use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
 
@@ -24,10 +23,15 @@ const SPEECH_BUBBLE_HEIGHT: f32 = 64.0;
 
 #[derive(Debug, Clone)]
 pub enum SpeechAction {
-    Bubble(Entity),
+    Focus(Entity),
     Speech(Dict<String>),
     BGM(Handle<AudioSource>),
+    Close,
+
+    #[allow(dead_code)]
     GetItem(InventoryItemType),
+    #[allow(dead_code)]
+    Wait(u32),
 }
 
 #[derive(Component)]
@@ -36,6 +40,7 @@ struct SpeechBubble {
     pages: Vec<SpeechAction>,
     page: usize,
     entity: Option<Entity>,
+    wait: u32,
 }
 
 #[derive(Component)]
@@ -56,6 +61,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
                 pages: Vec::new(),
                 page: 0,
                 entity: None,
+                wait: 0,
             },
             AseUiSlice {
                 aseprite: assets.atlas.clone(),
@@ -92,11 +98,11 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
 }
 
 fn update_speech_bubble_position(
-    mut speech_query: Query<(&mut Node, &SpeechBubble, &mut Visibility)>,
+    mut speech_query: Query<(&mut Node, &SpeechBubble)>,
     camera_query: Query<(&Camera, &GlobalTransform), Without<SpeechBubble>>,
     rabbit_query: Query<&GlobalTransform, (Without<SpeechBubble>, Without<Camera>)>,
 ) {
-    if let Ok((mut speech_node, speech, mut visibility)) = speech_query.get_single_mut() {
+    if let Ok((mut speech_node, speech)) = speech_query.get_single_mut() {
         if let Some(entity) = speech.entity {
             if let Ok(rabbit) = rabbit_query.get(entity) {
                 let (camera, camera_transform) = camera_query.single();
@@ -104,24 +110,21 @@ fn update_speech_bubble_position(
                     camera_transform,
                     rabbit.translation() + Vec3::new(0.0, 20.0, 0.0),
                 ) {
-                    *visibility = Visibility::Inherited;
                     speech_node.left = Val::Px(p.x - SPEECH_BUBBLE_WIDTH * 0.5 * SCALE);
                     speech_node.top = Val::Px(p.y - 128.0 * 0.5 * SCALE);
                 }
             }
-        } else {
-            *visibility = Visibility::Hidden;
         }
     }
 }
 
 fn read_speech_events(
     mut events: EventReader<SpeechEvent>,
-    mut speech_query: Query<&mut SpeechBubble>,
+    mut speech_query: Query<(&mut SpeechBubble, &mut Visibility)>,
     mut player_query: Query<&mut Actor>,
 ) {
     for event in events.read() {
-        let mut speech = speech_query.single_mut();
+        let (mut speech, mut visibility) = speech_query.single_mut();
         match event {
             SpeechEvent::Speech { pages } => {
                 speech.count = 0;
@@ -136,6 +139,7 @@ fn read_speech_events(
                 speech.pages.clear();
                 speech.page = 0;
                 speech.count = 0;
+                *visibility = Visibility::Hidden;
             }
         }
     }
@@ -148,10 +152,13 @@ fn countup(
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
     mut player_query: Query<&mut Actor, With<Player>>,
+    mut camera: Query<&mut GameCamera>,
 ) {
-    let (visibility, mut speech) = speech_query.single_mut();
+    let (mut visibility, mut speech) = speech_query.single_mut();
 
     if speech.pages.len() <= speech.page {
+        // let mut camera = camera.single_mut();
+        // camera.target = None;
         return;
     }
 
@@ -162,31 +169,30 @@ fn countup(
 
     let page = speech.pages[speech.page].clone();
     match page {
-        SpeechAction::Bubble(speaker) => {
+        SpeechAction::Focus(speaker) => {
             speech.entity = Some(speaker);
             speech.page += 1;
         }
         SpeechAction::Speech(dict) => {
-            if *visibility == Visibility::Inherited {
-                let page_string = dict.get(config.language);
-                let chars = page_string.char_indices();
-                let mut str = "".to_string();
-                let mut s = 0;
-                for (i, val) in chars.enumerate() {
-                    if i < pos {
-                        str.push(val.1);
-                    }
-                    s += 1;
+            *visibility = Visibility::Inherited;
+            let page_string = dict.get(config.language);
+            let chars = page_string.char_indices();
+            let mut str = "".to_string();
+            let mut s = 0;
+            for (i, val) in chars.enumerate() {
+                if i < pos {
+                    str.push(val.1);
                 }
-                speech_text.0 = str;
+                s += 1;
+            }
+            speech_text.0 = str;
 
-                if pos < s {
-                    if speech.count % DELAY == 0 {
-                        se.send(SEEvent::new(SE::Kawaii));
-                    }
-
-                    speech.count += 1;
+            if pos < s {
+                if speech.count % DELAY == 0 {
+                    se.send(SEEvent::new(SE::Kawaii));
                 }
+
+                speech.count += 1;
             }
         }
         SpeechAction::BGM(bgm) => {
@@ -202,6 +208,26 @@ fn countup(
             }
             speech.page += 1;
         }
+        SpeechAction::Close => {
+            *visibility = Visibility::Hidden;
+            speech.page += 1;
+            let mut camera = camera.single_mut();
+            camera.target = None;
+            if let Ok(mut actor) = player_query.get_single_mut() {
+                actor.state = ActorState::Idle;
+                actor.wait = 30;
+            }
+        }
+        SpeechAction::Wait(wait) => {
+            if speech.wait <= 0 {
+                speech.wait = wait;
+            } else {
+                speech.wait -= 1;
+                if speech.wait == 0 {
+                    speech.page += 1;
+                }
+            }
+        }
     }
 }
 
@@ -209,8 +235,6 @@ fn next_page(
     mouse: Res<ButtonInput<MouseButton>>,
     mut bubble_query: Query<(&mut SpeechBubble, &Visibility)>,
     mut writer: EventWriter<SpeechEvent>,
-    mut camera_query: Query<&mut GameCamera>,
-    mut player_query: Query<&mut Actor, With<Player>>,
 ) {
     let (mut bubble, bubble_visivility) = bubble_query.single_mut();
     if *bubble_visivility == Visibility::Inherited {
@@ -220,11 +244,6 @@ fn next_page(
                 bubble.count = 0;
             } else {
                 writer.send(SpeechEvent::Close);
-                camera_query.single_mut().target = None;
-                if let Ok(mut player) = player_query.get_single_mut() {
-                    player.state = ActorState::Idle;
-                    player.wait = 30;
-                }
             }
         }
     }
