@@ -1,12 +1,12 @@
 use crate::language::Dict;
 
 pub const HELLO: Dict<&'static str> = Dict {
-    ja: "やあ、見慣れない顔だね\nここは商人キャンプだよ\n来客は歓迎さ\nまあ金払い次第だけどね",
-    en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome\nbut it depends on the payment",
+    ja: "やあ、見慣れない顔だね\nここは商人キャンプだよ\n来客は歓迎さ",
+    en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome",
 };
 
 pub const SINGLEPLAY: Dict<&'static str> = Dict {
-    ja: "この先は地下迷宮の入り口だよ\n気をつけてね\nあなたは魔法使いだから\n大丈夫だと思うけど",
+    ja: "その魔法陣は地下迷宮の入り口だよ\n気をつけてね\nあなたは魔法使いだから\n大丈夫だと思うけど",
     en: "This is the entrance to the underground labyrinth\nBe careful\nI think you'll be fine\nbecause you are a witch",
 };
 

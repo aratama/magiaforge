@@ -5,6 +5,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory_item::InventoryItemType;
 use crate::spell::get_spell_appendix;
+use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;
@@ -196,6 +197,7 @@ fn update_visible(
     actor_query: Query<&Actor, With<Player>>,
 ) {
     let (mut popup, mut popup_node) = popup_query.single_mut();
+
     let floating = floating_query.single();
     let mut visible = false;
     if let Ok(actor) = actor_query.get_single() {
@@ -223,10 +225,19 @@ fn update_visible(
     };
 }
 
+fn reset(mut popup_query: Query<(&mut PopUp, &mut Node)>) {
+    let (mut popup, mut popup_node) = popup_query.single_mut();
+    popup.set = HashSet::new();
+    popup_node.display = Display::None;
+    return;
+}
+
 pub struct PopUpPlugin;
 
 impl Plugin for PopUpPlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(OnExit(GameMenuState::WandEditOpen), reset);
+
         app.add_systems(
             Update,
             (
