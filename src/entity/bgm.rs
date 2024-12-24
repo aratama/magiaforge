@@ -4,6 +4,8 @@ use crate::constant::SENSOR_GROUP;
 use crate::constant::TILE_SIZE;
 use crate::constant::WITCH_GROUP;
 use crate::controller::player::Player;
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -34,30 +36,14 @@ fn sensor(
     mut next: ResMut<NextBGM>,
 ) {
     for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, ..) => {
-                let _ = enter(a, b, &sensor_query, &player_query, &mut next)
-                    || enter(b, a, &sensor_query, &player_query, &mut next);
+        match identify(collision_event, &sensor_query, &player_query) {
+            IdentifiedCollisionEvent::Started(sensor_entity, _) => {
+                let bgm = sensor_query.get(sensor_entity).unwrap();
+                next.0 = Some(bgm.audio.clone());
             }
             _ => {}
         }
     }
-}
-
-fn enter(
-    a: &Entity,
-    b: &Entity,
-    sensor_query: &Query<&BGMSwitch>,
-    player_query: &Query<&Player>,
-    next: &mut ResMut<NextBGM>,
-) -> bool {
-    if let Ok(bgm) = sensor_query.get(*a) {
-        if player_query.contains(*b) {
-            next.0 = Some(bgm.audio.clone());
-            return true;
-        }
-    }
-    return false;
 }
 
 pub struct BGMSwitchPlugin;

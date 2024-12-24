@@ -95,6 +95,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             ));
 
             builder.spawn((
+                RabbitInnerSensor,
                 sensor_marker,
                 Collider::ball(16.0),
                 Sensor,
@@ -112,6 +113,16 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             ));
         });
 }
+
+#[derive(Component)]
+struct RabbitInnerSensor;
+
+// fn squat(
+
+//     inner_sensor_query: Query<&GlobalTransform, With<RabbitInnerSensor>>,
+// ){
+
+// }
 
 pub struct RabbitPlugin;
 

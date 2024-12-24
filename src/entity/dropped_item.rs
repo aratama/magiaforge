@@ -6,6 +6,8 @@ use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -156,48 +158,18 @@ fn collision(
     mut global: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, _option) => {
-                let _ = chat_start(
-                    &mut commands,
-                    a,
-                    b,
-                    &item_query,
-                    &mut player_query,
-                    &mut global,
-                ) || chat_start(
-                    &mut commands,
-                    b,
-                    a,
-                    &item_query,
-                    &mut player_query,
-                    &mut global,
-                );
+        match identify(&collision_event, &item_query, &player_query) {
+            IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
+                let item = item_query.get(item_entity).unwrap();
+                let mut actor = player_query.get_mut(player_entity).unwrap();
+                if actor.inventory.insert(item.item) {
+                    commands.entity(item_entity).despawn_recursive();
+                    global.send(SEEvent::new(SE::PickUp));
+                }
             }
-            CollisionEvent::Stopped(..) => {}
+            _ => {}
         }
     }
-}
-
-fn chat_start(
-    commands: &mut Commands,
-    a: &Entity,
-    b: &Entity,
-    item_query: &Query<&DroppedItemEntity>,
-    player_query: &mut Query<&mut Actor, With<Player>>,
-    global: &mut EventWriter<SEEvent>,
-) -> bool {
-    match (item_query.get(*a), player_query.get_mut(*b)) {
-        (Ok(item), Ok(mut actor)) => {
-            if actor.inventory.insert(item.item) {
-                commands.entity(*a).despawn_recursive();
-                global.send(SEEvent::new(SE::PickUp));
-                return true;
-            }
-        }
-        _ => return false,
-    }
-    return false;
 }
 
 pub struct SpellEntityPlugin;

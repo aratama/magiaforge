@@ -14,6 +14,8 @@ use crate::controller::shop_rabbit::ShopRabbit;
 use crate::entity::actor::Actor;
 use crate::entity::EntityDepth;
 use crate::language::Dict;
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -114,89 +116,43 @@ fn sensor(
     mut collision_events: EventReader<CollisionEvent>,
     shop_rabbit_query: Query<Entity, With<ShopRabbit>>,
     mut sensor_query: Query<(&mut ShopDoorSensor, &Transform), Without<ShopRabbit>>,
-    mut player_query: Query<&mut Actor, (With<Player>, Without<ShopRabbit>)>,
+    player_query: Query<&Actor, (With<Player>, Without<ShopRabbit>)>,
     mut speech_writer: EventWriter<SpeechEvent>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, ..) => {
-                let _ = enter(
-                    a,
-                    b,
-                    &shop_rabbit_query,
-                    &mut sensor_query,
-                    &mut player_query,
-                    &mut speech_writer,
-                    &mut se_writer,
-                ) || enter(
-                    b,
-                    a,
-                    &shop_rabbit_query,
-                    &mut sensor_query,
-                    &mut player_query,
-                    &mut speech_writer,
-                    &mut se_writer,
-                );
-            }
-            CollisionEvent::Stopped(a, b, ..) => {
-                let _ = exit(a, b, &mut sensor_query, &mut player_query)
-                    || exit(b, a, &mut sensor_query, &mut player_query);
-            }
-        }
-    }
-}
-
-fn enter(
-    a: &Entity,
-    b: &Entity,
-    shop_rabbit_query: &Query<Entity, With<ShopRabbit>>,
-    sensor_query: &mut Query<(&mut ShopDoorSensor, &Transform), Without<ShopRabbit>>,
-    player_query: &mut Query<&mut Actor, (With<Player>, Without<ShopRabbit>)>,
-    speech_writer: &mut EventWriter<SpeechEvent>,
-    se_writer: &mut EventWriter<SEEvent>,
-) -> bool {
-    if let Ok((mut sensor, sensor_transform)) = sensor_query.get_mut(*a) {
-        if let Ok(actor) = player_query.get(*b) {
-            if 0 < actor.dept() {
-                if let Ok(shop_rabbit_entity) = shop_rabbit_query.get_single() {
-                    sensor.open = false;
-                    speech_writer.send(SpeechEvent::Speech {
-                        pages: vec![
-                            SpeechAction::Focus(shop_rabbit_entity),
-                            SpeechAction::Speech(Dict {
-                                ja: "おいおい、代金を払ってから行ってくれ".to_string(),
-                                en: "Hey Hey, pay first before you go".to_string(),
-                            }),
-                        ],
-                    });
+        match identify(&collision_event, &sensor_query, &player_query) {
+            IdentifiedCollisionEvent::Started(sensor_entity, player_entity) => {
+                let (mut sensor, sensor_transform) = sensor_query.get_mut(sensor_entity).unwrap();
+                let actor = player_query.get(player_entity).unwrap();
+                if 0 < actor.dept() {
+                    if let Ok(shop_rabbit_entity) = shop_rabbit_query.get_single() {
+                        sensor.open = false;
+                        speech_writer.send(SpeechEvent::Speech {
+                            pages: vec![
+                                SpeechAction::Focus(shop_rabbit_entity),
+                                SpeechAction::Speech(Dict {
+                                    ja: "おいおい、代金を払ってから行ってくれ".to_string(),
+                                    en: "Hey Hey, pay first before you go".to_string(),
+                                }),
+                            ],
+                        });
+                    }
+                } else {
+                    sensor.open = true;
+                    se_writer.send(SEEvent::pos(
+                        SE::Bus,
+                        sensor_transform.translation.truncate(),
+                    ));
                 }
-            } else {
-                sensor.open = true;
-                se_writer.send(SEEvent::pos(
-                    SE::Bus,
-                    sensor_transform.translation.truncate(),
-                ));
             }
-            return true;
+            IdentifiedCollisionEvent::Stopped(sensor_entity, _) => {
+                let (mut sensor, _) = sensor_query.get_mut(sensor_entity).unwrap();
+                sensor.open = false;
+            }
+            _ => {}
         }
     }
-    return false;
-}
-
-fn exit(
-    a: &Entity,
-    b: &Entity,
-    sensor_query: &mut Query<(&mut ShopDoorSensor, &Transform), Without<ShopRabbit>>,
-    player_query: &mut Query<&mut Actor, (With<Player>, Without<ShopRabbit>)>,
-) -> bool {
-    if let Ok((mut sensor, _)) = sensor_query.get_mut(*a) {
-        if let Ok(_) = player_query.get(*b) {
-            sensor.open = false;
-            return true;
-        }
-    }
-    return false;
 }
 
 fn update_door_position(

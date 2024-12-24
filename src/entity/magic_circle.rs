@@ -6,6 +6,8 @@ use crate::entity::life::Life;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::CurrentLevel;
 use crate::page::in_game::GameLevel;
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -116,18 +118,17 @@ fn power_on_circle(
     mut writer: EventWriter<SEEvent>,
 ) {
     for event in events.read() {
-        match event {
-            CollisionEvent::Started(a, b, _) => {
-                if process_collision_start_event(a, b, &player_query, &mut circle_query)
-                    || process_collision_start_event(b, a, &player_query, &mut circle_query)
-                {
-                    writer.send(SEEvent::new(SE::TurnOn));
-                }
+        match identify(&event, &circle_query, &player_query) {
+            IdentifiedCollisionEvent::Started(circle_entity, _) => {
+                let mut circle = circle_query.get_mut(circle_entity).unwrap();
+                circle.players += 1;
+                writer.send(SEEvent::new(SE::TurnOn));
             }
-            CollisionEvent::Stopped(a, b, _) => {
-                let _ = process_collision_end_event(a, b, &player_query, &mut circle_query)
-                    || process_collision_end_event(b, a, &player_query, &mut circle_query);
+            IdentifiedCollisionEvent::Stopped(circle_entity, _) => {
+                let mut circle = circle_query.get_mut(circle_entity).unwrap();
+                circle.players -= 1;
             }
+            _ => {}
         }
     }
 }
@@ -211,36 +212,6 @@ fn update_circle_color(
             }
         }
     }
-}
-
-fn process_collision_start_event(
-    a: &Entity,
-    b: &Entity,
-    players: &Query<&Player>,
-    circle_query: &mut Query<&mut MagicCircle>,
-) -> bool {
-    if players.contains(*a) {
-        if let Ok(mut circle) = circle_query.get_mut(*b) {
-            circle.players += 1;
-            return true;
-        }
-    }
-    false
-}
-
-fn process_collision_end_event(
-    a: &Entity,
-    b: &Entity,
-    players: &Query<&Player>,
-    circle_query: &mut Query<&mut MagicCircle>,
-) -> bool {
-    if players.contains(*a) {
-        if let Ok(mut circle) = circle_query.get_mut(*b) {
-            circle.players -= 1;
-            return true;
-        }
-    }
-    false
 }
 
 fn change_slice(mut circle_query: Query<(&MagicCircle, &mut AseSpriteSlice)>) {

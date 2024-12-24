@@ -4,6 +4,8 @@ use crate::entity::actor::Actor;
 use crate::message::shop_rabbit;
 use crate::message::too_few_golds;
 use crate::message::SHOP_RABBIT;
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -30,94 +32,46 @@ fn collision_inner_sensor(
     mut se: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, _option) => {
-                let _ = chat_start(
-                    a,
-                    b,
-                    &mut camera_query,
-                    &sensor_query,
-                    &mut player_query,
-                    &mut speech_writer,
-                    &mut se,
-                ) || chat_start(
-                    b,
-                    a,
-                    &mut camera_query,
-                    &sensor_query,
-                    &mut player_query,
-                    &mut speech_writer,
-                    &mut se,
-                );
-            }
-            CollisionEvent::Stopped(a, b, _option) => {
-                let _ = chat_end(a, b, &sensor_query, &player_query, &mut speech_writer)
-                    || chat_end(b, a, &sensor_query, &player_query, &mut speech_writer);
-            }
-        }
-    }
-}
-
-fn chat_start(
-    sensor_entity: &Entity,
-    player_entity: &Entity,
-    camera_query: &mut Query<&mut GameCamera>,
-    sensor_query: &Query<&ShopRabbitSensor>,
-    player_query: &mut Query<&mut Actor, With<Player>>,
-    speech_writer: &mut EventWriter<SpeechEvent>,
-    se: &mut EventWriter<SEEvent>,
-) -> bool {
-    let mut camera = camera_query.single_mut();
-
-    if let Ok(_) = sensor_query.get(*sensor_entity) {
-        if let Ok(mut actor) = player_query.get_mut(*player_entity) {
-            let dept = actor.dept();
-            if 0 < dept {
-                if actor.liquidate() {
-                    camera.target = Some(*sensor_entity);
-                    se.send(SEEvent::new(SE::Register));
-                    speech_writer.send(SpeechEvent::Speech {
-                        pages: vec![
-                            SpeechAction::Focus(*sensor_entity),
-                            SpeechAction::Speech(shop_rabbit(dept)),
-                        ],
-                    });
+        match identify(&collision_event, &sensor_query, &player_query) {
+            IdentifiedCollisionEvent::Started(sensor_entity, player_entity) => {
+                let mut camera = camera_query.single_mut();
+                let mut actor = player_query.get_mut(player_entity).unwrap();
+                let dept = actor.dept();
+                if 0 < dept {
+                    if actor.liquidate() {
+                        camera.target = Some(sensor_entity);
+                        se.send(SEEvent::new(SE::Register));
+                        speech_writer.send(SpeechEvent::Speech {
+                            pages: vec![
+                                SpeechAction::Focus(sensor_entity),
+                                SpeechAction::Speech(shop_rabbit(dept)),
+                            ],
+                        });
+                    } else {
+                        camera.target = Some(sensor_entity);
+                        speech_writer.send(SpeechEvent::Speech {
+                            pages: vec![
+                                SpeechAction::Focus(sensor_entity),
+                                SpeechAction::Speech(too_few_golds(dept - actor.golds)),
+                            ],
+                        });
+                    }
                 } else {
-                    camera.target = Some(*sensor_entity);
+                    camera.target = Some(sensor_entity);
                     speech_writer.send(SpeechEvent::Speech {
                         pages: vec![
-                            SpeechAction::Focus(*sensor_entity),
-                            SpeechAction::Speech(too_few_golds(dept - actor.golds)),
+                            SpeechAction::Focus(sensor_entity),
+                            SpeechAction::Speech(SHOP_RABBIT.to_string()),
                         ],
                     });
                 }
-            } else {
-                camera.target = Some(*sensor_entity);
-                speech_writer.send(SpeechEvent::Speech {
-                    pages: vec![
-                        SpeechAction::Focus(*sensor_entity),
-                        SpeechAction::Speech(SHOP_RABBIT.to_string()),
-                    ],
-                });
             }
-            return true;
+            IdentifiedCollisionEvent::Stopped(..) => {
+                speech_writer.send(SpeechEvent::Close);
+            }
+            _ => {}
         }
     }
-    return false;
-}
-
-fn chat_end(
-    a: &Entity,
-    b: &Entity,
-    sensor_query: &Query<&ShopRabbitSensor>,
-    player_query: &Query<&mut Actor, With<Player>>,
-    speech_writer: &mut EventWriter<SpeechEvent>,
-) -> bool {
-    if sensor_query.contains(*a) && player_query.contains(*b) {
-        speech_writer.send(SpeechEvent::Close);
-        return true;
-    }
-    return false;
 }
 
 fn collision_outer_sensor(
@@ -128,44 +82,15 @@ fn collision_outer_sensor(
     mut speech_writer: EventWriter<SpeechEvent>,
 ) {
     for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(..) => {}
-            CollisionEvent::Stopped(a, b, _option) => {
-                let _ = out_sensor(
-                    a,
-                    b,
-                    &mut camera_query,
-                    &sensor_query,
-                    &player_query,
-                    &mut speech_writer,
-                ) || out_sensor(
-                    b,
-                    a,
-                    &mut camera_query,
-                    &sensor_query,
-                    &player_query,
-                    &mut speech_writer,
-                );
+        match identify(&collision_event, &sensor_query, &player_query) {
+            IdentifiedCollisionEvent::Stopped(..) => {
+                let mut camera = camera_query.single_mut();
+                camera.target = None;
+                speech_writer.send(SpeechEvent::Close);
             }
+            _ => {}
         }
     }
-}
-
-fn out_sensor(
-    a: &Entity,
-    b: &Entity,
-    camera_query: &mut Query<&mut GameCamera>,
-    sensor_query: &Query<&ShopRabbitOuterSensor>,
-    player_query: &Query<&Actor, With<Player>>,
-    _speech_writer: &mut EventWriter<SpeechEvent>,
-) -> bool {
-    if sensor_query.contains(*a) {
-        if let Ok(_) = player_query.get(*b) {
-            let mut camera = camera_query.single_mut();
-            camera.target = None;
-        }
-    }
-    return false;
 }
 
 pub struct ShopRabbitPlugin;
