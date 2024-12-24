@@ -17,19 +17,39 @@ pub const SINGLEPLAY: Dict<&'static str> = Dict {
     en: "This is the entrance to the underground labyrinth.\nBe careful.\nI think you'll be fine\nbecause you are a witch.",
 };
 
-pub const HUGE_SLIME: Dict<&'static str> = Dict {
-    ja: "最近、地下迷宮にとても大きなスライムが現れてね。\n大暴れして困っているんだ。",
-    en: "Lately, a huge slime has appeared in the labyrinth.\nIt's causing a lot of trouble.",
-};
-
-pub const HUGE_SLIME2: Dict<&'static str> = Dict {
-    ja: "あなたが討伐してくれたら\nとても助かるんだけど。",
-    en: "I would be very grateful if you could defeat it.",
-};
-
 pub const WITCHES_ARE: Dict<&'static str> = Dict {
     ja: "昔はこの島にも多くのヒト族がいたらしいが、今は魔法使いが時折訪れるくらいさ。君たち魔法使いはこの地底でいったい何を探しているんだい？",
     en: "There used to be many humans on this island but now only witches occasionally visit. What are you witches looking for in the depths?",
+};
+
+pub const HUGE_SLIME: Dict<&'static str> = Dict {
+    ja: "ところで最近、地下迷宮にとても大きなスライムが現れてね。大暴れして困っているんだ。",
+    en: "Lately, a huge slime has appeared in the labyrinth. It's causing a lot of trouble.",
+};
+
+pub const HUGE_SLIME2: Dict<&'static str> = Dict {
+    ja: "なにしろぼくらは地下迷宮で遺物を拾って生計を立てているからね。あんなのがうろついていたら落ち着いて探索もできやしない。",
+    en: "After all, we make a living by picking up relics in the labyrinth. If such a thing is wandering around, we can't explore calmly.",
+};
+
+pub const HUGE_SLIME3: Dict<&'static str> = Dict {
+    ja: "あなたがあのスライムを討伐してくれたら、とても助かるんだけど。",
+    en: "If you could defeat that slime, I would be very grateful.",
+};
+
+pub const HUGE_SLIME4: Dict<&'static str> = Dict {
+    ja: "その大きなスライムについて何か知らないかって？そうだな、あいつは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
+    en: "Do you know anything about that big slime? Well, it attacks by ramming, but if you have fast legs, it's not hard to escape.",
+};
+
+pub const HUGE_SLIME5: Dict<&'static str> = Dict {
+    ja: "それと、あいつは仲間の小さなスライムを呼び寄せるんだ。囲まれると逃げ道を失う。周囲のスライムは素早く倒したほうがいい。",
+    en: "And it calls small slimes to its side. If you are surrounded, you will lose your escape route. It's better to defeat the surrounding slimes quickly.",
+};
+
+pub const HUGE_SLIME6: Dict<&'static str> = Dict {
+    ja: "そういえば、大きなスライムの討伐に、ひょっとしてこれが役に立つんじゃないかな。ぼくには不要だから君にあげるよ。",
+    en: "By the way, this might be useful for defeating the big slime. I don't need it, so I'll give it to you.",
 };
 
 pub const MULTIPLAY : Dict<&'static str> = Dict {

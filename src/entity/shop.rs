@@ -17,6 +17,7 @@ use crate::language::Dict;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::ui::speech_bubble::SpeechAction;
 use crate::ui::speech_bubble::SpeechEvent;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -161,11 +162,13 @@ fn enter(
                 if let Ok(shop_rabbit_entity) = shop_rabbit_query.get_single() {
                     sensor.open = false;
                     speech_writer.send(SpeechEvent::Speech {
-                        speaker: shop_rabbit_entity,
-                        pages: vec![Dict {
-                            ja: "おいおい、代金を払ってから行ってくれ".to_string(),
-                            en: "Hey Hey, pay first before you go".to_string(),
-                        }],
+                        pages: vec![
+                            SpeechAction::Bubble(shop_rabbit_entity),
+                            SpeechAction::Speech(Dict {
+                                ja: "おいおい、代金を払ってから行ってくれ".to_string(),
+                                en: "Hey Hey, pay first before you go".to_string(),
+                            }),
+                        ],
                     });
                 }
             } else {

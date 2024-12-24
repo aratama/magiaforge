@@ -7,6 +7,7 @@ use crate::message::SHOP_RABBIT;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::ui::speech_bubble::SpeechAction;
 use crate::ui::speech_bubble::SpeechEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -76,21 +77,27 @@ fn chat_start(
                     camera.target = Some(*sensor_entity);
                     se.send(SEEvent::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech {
-                        speaker: *sensor_entity,
-                        pages: vec![shop_rabbit(dept)],
+                        pages: vec![
+                            SpeechAction::Bubble(*sensor_entity),
+                            SpeechAction::Speech(shop_rabbit(dept)),
+                        ],
                     });
                 } else {
                     camera.target = Some(*sensor_entity);
                     speech_writer.send(SpeechEvent::Speech {
-                        speaker: *sensor_entity,
-                        pages: vec![too_few_golds(dept - actor.golds)],
+                        pages: vec![
+                            SpeechAction::Bubble(*sensor_entity),
+                            SpeechAction::Speech(too_few_golds(dept - actor.golds)),
+                        ],
                     });
                 }
             } else {
                 camera.target = Some(*sensor_entity);
                 speech_writer.send(SpeechEvent::Speech {
-                    speaker: *sensor_entity,
-                    pages: vec![SHOP_RABBIT.to_string()],
+                    pages: vec![
+                        SpeechAction::Bubble(*sensor_entity),
+                        SpeechAction::Speech(SHOP_RABBIT.to_string()),
+                    ],
                 });
             }
             return true;

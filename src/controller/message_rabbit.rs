@@ -1,15 +1,14 @@
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::language::Dict;
 use crate::states::GameState;
-use crate::ui::speech_bubble::SpeechEvent;
+use crate::ui::speech_bubble::{SpeechAction, SpeechEvent};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct MessageRabbit {
-    pub messages: Vec<Dict<String>>,
+    pub messages: Vec<SpeechAction>,
 }
 
 #[derive(Component)]
@@ -67,12 +66,13 @@ fn chat_start(
     let mut camera = camera_query.single_mut();
     if let Ok(parent) = sensor_query.get(*sensor_entity) {
         if let Ok(_) = player_query.get_mut(*player_entity) {
-            let rabbit = rabbit_query.get(parent.get()).unwrap();
+            let rabbit_entity = parent.get();
+            let rabbit = rabbit_query.get(rabbit_entity).unwrap();
             camera.target = Some(*sensor_entity);
-            speech_writer.send(SpeechEvent::Speech {
-                speaker: *sensor_entity,
-                pages: rabbit.messages.clone(),
-            });
+
+            let mut messages = rabbit.messages.clone();
+            messages.insert(0, SpeechAction::Bubble(rabbit_entity));
+            speech_writer.send(SpeechEvent::Speech { pages: messages });
             return true;
         }
     }
