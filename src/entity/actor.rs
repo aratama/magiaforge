@@ -181,7 +181,7 @@ impl Actor {
             if let Some(ref mut wand) = w {
                 wand.price = 0;
                 for s in wand.slots.iter_mut() {
-                    if let Some(mut spell) = s {
+                    if let Some(ref mut spell) = s {
                         spell.price = 0;
                     }
                 }
