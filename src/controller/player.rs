@@ -6,6 +6,7 @@ use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
+use crate::entity::actor::ActorState;
 use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
@@ -45,23 +46,34 @@ pub struct Player {
     pub last_idle_vy: f32,
     pub last_idle_life: i32,
     pub last_idle_max_life: i32,
+    pub getting_up: u32,
 }
 
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません
 /// Actor側で ExternalForce にアクセスして、移動を行います
 fn move_player(
-    mut player_query: Query<&mut Actor, With<Player>>,
+    mut player_query: Query<(&mut Actor, &Player)>,
     keys: Res<ButtonInput<KeyCode>>,
     menu: Res<State<GameMenuState>>,
 ) {
-    if let Ok(mut actor) = player_query.get_single_mut() {
+    if let Ok((mut actor, player)) = player_query.get_single_mut() {
+        if player.getting_up > 0 {
+            return;
+        }
         match *menu.get() {
             GameMenuState::Closed => {
-                actor.move_direction = get_direction(keys);
+                let direction = get_direction(keys);
+                actor.move_direction = direction;
+                actor.state = if direction != Vec2::ZERO {
+                    ActorState::Run
+                } else {
+                    ActorState::Idle
+                };
             }
             _ => {
                 actor.move_direction = Vec2::ZERO;
+                actor.state = ActorState::Idle;
             }
         }
     }
@@ -87,7 +99,7 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 
 /// 魔法の発射
 pub fn actor_cast(
-    mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
+    mut player_query: Query<(&mut Actor, &Player), Without<Camera2d>>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
     camera_query: Query<&GameCamera>,
@@ -97,23 +109,26 @@ pub fn actor_cast(
         return;
     }
 
-    if let Ok(mut player) = player_query.get_single_mut() {
+    if let Ok((mut actor, player)) = player_query.get_single_mut() {
+        if player.getting_up > 0 {
+            return;
+        }
         match *menu.get() {
             GameMenuState::Closed => {
-                player.fire_state = if get_fire_trigger(&buttons) {
+                actor.fire_state = if get_fire_trigger(&buttons) {
                     ActorFireState::Fire
                 } else {
                     ActorFireState::Idle
                 };
                 if buttons.pressed(MouseButton::Right) {
-                    player.fire_state_secondary = ActorFireState::Fire;
+                    actor.fire_state_secondary = ActorFireState::Fire;
                 } else {
-                    player.fire_state_secondary = ActorFireState::Idle;
+                    actor.fire_state_secondary = ActorFireState::Idle;
                 }
             }
             _ => {
-                player.fire_state = ActorFireState::Idle;
-                player.fire_state_secondary = ActorFireState::Idle;
+                actor.fire_state = ActorFireState::Idle;
+                actor.fire_state_secondary = ActorFireState::Idle;
             }
         }
     }
@@ -199,12 +214,12 @@ fn die_player(
                 current_wand: actor.current_wand,
             };
 
-            // ダウンのアニメーションを残す
+            // 倒れるアニメーションを残す
             commands.spawn((
                 StateScoped(GameState::InGame),
                 AseSpriteAnimation {
-                    aseprite: assets.player.clone(),
-                    animation: "down".into(),
+                    aseprite: assets.witch.clone(),
+                    animation: "get_down".into(),
                 },
                 Transform::from_translation(
                     transform.translation.truncate().extend(ENTITY_LAYER_Z),
@@ -230,6 +245,20 @@ fn die_player(
     }
 }
 
+fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>) {
+    for (mut actor, mut player) in player_query.iter_mut() {
+        if 0 < player.getting_up {
+            player.getting_up -= 1;
+            if player.getting_up == 0 {
+                actor.fire_state = ActorFireState::Idle;
+                actor.fire_state_secondary = ActorFireState::Idle;
+            } else {
+                actor.state = ActorState::GettingUp;
+            }
+        }
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -240,6 +269,7 @@ impl Plugin for PlayerPlugin {
             // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
             (
+                getting_up,
                 move_player,
                 actor_cast,
                 pick_gold,

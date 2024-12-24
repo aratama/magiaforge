@@ -46,9 +46,16 @@ pub enum ActorState {
     #[default]
     Idle,
     Run,
+    GettingUp,
 }
 
 /// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
+///
+/// 移動
+/// アクターの移動は、stateとmove_directionを設定することで行います
+/// stateをActorState::Runに設定すると move_direction の方向に移動します
+/// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
+///
 #[derive(Component, Reflect, Debug)]
 pub struct Actor {
     pub uuid: Uuid,
@@ -418,20 +425,6 @@ fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
     }
 }
 
-fn update_actor_state(mut witch_query: Query<&mut Actor>) {
-    for mut actor in witch_query.iter_mut() {
-        if actor.move_direction.length() < 0.01 {
-            if actor.state != ActorState::Idle {
-                actor.state = ActorState::Idle;
-            }
-        } else {
-            if actor.state != ActorState::Run {
-                actor.state = ActorState::Run;
-            }
-        }
-    }
-}
-
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -440,8 +433,7 @@ impl Plugin for ActorPlugin {
         app.add_event::<ActorEvent>();
         app.add_systems(
             Update,
-            (update_sprite_flip, update_actor_light, update_actor_state)
-                .run_if(in_state(GameState::InGame)),
+            (update_sprite_flip, update_actor_light).run_if(in_state(GameState::InGame)),
         );
         app.add_systems(
             FixedUpdate,

@@ -149,7 +149,7 @@ pub fn spawn_witch<T: Component>(
                 ..default()
             },
             AseSpriteAnimation {
-                aseprite: assets.player.clone(),
+                aseprite: assets.witch.clone(),
                 animation: Animation::default().with_tag("idle_r"),
             },
             EntityChildrenAutoDepth { offset: 0.0 },
@@ -293,6 +293,13 @@ fn update_witch_animation(
                         }
                     };
                 }
+                ActorState::GettingUp => {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("get_up".to_string()) {
+                        animation.animation.tag = Some("get_up".to_string());
+                        animation_state.current_frame = 26;
+                    }
+                }
             };
         } else {
             warn!("parent of witch not found");
@@ -303,12 +310,17 @@ fn update_witch_animation(
 fn update_wand(
     actor_query: Query<&Actor>,
     mut query: Query<
-        (&Parent, &mut Transform, &mut AseSpriteSlice),
+        (
+            &Parent,
+            &mut Transform,
+            &mut AseSpriteSlice,
+            &mut Visibility,
+        ),
         (With<WitchWandSprite>, Without<Actor>),
     >,
     assets: Res<GameAssets>,
 ) {
-    for (parent, mut transform, mut slice) in query.iter_mut() {
+    for (parent, mut transform, mut slice, mut visibility) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
@@ -332,6 +344,11 @@ fn update_wand(
                     name: "empty".to_string(),
                     aseprite: assets.atlas.clone(),
                 };
+            }
+
+            *visibility = match actor.state {
+                ActorState::GettingUp => Visibility::Hidden,
+                _ => Visibility::Visible,
             }
         }
     }

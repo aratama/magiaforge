@@ -9,8 +9,8 @@ pub struct WitchWandSprite;
 fn update_volume(mut witch_query: Query<(&Actor, &AudioSink), (With<Player>, Changed<Actor>)>) {
     for (actor, sink) in witch_query.iter_mut() {
         sink.set_volume(match actor.state {
-            ActorState::Idle => 0.0,
             ActorState::Run => 0.4,
+            _ => 0.0,
         });
     }
 }

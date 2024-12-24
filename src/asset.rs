@@ -29,8 +29,8 @@ pub struct GameAssets {
     #[asset(path = "image/ending.aseprite")]
     pub ending: Handle<Aseprite>,
 
-    #[asset(path = "entity/player.aseprite")]
-    pub player: Handle<Aseprite>,
+    #[asset(path = "entity/witch.aseprite")]
+    pub witch: Handle<Aseprite>,
 
     #[asset(path = "entity/slime.aseprite")]
     pub slime: Handle<Aseprite>,

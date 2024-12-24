@@ -158,6 +158,7 @@ pub fn setup_level(
             last_idle_vy: 0.0,
             last_idle_life: player.life,
             last_idle_max_life: player.max_life,
+            getting_up: if level == GameLevel::Level(0) { 240 } else { 0 },
         },
         ActorGroup::Player,
         player.current_wand,
@@ -173,7 +174,6 @@ fn select_level_bgm(
     assets: Res<GameAssets>,
 ) {
     if next_level.is_changed() {
-        info!("select_level_bgm {:?}", next_level.next_level);
         *next_bgm = NextBGM(Some(match next_level.next_level {
             GameLevel::Level(0) => assets.dokutsu.clone(),
             GameLevel::Level(LAST_BOSS_LEVEL) => {
