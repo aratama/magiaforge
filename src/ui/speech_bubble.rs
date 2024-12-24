@@ -61,9 +61,13 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
                 font_size: 24.0,
                 font_smoothing: FontSmoothing::AntiAliased,
             },
+            BorderColor(Color::hsv(0.0, 1.0, 1.0)),
             Node {
                 left: Val::Px(16.0),
                 top: Val::Px(16.0),
+                width: Val::Px(150.0 * SCALE),
+                height: Val::Px(46.0 * SCALE),
+                border: UiRect::all(Val::Px(2.0)),
                 ..default()
             },
         ));

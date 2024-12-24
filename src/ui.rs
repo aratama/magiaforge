@@ -14,6 +14,7 @@ pub mod pause_menu;
 pub mod player_list;
 pub mod popup;
 pub mod range;
+pub mod speech_bubble;
 pub mod spell_in_wand;
 pub mod wand_editor;
 pub mod wand_list;

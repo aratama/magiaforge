@@ -2,8 +2,8 @@ use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::language::Dict;
-use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
+use crate::ui::speech_bubble::SpeechEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

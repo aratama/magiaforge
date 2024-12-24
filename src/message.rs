@@ -1,28 +1,30 @@
 use crate::language::Dict;
 
+// 一行は日本語で18文字まで
+
 pub const HELLO: Dict<&'static str> = Dict {
-    ja: "やあ、見慣れない顔だね\nここは商人キャンプだよ\n来客は歓迎さ",
-    en: "Hey, you look unfamiliar\nThis is a rabbit merchant camp\nVisitors are welcome",
+    ja: "やあ、見慣れない顔だね。\nここは商人キャンプだよ。\n来客は歓迎さ。",
+    en: "Hey, you look unfamiliar.\nThis is a rabbit merchant camp.\nVisitors are welcome.",
 };
 
 pub const SINGLEPLAY: Dict<&'static str> = Dict {
-    ja: "その魔法陣は地下迷宮の入り口だよ\n気をつけてね\nあなたは魔法使いだから\n大丈夫だと思うけど",
-    en: "This is the entrance to the underground labyrinth\nBe careful\nI think you'll be fine\nbecause you are a witch",
+    ja: "その魔法陣は地下迷宮の入り口だよ。\n気をつけてね。\nあなたは魔法使いだから\n大丈夫だと思うけど。",
+    en: "This is the entrance to the underground labyrinth.\nBe careful.\nI think you'll be fine\nbecause you are a witch.",
 };
 
 pub const WITCHES_ARE: Dict<&'static str> = Dict {
-    ja: "きみたち魔法使いは不思議なものだね\n危険な地下深くまで潜ってまで\nいったい何を探しているのやら",
-    en: "You witches are mysterious\nWhat are you looking for\nby diving deep underground",
+    ja: "昔はこの島にも多くのヒト族がいたらしいが、今は魔法使いが時折訪れるくらいさ。君たち魔法使いはこの地底でいったい何を探しているんだい？",
+    en: "There used to be many humans on this island but now only witches occasionally visit. What are you witches looking for in the depths?",
 };
 
 pub const MULTIPLAY : Dict<&'static str> = Dict {
-    ja: "この先はマルチプレイ用レベルだよ\n気軽に遊んでいってね\n誰かいるかはわからないけど",
-    en: "It seems that this is a level for multiplayer\nFeel free to play\nI don't know if anyone is there",
+    ja: "この先はマルチプレイ用レベルだよ。\n気軽に遊んでいってね。\n誰かいるかはわからないけど。",
+    en: "It seems that this is a level for multiplayer.\nFeel free to play.\nI don't know if anyone is there.",
 };
 
 pub const TRAINING_RABBIT : Dict<&'static str> =  Dict {
-    ja: "キミも強くなりたいのかい？\nここで練習していくといい\nサンドバッグくんたちが\n相手になってくれる ",
-    en: "Do you want to be strong too?\nIt's good to practice here\nThe sandbag guys will be\n your opponent",
+    ja: "キミも強くなりたいのかい？\nここで練習していくといい。\nサンドバッグくんたちが相手になってくれる。",
+    en: "Do you want to be strong?\nIt's good to practice here.\nThe sandbag guys will be your opponent.",
 };
 
 pub const SHOP_RABBIT: Dict<&'static str> = Dict {

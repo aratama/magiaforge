@@ -6,8 +6,8 @@ use crate::message::too_few_golds;
 use crate::message::SHOP_RABBIT;
 use crate::se::SEEvent;
 use crate::se::SE;
-use crate::speech_bubble::SpeechEvent;
 use crate::states::GameState;
+use crate::ui::speech_bubble::SpeechEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

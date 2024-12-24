@@ -29,7 +29,6 @@ mod player_state;
 mod random;
 mod se;
 mod set;
-mod speech_bubble;
 mod spell;
 mod states;
 mod ui;
