@@ -379,8 +379,6 @@ pub fn send_remote_message(
         info!("send remote message: {:?}", message);
         let serialized = bincode::serialize::<RemoteMessage>(message).unwrap();
         writer.send(ClientMessage::Binary(serialized));
-    } else {
-        info!("offline");
     }
 }
 

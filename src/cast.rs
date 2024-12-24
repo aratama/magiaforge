@@ -114,8 +114,6 @@ pub fn cast_spell(
                             } | filter_base,
                         };
 
-                        info!("impulse {}", spawn.impulse);
-
                         spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
                         actor.effects = default();
 

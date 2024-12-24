@@ -39,6 +39,7 @@ pub enum GameEntity {
     Routes,
     StoneLantern,
     Spell,
+    Wand,
     HugeSlime,
     ShopRabbit,
     TrainingRabbit,

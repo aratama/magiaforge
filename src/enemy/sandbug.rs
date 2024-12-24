@@ -66,7 +66,6 @@ fn frown_on_damage(
         if let Ok((mut sandbag, children)) = sandbag_query.get_mut(*actor) {
             for child in children {
                 if let Ok((mut aseprite, mut animation_state)) = sprite_query.get_mut(*child) {
-                    info!("frown");
                     aseprite.animation.tag = Some("frown".to_string());
                     animation_state.current_frame = 2;
                     sandbag.animation = 0;
