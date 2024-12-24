@@ -9,7 +9,7 @@ use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct MessageRabbit {
-    pub message: Dict<String>,
+    pub messages: Vec<Dict<String>>,
 }
 
 #[derive(Component)]
@@ -71,7 +71,7 @@ fn chat_start(
             camera.target = Some(*sensor_entity);
             speech_writer.send(SpeechEvent::Speech {
                 speaker: *sensor_entity,
-                text: rabbit.message.clone(),
+                pages: rabbit.messages.clone(),
             });
             return true;
         }

@@ -75,8 +75,9 @@ pub fn spawn_witch<T: Component>(
             wands,
             inventory,
             equipments,
+            state: ActorState::default(),
+            wait: 0,
         },
-        ActorState::default(),
         Witch,
         controller,
         Life {
@@ -221,7 +222,7 @@ pub fn spawn_enemy_witch(
 }
 
 fn update_witch_animation(
-    witch_query: Query<(&Actor, &ActorState), With<Witch>>,
+    witch_query: Query<&Actor, With<Witch>>,
     mut witch_animation_query: Query<
         (
             &Parent,
@@ -234,10 +235,10 @@ fn update_witch_animation(
 ) {
     for (parent, mut sprite, mut animation, mut animation_state) in witch_animation_query.iter_mut()
     {
-        if let Ok((actor, state)) = witch_query.get(**parent) {
+        if let Ok(actor) = witch_query.get(parent.get()) {
             let angle = actor.pointer.to_angle();
             let pi = std::f32::consts::PI;
-            match state {
+            match actor.state {
                 ActorState::Idle => {
                     if angle < pi * -0.75 || pi * 0.75 < angle {
                         sprite.flip_x = true;

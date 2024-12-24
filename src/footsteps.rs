@@ -1,16 +1,14 @@
 use crate::controller::player::Player;
-use crate::entity::actor::ActorState;
+use crate::entity::actor::{Actor, ActorState};
 use crate::states::GameState;
 use bevy::prelude::*;
 
 #[derive(Default, Component, Reflect)]
 pub struct WitchWandSprite;
 
-fn update_volume(
-    mut witch_query: Query<(&ActorState, &AudioSink), (With<Player>, Changed<ActorState>)>,
-) {
-    for (state, sink) in witch_query.iter_mut() {
-        sink.set_volume(match state {
+fn update_volume(mut witch_query: Query<(&Actor, &AudioSink), (With<Player>, Changed<Actor>)>) {
+    for (actor, sink) in witch_query.iter_mut() {
+        sink.set_volume(match actor.state {
             ActorState::Idle => 0.0,
             ActorState::Run => 0.4,
         });

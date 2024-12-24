@@ -70,8 +70,9 @@ pub fn spawn_basic_enemy<T: Component>(
                 None,
                 None,
             ],
+            state: ActorState::default(),
+            wait: 0,
         },
-        ActorState::default(),
         EntityDepth,
         Life {
             life: max_life,

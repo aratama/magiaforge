@@ -42,6 +42,9 @@ use crate::level::tile::*;
 use crate::level::wall::spawn_wall_collisions;
 use crate::level::wall::WallCollider;
 use crate::message::HELLO;
+use crate::message::HELLO_RABBITS;
+use crate::message::HUGE_SLIME;
+use crate::message::HUGE_SLIME2;
 use crate::message::LEVEL0;
 use crate::message::LEVEL1;
 use crate::message::LEVEL2;
@@ -560,7 +563,7 @@ fn spawn_entities(
                     &assets.rabbit_red,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: TRAINING_RABBIT.to_string(),
+                        messages: vec![TRAINING_RABBIT.to_string()],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -573,7 +576,11 @@ fn spawn_entities(
                     &assets.rabbit_white,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: SINGLEPLAY.to_string(),
+                        messages: vec![
+                            SINGLEPLAY.to_string(),
+                            HUGE_SLIME.to_string(),
+                            HUGE_SLIME2.to_string(),
+                        ],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -586,7 +593,7 @@ fn spawn_entities(
                     &assets.rabbit_blue,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: HELLO.to_string(),
+                        messages: vec![HELLO.to_string(), HELLO_RABBITS.to_string()],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -599,7 +606,7 @@ fn spawn_entities(
                     &assets.rabbit_black,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: MULTIPLAY.to_string(),
+                        messages: vec![MULTIPLAY.to_string()],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -612,7 +619,7 @@ fn spawn_entities(
                     &assets.rabbit_green,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        message: WITCHES_ARE.to_string(),
+                        messages: vec![WITCHES_ARE.to_string()],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,

@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::camera::GameCamera;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
@@ -85,11 +86,17 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 }
 
 /// 魔法の発射
-fn cast(
+pub fn actor_cast(
     mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
+    camera_query: Query<&GameCamera>,
 ) {
+    let camera = camera_query.single();
+    if camera.target.is_some() {
+        return;
+    }
+
     if let Ok(mut player) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
@@ -234,7 +241,7 @@ impl Plugin for PlayerPlugin {
             FixedUpdate,
             (
                 move_player,
-                cast,
+                actor_cast,
                 pick_gold,
                 die_player,
                 apply_intensity_by_lantern,

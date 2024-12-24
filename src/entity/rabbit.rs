@@ -46,8 +46,9 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
                 inventory: Inventory::new(),
                 equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
                 wands: [None, None, None, None],
+                state: ActorState::default(),
+                wait: 0,
             },
-            ActorState::default(),
             Life {
                 life: 100000,
                 max_life: 100000,

@@ -77,20 +77,20 @@ fn chat_start(
                     se.send(SEEvent::new(SE::Register));
                     speech_writer.send(SpeechEvent::Speech {
                         speaker: *sensor_entity,
-                        text: shop_rabbit(dept),
+                        pages: vec![shop_rabbit(dept)],
                     });
                 } else {
                     camera.target = Some(*sensor_entity);
                     speech_writer.send(SpeechEvent::Speech {
                         speaker: *sensor_entity,
-                        text: too_few_golds(dept - actor.golds),
+                        pages: vec![too_few_golds(dept - actor.golds)],
                     });
                 }
             } else {
                 camera.target = Some(*sensor_entity);
                 speech_writer.send(SpeechEvent::Speech {
                     speaker: *sensor_entity,
-                    text: SHOP_RABBIT.to_string(),
+                    pages: vec![SHOP_RABBIT.to_string()],
                 });
             }
             return true;

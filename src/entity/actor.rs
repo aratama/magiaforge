@@ -41,7 +41,7 @@ pub struct CastEffects {
     pub quick_cast: u32,
 }
 
-#[derive(Component, Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ActorState {
     #[default]
     Idle,
@@ -95,6 +95,12 @@ pub struct Actor {
     // コリジョンの半径です
     // 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
     pub radius: f32,
+
+    pub state: ActorState,
+    // 再び詠唱操作をできるようになるまでの待ち時間
+    // フキダシを閉じたあとなど、一定時間詠唱不能にしておかないと、
+    // フキダシを閉じると同時に詠唱をしてしまう
+    pub wait: u32,
 }
 
 impl Actor {
@@ -347,6 +353,11 @@ fn fire_bullet(
         actor_query.iter_mut()
     {
         if actor.fire_state == ActorFireState::Fire {
+            if 0 < actor.wait {
+                actor.wait -= 1;
+                continue;
+            }
+
             let current_wand = actor.current_wand;
             cast_spell(
                 &mut commands,
@@ -407,15 +418,15 @@ fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
     }
 }
 
-fn update_actor_state(mut witch_query: Query<(&Actor, &mut ActorState)>) {
-    for (actor, mut state) in witch_query.iter_mut() {
+fn update_actor_state(mut witch_query: Query<&mut Actor>) {
+    for mut actor in witch_query.iter_mut() {
         if actor.move_direction.length() < 0.01 {
-            if *state != ActorState::Idle {
-                *state = ActorState::Idle;
+            if actor.state != ActorState::Idle {
+                actor.state = ActorState::Idle;
             }
         } else {
-            if *state != ActorState::Run {
-                *state = ActorState::Run;
+            if actor.state != ActorState::Run {
+                actor.state = ActorState::Run;
             }
         }
     }

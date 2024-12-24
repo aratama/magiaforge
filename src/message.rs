@@ -7,9 +7,24 @@ pub const HELLO: Dict<&'static str> = Dict {
     en: "Hey, you look unfamiliar.\nThis is a rabbit merchant camp.\nVisitors are welcome.",
 };
 
+pub const HELLO_RABBITS: Dict<&'static str> = Dict {
+    ja: "ほかの仲間たちにもぜひあいさつしていってくれ。",
+    en: "Please say hello to the other rabbits.",
+};
+
 pub const SINGLEPLAY: Dict<&'static str> = Dict {
-    ja: "その魔法陣は地下迷宮の入り口だよ。\n気をつけてね。\nあなたは魔法使いだから\n大丈夫だと思うけど。",
+    ja: "その魔法陣は地下迷宮の入り口だよ。\n行くなら気をつけてね。\nあなたは魔法使いだから\n大丈夫だと思うけど。",
     en: "This is the entrance to the underground labyrinth.\nBe careful.\nI think you'll be fine\nbecause you are a witch.",
+};
+
+pub const HUGE_SLIME: Dict<&'static str> = Dict {
+    ja: "最近、地下迷宮にとても大きなスライムが現れてね。\n大暴れして困っているんだ。",
+    en: "Lately, a huge slime has appeared in the labyrinth.\nIt's causing a lot of trouble.",
+};
+
+pub const HUGE_SLIME2: Dict<&'static str> = Dict {
+    ja: "あなたが討伐してくれたら\nとても助かるんだけど。",
+    en: "I would be very grateful if you could defeat it.",
 };
 
 pub const WITCHES_ARE: Dict<&'static str> = Dict {

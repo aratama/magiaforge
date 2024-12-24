@@ -97,8 +97,9 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                     None,
                     None,
                 ],
+                state: ActorState::default(),
+                wait: 0,
             },
-            ActorState::default(),
             EntityDepth,
             AseSpriteAnimation {
                 aseprite: assets.huge_slime_shadow.clone(),
