@@ -189,6 +189,7 @@ fn die_player(
                 equipments: actor.equipments.clone(),
                 wands: actor.wands.clone(),
                 golds: actor.golds,
+                current_wand: actor.current_wand,
             };
 
             // ダウンのアニメーションを残す

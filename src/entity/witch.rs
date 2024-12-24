@@ -54,6 +54,7 @@ pub fn spawn_witch<T: Component>(
     equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     controller: T,
     actor_group: ActorGroup,
+    current_wand: usize,
 ) -> Entity {
     let mut entity = commands.spawn((
         Name::new("witch"),
@@ -67,7 +68,7 @@ pub fn spawn_witch<T: Component>(
             move_force: PLAYER_MOVE_FORCE,
             fire_state: ActorFireState::Idle,
             fire_state_secondary: ActorFireState::Idle,
-            current_wand: 0,
+            current_wand,
             effects: default(),
             actor_group,
             golds,
@@ -215,6 +216,7 @@ pub fn spawn_enemy_witch(
             fire: false,
         },
         ActorGroup::Enemy,
+        0,
     );
 }
 

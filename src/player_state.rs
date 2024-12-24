@@ -22,6 +22,7 @@ pub struct PlayerState {
     pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     pub wands: [Option<Wand>; MAX_WANDS],
     pub golds: u32,
+    pub current_wand: usize,
 }
 
 impl PlayerState {
@@ -34,6 +35,7 @@ impl PlayerState {
             equipments: actor.equipments.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
+            current_wand: 0,
         }
     }
 
@@ -87,6 +89,7 @@ impl PlayerState {
             equipments,
             wands,
             golds: 1000,
+            current_wand: 0,
         }
     }
 }

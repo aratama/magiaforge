@@ -152,6 +152,7 @@ pub fn setup_level(
             last_idle_max_life: player.max_life,
         },
         ActorGroup::Player,
+        player.current_wand,
     );
 
     current.level = Some(level);

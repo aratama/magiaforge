@@ -281,6 +281,7 @@ fn receive_events(
                                         last_update: *frame_count,
                                     },
                                     ActorGroup::Enemy,
+                                    0,
                                 );
                                 info!("Remote player spawned: {}", uuid);
                             }

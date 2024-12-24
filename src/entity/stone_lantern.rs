@@ -14,7 +14,9 @@ use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Default, Component, Reflect)]
-struct StoneLantern;
+struct StoneLantern {
+    animation_offset: u32,
+}
 
 #[derive(Component, Reflect)]
 struct LanternParent(Entity);
@@ -37,7 +39,9 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                 max_life: 50,
                 amplitude: 0.0,
             },
-            StoneLantern,
+            StoneLantern {
+                animation_offset: rand::random::<u32>() % 1000,
+            },
             EntityDepth,
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
@@ -95,7 +99,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
 
 fn update_lantern(
     mut commands: Commands,
-    parent_query: Query<&Transform, With<StoneLantern>>,
+    parent_query: Query<(&StoneLantern, &Transform)>,
     mut child_query: Query<
         (Entity, &LanternParent, &mut PointLight2d, &mut Transform),
         Without<StoneLantern>,
@@ -103,9 +107,10 @@ fn update_lantern(
     frame_count: Res<FrameCount>,
 ) {
     for (entity, child, mut light, mut transform) in child_query.iter_mut() {
-        light.intensity = 1.0 + ((frame_count.0 as f32 * 0.5).cos()) * 0.1;
-        if let Ok(lantern_transform) = parent_query.get(child.0) {
+        if let Ok((lantern, lantern_transform)) = parent_query.get(child.0) {
             transform.translation = lantern_transform.translation;
+            light.intensity =
+                1.0 + (((lantern.animation_offset + frame_count.0) as f32 * 0.43).cos()) * 0.1;
         } else {
             commands.entity(entity).despawn_recursive();
         }
