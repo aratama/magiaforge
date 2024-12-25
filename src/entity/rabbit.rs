@@ -8,6 +8,7 @@ use crate::entity::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
 use crate::states::GameState;
+use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -45,7 +46,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
                 golds: 0,
                 inventory: Inventory::new(),
                 equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
-                wands: [None, None, None, None],
+                wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
                 state: ActorState::default(),
                 wait: 0,
             },

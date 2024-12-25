@@ -18,6 +18,7 @@ use crate::page::in_game::GameLevel;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::wand::Wand;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
@@ -272,7 +273,7 @@ fn receive_events(
                                     true,
                                     3.0,
                                     0,
-                                    [None, None, None, None],
+                                    [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
                                     Inventory::new(),
                                     [None, None, None, None, None, None, None, None],
                                     RemotePlayer {

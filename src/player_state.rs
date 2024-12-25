@@ -19,7 +19,7 @@ pub struct PlayerState {
     pub max_life: i32,
     pub inventory: Inventory,
     pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
-    pub wands: [Option<Wand>; MAX_WANDS],
+    pub wands: [Wand; MAX_WANDS],
     pub golds: u32,
     pub current_wand: usize,
 }
@@ -59,7 +59,7 @@ impl PlayerState {
         });
 
         let wands = [
-            Some(Wand::with_slots([
+            Wand::with_slots([
                 Some(WandSpell {
                     spell_type: SpellType::MagicBolt,
                     price: 0,
@@ -71,10 +71,10 @@ impl PlayerState {
                 None,
                 None,
                 None,
-            ])),
-            None,
-            None,
-            None,
+            ]),
+            Wand::empty(),
+            Wand::empty(),
+            Wand::empty(),
         ];
 
         PlayerState {

@@ -85,7 +85,7 @@ pub struct Actor {
     /// アクターが所持している杖のリスト
     /// モンスターの呪文詠唱の仕組みもプレイヤーキャラクターと同一であるため、
     /// 内部的にはモンスターも杖を持っていることになっています
-    pub wands: [Option<Wand>; MAX_WANDS],
+    pub wands: [Wand; MAX_WANDS],
     // pub queue: Vec,
     pub inventory: Inventory,
 
@@ -120,35 +120,25 @@ impl Actor {
             FloatingContent::Equipment(index) => {
                 self.equipments[index].map(|i| i.equipment_type.to_props().icon)
             }
-            FloatingContent::WandSpell(w, s) => self.wands[w]
-                .as_ref()
-                .and_then(|wand| wand.slots[s].map(|spell| spell.spell_type.to_props().icon)),
+            FloatingContent::WandSpell(w, s) => {
+                self.wands[w].slots[s].map(|spell| spell.spell_type.to_props().icon)
+            }
         }
     }
 
     pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
-        if let Some(ref wand) = self.wands[wand_index] {
-            return wand.slots[spell_index];
-        }
-        None
+        self.wands[wand_index].slots[spell_index]
     }
 
     pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
-        self.wands[wand_index]
-            .as_ref()
-            .and_then(|w| w.slots[spell_index])
+        self.wands[wand_index].slots[spell_index]
     }
 
     /// 現在所持している有料呪文の合計金額を返します
     pub fn dept(&self) -> u32 {
         let mut dept = self.inventory.dept();
 
-        let w: u32 = self
-            .wands
-            .iter()
-            .filter_map(|wand| wand.as_ref())
-            .map(|wand| wand.dept())
-            .sum();
+        let w: u32 = self.wands.iter().map(|wand| wand.dept()).sum();
 
         dept += w;
 
@@ -183,12 +173,10 @@ impl Actor {
             }
         }
 
-        for w in self.wands.iter_mut() {
-            if let Some(ref mut wand) = w {
-                for s in wand.slots.iter_mut() {
-                    if let Some(ref mut spell) = s {
-                        spell.price = 0;
-                    }
+        for wand in self.wands.iter_mut() {
+            for s in wand.slots.iter_mut() {
+                if let Some(ref mut spell) = s {
+                    spell.price = 0;
                 }
             }
         }
@@ -393,10 +381,8 @@ fn fire_bullet(
             );
         }
 
-        for wand_option in actor.wands.iter_mut() {
-            if let Some(ref mut wand) = wand_option {
-                wand.delay = (wand.delay as i32 - 1).max(0) as u32;
-            }
+        for wand in actor.wands.iter_mut() {
+            wand.delay = (wand.delay as i32 - 1).max(0) as u32;
         }
     }
 }

@@ -109,7 +109,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
         inventory.sort();
 
-        actor.wands[1] = Some(Wand::with_slots([
+        actor.wands[1] = Wand::with_slots([
             Some(WandSpell {
                 spell_type: SpellType::SummonFriendSlime,
                 price: 0,
@@ -121,8 +121,8 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
             None,
             None,
             None,
-        ]));
-        actor.wands[2] = Some(Wand::with_slots([
+        ]);
+        actor.wands[2] = Wand::with_slots([
             Some(WandSpell::new(SpellType::HeavyShot)),
             Some(WandSpell::new(SpellType::HeavyShot)),
             Some(WandSpell::new(SpellType::TripleCast)),
@@ -131,9 +131,9 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
             Some(WandSpell::new(SpellType::MagicBolt)),
             None,
             None,
-        ]));
+        ]);
 
-        actor.wands[3] = Some(Wand::with_slots([
+        actor.wands[3] = Wand::with_slots([
             Some(WandSpell {
                 spell_type: SpellType::Dash,
                 price: 0,
@@ -145,7 +145,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
             None,
             None,
             None,
-        ]));
+        ]);
     }
 }
 

@@ -30,15 +30,15 @@ impl FloatingContent {
     pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
         match self {
             FloatingContent::Inventory(index) => actor.inventory.get(*index),
-            FloatingContent::WandSpell(wand_index, spell_index) => actor.wands[*wand_index]
-                .clone()
-                .and_then(|ref wand| match wand.slots[*spell_index] {
+            FloatingContent::WandSpell(wand_index, spell_index) => {
+                match actor.wands[*wand_index].slots[*spell_index] {
                     Some(spell) => Some(InventoryItem {
                         item_type: InventoryItemType::Spell(spell.spell_type),
                         price: spell.price,
                     }),
                     None => None,
-                }),
+                }
+            }
             FloatingContent::Equipment(index) => {
                 actor.equipments[*index].clone().map(|ref e| InventoryItem {
                     item_type: InventoryItemType::Equipment(e.equipment_type),
@@ -184,17 +184,13 @@ fn drop(
                     // 移動先のアイテムを取得
                     let item_optional_to = target.get_inventory_item(&actor);
 
-                    // 移動先に書きこみ
-                    let ok_target = target.set_item(item_optional_from, &mut actor, true);
-                    // 移動元に書きこみ
-                    let ok_content = content.set_item(item_optional_to, &mut actor, true);
+                    info!("item_optional_from {:?}", item_optional_from);
+                    info!("item_optional_to {:?}", item_optional_to);
 
-                    if ok_target && ok_content {
-                        // 移動先に書きこみ
-                        target.set_item(item_optional_from, &mut actor, false);
-                        // 移動元に書きこみ
-                        content.set_item(item_optional_to, &mut actor, false);
-                    }
+                    // 移動先に書きこみ
+                    target.set_item(item_optional_from, &mut actor);
+                    // 移動元に書きこみ
+                    content.set_item(item_optional_to, &mut actor);
                 }
             }
         }
@@ -216,13 +212,10 @@ impl FloatingContent {
         }
     }
 
-    pub fn set_item(&self, item: Option<InventoryItem>, actor: &mut Actor, dry_run: bool) -> bool {
+    pub fn set_item(&self, item: Option<InventoryItem>, actor: &mut Actor) {
         match (self, item) {
             (FloatingContent::Inventory(i), _) => {
-                if !dry_run {
-                    actor.inventory.set(*i, item);
-                }
-                true
+                actor.inventory.set(*i, item);
             }
 
             (
@@ -232,21 +225,13 @@ impl FloatingContent {
                     price,
                 }),
             ) => {
-                if !dry_run {
-                    if let Some(ref mut wand) = actor.wands[*w] {
-                        wand.slots[*s] = Some(WandSpell { spell_type, price });
-                        wand.index = 0;
-                    }
-                }
-                true
+                info!("set_item {:?}", item);
+
+                actor.wands[*w].slots[*s] = Some(WandSpell { spell_type, price });
+                actor.wands[*w].index = 0;
             }
             (FloatingContent::WandSpell(w, s), None) => {
-                if !dry_run {
-                    if let Some(ref mut wand) = actor.wands[*w] {
-                        wand.slots[*s] = None;
-                    }
-                }
-                true
+                actor.wands[*w].slots[*s] = None;
             }
             (
                 FloatingContent::Equipment(e),
@@ -255,23 +240,16 @@ impl FloatingContent {
                     price,
                 }),
             ) => {
-                if !dry_run {
-                    actor.equipments[*e] = Some(Equipment {
-                        equipment_type: equipment,
-                        price,
-                    })
-                }
-                true
+                actor.equipments[*e] = Some(Equipment {
+                    equipment_type: equipment,
+                    price,
+                })
             }
             (FloatingContent::Equipment(e), None) => {
-                if !dry_run {
-                    actor.equipments[*e] = None;
-                }
-                true
+                actor.equipments[*e] = None;
             }
             _ => {
                 warn!("Invalid operation dest:{:?} item:{:?}", self, item);
-                false
             }
         }
     }

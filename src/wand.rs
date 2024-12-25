@@ -35,6 +35,14 @@ impl Wand {
     //     }
     // }
 
+    pub fn empty() -> Self {
+        Self {
+            slots: [None; MAX_SPELLS_IN_WAND],
+            index: 0,
+            delay: 0,
+        }
+    }
+
     pub fn with_slots(slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND]) -> Self {
         Self {
             slots,

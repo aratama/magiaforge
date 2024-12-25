@@ -63,7 +63,12 @@ pub fn spawn_basic_enemy<T: Component>(
             golds,
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
-            wands: [Some(Wand::with_slots(slots)), None, None, None],
+            wands: [
+                Wand::with_slots(slots),
+                Wand::empty(),
+                Wand::empty(),
+                Wand::empty(),
+            ],
             state: ActorState::default(),
             wait: 0,
         },

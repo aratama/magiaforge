@@ -49,7 +49,7 @@ pub fn spawn_witch<T: Component>(
     life_bar: bool,
     point_light_radius: f32,
     golds: u32,
-    wands: [Option<Wand>; 4],
+    wands: [Wand; 4],
     inventory: Inventory,
     equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     controller: T,
