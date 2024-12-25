@@ -243,14 +243,14 @@ fn update_hud(
     mut player_life_query: Query<&mut StatusBar, With<PlayerLifeBar>>,
     mut player_gold_query: Query<&mut Text, (With<PlayerGold>,)>,
 ) {
+    let mut player_life = player_life_query.single_mut();
+    let mut player_gold = player_gold_query.single_mut();
     if let Ok((actor, actor_life)) = player_query.get_single() {
-        let mut player_life = player_life_query.single_mut();
-        let mut player_gold = player_gold_query.single_mut();
-
         player_life.value = actor_life.life;
         player_life.max_value = actor_life.max_life;
-
         player_gold.0 = format!("{}", actor.golds);
+    } else {
+        player_life.value = 0;
     }
 }
 

@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::states::GameState;
 use bevy::prelude::*;
 
-const BAR_HEIGHT: f32 = 16.0;
+const BAR_HEIGHT: f32 = 19.0;
 
 #[derive(Component)]
 pub struct StatusBar {
