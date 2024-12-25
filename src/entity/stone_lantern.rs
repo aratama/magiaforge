@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
+use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -118,13 +119,24 @@ fn update_lantern(
 
 fn break_stone_lantern(
     mut commands: Commands,
+    assets: Res<GameAssets>,
     query: Query<(Entity, &Life, &Transform), With<StoneLantern>>,
     mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
+            let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
+            writer.send(SEEvent::pos(SE::Break, position));
+
+            for i in 0..4 {
+                spawn_broken_piece(
+                    &mut commands,
+                    &assets,
+                    position,
+                    &format!("stone_lantern_piece_{}", i),
+                );
+            }
         }
     }
 }

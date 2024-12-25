@@ -80,6 +80,7 @@ fn read_impact_event(
                 let damage = 10;
                 let p = life_transform.translation.truncate();
                 life.life = (life.life - damage).max(0);
+                life.amplitude = 6.0;
                 damage_writer.send(ActorEvent::Damaged {
                     actor: entity,
                     damage: 10,

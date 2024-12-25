@@ -1,6 +1,8 @@
+use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
+use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -69,13 +71,23 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
 
 fn break_book_shelf(
     mut commands: Commands,
+    assets: Res<GameAssets>,
     query: Query<(Entity, &Life, &Transform), With<Bookshelf>>,
     mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
+            let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
+            writer.send(SEEvent::pos(SE::Break, position));
+            for i in 0..6 {
+                spawn_broken_piece(
+                    &mut commands,
+                    &assets,
+                    position,
+                    &format!("bookshelf_piece_{}", i),
+                );
+            }
         }
     }
 }

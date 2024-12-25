@@ -22,7 +22,7 @@ pub fn spawn_broken_piece(
             name: name.into(),
         },
         RigidBody::Dynamic,
-        Collider::ball(2.0),
+        Collider::ball(4.0),
         CollisionGroups::new(PIECE_GROUP, PIECE_GROUP | WALL_GROUP | ENTITY_GROUP),
         Velocity {
             linvel: Vec2::new(
