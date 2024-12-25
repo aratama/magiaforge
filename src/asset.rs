@@ -11,6 +11,9 @@ pub struct GameAssets {
     #[asset(path = "image/atlas.aseprite")]
     pub atlas: Handle<Aseprite>,
 
+    #[asset(path = "image/next_page.aseprite")]
+    pub next_page: Handle<Aseprite>,
+
     #[asset(path = "image/level.aseprite")]
     pub level: Handle<Aseprite>,
 

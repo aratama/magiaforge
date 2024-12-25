@@ -13,6 +13,7 @@ use crate::se::SE;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy::text::FontSmoothing;
+use bevy_aseprite_ultra::prelude::AseUiAnimation;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 const SCALE: f32 = 3.0;
@@ -20,6 +21,8 @@ const SCALE: f32 = 3.0;
 const SPEECH_BUBBLE_WIDTH: f32 = 160.0;
 
 const SPEECH_BUBBLE_HEIGHT: f32 = 64.0;
+
+const DELAY: usize = 4;
 
 #[derive(Debug, Clone)]
 pub enum SpeechAction {
@@ -45,6 +48,9 @@ struct SpeechBubble {
 
 #[derive(Component)]
 pub struct SpeechBubbleText;
+
+#[derive(Component)]
+pub struct NextPage;
 
 #[derive(Event)]
 pub enum SpeechEvent {
@@ -92,6 +98,21 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
                 width: Val::Px(150.0 * SCALE),
                 height: Val::Px(46.0 * SCALE),
                 border: UiRect::all(Val::Px(2.0)),
+                ..default()
+            },
+        ))
+        .with_child((
+            NextPage,
+            AseUiAnimation {
+                aseprite: assets.next_page.clone(),
+                animation: "default".into(),
+            },
+            Node {
+                position_type: PositionType::Absolute,
+                right: Val::Px(16.0),
+                bottom: Val::Px(16.0),
+                width: Val::Px(16.0 * SCALE),
+                height: Val::Px(16.0 * SCALE),
                 ..default()
             },
         ));
@@ -161,8 +182,6 @@ fn countup(
         // camera.target = None;
         return;
     }
-
-    const DELAY: usize = 4;
 
     let pos = speech.count / DELAY;
     let mut speech_text = speech_text_query.single_mut();
@@ -235,16 +254,54 @@ fn next_page(
     mouse: Res<ButtonInput<MouseButton>>,
     mut bubble_query: Query<(&mut SpeechBubble, &Visibility)>,
     mut writer: EventWriter<SpeechEvent>,
+    config: Res<GameConfig>,
 ) {
     let (mut bubble, bubble_visivility) = bubble_query.single_mut();
     if *bubble_visivility == Visibility::Inherited {
         if mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right) {
-            if bubble.page < bubble.pages.len() - 1 {
-                bubble.page += 1;
-                bubble.count = 0;
-            } else {
-                writer.send(SpeechEvent::Close);
+            let page = bubble.pages[bubble.page].clone();
+            match page {
+                SpeechAction::Speech(dict) => {
+                    let page_string = dict.get(config.language);
+                    let chars = page_string.char_indices();
+                    let count = chars.count();
+                    let pos = bubble.count / DELAY;
+                    if pos < count {
+                        bubble.count = count * DELAY;
+                    } else if bubble.page < bubble.pages.len() - 1 {
+                        bubble.page += 1;
+                        bubble.count = 0;
+                    } else {
+                        writer.send(SpeechEvent::Close);
+                    }
+                }
+                _ => {}
             }
+        }
+    }
+}
+
+fn next_page_visibility(
+    mut query: Query<(&Parent, &mut Visibility), With<NextPage>>,
+    bubble_query: Query<&SpeechBubble>,
+    config: Res<GameConfig>,
+) {
+    let (parent, mut visibility) = query.single_mut();
+    let bubble = bubble_query.get(parent.get()).unwrap();
+    if let Some(page) = bubble.pages.get(bubble.page) {
+        match page {
+            SpeechAction::Speech(dict) => {
+                let page_string = dict.get(config.language);
+                let chars = page_string.char_indices();
+                let count = chars.count();
+                let pos = bubble.count / DELAY;
+                *visibility = if pos < count {
+                    Visibility::Hidden
+                } else {
+                    Visibility::Inherited
+                }
+            }
+            _ => {}
         }
     }
 }
@@ -260,6 +317,7 @@ impl Plugin for SpeechBubblePlugin {
                 (read_speech_events, update_speech_bubble_position).chain(),
                 countup,
                 next_page,
+                next_page_visibility,
             )
                 .run_if(in_state(GameState::InGame)),
         );
