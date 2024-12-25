@@ -63,7 +63,6 @@ use crate::random::random_select_mut;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::ui::speech_bubble::SpeechAction;
-use crate::wand::WandType;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -532,17 +531,6 @@ fn spawn_entities(
                         },
                     );
                 }
-            }
-            GameEntity::Wand => {
-                spawn_dropped_item(
-                    &mut commands,
-                    &assets,
-                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    InventoryItem {
-                        item_type: InventoryItemType::Wand(WandType::CypressWand),
-                        price: 0,
-                    },
-                );
             }
             GameEntity::HugeSlime => {
                 spawn_huge_slime(

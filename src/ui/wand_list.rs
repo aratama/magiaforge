@@ -55,7 +55,7 @@ fn spawn_wand_and_spell_slot(
             },
         ))
         .with_children(|mut parent| {
-            spawn_wand_sprite_in_list(&mut parent, &assets, wand_index);
+            spawn_wand_sprite_in_list(&mut parent, &assets);
 
             for spell_index in 0..MAX_SPELLS_IN_WAND {
                 spawn_wand_spell_slot(&mut parent, &assets, wand_index, spell_index);

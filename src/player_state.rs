@@ -10,7 +10,6 @@ use crate::inventory::Inventory;
 use crate::spell::SpellType;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
-use crate::wand::WandType;
 use bevy::ecs::query::QuerySingleError;
 
 #[derive(Debug, Clone)]
@@ -60,22 +59,19 @@ impl PlayerState {
         });
 
         let wands = [
-            Some(Wand::with_slots(
-                WandType::CypressWand,
-                [
-                    Some(WandSpell {
-                        spell_type: SpellType::MagicBolt,
-                        price: 0,
-                    }),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ],
-            )),
+            Some(Wand::with_slots([
+                Some(WandSpell {
+                    spell_type: SpellType::MagicBolt,
+                    price: 0,
+                }),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ])),
             None,
             None,
             None,

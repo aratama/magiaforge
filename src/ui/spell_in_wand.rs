@@ -63,31 +63,6 @@ fn update_panel_item(
     }
 }
 
-fn update_spell_sprite_visibility(
-    player_query: Query<&Actor, With<Player>>,
-    mut sprite_query: Query<(&WandSpellSprite, &mut Visibility), With<ItemPanel>>,
-    floating_query: Query<&Floating>,
-) {
-    if let Ok(actor) = player_query.get_single() {
-        for (sprite, mut visibility) in sprite_query.iter_mut() {
-            let float = floating_query.single();
-            match float.content {
-                Some(FloatingContent::Wand(w)) if w == sprite.wand_index => {
-                    *visibility = Visibility::Hidden;
-                }
-                _ => {
-                    match actor.get_wand(sprite.wand_index) {
-                        Some(wand) if sprite.spell_index < wand.wand_type.to_props().capacity => {
-                            *visibility = Visibility::default();
-                        }
-                        _ => *visibility = Visibility::Hidden,
-                    };
-                }
-            }
-        }
-    }
-}
-
 fn interaction_spell_sprite(
     mut interaction_query: Query<(&WandSpellSprite, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
@@ -141,12 +116,7 @@ impl Plugin for SpellInWandPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (
-                update_panel_item,
-                interaction_spell_sprite,
-                update_spell_sprite_visibility,
-            )
-                .run_if(in_state(GameState::InGame)),
+            (update_panel_item, interaction_spell_sprite).run_if(in_state(GameState::InGame)),
         );
     }
 }

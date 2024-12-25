@@ -2,12 +2,6 @@ use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
 
-#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum WandType {
-    CypressWand,
-    KeyWand,
-}
-
 #[derive(Reflect, Clone, Copy, Debug)]
 pub struct WandSpell {
     pub spell_type: SpellType,
@@ -25,8 +19,6 @@ impl WandSpell {
 
 #[derive(Reflect, Clone, Debug)]
 pub struct Wand {
-    pub wand_type: WandType,
-    pub price: u32,
     pub slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND],
     pub index: usize,
     pub delay: u32,
@@ -43,10 +35,8 @@ impl Wand {
     //     }
     // }
 
-    pub fn with_slots(wand_type: WandType, slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND]) -> Self {
+    pub fn with_slots(slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND]) -> Self {
         Self {
-            wand_type,
-            price: 0,
             slots,
             index: 0,
             delay: 0,

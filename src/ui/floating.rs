@@ -1,5 +1,4 @@
 use crate::asset::GameAssets;
-use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
@@ -16,7 +15,6 @@ use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::item_panel::spawn_item_panel;
 use crate::ui::item_panel::ItemPanel;
-use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -25,7 +23,6 @@ use bevy::window::PrimaryWindow;
 pub enum FloatingContent {
     Inventory(usize),
     WandSpell(usize, usize),
-    Wand(usize),
     Equipment(usize),
 }
 
@@ -42,14 +39,6 @@ impl FloatingContent {
                     }),
                     None => None,
                 }),
-            FloatingContent::Wand(wand_index) => {
-                actor.wands[*wand_index].clone().and_then(|ref wand| {
-                    Some(InventoryItem {
-                        item_type: InventoryItemType::Wand(wand.wand_type),
-                        price: wand.price,
-                    })
-                })
-            }
             FloatingContent::Equipment(index) => {
                 actor.equipments[*index].clone().map(|ref e| InventoryItem {
                     item_type: InventoryItemType::Equipment(e.equipment_type),
@@ -174,9 +163,6 @@ fn drop(
                                     if chunk.get_tile_by_coords(pointer_in_world) == Tile::StoneTile
                                     {
                                         if let Some(item) = content.get_inventory_item(&actor) {
-                                            let spells = content.get_wand_spells(&actor);
-                                            content.set_item(None, &spells, &mut actor, false);
-
                                             spawn_dropped_item(
                                                 &mut commands,
                                                 &assets,
@@ -197,23 +183,17 @@ fn drop(
                     let item_optional_from = content.get_inventory_item(&actor);
                     // 移動先のアイテムを取得
                     let item_optional_to = target.get_inventory_item(&actor);
-                    // 移動元が杖の場合は杖に含まれている魔法を取得
-                    let spells_from = content.get_wand_spells(&actor);
-
-                    let spells_to = target.get_wand_spells(&actor);
 
                     // 移動先に書きこみ
-                    let ok_target =
-                        target.set_item(item_optional_from, &spells_from, &mut actor, true);
+                    let ok_target = target.set_item(item_optional_from, &mut actor, true);
                     // 移動元に書きこみ
-                    let ok_content =
-                        content.set_item(item_optional_to, &spells_to, &mut actor, true);
+                    let ok_content = content.set_item(item_optional_to, &mut actor, true);
 
                     if ok_target && ok_content {
                         // 移動先に書きこみ
-                        target.set_item(item_optional_from, &spells_from, &mut actor, false);
+                        target.set_item(item_optional_from, &mut actor, false);
                         // 移動元に書きこみ
-                        content.set_item(item_optional_to, &spells_to, &mut actor, false);
+                        content.set_item(item_optional_to, &mut actor, false);
                     }
                 }
             }
@@ -229,16 +209,6 @@ impl FloatingContent {
                 item_type: InventoryItemType::Spell(w.spell_type),
                 price: w.price,
             }),
-            FloatingContent::Wand(w) => {
-                if let Some(ref wand) = actor.wands[*w] {
-                    Some(InventoryItem {
-                        item_type: InventoryItemType::Wand(wand.wand_type),
-                        price: wand.price,
-                    })
-                } else {
-                    None
-                }
-            }
             FloatingContent::Equipment(e) => actor.equipments[*e].map(|e| InventoryItem {
                 item_type: InventoryItemType::Equipment(e.equipment_type),
                 price: e.price,
@@ -246,65 +216,15 @@ impl FloatingContent {
         }
     }
 
-    pub fn get_wand_spells(&self, actor: &Actor) -> Box<[Option<WandSpell>; MAX_SPELLS_IN_WAND]> {
-        Box::new(match self {
-            FloatingContent::Wand(w) => {
-                if let Some(ref wand) = actor.wands[*w] {
-                    wand.slots
-                } else {
-                    [None; MAX_SPELLS_IN_WAND]
-                }
-            }
-            _ => [None; MAX_SPELLS_IN_WAND],
-        })
-    }
-
-    pub fn set_item(
-        &self,
-        item: Option<InventoryItem>,
-        slots: &[Option<WandSpell>; MAX_SPELLS_IN_WAND],
-        actor: &mut Actor,
-        dry_run: bool,
-    ) -> bool {
+    pub fn set_item(&self, item: Option<InventoryItem>, actor: &mut Actor, dry_run: bool) -> bool {
         match (self, item) {
             (FloatingContent::Inventory(i), _) => {
                 if !dry_run {
                     actor.inventory.set(*i, item);
-                    for spell in slots.iter() {
-                        if let Some(spell) = spell {
-                            actor.inventory.insert(InventoryItem {
-                                item_type: InventoryItemType::Spell(spell.spell_type),
-                                price: spell.price,
-                            });
-                        }
-                    }
                 }
                 true
             }
-            (
-                FloatingContent::Wand(w),
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Wand(wand_type),
-                    price,
-                }),
-            ) => {
-                if !dry_run {
-                    actor.wands[*w] = Some(Wand {
-                        wand_type,
-                        price,
-                        slots: *slots,
-                        index: 0,
-                        delay: 0,
-                    });
-                }
-                true
-            }
-            (FloatingContent::Wand(w), None) => {
-                if !dry_run {
-                    actor.wands[*w] = None
-                }
-                true
-            }
+
             (
                 FloatingContent::WandSpell(w, s),
                 Some(InventoryItem {

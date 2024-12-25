@@ -37,27 +37,22 @@ pub fn spawn_dropped_item(
     let item_type = item.item_type;
     let icon = match item_type {
         InventoryItemType::Spell(spell) => spell.to_props().icon,
-        InventoryItemType::Wand(wand) => wand.to_props().icon,
         InventoryItemType::Equipment(equipment) => equipment.to_props().icon,
     };
     let name = match item_type {
         InventoryItemType::Spell(spell) => spell.to_props().name.en,
-        InventoryItemType::Wand(wand) => wand.to_props().name.en,
         InventoryItemType::Equipment(equipment) => equipment.to_props().name.en,
     };
     let frame_slice = match item_type {
-        InventoryItemType::Wand(_) => "empty", //"wand_frame",
         InventoryItemType::Spell(_) if 0 < item.price => "spell_frame_yellow",
         InventoryItemType::Spell(_) => "spell_frame",
         InventoryItemType::Equipment(_) => "empty",
     };
     let collider_width = match item_type {
-        InventoryItemType::Wand(_) => 16.0,
         _ => 8.0,
     };
     let swing = match item_type {
         InventoryItemType::Spell(_) => 2.0,
-        InventoryItemType::Wand(_) => 0.0,
         InventoryItemType::Equipment(_) => 0.0,
     };
     commands

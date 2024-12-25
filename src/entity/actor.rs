@@ -120,9 +120,6 @@ impl Actor {
             FloatingContent::Equipment(index) => {
                 self.equipments[index].map(|i| i.equipment_type.to_props().icon)
             }
-            FloatingContent::Wand(index) => self.wands[index]
-                .as_ref()
-                .map(|i| i.wand_type.to_props().icon),
             FloatingContent::WandSpell(w, s) => self.wands[w]
                 .as_ref()
                 .and_then(|wand| wand.slots[s].map(|spell| spell.spell_type.to_props().icon)),
@@ -134,10 +131,6 @@ impl Actor {
             return wand.slots[spell_index];
         }
         None
-    }
-
-    pub fn get_wand(&self, wand_index: usize) -> Option<&Wand> {
-        self.wands[wand_index].as_ref()
     }
 
     pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
@@ -154,7 +147,7 @@ impl Actor {
             .wands
             .iter()
             .filter_map(|wand| wand.as_ref())
-            .map(|wand| wand.price + wand.dept())
+            .map(|wand| wand.dept())
             .sum();
 
         dept += w;
@@ -192,7 +185,6 @@ impl Actor {
 
         for w in self.wands.iter_mut() {
             if let Some(ref mut wand) = w {
-                wand.price = 0;
                 for s in wand.slots.iter_mut() {
                     if let Some(ref mut spell) = s {
                         spell.price = 0;

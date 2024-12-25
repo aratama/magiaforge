@@ -14,7 +14,6 @@ use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
-use crate::wand::WandType;
 use bevy::input::keyboard::Key;
 use bevy::input::keyboard::KeyboardInput;
 use bevy::input::ButtonState;
@@ -94,7 +93,6 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
-        inventory.insert_free(InventoryItemType::Wand(WandType::KeyWand));
         inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
         inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
         inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
@@ -111,52 +109,43 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
         inventory.sort();
 
-        actor.wands[1] = Some(Wand::with_slots(
-            WandType::CypressWand,
-            [
-                Some(WandSpell {
-                    spell_type: SpellType::SummonFriendSlime,
-                    price: 0,
-                }),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ],
-        ));
-        actor.wands[2] = Some(Wand::with_slots(
-            WandType::KeyWand,
-            [
-                Some(WandSpell::new(SpellType::HeavyShot)),
-                Some(WandSpell::new(SpellType::HeavyShot)),
-                Some(WandSpell::new(SpellType::TripleCast)),
-                Some(WandSpell::new(SpellType::MagicBolt)),
-                Some(WandSpell::new(SpellType::MagicBolt)),
-                Some(WandSpell::new(SpellType::MagicBolt)),
-                None,
-                None,
-            ],
-        ));
+        actor.wands[1] = Some(Wand::with_slots([
+            Some(WandSpell {
+                spell_type: SpellType::SummonFriendSlime,
+                price: 0,
+            }),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ]));
+        actor.wands[2] = Some(Wand::with_slots([
+            Some(WandSpell::new(SpellType::HeavyShot)),
+            Some(WandSpell::new(SpellType::HeavyShot)),
+            Some(WandSpell::new(SpellType::TripleCast)),
+            Some(WandSpell::new(SpellType::MagicBolt)),
+            Some(WandSpell::new(SpellType::MagicBolt)),
+            Some(WandSpell::new(SpellType::MagicBolt)),
+            None,
+            None,
+        ]));
 
-        actor.wands[3] = Some(Wand::with_slots(
-            WandType::CypressWand,
-            [
-                Some(WandSpell {
-                    spell_type: SpellType::Dash,
-                    price: 0,
-                }),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ],
-        ));
+        actor.wands[3] = Some(Wand::with_slots([
+            Some(WandSpell {
+                spell_type: SpellType::Dash,
+                price: 0,
+            }),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ]));
     }
 }
 

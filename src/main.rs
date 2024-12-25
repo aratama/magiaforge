@@ -33,7 +33,6 @@ mod spell;
 mod states;
 mod ui;
 mod wand;
-mod wand_props;
 
 use game::run_game;
 

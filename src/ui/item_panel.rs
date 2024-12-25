@@ -154,12 +154,6 @@ fn update_item_frame(
             }) => {
                 aseprite.name = "equipment_frame".into();
             }
-            Some(InventoryItem {
-                item_type: InventoryItemType::Wand(..),
-                ..
-            }) => {
-                aseprite.name = "wand_frame".into();
-            }
             _ => {
                 aseprite.name = "empty".into();
             }

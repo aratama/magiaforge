@@ -310,17 +310,11 @@ fn update_witch_animation(
 fn update_wand(
     actor_query: Query<&Actor>,
     mut query: Query<
-        (
-            &Parent,
-            &mut Transform,
-            &mut AseSpriteSlice,
-            &mut Visibility,
-        ),
+        (&Parent, &mut Transform, &mut Visibility),
         (With<WitchWandSprite>, Without<Actor>),
     >,
-    assets: Res<GameAssets>,
 ) {
-    for (parent, mut transform, mut slice, mut visibility) in query.iter_mut() {
+    for (parent, mut transform, mut visibility) in query.iter_mut() {
         if let Ok(actor) = actor_query.get(parent.get()) {
             let direction = actor.pointer;
             let angle = direction.to_angle();
@@ -333,18 +327,6 @@ fn update_wand(
             } else {
                 0.0
             };
-
-            if let Some(wand) = &actor.wands[actor.current_wand] {
-                *slice = AseSpriteSlice {
-                    name: wand.wand_type.to_props().slice.to_string(),
-                    aseprite: assets.atlas.clone(),
-                };
-            } else {
-                *slice = AseSpriteSlice {
-                    name: "empty".to_string(),
-                    aseprite: assets.atlas.clone(),
-                };
-            }
 
             *visibility = match actor.state {
                 ActorState::GettingUp => Visibility::Hidden,

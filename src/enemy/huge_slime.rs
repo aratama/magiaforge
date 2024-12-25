@@ -19,7 +19,6 @@ use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
-use crate::wand::WandType;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -91,12 +90,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 golds: 0,
                 inventory: Inventory::new(),
                 equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
-                wands: [
-                    Some(Wand::with_slots(WandType::CypressWand, slots)),
-                    None,
-                    None,
-                    None,
-                ],
+                wands: [Some(Wand::with_slots(slots)), None, None, None],
                 state: ActorState::default(),
                 wait: 0,
             },
