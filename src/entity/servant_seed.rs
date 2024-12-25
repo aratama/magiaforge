@@ -141,19 +141,27 @@ fn update_servant_seed(
         if seed.animation == seed.speed {
             commands.entity(entity).despawn_recursive();
             if let Some(ref chunk) = current.chunk {
-                match chunk.get_tile_by_coords(seed.to) {
-                    Tile::StoneTile => {
-                        spawn_writer.send(SpawnEvent {
-                            servant_type: seed.servant_type,
-                            position: seed.to,
-                            actor_group: seed.actor_group,
-                            master: seed.master,
-                        });
-                        se_writer.send(SEEvent::pos(SE::Bicha, seed.to));
+                let spawn = match chunk.get_tile_by_coords(seed.to) {
+                    Tile::Grassland => true,
+                    Tile::StoneTile => true,
+                    Tile::Biome => true,
+                    Tile::Wall => {
+                        warn!("ServantSeed: Hit non-stone tile: Wall");
+                        false
                     }
-                    tile => {
-                        warn!("ServantSeed: Hit non-stone tile: {:?}", tile);
+                    Tile::Blank => {
+                        warn!("ServantSeed: Hit non-stone tile: Blank");
+                        false
                     }
+                };
+                if spawn {
+                    spawn_writer.send(SpawnEvent {
+                        servant_type: seed.servant_type,
+                        position: seed.to,
+                        actor_group: seed.actor_group,
+                        master: seed.master,
+                    });
+                    se_writer.send(SEEvent::pos(SE::Bicha, seed.to));
                 }
             }
         }

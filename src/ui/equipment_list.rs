@@ -42,7 +42,7 @@ pub fn spawn_equipment_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>)
                     &mut parent,
                     &assets,
                     EquipmentSprite { index },
-                    64.0 + 32. * (index as f32),
+                    32.0 + 32. * (index as f32),
                     0.0,
                     None,
                     Some(BackgroundColor(slot_color(5, index))),

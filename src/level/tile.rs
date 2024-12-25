@@ -4,7 +4,9 @@ use bevy::prelude::Component;
 pub enum Tile {
     Blank,
     Wall,
+    Biome,
     StoneTile,
+    Grassland,
 }
 
 #[derive(Component)]

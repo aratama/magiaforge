@@ -22,6 +22,7 @@ use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestType;
 use crate::entity::chest::CHEST_OR_BARREL;
 use crate::entity::dropped_item::spawn_dropped_item;
+use crate::entity::get_entity_z;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
@@ -34,6 +35,7 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
+use crate::level::biome::Biome;
 use crate::level::ceil::spawn_roof_tiles;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::image_to_tilemap;
@@ -256,7 +258,16 @@ fn spawn_level(
 
     let mut empties = image_to_spawn_tiles(&chunk);
 
-    spawn_world_tilemap(&mut commands, &assets, &chunk);
+    spawn_world_tilemap(
+        &mut commands,
+        &assets,
+        &chunk,
+        // バイオームをハードコーディングしているけどこれでいい？
+        match level {
+            GameLevel::Level(2) => Biome::Grassland,
+            _ => Biome::StoneTile,
+        },
+    );
 
     spawn_wall_collisions(&mut commands, &chunk);
 
@@ -316,29 +327,26 @@ fn spawn_level(
     return chunk;
 }
 
-fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelChunk) {
+fn spawn_world_tilemap(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    chunk: &LevelChunk,
+    biome: Biome,
+) {
     // 床と壁の生成
     for y in chunk.min_y..chunk.max_y as i32 {
         for x in chunk.min_x..chunk.max_x as i32 {
-            let r = rand::random::<u32>() % 3;
-            let slice = format!("stone_tile{}", r);
-
             match chunk.get_tile(x, y) {
+                Tile::Biome => match biome {
+                    Biome::StoneTile => {
+                        spawn_stone_tile(commands, assets, x, y);
+                    }
+                    Biome::Grassland => {
+                        spawn_grassland(commands, &assets, x, y);
+                    }
+                },
                 Tile::StoneTile => {
-                    commands.spawn((
-                        WorldTile,
-                        Name::new("stone_tile"),
-                        StateScoped(GameState::InGame),
-                        Transform::from_translation(Vec3::new(
-                            x as f32 * TILE_SIZE,
-                            y as f32 * -TILE_SIZE,
-                            FLOOR_LAYER_Z,
-                        )),
-                        AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
-                            name: slice.into(),
-                        },
-                    ));
+                    spawn_stone_tile(commands, assets, x, y);
                 }
                 Tile::Wall => {
                     let tx = x as f32 * TILE_SIZE;
@@ -374,9 +382,63 @@ fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk:
                         spawn_roof_tiles(commands, assets, &chunk, x, y)
                     }
                 }
-                _ => {}
+                Tile::Grassland => {
+                    spawn_grassland(commands, &assets, x, y);
+                }
+                Tile::Blank => {}
             }
         }
+    }
+}
+
+fn spawn_stone_tile(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
+    let r = rand::random::<u32>() % 3;
+    let slice = format!("stone_tile{}", r);
+    commands.spawn((
+        WorldTile,
+        Name::new("stone_tile"),
+        StateScoped(GameState::InGame),
+        Transform::from_translation(Vec3::new(
+            x as f32 * TILE_SIZE,
+            y as f32 * -TILE_SIZE,
+            FLOOR_LAYER_Z,
+        )),
+        AseSpriteSlice {
+            aseprite: assets.atlas.clone(),
+            name: slice.into(),
+        },
+    ));
+}
+
+fn spawn_grassland(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
+    commands.spawn((
+        WorldTile,
+        Name::new("grassland"),
+        StateScoped(GameState::InGame),
+        Transform::from_translation(Vec3::new(
+            x as f32 * TILE_SIZE,
+            y as f32 * -TILE_SIZE,
+            FLOOR_LAYER_Z,
+        )),
+        AseSpriteSlice {
+            aseprite: assets.atlas.clone(),
+            name: "grassland".into(),
+        },
+    ));
+
+    for i in 0..3 {
+        let x = x as f32 * TILE_SIZE;
+        let y = y as f32 * -TILE_SIZE + 5.0 * i as f32;
+        commands.spawn((
+            WorldTile,
+            Name::new("grass"),
+            StateScoped(GameState::InGame),
+            Transform::from_translation(Vec3::new(x, y, get_entity_z(y) + 0.01)),
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: format!("grass_{}", rand::random::<u32>() % 3).into(),
+            },
+        ));
     }
 }
 

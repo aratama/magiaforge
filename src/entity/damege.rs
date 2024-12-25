@@ -20,21 +20,23 @@ fn spawn_damage_number(
             ActorEvent::Damaged {
                 damage, position, ..
             } => {
-                commands.spawn((
-                    Name::new("Damage Number"),
-                    StateScoped(GameState::InGame),
-                    DamageParticle { lifetime: 40 },
-                    Text2d(damage.to_string()),
-                    TextColor(Color::WHITE),
-                    TextFont {
-                        font: assets.dotgothic.clone(),
-                        font_size: 32.0,
-                        font_smoothing: FontSmoothing::AntiAliased,
-                        ..default()
-                    },
-                    Transform::from_translation(position.extend(DAMAGE_NUMBER_LAYER_Z))
-                        .with_scale(Vec3::new(0.25, 0.25, 1.0)),
-                ));
+                if 0 < *damage {
+                    commands.spawn((
+                        Name::new("Damage Number"),
+                        StateScoped(GameState::InGame),
+                        DamageParticle { lifetime: 40 },
+                        Text2d(damage.to_string()),
+                        TextColor(Color::WHITE),
+                        TextFont {
+                            font: assets.dotgothic.clone(),
+                            font_size: 32.0,
+                            font_smoothing: FontSmoothing::AntiAliased,
+                            ..default()
+                        },
+                        Transform::from_translation(position.extend(DAMAGE_NUMBER_LAYER_Z))
+                            .with_scale(Vec3::new(0.25, 0.25, 1.0)),
+                    ));
+                }
             }
         }
     }
