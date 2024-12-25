@@ -153,6 +153,12 @@ pub struct GameAssets {
     #[asset(path = "audio/ガラスが割れる2.ogg")]
     pub glass: Handle<AudioSource>,
 
+    #[asset(path = "audio/雷魔法4.ogg")]
+    pub kaminari: Handle<AudioSource>,
+
+    #[asset(path = "audio/地震魔法2.ogg")]
+    pub jishin: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 

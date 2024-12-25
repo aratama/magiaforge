@@ -48,6 +48,8 @@ pub enum SE {
     Shuriken,
     Bus,
     Glass,
+    Kaminari,
+    Jishin,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -106,6 +108,8 @@ fn se_events(
             SE::Shuriken => &assets.shuriken,
             SE::Bus => &assets.bus,
             SE::Glass => &assets.glass,
+            SE::Kaminari => &assets.kaminari,
+            SE::Jishin => &assets.jishin,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

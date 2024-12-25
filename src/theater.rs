@@ -21,6 +21,7 @@ use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use crate::ui::speech_bubble::SpeechBubbleText;
 use bevy::prelude::*;
+use bevy_light_2d::light::PointLight2d;
 
 const DELAY: usize = 4;
 
@@ -35,6 +36,8 @@ pub enum Act {
     /// BGMを変更します
     BGM(Option<Handle<AudioSource>>),
 
+    SE(SE),
+
     /// フキダシを非表示にします
     Close,
 
@@ -46,8 +49,26 @@ pub enum Act {
     #[allow(dead_code)]
     Wait(u32),
 
+    /// 画面を揺らします
+    Shake(f32),
+
+    /// 画面を揺らすエフェクトを開始します
+    ShakeStart(Option<f32>),
+
+    Flash {
+        position: Vec2,
+        intensity: f32,
+        radius: f32,
+        duration: u32,
+        reverse: bool,
+    },
+
+    Despown(Entity),
+
     #[allow(dead_code)]
-    SpawnRabbit { position: Vec2 },
+    SpawnRabbit {
+        position: Vec2,
+    },
 
     /// エンディングを再生します
     Ending,
@@ -68,6 +89,7 @@ pub struct Theater {
     pub senario: Vec<Act>,
     pub act_index: usize,
     pub wait: u32,
+    pub shaking: Option<f32>,
 }
 
 impl Theater {
@@ -109,15 +131,17 @@ fn countup(
     assets: Res<GameAssets>,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
     mut speech_text_query: Query<&mut Text, With<SpeechBubbleText>>,
-    mut se: EventWriter<SEEvent>,
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
     mut player_query: Query<&mut Actor, With<Player>>,
     mut camera: Query<&mut GameCamera>,
     mut theater: ResMut<Theater>,
     mut writer: EventWriter<OverlayEvent>,
+    mut se_writer: EventWriter<SEEvent>,
 ) {
     let (mut visibility, mut speech) = speech_query.single_mut();
+
+    let mut camera = camera.single_mut();
 
     if theater.senario.len() <= theater.act_index {
         // let mut camera = camera.single_mut();
@@ -156,7 +180,7 @@ fn countup(
 
             if pos < s {
                 if theater.speech_count % DELAY == 0 {
-                    se.send(SEEvent::new(SE::Kawaii));
+                    se_writer.send(SEEvent::new(SE::Kawaii));
                 }
 
                 theater.speech_count += 1;
@@ -164,6 +188,10 @@ fn countup(
         }
         Act::BGM(bgm) => {
             next_bgm.0 = bgm.clone();
+            theater.act_index += 1;
+        }
+        Act::SE(se) => {
+            se_writer.send(SEEvent::new(se));
             theater.act_index += 1;
         }
         Act::GetItem(item) => {
@@ -178,12 +206,49 @@ fn countup(
         Act::Close => {
             *visibility = Visibility::Hidden;
             theater.act_index += 1;
-            let mut camera = camera.single_mut();
+
             camera.target = None;
             if let Ok(mut actor) = player_query.get_single_mut() {
                 actor.state = ActorState::Idle;
                 actor.wait = 30;
             }
+        }
+        Act::Shake(shake) => {
+            camera.vibration = shake;
+            theater.act_index += 1;
+        }
+        Act::ShakeStart(shake) => {
+            theater.shaking = shake;
+            theater.act_index += 1;
+        }
+        Act::Flash {
+            position,
+            intensity,
+            radius,
+            duration,
+            reverse,
+        } => {
+            commands.spawn((
+                StateScoped(GameState::InGame),
+                FlashLight {
+                    intensity,
+                    duration,
+                    count: 0,
+                    reverse,
+                },
+                Transform::from_translation(position.extend(0.0)),
+                PointLight2d {
+                    intensity,
+                    radius,
+                    ..default()
+                },
+            ));
+
+            theater.act_index += 1;
+        }
+        Act::Despown(entity) => {
+            commands.entity(entity).despawn_recursive();
+            theater.act_index += 1;
         }
         Act::Wait(wait) => {
             if theater.wait <= 0 {
@@ -221,6 +286,29 @@ fn countup(
     }
 }
 
+#[derive(Component)]
+struct FlashLight {
+    intensity: f32,
+    duration: u32,
+    count: u32,
+    reverse: bool,
+}
+
+fn flash_ligh_fade_out(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut FlashLight, &mut PointLight2d)>,
+) {
+    for (entity, mut flash, mut light) in query.iter_mut() {
+        if flash.count < flash.duration {
+            flash.count += 1;
+            let t = flash.count as f32 / flash.duration as f32;
+            light.intensity = flash.intensity * if flash.reverse { t } else { 1.0 - t };
+        } else {
+            commands.entity(entity).despawn_recursive();
+        }
+    }
+}
+
 fn next_page(
     mouse: Res<ButtonInput<MouseButton>>,
     mut bubble_query: Query<&Visibility, With<SpeechBubble>>,
@@ -252,6 +340,13 @@ fn next_page(
     }
 }
 
+fn shake_camera(mut camera_query: Query<&mut GameCamera>, theater: ResMut<Theater>) {
+    if let Some(shake) = theater.shaking {
+        let mut camera = camera_query.single_mut();
+        camera.vibration = shake;
+    }
+}
+
 pub struct SenarioPlugin;
 
 impl Plugin for SenarioPlugin {
@@ -261,9 +356,11 @@ impl Plugin for SenarioPlugin {
         app.add_systems(
             Update,
             (
+                shake_camera,
                 read_speech_events.before(update_speech_bubble_position),
                 countup,
                 next_page,
+                flash_ligh_fade_out,
             )
                 .run_if(in_state(GameState::InGame)),
         );

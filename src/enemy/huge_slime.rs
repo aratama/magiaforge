@@ -324,26 +324,72 @@ pub struct DespawnHugeSlime;
 
 fn despown(
     mut commands: Commands,
-    query: Query<(Entity, &Life), With<DespawnHugeSlime>>,
-    mut bgm: ResMut<NextBGM>,
+    query: Query<(Entity, &Life, &Transform), With<DespawnHugeSlime>>,
     assets: Res<GameAssets>,
     mut theater_writer: EventWriter<TheaterEvent>,
     player_query: Query<&Transform, With<Player>>,
 ) {
     if let Ok(_player_transform) = player_query.get_single() {
-        for (entity, life) in query.iter() {
+        for (entity, life, boss_transform) in query.iter() {
             if life.life <= 0 {
+                // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
                 commands.entity(entity).despawn_recursive();
-                bgm.0 = Some(assets.dokutsu.clone());
+                let e = commands.spawn((
+                    AseSpriteAnimation {
+                        aseprite: assets.huge_slime.clone(),
+                        animation: "idle".into(),
+                    },
+                    StateScoped(GameState::InGame),
+                    Transform::from_translation(boss_transform.translation),
+                    EntityDepth,
+                ));
+
+                let entity = e.id();
+
                 theater_writer.send(TheaterEvent::Play {
                     acts: vec![
                         Act::BGM(None),
+                        Act::Shake(6.0),
+                        Act::SE(SE::Kaminari),
+                        Act::Flash {
+                            position: boss_transform.translation.truncate(),
+                            intensity: 10.0,
+                            radius: TILE_SIZE * 30.0,
+                            duration: 10,
+                            reverse: false,
+                        },
+                        Act::Wait(60),
+                        Act::Shake(6.0),
+                        Act::SE(SE::Kaminari),
+                        Act::Flash {
+                            position: boss_transform.translation.truncate(),
+                            intensity: 10.0,
+                            radius: TILE_SIZE * 30.0,
+                            duration: 10,
+                            reverse: false,
+                        },
                         Act::Wait(180),
-                        // Act::SpawnRabbit {
-                        //     position: player_transform.translation.truncate()
-                        //         + Vec2::new(TILE_SIZE * 3.0, 0.0),
-                        // },
-                        // Act::Wait(18000),
+                        Act::ShakeStart(Some(6.0)),
+                        Act::SE(SE::Jishin),
+                        Act::Flash {
+                            position: boss_transform.translation.truncate(),
+                            intensity: 10.0,
+                            radius: TILE_SIZE * 15.0,
+                            duration: 240,
+                            reverse: true,
+                        },
+                        Act::Wait(240),
+                        Act::SE(SE::Kaminari),
+                        Act::Flash {
+                            position: boss_transform.translation.truncate(),
+                            intensity: 10.0,
+                            radius: TILE_SIZE * 15.0,
+                            duration: 240,
+                            reverse: false,
+                        },
+                        Act::Despown(entity),
+                        Act::ShakeStart(None),
+                        Act::Wait(240),
                         Act::Ending,
                     ],
                 });
