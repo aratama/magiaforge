@@ -1,3 +1,4 @@
+use crate::constant::TILE_SIZE;
 use crate::entity::servant_seed::ServantType;
 use crate::language::Dict;
 use crate::language::Languages;
@@ -6,6 +7,7 @@ use bevy::reflect::Reflect;
 #[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter)]
 pub enum SpellType {
     MagicBolt,
+    LightBall,
     WaterBall,
     PurpleBolt,
     SlimeCharge,
@@ -102,6 +104,31 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                },
+            },
+            SpellType::LightBall =>  SpellProps {
+                name: Dict {
+                    ja: "光球",
+                    en: "Light Ball",
+                },
+                description: Dict {
+                    ja: "周囲をしばらく明るく照らす光の玉を出現させます。威力はありません。",
+                    en: "Creates a ball of light that illuminates the area for a while. It has no attack power.",
+                },
+                cast_delay: 120,
+                icon: "light_ball_icon",
+                price: 10,
+                cast: SpellCast::Bullet {
+                    slice: "light_ball",
+                    collier_radius: 5.0,
+                    speed: 4.0,
+                    lifetime: 60 * 60,
+                    damage: 0,
+                    impulse: 0.0,
+                    scattering: 0.4,
+                    light_intensity: 4.0,
+                    light_radius: TILE_SIZE * 10.0,
+                    light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
                 },
             },
             SpellType::WaterBall =>  SpellProps {

@@ -60,10 +60,7 @@ impl PlayerState {
 
         let wands = [
             Wand::with_slots([
-                Some(WandSpell {
-                    spell_type: SpellType::MagicBolt,
-                    price: 0,
-                }),
+                Some(WandSpell::new(SpellType::MagicBolt)),
                 None,
                 None,
                 None,
@@ -74,7 +71,16 @@ impl PlayerState {
             ]),
             Wand::empty(),
             Wand::empty(),
-            Wand::empty(),
+            Wand::with_slots([
+                Some(WandSpell::new(SpellType::LightBall)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ]),
         ];
 
         PlayerState {
