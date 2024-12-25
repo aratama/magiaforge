@@ -2,14 +2,14 @@ use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::physics::{identify, identify_item, IdentifiedCollisionEvent, IdentifiedCollisionItem};
+use crate::theater::{Act, TheaterEvent};
 use crate::states::GameState;
-use crate::ui::speech_bubble::{SpeechAction, SpeechEvent};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct MessageRabbit {
-    pub messages: Vec<SpeechAction>,
+    pub messages: Vec<Act>,
 }
 
 #[derive(Component)]
@@ -24,7 +24,7 @@ fn collision_inner_sensor(
     sensor_query: Query<&Parent, With<MessageRabbitInnerSensor>>,
     mut camera_query: Query<&mut GameCamera>,
     player_query: Query<&Actor, With<Player>>,
-    mut speech_writer: EventWriter<SpeechEvent>,
+    mut speech_writer: EventWriter<TheaterEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify_item(collision_event, &sensor_query, &player_query) {
@@ -35,9 +35,9 @@ fn collision_inner_sensor(
                 camera.target = Some(sensor_entity);
 
                 let mut messages = rabbit.messages.clone();
-                messages.insert(0, SpeechAction::Focus(rabbit_entity));
-                messages.push(SpeechAction::Close);
-                speech_writer.send(SpeechEvent::Speech { pages: messages });
+                messages.insert(0, Act::Focus(rabbit_entity));
+                messages.push(Act::Close);
+                speech_writer.send(TheaterEvent::Play { acts: messages });
             }
             _ => {}
         }
@@ -49,14 +49,14 @@ fn collision_outer_sensor(
     mut camera_query: Query<&mut GameCamera>,
     sensor_query: Query<&MessageRabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
-    mut speech_writer: EventWriter<SpeechEvent>,
+    mut speech_writer: EventWriter<TheaterEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionEvent::Stopped(..) => {
                 let mut camera = camera_query.single_mut();
                 camera.target = None;
-                speech_writer.send(SpeechEvent::Close);
+                speech_writer.send(TheaterEvent::Quit);
             }
             _ => {}
         }

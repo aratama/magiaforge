@@ -48,6 +48,7 @@ use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
 use crate::se::SECommandPlugin;
+use crate::theater::SenarioPlugin;
 use crate::states::*;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
@@ -215,6 +216,7 @@ pub fn run_game() {
         .add_plugins(SpeechBubblePlugin)
         .add_plugins(PopUpPlugin)
         .add_plugins(SandbagPlugin)
+        .add_plugins(SenarioPlugin)
         .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)

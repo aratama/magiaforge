@@ -8,9 +8,9 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::theater::Act;
+use crate::theater::TheaterEvent;
 use crate::states::GameState;
-use crate::ui::speech_bubble::SpeechAction;
-use crate::ui::speech_bubble::SpeechEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -28,7 +28,7 @@ fn collision_inner_sensor(
     sensor_query: Query<&ShopRabbitSensor>,
     mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
-    mut speech_writer: EventWriter<SpeechEvent>,
+    mut speech_writer: EventWriter<TheaterEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -41,33 +41,30 @@ fn collision_inner_sensor(
                     if actor.liquidate() {
                         camera.target = Some(sensor_entity);
                         se.send(SEEvent::new(SE::Register));
-                        speech_writer.send(SpeechEvent::Speech {
-                            pages: vec![
-                                SpeechAction::Focus(sensor_entity),
-                                SpeechAction::Speech(shop_rabbit(dept)),
-                            ],
+                        speech_writer.send(TheaterEvent::Play {
+                            acts: vec![Act::Focus(sensor_entity), Act::Speech(shop_rabbit(dept))],
                         });
                     } else {
                         camera.target = Some(sensor_entity);
-                        speech_writer.send(SpeechEvent::Speech {
-                            pages: vec![
-                                SpeechAction::Focus(sensor_entity),
-                                SpeechAction::Speech(too_few_golds(dept - actor.golds)),
+                        speech_writer.send(TheaterEvent::Play {
+                            acts: vec![
+                                Act::Focus(sensor_entity),
+                                Act::Speech(too_few_golds(dept - actor.golds)),
                             ],
                         });
                     }
                 } else {
                     camera.target = Some(sensor_entity);
-                    speech_writer.send(SpeechEvent::Speech {
-                        pages: vec![
-                            SpeechAction::Focus(sensor_entity),
-                            SpeechAction::Speech(SHOP_RABBIT.to_string()),
+                    speech_writer.send(TheaterEvent::Play {
+                        acts: vec![
+                            Act::Focus(sensor_entity),
+                            Act::Speech(SHOP_RABBIT.to_string()),
                         ],
                     });
                 }
             }
             IdentifiedCollisionEvent::Stopped(..) => {
-                speech_writer.send(SpeechEvent::Close);
+                speech_writer.send(TheaterEvent::Quit);
             }
             _ => {}
         }
@@ -79,14 +76,14 @@ fn collision_outer_sensor(
     mut camera_query: Query<&mut GameCamera>,
     sensor_query: Query<&ShopRabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
-    mut speech_writer: EventWriter<SpeechEvent>,
+    mut speech_writer: EventWriter<TheaterEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionEvent::Stopped(..) => {
                 let mut camera = camera_query.single_mut();
                 camera.target = None;
-                speech_writer.send(SpeechEvent::Close);
+                speech_writer.send(TheaterEvent::Quit);
             }
             _ => {}
         }

@@ -31,6 +31,7 @@ mod se;
 mod set;
 mod spell;
 mod states;
+mod theater;
 mod ui;
 mod wand;
 

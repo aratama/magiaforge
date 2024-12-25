@@ -18,9 +18,9 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::theater::Act;
+use crate::theater::TheaterEvent;
 use crate::states::GameState;
-use crate::ui::speech_bubble::SpeechAction;
-use crate::ui::speech_bubble::SpeechEvent;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
@@ -117,7 +117,7 @@ fn sensor(
     shop_rabbit_query: Query<Entity, With<ShopRabbit>>,
     mut sensor_query: Query<(&mut ShopDoorSensor, &Transform), Without<ShopRabbit>>,
     player_query: Query<&Actor, (With<Player>, Without<ShopRabbit>)>,
-    mut speech_writer: EventWriter<SpeechEvent>,
+    mut speech_writer: EventWriter<TheaterEvent>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -128,10 +128,10 @@ fn sensor(
                 if 0 < actor.dept() {
                     if let Ok(shop_rabbit_entity) = shop_rabbit_query.get_single() {
                         sensor.open = false;
-                        speech_writer.send(SpeechEvent::Speech {
-                            pages: vec![
-                                SpeechAction::Focus(shop_rabbit_entity),
-                                SpeechAction::Speech(Dict {
+                        speech_writer.send(TheaterEvent::Play {
+                            acts: vec![
+                                Act::Focus(shop_rabbit_entity),
+                                Act::Speech(Dict {
                                     ja: "おいおい、代金を払ってから行ってくれ".to_string(),
                                     en: "Hey Hey, pay first before you go".to_string(),
                                 }),

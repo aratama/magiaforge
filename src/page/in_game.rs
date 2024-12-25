@@ -62,9 +62,9 @@ use crate::message::UNKNOWN_LEVEL;
 use crate::message::WITCHES_ARE;
 use crate::player_state::PlayerState;
 use crate::random::random_select_mut;
+use crate::theater::Act;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::ui::speech_bubble::SpeechAction;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -619,7 +619,7 @@ fn spawn_entities(
                     &assets.rabbit_red,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        messages: vec![SpeechAction::Speech(TRAINING_RABBIT.to_string())],
+                        messages: vec![Act::Speech(TRAINING_RABBIT.to_string())],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -632,7 +632,7 @@ fn spawn_entities(
                     &assets.rabbit_white,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        messages: vec![SpeechAction::Speech(SINGLEPLAY.to_string())],
+                        messages: vec![Act::Speech(SINGLEPLAY.to_string())],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -646,9 +646,9 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         messages: vec![
-                            SpeechAction::BGM(assets.saihate.clone()),
-                            SpeechAction::Speech(HELLO.to_string()),
-                            SpeechAction::Speech(HELLO_RABBITS.to_string()),
+                            Act::BGM(assets.saihate.clone()),
+                            Act::Speech(HELLO.to_string()),
+                            Act::Speech(HELLO_RABBITS.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,
@@ -662,7 +662,7 @@ fn spawn_entities(
                     &assets.rabbit_black,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
-                        messages: vec![SpeechAction::Speech(MULTIPLAY.to_string())],
+                        messages: vec![Act::Speech(MULTIPLAY.to_string())],
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -676,12 +676,12 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         messages: vec![
-                            SpeechAction::Speech(WITCHES_ARE.to_string()),
-                            SpeechAction::Speech(HUGE_SLIME.to_string()),
-                            SpeechAction::Speech(HUGE_SLIME2.to_string()),
-                            SpeechAction::Speech(HUGE_SLIME3.to_string()),
-                            SpeechAction::Speech(HUGE_SLIME4.to_string()),
-                            SpeechAction::Speech(HUGE_SLIME5.to_string()),
+                            Act::Speech(WITCHES_ARE.to_string()),
+                            Act::Speech(HUGE_SLIME.to_string()),
+                            Act::Speech(HUGE_SLIME2.to_string()),
+                            Act::Speech(HUGE_SLIME3.to_string()),
+                            Act::Speech(HUGE_SLIME4.to_string()),
+                            Act::Speech(HUGE_SLIME5.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,
