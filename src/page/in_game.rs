@@ -427,16 +427,18 @@ fn spawn_entities(
                 );
             }
             GameEntity::CrateOrBarrel => {
-                spawn_chest(
-                    &mut commands,
-                    assets.atlas.clone(),
-                    tx + TILE_HALF,
-                    ty - TILE_HALF,
-                    *CHEST_OR_BARREL
-                        .iter()
-                        .choose(&mut rand::thread_rng())
-                        .unwrap(),
-                );
+                if rand::random::<u32>() % 4 != 0 {
+                    spawn_chest(
+                        &mut commands,
+                        assets.atlas.clone(),
+                        tx + TILE_HALF,
+                        ty - TILE_HALF,
+                        *CHEST_OR_BARREL
+                            .iter()
+                            .choose(&mut rand::thread_rng())
+                            .unwrap(),
+                    );
+                }
             }
             GameEntity::MagicCircle => {
                 spawn_magic_circle(

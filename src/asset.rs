@@ -147,6 +147,9 @@ pub struct GameAssets {
     #[asset(path = "audio/バスのドアが開く2.ogg")]
     pub bus: Handle<AudioSource>,
 
+    #[asset(path = "audio/ガラスが割れる2.ogg")]
+    pub glass: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 

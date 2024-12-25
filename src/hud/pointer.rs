@@ -1,8 +1,5 @@
 use crate::asset::GameAssets;
 use crate::constant::POINTER_Z_INDEX;
-use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::states::GameMenuState;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -42,44 +39,11 @@ fn update_pointer_image_by_angle(
     }
 }
 
-/// マウスポインタの位置を参照してプレイヤーアクターのポインターを設定します
-/// この関数はプレイヤーのモジュールに移動する？
-fn update_pointer_by_mouse(
-    mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
-    q_window: Query<&Window, With<PrimaryWindow>>,
-    camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    state: Res<State<GameMenuState>>,
-) {
-    if *state.get() != GameMenuState::Closed {
-        return;
-    }
-
-    if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
-        if let Ok(window) = q_window.get_single() {
-            if let Some(cursor_in_screen) = window.cursor_position() {
-                if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
-                    if let Ok(mouse_in_world) =
-                        camera.viewport_to_world(camera_global_transform, cursor_in_screen)
-                    {
-                        player.pointer = mouse_in_world.origin.truncate()
-                            - player_transform.translation().truncate();
-                    }
-                }
-            }
-        }
-    }
-}
-
 pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnExit(GameState::Setup), setup_pointer);
-
-        app.add_systems(
-            Update,
-            update_pointer_by_mouse.run_if(in_state(GameState::InGame)),
-        );
 
         app.add_systems(
             Update,

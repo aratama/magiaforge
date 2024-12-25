@@ -21,9 +21,10 @@ pub enum ChestType {
     Chest,
     Crate,
     Barrel,
+    Jar,
 }
 
-pub const CHEST_OR_BARREL: [ChestType; 2] = [ChestType::Crate, ChestType::Barrel];
+pub const CHEST_OR_BARREL: [ChestType; 3] = [ChestType::Crate, ChestType::Barrel, ChestType::Jar];
 
 #[derive(Default, Component, Reflect)]
 struct Chest {
@@ -42,13 +43,19 @@ pub fn spawn_chest(
 ) {
     let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
     let ty = y - ENTITY_HEIGHT + TILE_SIZE / 2.0;
+    let life = match chest_type {
+        ChestType::Chest => 30,
+        ChestType::Crate => 30,
+        ChestType::Barrel => 20,
+        ChestType::Jar => 1,
+    };
     commands
         .spawn((
             Name::new("chest"),
             StateScoped(GameState::InGame),
             Life {
-                life: 30,
-                max_life: 30,
+                life,
+                max_life: life,
                 amplitude: 0.0,
             },
             Chest {
@@ -57,6 +64,7 @@ pub fn spawn_chest(
                     ChestType::Chest => 10,
                     ChestType::Crate => 1,
                     ChestType::Barrel => 1,
+                    ChestType::Jar => 1,
                 },
             },
             EntityDepth,
@@ -70,7 +78,10 @@ pub fn spawn_chest(
                     linear_damping: 10.0,
                     angular_damping: 0.0,
                 },
-                Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+                match chest_type {
+                    ChestType::Jar => Collider::ball(6.0),
+                    _ => Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+                },
                 CollisionGroups::new(
                     ENTITY_GROUP,
                     ENTITY_GROUP
@@ -93,6 +104,11 @@ pub fn spawn_chest(
                         ChestType::Chest => "chest",
                         ChestType::Crate => "crate",
                         ChestType::Barrel => "barrel",
+                        ChestType::Jar => match rand::random::<u32>() % 3 {
+                            0 => "jar",
+                            1 => "jar_blue",
+                            _ => "jar_green",
+                        },
                     }
                     .into(),
                 },
@@ -109,7 +125,15 @@ fn break_chest(
     for (entity, breakabke, transform, chest) in query.iter() {
         if breakabke.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            writer.send(SEEvent::pos(SE::Break, transform.translation.truncate()));
+            writer.send(SEEvent::pos(
+                match chest.chest_type {
+                    ChestType::Chest => SE::Break,
+                    ChestType::Crate => SE::Break,
+                    ChestType::Barrel => SE::Break,
+                    ChestType::Jar => SE::Glass,
+                },
+                transform.translation.truncate(),
+            ));
             for _ in 0..chest.golds {
                 spawn_gold(
                     &mut commands,

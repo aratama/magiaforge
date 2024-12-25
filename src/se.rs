@@ -47,6 +47,7 @@ pub enum SE {
     Register,
     Shuriken,
     Bus,
+    Glass,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -104,6 +105,7 @@ fn se_events(
             SE::Register => &assets.register,
             SE::Shuriken => &assets.shuriken,
             SE::Bus => &assets.bus,
+            SE::Glass => &assets.glass,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

@@ -22,6 +22,7 @@ use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
@@ -259,6 +260,36 @@ fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>) {
     }
 }
 
+/// マウスポインタの位置を参照してプレイヤーアクターのポインターを設定します
+/// この関数はプレイヤーのモジュールに移動する？
+fn update_pointer_by_mouse(
+    mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
+    state: Res<State<GameMenuState>>,
+) {
+    if *state.get() != GameMenuState::Closed {
+        return;
+    }
+
+    if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
+        if player.state != ActorState::GettingUp {
+            if let Ok(window) = q_window.get_single() {
+                if let Some(cursor_in_screen) = window.cursor_position() {
+                    if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
+                        if let Ok(mouse_in_world) =
+                            camera.viewport_to_world(camera_global_transform, cursor_in_screen)
+                        {
+                            player.pointer = mouse_in_world.origin.truncate()
+                                - player_transform.translation().truncate();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -269,6 +300,7 @@ impl Plugin for PlayerPlugin {
             // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
             (
+                update_pointer_by_mouse,
                 getting_up,
                 move_player,
                 actor_cast,
