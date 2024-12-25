@@ -62,9 +62,9 @@ use crate::message::UNKNOWN_LEVEL;
 use crate::message::WITCHES_ARE;
 use crate::player_state::PlayerState;
 use crate::random::random_select_mut;
-use crate::theater::Act;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::theater::Act;
 use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -646,7 +646,7 @@ fn spawn_entities(
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                     MessageRabbit {
                         messages: vec![
-                            Act::BGM(assets.saihate.clone()),
+                            Act::BGM(Some(assets.saihate.clone())),
                             Act::Speech(HELLO.to_string()),
                             Act::Speech(HELLO_RABBITS.to_string()),
                         ],

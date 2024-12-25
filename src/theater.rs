@@ -1,10 +1,16 @@
+use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::GameCamera;
 use crate::config::GameConfig;
+use crate::controller::message_rabbit::MessageRabbit;
+use crate::controller::message_rabbit::MessageRabbitInnerSensor;
+use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
+use crate::entity::rabbit::spawn_rabbit;
+use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
@@ -27,7 +33,7 @@ pub enum Act {
     Speech(Dict<String>),
 
     /// BGMを変更します
-    BGM(Handle<AudioSource>),
+    BGM(Option<Handle<AudioSource>>),
 
     /// フキダシを非表示にします
     Close,
@@ -39,6 +45,12 @@ pub enum Act {
     /// 次のアクションまで指定したフレーム数待機します
     #[allow(dead_code)]
     Wait(u32),
+
+    #[allow(dead_code)]
+    SpawnRabbit { position: Vec2 },
+
+    /// エンディングを再生します
+    Ending,
 }
 
 #[derive(Event)]
@@ -93,6 +105,8 @@ fn read_speech_events(
 }
 
 fn countup(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
     mut speech_text_query: Query<&mut Text, With<SpeechBubbleText>>,
     mut se: EventWriter<SEEvent>,
@@ -101,6 +115,7 @@ fn countup(
     mut player_query: Query<&mut Actor, With<Player>>,
     mut camera: Query<&mut GameCamera>,
     mut theater: ResMut<Theater>,
+    mut writer: EventWriter<OverlayEvent>,
 ) {
     let (mut visibility, mut speech) = speech_query.single_mut();
 
@@ -148,7 +163,7 @@ fn countup(
             }
         }
         Act::BGM(bgm) => {
-            next_bgm.0 = Some(bgm.clone());
+            next_bgm.0 = bgm.clone();
             theater.act_index += 1;
         }
         Act::GetItem(item) => {
@@ -179,6 +194,29 @@ fn countup(
                     theater.act_index += 1;
                 }
             }
+        }
+        Act::SpawnRabbit { position } => {
+            spawn_rabbit(
+                &mut commands,
+                &assets,
+                &assets.rabbit_blue,
+                position,
+                MessageRabbit {
+                    messages: vec![
+                        // Act::BGM(Some(assets.saihate.clone())),
+                        // Act::Speech(HELLO.to_string()),
+                        // Act::Speech(HELLO_RABBITS.to_string()),
+                    ],
+                },
+                MessageRabbitInnerSensor,
+                MessageRabbitOuterSensor,
+            );
+
+            theater.act_index += 1;
+        }
+        Act::Ending => {
+            writer.send(OverlayEvent::Close(GameState::Ending));
+            theater.act_index += 1;
         }
     }
 }

@@ -9,7 +9,7 @@ pub enum OverlayEvent {
     Close(GameState),
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 struct Overlay {
     open: bool,
     alpha: f32,

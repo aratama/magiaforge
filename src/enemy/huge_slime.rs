@@ -17,6 +17,8 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::theater::Act;
+use crate::theater::TheaterEvent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::prelude::*;
@@ -325,11 +327,27 @@ fn despown(
     query: Query<(Entity, &Life), With<DespawnHugeSlime>>,
     mut bgm: ResMut<NextBGM>,
     assets: Res<GameAssets>,
+    mut theater_writer: EventWriter<TheaterEvent>,
+    player_query: Query<&Transform, With<Player>>,
 ) {
-    for (entity, life) in query.iter() {
-        if life.life <= 0 {
-            commands.entity(entity).despawn_recursive();
-            bgm.0 = Some(assets.dokutsu.clone());
+    if let Ok(_player_transform) = player_query.get_single() {
+        for (entity, life) in query.iter() {
+            if life.life <= 0 {
+                commands.entity(entity).despawn_recursive();
+                bgm.0 = Some(assets.dokutsu.clone());
+                theater_writer.send(TheaterEvent::Play {
+                    acts: vec![
+                        Act::BGM(None),
+                        Act::Wait(180),
+                        // Act::SpawnRabbit {
+                        //     position: player_transform.translation.truncate()
+                        //         + Vec2::new(TILE_SIZE * 3.0, 0.0),
+                        // },
+                        // Act::Wait(18000),
+                        Act::Ending,
+                    ],
+                });
+            }
         }
     }
 }

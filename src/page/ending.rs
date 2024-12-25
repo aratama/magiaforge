@@ -1,10 +1,6 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
-use crate::constant::LAST_BOSS_LEVEL;
-use crate::enemy::huge_slime::HugeSlime;
 use crate::hud::overlay::OverlayEvent;
-use crate::page::in_game::CurrentLevel;
-use crate::page::in_game::GameLevel;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
@@ -49,25 +45,10 @@ fn interaction(
     }
 }
 
-fn start_ending(
-    mut local: Local<u32>,
-    boss_query: Query<&HugeSlime>,
-    mut writer: EventWriter<OverlayEvent>,
-    current: Res<CurrentLevel>,
-) {
-    if current.level == Some(GameLevel::Level(LAST_BOSS_LEVEL)) && boss_query.is_empty() {
-        *local += 1;
-        if *local == 120 {
-            writer.send(OverlayEvent::Close(GameState::Ending));
-        }
-    }
-}
-
 pub struct EndingPlugin;
 
 impl Plugin for EndingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, start_ending.run_if(in_state(GameState::InGame)));
         app.add_systems(Update, interaction.run_if(in_state(GameState::Ending)));
         app.add_systems(OnEnter(GameState::Ending), setup);
     }
