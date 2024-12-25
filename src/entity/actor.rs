@@ -28,6 +28,8 @@ use serde::Serialize;
 use std::f32::consts::PI;
 use uuid::Uuid;
 
+use super::impact::SpawnImpact;
+
 #[derive(Reflect, Clone, Copy, Default, Debug)]
 pub struct CastEffects {
     // pub queue: Vec,
@@ -332,6 +334,7 @@ fn fire_bullet(
     mut remote_writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SEEvent>,
     mut slime_writer: EventWriter<SpawnServantSeed>,
+    mut impact_writer: EventWriter<SpawnImpact>,
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
@@ -358,6 +361,7 @@ fn fire_bullet(
                 &mut remote_writer,
                 &mut se_writer,
                 &mut slime_writer,
+                &mut impact_writer,
                 current_wand,
                 player.is_some(),
             );
@@ -376,6 +380,7 @@ fn fire_bullet(
                 &mut remote_writer,
                 &mut se_writer,
                 &mut slime_writer,
+                &mut impact_writer,
                 MAX_WANDS - 1,
                 player.is_some(),
             );

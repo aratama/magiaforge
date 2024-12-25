@@ -13,6 +13,7 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
+use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
@@ -41,6 +42,7 @@ pub fn cast_spell(
     writer: &mut EventWriter<ClientMessage>,
     se_writer: &mut EventWriter<SEEvent>,
     slime_writer: &mut EventWriter<SpawnServantSeed>,
+    impact_writer: &mut EventWriter<SpawnImpact>,
     wand_index: usize,
     is_player: bool,
 ) {
@@ -162,13 +164,13 @@ pub fn cast_spell(
                     if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
                     {
                         wand.delay += 1;
+                    } else {
+                        actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
+                        se_writer.send(SEEvent::pos(
+                            SE::Heal,
+                            actor_transform.translation.truncate(),
+                        ));
                     }
-
-                    actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
-                    se_writer.send(SEEvent::pos(
-                        SE::Heal,
-                        actor_transform.translation.truncate(),
-                    ));
                 }
                 SpellCast::MultipleCast { amount } => {
                     multicast += amount;
@@ -209,7 +211,15 @@ pub fn cast_spell(
                     ));
                 }
                 SpellCast::QuickCast => {
-                    actor.effects.quick_cast += 5;
+                    actor.effects.quick_cast += 6;
+                }
+                SpellCast::Impact => {
+                    impact_writer.send(SpawnImpact {
+                        owner: actor_entity,
+                        position: actor_transform.translation.truncate(),
+                        radius: 24.0,
+                        impulse: 30000.0,
+                    });
                 }
             }
         } else {

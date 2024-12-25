@@ -506,7 +506,7 @@ fn spawn_entities(
                 ));
             }
             GameEntity::Spell => {
-                if 0.5 < rand::random::<f32>() {
+                if 0.2 < rand::random::<f32>() {
                     let spell = dropped_spells.pop().unwrap_or(SpellType::MagicBolt);
                     let props = spell.to_props();
                     spawn_dropped_item(

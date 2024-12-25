@@ -32,19 +32,27 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         Bookshelf,
         EntityDepth,
         Transform::from_translation(Vec3::new(x, y, 0.0)),
-        GlobalTransform::default(),
-        InheritedVisibility::default(),
-        RigidBody::Fixed,
-        Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-        CollisionGroups::new(
-            WALL_GROUP,
-            PIECE_GROUP
-                | ENTITY_GROUP
-                | WITCH_GROUP
-                | WITCH_BULLET_GROUP
-                | ENEMY_GROUP
-                | ENEMY_BULLET_GROUP
-                | RABBIT_GROUP,
+        (
+            RigidBody::Dynamic,
+            Damping {
+                linear_damping: 80.0,
+                angular_damping: 0.0,
+            },
+            LockedAxes::ROTATION_LOCKED,
+            Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+            ColliderMassProperties::Density(10.0),
+            CollisionGroups::new(
+                ENTITY_GROUP,
+                PIECE_GROUP
+                    | ENTITY_GROUP
+                    | WITCH_GROUP
+                    | WITCH_BULLET_GROUP
+                    | ENEMY_GROUP
+                    | ENEMY_BULLET_GROUP
+                    | WALL_GROUP
+                    | RABBIT_GROUP,
+            ),
+            ExternalImpulse::default(),
         ),
     ));
 

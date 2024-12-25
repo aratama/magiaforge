@@ -24,6 +24,7 @@ pub enum SpellType {
     SummonEnemyEyeball,
     Dash,
     QuickCast,
+    Impact,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -66,6 +67,7 @@ pub enum SpellCast {
     },
     Dash,
     QuickCast,
+    Impact,
 }
 
 /// 呪文の基礎情報
@@ -362,6 +364,18 @@ impl SpellType {
                 icon: "quick_cast",
                 price: 500,
                 cast: SpellCast::QuickCast,
+            },
+            SpellType::Impact => SpellProps {
+                name: Dict {
+                    ja: "衝撃",
+                    en: "Impact",
+                },
+                description: Dict { ja: "周囲に衝撃波を起こします。敵も味方もまとめて吹き飛ばします。",
+                en: "Creates a shockwave around you that knocks back enemies and allies." },
+                cast_delay: 60,
+                icon: "impact_icon",
+                price: 500,
+                cast: SpellCast::Impact,
             },
         }
     }
