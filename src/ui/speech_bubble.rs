@@ -4,6 +4,7 @@ use crate::camera::GameCamera;
 use crate::config::GameConfig;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -194,6 +195,12 @@ fn countup(
         }
         SpeechAction::Speech(dict) => {
             *visibility = Visibility::Inherited;
+
+            if let Ok(mut actor) = player_query.get_single_mut() {
+                actor.state = ActorState::Idle;
+                actor.fire_state = ActorFireState::Idle;
+            }
+
             let page_string = dict.get(config.language);
             let chars = page_string.char_indices();
             let mut str = "".to_string();

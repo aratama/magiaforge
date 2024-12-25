@@ -68,7 +68,6 @@ use crate::ui::speech_bubble::SpeechBubblePlugin;
 use crate::ui::spell_in_wand::SpellInWandPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
-use crate::ui::wand_sprite::WandSpritePlugin;
 use bevy::asset::AssetMetaCheck;
 #[cfg(feature = "debug")]
 use bevy::diagnostic::EntityCountDiagnosticsPlugin;
@@ -226,7 +225,6 @@ pub fn run_game() {
         .add_plugins(WallPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)
-        .add_plugins(WandSpritePlugin)
         .add_plugins(WarpPagePlugin)
         .add_plugins(WebSocketPlugin)
         .add_plugins(WitchPlugin)

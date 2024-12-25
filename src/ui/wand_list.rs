@@ -5,7 +5,6 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::states::GameState;
 use crate::ui::spell_in_wand::spawn_wand_spell_slot;
-use crate::ui::wand_sprite::spawn_wand_sprite_in_list;
 use bevy::prelude::*;
 use bevy::ui::Display;
 use bevy::ui::Node;
@@ -15,12 +14,10 @@ use bevy_aseprite_ultra::prelude::AseUiSlice;
 pub struct WandList;
 
 #[derive(Component)]
-pub struct WandSlot {
-    wand_index: usize,
-}
+struct WandSlot;
 
 #[derive(Component)]
-struct TriggerMarker;
+pub struct WandTriggerSprite(usize);
 
 pub fn spawn_wand_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
     parent
@@ -47,7 +44,7 @@ fn spawn_wand_and_spell_slot(
 ) {
     parent
         .spawn((
-            WandSlot { wand_index },
+            WandSlot,
             Node {
                 display: Display::Flex,
                 flex_direction: FlexDirection::Row,
@@ -55,50 +52,41 @@ fn spawn_wand_and_spell_slot(
             },
         ))
         .with_children(|mut parent| {
-            spawn_wand_sprite_in_list(&mut parent, &assets);
+            parent.spawn((
+                WandTriggerSprite(wand_index),
+                Node {
+                    width: Val::Px(32.),
+                    height: Val::Px(32.),
+                    ..default()
+                },
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "empty".into(),
+                },
+            ));
 
             for spell_index in 0..MAX_SPELLS_IN_WAND {
                 spawn_wand_spell_slot(&mut parent, &assets, wand_index, spell_index);
             }
-
-            parent.spawn((
-                TriggerMarker,
-                AseUiSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: if wand_index == MAX_WANDS - 1 {
-                        "rt".to_string()
-                    } else {
-                        "lt".to_string()
-                    },
-                    ..default()
-                },
-                Node {
-                    position_type: PositionType::Absolute,
-                    top: Val::Px(0.),
-                    left: Val::Px(0.),
-                    width: Val::Px(18.),
-                    height: Val::Px(14.),
-                    ..default()
-                },
-                ZIndex(100),
-            ));
         });
 }
 
-fn update_trigger_marker(
-    mut marker_query: Query<(&Parent, &mut Node), With<TriggerMarker>>,
-    slot_query: Query<&WandSlot>,
-    actor_query: Query<&Actor, With<Player>>,
+fn update_trigger_sprite(
+    player_query: Query<&Actor, With<Player>>,
+    mut slot_query: Query<(&WandTriggerSprite, &mut AseUiSlice)>,
 ) {
-    if let Ok(actor) = actor_query.get_single() {
-        for (parent, mut node) in marker_query.iter_mut() {
-            let slot = slot_query.get(parent.get()).unwrap();
-            node.display =
-                if slot.wand_index == actor.current_wand || slot.wand_index == MAX_WANDS - 1 {
-                    Display::Flex
-                } else {
-                    Display::None
-                };
+    if let Ok(actor) = player_query.get_single() {
+        for (trigger, mut aseprite) in slot_query.iter_mut() {
+            aseprite.name = match (trigger.0, actor.current_wand) {
+                (0, 0) => "lt0_on",
+                (0, _) => "lt0_off",
+                (1, 1) => "lt1_on",
+                (1, _) => "lt1_off",
+                (2, 2) => "lt2_on",
+                (2, _) => "lt2_off",
+                _ => "rt_on",
+            }
+            .into();
         }
     }
 }
@@ -109,7 +97,7 @@ impl Plugin for WandListPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_trigger_marker).run_if(in_state(GameState::InGame)),
+            update_trigger_sprite.run_if(in_state(GameState::InGame)),
         );
     }
 }

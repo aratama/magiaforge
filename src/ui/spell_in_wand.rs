@@ -31,7 +31,7 @@ pub fn spawn_wand_spell_slot(
             wand_index,
             spell_index,
         },
-        64.0 + 32. * (spell_index as f32),
+        32.0 + 32. * (spell_index as f32),
         0.0,
         None,
         Some(BackgroundColor(slot_color(wand_index, spell_index))),

@@ -18,4 +18,3 @@ pub mod speech_bubble;
 pub mod spell_in_wand;
 pub mod wand_editor;
 pub mod wand_list;
-pub mod wand_sprite;
