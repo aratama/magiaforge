@@ -11,6 +11,7 @@ pub mod gold;
 pub mod impact;
 pub mod life;
 pub mod magic_circle;
+pub mod piece;
 pub mod rabbit;
 pub mod servant_seed;
 pub mod shop;
@@ -100,29 +101,6 @@ pub fn select_by_entities<'a, T: QueryData, S: QueryData, F: QueryFilter, G: Que
     }
     return None;
 }
-
-// pub fn select_by_entities_mut<'a, T: QueryData, S: QueryData, F: QueryFilter, G: QueryFilter>(
-//     qa: &'a mut Query<T, F>,
-//     qb: &'a Query<S, G>,
-//     x: &Entity,
-//     y: &Entity,
-// ) -> Option<(T::Item<'a>, ROQueryItem<'a, S>)> {
-//     {
-//         if let Ok(t) = qa.get_mut(*x) {
-//             if let Ok(s) = qb.get(*y) {
-//                 return Some((t, s));
-//             }
-//         }
-//     }
-//     {
-//         if let Ok(t) = qa.get_mut(*y) {
-//             if let Ok(s) = qb.get(*x) {
-//                 return Some((t, s));
-//             }
-//         }
-//     }
-//     return None;
-// }
 
 pub struct EntityPlugin;
 

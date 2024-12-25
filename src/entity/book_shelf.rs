@@ -38,7 +38,8 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
         CollisionGroups::new(
             WALL_GROUP,
-            ENTITY_GROUP
+            PIECE_GROUP
+                | ENTITY_GROUP
                 | WITCH_GROUP
                 | WITCH_BULLET_GROUP
                 | ENEMY_GROUP

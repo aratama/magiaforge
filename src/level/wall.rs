@@ -115,7 +115,8 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
             },
             CollisionGroups::new(
                 WALL_GROUP,
-                ENTITY_GROUP
+                PIECE_GROUP
+                    | ENTITY_GROUP
                     | WITCH_GROUP
                     | WITCH_BULLET_GROUP
                     | ENEMY_GROUP

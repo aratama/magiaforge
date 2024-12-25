@@ -57,7 +57,8 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                 ColliderMassProperties::Density(10.0),
                 CollisionGroups::new(
                     ENTITY_GROUP,
-                    ENTITY_GROUP
+                    PIECE_GROUP
+                        | ENTITY_GROUP
                         | WITCH_GROUP
                         | WITCH_BULLET_GROUP
                         | ENEMY_GROUP

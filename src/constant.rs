@@ -62,6 +62,9 @@ pub const ENTITY_LAYER_Z: f32 = 20.0;
 
 pub const SHADOW_LAYER_Z: f32 = 11.0;
 
+/// ツボの破片のレイヤー
+pub const PIECE_LAYER_Z: f32 = 10.5;
+
 /// 魔法陣などのレイヤー
 /// 床タイルよりは常に上だが、キャラクターなどのエンティティよりは下
 pub const PAINT_LAYER_Z: f32 = 10.0;
@@ -82,6 +85,10 @@ pub const CAMERA_SPEED: f32 = 0.1;
 // それ以外の敵キャラクターグループは、自分のグループの攻撃には衝突しません
 
 pub const ENTITY_GROUP: Group = Group::GROUP_1;
+
+/// ツボの破片などのグループ
+/// 壁やチェストにはめり込まないで散らばるが、プレイヤーキャラクターなどには干渉しない
+pub const PIECE_GROUP: Group = Group::GROUP_2;
 
 pub const WALL_GROUP: Group = Group::GROUP_3;
 
