@@ -16,7 +16,7 @@ pub struct GameCamera {
     pub target: Option<Entity>,
 }
 
-static BLIGHTNESS_IN_GAME: f32 = 0.01;
+static BLIGHTNESS_IN_GAME: f32 = 0.2;
 
 pub fn setup_camera(commands: &mut Commands, position: Vec2) {
     let initial_scale_factor = -1.0;

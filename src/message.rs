@@ -3,8 +3,8 @@ use crate::language::Dict;
 // 一行は日本語で18文字まで
 
 pub const HELLO: Dict<&'static str> = Dict {
-    ja: "やあ、魔法使いさん。\nここはぼくらの商人キャンプだよ。\n来客は歓迎さ。",
-    en: "Hi, you look unfamiliar.\nThis is our merchant camp.\nGuests are welcome.",
+    ja: "おや、魔法使いか。\nここはぼくらの商人キャンプだよ。\n来客は歓迎さ。",
+    en: "Oh, a witch.\nThis is our merchant camp.\nGuests are welcome.",
 };
 
 pub const HELLO_RABBITS: Dict<&'static str> = Dict {

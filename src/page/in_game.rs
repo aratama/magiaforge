@@ -114,20 +114,18 @@ pub fn setup_level(
         GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
     };
 
-    let mut player = current.next_state.clone();
-    player.name = config.player_name.clone();
+    let mut chunk = spawn_level(&mut commands, &level_aseprites, &images, &assets, level);
 
-    let mut chunk = spawn_level(
-        &mut commands,
-        &level_aseprites,
-        &images,
-        &assets,
-        &life_bar_res,
-        level,
-    );
+    spawn_entities(&mut commands, &assets, &life_bar_res, &chunk);
+
+    let mut empties = image_to_spawn_tiles(&chunk);
+
+    spawn_random_enemies(&mut commands, &assets, &life_bar_res, level, &mut empties);
 
     let entry_point = random_select_mut(&mut chunk.entry_points);
 
+    let mut player = current.next_state.clone();
+    player.name = config.player_name.clone();
     let player_x = TILE_SIZE * entry_point.x as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.y as f32 - TILE_HALF;
 
@@ -231,7 +229,6 @@ fn spawn_level(
     level_aseprites: &Res<Assets<Aseprite>>,
     images: &Res<Assets<Image>>,
     assets: &Res<GameAssets>,
-    life_bar_res: &Res<LifeBarResource>,
     level: GameLevel,
 ) -> LevelChunk {
     let level_slice = match level {
@@ -256,8 +253,6 @@ fn spawn_level(
         slice.rect.max.y as i32,
     );
 
-    let mut empties = image_to_spawn_tiles(&chunk);
-
     spawn_world_tilemap(
         &mut commands,
         &assets,
@@ -271,8 +266,16 @@ fn spawn_level(
 
     spawn_wall_collisions(&mut commands, &chunk);
 
-    spawn_entities(&mut commands, &assets, &life_bar_res, &chunk);
+    return chunk;
+}
 
+fn spawn_random_enemies(
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    life_bar_res: &Res<LifeBarResource>,
+    level: GameLevel,
+    mut empties: &mut Vec<(i32, i32)>,
+) {
     if 30 < empties.len() {
         for _ in 0..20 {
             let (x, y) = random_select_mut(&mut empties);
@@ -323,8 +326,6 @@ fn spawn_level(
             );
         }
     }
-
-    return chunk;
 }
 
 fn spawn_world_tilemap(
