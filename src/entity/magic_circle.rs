@@ -4,7 +4,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::hud::overlay::OverlayEvent;
-use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::Interlevel;
 use crate::page::in_game::GameLevel;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
@@ -137,7 +137,7 @@ fn warp(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Player, &Actor, &Life)>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
-    mut next: ResMut<CurrentLevel>,
+    mut next: ResMut<Interlevel>,
     mut writer: EventWriter<SEEvent>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {

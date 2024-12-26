@@ -4,8 +4,8 @@ use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
 use crate::language::Languages;
-use crate::page::in_game::CurrentLevel;
 use crate::page::in_game::GameLevel;
+use crate::page::in_game::Interlevel;
 use crate::physics::GamePhysics;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -71,7 +71,7 @@ fn exit(
     mut writer: EventWriter<SEEvent>,
     mut websocket: EventWriter<ClientMessage>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
-    mut next: ResMut<CurrentLevel>,
+    mut next: ResMut<Interlevel>,
 ) {
     next.next_level = GameLevel::Level(0);
     overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));

@@ -7,7 +7,7 @@ use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::tile::Tile;
-use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::Interlevel;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -129,7 +129,7 @@ fn update_servant_seed(
     mut commands: Commands,
     mut query: Query<(Entity, &mut ServantSeed, &mut Transform)>,
     mut se_writer: EventWriter<SEEvent>,
-    current: Res<CurrentLevel>,
+    current: Res<Interlevel>,
     mut spawn_writer: EventWriter<SpawnEvent>,
 ) {
     for (entity, mut seed, mut transform) in query.iter_mut() {

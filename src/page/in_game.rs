@@ -42,7 +42,6 @@ use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
 use crate::level::wall::spawn_wall_collisions;
-use crate::level::wall::WallCollider;
 use crate::message::HELLO;
 use crate::message::HELLO_RABBITS;
 use crate::message::HUGE_SLIME;
@@ -61,7 +60,6 @@ use crate::message::TRAINING_RABBIT;
 use crate::message::UNKNOWN_LEVEL;
 use crate::message::WITCHES_ARE;
 use crate::player_state::PlayerState;
-use crate::random::random_select_mut;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::theater::Act;
@@ -69,8 +67,10 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
+use rand::SeedableRng;
 use strum::IntoEnumIterator;
 use uuid::Uuid;
 
@@ -80,17 +80,28 @@ pub enum GameLevel {
     MultiPlayArena,
 }
 
+/// 現在のレベル、次のレベル、次のレベルでのプレイヤーキャラクターの状態など、
+/// レベル間を移動するときの情報を保持します
 #[derive(Resource, Debug, Clone)]
-pub struct CurrentLevel {
+pub struct Interlevel {
+    /// 現在プレイ中のレベル
     pub level: Option<GameLevel>,
+
+    /// 現在プレイ中のレベルのマップ構造情報
     pub chunk: Option<LevelChunk>,
+
+    /// 次のレベル
+    /// 魔法陣から転移するとこのレベルに移動します
     pub next_level: GameLevel,
+
+    /// 次のプレイヤー状態
+    /// 魔法陣から転移したとき、この状態でプレイヤーを初期化します
     pub next_state: PlayerState,
 }
 
-impl Default for CurrentLevel {
+impl Default for Interlevel {
     fn default() -> Self {
-        CurrentLevel {
+        Interlevel {
             level: None,
             chunk: None,
             next_level: GameLevel::Level(INITIAL_LEVEL),
@@ -106,28 +117,67 @@ pub fn setup_level(
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
     life_bar_res: Res<LifeBarResource>,
-    mut current: ResMut<CurrentLevel>,
+    mut current: ResMut<Interlevel>,
     config: Res<GameConfig>,
 ) {
-    let level = match current.next_level {
-        GameLevel::Level(level) => GameLevel::Level(level % LEVELS),
-        GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
-    };
+    let mut rng = StdRng::from_entropy();
 
-    let mut chunk = spawn_level(&mut commands, &level_aseprites, &images, &assets, level);
+    let level = current.next_level;
+    current.level = Some(current.next_level);
 
+    // レベルの外観を生成します
+    let chunk = spawn_level_appearance(&mut commands, &level_aseprites, &images, &assets, level);
+
+    // レベルのコリジョンを生成します
+    spawn_wall_collisions(&mut commands, &chunk);
+
+    // 宝箱や灯篭などのエンティティを生成します
     spawn_entities(&mut commands, &assets, &life_bar_res, &chunk);
 
-    let mut empties = image_to_spawn_tiles(&chunk);
+    // エントリーポイントを選択
+    // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
+    let entry_point = chunk
+        .entry_points
+        .choose(&mut rng)
+        .expect("No entrypoint found");
 
-    spawn_random_enemies(&mut commands, &assets, &life_bar_res, level, &mut empties);
+    // 空間
+    // ここに敵モブや落ちているアイテムを生成します
+    let empties = image_to_spawn_tiles(&chunk);
 
-    let entry_point = random_select_mut(&mut chunk.entry_points);
+    // 空いた空間に敵モブキャラクターをランダムに生成します
+    let spaw_enemies_or_items = match level {
+        GameLevel::Level(0) => false,
+        GameLevel::Level(4) => false, // ボス部屋
+        GameLevel::MultiPlayArena => false,
+        _ => true,
+    };
+    if spaw_enemies_or_items {
+        spawn_random_enemies(
+            &mut commands,
+            &assets,
+            &life_bar_res,
+            level,
+            &empties,
+            &mut rng,
+            entry_point.clone(),
+        );
+        spawn_dropped_items(
+            &mut commands,
+            &assets,
+            &empties,
+            &mut rng,
+            entry_point.clone(),
+        );
+    }
+
+    // プレイヤーを生成します
+    // まずはエントリーポイントをランダムに選択します
 
     let mut player = current.next_state.clone();
     player.name = config.player_name.clone();
-    let player_x = TILE_SIZE * entry_point.x as f32 + TILE_HALF;
-    let player_y = -TILE_SIZE * entry_point.y as f32 - TILE_HALF;
+    let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
+    let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
 
     setup_camera(&mut commands, Vec2::new(player_x, player_y));
 
@@ -163,12 +213,11 @@ pub fn setup_level(
         player.current_wand,
     );
 
-    current.level = Some(level);
     current.chunk = Some(chunk);
 }
 
 fn select_level_bgm(
-    next_level: Res<CurrentLevel>,
+    next_level: Res<Interlevel>,
     mut next_bgm: ResMut<NextBGM>,
     assets: Res<GameAssets>,
 ) {
@@ -208,23 +257,8 @@ fn select_level_bgm(
     }
 }
 
-/// 現状は StateScopedですべてのエンティティが削除されるので以下のコードは不要ですが、
-/// 今後レベルのシームレスなスポーンを実装する場合は、以下のようなコードが必要になるかも
-#[allow(dead_code)]
-fn despawn_level(
-    commands: &mut Commands,
-    collider_query: &Query<Entity, With<WallCollider>>,
-    world_tile: &Query<Entity, With<WorldTile>>,
-) {
-    for entity in world_tile {
-        commands.entity(entity).despawn_recursive();
-    }
-    for entity in collider_query {
-        commands.entity(entity).despawn_recursive();
-    }
-}
-
-fn spawn_level(
+/// 床や壁の外観(スプライト)を生成します
+fn spawn_level_appearance(
     mut commands: &mut Commands,
     level_aseprites: &Res<Assets<Aseprite>>,
     images: &Res<Assets<Image>>,
@@ -264,8 +298,6 @@ fn spawn_level(
         },
     );
 
-    spawn_wall_collisions(&mut commands, &chunk);
-
     return chunk;
 }
 
@@ -274,57 +306,104 @@ fn spawn_random_enemies(
     assets: &Res<GameAssets>,
     life_bar_res: &Res<LifeBarResource>,
     level: GameLevel,
-    mut empties: &mut Vec<(i32, i32)>,
+    empties: &Vec<(i32, i32)>,
+    mut rng: &mut StdRng,
+    safe_zone_center: (i32, i32),
 ) {
-    if 30 < empties.len() {
-        for _ in 0..20 {
-            let (x, y) = random_select_mut(&mut empties);
-            if level != GameLevel::Level(1) && rand::random::<usize>() % 2 == 0 {
-                spawn_eyeball(
-                    &mut commands,
-                    &assets,
-                    Vec2::new(
-                        TILE_SIZE * x as f32 + TILE_HALF,
-                        TILE_SIZE * -y as f32 - TILE_HALF,
-                    ),
-                    &life_bar_res,
-                    ActorGroup::Enemy,
-                    8,
-                );
-            } else {
-                spawn_slime(
-                    &mut commands,
-                    &assets,
-                    Vec2::new(
-                        TILE_SIZE * x as f32 + TILE_HALF,
-                        TILE_SIZE * -y as f32 - TILE_HALF,
-                    ),
-                    &life_bar_res,
-                    0,
-                    5,
-                    ActorGroup::Enemy,
-                    None,
-                );
-            }
+    let mut empties = empties.clone();
+    empties.shuffle(&mut rng);
+
+    let mut enemies = 0;
+
+    for (x, y) in empties {
+        info!("spawn_random_enemies x:{} y:{}", x, y);
+
+        if 20 < enemies {
+            break;
         }
 
-        let mut rng = rand::thread_rng();
-        for _ in 0..3 {
-            let (x, y) = random_select_mut(&mut empties);
-            let spell = SpellType::iter().choose(&mut rng).unwrap();
-            spawn_dropped_item(
+        if Vec2::new(safe_zone_center.0 as f32, safe_zone_center.1 as f32)
+            .distance(Vec2::new(x as f32, y as f32))
+            < 8.0
+        {
+            continue;
+        }
+
+        let position = Vec2::new(
+            TILE_SIZE * x as f32 + TILE_HALF,
+            TILE_SIZE * -y as f32 - TILE_HALF,
+        );
+
+        if level != GameLevel::Level(1) && rand::random::<usize>() % 2 == 0 {
+            spawn_eyeball(
+                &mut commands,
+                &assets,
+                position,
+                &life_bar_res,
+                ActorGroup::Enemy,
+                8,
+            );
+        } else {
+            spawn_slime(
                 &mut commands,
                 &assets,
                 Vec2::new(
                     TILE_SIZE * x as f32 + TILE_HALF,
                     TILE_SIZE * -y as f32 - TILE_HALF,
                 ),
-                InventoryItem {
-                    item_type: InventoryItemType::Spell(spell),
-                    price: 0,
-                },
+                &life_bar_res,
+                0,
+                5,
+                ActorGroup::Enemy,
+                None,
             );
         }
+
+        enemies += 1;
+    }
+}
+
+fn spawn_dropped_items(
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    empties: &Vec<(i32, i32)>,
+    mut rng: &mut StdRng,
+    safe_zone_center: (i32, i32),
+) {
+    let mut empties = empties.clone();
+    empties.shuffle(&mut rng);
+
+    let mut items = 0;
+
+    for (x, y) in empties {
+        if 3 < items {
+            break;
+        }
+
+        if Vec2::new(safe_zone_center.0 as f32, safe_zone_center.1 as f32)
+            .distance(Vec2::new(x as f32, y as f32))
+            < 16.0
+        {
+            continue;
+        }
+
+        let position = Vec2::new(
+            TILE_SIZE * x as f32 + TILE_HALF,
+            TILE_SIZE * -y as f32 - TILE_HALF,
+        );
+
+        let spell = SpellType::iter().choose(&mut rng).unwrap();
+        spawn_dropped_item(
+            &mut commands,
+            &assets,
+            position,
+            InventoryItem {
+                item_type: InventoryItemType::Spell(spell),
+                price: 0,
+            },
+        );
+
+        items += 1;
     }
 }
 
@@ -732,6 +811,6 @@ impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
-        app.init_resource::<CurrentLevel>();
+        app.init_resource::<Interlevel>();
     }
 }

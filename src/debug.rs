@@ -6,7 +6,7 @@ use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
-use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::Interlevel;
 use crate::page::in_game::GameLevel;
 use crate::physics::GamePhysics;
 use crate::player_state::PlayerState;
@@ -151,7 +151,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
 }
 
 fn debug_next(
-    mut level: ResMut<CurrentLevel>,
+    mut level: ResMut<Interlevel>,
     config: Res<GameConfig>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
     mut writer: EventWriter<OverlayEvent>,
@@ -171,7 +171,7 @@ fn debug_next(
 }
 
 fn debug_home(
-    mut level: ResMut<CurrentLevel>,
+    mut level: ResMut<Interlevel>,
     config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
@@ -182,7 +182,7 @@ fn debug_home(
 }
 
 fn debug_arena(
-    mut level: ResMut<CurrentLevel>,
+    mut level: ResMut<Interlevel>,
     config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
@@ -193,7 +193,7 @@ fn debug_arena(
 }
 
 fn debug_boss(
-    mut level: ResMut<CurrentLevel>,
+    mut level: ResMut<Interlevel>,
     config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     player_query: Query<(&Player, &mut Actor, &Life)>,

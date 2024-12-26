@@ -2,8 +2,8 @@ use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
-use crate::page::in_game::CurrentLevel;
 use crate::page::in_game::GameLevel;
+use crate::page::in_game::Interlevel;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_simple_websocket::ReadyState;
@@ -76,7 +76,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
 
 fn update_player_list_visibility(
     mut player_list_query: Query<&mut Node, With<PlayerListRoot>>,
-    current: Res<CurrentLevel>,
+    current: Res<Interlevel>,
 ) {
     let mut player_list_root = player_list_query.single_mut();
 

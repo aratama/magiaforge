@@ -8,7 +8,7 @@ use crate::hud::DropArea;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::level::tile::Tile;
-use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::Interlevel;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameMenuState;
@@ -132,7 +132,7 @@ fn drop(
     assets: Res<GameAssets>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    map: Res<CurrentLevel>,
+    map: Res<Interlevel>,
     mut se: EventWriter<SEEvent>,
 ) {
     let mut floating = floating_query.single_mut();

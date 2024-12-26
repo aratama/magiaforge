@@ -10,7 +10,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::page::in_game::level_to_name;
-use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::Interlevel;
 use crate::page::in_game::GameLevel;
 use crate::states::GameState;
 use crate::ui::bar::spawn_status_bar;
@@ -37,7 +37,7 @@ pub struct PlayerGold;
 fn setup_hud(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    next: Res<CurrentLevel>,
+    next: Res<Interlevel>,
     config: Res<GameConfig>,
 ) {
     commands

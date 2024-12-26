@@ -26,7 +26,7 @@ pub struct LevelChunk {
     pub max_x: i32,
     pub max_y: i32,
     pub entities: Vec<(GameEntity, i32, i32)>,
-    pub entry_points: Vec<Vec2>,
+    pub entry_points: Vec<(i32, i32)>,
 }
 
 impl LevelChunk {
@@ -90,7 +90,7 @@ pub fn image_to_tilemap(
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTileMapile> = Vec::new();
     let mut entities = Vec::new();
-    let mut entry_points = Vec::<Vec2>::new();
+    let mut entry_points = Vec::<(i32, i32)>::new();
     for y in min_y..max_y {
         for x in min_x..max_x {
             let i = 4 * (y * texture_width as i32 + x) as usize;
@@ -165,7 +165,7 @@ pub fn image_to_tilemap(
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entry_points.push(Vec2::new(x as f32, y as f32));
+                    entry_points.push((x, y));
                     entities.push((GameEntity::BrokenMagicCircle, x, y));
                 }
                 (255, 0, 255, 255) => {

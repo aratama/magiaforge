@@ -4,7 +4,7 @@ use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Languages;
-use crate::page::in_game::CurrentLevel;
+use crate::page::in_game::Interlevel;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -42,12 +42,12 @@ fn setup(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
-    mut current: ResMut<CurrentLevel>,
+    mut current: ResMut<Interlevel>,
 ) {
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
-    *current = CurrentLevel::default();
+    *current = Interlevel::default();
 
     commands.spawn((
         Name::new("main_menu"),
