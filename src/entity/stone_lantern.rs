@@ -44,6 +44,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                 animation_offset: rand::random::<u32>() % 1000,
             },
             EntityDepth,
+            Visibility::default(),
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             (
                 RigidBody::Dynamic,

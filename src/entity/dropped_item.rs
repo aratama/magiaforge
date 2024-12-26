@@ -61,9 +61,9 @@ pub fn spawn_dropped_item(
             StateScoped(GameState::InGame),
             DroppedItemEntity { item },
             EntityDepth,
-            InheritedVisibility::default(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
+            Visibility::default(),
             Life {
                 life: 300,
                 max_life: 300,
@@ -102,11 +102,12 @@ pub fn spawn_dropped_item(
                     },
                     Transform::from_xyz(0.0, 0.0, 0.0),
                     GlobalTransform::default(),
-                    InheritedVisibility::default(),
+                    Visibility::default(),
                 ))
                 .with_children(|parent| {
                     if 0 < item.price {
                         parent.spawn((
+                            // Text2dはVisibilityを必須としているため、その親にもVisibility::default(),を設定しないと警告が出る
                             Text2d(format!("{}", item.price)),
                             TextFont {
                                 font: assets.dotgothic.clone(),

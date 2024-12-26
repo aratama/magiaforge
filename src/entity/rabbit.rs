@@ -57,7 +57,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             },
             Transform::from_translation(position.extend(0.0)),
             GlobalTransform::default(),
-            InheritedVisibility::default(),
+            Visibility::default(),
             // 以下はRapier2Dのコンポーネント
             (
                 RigidBody::Dynamic,

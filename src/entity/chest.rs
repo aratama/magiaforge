@@ -93,7 +93,7 @@ pub fn spawn_chest(
             EntityDepth,
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
-            InheritedVisibility::default(),
+            Visibility::default(),
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,

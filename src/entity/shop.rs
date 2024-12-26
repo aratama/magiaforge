@@ -18,9 +18,9 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::states::GameState;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
@@ -47,6 +47,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
             Transform::from_translation(Vec3::new(position.x + TILE_HALF, position.y, 0.0)),
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+            Visibility::default(),
         ))
         .with_children(|builder| {
             // 商品が外に出ないようにする壁

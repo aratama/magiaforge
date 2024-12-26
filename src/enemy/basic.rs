@@ -81,7 +81,7 @@ pub fn spawn_basic_enemy<T: Component>(
         HomingTarget,
         Transform::from_translation(position.extend(5.0)),
         GlobalTransform::default(),
-        InheritedVisibility::default(),
+        Visibility::default(),
         (
             RigidBody::Dynamic,
             Collider::ball(BASIC_ACTOR_RADIUS),

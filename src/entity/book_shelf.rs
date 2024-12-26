@@ -33,6 +33,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         },
         Bookshelf,
         EntityDepth,
+        Visibility::default(),
         Transform::from_translation(Vec3::new(x, y, 0.0)),
         (
             RigidBody::Dynamic,

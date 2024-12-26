@@ -48,8 +48,8 @@ use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
 use crate::se::SECommandPlugin;
-use crate::theater::SenarioPlugin;
 use crate::states::*;
+use crate::theater::SenarioPlugin;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
 use crate::ui::command_button::CommandButtonPlugin;
@@ -125,7 +125,7 @@ pub fn run_game() {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        position: WindowPosition::Centered(MonitorSelection::Current),
+                        position: WindowPosition::Centered(MonitorSelection::Primary),
                         cursor_options: CursorOptions {
                             visible: cfg!(feature = "debug"),
                             ..default()
@@ -149,6 +149,10 @@ pub fn run_game() {
             //
         )
         .add_plugins(AsepriteUltraPlugin)
+        .insert_resource(TimestepMode::Fixed {
+            dt: 1.0 / 60.0,
+            substeps: 1,
+        })
         .add_plugins(
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PIXELS_PER_METER)
                 .in_fixed_schedule()

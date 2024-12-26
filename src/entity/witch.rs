@@ -99,7 +99,7 @@ pub fn spawn_witch<T: Component>(
         // 親のzは常に0にします
         Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),
-        InheritedVisibility::default(),
+        Visibility::default(),
         (
             RigidBody::Dynamic,
             Velocity::default(),
