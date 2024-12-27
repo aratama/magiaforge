@@ -25,6 +25,7 @@ pub enum SpellType {
     Dash,
     QuickCast,
     Impact,
+    PrecisionUp,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -68,6 +69,7 @@ pub enum SpellCast {
     Dash,
     QuickCast,
     Impact,
+    PrecisionUp,
 }
 
 /// 呪文の基礎情報
@@ -376,6 +378,18 @@ impl SpellType {
                 icon: "impact_icon",
                 price: 500,
                 cast: SpellCast::Impact,
+            },
+            SpellType::PrecisionUp => SpellProps {
+                name: Dict {
+                    ja: "精度向上",
+                    en: "Precision Up",
+                },
+                description: Dict { ja: "弾丸の精度を向上させます。",
+                en: "Increases the accuracy of bullets." },
+                cast_delay: 1,
+                icon: "precision_icon",
+                price: 500,
+                cast: SpellCast::PrecisionUp,
             },
         }
     }

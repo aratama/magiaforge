@@ -6,8 +6,8 @@ use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
-use crate::page::in_game::Interlevel;
 use crate::page::in_game::GameLevel;
+use crate::page::in_game::Interlevel;
 use crate::physics::GamePhysics;
 use crate::player_state::PlayerState;
 use crate::spell::SpellType;
@@ -108,6 +108,10 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
         inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Impact));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
         inventory.sort();
 
         actor.wands[1] = Wand::with_slots([

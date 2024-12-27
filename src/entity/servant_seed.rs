@@ -168,7 +168,7 @@ fn update_servant_seed(
     }
 }
 
-#[derive(Event)]
+#[derive(Event, Debug)]
 struct SpawnEvent {
     servant_type: ServantType,
     position: Vec2,
@@ -183,6 +183,8 @@ fn spawn_servant(
     mut reader: EventReader<SpawnEvent>,
 ) {
     for event in reader.read() {
+        info!("spawn_servant: {:?}", event);
+
         match event.servant_type {
             ServantType::Slime => {
                 spawn_slime(

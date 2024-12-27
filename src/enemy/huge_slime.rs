@@ -237,6 +237,7 @@ fn update_huge_slime_approach(
             // 6秒ごとに召喚フェイズに移行
             if huge_slime.animation == 360 {
                 huge_slime.state = HugeSlimeState::Summon;
+                info!("huge_slime.state = HugeSlimeState::Summon;");
                 huge_slime.animation = 0;
             }
         }
@@ -252,11 +253,12 @@ fn update_huge_slime_summon(
 ) {
     for parent in sprite_query.iter_mut() {
         let (huge_slime_entity, mut huge_slime, transform) =
-            huge_slime_query.get_mut(**parent).unwrap();
+            huge_slime_query.get_mut(parent.get()).unwrap();
 
         if let HugeSlimeState::Summon = huge_slime.state {
             if let Ok(player) = player_query.get_single() {
                 if huge_slime.animation == 60 {
+                    info!("huge_slime.animation == 60");
                     let slimes = if huge_slime.promoted { 8 } else { 4 };
                     let circles = if huge_slime.promoted { 4 } else { 1 };
                     for n in 0..circles {
@@ -266,6 +268,7 @@ fn update_huge_slime_summon(
                             let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
                             let offset = Vec2::from_angle(angle) * 100.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
                             let to = player.translation.truncate() + offset;
+                            info!("seed_writer.send(SpawnServantSeed");
                             seed_writer.send(SpawnServantSeed {
                                 from: transform.translation.truncate(),
                                 to,
@@ -283,6 +286,7 @@ fn update_huge_slime_summon(
             if 120 <= huge_slime.animation {
                 huge_slime.animation = 0;
                 huge_slime.state = HugeSlimeState::Approach;
+                info!("huge_slime.state = HugeSlimeState::Approach;");
             }
         }
     }

@@ -55,6 +55,8 @@ pub fn cast_spell(
         return;
     }
 
+    let mut clear_effect = false;
+
     while 0 < multicast && wand.index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = wand.slots[wand.index] {
             let props = spell.spell_type.to_props();
@@ -79,7 +81,8 @@ pub fn cast_spell(
                 } => {
                     let normalized = actor.pointer.normalize();
                     let angle = actor.pointer.to_angle();
-                    let angle_with_random = angle + (random::<f32>() - 0.5) * scattering;
+                    let updated_scattering = (scattering - actor.effects.precision).max(0.0);
+                    let angle_with_random = angle + (random::<f32>() - 0.5) * updated_scattering;
                     let direction = Vec2::from_angle(angle_with_random);
                     let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
                     let bullet_position =
@@ -116,7 +119,7 @@ pub fn cast_spell(
                     };
 
                     spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
-                    actor.effects = default();
+                    clear_effect = true;
 
                     // リモートへ呪文詠唱を伝えます
                     // リモートへ呪文詠唱を伝えるのはプレイヤーキャラクターのみです
@@ -221,12 +224,19 @@ pub fn cast_spell(
                         impulse: 30000.0,
                     });
                 }
+                SpellCast::PrecisionUp => {
+                    actor.effects.precision += 0.1;
+                }
             }
         } else {
             // 空欄の場合は残り詠唱回数は減りません
         }
 
         wand.index = wand.index + 1;
+    }
+
+    if clear_effect {
+        actor.effects = default();
     }
 
     // actor.effects = default();
