@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::entity::counter::Counter;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
@@ -10,12 +11,11 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::counter::CounterAnimated;
 use super::explosion::SpawnExplosion;
 
 #[derive(Default, Component, Reflect)]
-struct Bomb {
-    pub lifetime: u32,
-}
+struct Bomb;
 
 #[derive(Event)]
 pub struct SpawnBomb {
@@ -35,13 +35,14 @@ pub fn spawn_bomb(
     }
 
     for SpawnBomb { position } in reader.read() {
-        let atlas = assets.atlas.clone();
+        let aseprite = assets.bomb.clone();
         commands
             .spawn((
                 Name::new("bomb"),
                 StateScoped(GameState::InGame),
                 Life::new(10),
-                Bomb { lifetime: 180 },
+                Bomb,
+                Counter::new(),
                 EntityDepth,
                 Transform::from_translation(position.extend(0.0)),
                 GlobalTransform::default(),
@@ -71,9 +72,10 @@ pub fn spawn_bomb(
             .with_children(move |parent| {
                 parent.spawn((
                     LifeBeingSprite,
-                    AseSpriteSlice {
-                        aseprite: atlas.clone(),
-                        name: "bomb_icon".into(), // TODO
+                    CounterAnimated,
+                    AseSpriteAnimation {
+                        aseprite: aseprite.clone(),
+                        animation: "default".into(), // TODO
                     },
                 ));
             });
@@ -82,11 +84,11 @@ pub fn spawn_bomb(
 
 fn explode_bomb(
     mut commands: Commands,
-    mut query: Query<(Entity, &Transform, &Life, &mut Bomb)>,
+    query: Query<(Entity, &Transform, &Life, &Counter), With<Bomb>>,
     mut explosion_writer: EventWriter<SpawnExplosion>,
 ) {
-    for (entity, transform, life, mut bomb) in query.iter_mut() {
-        if life.life <= 0 || bomb.lifetime <= 0 {
+    for (entity, transform, life, counter) in query.iter() {
+        if life.life <= 0 || 180 <= counter.count {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
             explosion_writer.send(SpawnExplosion {
@@ -95,15 +97,13 @@ fn explode_bomb(
                 impulse: 100000.0,
                 damage: 100,
             });
-        } else {
-            bomb.lifetime -= 1;
         }
     }
 }
 
 fn set_bomb_rotation(
     mut query: Query<(&Children, &Transform), With<Bomb>>,
-    mut sprite_query: Query<&mut Transform, (With<AseSpriteSlice>, Without<Bomb>)>, // TODO
+    mut sprite_query: Query<&mut Transform, (With<AseSpriteAnimation>, Without<Bomb>)>, // TODO
 ) {
     for (children, transform) in query.iter_mut() {
         for child in children.iter() {

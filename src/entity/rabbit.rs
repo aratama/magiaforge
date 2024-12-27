@@ -15,6 +15,8 @@ use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_rapier2d::prelude::*;
 
+use super::counter::CounterAnimated;
+
 const RABBIT_RADIUS: f32 = 5.0;
 
 pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
@@ -88,6 +90,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             ));
 
             builder.spawn((
+                CounterAnimated,
                 AseSpriteAnimation {
                     aseprite: sprite.clone(),
                     animation: "idle_d".into(),

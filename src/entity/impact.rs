@@ -13,6 +13,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
 
+use super::counter::CounterAnimated;
+
 #[derive(Component)]
 struct Impact {
     lifetime: u32,
@@ -96,6 +98,7 @@ fn read_impact_event(
         commands.spawn((
             Name::new("impact"),
             Impact { lifetime: 60 },
+            CounterAnimated,
             AseSpriteAnimation {
                 aseprite: assets.impact.clone(),
                 animation: "idle".into(),

@@ -142,7 +142,7 @@ fn setup_game_menu(
             Name::new("Pause Menu"),
             PauseMenuRoot,
             StateScoped(GameState::InGame),
-            BackgroundColor(Color::hsla(0.0, 0.0, 0.05, 1.0)),
+            BackgroundColor(Color::hsla(0.0, 0.0, 0.05, 0.9)),
             GlobalZIndex(GAME_MENU_Z_INDEX),
             Visibility::Hidden,
             Node {
@@ -182,7 +182,8 @@ fn setup_game_menu(
                     parent
                         .spawn(Node {
                             column_gap: Val::Px(4.0),
-                            align_items: AlignItems::Center,
+                            align_items: AlignItems::Start,
+
                             ..default()
                         })
                         .with_children(|parent| {

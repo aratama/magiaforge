@@ -6,6 +6,7 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
+use crate::entity::counter::CounterAnimated;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
@@ -114,6 +115,7 @@ pub fn spawn_basic_enemy<T: Component>(
     builder.with_children(|mut parent| {
         parent.spawn((
             LifeBeingSprite,
+            CounterAnimated,
             AseSpriteAnimation {
                 aseprite,
                 animation: Animation::default().with_tag("idle"),

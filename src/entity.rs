@@ -6,6 +6,7 @@ pub mod broken_magic_circle;
 pub mod bullet;
 pub mod bullet_particle;
 pub mod chest;
+pub mod counter;
 pub mod damege;
 pub mod dropped_item;
 pub mod explosion;

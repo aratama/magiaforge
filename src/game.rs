@@ -22,6 +22,7 @@ use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::chest::ChestPlugin;
+use crate::entity::counter::CounterPlugin;
 use crate::entity::damege::DamagePlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::explosion::ExplosionPlugin;
@@ -178,6 +179,7 @@ pub fn run_game() {
         .add_plugins(CameraPlugin)
         .add_plugins(ChestPlugin)
         .add_plugins(CommandButtonPlugin)
+        .add_plugins(CounterPlugin)
         .add_plugins(DamagePlugin)
         .add_plugins(DebugCommandPlugin)
         .add_plugins(DespawnWithGoldPlugin)

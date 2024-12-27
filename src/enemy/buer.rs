@@ -53,6 +53,7 @@
 //         },
 //         ActorState::default(),
 //         EntityDepth,
+//         CounterAnimated,
 //         AseSpriteAnimation {
 //             aseprite: aseprite,
 //             animation: Animation::default().with_tag("idle"),

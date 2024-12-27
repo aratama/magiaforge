@@ -14,6 +14,7 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
+use crate::physics::GamePhysics;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -138,7 +139,12 @@ fn countup(
     mut theater: ResMut<Theater>,
     mut writer: EventWriter<OverlayEvent>,
     mut se_writer: EventWriter<SEEvent>,
+    physics: Res<GamePhysics>,
 ) {
+    if !physics.active {
+        return;
+    }
+
     let (mut visibility, mut speech) = speech_query.single_mut();
 
     let mut camera = camera.single_mut();

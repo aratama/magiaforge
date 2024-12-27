@@ -7,6 +7,7 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
+use crate::entity::counter::CounterAnimated;
 use crate::entity::gold::Gold;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
@@ -218,6 +219,7 @@ fn die_player(
             // 倒れるアニメーションを残す
             commands.spawn((
                 StateScoped(GameState::InGame),
+                CounterAnimated,
                 AseSpriteAnimation {
                     aseprite: assets.witch.clone(),
                     animation: "get_down".into(),

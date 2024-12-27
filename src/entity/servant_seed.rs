@@ -20,6 +20,8 @@ use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
 use serde::Serialize;
 
+use super::counter::CounterAnimated;
+
 #[derive(Component)]
 pub struct ServantSeed {
     animation: u32,
@@ -103,6 +105,7 @@ pub fn spawn_servant_seed(
             ))
             .with_child((
                 ServantSeedSprite,
+                CounterAnimated,
                 AseSpriteAnimation {
                     aseprite: servant_type.to_asset(&assets, *actor_group),
                     animation: "idle".into(),

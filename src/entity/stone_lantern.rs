@@ -14,6 +14,8 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 
+use super::counter::CounterAnimated;
+
 #[derive(Default, Component, Reflect)]
 struct StoneLantern {
     animation_offset: u32,
@@ -76,6 +78,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                     anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
                     ..default()
                 },
+                CounterAnimated,
                 AseSpriteAnimation {
                     aseprite: assets.stone_lantern.clone(),
                     ..default()

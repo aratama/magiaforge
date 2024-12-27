@@ -4,9 +4,10 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::hud::overlay::OverlayEvent;
-use crate::page::in_game::Interlevel;
 use crate::page::in_game::GameLevel;
+use crate::page::in_game::Interlevel;
 use crate::physics::identify;
+use crate::physics::GamePhysics;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
@@ -140,7 +141,12 @@ fn warp(
     mut next: ResMut<Interlevel>,
     mut writer: EventWriter<SEEvent>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
+    physics: Res<GamePhysics>,
 ) {
+    if !physics.active {
+        return;
+    }
+
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
             if 0 < circle.players {

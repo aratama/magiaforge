@@ -7,12 +7,15 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
+use crate::entity::counter::Counter;
+use crate::entity::counter::CounterAnimated;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::EntityDepth;
 use crate::inventory::Inventory;
+use crate::physics::GamePhysics;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -37,7 +40,6 @@ pub struct Boss;
 pub struct HugeSlime {
     up_velocity: f32,
     state: HugeSlimeState,
-    animation: u32,
     promoted: bool,
 }
 
@@ -74,9 +76,9 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             HugeSlime {
                 up_velocity: 0.0,
                 state: HugeSlimeState::Growl,
-                animation: 0,
                 promoted: false,
             },
+            Counter::new(),
             Actor {
                 uuid: Uuid::new_v4(),
                 pointer: Vec2::ZERO,
@@ -102,6 +104,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 wait: 0,
             },
             EntityDepth,
+            CounterAnimated,
             AseSpriteAnimation {
                 aseprite: assets.huge_slime_shadow.clone(),
                 animation: Animation::default().with_tag("idle"),
@@ -135,6 +138,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         .with_children(|parent| {
             parent.spawn((
                 HugeSlimeSprite,
+                CounterAnimated,
                 AseSpriteAnimation {
                     aseprite: assets.huge_slime.clone(),
                     animation: Animation::default().with_tag("idle"),
@@ -152,7 +156,12 @@ fn update_huge_slime(
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
     >,
     mut impact_writer: EventWriter<SpawnImpact>,
+    physics: Res<GamePhysics>,
 ) {
+    if !physics.active {
+        return;
+    }
+
     const GRAVITY: f32 = 0.2;
     for (parent, mut offset) in sprite_query.iter_mut() {
         let (mut huge_slime, transform, mut actor) = slime_query.get_mut(parent.get()).unwrap();
@@ -189,24 +198,23 @@ fn update_huge_slime(
         }
 
         offset.translation.y = next;
-
-        huge_slime.animation += 1;
     }
 }
 
 fn update_huge_slime_growl(
-    mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
+    mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut Counter), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
     for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
+        let (mut huge_slime, transform, mut counter) =
+            huge_slime_query.get_mut(parent.get()).unwrap();
         if let HugeSlimeState::Growl = huge_slime.state {
-            if huge_slime.animation == 120 {
+            if counter.count == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
-            } else if 300 <= huge_slime.animation {
+            } else if 300 <= counter.count {
                 huge_slime.state = HugeSlimeState::Approach;
-                huge_slime.animation = 0;
+                counter.count = 0;
             }
         }
     }
@@ -214,7 +222,7 @@ fn update_huge_slime_growl(
 
 fn update_huge_slime_approach(
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
-    mut huge_slime_query: Query<&mut HugeSlime, Without<Player>>,
+    mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter), Without<Player>>,
     mut huge_slime_sprite_query: Query<
         &Parent,
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
@@ -223,22 +231,22 @@ fn update_huge_slime_approach(
     const JUMP_POWER: f32 = 3.0;
 
     for parent in huge_slime_sprite_query.iter_mut() {
-        let mut huge_slime = huge_slime_query.get_mut(parent.get()).unwrap();
+        let (mut huge_slime, mut counter) = huge_slime_query.get_mut(parent.get()).unwrap();
         let timespan = if huge_slime.promoted { 35 } else { 60 };
         if let HugeSlimeState::Approach = huge_slime.state.clone() {
             // プレイヤーがいる場合はジャンプしながら接近
             if let Ok(_) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
-                if huge_slime.animation % timespan == 0 {
+                if counter.count % timespan == 0 {
                     huge_slime.up_velocity = JUMP_POWER;
                 }
             }
 
             // 6秒ごとに召喚フェイズに移行
-            if huge_slime.animation == 360 {
+            if counter.count == 360 {
                 huge_slime.state = HugeSlimeState::Summon;
                 info!("huge_slime.state = HugeSlimeState::Summon;");
-                huge_slime.animation = 0;
+                counter.count = 0;
             }
         }
     }
@@ -246,18 +254,21 @@ fn update_huge_slime_approach(
 
 fn update_huge_slime_summon(
     player_query: Query<&Transform, With<Player>>,
-    mut huge_slime_query: Query<(Entity, &mut HugeSlime, &Transform), Without<Player>>,
+    mut huge_slime_query: Query<
+        (Entity, &mut HugeSlime, &Transform, &mut Counter),
+        Without<Player>,
+    >,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
     mut seed_writer: EventWriter<SpawnServantSeed>,
 ) {
     for parent in sprite_query.iter_mut() {
-        let (huge_slime_entity, mut huge_slime, transform) =
+        let (huge_slime_entity, mut huge_slime, transform, mut counter) =
             huge_slime_query.get_mut(parent.get()).unwrap();
 
         if let HugeSlimeState::Summon = huge_slime.state {
             if let Ok(player) = player_query.get_single() {
-                if huge_slime.animation == 60 {
+                if counter.count == 60 {
                     info!("huge_slime.animation == 60");
                     let slimes = if huge_slime.promoted { 8 } else { 4 };
                     let circles = if huge_slime.promoted { 4 } else { 1 };
@@ -283,8 +294,8 @@ fn update_huge_slime_summon(
                 }
             }
 
-            if 120 <= huge_slime.animation {
-                huge_slime.animation = 0;
+            if 120 <= counter.count {
+                counter.count = 0;
                 huge_slime.state = HugeSlimeState::Approach;
                 info!("huge_slime.state = HugeSlimeState::Approach;");
             }
@@ -293,31 +304,32 @@ fn update_huge_slime_summon(
 }
 
 fn update_huge_slime_promote(
-    mut huge_slime_query: Query<(&mut HugeSlime, &Transform), Without<Player>>,
+    mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut Counter), Without<Player>>,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
 ) {
     for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform) = huge_slime_query.get_mut(parent.get()).unwrap();
+        let (mut huge_slime, transform, mut counter) =
+            huge_slime_query.get_mut(parent.get()).unwrap();
         if let HugeSlimeState::Promote = huge_slime.state {
-            if huge_slime.animation == 120 {
+            if counter.count == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
                 *next_bgm = NextBGM(Some(assets.sacred.clone()));
-            } else if 300 <= huge_slime.animation {
+            } else if 300 <= counter.count {
                 huge_slime.state = HugeSlimeState::Approach;
-                huge_slime.animation = 0;
+                counter.count = 0;
             }
         }
     }
 }
 
-fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life), Without<Player>>) {
-    for (mut huge_slime, life) in huge_slime_query.iter_mut() {
+fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life, &mut Counter)>) {
+    for (mut huge_slime, life, mut counter) in huge_slime_query.iter_mut() {
         if !huge_slime.promoted && life.life < 600 {
             huge_slime.state = HugeSlimeState::Promote;
-            huge_slime.animation = 0;
+            counter.count = 0;
             huge_slime.promoted = true;
         }
     }
@@ -339,6 +351,7 @@ fn despown(
                 // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
                 commands.entity(entity).despawn_recursive();
                 let e = commands.spawn((
+                    CounterAnimated,
                     AseSpriteAnimation {
                         aseprite: assets.huge_slime.clone(),
                         animation: "idle".into(),

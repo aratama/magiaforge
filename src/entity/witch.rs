@@ -23,6 +23,8 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
+use super::counter::CounterAnimated;
+
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
 pub const PLAYER_MOVE_FORCE: f32 = 40000.0;
@@ -148,6 +150,7 @@ pub fn spawn_witch<T: Component>(
                 // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
                 ..default()
             },
+            CounterAnimated,
             AseSpriteAnimation {
                 aseprite: assets.witch.clone(),
                 animation: Animation::default().with_tag("idle_r"),
