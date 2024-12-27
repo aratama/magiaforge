@@ -200,7 +200,7 @@ fn setup_game_menu(
                                 &assets,
                                 shots.ja,
                                 120.0,
-                                40.0,
+                                50.0,
                                 Dict {
                                     ja: "日本語",
                                     en: "日本語",
@@ -210,8 +210,8 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.en,
-                                80.0,
-                                40.0,
+                                120.0,
+                                50.0,
                                 Dict { ja: "En", en: "En" },
                             );
                         });
@@ -237,8 +237,8 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.fullscreen_on,
-                                80.0,
-                                40.0,
+                                120.0,
+                                50.0,
                                 Dict {
                                     ja: "オン",
                                     en: "On",
@@ -248,8 +248,8 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.fullscreen_off,
-                                80.0,
-                                40.0,
+                                120.0,
+                                50.0,
                                 Dict {
                                     ja: "オフ",
                                     en: "Off",
@@ -305,7 +305,7 @@ fn setup_game_menu(
                         parent,
                         &assets,
                         shots.exit,
-                        280.0,
+                        400.0,
                         60.0,
                         Dict {
                             ja: "タイトルに戻る",

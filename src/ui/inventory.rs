@@ -9,7 +9,6 @@ use crate::ui::item_panel::spawn_item_panel;
 use crate::ui::item_panel::ItemPanel;
 use crate::ui::popup::PopUp;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component)]
 pub struct InventoryGrid {
@@ -19,33 +18,16 @@ pub struct InventoryGrid {
 #[derive(Component)]
 struct InventoryItemSlot(usize);
 
-pub const INVENTORY_IMAGE_HEIGHT: f32 = 168.0;
+const SCALE: f32 = 2.0;
 
 pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
     builder
         .spawn((Node {
-            width: Val::Px(151.0 * 2.0),
-            height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
+            width: Val::Px(151.0 * SCALE),
+            height: Val::Px(136.0 * SCALE),
             ..default()
         },))
         .with_children(|builder| {
-            // 背景画像
-            builder.spawn((
-                ZIndex(0),
-                Node {
-                    position_type: PositionType::Absolute,
-                    width: Val::Px(151.0 * 2.0),
-                    height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
-                    left: Val::Px(0.0),
-                    top: Val::Px(0.0),
-                    ..default()
-                },
-                AseUiSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "inventory".into(),
-                },
-            ));
-
             builder
                 .spawn((
                     InventoryGrid { hover: false },

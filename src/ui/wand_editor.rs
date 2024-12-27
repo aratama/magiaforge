@@ -9,10 +9,10 @@ use crate::ui::command_button::command_button;
 use crate::ui::command_button::CommandButton;
 use crate::ui::floating::Floating;
 use crate::ui::inventory::spawn_inventory;
-use crate::ui::inventory::INVENTORY_IMAGE_HEIGHT;
 use crate::ui::menu_left::MenuLeft;
 use crate::ui::popup::spawn_spell_information;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseUiSlice;
 
 #[derive(Component)]
 struct WandEditorRoot;
@@ -22,42 +22,67 @@ struct SortButton;
 
 pub const MENU_THEME_COLOR: Color = Color::hsla(63.0, 0.12, 0.5, 0.95);
 
+pub const INVENTORY_IMAGE_WIDTH: f32 = 151.0;
+
+pub const INVENTORY_IMAGE_HEIGHT: f32 = 168.0;
+
+const SCALE: f32 = 2.0;
+
 pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
-    let mut editor_builder = builder.spawn((
-        WandEditorRoot,
-        MenuLeft::new(16.0, -144.0 * 2.0),
-        GlobalZIndex(WAND_EDITOR_Z_INDEX),
-        Node {
-            position_type: PositionType::Absolute,
-            left: Val::Px(20.0),
-            top: Val::Px(100.0),
-            width: Val::Px(151.0 * 2.0),
-            height: Val::Px(INVENTORY_IMAGE_HEIGHT * 2.0),
-            display: Display::Flex,
-            flex_direction: FlexDirection::Column,
-            row_gap: Val::Px(4.0),
-            justify_content: JustifyContent::Start,
-            align_items: AlignItems::Center,
-            ..default()
-        },
-    ));
-
-    editor_builder.with_children(|mut parent| {
-        spawn_inventory(&mut parent, &assets);
-
-        command_button(
-            parent,
-            assets,
-            SortButton,
-            160.0,
-            32.0,
-            false,
-            Dict {
-                ja: "並び替え",
-                en: "Sort",
+    builder
+        .spawn((
+            WandEditorRoot,
+            MenuLeft::new(16.0, -144.0 * SCALE),
+            GlobalZIndex(WAND_EDITOR_Z_INDEX),
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(20.0),
+                top: Val::Px(100.0),
+                width: Val::Px(151.0 * SCALE),
+                height: Val::Px(INVENTORY_IMAGE_HEIGHT * SCALE),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(16.0),
+                justify_content: JustifyContent::Start,
+                align_items: AlignItems::Center,
+                ..default()
             },
-        );
-    });
+        ))
+        .with_children(|mut parent| {
+            // 背景画像
+            parent.spawn((
+                ZIndex(0),
+                Node {
+                    position_type: PositionType::Absolute,
+                    width: Val::Px(INVENTORY_IMAGE_WIDTH * SCALE),
+                    height: Val::Px(INVENTORY_IMAGE_HEIGHT * SCALE),
+                    left: Val::Px(0.0),
+                    top: Val::Px(0.0),
+                    ..default()
+                },
+                AseUiSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "inventory".into(),
+                },
+            ));
+
+            // 操作可能なグリッド部分
+            spawn_inventory(&mut parent, &assets);
+
+            // 並び変えボタン
+            command_button(
+                parent,
+                assets,
+                SortButton,
+                160.0,
+                32.0,
+                false,
+                Dict {
+                    ja: "並び替え",
+                    en: "Sort",
+                },
+            );
+        });
 
     spawn_spell_information(&mut builder, &assets);
 }
