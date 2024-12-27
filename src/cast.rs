@@ -16,17 +16,62 @@ use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
+use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::se::SEEvent;
 use crate::se::SE;
-use crate::spell::SpellCast;
 use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use uuid::Uuid;
+
+/// 呪文を詠唱したときの動作を表します
+/// 弾丸系魔法は Bullet にまとめられており、
+/// そのほかの魔法も動作の種別によって分類されています
+#[derive(Debug)]
+pub enum SpellCast {
+    Bullet {
+        slice: &'static str,
+
+        collier_radius: f32,
+
+        /// 魔法弾の速度
+        /// pixels_per_meter が 100.0 に設定されているので、
+        /// 200は1フレームに2ピクセル移動する速度です
+        speed: f32,
+
+        lifetime: u32,
+        damage: i32,
+        impulse: f32,
+
+        scattering: f32,
+
+        light_intensity: f32,
+        light_radius: f32,
+        light_color_hlsa: [f32; 4],
+    },
+    Heal,
+    BulletSpeedUpDown {
+        delta: f32,
+    },
+    MultipleCast {
+        amount: u32,
+    },
+    Homing,
+    HeavyShot,
+    Summon {
+        friend: bool,
+        servant_type: ServantType,
+    },
+    Dash,
+    QuickCast,
+    Impact,
+    PrecisionUp,
+    Bomb,
+}
 
 /// 現在のインデックスをもとに呪文を唱えます
 /// マナが不足している場合は不発になる場合もあります

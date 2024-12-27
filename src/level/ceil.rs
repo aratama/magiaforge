@@ -4,7 +4,6 @@ use crate::constant::TILE_SIZE;
 use crate::constant::WALL_HEIGHT;
 use crate::entity::get_entity_z;
 use crate::level::map::LevelChunk;
-use crate::level::tile::Tile;
 use crate::level::tile::WorldTile;
 use crate::states::GameState;
 use bevy::prelude::*;

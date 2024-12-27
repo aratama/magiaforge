@@ -4,6 +4,7 @@ use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory_item::InventoryItemType;
+use crate::language::Dict;
 use crate::spell::get_spell_appendix;
 use crate::states::GameMenuState;
 use crate::states::GameState;
@@ -179,9 +180,19 @@ fn update_item_description(
 
             if let InventoryItemType::Spell(spell) = first.item_type {
                 let props = spell.to_props();
-                let cast: crate::spell::SpellCast = props.cast;
-                let appendix = get_spell_appendix(cast, config.language);
+                let appendix = get_spell_appendix(props.cast, config.language);
                 text.0 += format!("\n{}", appendix).as_str();
+
+                text.0 += format!(
+                    "\n{}: {}",
+                    (Dict {
+                        ja: "ランク",
+                        en: "Rank",
+                    })
+                    .get(config.language),
+                    props.rank
+                )
+                .as_str();
             }
 
             if 0 < first.price {
