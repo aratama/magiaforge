@@ -1,6 +1,7 @@
 use crate::constant::CAMERA_SPEED;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::page::in_game::{GameLevel, Interlevel};
 use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -110,10 +111,14 @@ fn update_camera_position(
 fn update_camera_brightness(
     mut camera_query: Query<&mut AmbientLight2d, With<Camera2d>>,
     state: Res<State<GameState>>,
+    level: Res<Interlevel>,
 ) {
     if let Ok(mut light) = camera_query.get_single_mut() {
         light.brightness = match state.get() {
-            GameState::InGame => BLIGHTNESS_IN_GAME,
+            GameState::InGame => match level.level {
+                Some(GameLevel::Level(2)) => 0.02,
+                _ => BLIGHTNESS_IN_GAME,
+            },
             _ => 1.0,
         };
     }

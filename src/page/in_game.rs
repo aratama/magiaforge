@@ -126,7 +126,14 @@ pub fn setup_level(
     current.level = Some(current.next_level);
 
     // レベルの外観を生成します
-    let chunk = spawn_level_appearance(&mut commands, &level_aseprites, &images, &assets, level);
+    let chunk = spawn_level_appearance(
+        &mut commands,
+        &level_aseprites,
+        &images,
+        &assets,
+        level,
+        &mut rng,
+    );
 
     // レベルのコリジョンを生成します
     spawn_wall_collisions(&mut commands, &chunk);
@@ -146,30 +153,45 @@ pub fn setup_level(
     let empties = image_to_spawn_tiles(&chunk);
 
     // 空いた空間に敵モブキャラクターをランダムに生成します
-    let spaw_enemies_or_items = match level {
-        GameLevel::Level(0) => false,
-        GameLevel::Level(4) => false, // ボス部屋
-        GameLevel::MultiPlayArena => false,
-        _ => true,
+    let spaw_enemy_count = match level {
+        GameLevel::Level(0) => 0,
+        GameLevel::Level(1) => 10,
+        GameLevel::Level(4) => 0, // ボス部屋
+        GameLevel::MultiPlayArena => 0,
+        _ => 30,
     };
-    if spaw_enemies_or_items {
-        spawn_random_enemies(
-            &mut commands,
-            &assets,
-            &life_bar_res,
-            level,
-            &empties,
-            &mut rng,
-            entry_point.clone(),
-        );
-        spawn_dropped_items(
-            &mut commands,
-            &assets,
-            &empties,
-            &mut rng,
-            entry_point.clone(),
-        );
-    }
+    let spaw_enemy_types = match level {
+        GameLevel::Level(0) => vec![],
+        GameLevel::Level(1) => vec![SpawnEnemyType::Slime],
+        GameLevel::Level(4) => vec![], // ボス部屋
+        GameLevel::MultiPlayArena => vec![],
+        _ => vec![SpawnEnemyType::Slime, SpawnEnemyType::Eyeball],
+    };
+    spawn_random_enemies(
+        &mut commands,
+        &assets,
+        &life_bar_res,
+        &empties,
+        &mut rng,
+        entry_point.clone(),
+        spaw_enemy_count,
+        &spaw_enemy_types,
+    );
+
+    let spaw_item_count = match level {
+        GameLevel::Level(0) => 0,
+        GameLevel::Level(4) => 0, // ボス部屋
+        GameLevel::MultiPlayArena => 0,
+        _ => 3,
+    };
+    spawn_dropped_items(
+        &mut commands,
+        &assets,
+        &empties,
+        &mut rng,
+        entry_point.clone(),
+        spaw_item_count,
+    );
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
@@ -264,14 +286,22 @@ fn spawn_level_appearance(
     images: &Res<Assets<Image>>,
     assets: &Res<GameAssets>,
     level: GameLevel,
+    mut rng: &mut StdRng,
 ) -> LevelChunk {
+    let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
+    let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
+
     let level_slice = match level {
-        GameLevel::Level(level) => &format!("level{}", level % LEVELS),
+        GameLevel::Level(level) => {
+            let keys = level_aseprite
+                .slices
+                .keys()
+                .filter(|s| s.starts_with(&format!("level_{}_", level)));
+            keys.choose(&mut rng).unwrap()
+        }
         GameLevel::MultiPlayArena => "multiplay_arena",
     };
 
-    let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
-    let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
     let slice = level_aseprite.slices.get(level_slice).unwrap();
 
     info!(
@@ -301,14 +331,21 @@ fn spawn_level_appearance(
     return chunk;
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpawnEnemyType {
+    Slime,
+    Eyeball,
+}
+
 fn spawn_random_enemies(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_res: &Res<LifeBarResource>,
-    level: GameLevel,
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
+    spaw_enemy_count: u32,
+    enemy_types: &Vec<SpawnEnemyType>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -316,9 +353,7 @@ fn spawn_random_enemies(
     let mut enemies = 0;
 
     for (x, y) in empties {
-        info!("spawn_random_enemies x:{} y:{}", x, y);
-
-        if 20 < enemies {
+        if spaw_enemy_count <= enemies {
             break;
         }
 
@@ -334,29 +369,32 @@ fn spawn_random_enemies(
             TILE_SIZE * -y as f32 - TILE_HALF,
         );
 
-        if level != GameLevel::Level(1) && rand::random::<usize>() % 2 == 0 {
-            spawn_eyeball(
-                &mut commands,
-                &assets,
-                position,
-                &life_bar_res,
-                ActorGroup::Enemy,
-                8,
-            );
-        } else {
-            spawn_slime(
-                &mut commands,
-                &assets,
-                Vec2::new(
-                    TILE_SIZE * x as f32 + TILE_HALF,
-                    TILE_SIZE * -y as f32 - TILE_HALF,
-                ),
-                &life_bar_res,
-                0,
-                5,
-                ActorGroup::Enemy,
-                None,
-            );
+        match enemy_types.choose(&mut rng) {
+            Some(SpawnEnemyType::Slime) => {
+                spawn_slime(
+                    &mut commands,
+                    &assets,
+                    position,
+                    &life_bar_res,
+                    0,
+                    5,
+                    ActorGroup::Enemy,
+                    None,
+                );
+            }
+            Some(SpawnEnemyType::Eyeball) => {
+                spawn_eyeball(
+                    &mut commands,
+                    &assets,
+                    position,
+                    &life_bar_res,
+                    ActorGroup::Enemy,
+                    8,
+                );
+            }
+            None => {
+                warn!("No enemy type found");
+            }
         }
 
         enemies += 1;
@@ -369,6 +407,7 @@ fn spawn_dropped_items(
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
+    spaw_item_count: u32,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -376,7 +415,7 @@ fn spawn_dropped_items(
     let mut items = 0;
 
     for (x, y) in empties {
-        if 3 < items {
+        if spaw_item_count <= items {
             break;
         }
 
