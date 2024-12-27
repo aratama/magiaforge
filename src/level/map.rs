@@ -76,7 +76,29 @@ impl LevelChunk {
     }
 
     pub fn is_empty(&self, x: i32, y: i32) -> bool {
-        self.get_tile(x, y) != Tile::Wall
+        self.get_tile(x, y) != Tile::Wall && self.get_tile(x, y) != Tile::Blank
+    }
+
+    /// 周囲に通路がある天井タイルかどうかを返します
+    pub fn is_ceil(&self, x: i32, y: i32) -> bool {
+        self.is_visible_ceil(x, y)
+            || !self.is_visible_ceil(x - 1, y - 1)
+            || !self.is_visible_ceil(x + 0, y - 1)
+            || !self.is_visible_ceil(x + 1, y - 1)
+            || !self.is_visible_ceil(x - 1, y + 0)
+            || !self.is_visible_ceil(x + 1, y + 0)
+            || !self.is_visible_ceil(x - 1, y + 1)
+            || !self.is_visible_ceil(x + 0, y + 1)
+            || !self.is_visible_ceil(x + 1, y + 1)
+    }
+
+    /// 実際に描画する天井タイルかどうかを返します
+    /// 天井が奥の床を隠して見えづらくなるのを避けるため、
+    /// 天井タイルが3連続するところだけを描画します
+    pub fn is_visible_ceil(&self, x: i32, y: i32) -> bool {
+        (self.equals(x + 0, y - 0, Tile::Wall) || self.equals(x + 0, y - 0, Tile::Blank))
+            && (self.equals(x + 0, y - 1, Tile::Wall) || self.equals(x + 0, y - 1, Tile::Blank))
+            && (self.equals(x + 0, y - 2, Tile::Wall) || self.equals(x + 0, y - 2, Tile::Blank))
     }
 }
 

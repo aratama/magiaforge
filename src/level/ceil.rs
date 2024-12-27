@@ -10,6 +10,8 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 
+pub const WALL_HEIGHT_IN_TILES: u32 = 2;
+
 pub fn spawn_roof_tiles(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
@@ -17,10 +19,23 @@ pub fn spawn_roof_tiles(
     x: i32,
     y: i32,
 ) {
+    // デバッグ用
+    // commands.spawn((
+    //     AseSpriteSlice {
+    //         aseprite: assets.atlas.clone(),
+    //         name: "roof_test".to_string(),
+    //     },
+    //     Transform::from_xyz(
+    //         TILE_SIZE * x as f32,
+    //         (TILE_SIZE * (-y + WALL_HEIGHT_IN_TILES as i32) as f32),
+    //         999.0,
+    //     ),
+    // ));
+
     let left_top = match (
-        chunk.equals(x - 1, y - 1, Tile::Wall),
-        chunk.equals(x + 0, y - 1, Tile::Wall),
-        chunk.equals(x - 1, y + 0, Tile::Wall),
+        chunk.is_visible_ceil(x - 1, y - 1),
+        chunk.is_visible_ceil(x + 0, y - 1),
+        chunk.is_visible_ceil(x - 1, y + 0),
     ) {
         (false, false, false) => 0,
         (false, false, true) => 1, // 2
@@ -34,9 +49,9 @@ pub fn spawn_roof_tiles(
     spawn_roof_tile(commands, assets, x, y, 0, 0, left_top);
 
     let right_top = match (
-        chunk.equals(x + 0, y - 1, Tile::Wall),
-        chunk.equals(x + 1, y - 1, Tile::Wall),
-        chunk.equals(x + 1, y + 0, Tile::Wall),
+        chunk.is_visible_ceil(x + 0, y - 1),
+        chunk.is_visible_ceil(x + 1, y - 1),
+        chunk.is_visible_ceil(x + 1, y + 0),
     ) {
         (false, false, false) => 3,
         (false, false, true) => 1, // 2
@@ -50,9 +65,9 @@ pub fn spawn_roof_tiles(
     spawn_roof_tile(commands, assets, x, y, 1, 0, right_top);
 
     let left_bottom = match (
-        chunk.equals(x - 1, y + 0, Tile::Wall),
-        chunk.equals(x - 1, y + 1, Tile::Wall),
-        chunk.equals(x + 0, y + 1, Tile::Wall),
+        chunk.is_visible_ceil(x - 1, y + 0),
+        chunk.is_visible_ceil(x - 1, y + 1),
+        chunk.is_visible_ceil(x + 0, y + 1),
     ) {
         (false, false, false) => 12,
         (false, false, true) => 4, // 8
@@ -66,9 +81,9 @@ pub fn spawn_roof_tiles(
     spawn_roof_tile(commands, assets, x, y, 0, 1, left_bottom);
 
     let right_bottom = match (
-        chunk.equals(x + 1, y + 0, Tile::Wall),
-        chunk.equals(x + 0, y + 1, Tile::Wall),
-        chunk.equals(x + 1, y + 1, Tile::Wall),
+        chunk.is_visible_ceil(x + 1, y + 0),
+        chunk.is_visible_ceil(x + 0, y + 1),
+        chunk.is_visible_ceil(x + 1, y + 1),
     ) {
         (false, false, false) => 15,
         (false, false, true) => 15,

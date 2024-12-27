@@ -37,6 +37,7 @@ use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::biome::Biome;
 use crate::level::ceil::spawn_roof_tiles;
+use crate::level::ceil::WALL_HEIGHT_IN_TILES;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
@@ -453,8 +454,8 @@ fn spawn_world_tilemap(
     biome: Biome,
 ) {
     // 床と壁の生成
-    for y in chunk.min_y..chunk.max_y as i32 {
-        for x in chunk.min_x..chunk.max_x as i32 {
+    for y in chunk.min_y..(chunk.max_y + WALL_HEIGHT_IN_TILES as i32) {
+        for x in chunk.min_x..chunk.max_x {
             match chunk.get_tile(x, y) {
                 Tile::Biome => match biome {
                     Biome::StoneTile => {
@@ -468,45 +469,47 @@ fn spawn_world_tilemap(
                     spawn_stone_tile(commands, assets, x, y);
                 }
                 Tile::Wall => {
-                    let tx = x as f32 * TILE_SIZE;
-                    let ty = y as f32 * -TILE_SIZE;
-                    let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
-
-                    // 壁
-                    if !chunk.equals(x as i32, y as i32 + 1, Tile::Wall) {
-                        commands.spawn((
-                            WorldTile,
-                            Name::new("wall"),
-                            StateScoped(GameState::InGame),
-                            Transform::from_translation(Vec3::new(tx, ty - TILE_HALF, tz)),
-                            AseSpriteSlice {
-                                aseprite: assets.atlas.clone(),
-                                name: "stone wall".into(),
-                            },
-                        ));
-                    }
-
-                    // // 天井
-                    if false
-                        || chunk.is_empty(x - 1, y - 1)
-                        || chunk.is_empty(x + 0, y - 1)
-                        || chunk.is_empty(x + 1, y - 1)
-                        || chunk.is_empty(x - 1, y + 0)
-                        || chunk.is_empty(x + 0, y + 0)
-                        || chunk.is_empty(x + 1, y + 0)
-                        || chunk.is_empty(x - 1, y + 1)
-                        || chunk.is_empty(x + 0, y + 1)
-                        || chunk.is_empty(x + 1, y + 1)
-                    {
-                        spawn_roof_tiles(commands, assets, &chunk, x, y)
-                    }
+                    spawn_ceil_for_blank(commands, assets, chunk, x, y);
                 }
                 Tile::Grassland => {
                     spawn_grassland(commands, &assets, x, y);
                 }
-                Tile::Blank => {}
+                Tile::Blank => {
+                    spawn_ceil_for_blank(commands, assets, chunk, x, y);
+                }
             }
         }
+    }
+}
+
+fn spawn_ceil_for_blank(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    chunk: &LevelChunk,
+    x: i32,
+    y: i32,
+) {
+    let tx = x as f32 * TILE_SIZE;
+    let ty = y as f32 * -TILE_SIZE;
+    let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
+
+    // 壁
+    if !chunk.equals(x as i32, y as i32 + 1, Tile::Wall) {
+        commands.spawn((
+            WorldTile,
+            Name::new("wall"),
+            StateScoped(GameState::InGame),
+            Transform::from_translation(Vec3::new(tx, ty, tz)),
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "high_wall_0".into(),
+            },
+        ));
+    }
+
+    // // 天井
+    if chunk.is_visible_ceil(x, y) {
+        spawn_roof_tiles(commands, assets, &chunk, x, y)
     }
 }
 
