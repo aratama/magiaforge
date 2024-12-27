@@ -41,7 +41,7 @@ pub fn spawn_bomb(
                 Name::new("bomb"),
                 StateScoped(GameState::InGame),
                 Life::new(10),
-                Bomb { lifetime: 300 },
+                Bomb { lifetime: 180 },
                 EntityDepth,
                 Transform::from_translation(position.extend(0.0)),
                 GlobalTransform::default(),

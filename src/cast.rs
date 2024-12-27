@@ -230,9 +230,10 @@ pub fn cast_spell(
                     actor.effects.precision += 0.1;
                 }
                 SpellCast::Bomb => {
-                    bomb_writer.send(SpawnBomb {
-                        position: actor_transform.translation.truncate(), // TODO
-                    });
+                    let angle = actor.pointer.normalize_or_zero().to_angle();
+                    let direction = Vec2::from_angle(angle) * 16.0;
+                    let position = actor_transform.translation.truncate() + direction;
+                    bomb_writer.send(SpawnBomb { position });
                 }
             }
         } else {
