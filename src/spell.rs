@@ -26,6 +26,7 @@ pub enum SpellType {
     QuickCast,
     Impact,
     PrecisionUp,
+    Bomb,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -70,6 +71,7 @@ pub enum SpellCast {
     QuickCast,
     Impact,
     PrecisionUp,
+    Bomb,
 }
 
 /// 呪文の基礎情報
@@ -390,6 +392,18 @@ impl SpellType {
                 icon: "precision_icon",
                 price: 500,
                 cast: SpellCast::PrecisionUp,
+            },
+            SpellType::Bomb => SpellProps {
+                name: Dict {
+                    ja: "爆弾",
+                    en: "Bomb",
+                },
+                description: Dict { ja: "黒色火薬が詰まった爆弾です。時間が経つと爆発します。",
+                en: "A bomb filled with black powder. It explodes after a while." },
+                cast_delay: 120,
+                icon: "bomb_icon",
+                price: 300,
+                cast: SpellCast::Bomb,
             },
         }
     }

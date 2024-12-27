@@ -50,6 +50,7 @@ pub enum SE {
     Glass,
     Kaminari,
     Jishin,
+    Bakuhatsu,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -110,6 +111,7 @@ fn se_events(
             SE::Glass => &assets.glass,
             SE::Kaminari => &assets.kaminari,
             SE::Jishin => &assets.jishin,
+            SE::Bakuhatsu => &assets.bakuhatsu,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

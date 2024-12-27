@@ -17,6 +17,7 @@ use crate::enemy::sandbug::SandbagPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
+use crate::entity::bomb::BombPlugin;
 use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
@@ -168,6 +169,7 @@ pub fn run_game() {
         .add_plugins(ActorPlugin)
         .add_plugins(BGMSwitchPlugin)
         .add_plugins(BookshelfPlugin)
+        .add_plugins(BombPlugin)
         .add_plugins(BossHitpointBarPlugin)
         .add_plugins(LifePlugin)
         .add_plugins(BulletPlugin)

@@ -15,6 +15,16 @@ pub struct Life {
     pub amplitude: f32,
 }
 
+impl Life {
+    pub fn new(life: i32) -> Self {
+        Self {
+            life,
+            max_life: life,
+            amplitude: 0.0,
+        }
+    }
+}
+
 /// ダメージを受けた時に振動するスプライト
 #[derive(Default, Component, Reflect)]
 pub struct LifeBeingSprite;

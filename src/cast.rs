@@ -10,6 +10,8 @@ use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
+use crate::entity::bomb::spawn_bomb;
+use crate::entity::bomb::SpawnBomb;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
@@ -43,6 +45,7 @@ pub fn cast_spell(
     se_writer: &mut EventWriter<SEEvent>,
     slime_writer: &mut EventWriter<SpawnServantSeed>,
     impact_writer: &mut EventWriter<SpawnImpact>,
+    bomb_writer: &mut EventWriter<SpawnBomb>,
     wand_index: usize,
     is_player: bool,
 ) {
@@ -226,6 +229,11 @@ pub fn cast_spell(
                 }
                 SpellCast::PrecisionUp => {
                     actor.effects.precision += 0.1;
+                }
+                SpellCast::Bomb => {
+                    bomb_writer.send(SpawnBomb {
+                        position: actor_transform.translation.truncate(), // TODO
+                    });
                 }
             }
         } else {

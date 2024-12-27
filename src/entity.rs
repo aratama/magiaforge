@@ -1,5 +1,6 @@
 pub mod actor;
 pub mod bgm;
+pub mod bomb;
 pub mod book_shelf;
 pub mod broken_magic_circle;
 pub mod bullet;

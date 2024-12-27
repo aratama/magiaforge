@@ -28,6 +28,7 @@ use serde::Serialize;
 use std::f32::consts::PI;
 use uuid::Uuid;
 
+use super::bomb::SpawnBomb;
 use super::impact::SpawnImpact;
 
 #[derive(Reflect, Clone, Copy, Default, Debug)]
@@ -337,6 +338,7 @@ fn fire_bullet(
     mut se_writer: EventWriter<SEEvent>,
     mut slime_writer: EventWriter<SpawnServantSeed>,
     mut impact_writer: EventWriter<SpawnImpact>,
+    mut bomb_writer: EventWriter<SpawnBomb>,
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
@@ -364,6 +366,7 @@ fn fire_bullet(
                 &mut se_writer,
                 &mut slime_writer,
                 &mut impact_writer,
+                &mut bomb_writer,
                 current_wand,
                 player.is_some(),
             );
@@ -383,6 +386,7 @@ fn fire_bullet(
                 &mut se_writer,
                 &mut slime_writer,
                 &mut impact_writer,
+                &mut bomb_writer,
                 MAX_WANDS - 1,
                 player.is_some(),
             );

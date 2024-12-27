@@ -159,6 +159,9 @@ pub struct GameAssets {
     #[asset(path = "audio/地震魔法2.ogg")]
     pub jishin: Handle<AudioSource>,
 
+    #[asset(path = "audio/爆発2.ogg")]
+    pub bakuhatsu: Handle<AudioSource>,
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 
