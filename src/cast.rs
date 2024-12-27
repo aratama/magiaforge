@@ -10,7 +10,6 @@ use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::bomb::spawn_bomb;
 use crate::entity::bomb::SpawnBomb;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;

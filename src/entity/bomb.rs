@@ -1,11 +1,7 @@
-use core::f32;
-
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::entity::gold::spawn_gold;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
-use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -14,40 +10,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-const ENTITY_WIDTH: f32 = 8.0;
-
-const ENTITY_HEIGHT: f32 = 8.0;
-
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default)]
-pub enum JarColor {
-    #[default]
-    Red,
-    Blue,
-    Green,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, strum::EnumIter)]
-pub enum ChestType {
-    #[default]
-    Chest,
-    Crate,
-    Barrel,
-    Jar(JarColor),
-}
-
-pub const CHEST_OR_BARREL: [ChestType; 11] = [
-    ChestType::Crate,
-    ChestType::Crate,
-    ChestType::Crate,
-    ChestType::Crate,
-    ChestType::Barrel,
-    ChestType::Barrel,
-    ChestType::Barrel,
-    ChestType::Barrel,
-    ChestType::Jar(JarColor::Red),
-    ChestType::Jar(JarColor::Blue),
-    ChestType::Jar(JarColor::Green),
-];
+use super::explosion::SpawnExplosion;
 
 #[derive(Default, Component, Reflect)]
 struct Bomb {
@@ -65,10 +28,15 @@ pub fn spawn_bomb(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut reader: EventReader<SpawnBomb>,
+    mut se: EventWriter<SEEvent>,
 ) {
+    if !reader.is_empty() {
+        se.send(SEEvent::new(SE::PickUp));
+    }
+
     for SpawnBomb { position } in reader.read() {
-        let mut atlas = assets.atlas.clone();
-        let life = commands
+        let atlas = assets.atlas.clone();
+        commands
             .spawn((
                 Name::new("bomb"),
                 StateScoped(GameState::InGame),
@@ -112,43 +80,36 @@ pub fn spawn_bomb(
     }
 }
 
-fn timeout_bomb(
+fn explode_bomb(
     mut commands: Commands,
-    query: Query<(Entity, &Life, &Transform, &Bomb)>,
-    assets: Res<GameAssets>,
-    mut writer: EventWriter<SEEvent>,
+    mut query: Query<(Entity, &Transform, &Life, &mut Bomb)>,
+    mut explosion_writer: EventWriter<SpawnExplosion>,
 ) {
-    for (entity, breakabke, transform, chest) in query.iter() {
-        if breakabke.life <= 0 {
+    for (entity, transform, life, mut bomb) in query.iter_mut() {
+        if life.life <= 0 || bomb.lifetime <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
+            explosion_writer.send(SpawnExplosion {
+                position,
+                radius: 60.0,
+                impulse: 100000.0,
+                damage: 100,
+            });
+        } else {
+            bomb.lifetime -= 1;
         }
     }
 }
 
-fn break_bomb(
-    mut commands: Commands,
-    mut query: Query<(Entity, &Transform, &mut Bomb)>,
-    assets: Res<GameAssets>,
-    mut writer: EventWriter<SEEvent>,
+fn set_bomb_rotation(
+    mut query: Query<(&Children, &Transform), With<Bomb>>,
+    mut sprite_query: Query<&mut Transform, (With<AseSpriteSlice>, Without<Bomb>)>, // TODO
 ) {
-    for (entity, transform, mut bomb) in query.iter_mut() {
-        if bomb.lifetime <= 0 {
-            let position = transform.translation.truncate();
-            commands.entity(entity).despawn_recursive();
-
-            commands.spawn((
-                StateScoped(GameState::InGame),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "scorch_mark".into(),
-                },
-                Transform::from_translation(position.extend(0.0)),
-            ));
-
-            writer.send(SEEvent::pos(SE::Bakuhatsu, position));
-        } else {
-            bomb.lifetime -= 1;
+    for (children, transform) in query.iter_mut() {
+        for child in children.iter() {
+            if let Ok(mut child) = sprite_query.get_mut(*child) {
+                child.rotation = Quat::from_rotation_z(transform.translation.x * -0.1);
+            }
         }
     }
 }
@@ -157,9 +118,10 @@ pub struct BombPlugin;
 
 impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<SpawnBomb>();
         app.add_systems(
             FixedUpdate,
-            (spawn_bomb, break_bomb, timeout_bomb)
+            (spawn_bomb, explode_bomb, set_bomb_rotation)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

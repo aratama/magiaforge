@@ -8,6 +8,7 @@ pub mod bullet_particle;
 pub mod chest;
 pub mod damege;
 pub mod dropped_item;
+pub mod explosion;
 pub mod gold;
 pub mod impact;
 pub mod life;

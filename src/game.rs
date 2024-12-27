@@ -24,6 +24,7 @@ use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::chest::ChestPlugin;
 use crate::entity::damege::DamagePlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
+use crate::entity::explosion::ExplosionPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::impact::ImpactPlugin;
 use crate::entity::life::LifePlugin;
@@ -184,6 +185,7 @@ pub fn run_game() {
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
         .add_plugins(EquipmentListPlugin)
+        .add_plugins(ExplosionPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GameoverPlugin)
