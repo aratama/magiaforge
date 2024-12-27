@@ -7,8 +7,8 @@ use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::Interlevel;
 use crate::physics::identify;
-use crate::physics::GamePhysics;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::physics::InGameTime;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -141,9 +141,9 @@ fn warp(
     mut next: ResMut<Interlevel>,
     mut writer: EventWriter<SEEvent>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
-    physics: Res<GamePhysics>,
+    in_game_time: Res<InGameTime>,
 ) {
-    if !physics.active {
+    if !in_game_time.active {
         return;
     }
 

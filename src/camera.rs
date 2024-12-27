@@ -3,7 +3,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::explosion::{ExplosionPointLight, EXPLOSION_COUNT};
 use crate::page::in_game::{GameLevel, Interlevel};
-use crate::physics::GamePhysics;
+use crate::physics::InGameTime;
 use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
@@ -64,9 +64,9 @@ fn update_camera_position(
     >,
     frame_count: Res<FrameCount>,
     target_query: Query<&GlobalTransform, (Without<Player>, Without<Camera2d>)>,
-    physics: Res<GamePhysics>,
+    in_game_time: Res<InGameTime>,
 ) {
-    if !physics.active {
+    if !in_game_time.active {
         return;
     }
     if let Ok((player, actor)) = player_query.get_single() {
@@ -119,9 +119,9 @@ fn update_camera_brightness(
     state: Res<State<GameState>>,
     level: Res<Interlevel>,
     explosion_query: Query<&ExplosionPointLight>,
-    physics: Res<GamePhysics>,
+    in_game_time: Res<InGameTime>,
 ) {
-    if !physics.active {
+    if !in_game_time.active {
         return;
     }
     if let Ok(mut light) = camera_query.get_single_mut() {

@@ -8,7 +8,7 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::Interlevel;
-use crate::physics::GamePhysics;
+use crate::physics::InGameTime;
 use crate::player_state::PlayerState;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -212,12 +212,12 @@ fn debug_ending(mut writer: EventWriter<OverlayEvent>) {
     writer.send(OverlayEvent::Close(GameState::Ending));
 }
 
-fn debug_pause(mut physics: ResMut<GamePhysics>) {
-    physics.active = false;
+fn debug_pause(mut in_game_time: ResMut<InGameTime>) {
+    in_game_time.active = false;
 }
 
-fn debug_resume(mut physics: ResMut<GamePhysics>) {
-    physics.active = true;
+fn debug_resume(mut in_game_time: ResMut<InGameTime>) {
+    in_game_time.active = true;
 }
 
 pub struct DebugCommandPlugin;

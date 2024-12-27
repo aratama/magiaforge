@@ -14,7 +14,7 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
-use crate::physics::GamePhysics;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -139,9 +139,9 @@ fn countup(
     mut theater: ResMut<Theater>,
     mut writer: EventWriter<OverlayEvent>,
     mut se_writer: EventWriter<SEEvent>,
-    physics: Res<GamePhysics>,
+    in_game_time: Res<InGameTime>,
 ) {
-    if !physics.active {
+    if !in_game_time.active {
         return;
     }
 

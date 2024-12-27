@@ -10,21 +10,21 @@ use bevy_rapier2d::plugin::RapierConfiguration;
 use bevy_rapier2d::prelude::CollisionEvent;
 use std::cmp::Ordering;
 
+/// ゲーム内の時間の流れを制御します
+/// active == true のときは物理シミュレーションとアニメーションが進行します
 #[derive(Resource)]
-pub struct GamePhysics {
-    /// ゲームの物理シミュレーションを実行するかどうか
-    /// アニメーションは別です
+pub struct InGameTime {
     pub active: bool,
 }
 
-impl Default for GamePhysics {
+impl Default for InGameTime {
     fn default() -> Self {
         Self { active: true }
     }
 }
 
 fn switch_physics_activation(
-    state: Res<GamePhysics>,
+    state: Res<InGameTime>,
     mut rapier_query: Query<&mut RapierConfiguration, With<DefaultRapierContext>>,
 ) {
     if state.is_changed() {
@@ -216,7 +216,7 @@ pub struct GamePhysicsPlugin;
 
 impl Plugin for GamePhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<GamePhysics>();
+        app.init_resource::<InGameTime>();
         app.add_systems(
             FixedUpdate,
             switch_physics_activation

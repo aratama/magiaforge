@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::plugin::PhysicsSet;
 
-use crate::{physics::GamePhysics, states::GameState};
+use crate::{physics::InGameTime, states::GameState};
 
 /// ゲーム内の時間の流れをカウントする汎用のカウンターです
 /// 1フレームに1ずつカウントアップされます
@@ -23,8 +23,8 @@ impl Counter {
     }
 }
 
-fn countup(mut query: Query<&mut Counter>, physics: Res<GamePhysics>) {
-    if physics.active {
+fn countup(mut query: Query<&mut Counter>, in_game_time: Res<InGameTime>) {
+    if in_game_time.active {
         for mut counter in query.iter_mut() {
             counter.count += 1;
         }
@@ -33,14 +33,14 @@ fn countup(mut query: Query<&mut Counter>, physics: Res<GamePhysics>) {
 
 fn animate(
     mut query: Query<&mut AseSpriteAnimation, With<CounterAnimated>>,
-    physics: Res<GamePhysics>,
+    in_game_time: Res<InGameTime>,
 ) {
     for mut animation in query.iter_mut() {
-        animation.animation.playing = physics.active;
+        animation.animation.playing = in_game_time.active;
 
         // animation.animation.playingが未実装のようなので上のコードは効果がないです
         // ワークアラウンド
-        animation.animation.speed = if physics.active { 1.0 } else { 0.0 };
+        animation.animation.speed = if in_game_time.active { 1.0 } else { 0.0 };
     }
 }
 

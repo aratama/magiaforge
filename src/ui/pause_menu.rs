@@ -6,7 +6,7 @@ use crate::language::Dict;
 use crate::language::Languages;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::Interlevel;
-use crate::physics::GamePhysics;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameMenuState;
@@ -345,11 +345,14 @@ fn handle_escape_key(
     }
 }
 
-fn switch_physics_activation(state: Res<State<GameMenuState>>, mut physics: ResMut<GamePhysics>) {
+fn switch_physics_activation(
+    state: Res<State<GameMenuState>>,
+    mut in_game_time: ResMut<InGameTime>,
+) {
     if state.is_changed() {
         match *state.get() {
-            GameMenuState::PauseMenuOpen => physics.active = false,
-            _ => physics.active = true,
+            GameMenuState::PauseMenuOpen => in_game_time.active = false,
+            _ => in_game_time.active = true,
         }
     }
 }

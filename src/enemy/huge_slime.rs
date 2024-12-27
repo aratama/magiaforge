@@ -15,7 +15,7 @@ use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::EntityDepth;
 use crate::inventory::Inventory;
-use crate::physics::GamePhysics;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -156,9 +156,9 @@ fn update_huge_slime(
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
     >,
     mut impact_writer: EventWriter<SpawnImpact>,
-    physics: Res<GamePhysics>,
+    in_game_time: Res<InGameTime>,
 ) {
-    if !physics.active {
+    if !in_game_time.active {
         return;
     }
 
