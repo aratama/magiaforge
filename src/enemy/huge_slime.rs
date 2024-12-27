@@ -408,7 +408,7 @@ impl Plugin for HugeSlimePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (
+            ((
                 update_huge_slime,
                 update_huge_slime_growl,
                 update_huge_slime_approach,
@@ -417,6 +417,7 @@ impl Plugin for HugeSlimePlugin {
                 promote,
                 despown,
             )
+                .chain(),)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );
