@@ -57,6 +57,16 @@ pub const TRAINING_RABBIT : Dict<&'static str> =  Dict {
     en: "Do you want to be strong?\nIt's good to practice here.\nThe sandbag guys will be your opponent.",
 };
 
+pub const SPELL_LIST1: Dict<&'static str> = Dict {
+    ja: "私は呪文に興味があってね。",
+    en: "I'm interested in spells.",
+};
+
+pub const SPELL_LIST2: Dict<&'static str> = Dict {
+    ja: "ふむ、今まで君が見つけた魔法はそんなにあるのか。実に興味深い。新たな魔法を見つけたらぜひ教えてくれ。",
+    en: "Hmm, have you found that many spells so far? It's very interesting. Please let me know if you find a new spell.",
+};
+
 pub const SHOP_RABBIT: Dict<&'static str> = Dict {
     ja: "いらっしゃいませ！\n欲しい商品があったら\n持ってきてくださいね",
     en: "Welcome!\nBring me the item\nyou want to buy",

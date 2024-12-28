@@ -257,6 +257,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push((GameEntity::ReadingRabbit, x, y));
                 }
+                (255, 249, 0, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Biome,
+                        zone: Zone::SafeZone,
+                    });
+                    entities.push((GameEntity::SpellListRabbit, x, y));
+                }
                 (182, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,

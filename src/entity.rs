@@ -50,6 +50,7 @@ pub enum GameEntity {
     SinglePlayRabbit,
     MultiplayerRabbit,
     ReadingRabbit,
+    SpellListRabbit,
     Sandbug,
     ShopDoor,
     BGM,

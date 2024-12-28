@@ -3,6 +3,7 @@ use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
+use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
@@ -35,6 +36,8 @@ use crate::message::HUGE_SLIME4;
 use crate::message::HUGE_SLIME5;
 use crate::message::MULTIPLAY;
 use crate::message::SINGLEPLAY;
+use crate::message::SPELL_LIST1;
+use crate::message::SPELL_LIST2;
 use crate::message::TRAINING_RABBIT;
 use crate::message::WITCHES_ARE;
 use crate::spell::SpellType;
@@ -290,6 +293,24 @@ pub fn spawn_entities(
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
                 );
+            }
+            GameEntity::SpellListRabbit => {
+                let entity = spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_blue,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                    MessageRabbit {
+                        messages: vec![
+                            Act::Speech(SPELL_LIST1.to_string()),
+                            Act::Speech(SPELL_LIST2.to_string()),
+                        ],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+
+                commands.entity(entity).insert(SpellListRabbit);
             }
             GameEntity::Sandbug => {
                 spawn_sandbag(

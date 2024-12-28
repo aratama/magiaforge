@@ -70,6 +70,7 @@ use crate::ui::player_list::PlayerListPlugin;
 use crate::ui::popup::PopUpPlugin;
 use crate::ui::speech_bubble::SpeechBubblePlugin;
 use crate::ui::spell_in_wand::SpellInWandPlugin;
+use crate::ui::spell_list::SpellListPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use bevy::asset::AssetMetaCheck;
@@ -230,6 +231,7 @@ pub fn run_game() {
         .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
+        .add_plugins(SpellListPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)

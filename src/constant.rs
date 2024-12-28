@@ -1,4 +1,5 @@
 use crate::states::GameState;
+use bevy::color::Color;
 use bevy_rapier2d::prelude::*;
 
 // Setupステートでの初期化が完了した直後に遷移する先のステート
@@ -132,5 +133,13 @@ pub const WAND_EDITOR_FLOATING_Z_INDEX: i32 = 1600;
 pub const WAND_EDITOR_Z_INDEX: i32 = 1500;
 
 pub const HUD_Z_INDEX: i32 = 1000;
+
+// UIカラーテーマ
+
+pub const UI_PRIMARY: Color = Color::hsla(60.0, 0.05, 0.59, 1.0);
+
+pub const UI_PRIMARY_DARKER: Color = Color::hsla(56.0, 0.06, 0.56, 1.0);
+
+pub const UI_SECONDARY: Color = Color::hsla(57.0, 0.11, 0.37, 1.0);
 
 // レベル

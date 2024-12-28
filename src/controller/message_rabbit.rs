@@ -2,8 +2,8 @@ use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::physics::{identify, identify_item, IdentifiedCollisionEvent, IdentifiedCollisionItem};
-use crate::theater::{Act, TheaterEvent};
 use crate::states::GameState;
+use crate::theater::{Act, TheaterEvent};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -11,6 +11,10 @@ use bevy_rapier2d::prelude::*;
 pub struct MessageRabbit {
     pub messages: Vec<Act>,
 }
+
+/// 呪文一覧のウサギは特別な処理があるので、区別できるようにするマーカー
+#[derive(Component)]
+pub struct SpellListRabbit;
 
 #[derive(Component)]
 pub struct MessageRabbitInnerSensor;
@@ -28,11 +32,16 @@ fn collision_inner_sensor(
 ) {
     for collision_event in collision_events.read() {
         match identify_item(collision_event, &sensor_query, &player_query) {
-            IdentifiedCollisionItem::Started(parent, _, sensor_entity, _) => {
+            IdentifiedCollisionItem::Started(parent, _, _, _) => {
                 let mut camera = camera_query.single_mut();
+
+                if camera.target.is_some() {
+                    continue;
+                }
+
                 let rabbit_entity = parent.get();
                 let rabbit = rabbit_query.get(rabbit_entity).unwrap();
-                camera.target = Some(sensor_entity);
+                camera.target = Some(rabbit_entity);
 
                 let mut messages = rabbit.messages.clone();
                 messages.insert(0, Act::Focus(rabbit_entity));
