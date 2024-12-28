@@ -4,6 +4,7 @@ use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
 use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -109,7 +110,12 @@ fn update_lantern(
         Without<StoneLantern>,
     >,
     frame_count: Res<FrameCount>,
+    in_game_time: Res<InGameTime>,
 ) {
+    if !in_game_time.active {
+        return;
+    }
+
     for (entity, child, mut light, mut transform) in child_query.iter_mut() {
         if let Ok((lantern, lantern_transform)) = parent_query.get(child.0) {
             transform.translation = lantern_transform.translation;
