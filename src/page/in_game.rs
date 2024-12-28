@@ -155,6 +155,12 @@ pub fn setup_level(
         &mut rng,
         entry_point.clone(),
         spaw_item_count,
+        match level {
+            GameLevel::Level(1) => vec![0, 1, 2],
+            GameLevel::Level(2) => vec![2, 3, 4],
+            GameLevel::Level(3) => vec![3, 4, 5],
+            _ => vec![],
+        },
     );
 
     // プレイヤーを生成します
@@ -320,6 +326,7 @@ fn spawn_dropped_items(
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
     spaw_item_count: u32,
+    ranks: Vec<u32>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -343,16 +350,25 @@ fn spawn_dropped_items(
             TILE_SIZE * -y as f32 - TILE_HALF,
         );
 
-        let spell = SpellType::iter().choose(&mut rng).unwrap();
-        spawn_dropped_item(
-            &mut commands,
-            &assets,
-            position,
-            InventoryItem {
-                item_type: InventoryItemType::Spell(spell),
-                price: 0,
-            },
-        );
+        if let Some(spell) = SpellType::iter()
+            .filter(|i| {
+                let props = i.to_props();
+                ranks.contains(&props.rank)
+            })
+            .choose(&mut rng)
+        {
+            spawn_dropped_item(
+                &mut commands,
+                &assets,
+                position,
+                InventoryItem {
+                    item_type: InventoryItemType::Spell(spell),
+                    price: 0,
+                },
+            );
+        } else {
+            warn!("No spell found to spawn as dropped item");
+        }
 
         items += 1;
     }

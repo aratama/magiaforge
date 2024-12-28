@@ -156,24 +156,22 @@ fn switch_wand(
 
 fn pick_gold(
     mut commands: Commands,
-    mut gold_query: Query<(Entity, &Transform, &mut ExternalForce), With<Gold>>,
+    mut gold_query: Query<(Entity, &mut Gold, &Transform)>,
     mut player_query: Query<(&mut Actor, &Transform), With<Player>>,
     mut writer: EventWriter<SEEvent>,
 ) {
     if let Ok((mut actor, player_transform)) = player_query.get_single_mut() {
         let mut got_gold = false;
 
-        for (gold, gold_transform, mut gold_force) in gold_query.iter_mut() {
+        for (gold_entity, mut gold, gold_transform) in gold_query.iter_mut() {
             let diff =
                 player_transform.translation.truncate() - gold_transform.translation.truncate();
             if diff.length() < 16.0 {
                 actor.golds += 1;
                 got_gold = true;
-                commands.entity(gold).despawn_recursive();
+                commands.entity(gold_entity).despawn_recursive();
             } else if diff.length() < 48.0 {
-                gold_force.force = diff.normalize() * 1000.0;
-            } else {
-                gold_force.force = Vec2::ZERO;
+                gold.magnet = true;
             }
         }
 
