@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::constant::CEIL_LAYER_Z;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::constant::WALL_HEIGHT;
-use crate::entity::get_entity_z;
 use crate::level::map::LevelChunk;
 use crate::level::tile::WorldTile;
 use crate::states::GameState;
@@ -107,7 +107,7 @@ fn spawn_roof_tile(
 ) {
     let x = TILE_SIZE * x as f32 + TILE_HALF * dx as f32;
     let y = (TILE_SIZE * -y as f32) + TILE_HALF * -dy as f32 + WALL_HEIGHT;
-    let z = get_entity_z(y - WALL_HEIGHT);
+    let z = CEIL_LAYER_Z;
     commands.spawn((
         Name::new("ceil"),
         WorldTile,

@@ -9,10 +9,20 @@ pub enum EquipmentType {
     Magnifier,
 }
 
+pub struct EquipmentProps {
+    /// 現状ショップで購入できる装備品はランク0のもののみ
+    pub rank: u32,
+    pub icon: &'static str,
+    pub name: Dict<&'static str>,
+    pub price: u32,
+    pub description: Dict<&'static str>,
+}
+
 impl EquipmentType {
     pub fn to_props(&self) -> EquipmentProps {
         match self {
             EquipmentType::Lantern => EquipmentProps {
+                rank: 0,
                 icon: "lantern",
                 name: Dict {
                     ja: "ランタン",
@@ -24,19 +34,8 @@ impl EquipmentType {
                     en: "A lantern that illuminates the darkness",
                 },
             },
-            EquipmentType::SpikeBoots => EquipmentProps {
-                icon: "boots",
-                name: Dict {
-                    ja: "スパイクブーツ",
-                    en: "Spike Boots",
-                },
-                price: 100,
-                description: Dict {
-                    ja: "滑り止めのついた革靴。装備すると移動速度が上昇します。",
-                    en: "Leather shoes with anti-slip. Movement speed increases.",
-                },
-            },
             EquipmentType::Telescope => EquipmentProps {
+                rank: 0,
                 icon: "zoom_out",
                 name: Dict {
                     ja: "望遠鏡",
@@ -49,6 +48,7 @@ impl EquipmentType {
                 },
             },
             EquipmentType::Magnifier => EquipmentProps {
+                rank: 0,
                 icon: "zoom_in",
                 name: Dict {
                     ja: "拡大鏡",
@@ -60,13 +60,19 @@ impl EquipmentType {
                     en: "It is easier to see the details.",
                 },
             },
+            EquipmentType::SpikeBoots => EquipmentProps {
+                rank: 10,
+                icon: "boots",
+                name: Dict {
+                    ja: "スパイクブーツ",
+                    en: "Spike Boots",
+                },
+                price: 100,
+                description: Dict {
+                    ja: "滑り止めのついた革靴。装備すると移動速度が上昇します。",
+                    en: "Leather shoes with anti-slip. Movement speed increases.",
+                },
+            },
         }
     }
-}
-
-pub struct EquipmentProps {
-    pub icon: &'static str,
-    pub name: Dict<&'static str>,
-    pub price: u32,
-    pub description: Dict<&'static str>,
 }

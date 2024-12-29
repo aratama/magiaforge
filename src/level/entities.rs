@@ -59,11 +59,23 @@ pub fn spawn_entities(
 ) {
     let mut rng = rand::thread_rng();
 
-    let mut shop_spells: Vec<SpellType> = discovered_spells.iter().cloned().collect();
-    shop_spells.shuffle(&mut rng);
+    let mut shop_items: Vec<InventoryItem> = discovered_spells
+        .iter()
+        .map(|s| InventoryItem {
+            item_type: InventoryItemType::Spell(*s),
+            price: s.to_props().price,
+        })
+        .collect();
+    shop_items.extend(
+        EquipmentType::iter()
+            .filter(|e| e.to_props().rank == 0)
+            .map(|e| InventoryItem {
+                item_type: InventoryItemType::Equipment(e),
+                price: e.to_props().price,
+            }),
+    );
 
-    let mut equipments: Vec<EquipmentType> = EquipmentType::iter().collect();
-    equipments.shuffle(&mut rng);
+    shop_items.shuffle(&mut rng);
 
     // エンティティの生成
     for (entity, x, y) in &chunk.entities {
@@ -177,30 +189,12 @@ pub fn spawn_entities(
                 ));
             }
             GameEntity::ShopSpell => {
-                if 0.2 < rand::random::<f32>() {
-                    if let Some(spell) = shop_spells.pop() {
-                        let props = spell.to_props();
-                        spawn_dropped_item(
-                            &mut commands,
-                            &assets,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            InventoryItem {
-                                item_type: InventoryItemType::Spell(spell),
-                                price: props.price,
-                            },
-                        );
-                    }
-                } else {
-                    let equipment = equipments.pop().unwrap_or(EquipmentType::Lantern);
-                    let props = equipment.to_props();
+                if let Some(item) = shop_items.pop() {
                     spawn_dropped_item(
                         &mut commands,
                         &assets,
                         Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                        InventoryItem {
-                            item_type: InventoryItemType::Equipment(equipment),
-                            price: props.price,
-                        },
+                        item,
                     );
                 }
             }
