@@ -10,7 +10,9 @@ use crate::entity::life::LifeBeingSprite;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
+use crate::inventory_item::InventoryItemType;
 use crate::se::SEEvent;
+use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
@@ -25,6 +27,7 @@ use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
 
@@ -221,6 +224,30 @@ impl Actor {
             }
         }
         scale_factor.max(-2.0).min(1.0)
+    }
+
+    pub fn get_owned_spell_types(&self) -> HashSet<SpellType> {
+        let mut discovered_spells = HashSet::new();
+        for item in self.inventory.0.iter() {
+            if let Some(ref item) = item {
+                match item.item_type {
+                    InventoryItemType::Spell(spell) if item.price == 0 => {
+                        let _ = discovered_spells.insert(spell);
+                    }
+                    _ => {}
+                };
+            }
+        }
+        for wand in self.wands.iter() {
+            for item in wand.slots.iter() {
+                if let Some(ref item) = item {
+                    if item.price == 0 {
+                        let _ = discovered_spells.insert(item.spell_type);
+                    }
+                }
+            }
+        }
+        discovered_spells
     }
 }
 

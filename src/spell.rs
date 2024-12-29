@@ -5,7 +5,7 @@ use crate::language::Dict;
 use crate::language::Languages;
 use bevy::reflect::Reflect;
 
-#[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter)]
+#[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter, Hash)]
 pub enum SpellType {
     MagicBolt,
     LightBall,

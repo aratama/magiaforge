@@ -8,9 +8,9 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::states::GameState;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -27,7 +27,7 @@ fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&ShopRabbitSensor>,
     mut camera_query: Query<&mut GameCamera>,
-    mut player_query: Query<&mut Actor, With<Player>>,
+    mut player_query: Query<(&mut Actor, &mut Player)>,
     mut speech_writer: EventWriter<TheaterEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
@@ -35,10 +35,11 @@ fn collision_inner_sensor(
         match identify(&collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionEvent::Started(sensor_entity, player_entity) => {
                 let mut camera = camera_query.single_mut();
-                let mut actor = player_query.get_mut(player_entity).unwrap();
+                let (mut actor, mut player) = player_query.get_mut(player_entity).unwrap();
                 let dept = actor.dept();
                 if 0 < dept {
                     if actor.liquidate() {
+                        player.update_discovered_spells(&actor);
                         camera.target = Some(sensor_entity);
                         se.send(SEEvent::new(SE::Register));
                         speech_writer.send(TheaterEvent::Play {

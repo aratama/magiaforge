@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::config::GameConfig;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
@@ -22,6 +24,7 @@ pub struct PlayerState {
     pub wands: [Wand; MAX_WANDS],
     pub golds: u32,
     pub current_wand: usize,
+    pub discovered_spells: HashSet<SpellType>,
 }
 
 impl PlayerState {
@@ -35,6 +38,7 @@ impl PlayerState {
             wands: actor.wands.clone(),
             golds: actor.golds,
             current_wand: 0,
+            discovered_spells: HashSet::new(),
         }
     }
 
@@ -83,7 +87,7 @@ impl PlayerState {
             ]),
         ];
 
-        PlayerState {
+        let mut instance = PlayerState {
             name: config.player_name.clone(),
             life: 60,
             max_life: 60,
@@ -92,6 +96,37 @@ impl PlayerState {
             wands,
             golds: 1000,
             current_wand: 0,
+            discovered_spells: HashSet::new(),
+        };
+        instance.update_discovered_spell();
+        instance
+    }
+
+    pub fn update_discovered_spell(&mut self) {
+        let mut discovered_spells = self.discovered_spells.clone();
+        for wand in self.wands.iter() {
+            for spell in wand.slots.iter() {
+                if let Some(spell) = spell {
+                    discovered_spells.insert(spell.spell_type);
+                }
+            }
         }
+        self.discovered_spells = discovered_spells;
+    }
+
+    pub fn from_player(player: &Player, actor: &Actor, life: &Life) -> Self {
+        let mut instance = PlayerState {
+            name: player.name.clone(),
+            life: life.max_life,
+            max_life: life.max_life, // 全回復させる
+            inventory: actor.inventory.clone(),
+            equipments: actor.equipments.clone(),
+            wands: actor.wands.clone(),
+            golds: actor.golds,
+            current_wand: actor.current_wand,
+            discovered_spells: HashSet::new(),
+        };
+        instance.update_discovered_spell();
+        instance
     }
 }

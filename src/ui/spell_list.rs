@@ -3,7 +3,7 @@ use crate::{
     camera::GameCamera,
     config::GameConfig,
     constant::{UI_PRIMARY, UI_PRIMARY_DARKER, UI_SECONDARY},
-    controller::message_rabbit::SpellListRabbit,
+    controller::{message_rabbit::SpellListRabbit, player::Player},
     language::Dict,
     spell::SpellType,
     states::GameState,
@@ -25,6 +25,11 @@ const RIGHT_ON_CLOSE: f32 = -400.0;
 #[derive(Component)]
 struct SpellList {
     right: f32,
+}
+
+#[derive(Component)]
+struct SpellListItem {
+    spell_type: Option<SpellType>,
 }
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig>) {
@@ -93,6 +98,9 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig
                         let props = spell_type.map(|s| s.to_props());
                         let icon = props.map(|s| s.icon).unwrap_or("unknown");
                         builder.spawn((
+                            SpellListItem {
+                                spell_type: *spell_type,
+                            },
                             AseUiSlice {
                                 aseprite: assets.atlas.clone(),
                                 name: icon.into(),
@@ -113,7 +121,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig
         });
 }
 
-fn update(
+fn update_right(
     mut query: Query<(&mut SpellList, &mut Node)>,
     camera_query: Query<&GameCamera>,
     spell_list_rabbit_query: Query<&SpellListRabbit>,
@@ -132,11 +140,29 @@ fn update(
     node.right = Val::Px(spell_list.right);
 }
 
+fn update_icons(
+    mut query: Query<(&mut SpellListItem, &mut AseUiSlice)>,
+    player_query: Query<&Player>,
+) {
+    if let Ok(player) = player_query.get_single() {
+        for (item, mut aseprite) in query.iter_mut() {
+            if let Some(spell_type) = item.spell_type {
+                let props = spell_type.to_props();
+                let discovered = player.discovered_spells.contains(&spell_type);
+                aseprite.name = (if discovered { props.icon } else { "unknown" }).into()
+            }
+        }
+    }
+}
+
 pub struct SpellListPlugin;
 
 impl Plugin for SpellListPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup);
-        app.add_systems(Update, update.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            Update,
+            (update_right, update_icons).run_if(in_state(GameState::InGame)),
+        );
     }
 }

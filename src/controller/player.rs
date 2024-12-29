@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::ENTITY_LAYER_Z;
@@ -15,9 +17,11 @@ use crate::input::get_direction;
 use crate::input::get_fire_trigger;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::Interlevel;
+use crate::physics::InGameTime;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use bevy::core::FrameCount;
@@ -48,7 +52,20 @@ pub struct Player {
     pub last_idle_vy: f32,
     pub last_idle_life: i32,
     pub last_idle_max_life: i32,
+
+    /// 起き上がりアニメーションのフレーム数
     pub getting_up: u32,
+    pub discovered_spells: HashSet<SpellType>,
+}
+
+impl Player {
+    pub fn update_discovered_spells(&mut self, actor: &Actor) {
+        self.discovered_spells = self
+            .discovered_spells
+            .union(&actor.get_owned_spell_types())
+            .cloned()
+            .collect();
+    }
 }
 
 /// プレイヤーの移動
@@ -187,13 +204,13 @@ fn pick_gold(
 fn die_player(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    player_query: Query<(Entity, &Actor, &Life, &Transform), With<Player>>,
+    player_query: Query<(Entity, &Actor, &Life, &Transform, &Player)>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
     mut next: ResMut<Interlevel>,
 ) {
-    if let Ok((entity, actor, player_life, transform)) = player_query.get_single() {
+    if let Ok((entity, actor, player_life, transform, player)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
@@ -203,16 +220,10 @@ fn die_player(
             next.next_level = GameLevel::Level(0);
 
             // 次のシーンのためにプレイヤーの状態を保存
-            next.next_state = PlayerState {
-                name: "".to_string(),
-                life: player_life.max_life,
-                max_life: player_life.max_life, // 全回復させる
-                inventory: actor.inventory.clone(),
-                equipments: actor.equipments.clone(),
-                wands: actor.wands.clone(),
-                golds: actor.golds,
-                current_wand: actor.current_wand,
-            };
+            next.next_state = PlayerState::from_player(&player, &actor, &player_life);
+
+            // 全回復させる
+            next.next_state.life = next.next_state.max_life;
 
             // 倒れるアニメーションを残す
             commands.spawn((
@@ -246,7 +257,11 @@ fn die_player(
     }
 }
 
-fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>) {
+fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>, in_game_time: Res<InGameTime>) {
+    if !in_game_time.active {
+        return;
+    }
+
     for (mut actor, mut player) in player_query.iter_mut() {
         if 0 < player.getting_up {
             player.getting_up -= 1;

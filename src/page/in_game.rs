@@ -200,6 +200,7 @@ pub fn setup_level(
             last_idle_life: player.life,
             last_idle_max_life: player.max_life,
             getting_up: if level == GameLevel::Level(0) { 240 } else { 0 },
+            discovered_spells: player.discovered_spells.clone(),
         },
         ActorGroup::Player,
         player.current_wand,

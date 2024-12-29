@@ -155,20 +155,11 @@ fn warp(
                 circle.step = (circle.step - 1).max(0);
             }
         } else if circle.step == MAX_POWER {
-            if let Ok((entity, player, actor, actor_life)) = player_query.get_single_mut() {
+            if let Ok((entity, player, actor, player_life)) = player_query.get_single_mut() {
                 writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
 
-                let player_state = PlayerState {
-                    name: player.name.clone(),
-                    life: actor_life.life,
-                    max_life: actor_life.max_life,
-                    inventory: actor.inventory.clone(),
-                    equipments: actor.equipments.clone(),
-                    wands: actor.wands.clone(),
-                    golds: actor.golds,
-                    current_wand: actor.current_wand,
-                };
+                let player_state = PlayerState::from_player(&player, &actor, &player_life);
 
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {

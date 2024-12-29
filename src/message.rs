@@ -58,13 +58,13 @@ pub const TRAINING_RABBIT : Dict<&'static str> =  Dict {
 };
 
 pub const SPELL_LIST1: Dict<&'static str> = Dict {
-    ja: "私は呪文に興味があってね。",
-    en: "I'm interested in spells.",
+    ja: "私は魔法使いたちの操る呪文に興味があってね。君の知っている呪文について教えてくれないか？",
+    en: "I'm interested in the spells cast by witches. Can you tell me about the spells you know?",
 };
 
 pub const SPELL_LIST2: Dict<&'static str> = Dict {
-    ja: "ふむ、今まで君が見つけた魔法はそんなにあるのか。実に興味深い。新たな魔法を見つけたらぜひ教えてくれ。",
-    en: "Hmm, have you found that many spells so far? It's very interesting. Please let me know if you find a new spell.",
+    ja: "……ふうむ、実に興味深い。もし新たな魔法を見つけたらぜひ教えてくれ。",
+    en: "Hmmmm, very interesting. Please let me know if you find a new spell.",
 };
 
 pub const SHOP_RABBIT: Dict<&'static str> = Dict {
