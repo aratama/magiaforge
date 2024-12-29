@@ -23,7 +23,7 @@ pub struct PlayerState {
     pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     pub wands: [Wand; MAX_WANDS],
     pub golds: u32,
-    pub current_wand: usize,
+    pub current_wand: u32,
     pub discovered_spells: HashSet<SpellType>,
 }
 
@@ -37,7 +37,7 @@ impl PlayerState {
             equipments: actor.equipments.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
-            current_wand: 0,
+            current_wand: actor.current_wand as u32,
             discovered_spells: HashSet::new(),
         }
     }
@@ -117,13 +117,13 @@ impl PlayerState {
     pub fn from_player(player: &Player, actor: &Actor, life: &Life) -> Self {
         let mut instance = PlayerState {
             name: player.name.clone(),
-            life: life.max_life,
-            max_life: life.max_life, // 全回復させる
+            life: life.life,
+            max_life: life.max_life,
             inventory: actor.inventory.clone(),
             equipments: actor.equipments.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
-            current_wand: actor.current_wand,
+            current_wand: actor.current_wand as u32,
             discovered_spells: HashSet::new(),
         };
         instance.update_discovered_spell();

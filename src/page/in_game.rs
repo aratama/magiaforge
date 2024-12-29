@@ -209,7 +209,7 @@ pub fn setup_level(
             discovered_spells: player.discovered_spells.clone(),
         },
         ActorGroup::Player,
-        player.current_wand,
+        player.current_wand as usize,
     );
 
     current.chunk = Some(chunk);

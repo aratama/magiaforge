@@ -222,6 +222,9 @@ fn die_player(
             // 次のシーンのためにプレイヤーの状態を保存
             next.next_state = PlayerState::from_player(&player, &actor, &player_life);
 
+            // 全回復させてから戻る
+            next.next_state.life = next.next_state.max_life;
+
             // 全回復させる
             next.next_state.life = next.next_state.max_life;
 

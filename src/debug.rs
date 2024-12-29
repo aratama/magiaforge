@@ -1,5 +1,6 @@
 use crate::config::GameConfig;
 use crate::constant::LAST_BOSS_LEVEL;
+use crate::constant::LEVELS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
@@ -163,7 +164,7 @@ fn debug_next(
 ) {
     match level.next_level {
         GameLevel::Level(n) => {
-            level.next_level = GameLevel::Level((n + 1) % LAST_BOSS_LEVEL);
+            level.next_level = GameLevel::Level((n + 1) % LEVELS);
             level.next_state = PlayerState::from(player_query.get_single(), &config);
             writer.send(OverlayEvent::Close(GameState::Warp));
         }
