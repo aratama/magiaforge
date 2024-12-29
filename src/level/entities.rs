@@ -38,6 +38,7 @@ use crate::message::MULTIPLAY;
 use crate::message::SINGLEPLAY;
 use crate::message::SPELL_LIST1;
 use crate::message::SPELL_LIST2;
+use crate::message::SPELL_LIST3;
 use crate::message::TRAINING_RABBIT;
 use crate::message::WITCHES_ARE;
 use crate::spell::SpellType;
@@ -46,6 +47,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
+use std::collections::HashSet;
 use strum::IntoEnumIterator;
 
 pub fn spawn_entities(
@@ -53,11 +55,12 @@ pub fn spawn_entities(
     assets: &Res<GameAssets>,
     life_bar_resource: &Res<LifeBarResource>,
     chunk: &LevelChunk,
+    discovered_spells: &HashSet<SpellType>,
 ) {
     let mut rng = rand::thread_rng();
 
-    let mut dropped_spells: Vec<SpellType> = SpellType::iter().collect();
-    dropped_spells.shuffle(&mut rng);
+    let mut shop_spells: Vec<SpellType> = discovered_spells.iter().cloned().collect();
+    shop_spells.shuffle(&mut rng);
 
     let mut equipments: Vec<EquipmentType> = EquipmentType::iter().collect();
     equipments.shuffle(&mut rng);
@@ -173,19 +176,20 @@ pub fn spawn_entities(
                     },
                 ));
             }
-            GameEntity::Spell => {
+            GameEntity::ShopSpell => {
                 if 0.2 < rand::random::<f32>() {
-                    let spell = dropped_spells.pop().unwrap_or(SpellType::MagicBolt);
-                    let props = spell.to_props();
-                    spawn_dropped_item(
-                        &mut commands,
-                        &assets,
-                        Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                        InventoryItem {
-                            item_type: InventoryItemType::Spell(spell),
-                            price: props.price,
-                        },
-                    );
+                    if let Some(spell) = shop_spells.pop() {
+                        let props = spell.to_props();
+                        spawn_dropped_item(
+                            &mut commands,
+                            &assets,
+                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                            InventoryItem {
+                                item_type: InventoryItemType::Spell(spell),
+                                price: props.price,
+                            },
+                        );
+                    }
                 } else {
                     let equipment = equipments.pop().unwrap_or(EquipmentType::Lantern);
                     let props = equipment.to_props();
@@ -304,6 +308,7 @@ pub fn spawn_entities(
                         messages: vec![
                             Act::Speech(SPELL_LIST1.to_string()),
                             Act::Speech(SPELL_LIST2.to_string()),
+                            Act::Speech(SPELL_LIST3.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,

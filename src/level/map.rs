@@ -199,7 +199,7 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::Spell, x, y));
+                    entities.push((GameEntity::ShopSpell, x, y));
                 }
                 (102, 57, 49, 255) => {
                     tiles.push(LevelTileMapile {

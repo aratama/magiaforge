@@ -99,18 +99,29 @@ pub fn setup_level(
         &mut rng,
     );
 
-    // レベルのコリジョンを生成します
-    spawn_wall_collisions(&mut commands, &chunk);
-
-    // 宝箱や灯篭などのエンティティを生成します
-    spawn_entities(&mut commands, &assets, &life_bar_res, &chunk);
-
     // エントリーポイントを選択
     // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
     let entry_point = chunk
         .entry_points
         .choose(&mut rng)
         .expect("No entrypoint found");
+
+    let mut player = current.next_state.clone();
+    player.name = config.player_name.clone();
+    let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
+    let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
+
+    // レベルのコリジョンを生成します
+    spawn_wall_collisions(&mut commands, &chunk);
+
+    // 宝箱や灯篭などのエンティティを生成します
+    spawn_entities(
+        &mut commands,
+        &assets,
+        &life_bar_res,
+        &chunk,
+        &player.discovered_spells,
+    );
 
     // 空間
     // ここに敵モブや落ちているアイテムを生成します
@@ -165,11 +176,6 @@ pub fn setup_level(
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
-
-    let mut player = current.next_state.clone();
-    player.name = config.player_name.clone();
-    let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
-    let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
 
     setup_camera(&mut commands, Vec2::new(player_x, player_y));
 

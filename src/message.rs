@@ -76,6 +76,12 @@ pub const SPELL_LIST2: Dict<&'static str> = Dict {
     en: "Hmmmm, very interesting. Please let me know if you find a new spell.",
 };
 
+pub const SPELL_LIST3: Dict<&'static str> = Dict {
+    ja: "皆にもその呪文を集めるよう伝えておこう。次からその呪文が店にも並ぶようになるはずだ。",
+    en:
+        "I'll tell everyone to collect that spells. It should be available in the shop from now on.",
+};
+
 pub const SHOP_RABBIT: Dict<&'static str> = Dict {
     ja: "いらっしゃいませ！\n欲しい商品があったら\n持ってきてくださいね",
     en: "Welcome!\nBring me the item\nyou want to buy",

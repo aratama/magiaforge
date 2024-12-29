@@ -42,7 +42,7 @@ pub enum GameEntity {
     Usage,
     Routes,
     StoneLantern,
-    Spell,
+    ShopSpell,
     HugeSlime,
     ShopRabbit,
     TrainingRabbit,

@@ -46,6 +46,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
             Sensor,
             Collider::cuboid(TILE_SIZE * 2.0, TILE_SIZE * 3.5),
             Transform::from_translation(Vec3::new(position.x + TILE_HALF, position.y, 0.0)),
+            EntityDepth,
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
             Visibility::default(),
@@ -69,7 +70,6 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 RigidBody::KinematicPositionBased,
                 Collider::cuboid(8.0, 10.0),
                 Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-                EntityDepth,
                 LockedAxes::ROTATION_LOCKED,
                 ActiveCollisionTypes::DYNAMIC_KINEMATIC,
                 CollisionGroups::new(
@@ -95,7 +95,6 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 RigidBody::KinematicPositionBased,
                 Collider::cuboid(8.0, 10.0),
                 Transform::from_translation(Vec3::new(TILE_SIZE, 0.0, 0.0)),
-                EntityDepth,
                 LockedAxes::ROTATION_LOCKED,
                 ActiveCollisionTypes::DYNAMIC_KINEMATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
                 CollisionGroups::new(
