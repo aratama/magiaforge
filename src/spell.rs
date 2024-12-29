@@ -4,8 +4,10 @@ use crate::entity::servant_seed::ServantType;
 use crate::language::Dict;
 use crate::language::Languages;
 use bevy::reflect::Reflect;
+use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter, Hash)]
+#[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter, Hash, Serialize, Deserialize)]
 pub enum SpellType {
     MagicBolt,
     LightBall,

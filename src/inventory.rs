@@ -1,23 +1,24 @@
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::inventory_item::InventoryItemType;
 use bevy::reflect::Reflect;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
 pub struct InventoryItem {
     pub item_type: InventoryItemType,
     pub price: u32,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect)]
-pub struct Inventory(pub [Option<InventoryItem>; MAX_ITEMS_IN_INVENTORY]);
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
+pub struct Inventory(pub Vec<Option<InventoryItem>>);
 
 impl Inventory {
     pub fn new() -> Inventory {
-        Inventory([None; MAX_ITEMS_IN_INVENTORY])
+        Inventory(vec![None; MAX_ITEMS_IN_INVENTORY])
     }
 
     pub fn get(&self, index: usize) -> Option<InventoryItem> {
-        let Inventory(inventory) = *self;
+        let Inventory(ref inventory) = *self;
         return inventory[index];
     }
 
@@ -107,7 +108,7 @@ impl Inventory {
     // 現在所持している有料呪文の合計金額を返します
     pub fn dept(&self) -> u32 {
         let mut total = 0;
-        for item in self.0 {
+        for ref item in &self.0 {
             if let Some(item) = item {
                 total += item.price;
             }

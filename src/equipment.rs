@@ -1,7 +1,20 @@
 use crate::language::Dict;
 use bevy::reflect::Reflect;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, strum::EnumIter)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Reflect,
+    strum::EnumIter,
+    Serialize,
+    Deserialize,
+)]
 pub enum EquipmentType {
     Lantern,
     SpikeBoots,

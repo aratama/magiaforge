@@ -1,5 +1,4 @@
 use crate::asset::GameAssets;
-use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Equipment;
 use crate::controller::training_dummy::TraningDummyController;
@@ -197,7 +196,7 @@ pub fn spawn_enemy_witch(
     life_bar_res: &Res<LifeBarResource>,
     position: Vec2,
 ) {
-    let player = PlayerState::from_config(&GameConfig::default());
+    let player = PlayerState::default();
 
     spawn_witch(
         commands,

@@ -1,4 +1,3 @@
-use crate::config::GameConfig;
 use crate::constant::LAST_BOSS_LEVEL;
 use crate::constant::LEVELS;
 use crate::controller::player::Player;
@@ -158,19 +157,18 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
 
 fn debug_next(
     mut level: ResMut<Interlevel>,
-    config: Res<GameConfig>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
     mut writer: EventWriter<OverlayEvent>,
 ) {
     match level.next_level {
         GameLevel::Level(n) => {
             level.next_level = GameLevel::Level((n + 1) % LEVELS);
-            level.next_state = PlayerState::from(player_query.get_single(), &config);
+            level.next_state = PlayerState::from(player_query.get_single());
             writer.send(OverlayEvent::Close(GameState::Warp));
         }
         GameLevel::MultiPlayArena => {
             level.next_level = GameLevel::Level(0);
-            level.next_state = PlayerState::from(player_query.get_single(), &config);
+            level.next_state = PlayerState::from(player_query.get_single());
             writer.send(OverlayEvent::Close(GameState::Warp));
         }
     };
@@ -178,34 +176,31 @@ fn debug_next(
 
 fn debug_home(
     mut level: ResMut<Interlevel>,
-    config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(0);
-    level.next_state = PlayerState::from(player_query.get_single(), &config);
+    level.next_state = PlayerState::from(player_query.get_single());
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
 fn debug_arena(
     mut level: ResMut<Interlevel>,
-    config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
 ) {
     level.next_level = GameLevel::MultiPlayArena;
-    level.next_state = PlayerState::from(player_query.get_single(), &config);
+    level.next_state = PlayerState::from(player_query.get_single());
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
 fn debug_boss(
     mut level: ResMut<Interlevel>,
-    config: Res<GameConfig>,
     mut writer: EventWriter<OverlayEvent>,
     player_query: Query<(&Player, &mut Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
-    level.next_state = PlayerState::from(player_query.get_single(), &config);
+    level.next_state = PlayerState::from(player_query.get_single());
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 

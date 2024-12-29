@@ -1,8 +1,9 @@
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
+use serde::{Deserialize, Serialize};
 
-#[derive(Reflect, Clone, Copy, Debug)]
+#[derive(Reflect, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct WandSpell {
     pub spell_type: SpellType,
     pub price: u32,
@@ -17,7 +18,7 @@ impl WandSpell {
     }
 }
 
-#[derive(Reflect, Clone, Debug)]
+#[derive(Reflect, Clone, Debug, Serialize, Deserialize)]
 pub struct Wand {
     pub slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND],
     pub index: usize,

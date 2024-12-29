@@ -50,6 +50,7 @@ use crate::page::name_input::NameInputPagePlugin;
 use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
+use crate::player_state::PlayerStatePlugin;
 use crate::se::SECommandPlugin;
 use crate::states::*;
 use crate::theater::SenarioPlugin;
@@ -90,7 +91,7 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::PluginMode;
 use bevy_light_2d::plugin::Light2dPlugin;
-#[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+#[cfg(feature = "save")]
 use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
 #[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
@@ -111,7 +112,7 @@ pub fn run_game() {
 
     // bevy_pkv を使うとセーブファイルがロックされるため、複数のインスタンスを同時に起動できなくなります
     // 開発時に不便なので、フィーチャーフラグで開発時は無効にしておきます
-    #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+    #[cfg(feature = "save")]
     app.insert_resource(PkvStore::new(CRATE_NAME, CRATE_NAME));
 
     app
@@ -216,7 +217,9 @@ pub fn run_game() {
         .add_plugins(OverlayPlugin)
         .add_plugins(PlayerListPlugin)
         .add_plugins(PlayerPlugin)
+        .add_plugins(PlayerStatePlugin)
         .add_plugins(PointerPlugin)
+        .add_plugins(PopUpPlugin)
         .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(SetupPlugin)
@@ -225,7 +228,6 @@ pub fn run_game() {
         .add_plugins(SlimeControlPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
-        .add_plugins(PopUpPlugin)
         .add_plugins(SandbagPlugin)
         .add_plugins(SenarioPlugin)
         .add_plugins(ShopRabbitPlugin)

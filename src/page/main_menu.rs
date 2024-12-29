@@ -47,7 +47,6 @@ fn setup(
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
-    *current = Interlevel::default();
 
     commands.spawn((
         Name::new("main_menu"),

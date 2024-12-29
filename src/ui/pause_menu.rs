@@ -16,6 +16,7 @@ use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use bevy::window::WindowMode;
 use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_simple_websocket::ClientMessage;
@@ -30,7 +31,9 @@ struct ButtonShots {
     se_volume_down: SystemId,
     ja: SystemId,
     en: SystemId,
+    #[cfg(not(target_arch = "wasm32"))]
     fullscreen_on: SystemId,
+    #[cfg(not(target_arch = "wasm32"))]
     fullscreen_off: SystemId,
     wait: i32,
 }
@@ -55,7 +58,9 @@ impl FromWorld for ButtonShots {
             se_volume_down: world.register_system(se_volume_down),
             ja: world.register_system(ja),
             en: world.register_system(en),
+            #[cfg(not(target_arch = "wasm32"))]
             fullscreen_on: world.register_system(fullscreen_on),
+            #[cfg(not(target_arch = "wasm32"))]
             fullscreen_off: world.register_system(fullscreen_off),
             wait: 0,
         }
@@ -109,6 +114,7 @@ fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     writer.send(SEEvent::new(SE::Click));
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn fullscreen_on(
     mut config: ResMut<GameConfig>,
     mut writer: EventWriter<SEEvent>,
@@ -120,6 +126,7 @@ fn fullscreen_on(
     config.fullscreen = true;
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn fullscreen_off(
     mut config: ResMut<GameConfig>,
     mut writer: EventWriter<SEEvent>,

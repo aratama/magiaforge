@@ -1,6 +1,7 @@
 use crate::constant::*;
 use crate::language::*;
 use bevy::prelude::*;
+#[cfg(feature = "save")]
 use bevy_pkv::PkvStore;
 use serde::Deserialize;
 use serde::Serialize;
@@ -26,16 +27,20 @@ impl Default for GameConfig {
     }
 }
 
-#[allow(dead_code)]
+#[cfg(feature = "save")]
 fn startup(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
     if let Ok(v) = pkv.get::<String>("config") {
         if let Ok(deserialized) = serde_json::from_str(v.as_str()) {
             *config = deserialized;
+        } else {
+            warn!("Failed to deserialize config");
         }
-    };
+    } else {
+        warn!("key `config` not found");
+    }
 }
 
-#[allow(dead_code)]
+#[cfg(feature = "save")]
 fn on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
     if config.is_changed() {
         if let Ok(serialized) = serde_json::to_string(&config.into_inner()) {
@@ -53,9 +58,11 @@ pub struct GameConfigPlugin;
 impl bevy::app::Plugin for GameConfigPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GameConfig::default());
-        #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+
+        #[cfg(feature = "save")]
         app.add_systems(Startup, startup);
-        #[cfg(any(not(debug_assertions), target_arch = "wasm32", feature = "save"))]
+
+        #[cfg(feature = "save")]
         app.add_systems(Update, on_change);
     }
 }

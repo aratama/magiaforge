@@ -26,10 +26,11 @@ https://magiaforge.app/ (**Desktop Chrome only** for now)
 - `trunk build` to build web app and publish on GitHub Pages
 
 Add `--features debug` to launch app in debug mode.
+Add `--features save` to launch app with Save feature.
 
 ### Save Data Location
 
-On Windows, save data is stored in `C:\Users\<USERNAME>\AppData\Roaming\magiaforge`.
+On Windows, save data is stored in `%HOMEPATH%\AppData\Roaming\magiaforge`.
 
 In browsers, save data is stored in local storage under the key `magiaforge.magiaforgeconfig`.
 

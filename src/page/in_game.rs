@@ -69,7 +69,7 @@ impl Default for Interlevel {
             level: None,
             chunk: None,
             next_level: GameLevel::Level(INITIAL_LEVEL),
-            next_state: PlayerState::from_config(&GameConfig::default()),
+            next_state: PlayerState::default(),
         }
     }
 }
@@ -106,8 +106,10 @@ pub fn setup_level(
         .choose(&mut rng)
         .expect("No entrypoint found");
 
-    let mut player = current.next_state.clone();
-    player.name = config.player_name.clone();
+    let mut player_state = current.next_state.clone();
+    info!("player_state: {:?}", player_state);
+
+    player_state.name = config.player_name.clone();
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
 
@@ -120,7 +122,7 @@ pub fn setup_level(
         &assets,
         &life_bar_res,
         &chunk,
-        &player.discovered_spells,
+        &player_state.discovered_spells,
     );
 
     // 空間
@@ -187,29 +189,29 @@ pub fn setup_level(
         0.0,
         Uuid::new_v4(),
         None,
-        player.life,
-        player.max_life,
+        player_state.life,
+        player_state.max_life,
         &life_bar_res,
         false,
         3.0,
-        player.golds,
-        player.wands,
-        player.inventory,
-        player.equipments,
+        player_state.golds,
+        player_state.wands,
+        player_state.inventory,
+        player_state.equipments,
         Player {
-            name: player.name,
+            name: player_state.name,
             last_idle_frame_count: FrameCount(0),
             last_ilde_x: player_x,
             last_ilde_y: player_y,
             last_idle_vx: 0.0,
             last_idle_vy: 0.0,
-            last_idle_life: player.life,
-            last_idle_max_life: player.max_life,
+            last_idle_life: player_state.life,
+            last_idle_max_life: player_state.max_life,
             getting_up: if level == GameLevel::Level(0) { 240 } else { 0 },
-            discovered_spells: player.discovered_spells.clone(),
+            discovered_spells: player_state.discovered_spells.clone(),
         },
         ActorGroup::Player,
-        player.current_wand as usize,
+        player_state.current_wand as usize,
     );
 
     current.chunk = Some(chunk);

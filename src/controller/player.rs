@@ -34,8 +34,10 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Debug, Clone, Copy, Reflect)]
+#[derive(Debug, Clone, Copy, Reflect, Serialize, Deserialize)]
 pub struct Equipment {
     pub equipment_type: EquipmentType,
     pub price: u32,
