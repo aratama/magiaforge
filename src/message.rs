@@ -2,6 +2,15 @@ use crate::language::Dict;
 
 // 一行は日本語で18文字まで
 
+// UI
+
+pub const DISCOVERED_SPELLS: Dict<&'static str> = Dict {
+    ja: "発見した呪文",
+    en: "Discovered Spells",
+};
+
+// セリフ
+
 pub const HELLO: Dict<&'static str> = Dict {
     ja: "おや、魔法使いか。\nここはぼくらの商人キャンプだよ。\n来客は歓迎さ。",
     en: "Oh, a witch.\nThis is our merchant camp.\nGuests are welcome.",

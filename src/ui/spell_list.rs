@@ -1,10 +1,11 @@
+use super::popup::{PopUp, PopupContent};
 use crate::{
     asset::GameAssets,
     camera::GameCamera,
     config::GameConfig,
     constant::{UI_PRIMARY, UI_PRIMARY_DARKER, UI_SECONDARY},
     controller::{message_rabbit::SpellListRabbit, player::Player},
-    language::Dict,
+    message::DISCOVERED_SPELLS,
     spell::SpellType,
     states::GameState,
 };
@@ -32,6 +33,9 @@ struct SpellListItem {
     spell_type: Option<SpellType>,
 }
 
+#[derive(Component)]
+struct DicoveredSpellCount;
+
 fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig>) {
     let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
     spells.extend(vec![None; ROWS * COLUMNS - SpellType::iter().count()]);
@@ -57,13 +61,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig
         ))
         .with_children(|commands| {
             commands.spawn((
-                Text::new(
-                    (Dict {
-                        ja: "発見した呪文",
-                        en: "Discovered Spells",
-                    })
-                    .get(config.language),
-                ),
+                Text::new(DISCOVERED_SPELLS.get(config.language)),
                 TextFont {
                     font: assets.dotgothic.clone(),
                     font_size: 24.0,
@@ -73,7 +71,8 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig
             ));
 
             commands.spawn((
-                Text::new(format!("{} / {}", 0, SpellType::iter().count())),
+                DicoveredSpellCount,
+                Text::new(""),
                 TextFont {
                     font: assets.dotgothic.clone(),
                     font_size: 24.0,
@@ -115,6 +114,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig
                             } else {
                                 UI_PRIMARY_DARKER
                             }),
+                            Interaction::default(),
                         ));
                     }
                 });
@@ -155,6 +155,50 @@ fn update_icons(
     }
 }
 
+fn update_discovered_items_count(
+    mut query: Query<&mut Text, With<DicoveredSpellCount>>,
+    player_query: Query<&Player>,
+) {
+    if let Ok(player) = player_query.get_single() {
+        for mut text in query.iter_mut() {
+            text.0 = format!(
+                "{} / {}",
+                player.discovered_spells.len(),
+                SpellType::iter().count()
+            );
+        }
+    }
+}
+
+fn interaction(
+    mut interaction_query: Query<(&SpellListItem, &Interaction), Changed<Interaction>>,
+    mut popup_query: Query<&mut PopUp>,
+    player_query: Query<&Player>,
+) {
+    if let Ok(player) = player_query.get_single() {
+        let mut popup = popup_query.single_mut();
+        for (item, interaction) in &mut interaction_query {
+            match *interaction {
+                Interaction::Pressed => {}
+                Interaction::Hovered => {
+                    if let Some(spell) = item.spell_type {
+                        if player.discovered_spells.contains(&spell) {
+                            popup.set.insert(PopupContent::DiscoveredSpell(spell));
+                            popup.anchor_left = false;
+                            popup.anchor_top = true;
+                        }
+                    }
+                }
+                Interaction::None => {
+                    if let Some(spell) = item.spell_type {
+                        popup.set.remove(&PopupContent::DiscoveredSpell(spell));
+                    }
+                }
+            }
+        }
+    }
+}
+
 pub struct SpellListPlugin;
 
 impl Plugin for SpellListPlugin {
@@ -162,7 +206,13 @@ impl Plugin for SpellListPlugin {
         app.add_systems(OnEnter(GameState::InGame), setup);
         app.add_systems(
             Update,
-            (update_right, update_icons).run_if(in_state(GameState::InGame)),
+            (
+                update_right,
+                update_icons,
+                interaction,
+                update_discovered_items_count,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }

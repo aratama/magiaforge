@@ -10,6 +10,8 @@ use crate::ui::item_panel::ItemPanel;
 use crate::ui::popup::PopUp;
 use bevy::prelude::*;
 
+use super::popup::PopupContent;
+
 #[derive(Component)]
 pub struct InventoryGrid {
     pub hover: bool,
@@ -96,11 +98,12 @@ fn interaction(
             },
             Interaction::Hovered => {
                 floating.target = Some(content);
-                popup.set.insert(content);
-                popup.hang = true;
+                popup.set.insert(PopupContent::FloatingContent(content));
+                popup.anchor_left = true;
+                popup.anchor_top = true;
             }
             Interaction::None => {
-                popup.set.remove(&content);
+                popup.set.remove(&PopupContent::FloatingContent(content));
             }
         }
     }

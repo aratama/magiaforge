@@ -14,6 +14,8 @@ use crate::ui::popup::PopUp;
 use bevy::prelude::*;
 use bevy::ui::Display;
 
+use super::popup::PopupContent;
+
 #[derive(Component)]
 pub struct EquipmentContainer;
 
@@ -87,11 +89,12 @@ fn interact(
                 }
                 Interaction::Hovered => {
                     floating.target = Some(content);
-                    popup.set.insert(content);
-                    popup.hang = false;
+                    popup.set.insert(PopupContent::FloatingContent(content));
+                    popup.anchor_left = true;
+                    popup.anchor_top = false;
                 }
                 Interaction::None => {
-                    popup.set.remove(&content);
+                    popup.set.remove(&PopupContent::FloatingContent(content));
                 }
             }
         }

@@ -12,6 +12,8 @@ use crate::ui::item_panel::ItemPanel;
 use crate::ui::popup::PopUp;
 use bevy::prelude::*;
 
+use super::popup::PopupContent;
+
 #[derive(Component, Debug, Clone)]
 struct WandSpellSprite {
     wand_index: usize,
@@ -87,11 +89,12 @@ fn interaction_spell_sprite(
             }
             Interaction::Hovered => {
                 floating.target = Some(content);
-                popup.set.insert(content);
-                popup.hang = false;
+                popup.set.insert(PopupContent::FloatingContent(content));
+                popup.anchor_left = true;
+                popup.anchor_top = false;
             }
             Interaction::None => {
-                popup.set.remove(&content);
+                popup.set.remove(&PopupContent::FloatingContent(content));
             }
         }
     }

@@ -6,6 +6,7 @@ use crate::entity::actor::Actor;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::spell::get_spell_appendix;
+use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
@@ -16,12 +17,21 @@ use bevy::utils::HashSet;
 use bevy::window::PrimaryWindow;
 use bevy_aseprite_ultra::prelude::*;
 
+const POPUP_WIDTH: f32 = 300.0;
+
 const POPUP_HEIGHT: f32 = 300.0;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub enum PopupContent {
+    FloatingContent(FloatingContent),
+    DiscoveredSpell(SpellType),
+}
 
 #[derive(Component)]
 pub struct PopUp {
-    pub set: HashSet<FloatingContent>,
-    pub hang: bool,
+    pub set: HashSet<PopupContent>,
+    pub anchor_top: bool,
+    pub anchor_left: bool,
     pub opacity: f32,
 }
 
@@ -39,7 +49,8 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
         .spawn((
             PopUp {
                 set: HashSet::new(),
-                hang: false,
+                anchor_top: false,
+                anchor_left: false,
                 opacity: 0.0,
             },
             BackgroundColor(MENU_THEME_COLOR),
@@ -49,7 +60,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 position_type: PositionType::Absolute,
                 display: Display::None,
                 padding: UiRect::all(Val::Px(8.0)),
-                width: Val::Px(300.0),
+                width: Val::Px(POPUP_WIDTH),
                 height: Val::Px(POPUP_HEIGHT),
                 flex_direction: FlexDirection::Column,
                 ..default()
@@ -106,8 +117,8 @@ fn update_information_position(
     if let Ok(window) = q_window.get_single() {
         if let Some(cursor) = window.cursor_position() {
             let (popup, mut info) = spell_info.single_mut();
-            info.left = Val::Px(cursor.x);
-            info.top = Val::Px(cursor.y - if popup.hang { 0.0 } else { POPUP_HEIGHT });
+            info.left = Val::Px(cursor.x - if popup.anchor_left { 0.0 } else { POPUP_WIDTH });
+            info.top = Val::Px(cursor.y - if popup.anchor_top { 0.0 } else { POPUP_HEIGHT });
         }
     }
 }
@@ -127,12 +138,18 @@ fn update_spell_icon(
         let mut slice = query.single_mut();
         let popup = popup_query.single();
         if let Some(first) = popup.set.iter().next() {
-            match first.get_item(actor) {
-                Some(item) => {
-                    let props = item.item_type.to_props();
+            match first {
+                PopupContent::FloatingContent(content) => match content.get_item(actor) {
+                    Some(item) => {
+                        let props = item.item_type.to_props();
+                        slice.name = props.icon.into();
+                    }
+                    None => {}
+                },
+                PopupContent::DiscoveredSpell(spell) => {
+                    let props = spell.to_props();
                     slice.name = props.icon.into();
                 }
-                None => {}
             }
         }
     }
@@ -154,8 +171,17 @@ fn update_spell_name(
         let mut text = query.single_mut();
         let popup = popup_query.single();
         let first = popup.set.iter().next();
-        if let Some(first) = first.and_then(|f| f.get_item(actor)) {
-            text.0 = first.item_type.to_props().name.get(config.language);
+        match first {
+            Some(PopupContent::FloatingContent(content)) => {
+                if let Some(first) = content.get_item(actor) {
+                    text.0 = first.item_type.to_props().name.get(config.language);
+                }
+            }
+            Some(PopupContent::DiscoveredSpell(spell)) => {
+                let props = spell.to_props();
+                text.0 = props.name.get(config.language);
+            }
+            _ => {}
         }
     }
 }
@@ -174,15 +200,38 @@ fn update_item_description(
     }
     let mut text = query.single_mut();
     if let Ok(actor) = actor_query.get_single() {
-        let first = popup.set.iter().next();
-        if let Some(first) = first.and_then(|f| f.get_item(actor)) {
-            text.0 = first.item_type.to_props().description.get(config.language);
+        match popup.set.iter().next() {
+            Some(PopupContent::FloatingContent(content)) => {
+                if let Some(first) = content.get_item(actor) {
+                    text.0 = first.item_type.to_props().description.get(config.language);
 
-            if let InventoryItemType::Spell(spell) = first.item_type {
+                    if let InventoryItemType::Spell(spell) = first.item_type {
+                        let props = spell.to_props();
+                        let appendix = get_spell_appendix(props.cast, config.language);
+                        text.0 += format!("\n{}", appendix).as_str();
+
+                        text.0 += format!(
+                            "\n{}: {}",
+                            (Dict {
+                                ja: "ランク",
+                                en: "Rank",
+                            })
+                            .get(config.language),
+                            props.rank
+                        )
+                        .as_str();
+                    }
+
+                    if 0 < first.price {
+                        text.0 += &format!("\n未清算:{}ゴールド", first.price);
+                    }
+                }
+            }
+            Some(PopupContent::DiscoveredSpell(spell)) => {
                 let props = spell.to_props();
+                text.0 = props.description.get(config.language);
                 let appendix = get_spell_appendix(props.cast, config.language);
                 text.0 += format!("\n{}", appendix).as_str();
-
                 text.0 += format!(
                     "\n{}: {}",
                     (Dict {
@@ -194,10 +243,7 @@ fn update_item_description(
                 )
                 .as_str();
             }
-
-            if 0 < first.price {
-                text.0 += &format!("\n未清算:{}ゴールド", first.price);
-            }
+            _ => {}
         }
     }
 }
@@ -205,22 +251,27 @@ fn update_item_description(
 fn update_visible(
     mut popup_query: Query<(&mut PopUp, &mut Node)>,
     floating_query: Query<&Floating>,
-    actor_query: Query<&Actor, With<Player>>,
+    actor_query: Query<(&Actor, &Player)>,
 ) {
     let (mut popup, mut popup_node) = popup_query.single_mut();
 
     let floating = floating_query.single();
+
     let mut visible = false;
-    if let Ok(actor) = actor_query.get_single() {
-        if popup.set.is_empty() {
-        } else if let Some(first) = popup.set.iter().next() {
-            if let Some(_) = first.get_item(actor) {
-                visible = if floating.content == None {
-                    true
-                } else {
-                    false
-                };
+
+    if floating.content == None {
+        if let Ok((actor, player)) = actor_query.get_single() {
+            if popup.set.is_empty() {
             } else {
+                match popup.set.iter().next() {
+                    Some(PopupContent::FloatingContent(content)) => {
+                        visible = content.get_item(actor).is_some()
+                    }
+                    Some(PopupContent::DiscoveredSpell(spell)) => {
+                        visible = player.discovered_spells.contains(spell);
+                    }
+                    _ => {}
+                }
             }
         }
     }
