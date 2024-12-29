@@ -40,7 +40,7 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
         // Restitution::coefficient(0.2),
         // Friction::coefficient(0.2),
         Damping {
-            linear_damping: 0.8,
+            linear_damping: 5.0,
             angular_damping: 0.8,
         },
         Collider::cuboid(1.5, 2.5),
