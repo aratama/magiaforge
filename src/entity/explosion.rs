@@ -63,8 +63,12 @@ fn spawn_explosion(
                 if let Ok((mut life, life_transform, mut external_impulse)) =
                     life_query.get_mut(entity)
                 {
-                    let damage = *damage;
                     let p = life_transform.translation.truncate();
+                    let distance = p.distance(*position);
+
+                    let damage = (*damage as f32 * 0.1
+                        + (1.0 - distance / radius) * *damage as f32 * 0.9)
+                        as u32;
                     life.life = (life.life - damage as i32).max(0);
                     life.amplitude = 6.0;
                     damage_writer.send(ActorEvent::Damaged {

@@ -24,7 +24,7 @@ fn spawn_damage_number(
                     commands.spawn((
                         Name::new("Damage Number"),
                         StateScoped(GameState::InGame),
-                        DamageParticle { lifetime: 40 },
+                        DamageParticle { lifetime: 80 },
                         Text2d(damage.to_string()),
                         TextColor(Color::WHITE),
                         TextFont {
