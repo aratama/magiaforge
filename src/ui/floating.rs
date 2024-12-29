@@ -148,8 +148,8 @@ fn drop(
         if let Ok(mut actor) = player_query.get_single_mut() {
             if let Some(content) = content_optional {
                 let drop = drop_query.single();
-
                 if drop.hover {
+                    // アイテムを地面に置きます
                     if let Some(ref chunk) = map.chunk {
                         if let Ok(window) = window_query.get_single() {
                             if let Some(cursor_in_screen) = window.cursor_position() {
@@ -159,10 +159,11 @@ fn drop(
                                     .viewport_to_world(camera_global_transform, cursor_in_screen)
                                 {
                                     let pointer_in_world = mouse_in_world.origin.truncate();
-
-                                    if chunk.get_tile_by_coords(pointer_in_world) == Tile::StoneTile
-                                    {
+                                    let tile = chunk.get_tile_by_coords(pointer_in_world);
+                                    if tile != Tile::Wall && tile != Tile::Blank {
                                         if let Some(item) = content.get_inventory_item(&actor) {
+                                            content.set_item(None, &mut actor);
+
                                             spawn_dropped_item(
                                                 &mut commands,
                                                 &assets,
@@ -179,6 +180,8 @@ fn drop(
                         }
                     }
                 } else if let Some(target) = target_optional {
+                    // アイテムを別のスロットに移動します
+
                     // 移動元のアイテムを取得
                     let item_optional_from = content.get_inventory_item(&actor);
                     // 移動先のアイテムを取得
