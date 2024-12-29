@@ -1,6 +1,5 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
@@ -150,16 +149,15 @@ fn collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
-    mut player_query: Query<(&mut Actor, &mut Player)>,
+    mut player_query: Query<&mut Actor>,
     mut global: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
                 let item = item_query.get(item_entity).unwrap();
-                let (mut actor, mut player) = player_query.get_mut(player_entity).unwrap();
+                let mut actor = player_query.get_mut(player_entity).unwrap();
                 if actor.inventory.insert(item.item) {
-                    player.update_discovered_spells(&actor);
                     commands.entity(item_entity).despawn_recursive();
                     global.send(SEEvent::new(SE::PickUp));
                 }

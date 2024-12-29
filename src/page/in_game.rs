@@ -107,7 +107,6 @@ pub fn setup_level(
         .expect("No entrypoint found");
 
     let mut player_state = current.next_state.clone();
-    info!("player_state: {:?}", player_state);
 
     player_state.name = config.player_name.clone();
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;

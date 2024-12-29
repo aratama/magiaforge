@@ -310,6 +310,12 @@ fn update_pointer_by_mouse(
     }
 }
 
+fn insert_discovered_spells(mut player_query: Query<(&mut Player, &Actor)>) {
+    for (mut player, actor) in player_query.iter_mut() {
+        player.update_discovered_spells(actor);
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -328,6 +334,7 @@ impl Plugin for PlayerPlugin {
                 die_player,
                 apply_intensity_by_lantern,
                 switch_wand,
+                insert_discovered_spells,
             )
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),

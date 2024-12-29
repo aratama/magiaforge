@@ -15,6 +15,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use git_version::git_version;
 
+use super::in_game::GameLevel;
+
 const SCALE: f32 = 4.0;
 
 #[derive(Component)]
@@ -47,6 +49,8 @@ fn setup(
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
+
+    current.next_level = GameLevel::Level(0);
 
     commands.spawn((
         Name::new("main_menu"),

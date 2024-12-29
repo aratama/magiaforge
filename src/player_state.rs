@@ -93,7 +93,7 @@ impl PlayerState {
             wands: actor.wands.clone(),
             golds: actor.golds,
             current_wand: actor.current_wand as u32,
-            discovered_spells: HashSet::new(),
+            discovered_spells: player.discovered_spells.clone(),
         }
     }
 
