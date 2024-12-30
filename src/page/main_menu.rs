@@ -208,7 +208,7 @@ fn setup(
             BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.3)),
         ))
         .with_child((
-            Text::new("日本語/English/中文"),
+            Text::new("日本語/English/中文/Español"),
             TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
             TextFont {
                 font_size: 16.0,
@@ -253,6 +253,7 @@ fn toggle_language(
     >,
     mut config: ResMut<GameConfig>,
     mut changed: ResMut<LanguageChanged>,
+    mut writer: EventWriter<SEEvent>,
 ) {
     changed.0 = false;
 
@@ -269,9 +270,11 @@ fn toggle_language(
                 config.language = match config.language {
                     Languages::Ja => Languages::En,
                     Languages::En => Languages::ZhCn,
-                    Languages::ZhCn => Languages::Ja,
+                    Languages::ZhCn => Languages::Es,
+                    Languages::Es => Languages::Ja,
                 };
                 changed.0 = true;
+                writer.send(SEEvent::new(SE::Click));
             }
         }
     }

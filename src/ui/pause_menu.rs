@@ -40,6 +40,7 @@ struct ButtonShots {
     ja: SystemId,
     en: SystemId,
     zh: SystemId,
+    es: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
     fullscreen_on: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
@@ -71,6 +72,7 @@ impl FromWorld for ButtonShots {
             ja: world.register_system(ja),
             en: world.register_system(en),
             zh: world.register_system(zh),
+            es: world.register_system(es),
             #[cfg(not(target_arch = "wasm32"))]
             fullscreen_on: world.register_system(fullscreen_on),
             #[cfg(not(target_arch = "wasm32"))]
@@ -129,6 +131,11 @@ fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
 
 fn zh(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::ZhCn;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn es(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::Es;
     writer.send(SEEvent::new(SE::Click));
 }
 
@@ -230,6 +237,15 @@ fn setup_game_menu(
                                 120.0,
                                 50.0,
                                 Dict::literal("中文"),
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.es,
+                                120.0,
+                                50.0,
+                                Dict::literal("Español"),
                             );
                         });
 

@@ -14,6 +14,7 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
+use crate::language::Languages;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -170,11 +171,17 @@ fn countup(
             let page_string = dict.get(config.language);
 
             if text_end_position < page_string.char_indices().count() {
-                if theater.speech_count % DELAY == 0 {
+                let step = match config.language {
+                    Languages::Ja => 1,
+                    Languages::ZhCn => 1,
+                    _ => 2,
+                };
+
+                if theater.speech_count % (DELAY * step) == 0 {
                     se_writer.send(SEEvent::new(SE::Kawaii));
                 }
 
-                theater.speech_count += 1;
+                theater.speech_count += step;
             }
         }
         Act::BGM(bgm) => {

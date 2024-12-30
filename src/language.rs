@@ -14,6 +14,9 @@ pub enum Languages {
 
     /// 简体中文
     ZhCn,
+
+    /// español
+    Es,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -21,6 +24,7 @@ pub struct Dict<T: ToString> {
     pub ja: T,
     pub en: T,
     pub zh_cn: T,
+    pub es: T,
 }
 
 impl ops::Add<Dict<String>> for Dict<String> {
@@ -31,6 +35,7 @@ impl ops::Add<Dict<String>> for Dict<String> {
             ja: format!("{}{}", self.ja, rhs.ja),
             en: format!("{}{}", self.en, rhs.en),
             zh_cn: format!("{}{}", self.zh_cn, rhs.zh_cn),
+            es: format!("{}{}", self.es, rhs.es),
         }
     }
 }
@@ -40,6 +45,7 @@ impl ops::AddAssign<Dict<String>> for Dict<String> {
         self.ja = format!("{}{}", self.ja, rhs.ja);
         self.en = format!("{}{}", self.en, rhs.en);
         self.zh_cn = format!("{}{}", self.zh_cn, rhs.zh_cn);
+        self.es = format!("{}{}", self.es, rhs.es);
     }
 }
 
@@ -49,6 +55,7 @@ impl Dict<&'static str> {
             Languages::Ja => self.ja.to_string(),
             Languages::En => self.en.to_string(),
             Languages::ZhCn => self.zh_cn.to_string(),
+            Languages::Es => self.es.to_string(),
         }
     }
 
@@ -57,6 +64,7 @@ impl Dict<&'static str> {
             ja: self.ja.to_string(),
             en: self.en.to_string(),
             zh_cn: self.zh_cn.to_string(),
+            es: self.es.to_string(),
         }
     }
 }
@@ -67,6 +75,7 @@ impl Dict<String> {
             ja: "".to_string(),
             en: "".to_string(),
             zh_cn: "".to_string(),
+            es: "".to_string(),
         }
     }
 
@@ -75,6 +84,7 @@ impl Dict<String> {
             ja: str.to_string(),
             en: str.to_string(),
             zh_cn: str.to_string(),
+            es: str.to_string(),
         }
     }
 
@@ -83,6 +93,7 @@ impl Dict<String> {
             Languages::Ja => self.ja.to_string(),
             Languages::En => self.en.to_string(),
             Languages::ZhCn => self.zh_cn.to_string(),
+            Languages::Es => self.es.to_string(),
         }
     }
 }
@@ -126,6 +137,7 @@ fn update_text(
             Languages::Ja => assets.noto_sans_jp.clone(),
             Languages::En => assets.noto_sans_jp.clone(),
             Languages::ZhCn => assets.noto_sans_sc.clone(),
+            Languages::Es => assets.noto_sans_jp.clone(),
         }
     }
 }

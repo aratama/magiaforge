@@ -142,6 +142,7 @@ pub fn update_text_on_change_config(
                 Languages::Ja => assets.noto_sans_jp.clone(),
                 Languages::En => assets.noto_sans_jp.clone(),
                 Languages::ZhCn => assets.noto_sans_sc.clone(),
+                Languages::Es => assets.noto_sans_jp.clone(),
             };
         }
         _ => {}
