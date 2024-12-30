@@ -17,6 +17,9 @@ pub enum Languages {
 
     /// español
     Es,
+
+    /// Français
+    Fr,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -25,6 +28,7 @@ pub struct Dict<T: ToString> {
     pub en: T,
     pub zh_cn: T,
     pub es: T,
+    pub fr: T,
 }
 
 impl ops::Add<Dict<String>> for Dict<String> {
@@ -36,6 +40,7 @@ impl ops::Add<Dict<String>> for Dict<String> {
             en: format!("{}{}", self.en, rhs.en),
             zh_cn: format!("{}{}", self.zh_cn, rhs.zh_cn),
             es: format!("{}{}", self.es, rhs.es),
+            fr: format!("{}{}", self.fr, rhs.fr),
         }
     }
 }
@@ -46,6 +51,7 @@ impl ops::AddAssign<Dict<String>> for Dict<String> {
         self.en = format!("{}{}", self.en, rhs.en);
         self.zh_cn = format!("{}{}", self.zh_cn, rhs.zh_cn);
         self.es = format!("{}{}", self.es, rhs.es);
+        self.fr = format!("{}{}", self.fr, rhs.fr);
     }
 }
 
@@ -56,6 +62,7 @@ impl Dict<&'static str> {
             Languages::En => self.en.to_string(),
             Languages::ZhCn => self.zh_cn.to_string(),
             Languages::Es => self.es.to_string(),
+            Languages::Fr => self.fr.to_string(),
         }
     }
 
@@ -65,6 +72,7 @@ impl Dict<&'static str> {
             en: self.en.to_string(),
             zh_cn: self.zh_cn.to_string(),
             es: self.es.to_string(),
+            fr: self.fr.to_string(),
         }
     }
 }
@@ -76,6 +84,7 @@ impl Dict<String> {
             en: "".to_string(),
             zh_cn: "".to_string(),
             es: "".to_string(),
+            fr: "".to_string(),
         }
     }
 
@@ -85,6 +94,7 @@ impl Dict<String> {
             en: str.to_string(),
             zh_cn: str.to_string(),
             es: str.to_string(),
+            fr: str.to_string(),
         }
     }
 
@@ -94,6 +104,7 @@ impl Dict<String> {
             Languages::En => self.en.to_string(),
             Languages::ZhCn => self.zh_cn.to_string(),
             Languages::Es => self.es.to_string(),
+            Languages::Fr => self.fr.to_string(),
         }
     }
 }
@@ -133,12 +144,17 @@ fn update_text(
 ) {
     for (mut text, mut font, m18n) in text_query.iter_mut() {
         text.0 = m18n.0.get(config.language);
-        font.font = match config.language {
-            Languages::Ja => assets.noto_sans_jp.clone(),
-            Languages::En => assets.noto_sans_jp.clone(),
-            Languages::ZhCn => assets.noto_sans_sc.clone(),
-            Languages::Es => assets.noto_sans_jp.clone(),
-        }
+        font.font = language_to_font(assets, config);
+    }
+}
+
+pub fn language_to_font(assets: &GameAssets, config: &GameConfig) -> Handle<Font> {
+    match config.language {
+        Languages::Ja => assets.noto_sans_jp.clone(),
+        Languages::En => assets.noto_sans_jp.clone(),
+        Languages::ZhCn => assets.noto_sans_sc.clone(),
+        Languages::Es => assets.noto_sans_jp.clone(),
+        Languages::Fr => assets.noto_sans_jp.clone(),
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::entity::counter::CounterAnimated;
-use crate::language::Languages;
+use crate::language::language_to_font;
 use crate::states::GameState;
 use crate::theater::Act;
 use crate::theater::Theater;
@@ -138,12 +138,7 @@ pub fn update_text_on_change_config(
             let (mut speech_text, mut font) = speech_text_query.single_mut();
             let page_string = dict.get(config.language);
             speech_text.0 = page_string.chars().take(text_end_position).collect();
-            font.font = match config.language {
-                Languages::Ja => assets.noto_sans_jp.clone(),
-                Languages::En => assets.noto_sans_jp.clone(),
-                Languages::ZhCn => assets.noto_sans_sc.clone(),
-                Languages::Es => assets.noto_sans_jp.clone(),
-            };
+            font.font = language_to_font(&assets, &config);
         }
         _ => {}
     }

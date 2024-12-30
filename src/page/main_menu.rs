@@ -270,7 +270,8 @@ fn toggle_language(
                     Languages::Ja => Languages::En,
                     Languages::En => Languages::ZhCn,
                     Languages::ZhCn => Languages::Es,
-                    Languages::Es => Languages::Ja,
+                    Languages::Es => Languages::Fr,
+                    Languages::Fr => Languages::Ja,
                 };
                 changed.0 = true;
                 writer.send(SEEvent::new(SE::Click));
