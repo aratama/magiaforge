@@ -353,6 +353,18 @@ fn shake_camera(mut camera_query: Query<&mut GameCamera>, theater: ResMut<Theate
     }
 }
 
+fn clear_senario(
+    mut commands: Commands,
+    mut theater: ResMut<Theater>,
+    mut speech_query: Query<(&mut SpeechBubble, &mut Visibility)>,
+) {
+    theater.senario.clear();
+    theater.act_index = 0;
+    theater.speech_count = 0;
+    theater.wait = 0;
+    theater.shaking = None;
+}
+
 pub struct SenarioPlugin;
 
 impl Plugin for SenarioPlugin {
@@ -370,5 +382,6 @@ impl Plugin for SenarioPlugin {
             )
                 .run_if(in_state(GameState::InGame)),
         );
+        app.add_systems(OnExit(GameState::InGame), clear_senario);
     }
 }

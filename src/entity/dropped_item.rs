@@ -17,6 +17,8 @@ use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::counter::Counter;
+
 #[derive(Component)]
 pub struct DroppedItemEntity {
     item: InventoryItem,
@@ -95,6 +97,7 @@ pub fn spawn_dropped_item(
         .with_children(|parent| {
             parent
                 .spawn((
+                    Counter::new(),
                     SpellSprites {
                         swing,
                         frame_count_offset: rand::random::<u32>() % 360,
@@ -138,10 +141,10 @@ pub fn spawn_dropped_item(
         });
 }
 
-fn swing(mut query: Query<(&mut Transform, &SpellSprites)>, frame_count: Res<FrameCount>) {
-    for (mut transform, sprite) in query.iter_mut() {
+fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
+    for (mut transform, sprite, counter) in query.iter_mut() {
         transform.translation.y =
-            ((sprite.frame_count_offset + frame_count.0) as f32 * 0.05).sin() * sprite.swing;
+            ((sprite.frame_count_offset + counter.count) as f32 * 0.05).sin() * sprite.swing;
     }
 }
 

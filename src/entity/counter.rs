@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseUiAnimation};
 use bevy_rapier2d::plugin::PhysicsSet;
 
 use crate::{physics::InGameTime, states::GameState};
@@ -44,13 +44,26 @@ fn animate(
     }
 }
 
+fn animate_ui(
+    mut query: Query<&mut AseUiAnimation, With<CounterAnimated>>,
+    in_game_time: Res<InGameTime>,
+) {
+    for mut animation in query.iter_mut() {
+        animation.animation.playing = in_game_time.active;
+
+        // animation.animation.playingが未実装のようなので上のコードは効果がないです
+        // ワークアラウンド
+        animation.animation.speed = if in_game_time.active { 1.0 } else { 0.0 };
+    }
+}
+
 pub struct CounterPlugin;
 
 impl Plugin for CounterPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (countup, animate)
+            (countup, animate, animate_ui)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

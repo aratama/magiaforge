@@ -1,5 +1,4 @@
 use crate::asset::GameAssets;
-use crate::config::GameConfig;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
