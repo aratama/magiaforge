@@ -2,7 +2,6 @@ use crate::cast::SpellCast;
 use crate::constant::TILE_SIZE;
 use crate::entity::servant_seed::ServantType;
 use crate::language::Dict;
-use crate::language::Languages;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
@@ -425,7 +424,7 @@ const HEAL_TEXT: Dict<&'static str> = Dict {
     en: "Heal",
 };
 
-pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
+pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
     match cast {
         SpellCast::Bullet {
             slice: _,
@@ -439,26 +438,32 @@ pub fn get_spell_appendix(cast: SpellCast, language: Languages) -> String {
             light_radius: _,
             light_color_hlsa: _,
         } => {
-            format!(
-                "{}:{}  {}:{}\n{}:{}  {}:{}\n{}:{}  {}:{}",
-                DAMAGE.get(language),
-                damage,
-                KNOCKBACK.get(language),
-                impulse * 0.001,
-                SPEED.get(language),
-                speed,
-                LIFETIME.get(language),
-                lifetime,
-                SCATTERING.get(language),
-                scattering,
-                SIZE.get(language),
-                collier_radius,
-            )
+            let mut empty = Dict::empty();
+            empty += DAMAGE.to_string();
+            empty += Dict::literal(damage);
+            empty += KNOCKBACK.to_string();
+            empty += Dict::literal(impulse * 0.001);
+            empty += SPEED.to_string();
+            empty += Dict::literal(speed);
+            empty += LIFETIME.to_string();
+            empty += Dict::literal(lifetime);
+            empty += SCATTERING.to_string();
+            empty += Dict::literal(scattering);
+            empty += SIZE.to_string();
+            empty += Dict::literal(collier_radius);
+            empty
         }
         SpellCast::Heal => {
-            format!("{}:{}", HEAL_TEXT.get(language), 10)
+            let mut empty = Dict::empty();
+            empty += HEAL_TEXT.to_string();
+            empty += Dict::literal("10");
+            empty
         }
-        SpellCast::HeavyShot => format!("威力: +5"),
-        _ => format!(""),
+        SpellCast::HeavyShot => {
+            // TODO
+            // format!("威力: +5"),
+            Dict::empty()
+        }
+        _ => Dict::empty()
     }
 }

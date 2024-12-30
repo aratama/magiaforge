@@ -1,16 +1,12 @@
 use crate::asset::GameAssets;
-use crate::config::GameConfig;
-use crate::language::Dict;
-use crate::states::GameState;
+use crate::language::{Dict, M18NTtext};
 use crate::ui::hover_color::HoverColor;
 use crate::ui::on_press::OnPress;
 use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 
 #[derive(Component)]
-struct MenuButtonText {
-    text: Dict<&'static str>,
-}
+struct MenuButtonText;
 
 pub fn menu_button<'a>(
     parent: &mut ChildBuilder,
@@ -39,8 +35,8 @@ pub fn menu_button<'a>(
         ))
         .with_children(|parent| {
             parent.spawn((
-                MenuButtonText { text },
-                Text::new(""),
+                MenuButtonText,
+                M18NTtext(text.to_string()),
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
                     font_size: 32.0,
@@ -51,19 +47,8 @@ pub fn menu_button<'a>(
         });
 }
 
-fn update_text(config: Res<GameConfig>, mut query: Query<(&mut Text, &MenuButtonText)>) {
-    for (mut text, label) in query.iter_mut() {
-        text.0 = label.text.get(config.language).to_string();
-    }
-}
-
 pub struct MenuButtonPlugin;
 
 impl Plugin for MenuButtonPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            update_text.run_if(in_state(GameState::InGame).or(in_state(GameState::NameInput))),
-        );
-    }
+    fn build(&self, _app: &mut App) {}
 }

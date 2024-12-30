@@ -4,6 +4,8 @@ use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Languages;
+use crate::language::M18NTtext;
+use crate::message::CLICK_TO_START;
 use crate::page::in_game::Interlevel;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -36,9 +38,6 @@ enum Events {
 
 #[derive(Component)]
 struct LanguageButton;
-
-#[derive(Component)]
-struct ClickToStart;
 
 fn setup(
     mut commands: Commands,
@@ -160,8 +159,7 @@ fn setup(
             },
         ))
         .with_child((
-            ClickToStart,
-            Text::new(""),
+            M18NTtext(CLICK_TO_START.to_string()),
             TextColor::from(Color::WHITE),
             TextFont {
                 font_size: 16.0,
@@ -278,21 +276,6 @@ fn toggle_language(
     }
 }
 
-fn update_click_to_start_text(
-    mut query: Query<&mut Text, With<ClickToStart>>,
-    config: Res<GameConfig>,
-) {
-    if config.is_changed() {
-        for mut text in &mut query.iter_mut() {
-            text.0 = (match config.language {
-                Languages::Ja => "クリックでスタート",
-                Languages::En => "Click to Start",
-            })
-            .to_string();
-        }
-    }
-}
-
 fn start_game(
     buttons: Res<ButtonInput<MouseButton>>,
     mut writer: EventWriter<Events>,
@@ -360,7 +343,6 @@ impl Plugin for MainMenuPlugin {
                 witch_animation,
                 cloud_animation,
                 (toggle_language, start_game).chain(),
-                update_click_to_start_text,
             )
                 .run_if(in_state(GameState::MainMenu)),
         );

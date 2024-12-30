@@ -4,7 +4,8 @@ use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory_item::InventoryItemType;
-use crate::language::Dict;
+use crate::language::M18NTtext;
+use crate::message::UNPEID;
 use crate::spell::get_spell_appendix;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
@@ -91,7 +92,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
 
                     parent.spawn((
                         PopUpItemName,
-                        Text::new(""),
+                        M18NTtext::empty(),
                         TextFont {
                             font: assets.dotgothic.clone(),
                             ..default()
@@ -101,7 +102,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
 
             parent.spawn((
                 PopUpItemDescription,
-                Text::new(""),
+                M18NTtext::empty(),
                 TextFont {
                     font: assets.dotgothic.clone(),
                     ..default()
@@ -156,9 +157,8 @@ fn update_spell_icon(
 }
 
 fn update_spell_name(
-    mut query: Query<&mut Text, With<PopUpItemName>>,
+    mut query: Query<&mut M18NTtext, With<PopUpItemName>>,
     popup_query: Query<&PopUp>,
-    config: Res<GameConfig>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
@@ -174,12 +174,12 @@ fn update_spell_name(
         match first {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(first) = content.get_item(actor) {
-                    text.0 = first.item_type.to_props().name.get(config.language);
+                    text.0 = first.item_type.to_props().name.to_string();
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
                 let props = spell.to_props();
-                text.0 = props.name.get(config.language);
+                text.0 = props.name.to_string();
             }
             _ => {}
         }
@@ -187,8 +187,7 @@ fn update_spell_name(
 }
 
 fn update_item_description(
-    mut query: Query<&mut Text, With<PopUpItemDescription>>,
-    config: Res<GameConfig>,
+    mut query: Query<&mut M18NTtext, With<PopUpItemDescription>>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
     popup_query: Query<&PopUp>,
@@ -203,45 +202,52 @@ fn update_item_description(
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(first) = content.get_item(actor) {
-                    text.0 = first.item_type.to_props().description.get(config.language);
+                    let mut dict = first.item_type.to_props().description.to_string();
 
                     if let InventoryItemType::Spell(spell) = first.item_type {
                         let props = spell.to_props();
-                        let appendix = get_spell_appendix(props.cast, config.language);
-                        text.0 += format!("\n{}", appendix).as_str();
+                        let appendix = get_spell_appendix(props.cast);
+                        // dict += format!("\n{}", appendix).as_str();
 
-                        text.0 += format!(
-                            "\n{}: {}",
-                            (Dict {
-                                ja: "ランク",
-                                en: "Rank",
-                            })
-                            .get(config.language),
-                            props.rank
-                        )
-                        .as_str();
+                        // dict += format!(
+                        //     "\n{}: {}",
+                        //     (Dict {
+                        //         ja: "ランク",
+                        //         en: "Rank",
+                        //     })
+                        //     .get(config.language),
+                        //     props.rank
+                        // )
+                        // .as_str();
+
+                        dict += appendix;
                     }
 
                     if 0 < first.price {
-                        text.0 += &format!("\n未清算:{}ゴールド", first.price);
+                        dict = dict + UNPEID.to_string();
+
+                        //  &format!("\n未清算:{}ゴールド", first.price);
                     }
+
+                    text.0 = dict;
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
                 let props = spell.to_props();
-                text.0 = props.description.get(config.language);
-                let appendix = get_spell_appendix(props.cast, config.language);
-                text.0 += format!("\n{}", appendix).as_str();
-                text.0 += format!(
-                    "\n{}: {}",
-                    (Dict {
-                        ja: "ランク",
-                        en: "Rank",
-                    })
-                    .get(config.language),
-                    props.rank
-                )
-                .as_str();
+                let mut dict = props.description.to_string();
+                dict += get_spell_appendix(props.cast);
+                // dict += format!(
+                //     "\n{}: {}",
+                //     (Dict {
+                //         ja: "ランク",
+                //         en: "Rank",
+                //     })
+                //     .get(config.language),
+                //     props.rank
+                // )
+                // .as_str();
+
+                text.0 = dict;
             }
             _ => {}
         }

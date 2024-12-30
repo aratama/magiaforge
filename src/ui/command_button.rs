@@ -1,13 +1,12 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
-use crate::language::Dict;
+use crate::language::{Dict, M18NTtext};
 use crate::states::GameState;
 use crate::ui::hover_color::HoverColor;
 use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct CommandButton {
-    pub text: Dict<&'static str>,
     pub disabled: bool,
 }
 
@@ -29,7 +28,7 @@ pub fn command_button<'a, T: Component>(
 ) {
     parent
         .spawn((
-            CommandButton { text, disabled },
+            CommandButton { disabled },
             marker,
             HoverColor {
                 hovered: if disabled { DISABLED } else { HOVERED },
@@ -48,7 +47,7 @@ pub fn command_button<'a, T: Component>(
         .with_children(|parent| {
             parent.spawn((
                 MenuButtonText,
-                Text::new(""),
+                M18NTtext(text.to_string()),
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
                     font_size: 32.0,
@@ -57,19 +56,6 @@ pub fn command_button<'a, T: Component>(
                 },
             ));
         });
-}
-
-fn update_text(
-    config: Res<GameConfig>,
-    button_query: Query<&CommandButton>,
-    mut text_query: Query<(&Parent, &mut Text), With<MenuButtonText>>,
-) {
-    if config.is_changed() {
-        for (parent, mut text) in text_query.iter_mut() {
-            let button = button_query.get(parent.get()).unwrap();
-            text.0 = button.text.get(config.language).to_string();
-        }
-    }
 }
 
 fn update_color(
@@ -101,10 +87,7 @@ pub struct CommandButtonPlugin;
 
 impl Plugin for CommandButtonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (update_text, update_color).run_if(in_state(GameState::InGame)),
-        );
+        app.add_systems(Update, (update_color).run_if(in_state(GameState::InGame)));
         app.add_systems(OnEnter(GameState::InGame), update_text_on_enter);
     }
 }

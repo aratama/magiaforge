@@ -2,9 +2,9 @@ use super::popup::{PopUp, PopupContent};
 use crate::{
     asset::GameAssets,
     camera::GameCamera,
-    config::GameConfig,
     constant::{UI_PRIMARY, UI_PRIMARY_DARKER, UI_SECONDARY},
     controller::{message_rabbit::SpellListRabbit, player::Player},
+    language::M18NTtext,
     message::DISCOVERED_SPELLS,
     spell::SpellType,
     states::GameState,
@@ -36,7 +36,7 @@ struct SpellListItem {
 #[derive(Component)]
 struct DicoveredSpellCount;
 
-fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig>) {
+fn setup(mut commands: Commands, assets: Res<GameAssets>) {
     let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
     spells.extend(vec![None; ROWS * COLUMNS - SpellType::iter().count()]);
 
@@ -61,7 +61,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, config: Res<GameConfig
         ))
         .with_children(|commands| {
             commands.spawn((
-                Text::new(DISCOVERED_SPELLS.get(config.language)),
+                M18NTtext(DISCOVERED_SPELLS.to_string()),
                 TextFont {
                     font: assets.dotgothic.clone(),
                     font_size: 24.0,

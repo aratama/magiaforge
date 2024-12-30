@@ -42,6 +42,7 @@ use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
+use crate::language::LanguagePlugin;
 use crate::level::*;
 use crate::page::ending::EndingPlugin;
 use crate::page::in_game::WorldPlugin;
@@ -206,6 +207,7 @@ pub fn run_game() {
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(ItemPanelPlugin)
+        .add_plugins(LanguagePlugin)
         .add_plugins(LabelPlugin)
         .add_plugins(LifeBarPlugin)
         .add_plugins(MagicCirclePlugin)

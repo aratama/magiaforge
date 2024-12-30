@@ -3,10 +3,19 @@ use crate::language::Dict;
 // 一行は日本語で18文字まで
 
 // UI
+pub const CLICK_TO_START: Dict<&'static str> = Dict {
+    ja: "クリックでスタート",
+    en: "Click to Start",
+};
 
 pub const DISCOVERED_SPELLS: Dict<&'static str> = Dict {
     ja: "発見した呪文",
     en: "Discovered Spells",
+};
+
+pub const UNPEID: Dict<&'static str> = Dict {
+    ja: "未精算",
+    en: "Unpaid",
 };
 
 // セリフ
