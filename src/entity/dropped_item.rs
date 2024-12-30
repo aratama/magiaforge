@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
+use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
@@ -77,12 +78,11 @@ pub fn spawn_dropped_item(
                 },
                 Collider::cuboid(collider_width, 8.0),
                 CollisionGroups::new(
-                    ENTITY_GROUP,
-                    ENTITY_GROUP
+                    DROPPED_ITEM_GROUP,
+                    DROPPED_ITEM_GROUP
+                        | ENTITY_GROUP
                         | WITCH_GROUP
                         | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP
                         | WALL_GROUP
                         | DOOR_GROUP
                         | RABBIT_GROUP,
@@ -149,7 +149,7 @@ fn collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
-    mut player_query: Query<&mut Actor>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut global: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {

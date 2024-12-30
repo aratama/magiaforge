@@ -75,7 +75,12 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             ActiveCollisionTypes::DYNAMIC_KINEMATIC,
             CollisionGroups::new(
                 RABBIT_GROUP,
-                ENTITY_GROUP | WALL_GROUP | WITCH_GROUP | ENEMY_GROUP | DOOR_GROUP,
+                ENTITY_GROUP
+                    | WALL_GROUP
+                    | WITCH_GROUP
+                    | ENEMY_GROUP
+                    | DOOR_GROUP
+                    | DROPPED_ITEM_GROUP,
             ),
         ),
     ));

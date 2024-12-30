@@ -121,7 +121,8 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
                     | WITCH_BULLET_GROUP
                     | ENEMY_GROUP
                     | ENEMY_BULLET_GROUP
-                    | RABBIT_GROUP,
+                    | RABBIT_GROUP
+                    | DROPPED_ITEM_GROUP,
             ),
         ));
     }

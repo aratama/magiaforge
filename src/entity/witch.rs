@@ -126,7 +126,8 @@ pub fn spawn_witch<T: Component>(
                     | ENEMY_BULLET_GROUP
                     | MAGIC_CIRCLE_GROUP
                     | SENSOR_GROUP
-                    | RABBIT_GROUP,
+                    | RABBIT_GROUP
+                    | DROPPED_ITEM_GROUP,
             ),
         ),
     ));

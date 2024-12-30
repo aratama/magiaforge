@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::DOOR_GROUP;
+use crate::constant::DROPPED_ITEM_GROUP;
 use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
@@ -58,7 +59,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 Collider::cuboid(TILE_SIZE * 1.0, TILE_SIZE * 1.5),
                 Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                 ActiveEvents::COLLISION_EVENTS,
-                CollisionGroups::new(DOOR_GROUP, ENTITY_GROUP | RABBIT_GROUP),
+                CollisionGroups::new(DOOR_GROUP, ENTITY_GROUP | RABBIT_GROUP | DROPPED_ITEM_GROUP),
             ));
 
             // 左側のドア
@@ -78,7 +79,8 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                         | WITCH_GROUP
                         | WITCH_BULLET_GROUP
                         | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP,
+                        | ENEMY_BULLET_GROUP
+                        | DROPPED_ITEM_GROUP,
                 ),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -103,7 +105,8 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                         | WITCH_GROUP
                         | WITCH_BULLET_GROUP
                         | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP,
+                        | ENEMY_BULLET_GROUP
+                        | DROPPED_ITEM_GROUP,
                 ),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),

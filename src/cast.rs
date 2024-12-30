@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::constant::DROPPED_ITEM_GROUP;
 use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
@@ -24,6 +25,7 @@ use crate::se::SE;
 use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::ExternalImpulse;
+use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use uuid::Uuid;
@@ -162,6 +164,11 @@ pub fn cast_spell(
                         filters: match actor.actor_group {
                             ActorGroup::Player => ENEMY_GROUP,
                             ActorGroup::Enemy => WITCH_GROUP,
+                        } | match actor.actor_group {
+                            // アイテムを押して動かせるように、プレイヤーの弾丸はアイテムに衝突します
+                            // 敵がアイテムを盾に接近するのを避けるために、敵の弾丸はアイテムに衝突しません
+                            ActorGroup::Player => DROPPED_ITEM_GROUP,
+                            ActorGroup::Enemy => Group::NONE,
                         } | filter_base,
                     };
 

@@ -116,6 +116,11 @@ pub const DOOR_GROUP: Group = Group::GROUP_10;
 
 pub const RABBIT_GROUP: Group = Group::GROUP_11;
 
+/// ドロップアイテムのグループ
+/// ENTITY_GROUPと似ていますが、敵キャラクターと敵キャラクターの弾丸には衝突しません
+/// 敵キャラクターがアイテムを押して盾にするのを避けるためんです
+pub const DROPPED_ITEM_GROUP: Group = Group::GROUP_12;
+
 /// rapier の pixels_per_meter に設定する値
 /// イメージしやすくするため、1タイル = 16ピクセル = 1メートルとしています
 pub const PIXELS_PER_METER: f32 = 16.0;

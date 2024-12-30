@@ -112,6 +112,11 @@ pub fn setup_level(
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
 
+    // 拠点に戻ってきたときは全回復します
+    if level == GameLevel::Level(0) {
+        player_state.life = player_state.max_life;
+    }
+
     // レベルのコリジョンを生成します
     spawn_wall_collisions(&mut commands, &chunk);
 

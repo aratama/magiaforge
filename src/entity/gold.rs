@@ -60,7 +60,7 @@ fn magnet(
             if gold.magnet {
                 let diff =
                     player_transform.translation.truncate() - gold_transform.translation.truncate();
-                gold_force.force = diff.normalize() * 5000.0;
+                gold_force.force = diff.normalize() * 20000.0;
             } else {
                 gold_force.force = Vec2::ZERO;
             }

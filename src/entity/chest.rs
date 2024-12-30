@@ -114,7 +114,8 @@ pub fn spawn_chest(
                         | ENEMY_GROUP
                         | ENEMY_BULLET_GROUP
                         | WALL_GROUP
-                        | RABBIT_GROUP,
+                        | RABBIT_GROUP
+                        | DROPPED_ITEM_GROUP,
                 ),
                 ExternalImpulse::default(),
             ),
