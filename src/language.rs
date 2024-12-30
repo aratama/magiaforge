@@ -20,6 +20,9 @@ pub enum Languages {
 
     /// Français
     Fr,
+
+    /// Português
+    Pt,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -29,6 +32,7 @@ pub struct Dict<T: ToString> {
     pub zh_cn: T,
     pub es: T,
     pub fr: T,
+    pub pt: T,
 }
 
 impl ops::Add<Dict<String>> for Dict<String> {
@@ -41,6 +45,7 @@ impl ops::Add<Dict<String>> for Dict<String> {
             zh_cn: format!("{}{}", self.zh_cn, rhs.zh_cn),
             es: format!("{}{}", self.es, rhs.es),
             fr: format!("{}{}", self.fr, rhs.fr),
+            pt: format!("{}{}", self.pt, rhs.pt),
         }
     }
 }
@@ -52,6 +57,7 @@ impl ops::AddAssign<Dict<String>> for Dict<String> {
         self.zh_cn = format!("{}{}", self.zh_cn, rhs.zh_cn);
         self.es = format!("{}{}", self.es, rhs.es);
         self.fr = format!("{}{}", self.fr, rhs.fr);
+        self.pt = format!("{}{}", self.pt, rhs.pt);
     }
 }
 
@@ -63,6 +69,7 @@ impl Dict<&'static str> {
             Languages::ZhCn => self.zh_cn.to_string(),
             Languages::Es => self.es.to_string(),
             Languages::Fr => self.fr.to_string(),
+            Languages::Pt => self.pt.to_string(),
         }
     }
 
@@ -73,6 +80,7 @@ impl Dict<&'static str> {
             zh_cn: self.zh_cn.to_string(),
             es: self.es.to_string(),
             fr: self.fr.to_string(),
+            pt: self.pt.to_string(),
         }
     }
 }
@@ -85,6 +93,7 @@ impl Dict<String> {
             zh_cn: "".to_string(),
             es: "".to_string(),
             fr: "".to_string(),
+            pt: "".to_string(),
         }
     }
 
@@ -95,6 +104,7 @@ impl Dict<String> {
             zh_cn: str.to_string(),
             es: str.to_string(),
             fr: str.to_string(),
+            pt: str.to_string(),
         }
     }
 
@@ -105,6 +115,7 @@ impl Dict<String> {
             Languages::ZhCn => self.zh_cn.to_string(),
             Languages::Es => self.es.to_string(),
             Languages::Fr => self.fr.to_string(),
+            Languages::Pt => self.pt.to_string(),
         }
     }
 }
@@ -155,6 +166,7 @@ pub fn language_to_font(assets: &GameAssets, config: &GameConfig) -> Handle<Font
         Languages::ZhCn => assets.noto_sans_sc.clone(),
         Languages::Es => assets.noto_sans_jp.clone(),
         Languages::Fr => assets.noto_sans_jp.clone(),
+        Languages::Pt => assets.noto_sans_jp.clone(),
     }
 }
 

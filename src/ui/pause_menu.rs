@@ -42,6 +42,7 @@ struct ButtonShots {
     zh: SystemId,
     es: SystemId,
     fr: SystemId,
+    pt: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
     fullscreen_on: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
@@ -75,6 +76,7 @@ impl FromWorld for ButtonShots {
             zh: world.register_system(zh),
             es: world.register_system(es),
             fr: world.register_system(fr),
+            pt: world.register_system(pt),
             #[cfg(not(target_arch = "wasm32"))]
             fullscreen_on: world.register_system(fullscreen_on),
             #[cfg(not(target_arch = "wasm32"))]
@@ -143,6 +145,11 @@ fn es(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
 
 fn fr(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Fr;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn pt(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::Pt;
     writer.send(SEEvent::new(SE::Click));
 }
 
@@ -252,7 +259,7 @@ fn setup_game_menu(
                                 shots.es,
                                 120.0,
                                 50.0,
-                                Dict::literal("Español"),
+                                Dict::literal("Es"),
                             );
 
                             menu_button(
@@ -261,7 +268,16 @@ fn setup_game_menu(
                                 shots.fr,
                                 120.0,
                                 50.0,
-                                Dict::literal("Français"),
+                                Dict::literal("Fr"),
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.pt,
+                                120.0,
+                                50.0,
+                                Dict::literal("Pt"),
                             );
                         });
 
@@ -278,7 +294,7 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.fullscreen_on,
-                                120.0,
+                                240.0,
                                 50.0,
                                 ON.to_string(),
                             );
@@ -286,7 +302,7 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.fullscreen_off,
-                                120.0,
+                                240.0,
                                 50.0,
                                 OFF.to_string(),
                             );

@@ -207,7 +207,7 @@ fn setup(
             BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.3)),
         ))
         .with_child((
-            Text::new("日本語/English/中文/Español"),
+            Text::new("日本語/English/中文/Español/Français/Português"),
             TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
             TextFont {
                 font_size: 16.0,
@@ -271,7 +271,8 @@ fn toggle_language(
                     Languages::En => Languages::ZhCn,
                     Languages::ZhCn => Languages::Es,
                     Languages::Es => Languages::Fr,
-                    Languages::Fr => Languages::Ja,
+                    Languages::Fr => Languages::Pt,
+                    Languages::Pt => Languages::Ja,
                 };
                 changed.0 = true;
                 writer.send(SEEvent::new(SE::Click));

@@ -44,6 +44,7 @@ impl EquipmentType {
                     zh_cn: "灯笼",
                     es: "Linterna",
                     fr: "Lanterne",
+                    pt: "Lanterna",
                 },
                 price: 100,
                 description: Dict {
@@ -52,6 +53,7 @@ impl EquipmentType {
                     zh_cn: "照亮黑暗的灯笼",
                     es: "Una linterna que ilumina la oscuridad",
                     fr: "Une lanterne qui illumine l'obscurité",
+                    pt: "Uma lanterna que ilumina a escuridão",
                 },
             },
             EquipmentType::Telescope => EquipmentProps {
@@ -63,6 +65,7 @@ impl EquipmentType {
                     zh_cn: "望远镜",
                     es: "Telescopio",
                     fr: "Télescope",
+                    pt: "Telescópio",
                 },
                 price: 300,
                 description: Dict {
@@ -71,6 +74,7 @@ impl EquipmentType {
                     zh_cn: "带有精美装饰的望远镜。您可以看得很远。",
                     es: "Un telescopio con finas decoraciones. Puedes ver lejos.",
                     fr: "Un télescope avec de fines décorations. Vous pouvez voir loin.",
+                    pt: "Um telescópio com decorações finas. Você pode ver longe.",
                 },
             },
             EquipmentType::Magnifier => EquipmentProps {
@@ -82,6 +86,7 @@ impl EquipmentType {
                     zh_cn: "放大镜",
                     es: "Lupa",
                     fr: "Loupe",
+                    pt: "Lupa",
                 },
                 price: 300,
                 description: Dict {
@@ -90,6 +95,7 @@ impl EquipmentType {
                     zh_cn: "带有大型镜片的放大镜。更容易看到细节。",
                     es: "Una lupa con una lente grande. Es más fácil ver los detalles.",
                     fr: "Une loupe avec une grande lentille. Il est plus facile de voir les détails.",
+                    pt: "Uma lupa com uma lente grande. É mais fácil ver os detalhes.",
                 },
             },
             EquipmentType::SpikeBoots => EquipmentProps {
@@ -101,6 +107,7 @@ impl EquipmentType {
                     zh_cn: "尖刺靴",
                     es: "Botas de clavos",
                     fr: "Bottes à crampons",
+                    pt: "Botas com cravos",
                 },
                 price: 100,
                 description: Dict {
@@ -109,6 +116,7 @@ impl EquipmentType {
                     zh_cn: "带有防滑功能的皮鞋。移动速度增加。",
                     es: "Zapatos de cuero con antideslizante. Aumenta la velocidad de movimiento.",
                     fr: "Chaussures en cuir avec antidérapant. La vitesse de déplacement augmente.",
+                    pt: "Sapatos de couro com antiderrapante. A velocidade de movimento aumenta.",
                 },
             },
         }
