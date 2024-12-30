@@ -60,7 +60,6 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 
 #### BGMs
 
-- They https://dova-s.jp/bgm/play21009.html
 - God's realm https://dova-s.jp/bgm/play20967.html
 - 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
 - 荒れ地の先へ https://dova-s.jp/bgm/play17195.html
