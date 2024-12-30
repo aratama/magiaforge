@@ -114,6 +114,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Bomb));
         inventory.insert_free(InventoryItemType::Spell(SpellType::LightSword));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::SpawnBookshelf));
         inventory.sort();
 
         actor.wands[1] = Wand::with_slots([

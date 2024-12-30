@@ -20,7 +20,7 @@ pub struct Bookshelf;
 
 /// 指定した位置に本棚を生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: f32, y: f32) {
+pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, position: Vec2) {
     let aseprite_clone = aseprite.clone();
 
     let mut parent = commands.spawn((
@@ -34,7 +34,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, x: 
         Bookshelf,
         EntityDepth,
         Visibility::default(),
-        Transform::from_translation(Vec3::new(x, y, 0.0)),
+        Transform::from_translation(position.extend(0.0)),
         (
             RigidBody::Dynamic,
             Damping {

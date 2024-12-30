@@ -86,8 +86,7 @@ pub fn spawn_entities(
                 spawn_book_shelf(
                     &mut commands,
                     assets.atlas.clone(),
-                    tx + TILE_SIZE,
-                    ty - TILE_HALF,
+                    Vec2::new(tx + TILE_SIZE, ty - TILE_HALF),
                 );
             }
             GameEntity::Chest => {

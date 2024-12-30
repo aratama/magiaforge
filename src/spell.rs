@@ -36,6 +36,7 @@ pub enum SpellType {
     Homing,
     SummonFriendSlime,
     PrecisionUp,
+    SpawnBookshelf,
     SummonFriendEyeball,
     Dash,
     Impact,
@@ -549,6 +550,35 @@ impl SpellType {
                 icon: "precision_icon",
                 price: 500,
                 cast: SpellCast::PrecisionUp,
+            },
+            SpellType::SpawnBookshelf => SpellProps {
+                rank: 3,
+                name: Dict {
+                    ja: "本棚生成",
+                    en: "Spawn Bookshelf",
+                    zh_cn: "生成书架",
+                    es: "Generar Estantería",
+                    fr: "Générer une Étagère",
+                    pt: "Gerar Estante",
+                    de: "Bücherregal Erzeugen",
+                    ko: "책장 생성",
+                    ru: "Создать Книжную Полку"
+                },
+                description: Dict {
+                    ja: "本棚を生成します。",
+                    en: "Spawns a bookshelf.",
+                    zh_cn: "生成一个书架。",
+                    es: "Genera una estantería.",
+                    fr: "Génère une étagère.",
+                    pt: "Gera uma estante.",
+                    de: "Erzeugt ein Bücherregal.",
+                    ko: "책장을 생성합니다.",
+                    ru: "Создает книжную полку."
+                },
+                cast_delay: 120,
+                icon: "spawn_bookshelf_icon",
+                price: 500,
+                cast: SpellCast::SpawnBookshelf,
             },
             SpellType::SummonFriendEyeball => SpellProps {
                 rank: 4,

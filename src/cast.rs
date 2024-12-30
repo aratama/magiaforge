@@ -12,6 +12,7 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bomb::SpawnBomb;
+use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
@@ -73,13 +74,14 @@ pub enum SpellCast {
     Impact,
     PrecisionUp,
     Bomb,
+    SpawnBookshelf,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
 /// マナが不足している場合は不発になる場合もあります
 /// 返り値として詠唱で生じた詠唱遅延を返すので、呼び出し元はその値をアクターの詠唱遅延に加算する必要があります。
 pub fn cast_spell(
-    commands: &mut Commands,
+    mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     actor_entity: Entity,
     actor: &mut Actor,
@@ -286,6 +288,13 @@ pub fn cast_spell(
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
                     bomb_writer.send(SpawnBomb { position });
+                }
+                SpellCast::SpawnBookshelf => {
+                    let angle = actor.pointer.normalize_or_zero().to_angle();
+                    let direction = Vec2::from_angle(angle) * 16.0;
+                    let position = actor_transform.translation.truncate() + direction;
+                    spawn_book_shelf(&mut commands, assets.atlas.clone(), position);
+                    se_writer.send(SEEvent::pos(SE::Status2, position));
                 }
             }
         } else {

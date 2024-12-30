@@ -51,6 +51,7 @@ pub enum SE {
     Kaminari,
     Jishin,
     Bakuhatsu,
+    Status2,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -112,6 +113,7 @@ fn se_events(
             SE::Kaminari => &assets.kaminari,
             SE::Jishin => &assets.jishin,
             SE::Bakuhatsu => &assets.bakuhatsu,
+            SE::Status2 => &assets.status2,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);
