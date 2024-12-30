@@ -36,7 +36,7 @@ use uuid::Uuid;
 #[derive(Debug)]
 pub enum SpellCast {
     Bullet {
-        slice: &'static str,
+        slices: Vec<String>,
 
         collier_radius: f32,
 
@@ -117,7 +117,7 @@ pub fn cast_spell(
 
             match props.cast {
                 SpellCast::Bullet {
-                    slice,
+                    slices,
                     collier_radius,
                     speed,
                     lifetime,
@@ -151,7 +151,7 @@ pub fn cast_spell(
                         sender: Some(actor.uuid),
                         damage: damage + actor.effects.bullet_damage_buff_amount,
                         impulse,
-                        slice: slice.to_string(),
+                        slices,
                         collier_radius,
                         light_intensity,
                         light_radius,

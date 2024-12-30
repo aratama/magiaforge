@@ -15,6 +15,7 @@ use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
+use rand::seq::SliceRandom;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -69,7 +70,7 @@ pub struct SpawnBullet {
     pub bullet_lifetime: u32,
     pub damage: i32,
     pub impulse: f32,
-    pub slice: String,
+    pub slices: Vec<String>,
     pub collier_radius: f32,
     pub light_intensity: f32,
     pub light_radius: f32,
@@ -92,6 +93,8 @@ pub fn spawn_bullet(
     writer: &mut EventWriter<SEEvent>,
     spawn: &SpawnBullet,
 ) {
+    let mut rng = rand::thread_rng();
+
     writer.send(SEEvent::pos(SE::Fire, spawn.position));
 
     let mut entity = commands.spawn((
@@ -110,7 +113,7 @@ pub fn spawn_bullet(
             * Transform::from_rotation(Quat::from_rotation_z(spawn.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
         AseSpriteSlice {
             aseprite,
-            name: spawn.slice.clone().into(),
+            name: spawn.slices.choose(&mut rng).unwrap().clone().into(),
         },
         (
             // 衝突にはColliderが必要

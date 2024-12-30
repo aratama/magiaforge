@@ -87,7 +87,7 @@ impl SpellType {
                 icon: "bullet_magic_bolt",
                 price: 10,
                 cast: SpellCast::Bullet {
-                    slice: "bullet_magic_bolt",
+                    slices: vec!["bullet_magic_bolt".to_string()],
                     collier_radius: 5.0,
                     speed: 100.0,
                     lifetime: 240,
@@ -127,7 +127,7 @@ impl SpellType {
                 icon: "light_ball_icon",
                 price: 10,
                 cast: SpellCast::Bullet {
-                    slice: "light_ball",
+                    slices: vec!["light_ball".to_string()],
                     collier_radius: 5.0,
                     speed: 4.0,
                     lifetime: 60 * 60,
@@ -168,7 +168,7 @@ impl SpellType {
                 icon: "bullet_purple",
                 price: 5,
                 cast: SpellCast::Bullet {
-                    slice: "bullet_purple",
+                    slices: vec!["bullet_purple".to_string()],
                     collier_radius: 5.0,
                     speed: 50.0,
                     lifetime: 500,
@@ -208,7 +208,7 @@ impl SpellType {
                 icon: "bullet_slime_charge",
                 price: 15,
                 cast: SpellCast::Bullet {
-                    slice: "bullet_slime_charge",
+                    slices: vec!["bullet_slime_charge".to_string()],
                     collier_radius: 5.0,
                     speed: 2.0,
                     lifetime: 5,
@@ -248,7 +248,7 @@ impl SpellType {
                 icon: "spell_water_ball",
                 price: 15,
                 cast: SpellCast::Bullet {
-                    slice: "water_ball",
+                    slices: vec!["water_ball".to_string()],
                     collier_radius: 5.0,
                     speed: 80.0,
                     lifetime: 240,
@@ -752,7 +752,7 @@ impl SpellType {
                 icon: "light_sowrd_icon",
                 price: 1000,
                 cast: SpellCast::Bullet {
-                    slice: "light_sword",
+                    slices: vec!["light_sword".to_string(), "light_catlass".to_string(), "light_knife".to_string(), "light_spear".to_string(), "light_axe".to_string(), "light_trident".to_string(), "light_rapier".to_string(), "light_flamberge".to_string()],
                     collier_radius: 5.0,
                     speed: 200.0,
                     lifetime: 240,
@@ -761,7 +761,7 @@ impl SpellType {
                     scattering: 0.2,
                     light_intensity: 1.0,
                     light_radius: 50.0,
-                    light_color_hlsa: [245.0, 0.0, 1.0, 1.0],
+                    light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
                 },
             },
         }
@@ -855,7 +855,7 @@ const HEAL_TEXT: Dict<&'static str> = Dict {
 pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
     match cast {
         SpellCast::Bullet {
-            slice: _,
+            slices: _,
             collier_radius,
             speed,
             lifetime,

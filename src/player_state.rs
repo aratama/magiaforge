@@ -175,11 +175,11 @@ fn save(
 pub struct PlayerStatePlugin;
 
 impl Plugin for PlayerStatePlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, _app: &mut App) {
         #[cfg(feature = "save")]
-        app.add_systems(OnEnter(GameState::MainMenu), load);
+        _app.add_systems(OnEnter(GameState::MainMenu), load);
 
         #[cfg(feature = "save")]
-        app.add_systems(Update, save.run_if(in_state(GameState::InGame)));
+        _app.add_systems(Update, save.run_if(in_state(GameState::InGame)));
     }
 }
