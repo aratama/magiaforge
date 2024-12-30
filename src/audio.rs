@@ -1,5 +1,4 @@
 use crate::asset_credit::asset_to_credit;
-use crate::asset_credit::AssetCredit;
 use crate::config::GameConfig;
 use crate::ui::pause_menu::BGMCredit;
 use bevy::audio::PlaybackMode;
@@ -51,7 +50,6 @@ pub struct NextBGM(pub Option<Handle<AudioSource>>);
 #[derive(Component)]
 pub struct BGM {
     volume: f32,
-    credit: AssetCredit,
 }
 
 fn change_bgm(
@@ -102,10 +100,7 @@ fn spawn_bgm(
     }
 
     commands.spawn((
-        BGM {
-            volume: 1.0,
-            credit,
-        },
+        BGM { volume: 1.0 },
         AudioPlayer::new(next.clone()),
         PlaybackSettings {
             volume: Volume::new(config.bgm_volume),

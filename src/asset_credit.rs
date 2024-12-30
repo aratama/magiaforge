@@ -1,4 +1,4 @@
-use bevy::audio::{AudioSink, AudioSource};
+use bevy::audio::AudioSource;
 use bevy::prelude::*;
 
 #[derive(Debug, Clone)]
@@ -10,12 +10,6 @@ pub struct AssetCredit {
 
 pub fn asset_to_credit(handle: &Handle<AudioSource>) -> AssetCredit {
     if let Some(path) = handle.path() {
-        // info!("label {:?}", path.label());
-        info!("label_cow {:?}", path.label_cow());
-        info!("path {:?}", path.path());
-        info!("source {:?}", path.source());
-        info!("get_full_extension {:?}", path.get_full_extension());
-
         match path
             .path()
             .file_stem()
