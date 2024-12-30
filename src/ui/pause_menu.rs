@@ -4,7 +4,7 @@ use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
 use crate::language::Languages;
-use crate::message::BGM_VOLUE;
+use crate::message::BGM_VOLUME;
 use crate::message::FULLSCREEN;
 use crate::message::OFF;
 use crate::message::ON;
@@ -43,6 +43,9 @@ struct ButtonShots {
     es: SystemId,
     fr: SystemId,
     pt: SystemId,
+    ru: SystemId,
+    de: SystemId,
+    ko: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
     fullscreen_on: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
@@ -77,6 +80,9 @@ impl FromWorld for ButtonShots {
             es: world.register_system(es),
             fr: world.register_system(fr),
             pt: world.register_system(pt),
+            ru: world.register_system(ru),
+            de: world.register_system(de),
+            ko: world.register_system(ko),
             #[cfg(not(target_arch = "wasm32"))]
             fullscreen_on: world.register_system(fullscreen_on),
             #[cfg(not(target_arch = "wasm32"))]
@@ -150,6 +156,21 @@ fn fr(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
 
 fn pt(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Pt;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn ru(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::Ru;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn de(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::De;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn ko(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::Ko;
     writer.send(SEEvent::new(SE::Click));
 }
 
@@ -261,7 +282,16 @@ fn setup_game_menu(
                                 50.0,
                                 Dict::literal("Es"),
                             );
+                        });
 
+                    parent
+                        .spawn(Node {
+                            column_gap: Val::Px(4.0),
+                            align_items: AlignItems::Start,
+
+                            ..default()
+                        })
+                        .with_children(|parent| {
                             menu_button(
                                 parent,
                                 &assets,
@@ -278,6 +308,33 @@ fn setup_game_menu(
                                 120.0,
                                 50.0,
                                 Dict::literal("Pt"),
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.ru,
+                                120.0,
+                                50.0,
+                                Dict::literal("Ru"),
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.de,
+                                120.0,
+                                50.0,
+                                Dict::literal("De"),
+                            );
+
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.ko,
+                                120.0,
+                                50.0,
+                                Dict::literal("Ko"),
                             );
                         });
 
@@ -315,7 +372,7 @@ fn setup_game_menu(
                         (10.0 * config.bgm_volume).round() as u32,
                         shots.bgm_volume_up,
                         shots.bgm_volume_down,
-                        BGM_VOLUE.to_string(),
+                        BGM_VOLUME.to_string(),
                     );
 
                     spawn_range(

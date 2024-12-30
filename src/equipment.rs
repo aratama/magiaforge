@@ -45,6 +45,9 @@ impl EquipmentType {
                     es: "Linterna",
                     fr: "Lanterne",
                     pt: "Lanterna",
+                    de: "Laterne",
+                    ko: "랜턴",
+                    ru: "Фонарь",
                 },
                 price: 100,
                 description: Dict {
@@ -54,6 +57,9 @@ impl EquipmentType {
                     es: "Una linterna que ilumina la oscuridad",
                     fr: "Une lanterne qui illumine l'obscurité",
                     pt: "Uma lanterna que ilumina a escuridão",
+                    de: "Eine Laterne, die die Dunkelheit erhellt",
+                    ko: "어둠을 밝히는 랜턴",
+                    ru: "Фонарь, освещающий тьму",
                 },
             },
             EquipmentType::Telescope => EquipmentProps {
@@ -61,11 +67,14 @@ impl EquipmentType {
                 icon: "zoom_out",
                 name: Dict {
                     ja: "望遠鏡",
-                    en: "Telecope",
+                    en: "Telescope",
                     zh_cn: "望远镜",
                     es: "Telescopio",
                     fr: "Télescope",
                     pt: "Telescópio",
+                    de: "Teleskop",
+                    ko: "망원경",
+                    ru: "Телескоп",
                 },
                 price: 300,
                 description: Dict {
@@ -75,6 +84,9 @@ impl EquipmentType {
                     es: "Un telescopio con finas decoraciones. Puedes ver lejos.",
                     fr: "Un télescope avec de fines décorations. Vous pouvez voir loin.",
                     pt: "Um telescópio com decorações finas. Você pode ver longe.",
+                    de: "Ein Teleskop mit feinen Verzierungen. Sie können weit sehen.",
+                    ko: "정교한 장식이 있는 망원경. 멀리 볼 수 있습니다.",
+                    ru: "Телескоп с тонкими украшениями. Вы можете видеть далеко.",
                 },
             },
             EquipmentType::Magnifier => EquipmentProps {
@@ -87,6 +99,9 @@ impl EquipmentType {
                     es: "Lupa",
                     fr: "Loupe",
                     pt: "Lupa",
+                    de: "Lupe",
+                    ko: "돋보기",
+                    ru: "Лупа",
                 },
                 price: 300,
                 description: Dict {
@@ -96,6 +111,9 @@ impl EquipmentType {
                     es: "Una lupa con una lente grande. Es más fácil ver los detalles.",
                     fr: "Une loupe avec une grande lentille. Il est plus facile de voir les détails.",
                     pt: "Uma lupa com uma lente grande. É mais fácil ver os detalhes.",
+                    de: "Eine Lupe mit einer großen Linse. Es ist einfacher, die Details zu sehen.",
+                    ko: "큰 렌즈가 있는 돋보기. 세부 사항을 더 쉽게 볼 수 있습니다.",
+                    ru: "Лупа с большим объективом. Легче увидеть детали.",
                 },
             },
             EquipmentType::SpikeBoots => EquipmentProps {
@@ -108,6 +126,9 @@ impl EquipmentType {
                     es: "Botas de clavos",
                     fr: "Bottes à crampons",
                     pt: "Botas com cravos",
+                    de: "Stiefel mit Spikes",
+                    ko: "스파이크 부츠",
+                    ru: "Ботинки с шипами",
                 },
                 price: 100,
                 description: Dict {
@@ -117,6 +138,9 @@ impl EquipmentType {
                     es: "Zapatos de cuero con antideslizante. Aumenta la velocidad de movimiento.",
                     fr: "Chaussures en cuir avec antidérapant. La vitesse de déplacement augmente.",
                     pt: "Sapatos de couro com antiderrapante. A velocidade de movimento aumenta.",
+                    de: "Lederschuhe mit Anti-Rutsch. Die Bewegungsgeschwindigkeit erhöht sich.",
+                    ko: "미끄럼 방지 기능이 있는 가죽 신발. 이동 속도가 증가합니다.",
+                    ru: "Кожаные ботинки с противоскользящими вставками. Скорость передвижения увеличивается.",
                 },
             },
         }

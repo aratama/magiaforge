@@ -4,6 +4,7 @@ use crate::audio::NextBGM;
 use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
+use crate::language::language_to_font;
 use crate::language::Languages;
 use crate::language::M18NTtext;
 use crate::message::CLICK_TO_START;
@@ -17,6 +18,7 @@ use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use git_version::git_version;
+use strum::IntoEnumIterator;
 
 const SCALE: f32 = 4.0;
 
@@ -36,7 +38,9 @@ enum Events {
 }
 
 #[derive(Component)]
-struct LanguageButton;
+struct LanguageButton {
+    language: Languages,
+}
 
 fn setup(
     mut commands: Commands,
@@ -192,29 +196,66 @@ fn setup(
 
     commands
         .spawn((
-            Name::new("language_button"),
-            LanguageButton,
             StateScoped(GameState::MainMenu),
             GlobalZIndex(HUD_Z_INDEX),
             Node {
                 position_type: PositionType::Absolute,
-                right: Val::Px(40.0),
-                bottom: Val::Px(40.0),
-                padding: UiRect::new(Val::Px(20.0), Val::Px(20.0), Val::Px(8.0), Val::Px(8.0)),
+                right: Val::Px(20.0),
+                bottom: Val::Px(20.0),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(2.0),
                 ..default()
             },
-            Button,
-            BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.3)),
         ))
-        .with_child((
-            Text::new("日本語/English/中文/Español/Français/Português"),
-            TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
-            TextFont {
-                font_size: 16.0,
-                font: assets.noto_sans_jp.clone(),
-                ..default()
-            },
-        ));
+        .with_children(|builder| {
+            for language in Languages::iter() {
+                builder
+                    .spawn((
+                        Name::new("language_button"),
+                        LanguageButton { language },
+                        Button,
+                        BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.05)),
+                    ))
+                    .with_children(|builder| {
+                        builder
+                            .spawn((Node {
+                                padding: UiRect::new(
+                                    Val::Px(8.0),
+                                    Val::Px(8.0),
+                                    Val::Px(4.0),
+                                    Val::Px(4.0),
+                                ),
+                                display: Display::Flex,
+                                justify_content: JustifyContent::Center,
+                                align_content: AlignContent::Center,
+                                ..default()
+                            },))
+                            .with_children(|builder| {
+                                builder.spawn((
+                                    Text::new(match language {
+                                        Languages::Ja => "日本語",
+                                        Languages::En => "English",
+                                        Languages::ZhCn => "中文",
+                                        Languages::Es => "Español",
+                                        Languages::Fr => "Français",
+                                        Languages::Pt => "Português",
+                                        Languages::Ru => "Русский",
+                                        Languages::De => "Deutsch",
+                                        Languages::Ko => "한국어",
+                                    }),
+                                    Label,
+                                    TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
+                                    TextFont {
+                                        font_size: 12.0,
+                                        font: language_to_font(&assets, language),
+                                        ..default()
+                                    },
+                                ));
+                            });
+                    });
+            }
+        });
 }
 
 fn spawn_cloud<T: Component>(
@@ -245,37 +286,56 @@ fn spawn_cloud<T: Component>(
 #[derive(Resource, Default)]
 struct LanguageChanged(bool);
 
+const UNSELECTED: Color = Color::hsva(0.0, 0.0, 1.0, 0.1);
+
+const HOVERED: Color = Color::hsva(0.0, 0.0, 1.0, 0.3);
+
+const SELECTED: Color = Color::hsva(0.0, 0.0, 1.0, 0.6);
+
 fn toggle_language(
-    mut query: Query<
-        (&mut BackgroundColor, &Interaction),
-        (With<LanguageButton>, Changed<Interaction>),
-    >,
+    mut query: Query<(&mut BackgroundColor, &Interaction, &LanguageButton), Changed<Interaction>>,
     mut config: ResMut<GameConfig>,
     mut changed: ResMut<LanguageChanged>,
     mut writer: EventWriter<SEEvent>,
 ) {
     changed.0 = false;
 
-    for (mut background, interaction) in &mut query.iter_mut() {
+    for (mut background, interaction, button) in &mut query.iter_mut() {
         match interaction {
             Interaction::None => {
-                background.0 = Color::hsva(0.0, 0.0, 1.0, 0.3);
+                background.0 = if config.language == button.language {
+                    SELECTED
+                } else {
+                    UNSELECTED
+                };
             }
             Interaction::Hovered => {
-                background.0 = Color::hsva(0.0, 0.0, 1.0, 0.8);
+                background.0 = if config.language == button.language {
+                    SELECTED
+                } else {
+                    HOVERED
+                };
             }
             Interaction::Pressed => {
-                background.0 = Color::WHITE;
-                config.language = match config.language {
-                    Languages::Ja => Languages::En,
-                    Languages::En => Languages::ZhCn,
-                    Languages::ZhCn => Languages::Es,
-                    Languages::Es => Languages::Fr,
-                    Languages::Fr => Languages::Pt,
-                    Languages::Pt => Languages::Ja,
-                };
+                background.0 = SELECTED;
+                config.language = button.language;
                 changed.0 = true;
                 writer.send(SEEvent::new(SE::Click));
+            }
+        }
+    }
+}
+
+fn update_language_button_background(
+    mut query: Query<(&mut BackgroundColor, &LanguageButton)>,
+    config: Res<GameConfig>,
+) {
+    if config.is_changed() {
+        for (mut background, button) in &mut query.iter_mut() {
+            background.0 = if config.language == button.language {
+                SELECTED
+            } else {
+                UNSELECTED
             }
         }
     }
@@ -347,7 +407,12 @@ impl Plugin for MainMenuPlugin {
                 read_events,
                 witch_animation,
                 cloud_animation,
-                (toggle_language, start_game).chain(),
+                (
+                    update_language_button_background,
+                    toggle_language,
+                    start_game,
+                )
+                    .chain(),
             )
                 .run_if(in_state(GameState::MainMenu)),
         );

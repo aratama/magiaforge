@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use serde::*;
 use std::ops;
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, strum::EnumIter, PartialEq, Eq)]
 pub enum Languages {
     /// 日本語
     Ja,
@@ -23,6 +23,15 @@ pub enum Languages {
 
     /// Português
     Pt,
+
+    /// Русский
+    Ru,
+
+    /// Deutsch
+    De,
+
+    /// 한국어
+    Ko,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -33,6 +42,9 @@ pub struct Dict<T: ToString> {
     pub es: T,
     pub fr: T,
     pub pt: T,
+    pub ru: T,
+    pub de: T,
+    pub ko: T,
 }
 
 impl ops::Add<Dict<String>> for Dict<String> {
@@ -46,6 +58,9 @@ impl ops::Add<Dict<String>> for Dict<String> {
             es: format!("{}{}", self.es, rhs.es),
             fr: format!("{}{}", self.fr, rhs.fr),
             pt: format!("{}{}", self.pt, rhs.pt),
+            ru: format!("{}{}", self.ru, rhs.ru),
+            de: format!("{}{}", self.de, rhs.de),
+            ko: format!("{}{}", self.ko, rhs.ko),
         }
     }
 }
@@ -58,6 +73,9 @@ impl ops::AddAssign<Dict<String>> for Dict<String> {
         self.es = format!("{}{}", self.es, rhs.es);
         self.fr = format!("{}{}", self.fr, rhs.fr);
         self.pt = format!("{}{}", self.pt, rhs.pt);
+        self.ru = format!("{}{}", self.ru, rhs.ru);
+        self.de = format!("{}{}", self.de, rhs.de);
+        self.ko = format!("{}{}", self.ko, rhs.ko);
     }
 }
 
@@ -70,6 +88,9 @@ impl Dict<&'static str> {
             Languages::Es => self.es.to_string(),
             Languages::Fr => self.fr.to_string(),
             Languages::Pt => self.pt.to_string(),
+            Languages::Ru => self.ru.to_string(),
+            Languages::De => self.de.to_string(),
+            Languages::Ko => self.ko.to_string(),
         }
     }
 
@@ -81,6 +102,9 @@ impl Dict<&'static str> {
             es: self.es.to_string(),
             fr: self.fr.to_string(),
             pt: self.pt.to_string(),
+            ru: self.ru.to_string(),
+            de: self.de.to_string(),
+            ko: self.ko.to_string(),
         }
     }
 }
@@ -94,6 +118,9 @@ impl Dict<String> {
             es: "".to_string(),
             fr: "".to_string(),
             pt: "".to_string(),
+            ru: "".to_string(),
+            de: "".to_string(),
+            ko: "".to_string(),
         }
     }
 
@@ -105,6 +132,9 @@ impl Dict<String> {
             es: str.to_string(),
             fr: str.to_string(),
             pt: str.to_string(),
+            ru: str.to_string(),
+            de: str.to_string(),
+            ko: str.to_string(),
         }
     }
 
@@ -116,6 +146,9 @@ impl Dict<String> {
             Languages::Es => self.es.to_string(),
             Languages::Fr => self.fr.to_string(),
             Languages::Pt => self.pt.to_string(),
+            Languages::Ru => self.ru.to_string(),
+            Languages::De => self.de.to_string(),
+            Languages::Ko => self.ko.to_string(),
         }
     }
 }
@@ -155,18 +188,21 @@ fn update_text(
 ) {
     for (mut text, mut font, m18n) in text_query.iter_mut() {
         text.0 = m18n.0.get(config.language);
-        font.font = language_to_font(assets, config);
+        font.font = language_to_font(assets, config.language);
     }
 }
 
-pub fn language_to_font(assets: &GameAssets, config: &GameConfig) -> Handle<Font> {
-    match config.language {
+pub fn language_to_font(assets: &GameAssets, language: Languages) -> Handle<Font> {
+    match language {
         Languages::Ja => assets.noto_sans_jp.clone(),
         Languages::En => assets.noto_sans_jp.clone(),
         Languages::ZhCn => assets.noto_sans_sc.clone(),
         Languages::Es => assets.noto_sans_jp.clone(),
         Languages::Fr => assets.noto_sans_jp.clone(),
         Languages::Pt => assets.noto_sans_jp.clone(),
+        Languages::Ru => assets.noto_sans_jp.clone(),
+        Languages::De => assets.noto_sans_jp.clone(),
+        Languages::Ko => assets.noto_sans_kr.clone(),
     }
 }
 

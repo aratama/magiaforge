@@ -4,7 +4,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory_item::InventoryItemType;
 use crate::language::M18NTtext;
-use crate::message::UNPEID;
+use crate::message::UNPAID;
 use crate::spell::get_spell_appendix;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
@@ -223,7 +223,7 @@ fn update_item_description(
                     }
 
                     if 0 < first.price {
-                        dict = dict + UNPEID.to_string();
+                        dict = dict + UNPAID.to_string();
 
                         //  &format!("\n未清算:{}ゴールド", first.price);
                     }

@@ -10,6 +10,9 @@ pub const CLICK_TO_START: Dict<&'static str> = Dict {
     es: "Haz clic para empezar",
     fr: "Cliquez pour commencer",
     pt: "Clique para começar",
+    de: "Klicken zum Starten",
+    ko: "클릭하여 시작",
+    ru: "Нажмите, чтобы начать",
 };
 
 pub const DISCOVERED_SPELLS: Dict<&'static str> = Dict {
@@ -19,15 +22,21 @@ pub const DISCOVERED_SPELLS: Dict<&'static str> = Dict {
     es: "Hechizos Descubiertos",
     fr: "Sorts Découverts",
     pt: "Feitiços Descobertos",
+    de: "Entdeckte Zauber",
+    ko: "발견된 주문",
+    ru: "Обнаруженные заклинания",
 };
 
-pub const UNPEID: Dict<&'static str> = Dict {
+pub const UNPAID: Dict<&'static str> = Dict {
     ja: "未精算",
     en: "Unpaid",
     zh_cn: "未付款",
     es: "No Pagado",
     fr: "Non Payé",
     pt: "Não Pago",
+    de: "Unbezahlt",
+    ko: "미지불",
+    ru: "Неоплаченный",
 };
 
 pub const INPUT_YOUR_NAME: Dict<&'static str> = Dict {
@@ -37,6 +46,9 @@ pub const INPUT_YOUR_NAME: Dict<&'static str> = Dict {
     es: "Introduce tu nombre",
     fr: "Entrez votre nom",
     pt: "Digite seu nome",
+    de: "Geben Sie Ihren Namen ein",
+    ko: "이름을 입력하세요",
+    ru: "Введите ваше имя",
 };
 
 pub const START: Dict<&'static str> = Dict {
@@ -46,6 +58,9 @@ pub const START: Dict<&'static str> = Dict {
     es: "Comenzar",
     fr: "Commencer",
     pt: "Começar",
+    de: "Starten",
+    ko: "시작",
+    ru: "Начать",
 };
 
 pub const PAUSED: Dict<&'static str> = Dict {
@@ -55,6 +70,9 @@ pub const PAUSED: Dict<&'static str> = Dict {
     es: "Pausado",
     fr: "En Pause",
     pt: "Pausado",
+    de: "Pausiert",
+    ko: "일시 중지",
+    ru: "Пауза",
 };
 
 pub const FULLSCREEN: Dict<&'static str> = Dict {
@@ -64,6 +82,9 @@ pub const FULLSCREEN: Dict<&'static str> = Dict {
     es: "Pantalla Completa",
     fr: "Plein Écran",
     pt: "Tela Cheia",
+    de: "Vollbild",
+    ko: "전체 화면",
+    ru: "Полноэкранный режим",
 };
 
 pub const ON: Dict<&'static str> = Dict {
@@ -73,6 +94,9 @@ pub const ON: Dict<&'static str> = Dict {
     es: "Encendido",
     fr: "Activé",
     pt: "Ligado",
+    de: "Ein",
+    ko: "켜기",
+    ru: "Вкл",
 };
 
 pub const OFF: Dict<&'static str> = Dict {
@@ -82,15 +106,21 @@ pub const OFF: Dict<&'static str> = Dict {
     es: "Apagado",
     fr: "Désactivé",
     pt: "Desligado",
+    de: "Aus",
+    ko: "끄기",
+    ru: "Выкл",
 };
 
-pub const BGM_VOLUE: Dict<&'static str> = Dict {
+pub const BGM_VOLUME: Dict<&'static str> = Dict {
     ja: "BGM音量",
     en: "BGM Volume",
     zh_cn: "背景音乐音量",
     es: "Volumen de BGM",
     fr: "Volume BGM",
     pt: "Volume do BGM",
+    de: "BGM-Lautstärke",
+    ko: "배경 음악 볼륨",
+    ru: "Громкость BGM",
 };
 
 pub const SFX_VOLUME: Dict<&'static str> = Dict {
@@ -100,15 +130,21 @@ pub const SFX_VOLUME: Dict<&'static str> = Dict {
     es: "Volumen de SFX",
     fr: "Volume SFX",
     pt: "Volume de SFX",
+    de: "SFX-Lautstärke",
+    ko: "효과음 볼륨",
+    ru: "Громкость SFX",
 };
 
 pub const RESUME: Dict<&'static str> = Dict {
     ja: "再開",
-    en: "BACK",
+    en: "Resume",
     zh_cn: "恢复",
     es: "Reanudar",
     fr: "Reprendre",
     pt: "Retomar",
+    de: "Fortsetzen",
+    ko: "다시 시작",
+    ru: "Продолжить",
 };
 
 pub const RETURN_TO_TITLE: Dict<&'static str> = Dict {
@@ -118,6 +154,9 @@ pub const RETURN_TO_TITLE: Dict<&'static str> = Dict {
     es: "Volver al Título",
     fr: "Retour au Titre",
     pt: "Voltar ao Título",
+    de: "Zurück zum Titel",
+    ko: "타이틀로 돌아가기",
+    ru: "Вернуться к заголовку",
 };
 
 pub const SORT: Dict<&'static str> = Dict {
@@ -127,9 +166,10 @@ pub const SORT: Dict<&'static str> = Dict {
     es: "Ordenar",
     fr: "Trier",
     pt: "Ordenar",
+    de: "Sortieren",
+    ko: "정렬",
+    ru: "Сортировать",
 };
-
-// セリフ
 
 pub const HELLO: Dict<&'static str> = Dict {
     ja: "おや、魔法使いか。\nここはぼくらの商人キャンプだよ。\n来客は歓迎さ。",
@@ -138,6 +178,9 @@ pub const HELLO: Dict<&'static str> = Dict {
     es: "Oh, una bruja.\nEste es nuestro campamento de comerciantes.\nLos invitados son bienvenidos.",
     fr: "Oh, une sorcière.\nCeci est notre camp de marchands.\nLes invités sont les bienvenus.",
     pt: "Oh, uma bruxa.\nEste é nosso acampamento de mercadores.\nOs convidados são bem-vindos.",
+    de: "Oh, eine Hexe.\nDies ist unser Händlerlager.\nGäste sind willkommen.",
+    ko: "오, 마녀야.\n여기는 우리 상인 캠프야.\n손님을 환영해.",
+    ru: "О, ведьма.\nЭто наш лагерь торговцев.\nГостям рады.",
 };
 
 pub const HELLO_RABBITS: Dict<&'static str> = Dict {
@@ -147,6 +190,9 @@ pub const HELLO_RABBITS: Dict<&'static str> = Dict {
     es: "Por favor, saluda a los otros conejos.",
     fr: "Veuillez dire bonjour aux autres lapins.",
     pt: "Por favor, cumprimente os outros coelhos.",
+    de: "Bitte grüße die anderen Kaninchen.",
+    ko: "다른 토끼들에게도 인사해 주세요.",
+    ru: "Пожалуйста, поздоровайтесь с другими кроликами.",
 };
 
 pub const SINGLEPLAY: Dict<&'static str> = Dict {
@@ -156,6 +202,9 @@ pub const SINGLEPLAY: Dict<&'static str> = Dict {
     es: "Esta es la entrada al laberinto subterráneo.\nTen cuidado.\nCreo que estarás bien\nporque eres una bruja.",
     fr: "Ceci est l'entrée du labyrinthe souterrain.\nFaites attention.\nJe pense que vous serez bien\nparce que vous êtes une sorcière.",
     pt: "Esta é a entrada para o labirinto subterrâneo.\nTenha cuidado.\nAcho que você ficará bem\nporque você é uma bruxa.",
+    de: "Dies ist der Eingang zum unterirdischen Labyrinth.\nSei vorsichtig.\nIch denke, du wirst in Ordnung sein,\nweil du eine Hexe bist.",
+    ko: "여기는 지하 미로의 입구야.\n조심해.\n너는 마녀니까 괜찮을 거야.",
+    ru: "Это вход в подземный лабиринт.\nБудь осторожен.\nДумаю, с тобой все будет в порядке,\nпотому что ты ведьма.",
 };
 
 pub const WITCHES_ARE: Dict<&'static str> = Dict {
@@ -165,7 +214,11 @@ pub const WITCHES_ARE: Dict<&'static str> = Dict {
     es: "Solía haber muchos humanos en esta isla, pero ahora solo las brujas la visitan ocasionalmente. ¿Qué buscan ustedes, las brujas, en las profundidades?",
     fr: "Il y avait autrefois beaucoup d'humains sur cette île, mais maintenant seules les sorcières la visitent occasionnellement. Que cherchez-vous, sorcières, dans les profondeurs?",
     pt: "Costumava haver muitos humanos nesta ilha, mas agora apenas bruxas a visitam ocasionalmente. O que vocês, bruxas, estão procurando nas profundezas?",
+    de: "Früher gab es viele Menschen auf dieser Insel, aber jetzt besuchen nur noch gelegentlich Hexen. Was sucht ihr Hexen in den Tiefen?",
+    ko: "예전에는 이 섬에 많은 인간이 있었지만 지금은 가끔 마녀들만 방문해. 너희 마녀들은 깊은 곳에서 무엇을 찾고 있니?",
+    ru: "Раньше на этом острове было много людей, но теперь его изредка посещают только ведьмы. Что вы, ведьмы, ищете в глубинах?",
 };
+
 pub const HUGE_SLIME: Dict<&'static str> = Dict {
     ja: "ところで最近、地下迷宮にとても大きなスライムが現れてね。大暴れして困っているんだ。",
     en: "Lately, a huge slime has appeared in the labyrinth. It's causing a lot of trouble.",
@@ -173,6 +226,9 @@ pub const HUGE_SLIME: Dict<&'static str> = Dict {
     es: "Últimamente, un gran slime ha aparecido en el laberinto. Está causando muchos problemas.",
     fr: "Dernièrement, un énorme slime est apparu dans le labyrinthe. Il cause beaucoup de problèmes.",
     pt: "Ultimamente, um grande slime apareceu no labirinto. Está causando muitos problemas.",
+    de: "In letzter Zeit ist ein riesiger Schleim im Labyrinth aufgetaucht. Es verursacht viele Probleme.",
+    ko: "최근에 미로에 거대한 슬라임이 나타났어. 많은 문제를 일으키고 있어.",
+    ru: "В последнее время в лабиринте появился огромный слизень. Он вызывает много проблем.",
 };
 
 pub const HUGE_SLIME2: Dict<&'static str> = Dict {
@@ -182,6 +238,9 @@ pub const HUGE_SLIME2: Dict<&'static str> = Dict {
     es: "Después de todo, nos ganamos la vida recogiendo reliquias en el laberinto. Si algo así está deambulando, no podemos explorar con calma.",
     fr: "Après tout, nous gagnons notre vie en ramassant des reliques dans le labyrinthe. Si une telle chose erre, nous ne pouvons pas explorer calmement.",
     pt: "Afinal, ganhamos a vida recolhendo relíquias no labirinto. Se algo assim estiver vagando, não podemos explorar calmamente.",
+    de: "Schließlich verdienen wir unseren Lebensunterhalt, indem wir Relikte im Labyrinth aufsammeln. Wenn so etwas herumwandert, können wir nicht ruhig erkunden.",
+    ko: "결국 우리는 미로에서 유물을 주워 생계를 유지해. 그런 것이 돌아다니면 우리는 차분하게 탐험할 수 없어.",
+    ru: "В конце концов, мы зарабатываем на жизнь, собирая реликвии в лабиринте. Если такое существо будет бродить вокруг, мы не сможем спокойно исследовать.",
 };
 
 pub const HUGE_SLIME3: Dict<&'static str> = Dict {
@@ -191,6 +250,9 @@ pub const HUGE_SLIME3: Dict<&'static str> = Dict {
     es: "Si pudieras derrotar a ese slime, estaría muy agradecido.",
     fr: "Si vous pouviez vaincre ce slime, je vous en serais très reconnaissant.",
     pt: "Se você pudesse derrotar aquele slime, eu ficaria muito grato.",
+    de: "Wenn du diesen Schleim besiegen könntest, wäre ich dir sehr dankbar.",
+    ko: "네가 그 슬라임을 물리쳐 준다면 정말 고마울 거야.",
+    ru: "Если бы ты мог победить этого слизня, я был бы очень благодарен.",
 };
 
 pub const HUGE_SLIME4: Dict<&'static str> = Dict {
@@ -200,6 +262,9 @@ pub const HUGE_SLIME4: Dict<&'static str> = Dict {
     es: "El gran slime ataca con un golpe de cuerpo, pero si tienes piernas rápidas, no es difícil escapar.",
     fr: "Le gros slime attaque avec un coup de corps, mais si vous avez des jambes rapides, il n'est pas difficile de s'échapper.",
     pt: "O grande slime ataca com um golpe corporal, mas se você tiver pernas rápidas, não é difícil escapar.",
+    de: "Der riesige Schleim greift mit einem Körperstoß an, aber wenn du schnelle Beine hast, ist es nicht schwer zu entkommen.",
+    ko: "거대한 슬라임은 몸통 박치기로 공격하지만, 다리가 빠르면 도망치는 것은 어렵지 않아.",
+    ru: "Огромный слизень атакует телесным ударом, но если у тебя быстрые ноги, убежать несложно.",
 };
 
 pub const HUGE_SLIME5: Dict<&'static str> = Dict {
@@ -209,6 +274,9 @@ pub const HUGE_SLIME5: Dict<&'static str> = Dict {
     es: "Y llama a pequeños slimes a su lado. Si estás rodeado, perderás tu ruta de escape. Es mejor derrotar rápidamente a los slimes circundantes.",
     fr: "Et il appelle des petits slimes à ses côtés. Si vous êtes entouré, vous perdrez votre route d'évasion. Il vaut mieux vaincre rapidement les slimes environnants.",
     pt: "E ele chama pequenos slimes para o seu lado. Se você estiver cercado, perderá sua rota de fuga. É melhor derrotar rapidamente os slimes ao redor.",
+    de: "Und es ruft kleine Schleime zu sich. Wenn du umzingelt bist, verlierst du deinen Fluchtweg. Es ist besser, die umliegenden Schleime schnell zu besiegen.",
+    ko: "그리고 작은 슬라임들을 불러들여. 둘러싸이면 도망갈 길을 잃게 돼. 주변의 슬라임들을 빨리 물리치는 것이 좋아.",
+    ru: "И он зовет к себе маленьких слизней. Если ты окажешься окружен, ты потеряешь путь к бегству. Лучше быстро победить окружающих слизней.",
 };
 
 pub const MULTIPLAY: Dict<&'static str> = Dict {
@@ -218,6 +286,9 @@ pub const MULTIPLAY: Dict<&'static str> = Dict {
     es: "Parece que este es un nivel para multijugador.\nSiéntete libre de jugar.\nNo sé si hay alguien allí.",
     fr: "Il semble que ce soit un niveau pour multijoueur.\nN'hésitez pas à jouer.\nJe ne sais pas si quelqu'un est là.",
     pt: "Parece que este é um nível para multijogador.\nSinta-se à vontade para jogar.\nNão sei se há alguém lá.",
+    de: "Es scheint, dass dies ein Level für Mehrspieler ist.\nFühlen Sie sich frei zu spielen.\nIch weiß nicht, ob jemand da ist.",
+    ko: "이것은 멀티플레이어를 위한 레벨인 것 같아.\n편하게 플레이해.\n누가 있는지 모르겠어.",
+    ru: "Кажется, это уровень для многопользовательской игры.\nНе стесняйтесь играть.\nНе знаю, есть ли там кто-нибудь.",
 };
 
 pub const TRAINING_RABBIT: Dict<&'static str> = Dict {
@@ -227,6 +298,9 @@ pub const TRAINING_RABBIT: Dict<&'static str> = Dict {
     es: "¿Quieres ser fuerte?\nEs bueno practicar aquí.\nLos sacos de arena serán tus oponentes.",
     fr: "Voulez-vous devenir fort?\nC'est bien de s'entraîner ici.\nLes sacs de sable seront vos adversaires.",
     pt: "Você quer ser forte?\nÉ bom praticar aqui.\nOs sacos de areia serão seus oponentes.",
+    de: "Willst du stark werden?\nEs ist gut, hier zu üben.\nDie Sandsäcke werden deine Gegner sein.",
+    ko: "강해지고 싶어?\n여기서 연습하는 것이 좋아.\n샌드백들이 상대가 되어줄 거야.",
+    ru: "Хочешь стать сильным?\nЗдесь хорошо тренироваться.\nМешки с песком будут твоими противниками.",
 };
 
 pub const SPELL_LIST1: Dict<&'static str> = Dict {
@@ -236,6 +310,9 @@ pub const SPELL_LIST1: Dict<&'static str> = Dict {
     es: "Estoy interesado en los hechizos lanzados por las brujas. ¿Puedes contarme sobre los hechizos que conoces?",
     fr: "Je suis intéressé par les sorts lancés par les sorcières. Pouvez-vous me parler des sorts que vous connaissez?",
     pt: "Estou interessado nos feitiços lançados pelas bruxas. Você pode me contar sobre os feitiços que conhece?",
+    de: "Ich interessiere mich für die Zauber, die Hexen wirken. Kannst du mir von den Zaubern erzählen, die du kennst?",
+    ko: "나는 마녀들이 사용하는 주문에 관심이 있어. 네가 알고 있는 주문에 대해 말해줄 수 있니?",
+    ru: "Меня интересуют заклинания, которые используют ведьмы. Можешь рассказать мне о заклинаниях, которые ты знаешь?",
 };
 
 pub const SPELL_LIST2: Dict<&'static str> = Dict {
@@ -245,6 +322,9 @@ pub const SPELL_LIST2: Dict<&'static str> = Dict {
     es: "Hmmmm, muy interesante. Por favor, avísame si encuentras un nuevo hechizo.",
     fr: "Hmmmm, très intéressant. Veuillez me faire savoir si vous trouvez un nouveau sort.",
     pt: "Hmmmm, muito interessante. Por favor, me avise se encontrar um novo feitiço.",
+    de: "Hmmmm, sehr interessant. Bitte lass mich wissen, wenn du einen neuen Zauber findest.",
+    ko: "음, 매우 흥미로워. 새로운 주문을 발견하면 꼭 알려줘.",
+    ru: "Хммм, очень интересно. Пожалуйста, сообщи мне, если найдешь новое заклинание.",
 };
 
 pub const SPELL_LIST3: Dict<&'static str> = Dict {
@@ -254,6 +334,9 @@ pub const SPELL_LIST3: Dict<&'static str> = Dict {
     es: "Le diré a todos que recojan esos hechizos. Debería estar disponible en la tienda a partir de ahora.",
     fr: "Je dirai à tout le monde de collecter ces sorts. Ils devraient être disponibles dans la boutique à partir de maintenant.",
     pt: "Vou dizer a todos para coletarem esses feitiços. Eles devem estar disponíveis na loja a partir de agora.",
+    de: "Ich werde allen sagen, dass sie diese Zauber sammeln sollen. Sie sollten ab jetzt im Laden erhältlich sein.",
+    ko: "모두에게 그 주문을 모으라고 말할게. 이제부터 그 주문이 가게에 있을 거야.",
+    ru: "Я скажу всем собирать эти заклинания. Они должны быть доступны в магазине с этого момента.",
 };
 
 pub const SHOP_RABBIT: Dict<&'static str> = Dict {
@@ -263,7 +346,11 @@ pub const SHOP_RABBIT: Dict<&'static str> = Dict {
     es: "¡Bienvenido!\nTráeme el artículo\nque quieres comprar.",
     fr: "Bienvenue!\nApportez-moi l'article\nque vous voulez acheter.",
     pt: "Bem-vindo!\nTraga-me o item\nque você quer comprar.",
+    de: "Willkommen!\nBring mir den Artikel,\nden du kaufen möchtest.",
+    ko: "어서 오세요!\n사고 싶은 물건을\n가져와 주세요.",
+    ru: "Добро пожаловать!\nПринеси мне предмет,\nкоторый хочешь купить.",
 };
+
 pub fn shop_rabbit(golds: u32) -> Dict<String> {
     Dict {
         ja: format!(
@@ -275,6 +362,9 @@ pub fn shop_rabbit(golds: u32) -> Dict<String> {
         es: format!("Tu total es de {} oros\nGracias", golds),
         fr: format!("Votre total est de {} pièces d'or\nMerci", golds),
         pt: format!("Seu total é de {} ouros\nObrigado", golds),
+        de: format!("Ihr Gesamtbetrag beträgt {} Gold\nDanke", golds),
+        ko: format!("총 {} 골드입니다\n감사합니다", golds),
+        ru: format!("Ваш итоговый счет {} золота\nСпасибо", golds),
     }
 }
 
@@ -301,6 +391,18 @@ pub fn too_few_golds(golds: u32) -> Dict<String> {
             "Ei, ei!\nVocê está {} ouros a menos!\nDevolva o que você não vai comprar",
             golds
         ),
+        de: format!(
+            "Hey, hey!\nDir fehlen {} Gold!\nGib zurück, was du nicht kaufen wirst",
+            golds
+        ),
+        ko: format!(
+            "이봐, 이봐!\n{} 골드가 부족해!\n사지 않을 물건은 돌려놔",
+            golds
+        ),
+        ru: format!(
+            "Эй, эй!\nВам не хватает {} золота!\nВерните то, что не будете покупать",
+            golds
+        ),
     }
 }
 
@@ -311,6 +413,9 @@ pub const PAY_FIRST: Dict<&'static str> = Dict {
     es: "Oye, oye, paga antes de irte",
     fr: "Hé hé, payez d'abord avant de partir",
     pt: "Ei ei, pague primeiro antes de ir",
+    de: "Hey Hey, zuerst bezahlen, bevor du gehst",
+    ko: "이봐 이봐, 가기 전에 먼저 지불해",
+    ru: "Эй, эй, сначала заплати, прежде чем уйти",
 };
 
 // 地名 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,6 +427,9 @@ pub const LEVEL0: Dict<&'static str> = Dict {
     es: "Taller Abandonado",
     fr: "Atelier Abandonné",
     pt: "Oficina Abandonada",
+    de: "Verlassene Werkstatt",
+    ko: "버려진 작업장",
+    ru: "Заброшенная мастерская",
 };
 
 pub const LEVEL1: Dict<&'static str> = Dict {
@@ -331,6 +439,9 @@ pub const LEVEL1: Dict<&'static str> = Dict {
     es: "Ruinas de la Biblioteca",
     fr: "Ruines de la Bibliothèque",
     pt: "Ruínas da Biblioteca",
+    de: "Bibliotheksruinen",
+    ko: "도서관 폐허",
+    ru: "Руины библиотеки",
 };
 
 pub const LEVEL2: Dict<&'static str> = Dict {
@@ -340,6 +451,9 @@ pub const LEVEL2: Dict<&'static str> = Dict {
     es: "Pradera Subterránea",
     fr: "Prairie Souterraine",
     pt: "Pradaria Subterrânea",
+    de: "Unterirdisches Grasland",
+    ko: "지하 초원",
+    ru: "Подземные луга",
 };
 
 pub const LEVEL3: Dict<&'static str> = Dict {
@@ -349,6 +463,9 @@ pub const LEVEL3: Dict<&'static str> = Dict {
     es: "Castillo Antiguo",
     fr: "Château Ancien",
     pt: "Castelo Antigo",
+    de: "Alte Burg",
+    ko: "고대 성",
+    ru: "Древний замок",
 };
 
 pub const LEVEL4: Dict<&'static str> = Dict {
@@ -358,6 +475,9 @@ pub const LEVEL4: Dict<&'static str> = Dict {
     es: "Nido de Slimes",
     fr: "Nid de Slimes",
     pt: "Ninho de Slimes",
+    de: "Schleimnest",
+    ko: "슬라임 둥지",
+    ru: "Гнездо слизней",
 };
 
 pub const MULTIPLAY_ARENA: Dict<&'static str> = Dict {
@@ -367,6 +487,9 @@ pub const MULTIPLAY_ARENA: Dict<&'static str> = Dict {
     es: "Cueva de la Arena",
     fr: "Grotte de l'Arène",
     pt: "Caverna da Arena",
+    de: "Arenahöhle",
+    ko: "아레나 동굴",
+    ru: "Пещера арены",
 };
 
 pub const UNKNOWN_LEVEL: Dict<&'static str> = Dict {
@@ -376,4 +499,7 @@ pub const UNKNOWN_LEVEL: Dict<&'static str> = Dict {
     es: "Desconocido",
     fr: "Inconnu",
     pt: "Desconhecido",
+    de: "Unbekannt",
+    ko: "알 수 없음",
+    ru: "Неизвестно",
 };

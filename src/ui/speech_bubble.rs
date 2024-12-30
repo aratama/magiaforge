@@ -138,7 +138,7 @@ pub fn update_text_on_change_config(
             let (mut speech_text, mut font) = speech_text_query.single_mut();
             let page_string = dict.get(config.language);
             speech_text.0 = page_string.chars().take(text_end_position).collect();
-            font.font = language_to_font(&assets, &config);
+            font.font = language_to_font(&assets, config.language);
         }
         _ => {}
     }

@@ -66,7 +66,10 @@ impl SpellType {
                     zh_cn: "魔法箭",
                     es: "Rayo Mágico",
                     fr: "Éclair Magique",
-                    pt: "Raio Mágico"
+                    pt: "Raio Mágico",
+                    de: "Magischer Blitz",
+                    ko: "마법 화살",
+                    ru: "Магическая стрела"
                 },
                 description: Dict {
                     ja: "魔力の塊を発射する、最も基本的な攻撃魔法です。",
@@ -74,7 +77,10 @@ impl SpellType {
                     zh_cn: "发射魔法箭的基本攻击魔法。",
                     es: "Un hechizo de ataque básico que dispara un rayo de magia.",
                     fr: "Un sort d'attaque de base qui tire un éclair magique.",
-                    pt: "Um feitiço de ataque básico que dispara um raio de magia."
+                    pt: "Um feitiço de ataque básico que dispara um raio de magia.",
+                    de: "Ein grundlegender Angriffsspruch, der einen magischen Blitz abfeuert.",
+                    ko: "마법 화살을 발사하는 기본 공격 마법입니다.",
+                    ru: "Основное атакующее заклинание, которое выпускает магическую стрелу."
                 },
                 cast_delay: 20,
                 icon: "bullet_magic_bolt",
@@ -100,7 +106,10 @@ impl SpellType {
                     zh_cn: "光球",
                     es: "Bola de Luz",
                     fr: "Boule de Lumière",
-                    pt: "Bola de Luz"
+                    pt: "Bola de Luz",
+                    de: "Lichtkugel",
+                    ko: "빛의 구슬",
+                    ru: "Световой шар"
                 },
                 description: Dict {
                     ja: "周囲をしばらく明るく照らす光の玉を出現させます。威力はありません。",
@@ -108,7 +117,10 @@ impl SpellType {
                     zh_cn: "产生一个照亮区域一段时间的光球。它没有攻击力。",
                     es: "Crea una bola de luz que ilumina el área por un tiempo. No tiene poder de ataque.",
                     fr: "Crée une boule de lumière qui illumine la zone pendant un certain temps. Elle n'a pas de pouvoir d'attaque.",
-                    pt: "Cria uma bola de luz que ilumina a área por um tempo. Não tem poder de ataque."
+                    pt: "Cria uma bola de luz que ilumina a área por um tempo. Não tem poder de ataque.",
+                    de: "Erzeugt eine Lichtkugel, die den Bereich für eine Weile erhellt. Sie hat keine Angriffskraft.",
+                    ko: "주변을 잠시 동안 밝히는 빛의 구슬을 만듭니다. 공격력이 없습니다.",
+                    ru: "Создает световой шар, который освещает область на некоторое время. Он не имеет атакующей силы."
                 },
                 cast_delay: 120,
                 icon: "light_ball_icon",
@@ -134,7 +146,10 @@ impl SpellType {
                     zh_cn: "邪恶之眼",
                     es: "Ojo Maligno",
                     fr: "Œil Maléfique",
-                    pt: "Olho Maligno"
+                    pt: "Olho Maligno",
+                    de: "Böser Blick",
+                    ko: "악의의 눈",
+                    ru: "Злой глаз"
                 },
                 description: Dict {
                     ja:
@@ -143,7 +158,10 @@ impl SpellType {
                     zh_cn: "发射一个移动缓慢的紫色能量弹。它很弱，但消耗的魔法很少。",
                     es: "Dispara un rayo de energía púrpura de movimiento lento. Es débil pero consume poca mana.",
                     fr: "Tire un éclair d'énergie violette se déplaçant lentement. Il est faible mais consomme peu de mana.",
-                    pt: "Dispara um raio de energia roxa de movimento lento. É fraco, mas consome pouca mana."
+                    pt: "Dispara um raio de energia roxa de movimento lento. É fraco, mas consome pouca mana.",
+                    de: "Feuert einen langsam bewegenden violetten Energieblitz ab. Er ist schwach, verbraucht aber wenig Mana.",
+                    ko: "느리게 움직이는 보라색 에너지 볼트를 발사합니다. 약하지만 마나 소모가 적습니다.",
+                    ru: "Выпускает медленно движущийся фиолетовый энергетический снаряд. Он слаб, но потребляет мало маны."
                 },
                 cast_delay: 120,
                 icon: "bullet_purple",
@@ -169,7 +187,10 @@ impl SpellType {
                     zh_cn: "史莱姆块",
                     es: "Masa de Slime",
                     fr: "Masse de Slime",
-                    pt: "Massa de Slime"
+                    pt: "Massa de Slime",
+                    de: "Schleimklumpen",
+                    ko: "슬라임 덩어리",
+                    ru: "Слизистый комок"
                 },
                 description: Dict {
                     ja: "ぷにぷにとした塊で殴りつけます。痛くはありませんが、相手を大きく吹き飛ばします。",
@@ -177,7 +198,10 @@ impl SpellType {
                     zh_cn: "用柔软、软乎乎的块状物拍打。虽然不会很疼，但会将对手击退。",
                     es: "Golpea con una masa blanda y esponjosa. No duele mucho, pero empuja al oponente hacia atrás.",
                     fr: "Frappe avec une masse molle et spongieuse. Cela ne fait pas très mal, mais repousse l'adversaire.",
-                    pt: "Bata com uma massa macia e fofa. Não dói muito, mas empurra o oponente para trás."
+                    pt: "Bata com uma massa macia e fofa. Não dói muito, mas empurra o oponente para trás.",
+                    de: "Schlägt mit einem weichen, schwammigen Klumpen. Es tut nicht sehr weh, stößt aber den Gegner zurück.",
+                    ko: "부드럽고 말랑말랑한 덩어리로 때립니다. 많이 아프지는 않지만 상대를 뒤로 밀어냅니다.",
+                    ru: "Удар мягким, скользким комком. Это не сильно больно, но отталкивает противника назад."
                 },
                 cast_delay: 30,
                 icon: "bullet_slime_charge",
@@ -203,7 +227,10 @@ impl SpellType {
                     zh_cn: "水球",
                     es: "Bola de Agua",
                     fr: "Boule d'Eau",
-                    pt: "Bola de Água"  
+                    pt: "Bola de Água",
+                    de: "Wasserball",
+                    ko: "물구슬",
+                    ru: "Водяной шар"
                 },
                 description: Dict {
                     ja: "水の塊を発射します。威力は低いですが、相手を押し返すことができます。",
@@ -211,7 +238,10 @@ impl SpellType {
                     zh_cn: "发射一个水球。它很弱，但可以将对手击退。",
                     es: "Dispara una bola de agua. Es débil pero puede empujar al oponente hacia atrás.",
                     fr: "Tire une boule d'eau. Elle est faible mais peut repousser l'adversaire.",
-                    pt: "Dispara uma bola de água. É fraca, mas pode empurrar o oponente para trás."
+                    pt: "Dispara uma bola de água. É fraca, mas pode empurrar o oponente para trás.",
+                    de: "Feuert einen Wasserball ab. Er ist schwach, kann aber den Gegner zurückstoßen.",
+                    ko: "물구슬을 발사합니다. 약하지만 상대를 밀어낼 수 있습니다.",
+                    ru: "Выпускает водяной шар. Он слабый, но может оттолкнуть противника."
                 },
                 cast_delay: 8,
                 icon: "spell_water_ball",
@@ -237,7 +267,10 @@ impl SpellType {
                     zh_cn: "减速",
                     es: "Reducción de Velocidad",
                     fr: "Ralentissement",
-                    pt: "Redução de Velocidade"
+                    pt: "Redução de Velocidade",
+                    de: "Geschwindigkeit Verringern",
+                    ko: "속도 감소",
+                    ru: "Замедление"
                 },
                 description: Dict {
                     ja: "次に発射する魔法の弾速を50%低下させます。",
@@ -245,7 +278,10 @@ impl SpellType {
                     zh_cn: "将下一个魔法弹的速度降低50%。",
                     es: "Reduce la velocidad de la próxima bala mágica en un 50%.",
                     fr: "Réduit la vitesse de la prochaine balle magique de 50%.",
-                    pt: "Reduz a velocidade da próxima bala mágica em 50%."
+                    pt: "Reduz a velocidade da próxima bala mágica em 50%.",
+                    de: "Reduziert die Geschwindigkeit der nächsten magischen Kugel um 50%.",
+                    ko: "다음 마법 탄환의 속도를 50% 감소시킵니다.",
+                    ru: "Уменьшает скорость следующей магической пули на 50%."
                 },
                 cast_delay: 0,
                 icon: "bullet_speed_down",
@@ -260,7 +296,10 @@ impl SpellType {
                     zh_cn: "双重施法",
                     es: "Doble Hechizo",
                     fr: "Double Sort",
-                    pt: "Feitiço Duplo"
+                    pt: "Feitiço Duplo",
+                    de: "Doppelzauber",
+                    ko: "이중 시전",
+                    ru: "Двойное заклинание"
                 },
                 description: Dict {
                     ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。",
@@ -268,7 +307,10 @@ impl SpellType {
                     zh_cn: "同时施放两个投射法术。施法延迟将与较大的值对齐。",
                     es: "Lanza dos hechizos de proyectiles al mismo tiempo.",
                     fr: "Lance deux sorts de projectiles en même temps.",
-                    pt: "Lança dois feitiços de projéteis ao mesmo tempo."
+                    pt: "Lança dois feitiços de projéteis ao mesmo tempo.",
+                    de: "Wirkt zwei Projektilzauber gleichzeitig.",
+                    ko: "두 개의 투사체 주문을 동시에 시전합니다.",
+                    ru: "Одновременно накладывает два заклинания снаряда."
                 },
                 cast_delay: 0,
                 icon: "spell_dual_cast",
@@ -283,7 +325,10 @@ impl SpellType {
                     zh_cn: "召唤敌人史莱姆",
                     es: "Invocar Slime Enemigo",
                     fr: "Invoquer Slime Ennemi",
-                    pt: "Invocar Slime Inimigo"
+                    pt: "Invocar Slime Inimigo",
+                    de: "Feindlichen Schleim Beschwören",
+                    ko: "적 슬라임 소환",
+                    ru: "Призыв вражеского слизня"
                 },
                 description: Dict {
                     ja: "敵のスライムを召喚します。",
@@ -291,7 +336,10 @@ impl SpellType {
                     zh_cn: "召唤一个敌人史莱姆",
                     es: "Invoca un slime enemigo.",
                     fr: "Invoque un slime ennemi.",
-                    pt: "Invoca um slime inimigo."
+                    pt: "Invoca um slime inimigo.",
+                    de: "Beschwört einen feindlichen Schleim.",
+                    ko: "적 슬라임을 소환합니다.",
+                    ru: "Призывает вражеского слизня."
                 },
                 cast_delay: 30,
                 icon: "slime",
@@ -306,7 +354,10 @@ impl SpellType {
                     zh_cn: "召唤敌人眼球",
                     es: "Invocar Ojo Enemigo",
                     fr: "Invoquer Oeil Ennemi",
-                    pt: "Invocar Olho Inimigo"
+                    pt: "Invocar Olho Inimigo",
+                    de: "Feindlichen Augapfel Beschwören",
+                    ko: "적 아이볼 소환",
+                    ru: "Призыв вражеского глазного яблока"
                 },
                 description: Dict {
                     ja: "敵のアイボールを召喚します。",
@@ -314,7 +365,10 @@ impl SpellType {
                     zh_cn: "召唤一个敌人眼球",
                     es: "Invoca un ojo enemigo.",
                     fr: "Invoque un oeil ennemi.",
-                    pt: "Invoca um olho inimigo."
+                    pt: "Invoca um olho inimigo.",
+                    de: "Beschwört einen feindlichen Augapfel.",
+                    ko: "적 아이볼을 소환합니다.",
+                    ru: "Призывает вражеское глазное яблоко."
                 },
                 cast_delay: 30,
                 icon: "eyeball",
@@ -329,7 +383,10 @@ impl SpellType {
                     zh_cn: "重型射击",
                     es: "Disparo Pesado",
                     fr: "Tir Lourd",
-                    pt: "Tiro Pesado"
+                    pt: "Tiro Pesado",
+                    de: "Schwerer Schuss",
+                    ko: "헤비 샷",
+                    ru: "Тяжелый выстрел"
                 },
                 description: Dict {
                     ja: "次に発射する魔法弾の威力が上昇しますが、飛翔速度が低下します。",
@@ -337,7 +394,10 @@ impl SpellType {
                     zh_cn: "下一个魔法弹的威力将增加，但飞行速度将减慢。",
                     es: "La próxima bala mágica que dispares será más poderosa y más lenta.",
                     fr: "La prochaine balle magique que vous tirez sera plus puissante et plus lente.",
-                    pt: "A próxima bala mágica que você disparar será mais poderosa e mais lenta."
+                    pt: "A próxima bala mágica que você disparar será mais poderosa e mais lenta.",
+                    de: "Die nächste magische Kugel, die du abfeuerst, wird mächtiger und langsamer sein.",
+                    ko: "다음에 발사하는 마법 탄환은 더 강력하고 느려질 것입니다.",
+                    ru: "Следующая магическая пуля, которую вы выпустите, будет мощнее и медленнее."
                 },
                 cast_delay: 5,
                 icon: "spell_heavy_shot",
@@ -352,7 +412,10 @@ impl SpellType {
                     zh_cn: "炸弹",
                     es: "Bomba",
                     fr: "Bombe",
-                    pt: "Bomba"
+                    pt: "Bomba",
+                    de: "Bombe",
+                    ko: "폭탄",
+                    ru: "Бомба"
                 },
                 description: Dict {
                     ja: "黒色火薬が詰まった爆弾です。時間が経つと爆発します。",
@@ -360,7 +423,10 @@ impl SpellType {
                     zh_cn: "装满黑火药的炸弹。过一会儿就会爆炸。",
                     es: "Una bomba llena de pólvora negra. Explota después de un tiempo.",
                     fr: "Une bombe remplie de poudre noire. Elle explose après un certain temps.",
-                    pt: "Uma bomba cheia de pólvora negra. Ela explode depois de um tempo."
+                    pt: "Uma bomba cheia de pólvora negra. Ela explode depois de um tempo.",
+                    de: "Eine mit Schwarzpulver gefüllte Bombe. Sie explodiert nach einer Weile.",
+                    ko: "흑색 화약이 가득한 폭탄입니다. 시간이 지나면 폭발합니다.",
+                    ru: "Бомба, наполненная черным порохом. Она взрывается через некоторое время."
                 },
                 cast_delay: 120,
                 icon: "bomb_icon",
@@ -375,7 +441,10 @@ impl SpellType {
                     zh_cn: "三重施法",
                     es: "Triple Hechizo",
                     fr: "Triple Sort",
-                    pt: "Tríplice Feitiço"
+                    pt: "Tríplice Feitiço",
+                    de: "Dreifachzauber",
+                    ko: "삼중 시전",
+                    ru: "Тройное заклинание"
                 },
                 description: Dict {
                     ja: "みっつの投射物呪文を同時に詠唱します。",
@@ -383,7 +452,10 @@ impl SpellType {
                     zh_cn: "同时施放三个投射法术。",
                     es: "Lanza tres hechizos de proyectiles al mismo tiempo。",
                     fr: "Lance trois sorts de projectiles en même temps.",
-                    pt: "Lança três feitiços de projéteis ao mesmo tempo."
+                    pt: "Lança três feitiços de projéteis ao mesmo tempo.",
+                    de: "Wirkt drei Projektilzauber gleichzeitig.",
+                    ko: "세 개의 투사체 주문을 동시에 시전합니다.",
+                    ru: "Одновременно накладывает три заклинания снаряда."
                 },
                 cast_delay: 0,
                 icon: "spell_triple_cast",
@@ -398,7 +470,10 @@ impl SpellType {
                     zh_cn: "自主追踪",
                     es: "Autodirigido",
                     fr: "Autoguidé",
-                    pt: "Autodirigido"
+                    pt: "Autodirigido",
+                    de: "Selbstgesteuerte Verfolgung",
+                    ko: "자율 유도",
+                    ru: "Самонаводящийся"
                 },
                 description: Dict {
                     ja: "次に発射する魔法弾が近くの敵に向かって追尾します。",
@@ -406,7 +481,10 @@ impl SpellType {
                     zh_cn: "下一个魔法弹将追踪敌人。",
                     es: "La próxima bala mágica que dispares se dirigirá hacia el enemigo。",
                     fr: "La prochaine balle magique que vous tirez se dirigera vers l'ennemi.",
-                    pt: "A próxima bala mágica que você disparar irá se direcionar para o inimigo."
+                    pt: "A próxima bala mágica que você disparar irá se direcionar para o inimigo.",
+                    de: "Die nächste magische Kugel, die du abfeuerst, wird den Feind verfolgen.",
+                    ko: "다음에 발사하는 마법 탄환이 적을 추적합니다.",
+                    ru: "Следующая магическая пуля, которую вы выпустите, будет наводиться на врага."
                 },
                 cast_delay: 5,
                 icon: "spell_homing",
@@ -421,7 +499,10 @@ impl SpellType {
                     zh_cn: "召唤友军史莱姆",
                     es: "Invocar Slime Amigo",
                     fr: "Invoquer Slime Ami",
-                    pt: "Invocar Slime Amigo"
+                    pt: "Invocar Slime Amigo",
+                    de: "Freundlichen Schleim Beschwören",
+                    ko: "아군 슬라임 소환",
+                    ru: "Призыв дружественного слизня"
                 },
                 description: Dict {
                     ja: "味方のスライムを召喚します。",
@@ -429,7 +510,10 @@ impl SpellType {
                     zh_cn: "召唤一个友军史莱姆",
                     es: "Invoca un slime amigo。",
                     fr: "Invoque un slime ami.",
-                    pt: "Invoca um slime amigo."
+                    pt: "Invoca um slime amigo.",
+                    de: "Beschwört einen freundlichen Schleim.",
+                    ko: "아군 슬라임을 소환합니다.",
+                    ru: "Призывает дружественного слизня."
                 },
                 cast_delay: 30,
                 icon: "slime",
@@ -444,7 +528,10 @@ impl SpellType {
                     zh_cn: "精度提高",
                     es: "Precisión Mejorada",
                     fr: "Précision Améliorée",
-                    pt: "Precisão Aumentada"
+                    pt: "Precisão Aumentada",
+                    de: "Präzision Erhöhen",
+                    ko: "정확도 향상",
+                    ru: "Повышение точности"
                 },
                 description: Dict {
                     ja: "弾丸の精度を向上させます。",
@@ -452,7 +539,10 @@ impl SpellType {
                     zh_cn: "提高子弹的精度。",
                     es: "Aumenta la precisión de las balas。",
                     fr: "Augmente la précision des balles.",
-                    pt: "Aumenta a precisão das balas."
+                    pt: "Aumenta a precisão das balas.",
+                    de: "Erhöht die Genauigkeit der Kugeln.",
+                    ko: "탄환의 정확도를 높입니다.",
+                    ru: "Повышает точность пуль."
                 },
                 cast_delay: 1,
                 icon: "precision_icon",
@@ -467,7 +557,10 @@ impl SpellType {
                     zh_cn: "召唤友军眼球",
                     es: "Invocar Ojo Amigo",
                     fr: "Invoquer Oeil Ami",
-                    pt: "Invocar Olho Amigo"
+                    pt: "Invocar Olho Amigo",
+                    de: "Freundlichen Augapfel Beschwören",
+                    ko: "아군 아이볼 소환",
+                    ru: "Призыв дружественного глазного яблока"
                 },
                 description: Dict {
                     ja: "味方のアイボールを召喚します。",
@@ -475,7 +568,10 @@ impl SpellType {
                     zh_cn: "召唤一个友军眼球",
                     es: "Invoca un ojo amigo。",
                     fr: "Invoque un oeil ami.",
-                    pt: "Invoca um olho amigo."
+                    pt: "Invoca um olho amigo.",
+                    de: "Beschwört einen freundlichen Augapfel.",
+                    ko: "아군 아이볼을 소환합니다.",
+                    ru: "Призывает дружественное глазное яблоко."
                 },
                 cast_delay: 30,
                 icon: "eyeball",
@@ -490,7 +586,10 @@ impl SpellType {
                     zh_cn: "冲刺",
                     es: "Correr",
                     fr: "Course",
-                    pt: "Corrida"
+                    pt: "Corrida",
+                    de: "Sprinten",
+                    ko: "대시",
+                    ru: "Рывок"
                 },
                 description: Dict {
                     ja: "短距離を素早く走ります。",
@@ -498,7 +597,10 @@ impl SpellType {
                     zh_cn: "短距离快速奔跑。",
                     es: "Corre una corta distancia。",
                     fr: "Parcourt une courte distance rapidement.",
-                    pt: "Corre uma curta distância rapidamente."
+                    pt: "Corre uma curta distância rapidamente.",
+                    de: "Sprintet eine kurze Distanz.",
+                    ko: "짧은 거리를 빠르게 달립니다.",
+                    ru: "Совершает рывок на короткое расстояние."
                 },
                 cast_delay: 50,
                 icon: "dash",
@@ -513,7 +615,10 @@ impl SpellType {
                     zh_cn: "冲击",
                     es: "Impacto",
                     fr: "Impact",
-                    pt: "Impacto"
+                    pt: "Impacto",
+                    de: "Aufprall",
+                    ko: "충격",
+                    ru: "Удар"
                 },
                 description: Dict {
                     ja: "周囲に衝撃波を起こします。敵も味方もまとめて吹き飛ばします。",
@@ -521,7 +626,10 @@ impl SpellType {
                     zh_cn: "在你周围产生冲击波，将敌人和盟友一起击退。",
                     es: "Crea una onda de choque a tu alrededor que empuja a enemigos y aliados。",
                     fr: "Crée une onde de choc autour de vous qui repousse les ennemis et les alliés.",
-                    pt: "Cria uma onda de choque ao seu redor que empurra inimigos e aliados."
+                    pt: "Cria uma onda de choque ao seu redor que empurra inimigos e aliados.",
+                    de: "Erzeugt eine Schockwelle um dich herum, die Feinde und Verbündete zurückstößt.",
+                    ko: "주변에 충격파를 일으켜 적과 아군을 모두 밀어냅니다.",
+                    ru: "Создает ударную волну вокруг вас, отбрасывающую врагов и союзников."
                 },
                 cast_delay: 60,
                 icon: "impact_icon",
@@ -536,7 +644,10 @@ impl SpellType {
                     zh_cn: "加速",
                     es: "Aumentar Velocidad",
                     fr: "Accélération",
-                    pt: "Aumentar Velocidade"
+                    pt: "Aumentar Velocidade",
+                    de: "Geschwindigkeit Erhöhen",
+                    ko: "속도 증가",
+                    ru: "Ускорение"
                 },
                 description: Dict {
                     ja: "次に発射する魔法の弾速を50%上昇させます。",
@@ -544,7 +655,10 @@ impl SpellType {
                     zh_cn: "将下一个魔法弹的速度提高50%。",
                     es: "Aumenta la velocidad de la próxima bala mágica en un 50%。",
                     fr: "Augmente la vitesse de la prochaine balle magique de 50%.",
-                    pt: "Aumenta a velocidade da próxima bala mágica em 50%."
+                    pt: "Aumenta a velocidade da próxima bala mágica em 50%.",
+                    de: "Erhöht die Geschwindigkeit der nächsten magischen Kugel um 50%.",
+                    ko: "다음 마법 탄환의 속도를 50% 증가시킵니다.",
+                    ru: "Увеличивает скорость следующей магической пули на 50%."
                 },
                 cast_delay: 0,
                 icon: "bullet_speed_up",
@@ -559,7 +673,10 @@ impl SpellType {
                     zh_cn: "治疗",
                     es: "Curar",
                     fr: "Soigner",
-                    pt: "Cura"
+                    pt: "Cura",
+                    de: "Heilen",
+                    ko: "치유",
+                    ru: "Исцеление"
                 },
                 description: Dict {
                     ja: "自分自身の体力を少しだけ回復します。",
@@ -567,7 +684,10 @@ impl SpellType {
                     zh_cn: "治疗自己一点点的生命值。",
                     es: "Cura una pequeña cantidad de tu propia salud。",
                     fr: "Soigne une petite quantité de votre propre santé.",
-                    pt: "Cura uma pequena quantidade da sua própria saúde."
+                    pt: "Cura uma pequena quantidade da sua própria saúde.",
+                    de: "Heilt eine kleine Menge deiner eigenen Gesundheit.",
+                    ko: "자신의 체력을 조금 회복합니다.",
+                    ru: "Исцеляет небольшое количество вашего здоровья."
                 },
                 cast_delay: 120,
                 icon: "spell_heal",
@@ -582,7 +702,10 @@ impl SpellType {
                     zh_cn: "快速施法",
                     es: "Lanzamiento Rápido",
                     fr: "Incantation Rapide",
-                    pt: "Lançamento Rápido"
+                    pt: "Lançamento Rápido",
+                    de: "Schnelles Zaubern",
+                    ko: "빠른 시전",
+                    ru: "Быстрое заклинание"
                 },
                 description: Dict {
                     ja: "次に詠唱する呪文の詠唱時間を減らします。",
@@ -590,7 +713,10 @@ impl SpellType {
                     zh_cn: "减少下一个法术的施法时间。",
                     es: "Reduce el tiempo de lanzamiento del próximo hechizo。",
                     fr: "Réduit le temps d'incantation du prochain sort.",
-                    pt: "Reduz o tempo de lançamento do próximo feitiço."
+                    pt: "Reduz o tempo de lançamento do próximo feitiço.",
+                    de: "Reduziert die Zauberzeit des nächsten Zaubers.",
+                    ko: "다음 주문의 시전 시간을 줄입니다.",
+                    ru: "Уменьшает время наложения следующего заклинания."
                 },
                 cast_delay: 1,
                 icon: "quick_cast",
@@ -608,6 +734,9 @@ const DAMAGE: Dict<&'static str> = Dict {
     es: "Daño",
     fr: "Dégâts",
     pt: "Dano",
+    de: "Schaden",
+    ko: "피해",
+    ru: "Урон",
 };
 
 const KNOCKBACK: Dict<&'static str> = Dict {
@@ -617,6 +746,9 @@ const KNOCKBACK: Dict<&'static str> = Dict {
     es: "Retroceso",
     fr: "Recul",
     pt: "Recuo",
+    de: "Rückstoß",
+    ko: "넉백",
+    ru: "Отбрасывание",
 };
 
 const SPEED: Dict<&'static str> = Dict {
@@ -626,6 +758,9 @@ const SPEED: Dict<&'static str> = Dict {
     es: "Velocidad",
     fr: "Vitesse",
     pt: "Velocidade",
+    de: "Geschwindigkeit",
+    ko: "속도",
+    ru: "Скорость",
 };
 
 const LIFETIME: Dict<&'static str> = Dict {
@@ -635,6 +770,9 @@ const LIFETIME: Dict<&'static str> = Dict {
     es: "Duración",
     fr: "Durée",
     pt: "Duração",
+    de: "Lebensdauer",
+    ko: "지속 시간",
+    ru: "Время жизни",
 };
 
 const SCATTERING: Dict<&'static str> = Dict {
@@ -644,6 +782,9 @@ const SCATTERING: Dict<&'static str> = Dict {
     es: "Dispersión",
     fr: "Dispersion",
     pt: "Dispersão",
+    de: "Streuung",
+    ko: "산란",
+    ru: "Разброс",
 };
 
 const SIZE: Dict<&'static str> = Dict {
@@ -653,6 +794,9 @@ const SIZE: Dict<&'static str> = Dict {
     es: "Tamaño",
     fr: "Taille",
     pt: "Tamanho",
+    de: "Größe",
+    ko: "크기",
+    ru: "Размер",
 };
 
 const HEAL_TEXT: Dict<&'static str> = Dict {
@@ -662,6 +806,9 @@ const HEAL_TEXT: Dict<&'static str> = Dict {
     es: "Curar",
     fr: "Soigner",
     pt: "Cura",
+    de: "Heilen",
+    ko: "치유",
+    ru: "Исцеление",
 };
 
 pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {

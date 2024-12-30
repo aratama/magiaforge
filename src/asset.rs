@@ -11,6 +11,9 @@ pub struct GameAssets {
     #[asset(path = "NotoSansSC-Light.ttf")]
     pub noto_sans_sc: Handle<Font>,
 
+    #[asset(path = "NotoSansKR-Light.ttf")]
+    pub noto_sans_kr: Handle<Font>,
+
     #[asset(path = "image/atlas.aseprite")]
     pub atlas: Handle<Aseprite>,
 
