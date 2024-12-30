@@ -2,18 +2,25 @@ use bevy::prelude::*;
 use serde::*;
 use std::ops;
 
-use crate::config::GameConfig;
+use crate::{asset::GameAssets, config::GameConfig};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Languages {
+    /// 日本語
     Ja,
+
+    /// English
     En,
+
+    /// 简体中文
+    ZhCn,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct Dict<T: ToString> {
     pub ja: T,
     pub en: T,
+    pub zh_cn: T,
 }
 
 impl ops::Add<Dict<String>> for Dict<String> {
@@ -23,6 +30,7 @@ impl ops::Add<Dict<String>> for Dict<String> {
         Dict {
             ja: format!("{}{}", self.ja, rhs.ja),
             en: format!("{}{}", self.en, rhs.en),
+            zh_cn: format!("{}{}", self.zh_cn, rhs.zh_cn),
         }
     }
 }
@@ -31,6 +39,7 @@ impl ops::AddAssign<Dict<String>> for Dict<String> {
     fn add_assign(&mut self, rhs: Dict<String>) {
         self.ja = format!("{}{}", self.ja, rhs.ja);
         self.en = format!("{}{}", self.en, rhs.en);
+        self.zh_cn = format!("{}{}", self.zh_cn, rhs.zh_cn);
     }
 }
 
@@ -39,6 +48,7 @@ impl Dict<&'static str> {
         match lang {
             Languages::Ja => self.ja.to_string(),
             Languages::En => self.en.to_string(),
+            Languages::ZhCn => self.zh_cn.to_string(),
         }
     }
 
@@ -46,6 +56,7 @@ impl Dict<&'static str> {
         Dict {
             ja: self.ja.to_string(),
             en: self.en.to_string(),
+            zh_cn: self.zh_cn.to_string(),
         }
     }
 }
@@ -55,6 +66,7 @@ impl Dict<String> {
         Dict {
             ja: "".to_string(),
             en: "".to_string(),
+            zh_cn: "".to_string(),
         }
     }
 
@@ -62,6 +74,7 @@ impl Dict<String> {
         Dict {
             ja: str.to_string(),
             en: str.to_string(),
+            zh_cn: str.to_string(),
         }
     }
 
@@ -69,6 +82,7 @@ impl Dict<String> {
         match lang {
             Languages::Ja => self.ja.to_string(),
             Languages::En => self.en.to_string(),
+            Languages::ZhCn => self.zh_cn.to_string(),
         }
     }
 }
@@ -79,24 +93,40 @@ pub struct M18NTtext(pub Dict<String>);
 
 impl M18NTtext {
     pub fn empty() -> Self {
-        Self(Dict { ja: "", en: "" }.to_string())
+        Self(Dict::empty())
     }
 }
 
-fn update_text(mut text_query: Query<(&mut Text, &M18NTtext)>, config: Res<GameConfig>) {
-    if config.is_changed() || config.is_added() {
-        for (mut text, m18n) in text_query.iter_mut() {
-            text.0 = m18n.0.get(config.language);
-        }
-    }
-}
-
-fn update_text_on_change(
-    mut text_query: Query<(&mut Text, &M18NTtext), Changed<M18NTtext>>,
+fn update_text_on_change_config(
+    mut text_query: Query<(&mut Text, &mut TextFont, &M18NTtext)>,
     config: Res<GameConfig>,
+    assets: Res<GameAssets>,
 ) {
-    for (mut text, m18n) in text_query.iter_mut() {
+    if config.is_changed() || config.is_added() {
+        update_text(&mut text_query, &config, &assets);
+    }
+}
+
+fn update_text_on_change_text(
+    mut text_query: Query<(&mut Text, &mut TextFont, &M18NTtext)>,
+    config: Res<GameConfig>,
+    assets: Res<GameAssets>,
+) {
+    update_text(&mut text_query, &config, &assets);
+}
+
+fn update_text(
+    text_query: &mut Query<(&mut Text, &mut TextFont, &M18NTtext)>,
+    config: &Res<GameConfig>,
+    assets: &Res<GameAssets>,
+) {
+    for (mut text, mut font, m18n) in text_query.iter_mut() {
         text.0 = m18n.0.get(config.language);
+        font.font = match config.language {
+            Languages::Ja => assets.noto_sans_jp.clone(),
+            Languages::En => assets.noto_sans_jp.clone(),
+            Languages::ZhCn => assets.noto_sans_sc.clone(),
+        }
     }
 }
 
@@ -104,6 +134,9 @@ pub struct LanguagePlugin;
 
 impl Plugin for LanguagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (update_text, update_text_on_change));
+        app.add_systems(
+            Update,
+            (update_text_on_change_config, update_text_on_change_text),
+        );
     }
 }

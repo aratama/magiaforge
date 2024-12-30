@@ -9,7 +9,7 @@ use crate::{
     spell::SpellType,
     states::GameState,
 };
-use bevy::{prelude::*, text::FontSmoothing};
+use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use strum::IntoEnumIterator;
 
@@ -63,9 +63,9 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>) {
             commands.spawn((
                 M18NTtext(DISCOVERED_SPELLS.to_string()),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 24.0,
-                    font_smoothing: FontSmoothing::None,
+                    ..default()
                 },
                 Label,
             ));
@@ -74,9 +74,9 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>) {
                 DicoveredSpellCount,
                 Text::new(""),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 24.0,
-                    font_smoothing: FontSmoothing::None,
+                    ..default()
                 },
                 Label,
             ));

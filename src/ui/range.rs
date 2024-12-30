@@ -12,7 +12,7 @@ pub fn spawn_range<T: Component>(
     value: u32,
     up: SystemId,
     down: SystemId,
-    label: Dict<&'static str>,
+    label: Dict<String>,
 ) {
     child_builder
         .spawn((Node {
@@ -28,35 +28,17 @@ pub fn spawn_range<T: Component>(
         .with_children(|parent| {
             spawn_label(parent, assets, label);
 
-            menu_button(
-                parent,
-                &assets,
-                down,
-                40.0,
-                40.0,
-                Dict {
-                    ja: "▼", en: "▼"
-                },
-            );
+            menu_button(parent, &assets, down, 40.0, 40.0, Dict::literal("▼"));
             parent.spawn((
                 marker,
                 Text::new(format!("{}", value)),
                 TextColor(Color::srgba(0.9, 0.9, 0.9, 0.4)),
                 TextFont {
                     font_size: 40.0,
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     ..default()
                 },
             ));
-            menu_button(
-                parent,
-                &assets,
-                up,
-                40.0,
-                40.0,
-                Dict {
-                    ja: "▲", en: "▲"
-                },
-            );
+            menu_button(parent, &assets, up, 40.0, 40.0, Dict::literal("▲"));
         });
 }

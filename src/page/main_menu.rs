@@ -163,7 +163,7 @@ fn setup(
             TextColor::from(Color::WHITE),
             TextFont {
                 font_size: 16.0,
-                font: assets.dotgothic.clone(),
+                font: assets.noto_sans_jp.clone(),
                 ..default()
             },
         ));
@@ -185,7 +185,7 @@ fn setup(
         )),
         TextColor::from(Color::srgba(1.0, 1.0, 1.0, 0.3)),
         TextFont {
-            font: assets.dotgothic.clone(),
+            font: assets.noto_sans_jp.clone(),
             font_size: 12.0,
             ..default()
         },
@@ -208,11 +208,11 @@ fn setup(
             BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.3)),
         ))
         .with_child((
-            Text::new("English / 日本語"),
+            Text::new("日本語/English/中文"),
             TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
             TextFont {
                 font_size: 16.0,
-                font: assets.dotgothic.clone(),
+                font: assets.noto_sans_jp.clone(),
                 ..default()
             },
         ));
@@ -267,8 +267,9 @@ fn toggle_language(
             Interaction::Pressed => {
                 background.0 = Color::WHITE;
                 config.language = match config.language {
-                    Languages::En => Languages::Ja,
                     Languages::Ja => Languages::En,
+                    Languages::En => Languages::ZhCn,
+                    Languages::ZhCn => Languages::Ja,
                 };
                 changed.0 = true;
             }

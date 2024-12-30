@@ -12,7 +12,6 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -111,9 +110,9 @@ pub fn spawn_dropped_item(
                             // Text2dはVisibilityを必須としているため、その親にもVisibility::default(),を設定しないと警告が出る
                             Text2d(format!("{}", item.price)),
                             TextFont {
-                                font: assets.dotgothic.clone(),
+                                font: assets.noto_sans_jp.clone(),
                                 font_size: 24.0,
-                                font_smoothing: FontSmoothing::None,
+                                ..default()
                             },
                             TextColor(Color::WHITE),
                             Transform::from_xyz(0.0, 14.0, 1.0)

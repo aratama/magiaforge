@@ -88,7 +88,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 Text::new(""),
                 TextColor(Color::WHITE),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 15.0,
                     ..default()
                 },
@@ -106,7 +106,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 Text::new(""),
                 TextColor(Color::hsva(0.0, 0.0, 1.0, 0.5)),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 15.0,
                     ..default()
                 },

@@ -5,7 +5,6 @@ use crate::states::GameState;
 use crate::theater::Act;
 use crate::theater::Theater;
 use bevy::prelude::*;
-use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
 
@@ -51,9 +50,9 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
             Text::new(""),
             TextColor(Color::hsva(0.0, 0.0, 0.1, 1.0)),
             TextFont {
-                font: assets.dotgothic.clone(),
+                font: assets.noto_sans_jp.clone(),
                 font_size: 24.0,
-                font_smoothing: FontSmoothing::AntiAliased,
+                ..default()
             },
             BorderColor(Color::hsv(0.0, 1.0, 1.0)),
             Node {

@@ -46,7 +46,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
                 Text::new("Offline"),
                 TextColor(Color::WHITE),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 20.0,
                     ..default()
                 },
@@ -57,7 +57,7 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
                 Text::new("[ 1 Players ]"),
                 TextColor(Color::WHITE),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 20.0,
                     ..default()
                 },
@@ -131,7 +131,7 @@ fn update_player_list(
                     Text::new("(anonymous)"),
                     TextColor(Color::WHITE),
                     TextFont {
-                        font: assets.dotgothic.clone(),
+                        font: assets.noto_sans_jp.clone(),
                         font_size: 20.0,
                         ..default()
                     },

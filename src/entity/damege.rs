@@ -3,7 +3,6 @@ use crate::constant::DAMAGE_NUMBER_LAYER_Z;
 use crate::entity::actor::ActorEvent;
 use crate::states::GameState;
 use bevy::prelude::*;
-use bevy::text::FontSmoothing;
 
 #[derive(Component)]
 struct DamageParticle {
@@ -28,9 +27,8 @@ fn spawn_damage_number(
                         Text2d(damage.to_string()),
                         TextColor(Color::WHITE),
                         TextFont {
-                            font: assets.dotgothic.clone(),
+                            font: assets.noto_sans_jp.clone(),
                             font_size: 32.0,
-                            font_smoothing: FontSmoothing::AntiAliased,
                             ..default()
                         },
                         Transform::from_translation(position.extend(DAMAGE_NUMBER_LAYER_Z))

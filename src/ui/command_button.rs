@@ -24,7 +24,7 @@ pub fn command_button<'a, T: Component>(
     w: f32,
     h: f32,
     disabled: bool,
-    text: Dict<&'static str>,
+    text: Dict<String>,
 ) {
     parent
         .spawn((
@@ -47,11 +47,11 @@ pub fn command_button<'a, T: Component>(
         .with_children(|parent| {
             parent.spawn((
                 MenuButtonText,
-                M18NTtext(text.to_string()),
+                M18NTtext(text),
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
                     font_size: 32.0,
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     ..default()
                 },
             ));

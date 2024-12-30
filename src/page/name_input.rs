@@ -2,7 +2,9 @@ use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::config::GameConfig;
 use crate::hud::overlay::OverlayEvent;
-use crate::language::Dict;
+use crate::language::M18NTtext;
+use crate::message::INPUT_YOUR_NAME;
+use crate::message::START;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -82,17 +84,11 @@ fn setup(
                 })
                 .with_children(|parent| {
                     parent.spawn((
-                        Text::new(
-                            Dict {
-                                ja: "名前を入力してください",
-                                en: "Input Your Name",
-                            }
-                            .get(config.language),
-                        ),
+                        M18NTtext(INPUT_YOUR_NAME.to_string()),
                         TextColor(Color::srgb(0.9, 0.9, 0.9)),
                         TextFont {
                             font_size: 60.0,
-                            font: assets.dotgothic.clone(),
+                            font: assets.noto_sans_jp.clone(),
                             ..default()
                         },
                     ));
@@ -118,7 +114,7 @@ fn setup(
                                 BackgroundColor::from(BACKGROUND_COLOR),
                                 TextInput,
                                 TextInputTextFont(TextFont {
-                                    font: assets.dotgothic.clone(),
+                                    font: assets.noto_sans_jp.clone(),
                                     font_size: 40.,
                                     ..default()
                                 }),
@@ -136,10 +132,7 @@ fn setup(
                                 shots.start,
                                 160.0,
                                 60.0,
-                                Dict {
-                                    ja: "スタート",
-                                    en: "Start",
-                                },
+                                START.to_string(),
                             );
                         });
                 });

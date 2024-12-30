@@ -14,7 +14,7 @@ use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::entity::actor::Actor;
 use crate::entity::EntityDepth;
-use crate::language::Dict;
+use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::physics::InGameTime;
@@ -135,10 +135,7 @@ fn sensor(
                         speech_writer.send(TheaterEvent::Play {
                             acts: vec![
                                 Act::Focus(shop_rabbit_entity),
-                                Act::Speech(Dict {
-                                    ja: "おいおい、代金を払ってから行ってくれ".to_string(),
-                                    en: "Hey Hey, pay first before you go".to_string(),
-                                }),
+                                Act::Speech(PAY_FIRST.to_string()),
                             ],
                         });
                     }

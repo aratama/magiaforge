@@ -93,7 +93,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
                         PopUpItemName,
                         M18NTtext::empty(),
                         TextFont {
-                            font: assets.dotgothic.clone(),
+                            font: assets.noto_sans_jp.clone(),
                             ..default()
                         },
                     ));
@@ -103,7 +103,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 PopUpItemDescription,
                 M18NTtext::empty(),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     ..default()
                 },
             ));

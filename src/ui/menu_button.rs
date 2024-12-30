@@ -14,7 +14,7 @@ pub fn menu_button<'a>(
     button_type: SystemId,
     w: f32,
     h: f32,
-    text: Dict<&'static str>,
+    text: Dict<String>,
 ) {
     let hovered = Color::hsla(0.0, 0.0, 1.0, 0.1).into();
     let none = Color::hsla(0.0, 0.0, 1.0, 0.05).into();
@@ -36,11 +36,11 @@ pub fn menu_button<'a>(
         .with_children(|parent| {
             parent.spawn((
                 MenuButtonText,
-                M18NTtext(text.to_string()),
+                M18NTtext(text),
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
                     font_size: 32.0,
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     ..default()
                 },
             ));

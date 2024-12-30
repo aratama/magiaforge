@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::language::Dict;
+use crate::message::SORT;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::command_button::command_button;
@@ -77,10 +77,7 @@ pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, assets: &Res<GameAssets
                 160.0,
                 32.0,
                 false,
-                Dict {
-                    ja: "並び替え",
-                    en: "Sort",
-                },
+                SORT.to_string(),
             );
         });
 

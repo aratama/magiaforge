@@ -2,17 +2,13 @@ use crate::asset::GameAssets;
 use crate::language::{Dict, M18NTtext};
 use bevy::prelude::*;
 
-pub fn spawn_label<'a>(
-    parent: &mut ChildBuilder,
-    assets: &Res<GameAssets>,
-    text: Dict<&'static str>,
-) {
+pub fn spawn_label<'a>(parent: &mut ChildBuilder, assets: &Res<GameAssets>, text: Dict<String>) {
     parent.spawn((
-        M18NTtext(text.to_string()),
+        M18NTtext(text),
         TextColor(Color::srgb(0.9, 0.9, 0.9)),
         TextFont {
             font_size: 40.0,
-            font: assets.dotgothic.clone(),
+            font: assets.noto_sans_jp.clone(),
             ..default()
         },
     ));

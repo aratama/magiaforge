@@ -5,8 +5,11 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
-    #[asset(path = "DotGothic16-Regular.ttf")]
-    pub dotgothic: Handle<Font>,
+    #[asset(path = "NotoSansJP-Light.ttf")]
+    pub noto_sans_jp: Handle<Font>,
+
+    #[asset(path = "NotoSansSC-Light.ttf")]
+    pub noto_sans_sc: Handle<Font>,
 
     #[asset(path = "image/atlas.aseprite")]
     pub atlas: Handle<Aseprite>,

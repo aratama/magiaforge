@@ -110,7 +110,7 @@ fn setup_hud(
                         Text(name),
                         TextColor(Color::srgba(1.0, 1.0, 1.0, 0.3)),
                         TextFont {
-                            font: assets.dotgothic.clone(),
+                            font: assets.noto_sans_jp.clone(),
                             font_size: 12.0,
                             ..default()
                         },
@@ -228,7 +228,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
                         Text::new(""),
                         TextColor(Color::hsla(57.0, 1.0, 0.5, 0.7)),
                         TextFont {
-                            font: assets.dotgothic.clone(),
+                            font: assets.noto_sans_jp.clone(),
                             font_size: 18.0,
                             ..default()
                         },

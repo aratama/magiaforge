@@ -87,7 +87,7 @@ pub fn spawn_status_bar<T: Component>(
                 Text::new(""),
                 TextColor(Color::WHITE),
                 TextFont {
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     font_size: 15.0,
                     ..default()
                 },

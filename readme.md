@@ -77,7 +77,3 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - Human vs Machine (dark orchestral cinematic epic action) https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/
 - Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/
 - 最果てのルージュ https://dova-s.jp/bgm/play19795.html
-
-#### Fonts
-
-- DotGothic16 https://fonts.google.com/share?selection.family=DotGothic16

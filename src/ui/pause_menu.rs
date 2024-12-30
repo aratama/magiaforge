@@ -4,6 +4,14 @@ use crate::constant::GAME_MENU_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
 use crate::language::Languages;
+use crate::message::BGM_VOLUE;
+use crate::message::FULLSCREEN;
+use crate::message::OFF;
+use crate::message::ON;
+use crate::message::PAUSED;
+use crate::message::RESUME;
+use crate::message::RETURN_TO_TITLE;
+use crate::message::SFX_VOLUME;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::Interlevel;
 use crate::physics::InGameTime;
@@ -31,6 +39,7 @@ struct ButtonShots {
     se_volume_down: SystemId,
     ja: SystemId,
     en: SystemId,
+    zh: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
     fullscreen_on: SystemId,
     #[cfg(not(target_arch = "wasm32"))]
@@ -61,6 +70,7 @@ impl FromWorld for ButtonShots {
             se_volume_down: world.register_system(se_volume_down),
             ja: world.register_system(ja),
             en: world.register_system(en),
+            zh: world.register_system(zh),
             #[cfg(not(target_arch = "wasm32"))]
             fullscreen_on: world.register_system(fullscreen_on),
             #[cfg(not(target_arch = "wasm32"))]
@@ -114,6 +124,11 @@ fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
 
 fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::En;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn zh(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::ZhCn;
     writer.send(SEEvent::new(SE::Click));
 }
 
@@ -173,21 +188,14 @@ fn setup_game_menu(
             parent
                 .spawn(Node {
                     justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+                    align_items: AlignItems::Start,
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
                     row_gap: Val::Px(10.0),
                     ..default()
                 })
                 .with_children(|parent| {
-                    spawn_label(
-                        parent,
-                        &assets,
-                        Dict {
-                            ja: "ポーズ中",
-                            en: "Paused",
-                        },
-                    );
+                    spawn_label(parent, &assets, PAUSED.to_string());
 
                     parent
                         .spawn(Node {
@@ -197,14 +205,7 @@ fn setup_game_menu(
                             ..default()
                         })
                         .with_children(|parent| {
-                            spawn_label(
-                                parent,
-                                &assets,
-                                Dict {
-                                    ja: "言語/Language",
-                                    en: "言語/Language",
-                                },
-                            );
+                            spawn_label(parent, &assets, Dict::literal("言語/Language"));
 
                             menu_button(
                                 parent,
@@ -212,10 +213,7 @@ fn setup_game_menu(
                                 shots.ja,
                                 120.0,
                                 50.0,
-                                Dict {
-                                    ja: "日本語",
-                                    en: "日本語",
-                                },
+                                Dict::literal("日本語"),
                             );
                             menu_button(
                                 parent,
@@ -223,7 +221,15 @@ fn setup_game_menu(
                                 shots.en,
                                 120.0,
                                 50.0,
-                                Dict { ja: "En", en: "En" },
+                                Dict::literal("En"),
+                            );
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.zh,
+                                120.0,
+                                50.0,
+                                Dict::literal("中文"),
                             );
                         });
 
@@ -235,25 +241,14 @@ fn setup_game_menu(
                             ..default()
                         })
                         .with_children(|parent| {
-                            spawn_label(
-                                parent,
-                                &assets,
-                                Dict {
-                                    ja: "フルスクリーン",
-                                    en: "Full Screen",
-                                },
-                            );
-
+                            spawn_label(parent, &assets, FULLSCREEN.to_string());
                             menu_button(
                                 parent,
                                 &assets,
                                 shots.fullscreen_on,
                                 120.0,
                                 50.0,
-                                Dict {
-                                    ja: "オン",
-                                    en: "On",
-                                },
+                                ON.to_string(),
                             );
                             menu_button(
                                 parent,
@@ -261,10 +256,7 @@ fn setup_game_menu(
                                 shots.fullscreen_off,
                                 120.0,
                                 50.0,
-                                Dict {
-                                    ja: "オフ",
-                                    en: "Off",
-                                },
+                                OFF.to_string(),
                             );
                         });
 
@@ -275,10 +267,7 @@ fn setup_game_menu(
                         (10.0 * config.bgm_volume).round() as u32,
                         shots.bgm_volume_up,
                         shots.bgm_volume_down,
-                        Dict {
-                            ja: "BGM音量",
-                            en: "BGM Volume",
-                        },
+                        BGM_VOLUE.to_string(),
                     );
 
                     spawn_range(
@@ -288,10 +277,7 @@ fn setup_game_menu(
                         (10.0 * config.se_volume).round() as u32,
                         shots.se_volume_up,
                         shots.se_volume_down,
-                        Dict {
-                            ja: "効果音量",
-                            en: "SFX Volume",
-                        },
+                        SFX_VOLUME.to_string(),
                     );
 
                     menu_button(
@@ -300,10 +286,7 @@ fn setup_game_menu(
                         shots.close,
                         280.0,
                         60.0,
-                        Dict {
-                            ja: "再開",
-                            en: "Back",
-                        },
+                        RESUME.to_string(),
                     );
 
                     parent.spawn(Node {
@@ -318,10 +301,7 @@ fn setup_game_menu(
                         shots.exit,
                         400.0,
                         60.0,
-                        Dict {
-                            ja: "タイトルに戻る",
-                            en: "Return to Title",
-                        },
+                        RETURN_TO_TITLE.to_string(),
                     );
                 });
 
@@ -331,7 +311,7 @@ fn setup_game_menu(
                 Label,
                 TextFont {
                     font_size: 20.0,
-                    font: assets.dotgothic.clone(),
+                    font: assets.noto_sans_jp.clone(),
                     ..Default::default()
                 },
                 Node {
