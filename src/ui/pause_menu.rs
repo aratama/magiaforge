@@ -47,6 +47,9 @@ struct BGMVolumeLabel;
 #[derive(Component)]
 struct SEVolumeLabel;
 
+#[derive(Component)]
+pub struct BGMCredit;
+
 impl FromWorld for ButtonShots {
     fn from_world(world: &mut World) -> Self {
         ButtonShots {
@@ -321,6 +324,23 @@ fn setup_game_menu(
                         },
                     );
                 });
+
+            parent.spawn((
+                BGMCredit,
+                Text::new(""),
+                Label,
+                TextFont {
+                    font_size: 20.0,
+                    font: assets.dotgothic.clone(),
+                    ..Default::default()
+                },
+                Node {
+                    position_type: PositionType::Absolute,
+                    right: Val::Px(10.0),
+                    bottom: Val::Px(10.0),
+                    ..default()
+                },
+            ));
         });
 }
 

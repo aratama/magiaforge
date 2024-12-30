@@ -123,11 +123,16 @@ pub const LEVEL1: Dict<&'static str> = Dict {
 };
 
 pub const LEVEL2: Dict<&'static str> = Dict {
-    ja: "洞窟",
+    ja: "地底草原",
     en: "Cave",
 };
 
 pub const LEVEL3: Dict<&'static str> = Dict {
+    ja: "古城",
+    en: "Cave",
+};
+
+pub const LEVEL4: Dict<&'static str> = Dict {
     ja: "スライムの巣窟",
     en: "Slime Nest",
 };

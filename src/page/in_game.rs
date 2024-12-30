@@ -22,6 +22,7 @@ use crate::message::LEVEL0;
 use crate::message::LEVEL1;
 use crate::message::LEVEL2;
 use crate::message::LEVEL3;
+use crate::message::LEVEL4;
 use crate::message::MULTIPLAY_ARENA;
 use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
@@ -237,8 +238,6 @@ fn select_level_bgm(
                     assets.decisive.clone(),
                     assets.enjin.clone(),
                     // assets.sacred.clone(), // ボスのプロモート後用BGM
-                    assets.battle_cinematic.clone(),
-                    assets.battle_fight.clone(),
                     assets.final_battle.clone(),
                     assets.human_vs_machine.clone(),
                 ];
@@ -393,6 +392,7 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
         GameLevel::Level(1) => LEVEL1,
         GameLevel::Level(2) => LEVEL2,
         GameLevel::Level(3) => LEVEL3,
+        GameLevel::Level(4) => LEVEL4,
         GameLevel::MultiPlayArena => MULTIPLAY_ARENA,
         _ => UNKNOWN_LEVEL,
     }

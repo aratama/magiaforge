@@ -3,6 +3,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod asset;
+mod asset_credit;
 mod audio;
 mod camera;
 mod cast;

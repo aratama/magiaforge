@@ -1,4 +1,7 @@
+use crate::asset_credit::asset_to_credit;
+use crate::asset_credit::AssetCredit;
 use crate::config::GameConfig;
+use crate::ui::pause_menu::BGMCredit;
 use bevy::audio::PlaybackMode;
 use bevy::audio::Volume;
 use bevy::prelude::*;
@@ -48,6 +51,7 @@ pub struct NextBGM(pub Option<Handle<AudioSource>>);
 #[derive(Component)]
 pub struct BGM {
     volume: f32,
+    credit: AssetCredit,
 }
 
 fn change_bgm(
@@ -55,6 +59,7 @@ fn change_bgm(
     mut bgm_query: Query<(Entity, &AudioPlayer, &AudioSink, &mut BGM)>,
     next_bgm: ResMut<NextBGM>,
     config: Res<GameConfig>,
+    mut bgm_credit_query: Query<&mut Text, With<BGMCredit>>,
 ) {
     if let Ok((entity, player, sink, mut bgm)) = bgm_query.get_single_mut() {
         if let Some(ref next) = next_bgm.0 {
@@ -68,7 +73,7 @@ fn change_bgm(
                     info!("BGM stopped");
                     commands.entity(entity).despawn_recursive();
 
-                    spawn_bgm(&mut commands, next, &config);
+                    spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
                 }
             }
         } else {
@@ -77,13 +82,30 @@ fn change_bgm(
         }
     } else if let Some(ref next) = next_bgm.0 {
         info!("BGM started: {:?}", next);
-        spawn_bgm(&mut commands, next, &config);
+        spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
     }
 }
 
-fn spawn_bgm(commands: &mut Commands, next: &Handle<AudioSource>, config: &GameConfig) {
+fn spawn_bgm(
+    commands: &mut Commands,
+    bgm_credit_query: &mut Query<&mut Text, With<BGMCredit>>,
+    next: &Handle<AudioSource>,
+    config: &GameConfig,
+) {
+    let credit = asset_to_credit(next);
+
+    if let Ok(mut bgm_credit) = bgm_credit_query.get_single_mut() {
+        bgm_credit.0 = format!(
+            "♪ {}『{}』{}",
+            credit.authoer, credit.title, credit.appendix
+        );
+    }
+
     commands.spawn((
-        BGM { volume: 1.0 },
+        BGM {
+            volume: 1.0,
+            credit,
+        },
         AudioPlayer::new(next.clone()),
         PlaybackSettings {
             volume: Volume::new(config.bgm_volume),

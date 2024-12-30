@@ -169,6 +169,10 @@ pub struct GameAssets {
     #[asset(path = "audio/爆発2.ogg")]
     pub bakuhatsu: Handle<AudioSource>,
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // BGM //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // #[asset(path = "bgm/they_bgm.ogg")]
     // pub they: Handle<AudioSource>,
 
@@ -176,9 +180,6 @@ pub struct GameAssets {
     // pub gods_realm: Handle<AudioSource>,
     #[asset(path = "bgm/茫漠たる庭.ogg")]
     pub boubaku: Handle<AudioSource>,
-
-    #[asset(path = "bgm/荒れ地の先へ.ogg")]
-    pub arechi: Handle<AudioSource>,
 
     // 拠点 //////////////////////////////////////////////////////////////////////
     #[asset(path = "bgm/水のしたたる洞窟.ogg")]
@@ -188,6 +189,9 @@ pub struct GameAssets {
     pub saihate: Handle<AudioSource>,
 
     // 通常フロア ////////////////////////////////////////////////////////////////
+    #[asset(path = "bgm/荒れ地の先へ.ogg")]
+    pub arechi: Handle<AudioSource>,
+
     #[asset(path = "bgm/Tides_of_Adventure.ogg")]
     pub ending_bgm: Handle<AudioSource>,
 
@@ -221,12 +225,6 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/Sacred_Sacrifice.ogg")]
     pub sacred: Handle<AudioSource>,
-
-    #[asset(path = "bgm/battle-cinematic-trailer-royalty-free-music-210434.ogg")]
-    pub battle_cinematic: Handle<AudioSource>,
-
-    #[asset(path = "bgm/battle-fight-music-dynamic-warrior-background-intro-theme-272176.ogg")]
-    pub battle_fight: Handle<AudioSource>,
 
     #[asset(path = "bgm/final-battle-trailer-music-217488.ogg")]
     pub final_battle: Handle<AudioSource>,
