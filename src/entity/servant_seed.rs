@@ -1,3 +1,4 @@
+use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
@@ -19,8 +20,6 @@ use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
 use serde::Serialize;
-
-use super::counter::CounterAnimated;
 
 #[derive(Component)]
 pub struct ServantSeed {

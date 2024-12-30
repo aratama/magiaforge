@@ -1,3 +1,4 @@
+use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::ENEMY_GROUP;
@@ -12,8 +13,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
-
-use super::counter::CounterAnimated;
 
 #[derive(Component)]
 struct Impact {

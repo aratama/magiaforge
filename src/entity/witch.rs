@@ -1,3 +1,4 @@
+use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Equipment;
@@ -21,8 +22,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
-
-use super::counter::CounterAnimated;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 

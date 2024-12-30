@@ -1,3 +1,4 @@
+use super::counter::Counter;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -14,8 +15,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::counter::Counter;
 
 #[derive(Component)]
 pub struct DroppedItemEntity {

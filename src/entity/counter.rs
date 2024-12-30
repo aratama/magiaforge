@@ -1,8 +1,9 @@
+use crate::physics::InGameTime;
+use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AseSpriteAnimation, AseUiAnimation};
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use bevy_aseprite_ultra::prelude::AseUiAnimation;
 use bevy_rapier2d::plugin::PhysicsSet;
-
-use crate::{physics::InGameTime, states::GameState};
 
 /// ゲーム内の時間の流れをカウントする汎用のカウンターです
 /// 1フレームに1ずつカウントアップされます

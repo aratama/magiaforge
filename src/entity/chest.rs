@@ -1,5 +1,3 @@
-use core::f32;
-
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::gold::spawn_gold;
@@ -13,6 +11,7 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+use core::f32;
 
 const ENTITY_WIDTH: f32 = 8.0;
 

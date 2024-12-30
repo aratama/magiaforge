@@ -1,3 +1,4 @@
+use super::popup::PopupContent;
 use crate::asset::GameAssets;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::player::Player;
@@ -13,8 +14,6 @@ use crate::ui::item_panel::ItemPanel;
 use crate::ui::popup::PopUp;
 use bevy::prelude::*;
 use bevy::ui::Display;
-
-use super::popup::PopupContent;
 
 #[derive(Component)]
 pub struct EquipmentContainer;

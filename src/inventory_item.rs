@@ -2,7 +2,8 @@ use crate::equipment::EquipmentType;
 use crate::language::Dict;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, Serialize, Deserialize)]
 pub enum InventoryItemType {

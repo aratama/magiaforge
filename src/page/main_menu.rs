@@ -1,3 +1,4 @@
+use super::in_game::GameLevel;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::config::GameConfig;
@@ -16,8 +17,6 @@ use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use git_version::git_version;
-
-use super::in_game::GameLevel;
 
 const SCALE: f32 = 4.0;
 

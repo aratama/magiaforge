@@ -1,8 +1,10 @@
 use crate::constant::CAMERA_SPEED;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::explosion::{ExplosionPointLight, EXPLOSION_COUNT};
-use crate::page::in_game::{GameLevel, Interlevel};
+use crate::entity::explosion::ExplosionPointLight;
+use crate::entity::explosion::EXPLOSION_COUNT;
+use crate::page::in_game::GameLevel;
+use crate::page::in_game::Interlevel;
 use crate::physics::InGameTime;
 use crate::states::GameState;
 use bevy::core::FrameCount;

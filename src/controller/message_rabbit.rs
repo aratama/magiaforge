@@ -1,9 +1,13 @@
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::physics::{identify, identify_item, IdentifiedCollisionEvent, IdentifiedCollisionItem};
+use crate::physics::identify;
+use crate::physics::identify_item;
+use crate::physics::IdentifiedCollisionEvent;
+use crate::physics::IdentifiedCollisionItem;
 use crate::states::GameState;
-use crate::theater::{Act, TheaterEvent};
+use crate::theater::Act;
+use crate::theater::TheaterEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

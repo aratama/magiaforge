@@ -1,6 +1,6 @@
 use crate::hud::overlay::OverlayEvent;
-use crate::page::in_game::Interlevel;
 use crate::page::in_game::GameLevel;
+use crate::page::in_game::Interlevel;
 use crate::states::GameState;
 use bevy::prelude::*;
 

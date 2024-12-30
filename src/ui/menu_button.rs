@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
-use crate::language::{Dict, M18NTtext};
+use crate::language::Dict;
+use crate::language::M18NTtext;
 use crate::ui::hover_color::HoverColor;
 use crate::ui::on_press::OnPress;
 use bevy::ecs::system::SystemId;

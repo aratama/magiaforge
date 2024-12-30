@@ -24,6 +24,7 @@ https://magiaforge.app/ (**Desktop Chrome only** for now)
 - `cargo build --profile dist` to build desktop app in release mode. (Note `cargo build` is for WASM build)
 - `trunk serve` to run locally on browser with [trunk](https://trunkrs.dev/)
 - `trunk build` to build web app and publish on GitHub Pages
+- `cargo +nightly fmt` to format
 
 Add `--features debug` to launch app in debug mode.
 Add `--features save` to launch app with Save feature.

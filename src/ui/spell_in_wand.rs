@@ -1,3 +1,4 @@
+use super::popup::PopupContent;
 use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
@@ -11,8 +12,6 @@ use crate::ui::item_panel::spawn_item_panel;
 use crate::ui::item_panel::ItemPanel;
 use crate::ui::popup::PopUp;
 use bevy::prelude::*;
-
-use super::popup::PopupContent;
 
 #[derive(Component, Debug, Clone)]
 struct WandSpellSprite {

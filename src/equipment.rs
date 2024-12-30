@@ -1,6 +1,7 @@
 use crate::language::Dict;
 use bevy::reflect::Reflect;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(
     Clone,

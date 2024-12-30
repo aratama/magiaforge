@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::ENTITY_LAYER_Z;
@@ -36,6 +34,7 @@ use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, Copy, Reflect, Serialize, Deserialize)]
 pub struct Equipment {

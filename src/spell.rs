@@ -6,7 +6,20 @@ use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Reflect, Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, strum::EnumIter, Hash, Serialize, Deserialize)]
+#[derive(
+    Reflect,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    PartialOrd,
+    Ord,
+    strum::EnumIter,
+    Hash,
+    Serialize,
+    Deserialize,
+)]
 pub enum SpellType {
     MagicBolt,
     LightBall,
@@ -204,7 +217,7 @@ impl SpellType {
                     zh_cn: "减速",
                     es: "Reducción de Velocidad"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "次に発射する魔法の弾速を50%低下させます。",
                     en: "Reduces the speed of the next magic bullet by 50%.",
                     zh_cn: "将下一个魔法弹的速度降低50%。",
@@ -223,7 +236,7 @@ impl SpellType {
                     zh_cn: "双重施法",
                     es: "Doble Hechizo"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。",
                     en: "Casts two projectile spells at the same time.",
                     zh_cn: "同时施放两个投射法术。施法延迟将与较大的值对齐。",
@@ -242,7 +255,7 @@ impl SpellType {
                     zh_cn: "召唤敌人史莱姆",
                     es: "Invocar Slime Enemigo"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "敵のスライムを召喚します。",
                     en: "Summons a enemy slime",
                     zh_cn: "召唤一个敌人史莱姆",
@@ -261,7 +274,7 @@ impl SpellType {
                     zh_cn: "召唤敌人眼球",
                     es: "Invocar Ojo Enemigo"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "敵のアイボールを召喚します。",
                     en: "Summons a enemy Eyeball",
                     zh_cn: "召唤一个敌人眼球",
@@ -280,7 +293,7 @@ impl SpellType {
                     zh_cn: "重型射击",
                     es: "Disparo Pesado"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "次に発射する魔法弾の威力が上昇しますが、飛翔速度が低下します。",
                     en: "The next magic bullet you fire will be more powerful and slower.",
                     zh_cn: "下一个魔法弹的威力将增加，但飞行速度将减慢。",
@@ -299,7 +312,7 @@ impl SpellType {
                     zh_cn: "炸弹",
                     es: "Bomba"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "黒色火薬が詰まった爆弾です。時間が経つと爆発します。",
                     en: "A bomb filled with black powder. It explodes after a while.",
                     zh_cn: "装满黑火药的炸弹。过一会儿就会爆炸。",
@@ -318,7 +331,7 @@ impl SpellType {
                     zh_cn: "三重施法",
                     es: "Triple Hechizo"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "みっつの投射物呪文を同時に詠唱します。", 
                     en: "Casts three projectile spells at the same time.",
                     zh_cn: "同时施放三个投射法术。",
@@ -337,7 +350,7 @@ impl SpellType {
                     zh_cn: "自主追踪",
                     es: "Autodirigido"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "次に発射する魔法弾が近くの敵に向かって追尾します。", 
                     en: "The next magic bullet you fire will home in on the enemy.",
                     zh_cn: "下一个魔法弹将追踪敌人。",
@@ -356,7 +369,7 @@ impl SpellType {
                     zh_cn: "召唤友军史莱姆",
                     es: "Invocar Slime Amigo"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "味方のスライムを召喚します。",
                     en: "Summons a friend slime",
                     zh_cn: "召唤一个友军史莱姆",
@@ -375,7 +388,7 @@ impl SpellType {
                     zh_cn: "精度提高",
                     es: "Precisión Mejorada"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "弾丸の精度を向上させます。",
                     en: "Increases the accuracy of bullets.",
                     zh_cn: "提高子弹的精度。",
@@ -394,7 +407,7 @@ impl SpellType {
                     zh_cn: "召唤友军眼球",
                     es: "Invocar Ojo Amigo"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "味方のアイボールを召喚します。",
                     en: "Summons a friend Eyeball", 
                     zh_cn: "召唤一个友军眼球",
@@ -413,7 +426,7 @@ impl SpellType {
                     zh_cn: "冲刺",
                     es: "Correr"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "短距離を素早く走ります。",
                     en: "Dashes a short distance.",
                     zh_cn: "短距离快速奔跑。",
@@ -432,7 +445,7 @@ impl SpellType {
                     zh_cn: "冲击",
                     es: "Impacto"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "周囲に衝撃波を起こします。敵も味方もまとめて吹き飛ばします。",
                     en: "Creates a shockwave around you that knocks back enemies and allies.",
                     zh_cn: "在你周围产生冲击波，将敌人和盟友一起击退。",
@@ -451,7 +464,7 @@ impl SpellType {
                     zh_cn: "加速",
                     es: "Aumentar Velocidad"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "次に発射する魔法の弾速を50%上昇させます。",
                     en: "Increases the speed of the next magic bullet by 50%.",
                     zh_cn: "将下一个魔法弹的速度提高50%。",
@@ -470,7 +483,7 @@ impl SpellType {
                     zh_cn: "治疗",
                     es: "Curar"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "自分自身の体力を少しだけ回復します。", 
                     en: "Heals a small amount of your own health.",
                     zh_cn: "治疗自己一点点的生命值。",
@@ -489,7 +502,7 @@ impl SpellType {
                     zh_cn: "快速施法",
                     es: "Lanzamiento Rápido"
                 },
-                description: Dict { 
+                description: Dict {
                     ja: "次に詠唱する呪文の詠唱時間を減らします。",
                     en: "Reduces the casting time of the next spell.",
                     zh_cn: "减少下一个法术的施法时间。",
@@ -500,7 +513,6 @@ impl SpellType {
                 price: 500,
                 cast: SpellCast::QuickCast,
             },
-                       
         }
     }
 }
@@ -509,49 +521,49 @@ const DAMAGE: Dict<&'static str> = Dict {
     ja: "ダメージ",
     en: "Damage",
     zh_cn: "伤害",
-    es: "Daño"
+    es: "Daño",
 };
 
 const KNOCKBACK: Dict<&'static str> = Dict {
     ja: "ノックバック",
     en: "Knockback",
     zh_cn: "击退",
-    es: "Retroceso"
+    es: "Retroceso",
 };
 
 const SPEED: Dict<&'static str> = Dict {
     ja: "射出速度",
     en: "Speed",
     zh_cn: "速度",
-    es: "Velocidad"
+    es: "Velocidad",
 };
 
 const LIFETIME: Dict<&'static str> = Dict {
     ja: "持続時間",
     en: "Lifetime",
     zh_cn: "持续时间",
-    es: "Duración"
+    es: "Duración",
 };
 
 const SCATTERING: Dict<&'static str> = Dict {
     ja: "拡散",
     en: "Scattering",
     zh_cn: "扩散",
-    es: "Dispersión"
+    es: "Dispersión",
 };
 
 const SIZE: Dict<&'static str> = Dict {
     ja: "大きさ",
     en: "Size",
     zh_cn: "大小",
-    es: "Tamaño"
+    es: "Tamaño",
 };
 
 const HEAL_TEXT: Dict<&'static str> = Dict {
     ja: "回復",
     en: "Heal",
     zh_cn: "治疗",
-    es: "Curar"
+    es: "Curar",
 };
 
 pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
@@ -594,7 +606,6 @@ pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
             // format!("威力: +5"),
             Dict::empty()
         }
-        _ => Dict::empty()
+        _ => Dict::empty(),
     }
 }
-

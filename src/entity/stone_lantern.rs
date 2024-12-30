@@ -1,3 +1,4 @@
+use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::life::Life;
@@ -14,8 +15,6 @@ use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
-
-use super::counter::CounterAnimated;
 
 #[derive(Default, Component, Reflect)]
 struct StoneLantern {

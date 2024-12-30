@@ -1,8 +1,8 @@
+use crate::asset::GameAssets;
+use crate::config::GameConfig;
 use bevy::prelude::*;
 use serde::*;
 use std::ops;
-
-use crate::{asset::GameAssets, config::GameConfig};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Languages {

@@ -1,7 +1,8 @@
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Reflect, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct WandSpell {

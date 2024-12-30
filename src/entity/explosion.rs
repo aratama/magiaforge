@@ -1,3 +1,5 @@
+use super::actor::ActorEvent;
+use super::life::Life;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::*;
@@ -8,9 +10,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
-
-use super::actor::ActorEvent;
-use super::life::Life;
 
 pub const EXPLOSION_COUNT: u32 = 10;
 

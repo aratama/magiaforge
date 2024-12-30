@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
-use crate::language::{Dict, M18NTtext};
+use crate::language::Dict;
+use crate::language::M18NTtext;
 use bevy::prelude::*;
 
 pub fn spawn_label<'a>(parent: &mut ChildBuilder, assets: &Res<GameAssets>, text: Dict<String>) {

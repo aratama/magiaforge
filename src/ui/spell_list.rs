@@ -1,14 +1,16 @@
-use super::popup::{PopUp, PopupContent};
-use crate::{
-    asset::GameAssets,
-    camera::GameCamera,
-    constant::{UI_PRIMARY, UI_PRIMARY_DARKER, UI_SECONDARY},
-    controller::{message_rabbit::SpellListRabbit, player::Player},
-    language::M18NTtext,
-    message::DISCOVERED_SPELLS,
-    spell::SpellType,
-    states::GameState,
-};
+use super::popup::PopUp;
+use super::popup::PopupContent;
+use crate::asset::GameAssets;
+use crate::camera::GameCamera;
+use crate::constant::UI_PRIMARY;
+use crate::constant::UI_PRIMARY_DARKER;
+use crate::constant::UI_SECONDARY;
+use crate::controller::message_rabbit::SpellListRabbit;
+use crate::controller::player::Player;
+use crate::language::M18NTtext;
+use crate::message::DISCOVERED_SPELLS;
+use crate::spell::SpellType;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use strum::IntoEnumIterator;
