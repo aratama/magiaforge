@@ -17,10 +17,10 @@ use crate::language::Dict;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
-use crate::ui::speech_bubble::SpeechBubbleText;
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 
@@ -131,7 +131,6 @@ fn countup(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
-    mut speech_text_query: Query<&mut Text, With<SpeechBubbleText>>,
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
     mut player_query: Query<&mut Actor, With<Player>>,
@@ -150,13 +149,8 @@ fn countup(
     let mut camera = camera.single_mut();
 
     if theater.senario.len() <= theater.act_index {
-        // let mut camera = camera.single_mut();
-        // camera.target = None;
         return;
     }
-
-    let pos = theater.speech_count / DELAY;
-    let mut speech_text = speech_text_query.single_mut();
 
     let page = theater.senario[theater.act_index].clone();
     match page {
@@ -172,19 +166,10 @@ fn countup(
                 actor.fire_state = ActorFireState::Idle;
             }
 
+            let text_end_position = theater.speech_count / DELAY;
             let page_string = dict.get(config.language);
-            let chars = page_string.char_indices();
-            let mut str = "".to_string();
-            let mut s = 0;
-            for (i, val) in chars.enumerate() {
-                if i < pos {
-                    str.push(val.1);
-                }
-                s += 1;
-            }
-            speech_text.0 = str;
 
-            if pos < s {
+            if text_end_position < page_string.char_indices().count() {
                 if theater.speech_count % DELAY == 0 {
                     se_writer.send(SEEvent::new(SE::Kawaii));
                 }
@@ -321,9 +306,10 @@ fn next_page(
     mut writer: EventWriter<TheaterEvent>,
     config: Res<GameConfig>,
     mut theater: ResMut<Theater>,
+    state: Res<State<GameMenuState>>,
 ) {
     let bubble_visivility = bubble_query.single_mut();
-    if *bubble_visivility == Visibility::Inherited {
+    if *bubble_visivility == Visibility::Inherited && *state != GameMenuState::PauseMenuOpen {
         if mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right) {
             match theater.current_act() {
                 Some(Act::Speech(dict)) => {

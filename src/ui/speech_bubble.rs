@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::entity::counter::CounterAnimated;
+use crate::language::Languages;
 use crate::states::GameState;
 use crate::theater::Act;
 use crate::theater::Theater;
@@ -25,7 +26,7 @@ pub struct SpeechBubble {
 pub struct SpeechBubbleText;
 
 #[derive(Component)]
-pub struct NextPage;
+struct NextPage;
 
 pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
     parent
@@ -125,6 +126,28 @@ fn next_page_visibility(
     }
 }
 
+pub fn update_text_on_change_config(
+    config: Res<GameConfig>,
+    mut speech_text_query: Query<(&mut Text, &mut TextFont), With<SpeechBubbleText>>,
+    theater: Res<Theater>,
+    assets: Res<GameAssets>,
+) {
+    match theater.senario.get(theater.act_index) {
+        Some(Act::Speech(dict)) => {
+            let text_end_position = theater.speech_count / DELAY;
+            let (mut speech_text, mut font) = speech_text_query.single_mut();
+            let page_string = dict.get(config.language);
+            speech_text.0 = page_string.chars().take(text_end_position).collect();
+            font.font = match config.language {
+                Languages::Ja => assets.noto_sans_jp.clone(),
+                Languages::En => assets.noto_sans_jp.clone(),
+                Languages::ZhCn => assets.noto_sans_sc.clone(),
+            };
+        }
+        _ => {}
+    }
+}
+
 pub struct SpeechBubblePlugin;
 
 impl Plugin for SpeechBubblePlugin {
@@ -134,6 +157,7 @@ impl Plugin for SpeechBubblePlugin {
             (
                 (update_speech_bubble_position).chain(),
                 next_page_visibility,
+                update_text_on_change_config,
             )
                 .run_if(in_state(GameState::InGame)),
         );

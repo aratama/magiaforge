@@ -159,7 +159,11 @@ fn switch_wand(
     mut witch_query: Query<&mut Actor, With<Player>>,
     mut wheel: EventReader<MouseWheel>,
     mut writer: EventWriter<SEEvent>,
+    state: Res<State<GameMenuState>>,
 ) {
+    if *state == GameMenuState::PauseMenuOpen {
+        return;
+    }
     for event in wheel.read() {
         if let Ok(mut actor) = witch_query.get_single_mut() {
             let next = (actor.current_wand as i32 - event.y.signum() as i32)
