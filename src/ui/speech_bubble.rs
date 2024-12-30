@@ -1,12 +1,10 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::entity::counter::CounterAnimated;
-use crate::physics::InGameTime;
 use crate::states::GameState;
 use crate::theater::Act;
 use crate::theater::Theater;
 use bevy::prelude::*;
-use bevy::render::view::visibility;
 use bevy::text::FontSmoothing;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
 use bevy_aseprite_ultra::prelude::AseUiSlice;

@@ -353,11 +353,7 @@ fn shake_camera(mut camera_query: Query<&mut GameCamera>, theater: ResMut<Theate
     }
 }
 
-fn clear_senario(
-    mut commands: Commands,
-    mut theater: ResMut<Theater>,
-    mut speech_query: Query<(&mut SpeechBubble, &mut Visibility)>,
-) {
+fn clear_senario(mut theater: ResMut<Theater>) {
     theater.senario.clear();
     theater.act_index = 0;
     theater.speech_count = 0;

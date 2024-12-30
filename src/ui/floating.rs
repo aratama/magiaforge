@@ -190,10 +190,14 @@ fn drop(
                     info!("item_optional_from {:?}", item_optional_from);
                     info!("item_optional_to {:?}", item_optional_to);
 
-                    // 移動先に書きこみ
-                    target.set_item(item_optional_from, &mut actor);
-                    // 移動元に書きこみ
-                    content.set_item(item_optional_to, &mut actor);
+                    if target.is_settable(item_optional_from)
+                        && content.is_settable(item_optional_to)
+                    {
+                        // 移動先に書きこみ
+                        target.set_item(item_optional_from, &mut actor);
+                        // 移動元に書きこみ
+                        content.set_item(item_optional_to, &mut actor);
+                    }
                 }
             }
         }
@@ -254,6 +258,29 @@ impl FloatingContent {
             _ => {
                 warn!("Invalid operation dest:{:?} item:{:?}", self, item);
             }
+        }
+    }
+
+    pub fn is_settable(&self, item: Option<InventoryItem>) -> bool {
+        match (self, item) {
+            (FloatingContent::Inventory(_), _) => true,
+            (
+                FloatingContent::WandSpell(..),
+                Some(InventoryItem {
+                    item_type: InventoryItemType::Spell(_),
+                    ..
+                }),
+            ) => true,
+            (FloatingContent::WandSpell(..), None) => true,
+            (
+                FloatingContent::Equipment(_),
+                Some(InventoryItem {
+                    item_type: InventoryItemType::Equipment(_),
+                    ..
+                }),
+            ) => true,
+            (FloatingContent::Equipment(_), None) => true,
+            _ => false,
         }
     }
 }
