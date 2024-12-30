@@ -1,3 +1,5 @@
+use std::ops::Index;
+
 use super::in_game::GameLevel;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
@@ -326,6 +328,28 @@ fn toggle_language(
     }
 }
 
+fn toggle_language_with_key(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut config: ResMut<GameConfig>,
+    mut writer: EventWriter<SEEvent>,
+) {
+    let delta: i32 = if keys.just_pressed(KeyCode::KeyW) {
+        -1
+    } else if keys.just_pressed(KeyCode::KeyS) {
+        1
+    } else {
+        0
+    };
+
+    if delta != 0 {
+        let current = Languages::iter().position(|l| l == config.language);
+        let next =
+            (Languages::iter().count() as i32 + current.unwrap_or(0) as i32 + delta) as usize;
+        config.language = Languages::iter().cycle().skip(next).next().unwrap();
+        writer.send(SEEvent::new(SE::Click));
+    }
+}
+
 fn update_language_button_background(
     mut query: Query<(&mut BackgroundColor, &LanguageButton)>,
     config: Res<GameConfig>,
@@ -410,6 +434,7 @@ impl Plugin for MainMenuPlugin {
                 (
                     update_language_button_background,
                     toggle_language,
+                    toggle_language_with_key,
                     start_game,
                 )
                     .chain(),

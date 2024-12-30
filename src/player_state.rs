@@ -6,13 +6,16 @@ use crate::entity::actor::Actor;
 use crate::entity::life::Life;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
+#[cfg(feature = "save")]
 use crate::page::in_game::Interlevel;
 use crate::spell::SpellType;
+#[cfg(feature = "save")]
 use crate::states::GameState;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
+#[cfg(feature = "save")]
 use bevy_pkv::PkvStore;
 use serde::Deserialize;
 use serde::Serialize;
