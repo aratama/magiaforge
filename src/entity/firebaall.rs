@@ -2,9 +2,12 @@ use super::counter::CounterAnimated;
 use super::falling::Falling;
 use super::point_light::WithPointLight;
 use crate::asset::GameAssets;
+use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
 use crate::constant::RABBIT_GROUP;
+use crate::constant::SENSOR_GROUP;
 use crate::constant::WALL_GROUP;
+use crate::constant::WITCH_GROUP;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
@@ -21,7 +24,7 @@ use bevy_rapier2d::prelude::*;
 struct Fireball;
 
 #[derive(Default, Component, Reflect)]
-struct Fire;
+pub struct Fire;
 
 pub fn spawn_fireball(commands: &mut Commands, assets: &Res<GameAssets>, from: Vec2, to: Vec2) {
     commands
@@ -115,6 +118,16 @@ fn spawn_fire(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2)
             speed: 0.43,
             amplitude: 0.1,
         },
+        (
+            Sensor,
+            Collider::ball(8.0),
+            CollisionGroups::new(
+                SENSOR_GROUP,
+                ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP | RABBIT_GROUP,
+            ),
+            ActiveEvents::COLLISION_EVENTS,
+            ActiveCollisionTypes::all(),
+        ),
     ));
 }
 

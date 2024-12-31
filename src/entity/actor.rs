@@ -2,9 +2,11 @@ use super::bomb::SpawnBomb;
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
+use crate::constant::ENEMY_GROUP;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
+use crate::constant::WITCH_GROUP;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::life::Life;
@@ -25,6 +27,7 @@ use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
+use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
@@ -112,9 +115,10 @@ pub struct Actor {
     pub radius: f32,
 
     pub state: ActorState,
-    // 再び詠唱操作をできるようになるまでの待ち時間
-    // フキダシを閉じたあとなど、一定時間詠唱不能にしておかないと、
-    // フキダシを閉じると同時に詠唱をしてしまう
+
+    /// 再び詠唱操作をできるようになるまでの待ち時間
+    /// フキダシを閉じたあとなど、一定時間詠唱不能にしておかないと、
+    /// フキダシを閉じると同時に詠唱をしてしまう
     pub wait: u32,
 }
 
@@ -263,6 +267,15 @@ pub enum ActorFireState {
 pub enum ActorGroup {
     Player,
     Enemy,
+}
+
+impl ActorGroup {
+    pub fn to_group(&self) -> Group {
+        match self {
+            ActorGroup::Player => WITCH_GROUP,
+            ActorGroup::Enemy => ENEMY_GROUP,
+        }
+    }
 }
 
 #[derive(Event, Debug, Clone)]

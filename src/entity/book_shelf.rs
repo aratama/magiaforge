@@ -26,11 +26,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
     let mut parent = commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        Life {
-            life: 25,
-            max_life: 25,
-            amplitude: 0.0,
-        },
+        Life::new(25),
         Bookshelf,
         EntityDepth,
         Visibility::default(),

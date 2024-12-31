@@ -54,6 +54,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             life: 100000,
             max_life: 100000,
             amplitude: 0.0,
+            fire_damage_wait: 0,
         },
         Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),

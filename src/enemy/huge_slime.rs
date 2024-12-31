@@ -71,6 +71,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 life: 1200,
                 max_life: 1200,
                 amplitude: 0.0,
+                fire_damage_wait: 0,
             },
             HomingTarget,
             HugeSlime {

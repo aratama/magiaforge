@@ -324,12 +324,6 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
-                actor_event.send(ActorEvent::Damaged {
-                    actor: *b,
-                    damage: bullet.damage as u32,
-                    position: bullet_position,
-                });
-                writer.send(SEEvent::pos(SE::Damage, bullet_position));
 
                 if let Some(mut impilse) = impulse_optional {
                     impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;

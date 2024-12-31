@@ -75,11 +75,7 @@ pub fn spawn_chest(
         .spawn((
             Name::new("chest"),
             StateScoped(GameState::InGame),
-            Life {
-                life,
-                max_life: life,
-                amplitude: 0.0,
-            },
+            Life::new(life),
             Chest {
                 chest_type,
                 golds: match chest_type {

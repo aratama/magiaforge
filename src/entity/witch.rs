@@ -84,6 +84,7 @@ pub fn spawn_witch<T: Component>(
             life,
             max_life,
             amplitude: 0.0,
+            fire_damage_wait: 0,
         },
         HomingTarget,
         // 足音
@@ -113,10 +114,7 @@ pub fn spawn_witch<T: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             CollisionGroups::new(
-                match actor_group {
-                    ActorGroup::Player => WITCH_GROUP,
-                    ActorGroup::Enemy => ENEMY_GROUP,
-                },
+                actor_group.to_group(),
                 ENTITY_GROUP
                     | WALL_GROUP
                     | WITCH_GROUP

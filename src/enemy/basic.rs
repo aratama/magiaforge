@@ -78,6 +78,7 @@ pub fn spawn_basic_enemy<T: Component>(
             life: max_life,
             max_life,
             amplitude: 0.0,
+            fire_damage_wait: 0,
         },
         HomingTarget,
         Transform::from_translation(position.extend(5.0)),
@@ -96,10 +97,7 @@ pub fn spawn_basic_enemy<T: Component>(
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(
-                match actor_group {
-                    ActorGroup::Enemy => ENEMY_GROUP,
-                    ActorGroup::Player => WITCH_GROUP,
-                },
+                actor_group.to_group(),
                 match actor_group {
                     ActorGroup::Enemy => WITCH_BULLET_GROUP,
                     ActorGroup::Player => ENEMY_BULLET_GROUP,

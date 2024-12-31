@@ -63,11 +63,7 @@ pub fn spawn_dropped_item(
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
             Visibility::default(),
-            Life {
-                life: 300,
-                max_life: 300,
-                amplitude: 0.0,
-            },
+            Life::new(300),
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,
