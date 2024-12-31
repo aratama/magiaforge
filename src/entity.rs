@@ -10,6 +10,7 @@ pub mod counter;
 pub mod damege;
 pub mod dropped_item;
 pub mod explosion;
+pub mod falling;
 pub mod gold;
 pub mod impact;
 pub mod life;

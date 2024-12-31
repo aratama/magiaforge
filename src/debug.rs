@@ -119,7 +119,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
 
         actor.wands[1] = Wand::with_slots([
             Some(WandSpell {
-                spell_type: SpellType::SummonFriendSlime,
+                spell_type: SpellType::RockFall,
                 price: 0,
             }),
             None,

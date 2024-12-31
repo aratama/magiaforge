@@ -9,6 +9,7 @@ use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::counter::Counter;
 use crate::entity::counter::CounterAnimated;
+use crate::entity::falling::Falling;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::servant_seed::ServantType;
@@ -38,7 +39,6 @@ pub struct Boss;
 
 #[derive(Component)]
 pub struct HugeSlime {
-    up_velocity: f32,
     state: HugeSlimeState,
     promoted: bool,
 }
@@ -74,7 +74,6 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             },
             HomingTarget,
             HugeSlime {
-                up_velocity: 0.0,
                 state: HugeSlimeState::Growl,
                 promoted: false,
             },
@@ -137,6 +136,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         ))
         .with_children(|parent| {
             parent.spawn((
+                Falling::new(0.0, -0.2),
                 HugeSlimeSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
@@ -148,30 +148,24 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         });
 }
 
-fn update_huge_slime(
+// プレイヤーがいる場合はジャンプしながら接近
+// 空中にいる場合は移動の外力が働く
+fn control(
     player_query: Query<&Transform, With<Player>>,
-    mut slime_query: Query<(&mut HugeSlime, &Transform, &mut Actor), Without<Player>>,
+    mut slime_query: Query<(&Transform, &mut Actor), (With<HugeSlime>, Without<Player>)>,
     mut sprite_query: Query<
-        (&Parent, &mut Transform),
+        (&Parent, &Transform),
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
     >,
-    mut impact_writer: EventWriter<SpawnImpact>,
     in_game_time: Res<InGameTime>,
 ) {
     if !in_game_time.active {
         return;
     }
-
-    const GRAVITY: f32 = 0.2;
-    for (parent, mut offset) in sprite_query.iter_mut() {
-        let (mut huge_slime, transform, mut actor) = slime_query.get_mut(parent.get()).unwrap();
-        huge_slime.up_velocity -= GRAVITY;
-        let next = (offset.translation.y + huge_slime.up_velocity as f32).max(0.0);
+    for (parent, offset) in sprite_query.iter_mut() {
+        let (transform, mut actor) = slime_query.get_mut(parent.get()).unwrap();
 
         actor.move_force = 0.0;
-
-        // プレイヤーがいる場合はジャンプしながら接近
-        // 空中にいる場合は移動の外力が働く
 
         if let Ok(player_transform) = player_query.get_single() {
             if 0.0 < offset.translation.y {
@@ -186,9 +180,21 @@ fn update_huge_slime(
                 actor.move_force = 4000000.0;
             };
         }
+    }
+}
 
-        // 着地判定
-        if 0.0 < offset.translation.y && next == 0.0 {
+fn impact(
+    slime_query: Query<&Transform, With<HugeSlime>>,
+    sprite_query: Query<(&Parent, &Falling), With<HugeSlimeSprite>>,
+    mut impact_writer: EventWriter<SpawnImpact>,
+    in_game_time: Res<InGameTime>,
+) {
+    if !in_game_time.active {
+        return;
+    }
+    for (parent, falling) in sprite_query.iter() {
+        if falling.impact {
+            let transform = slime_query.get(parent.get()).unwrap();
             impact_writer.send(SpawnImpact {
                 owner: Some(parent.get()),
                 position: transform.translation.truncate(),
@@ -196,8 +202,6 @@ fn update_huge_slime(
                 impulse: 30000.0,
             });
         }
-
-        offset.translation.y = next;
     }
 }
 
@@ -224,13 +228,13 @@ fn update_huge_slime_approach(
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
     mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter), Without<Player>>,
     mut huge_slime_sprite_query: Query<
-        &Parent,
+        (&Parent, &mut Falling),
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
     >,
 ) {
     const JUMP_POWER: f32 = 3.0;
 
-    for parent in huge_slime_sprite_query.iter_mut() {
+    for (parent, mut falling) in huge_slime_sprite_query.iter_mut() {
         let (mut huge_slime, mut counter) = huge_slime_query.get_mut(parent.get()).unwrap();
         let timespan = if huge_slime.promoted { 35 } else { 60 };
         if let HugeSlimeState::Approach = huge_slime.state.clone() {
@@ -238,7 +242,7 @@ fn update_huge_slime_approach(
             if let Ok(_) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
                 if counter.count % timespan == 0 {
-                    huge_slime.up_velocity = JUMP_POWER;
+                    falling.velocity = JUMP_POWER;
                 }
             }
 
@@ -422,7 +426,8 @@ impl Plugin for HugeSlimePlugin {
         app.add_systems(
             FixedUpdate,
             ((
-                update_huge_slime,
+                control,
+                impact,
                 update_huge_slime_growl,
                 update_huge_slime_approach,
                 update_huge_slime_summon,

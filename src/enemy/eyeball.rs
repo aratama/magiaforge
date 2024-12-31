@@ -6,6 +6,7 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::physics::compare_distance;
+use crate::physics::InGameTime;
 use crate::set::GameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -52,7 +53,12 @@ pub fn spawn_eyeball(
 fn control_eyeball(
     mut actor_query: Query<(Entity, Option<&EyeballControl>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    in_game_timer: Res<InGameTime>,
 ) {
+    if !in_game_timer.active {
+        return;
+    }
+
     let context: &RapierContext = rapier_context.single();
 
     // 多対多の参照になるので、HashMapでキャッシュしておく

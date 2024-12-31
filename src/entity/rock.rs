@@ -1,4 +1,5 @@
 use super::counter::CounterAnimated;
+use super::falling::Falling;
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::constant::*;
@@ -16,11 +17,6 @@ use bevy_rapier2d::prelude::*;
 
 #[derive(Default, Component, Reflect)]
 struct FallingRock;
-
-#[derive(Default, Component, Reflect)]
-struct FallingRockSprite {
-    drop_velocity: f32,
-}
 
 #[derive(Default, Component, Reflect)]
 struct FallenRock;
@@ -42,7 +38,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, pos
         ))
         .with_children(|parent| {
             parent.spawn((
-                FallingRockSprite { drop_velocity: 0.0 },
+                Falling::new(0.0, -0.1),
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteSlice {
@@ -58,16 +54,13 @@ pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, pos
 fn fall(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    mut child_query: Query<(&Parent, &mut Transform, &mut FallingRockSprite)>,
-    parent_query: Query<(Entity, &Transform), (With<FallingRock>, Without<FallingRockSprite>)>,
+    child_query: Query<(&Parent, &Transform)>,
+    parent_query: Query<(Entity, &Transform), (With<FallingRock>, Without<Falling>)>,
     interlevel: Res<Interlevel>,
     mut impact: EventWriter<SpawnImpact>,
 ) {
-    for (parent, mut child_transform, mut falling) in child_query.iter_mut() {
+    for (parent, child_transform) in child_query.iter() {
         if let Ok((entity, parent_transform)) = parent_query.get(parent.get()) {
-            child_transform.translation.y += falling.drop_velocity;
-            falling.drop_velocity -= 0.1;
-
             if child_transform.translation.y <= 0.0 {
                 let position = parent_transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();

@@ -5,6 +5,7 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
+use crate::physics::InGameTime;
 use crate::set::GameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -63,7 +64,12 @@ fn control_slime(
         &mut Transform,
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    in_game_timer: Res<InGameTime>,
 ) {
+    if !in_game_timer.active {
+        return;
+    }
+
     let context: &RapierContext = rapier_context.single();
 
     // 多対多の参照になるので、HashMapでキャッシュしておく

@@ -13,6 +13,8 @@ use crate::entity::servant_seed::SpawnServantSeed;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
+use crate::page::in_game;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -366,7 +368,12 @@ fn fire_bullet(
     mut impact_writer: EventWriter<SpawnImpact>,
     mut bomb_writer: EventWriter<SpawnBomb>,
     websocket: Res<WebSocketState>,
+    in_game_timer: Res<InGameTime>,
 ) {
+    if !in_game_timer.active {
+        return;
+    }
+
     let online = websocket.ready_state == ReadyState::OPEN;
 
     for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse, player) in
