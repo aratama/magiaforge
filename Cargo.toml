@@ -27,8 +27,9 @@ strip = true
 
 [features]
 debug = []
+debug_command = []
 save = []
-default = []
+default = ["debug_command"]
 
 [dependencies]
 bevy_aseprite_ultra = "0.4.1"

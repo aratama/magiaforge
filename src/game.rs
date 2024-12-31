@@ -10,7 +10,10 @@ use crate::controller::remote::RemotePlayerPlugin;
 use crate::controller::servant::ServantPlugin;
 use crate::controller::shop_rabbit::ShopRabbitPlugin;
 use crate::controller::training_dummy::TrainingDummyPlugin;
-use crate::debug::DebugCommandPlugin;
+#[cfg(feature = "debug")]
+use crate::debug::DebugPlugin;
+#[cfg(feature = "debug_command")]
+use crate::debug_command::DebugCommandPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::sandbug::SandbagPlugin;
@@ -55,6 +58,8 @@ use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
 use crate::player_state::PlayerStatePlugin;
+#[cfg(feature = "save")]
+use crate::save::SavePlugin;
 use crate::se::SECommandPlugin;
 use crate::states::*;
 use crate::theater::SenarioPlugin;
@@ -79,10 +84,6 @@ use crate::ui::spell_list::SpellListPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use bevy::asset::AssetMetaCheck;
-#[cfg(feature = "debug")]
-use bevy::diagnostic::EntityCountDiagnosticsPlugin;
-#[cfg(feature = "debug")]
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::log::*;
 use bevy::prelude::*;
 use bevy::window::CursorOptions;
@@ -95,11 +96,7 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::PluginMode;
 use bevy_light_2d::plugin::Light2dPlugin;
-#[cfg(feature = "save")]
-use bevy_pkv::PkvStore;
 use bevy_rapier2d::prelude::*;
-#[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
-use bevy_remote_inspector::RemoteInspectorPlugins;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
 use gameover::GameoverPlugin;
@@ -108,16 +105,13 @@ use wall::WallPlugin;
 pub fn run_game() {
     let mut app = App::new();
 
-    // アセットの埋め込みはリリースモードでのビルドのみで有効にしています
+    // アセットの埋め込みはリリースモードでのビルドのみ、
+    // つまりWindowsなどのネイティブビルドのみで有効にしています
+    // これはDefaultPluginsの前に呼び出す必要があります
     #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
     app.add_plugins(EmbeddedAssetPlugin {
         mode: PluginMode::ReplaceDefault,
     });
-
-    // bevy_pkv を使うとセーブファイルがロックされるため、複数のインスタンスを同時に起動できなくなります
-    // 開発時に不便なので、フィーチャーフラグで開発時は無効にしておきます
-    #[cfg(feature = "save")]
-    app.insert_resource(PkvStore::new(CRATE_NAME, CRATE_NAME));
 
     app
         //
@@ -187,7 +181,6 @@ pub fn run_game() {
         .add_plugins(CommandButtonPlugin)
         .add_plugins(CounterPlugin)
         .add_plugins(DamagePlugin)
-        .add_plugins(DebugCommandPlugin)
         .add_plugins(DespawnWithGoldPlugin)
         .add_plugins(EndingPlugin)
         .add_plugins(EyeballControlPlugin)
@@ -269,21 +262,18 @@ pub fn run_game() {
         // https://bevyengine.org/news/bevy-0-14/#state-scoped-entities
         .enable_state_scoped_entities::<GameState>();
 
-    //
-    // 以下はデバッグ用のプラグインなど
-    // 無くてもゲーム自体は動作します
-    //
-    #[cfg(feature = "debug")]
-    app.add_plugins(FrameTimeDiagnosticsPlugin::default())
-        .add_plugins(EntityCountDiagnosticsPlugin)
-        .add_plugins(RapierDebugRenderPlugin {
-            enabled: true,
-            mode: DebugRenderMode::COLLIDER_SHAPES,
-            ..default()
-        });
+    #[cfg(feature = "debug_command")]
+    app.add_plugins(DebugCommandPlugin);
 
-    #[cfg(all(feature = "debug", not(target_arch = "wasm32")))]
-    app.add_plugins(RemoteInspectorPlugins);
+    // bevy_pkv を使うとセーブファイルがロックされるため、複数のインスタンスを同時に起動できなくなります
+    // 開発時に不便なので、フィーチャーフラグで開発時は無効にしておきます
+    #[cfg(feature = "save")]
+    app.add_plugins(SavePlugin);
+
+    // デバッグ用のプラグインなど
+    // 無くてもゲーム自体は動作します
+    #[cfg(feature = "debug")]
+    app.add_plugins(DebugPlugin);
 
     app.run();
 }

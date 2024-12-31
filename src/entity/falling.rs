@@ -1,4 +1,5 @@
-use crate::{physics::InGameTime, states::GameState};
+use crate::physics::InGameTime;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
