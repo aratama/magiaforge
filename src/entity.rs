@@ -15,6 +15,7 @@ pub mod impact;
 pub mod life;
 pub mod magic_circle;
 pub mod piece;
+pub mod point_light;
 pub mod rabbit;
 pub mod servant_seed;
 pub mod shop;

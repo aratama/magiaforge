@@ -1,76 +1,64 @@
 use super::counter::CounterAnimated;
+use super::point_light::WithPointLight;
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::entity::life::Life;
 use crate::entity::life::LifeBeingSprite;
 use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
-use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Default, Component, Reflect)]
-struct StoneLantern {
-    animation_offset: u32,
-}
-
-#[derive(Component, Reflect)]
-struct LanternParent(Entity);
+struct StoneLantern;
 
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: f32) {
-    let tx = x;
-    let ty = y;
-
-    let entity = commands.spawn_empty().id();
-
+pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
-        .entity(entity)
-        .insert((
+        .spawn((
             Name::new("stone_lantern"),
             StateScoped(GameState::InGame),
-            Life {
-                life: 50,
-                max_life: 50,
-                amplitude: 0.0,
-            },
-            StoneLantern {
-                animation_offset: rand::random::<u32>() % 1000,
-            },
+            Life::new(50),
+            StoneLantern,
             EntityDepth,
             Visibility::default(),
-            Transform::from_translation(Vec3::new(tx, ty, 0.0)),
-            (
-                RigidBody::Dynamic,
-                Damping {
-                    linear_damping: 80.0,
-                    angular_damping: 0.0,
-                },
-                LockedAxes::ROTATION_LOCKED,
-                Collider::cuboid(8.0, 8.0),
-                ColliderMassProperties::Density(10.0),
-                CollisionGroups::new(
-                    ENTITY_GROUP,
-                    PIECE_GROUP
-                        | ENTITY_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP
-                        | WALL_GROUP
-                        | RABBIT_GROUP
-                        | DROPPED_ITEM_GROUP,
-                ),
-                ExternalImpulse::default(),
+            Transform::from_translation(position.extend(0.0)),
+            RigidBody::Dynamic,
+            Damping {
+                linear_damping: 80.0,
+                angular_damping: 0.0,
+            },
+            LockedAxes::ROTATION_LOCKED,
+            Collider::cuboid(8.0, 8.0),
+            ColliderMassProperties::Density(10.0),
+            CollisionGroups::new(
+                ENTITY_GROUP,
+                PIECE_GROUP
+                    | ENTITY_GROUP
+                    | WITCH_GROUP
+                    | WITCH_BULLET_GROUP
+                    | ENEMY_GROUP
+                    | ENEMY_BULLET_GROUP
+                    | WALL_GROUP
+                    | RABBIT_GROUP
+                    | DROPPED_ITEM_GROUP,
             ),
+            ExternalImpulse::default(),
+            WithPointLight {
+                radius: 64.0,
+                intensity: 1.0,
+                falloff: 10.0,
+                color: Color::hsl(42.0, 1.0, 0.71),
+                animation_offset: rand::random::<u32>() % 1000,
+                speed: 0.43,
+                amplitude: 0.1,
+            },
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -86,45 +74,6 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, x:
                 },
             ));
         });
-
-    commands.spawn((
-        Name::new("stone lantern light"),
-        StateScoped(GameState::InGame),
-        LanternParent(entity),
-        Transform::from_translation(Vec3::new(tx, ty, 0.0)),
-        PointLight2d {
-            radius: 64.0,
-            intensity: 1.0,
-            falloff: 10.0,
-            color: Color::hsl(42.0, 1.0, 0.71),
-            ..default()
-        },
-    ));
-}
-
-fn update_lantern(
-    mut commands: Commands,
-    parent_query: Query<(&StoneLantern, &Transform)>,
-    mut child_query: Query<
-        (Entity, &LanternParent, &mut PointLight2d, &mut Transform),
-        Without<StoneLantern>,
-    >,
-    frame_count: Res<FrameCount>,
-    in_game_time: Res<InGameTime>,
-) {
-    if !in_game_time.active {
-        return;
-    }
-
-    for (entity, child, mut light, mut transform) in child_query.iter_mut() {
-        if let Ok((lantern, lantern_transform)) = parent_query.get(child.0) {
-            transform.translation = lantern_transform.translation;
-            light.intensity =
-                1.0 + (((lantern.animation_offset + frame_count.0) as f32 * 0.43).cos()) * 0.1;
-        } else {
-            commands.entity(entity).despawn_recursive();
-        }
-    }
 }
 
 fn break_stone_lantern(
@@ -155,7 +104,6 @@ pub struct StoneLanternPlugin;
 
 impl Plugin for StoneLanternPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_lantern.run_if(in_state(GameState::InGame)));
         app.add_systems(
             FixedUpdate,
             break_stone_lantern

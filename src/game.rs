@@ -30,6 +30,7 @@ use crate::entity::gold::GoldPlugin;
 use crate::entity::impact::ImpactPlugin;
 use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
+use crate::entity::point_light::EntityPointLightPlugin;
 use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
@@ -189,6 +190,7 @@ pub fn run_game() {
         .add_plugins(EndingPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityPlugin)
+        .add_plugins(EntityPointLightPlugin)
         .add_plugins(EquipmentListPlugin)
         .add_plugins(ExplosionPlugin)
         .add_plugins(FootStepsPlugin)

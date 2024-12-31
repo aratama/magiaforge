@@ -13,7 +13,7 @@ pub struct Counter {
     pub count: u32,
 }
 
-/// AseSpriteAnimation と同時に使います
+/// AseSpriteAnimation や AseUiAnimation と同時に使います
 /// カウントアップが友好の場合にのみアニメーションを再生します
 #[derive(Default, Component, Reflect)]
 pub struct CounterAnimated;

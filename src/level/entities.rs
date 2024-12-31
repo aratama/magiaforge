@@ -157,7 +157,11 @@ pub fn spawn_entities(
                 );
             }
             GameEntity::StoneLantern => {
-                spawn_stone_lantern(&mut commands, &assets, tx + TILE_HALF, ty - TILE_HALF);
+                spawn_stone_lantern(
+                    &mut commands,
+                    &assets,
+                    Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
+                );
             }
             GameEntity::Usage => {
                 commands.spawn((

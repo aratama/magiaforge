@@ -3,10 +3,10 @@ use bevy::prelude::*;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
+/// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespownしません
 #[derive(Default, Component, Reflect)]
 pub struct Life {
     /// 破壊可能なオブジェクトのライフ
-    /// ゼロになると消滅します
     pub life: i32,
 
     pub max_life: i32,
