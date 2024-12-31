@@ -16,6 +16,7 @@ use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
+use crate::entity::firebaall::spawn_fireball;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
 use crate::entity::rock::spawn_falling_rock;
@@ -79,6 +80,7 @@ pub enum SpellCast {
     Bomb,
     SpawnBookshelf,
     RockFall,
+    Fireball,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -306,6 +308,11 @@ pub fn cast_spell(
                     let position = actor_transform.translation.truncate() + actor.pointer;
                     spawn_falling_rock(&mut commands, &assets, position);
                     se_writer.send(SEEvent::pos(SE::Status2, position));
+                }
+                SpellCast::Fireball => {
+                    let from = actor_transform.translation.truncate();
+                    let to = from + actor.pointer;
+                    spawn_fireball(&mut commands, &assets, from, to);
                 }
             }
         } else {

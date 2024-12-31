@@ -115,11 +115,12 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::LightSword));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SpawnBookshelf));
         inventory.insert_free(InventoryItemType::Spell(SpellType::RockFall));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Fireball));
         inventory.sort();
 
         actor.wands[1] = Wand::with_slots([
             Some(WandSpell {
-                spell_type: SpellType::RockFall,
+                spell_type: SpellType::Fireball,
                 price: 0,
             }),
             None,

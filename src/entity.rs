@@ -11,6 +11,7 @@ pub mod damege;
 pub mod dropped_item;
 pub mod explosion;
 pub mod falling;
+pub mod firebaall;
 pub mod gold;
 pub mod impact;
 pub mod life;

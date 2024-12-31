@@ -193,7 +193,7 @@ fn impact(
         return;
     }
     for (parent, falling) in sprite_query.iter() {
-        if falling.impact {
+        if falling.just_landed {
             let transform = slime_query.get(parent.get()).unwrap();
             impact_writer.send(SpawnImpact {
                 owner: Some(parent.get()),

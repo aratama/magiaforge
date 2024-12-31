@@ -9,7 +9,7 @@ use bevy_rapier2d::prelude::*;
 pub struct Falling {
     pub velocity: f32,
     pub gravity: f32,
-    pub impact: bool,
+    pub just_landed: bool,
 }
 
 impl Falling {
@@ -17,7 +17,7 @@ impl Falling {
         Self {
             velocity,
             gravity,
-            impact: false,
+            just_landed: false,
         }
     }
 }
@@ -29,11 +29,11 @@ fn fall(mut child_query: Query<(&mut Transform, &mut Falling)>, in_game_time: Re
     for (mut child_transform, mut falling) in child_query.iter_mut() {
         let next = child_transform.translation.y + falling.velocity;
         if next <= 0.0 {
-            falling.impact = 0.0 < child_transform.translation.y;
+            falling.just_landed = 0.0 < child_transform.translation.y;
             child_transform.translation.y = 0.0;
             falling.velocity = 0.0;
         } else {
-            falling.impact = false;
+            falling.just_landed = false;
             child_transform.translation.y = next;
             falling.velocity += falling.gravity;
         }

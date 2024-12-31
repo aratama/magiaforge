@@ -45,6 +45,7 @@ pub enum SpellType {
     QuickCast,
     LightSword,
     RockFall,
+    Fireball,
 }
 
 /// 呪文の基礎情報
@@ -585,6 +586,35 @@ impl SpellType {
                 icon: "spawn_bookshelf_icon",
                 price: 500,
                 cast: SpellCast::SpawnBookshelf,
+            },
+            SpellType::Fireball => SpellProps {
+                rank: 3,
+                name: Dict {
+                    ja: "火球",
+                    en: "Fireball",
+                    zh_cn: "火球",
+                    es: "Bola de Fuego",
+                    fr: "Boule de Feu",
+                    pt: "Bola de Fogo",
+                    de: "Feuerball",
+                    ko: "화염구",
+                    ru: "Огненный Шар"
+                },
+                description: Dict {
+                    ja: "炎の玉を発射します。落下した場所は燃え上がります。",
+                    en: "Fires a ball of flame. The place where it falls will burn.",
+                    zh_cn: "发射一团火焰。它落下的地方会燃烧。",
+                    es: "Dispara una bola de llamas. El lugar donde cae arderá.",
+                    fr: "Tire une boule de flammes. L'endroit où elle tombe brûlera.",
+                    pt: "Dispara uma bola de chamas. O lugar onde cai vai queimar.",
+                    de: "Feuert eine Feuerkugel ab. Der Ort, an dem sie fällt, wird brennen.",
+                    ko: "불꽃 구슬을 발사합니다. 떨어지는 곳은 불타오릅니다.",
+                    ru: "Выпускает огненный шар. Место, где он упадет, загорится."
+                },
+                cast_delay: 30,
+                icon: "fireball_icon",
+                price: 300,
+                cast: SpellCast::Fireball,
             },
             SpellType::SummonFriendEyeball => SpellProps {
                 rank: 4,
