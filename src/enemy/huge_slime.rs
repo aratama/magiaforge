@@ -190,7 +190,7 @@ fn update_huge_slime(
         // 着地判定
         if 0.0 < offset.translation.y && next == 0.0 {
             impact_writer.send(SpawnImpact {
-                owner: parent.get(),
+                owner: Some(parent.get()),
                 position: transform.translation.truncate(),
                 radius: HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
                 impulse: 30000.0,

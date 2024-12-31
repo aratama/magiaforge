@@ -44,6 +44,7 @@ pub enum SpellType {
     Heal,
     QuickCast,
     LightSword,
+    RockFall,
 }
 
 /// 呪文の基礎情報
@@ -695,6 +696,35 @@ impl SpellType {
                 icon: "bullet_speed_up",
                 price: 20,
                 cast: SpellCast::BulletSpeedUpDown { delta: 0.5 },
+            },
+            SpellType::RockFall => SpellProps {
+                rank: 4,
+                name: Dict {
+                    ja: "岩石落下",
+                    en: "Rockfall",
+                    zh_cn: "岩石落下",
+                    es: "Caída de Rocas",
+                    fr: "Chute de Pierres",
+                    pt: "Queda de Pedras",
+                    de: "Steinschlag",
+                    ko: "바위 낙하",
+                    ru: "Обвал камней"
+                },
+                description: Dict {
+                    ja: "上空から岩石を落とします。",
+                    en: "Drops rocks from the sky.",
+                    zh_cn: "从天空掉下岩石。",
+                    es: "Deja caer rocas desde el cielo.",
+                    fr: "Laisse tomber des rochers du ciel.",
+                    pt: "Deixa cair pedras do céu.",
+                    de: "Lässt Steine vom Himmel fallen.",
+                    ko: "하늘에서 바위를 떨어뜨립니다.",
+                    ru: "Бросает камни с неба."
+                },
+                cast_delay: 120,
+                icon: "rockfall_icon",
+                price: 500,
+                cast: SpellCast::RockFall,
             },
             SpellType::Heal =>  SpellProps {
                 rank: 5,

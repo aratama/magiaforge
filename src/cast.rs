@@ -18,6 +18,7 @@ use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::life::Life;
+use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
@@ -75,6 +76,7 @@ pub enum SpellCast {
     PrecisionUp,
     Bomb,
     SpawnBookshelf,
+    RockFall,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -274,7 +276,7 @@ pub fn cast_spell(
                 }
                 SpellCast::Impact => {
                     impact_writer.send(SpawnImpact {
-                        owner: actor_entity,
+                        owner: Some(actor_entity),
                         position: actor_transform.translation.truncate(),
                         radius: 24.0,
                         impulse: 30000.0,
@@ -294,6 +296,11 @@ pub fn cast_spell(
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
                     spawn_book_shelf(&mut commands, assets.atlas.clone(), position);
+                    se_writer.send(SEEvent::pos(SE::Status2, position));
+                }
+                SpellCast::RockFall => {
+                    let position = actor_transform.translation.truncate() + actor.pointer;
+                    spawn_falling_rock(&mut commands, &assets, position);
                     se_writer.send(SEEvent::pos(SE::Status2, position));
                 }
             }

@@ -32,6 +32,7 @@ use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::point_light::EntityPointLightPlugin;
 use crate::entity::rabbit::RabbitPlugin;
+use crate::entity::rock::RockPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
@@ -226,6 +227,7 @@ pub fn run_game() {
         .add_plugins(PopUpPlugin)
         .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
+        .add_plugins(RockPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)

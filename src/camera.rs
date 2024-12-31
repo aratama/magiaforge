@@ -21,6 +21,14 @@ pub struct GameCamera {
     pub target: Option<Entity>,
 }
 
+impl GameCamera {
+    pub fn vibrate(&mut self, camera_transform: &Transform, position: Vec2, amount: f32) {
+        let distance = camera_transform.translation.truncate().distance(position);
+        let max_range = 320.0; // 振動が起きる最大距離
+        self.vibration = (amount * (max_range - distance).max(0.0) / max_range).min(10.0);
+    }
+}
+
 static BLIGHTNESS_IN_GAME: f32 = 0.2;
 
 pub fn setup_camera(commands: &mut Commands, position: Vec2) {

@@ -23,7 +23,7 @@ struct Impact {
 /// 1フレームだけ当たり判定があり、すぐに消えます
 #[derive(Event)]
 pub struct SpawnImpact {
-    pub owner: Entity,
+    pub owner: Option<Entity>,
     pub position: Vec2,
     pub radius: f32,
     pub impulse: f32,
@@ -50,9 +50,7 @@ fn read_impact_event(
     {
         writer.send(SEEvent::pos(SE::Drop, *position));
         let (mut camera, camera_transform) = camera_query.single_mut();
-        let distance = camera_transform.translation.truncate().distance(*position);
-        let max_range = 320.0; // 振動が起きる最大距離
-        camera.vibration = (20.0 * (max_range - distance).max(0.0) / max_range).min(10.0);
+        camera.vibrate(&camera_transform, *position, 20.0);
 
         let mut entities: Vec<Entity> = Vec::new();
 
@@ -68,9 +66,15 @@ fn read_impact_event(
                 ..default()
             },
             |entity| {
-                if entity != *owner {
-                    entities.push(entity);
+                match owner {
+                    Some(owner) if entity == *owner => {
+                        // 衝撃波の衝突先が詠唱者自身なら無視
+                    }
+                    _ => {
+                        entities.push(entity);
+                    }
                 }
+
                 true // 交差図形の検索を続ける
             },
         );
