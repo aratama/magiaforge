@@ -13,7 +13,6 @@ use crate::entity::servant_seed::SpawnServantSeed;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
-use crate::page::in_game;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::spell::SpellType;

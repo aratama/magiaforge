@@ -152,13 +152,15 @@ fn save(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     if frame_count.0 % 60 == 0 {
-        let player_state = PlayerState::from(player_query.get_single());
-        if let Ok(serialized) = serde_json::to_string(&player_state) {
-            if let Err(err) = pkv.set::<String>("state", &serialized) {
-                warn!("Failed to save state: {}", err);
+        if let Ok((player, actor, life)) = player_query.get_single() {
+            let player_state = PlayerState::new(&player, &actor, &life);
+            if let Ok(serialized) = serde_json::to_string(&player_state) {
+                if let Err(err) = pkv.set::<String>("state", &serialized) {
+                    warn!("Failed to save state: {}", err);
+                }
+            } else {
+                warn!("Failed to serialize state");
             }
-        } else {
-            warn!("Failed to serialize state");
         }
     }
 }
