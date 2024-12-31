@@ -56,6 +56,8 @@ pub enum SpellCast {
         light_intensity: f32,
         light_radius: f32,
         light_color_hlsa: [f32; 4],
+
+        remaining_time: u32,
     },
     Heal,
     BulletSpeedUpDown {
@@ -131,6 +133,7 @@ pub fn cast_spell(
                     light_intensity,
                     light_radius,
                     light_color_hlsa,
+                    remaining_time,
                 } => {
                     let normalized = actor.pointer.normalize();
                     let angle = actor.pointer.to_angle();
@@ -161,6 +164,7 @@ pub fn cast_spell(
                         light_radius,
                         light_color_hlsa,
                         homing: actor.effects.homing,
+                        remaining_time,
                         memberships: match actor.actor_group {
                             ActorGroup::Player => WITCH_BULLET_GROUP,
                             ActorGroup::Enemy => ENEMY_BULLET_GROUP,

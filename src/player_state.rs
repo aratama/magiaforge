@@ -13,7 +13,6 @@ use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
-use bevy::ecs::query::QuerySingleError;
 use bevy::prelude::*;
 #[cfg(feature = "save")]
 use bevy_pkv::PkvStore;
@@ -97,14 +96,6 @@ impl PlayerState {
             golds: actor.golds,
             current_wand: actor.current_wand as u32,
             discovered_spells: player.discovered_spells.clone(),
-        }
-    }
-
-    pub fn from(props: Result<(&Player, &Actor, &Life), QuerySingleError>) -> Self {
-        if let Ok((player, actor, life)) = props {
-            PlayerState::new(player, actor, life)
-        } else {
-            PlayerState::default()
         }
     }
 

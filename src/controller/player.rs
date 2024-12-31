@@ -230,9 +230,6 @@ fn die_player(
             // 全回復させてから戻る
             next.next_state.life = next.next_state.max_life;
 
-            // 全回復させる
-            next.next_state.life = next.next_state.max_life;
-
             // 倒れるアニメーションを残す
             commands.spawn((
                 StateScoped(GameState::InGame),

@@ -7,6 +7,7 @@ use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::level::wall::WallCollider;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -39,6 +40,7 @@ pub struct Bullet {
     owner: Option<Uuid>,
     homing: f32,
     actor_group: ActorGroup,
+    remaining_time: u32,
 }
 
 #[derive(Bundle)]
@@ -50,6 +52,11 @@ pub struct BulletBundle {
 
 #[derive(Component, Reflect)]
 pub struct HomingTarget;
+
+#[derive(Component, Reflect)]
+pub struct BulletResidual {
+    count: u32,
+}
 
 /// 生成される弾丸の大半の情報を収めた構造体です
 /// 実際に弾丸を生成する spawn_bullet 関数のパラメータとして使われるほか、
@@ -78,6 +85,7 @@ pub struct SpawnBullet {
     pub homing: f32,
     pub memberships: Group,
     pub filters: Group,
+    pub remaining_time: u32,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -107,6 +115,7 @@ pub fn spawn_bullet(
             owner: spawn.sender,
             homing: spawn.homing,
             actor_group: spawn.actor_group,
+            remaining_time: spawn.remaining_time,
         },
         EntityDepth,
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -210,7 +219,7 @@ fn bullet_homing(
 
 fn bullet_collision(
     mut commands: Commands,
-    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
+    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity, &AseSpriteSlice)>,
     mut actor_query: Query<
         (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
         Without<RemotePlayer>,
@@ -266,7 +275,7 @@ fn bullet_collision(
 
 fn process_bullet_event(
     mut commands: &mut Commands,
-    query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
+    query: &Query<(Entity, &mut Bullet, &Transform, &Velocity, &AseSpriteSlice)>,
     actors: &mut Query<
         (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
         Without<RemotePlayer>,
@@ -280,7 +289,7 @@ fn process_bullet_event(
     actor_event: &mut EventWriter<ActorEvent>,
     resource: &Res<BulletParticleResource>,
 ) -> bool {
-    if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
+    if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity, sprite)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
 
         if !despownings.contains(&bullet_entity) {
@@ -331,6 +340,21 @@ fn process_bullet_event(
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(SEEvent::pos(SE::Steps, bullet_position));
+
+                if 0 < bullet.remaining_time {
+                    commands.spawn((
+                        BulletResidual {
+                            count: bullet.remaining_time,
+                        },
+                        StateScoped(GameState::InGame),
+                        AseSpriteSlice {
+                            aseprite: sprite.aseprite.clone(),
+                            name: sprite.name.clone(),
+                        },
+                        EntityDepth,
+                        bullet_transform.clone(),
+                    ));
+                }
             } else {
                 // リモートプレイヤーに命中した場合もここ
                 // ヒット判定やダメージなどはリモート側で処理します
@@ -349,10 +373,32 @@ fn process_bullet_event(
     }
 }
 
+fn despown_bullet_residual(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut BulletResidual, &Transform)>,
+    in_game_time: Res<InGameTime>,
+    resource: Res<BulletParticleResource>,
+) {
+    if !in_game_time.active {
+        return;
+    }
+    for (entity, mut residual, transform) in query.iter_mut() {
+        residual.count -= 1;
+        if residual.count <= 0 {
+            commands.entity(entity).despawn_recursive();
+            spawn_particle_system(&mut commands, transform.translation.truncate(), &resource);
+        }
+    }
+}
+
 pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            despown_bullet_residual.run_if(in_state(GameState::InGame)),
+        );
         app.add_systems(
             FixedUpdate,
             (despawn_bullet_by_lifetime, bullet_collision, bullet_homing)

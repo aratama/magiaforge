@@ -99,6 +99,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                    remaining_time: 0
                 },
             },
             SpellType::LightBall =>  SpellProps {
@@ -139,6 +140,7 @@ impl SpellType {
                     light_intensity: 4.0,
                     light_radius: TILE_SIZE * 10.0,
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
+                    remaining_time: 0
                 },
             },
             SpellType::PurpleBolt =>  SpellProps {
@@ -180,6 +182,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
+                    remaining_time: 0
                 },
             },
             SpellType::SlimeCharge => SpellProps {
@@ -220,6 +223,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
+                    remaining_time: 0
                 },
             },
             SpellType::WaterBall =>  SpellProps {
@@ -260,6 +264,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                    remaining_time: 0
                 },
             },
             SpellType::BulletSpeedDoown =>  SpellProps {
@@ -822,6 +827,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
+                    remaining_time: 120
                 },
             },
         }
@@ -925,6 +931,7 @@ pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
             light_intensity: _,
             light_radius: _,
             light_color_hlsa: _,
+            remaining_time: _,
         } => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();
