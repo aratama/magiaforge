@@ -1,6 +1,7 @@
 use crate::constant::SENSOR_GROUP;
 use crate::constant::WITCH_GROUP;
 use crate::entity::actor::ActorEvent;
+use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
@@ -67,8 +68,11 @@ fn vibrate_breakabke_sprite(
     }
 }
 
+/// 付近に炎がある場合、ダメージを受けます
+/// ただし、Burnableである場合はダメージを受けませんが、その代わりに引火することがあり、
+/// 引火したあとで Burnable の life がゼロになった場合はエンティティは消滅します
 fn fire_damage(
-    mut actor_query: Query<(&mut Life, &Transform)>,
+    mut actor_query: Query<(Entity, &mut Life, &Transform), Without<Burnable>>,
     fire_query: Query<&mut Transform, (With<Fire>, Without<Life>)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
@@ -78,9 +82,9 @@ fn fire_damage(
     if !in_game_time.active {
         return;
     }
-    for (mut life, actor_transform) in actor_query.iter_mut() {
+    for (actor_entity, mut life, actor_transform) in actor_query.iter_mut() {
         if life.fire_damage_wait <= 0 {
-            let mut entities = Vec::<Entity>::new();
+            let mut fire_entities = Vec::<Entity>::new();
             let context = rapier_context.single();
             context.intersections_with_shape(
                 actor_transform.translation.truncate(),
@@ -93,7 +97,7 @@ fn fire_damage(
                 |entity| {
                     if fire_query.contains(entity) {
                         if life.fire_damage_wait <= 0 {
-                            entities.push(entity);
+                            fire_entities.push(entity);
 
                             // 一度炎ダメージを受けたらそれ以上他の炎からダメージを受けることはないため、
                             // 探索を打ち切る
@@ -104,13 +108,13 @@ fn fire_damage(
                 },
             );
 
-            for entity in entities {
+            for _ in fire_entities {
                 let damage = 4;
                 life.damage(damage);
                 life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
                 let position = actor_transform.translation.truncate();
                 actor_event.send(ActorEvent::Damaged {
-                    actor: entity,
+                    actor: actor_entity,
                     damage: damage as u32,
                     position,
                 });

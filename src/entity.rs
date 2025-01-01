@@ -12,6 +12,7 @@ pub mod explosion;
 pub mod fire;
 pub mod fireball;
 pub mod gold;
+pub mod grass;
 pub mod impact;
 pub mod magic_circle;
 pub mod piece;

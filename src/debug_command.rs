@@ -144,6 +144,20 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
 
         actor.wands[2] = Wand::with_slots([
             Some(WandSpell {
+                spell_type: SpellType::Bomb,
+                price: 0,
+            }),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ]);
+
+        actor.wands[3] = Wand::with_slots([
+            Some(WandSpell {
                 spell_type: SpellType::Dash,
                 price: 0,
             }),

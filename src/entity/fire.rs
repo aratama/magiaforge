@@ -15,15 +15,26 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+/// 炎のエンティティ
+/// 炎には次の効果があります
+/// 1. 何らかの Burnable を燃料として燃えている場合は、そのエンティティの life を減少させます
+/// 2. 付近の Burnable ではないが Life であるエンティティに、一定時間ごとにダメージを与えます
+/// 3. 1フレームごとに120分の1の確率で、付近の Burnable を燃料として新たな炎を生成します
+///
+/// Burnableを設定したコンポーネントは life が0になると消滅しますが、その挙動は fire.rs では実装されません
+/// 各エンティティの性質に合わせて、消滅処理を実装してください
 #[derive(Default, Component, Reflect)]
 pub struct Fire {
-    /// 燃えているエンティティ
+    /// 燃料となっているエンティティ
     /// burnable が Some の場合は、炎の座標はそのエンティティの座標と一致します
     burnable: Option<Entity>,
 }
 
 #[derive(Default, Component, Reflect)]
-pub struct Burnable;
+pub struct Burnable {
+    /// 燃焼しているあいだlifeが減少し、0になったらそのエンティティは消滅する処理をしなければなりません
+    pub life: u32,
+}
 
 #[derive(Default, Component, Reflect)]
 struct GlobalFireSE;
@@ -58,7 +69,7 @@ fn update_se_volume(
                 distance = distance_to_fire;
             }
         }
-        audio.set_volume(1.0 - ((500.0 + distance) / 1000.0).min(1.0).max(0.0));
+        audio.set_volume(1.0 - ((250.0 + distance) / 500.0).min(1.0).max(0.0));
     }
 }
 
@@ -125,6 +136,18 @@ fn despown(mut commands: Commands, query: Query<(Entity, &Counter), With<Fire>>)
     }
 }
 
+fn burn(fire_query: Query<&Fire>, mut burnable_query: Query<&mut Burnable>) {
+    for fire in fire_query.iter() {
+        if let Some(burnable) = fire.burnable {
+            if let Ok(mut burnable) = burnable_query.get_mut(burnable) {
+                if 0 < burnable.life {
+                    burnable.life -= 1;
+                }
+            }
+        }
+    }
+}
+
 fn ignite(
     mut commands: Commands,
     assets: Res<GameAssets>,
@@ -143,7 +166,11 @@ fn ignite(
                 0.0,
                 &Collider::ball(32.0),
                 QueryFilter {
-                    groups: Some(CollisionGroups::new(ENTITY_GROUP, ENTITY_GROUP)),
+                    // 延焼センサーは ENTITY_GROUP (本棚やチェストなど) と SENSOR_GROUP (草など) にのみ反応する
+                    groups: Some(CollisionGroups::new(
+                        ENTITY_GROUP,
+                        ENTITY_GROUP | SENSOR_GROUP,
+                    )),
                     ..default()
                 },
                 |entity| {
@@ -179,7 +206,10 @@ pub struct FirePlugin;
 impl Plugin for FirePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup);
-        app.add_systems(Update, update_se_volume.run_if(in_state(GameState::InGame)));
+        app.add_systems(
+            Update,
+            (update_se_volume, burn).run_if(in_state(GameState::InGame)),
+        );
         app.add_systems(
             FixedUpdate,
             (despown, translate, ignite)

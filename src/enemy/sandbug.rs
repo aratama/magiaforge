@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
+use crate::component::life::LifeBeingSprite;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
-use crate::component::life::LifeBeingSprite;
 use crate::hud::life_bar::LifeBarResource;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -63,6 +63,7 @@ fn frown_on_damage(
 ) {
     for event in actor_event.read() {
         let ActorEvent::Damaged { actor, .. } = event;
+
         if let Ok((mut sandbag, children)) = sandbag_query.get_mut(*actor) {
             for child in children {
                 if let Ok((mut aseprite, mut animation_state)) = sprite_query.get_mut(*child) {

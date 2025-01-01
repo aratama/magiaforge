@@ -35,6 +35,7 @@ use crate::entity::explosion::ExplosionPlugin;
 use crate::entity::fire::FirePlugin;
 use crate::entity::fireball::FireballPlugin;
 use crate::entity::gold::GoldPlugin;
+use crate::entity::grass::GrassPlugin;
 use crate::entity::impact::ImpactPlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::rabbit::RabbitPlugin;
@@ -204,6 +205,7 @@ pub fn run_game() {
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GameoverPlugin)
+        .add_plugins(GrassPlugin)
         .add_plugins(SECommandPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)

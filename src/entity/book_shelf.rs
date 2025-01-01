@@ -30,7 +30,9 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
         StateScoped(GameState::InGame),
         Life::new(25),
         Bookshelf,
-        Burnable,
+        Burnable {
+            life: 60 * 20 + rand::random::<u32>() % 30,
+        },
         EntityDepth::new(),
         Visibility::default(),
         Transform::from_translation(position.extend(0.0)),
@@ -73,11 +75,11 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
 fn break_book_shelf(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    query: Query<(Entity, &Life, &Transform), With<Bookshelf>>,
+    query: Query<(Entity, &Life, &Transform, &Burnable), With<Bookshelf>>,
     mut writer: EventWriter<SEEvent>,
 ) {
-    for (entity, breakabke, transform) in query.iter() {
-        if breakabke.life <= 0 {
+    for (entity, breakabke, transform, burnable) in query.iter() {
+        if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
             writer.send(SEEvent::pos(SE::Break, position));

@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
-use crate::entity::get_entity_z;
+use crate::entity::grass::spawn_grasses;
 use crate::level::biome::Biome;
 use crate::level::ceil::spawn_roof_tiles;
 use crate::level::ceil::WALL_HEIGHT_IN_TILES;
@@ -151,34 +151,21 @@ fn spawn_ceil_for_blank(
     }
 }
 
-fn spawn_grassland(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
+fn spawn_grassland(mut commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
+    let left_top = Vec2::new(x as f32 * TILE_SIZE, y as f32 * -TILE_SIZE);
     commands.spawn((
         WorldTile,
         Name::new("grassland"),
         StateScoped(GameState::InGame),
-        Transform::from_translation(Vec3::new(
-            x as f32 * TILE_SIZE,
-            y as f32 * -TILE_SIZE,
-            FLOOR_LAYER_Z,
-        )),
+        Transform::from_translation(left_top.extend(FLOOR_LAYER_Z)),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),
             name: "grassland".into(),
         },
     ));
 
-    for i in 0..3 {
-        let x = x as f32 * TILE_SIZE;
-        let y = y as f32 * -TILE_SIZE + 5.0 * i as f32;
-        commands.spawn((
-            WorldTile,
-            Name::new("grass"),
-            StateScoped(GameState::InGame),
-            Transform::from_translation(Vec3::new(x, y, get_entity_z(y) + 0.01)),
-            AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
-                name: format!("grass_{}", rand::random::<u32>() % 3).into(),
-            },
-        ));
+    if rand::random::<u32>() % 6 != 0 {
+        let center = left_top + Vec2::new(TILE_HALF, -TILE_HALF);
+        spawn_grasses(&mut commands, &assets, center);
     }
 }

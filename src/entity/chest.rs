@@ -13,6 +13,7 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 
+use super::explosion::SpawnExplosion;
 use super::fire::Burnable;
 
 const ENTITY_WIDTH: f32 = 8.0;
@@ -33,10 +34,11 @@ pub enum ChestType {
     Chest,
     Crate,
     Barrel,
+    BarrelBomb,
     Jar(JarColor),
 }
 
-pub const CHEST_OR_BARREL: [ChestType; 11] = [
+pub const CHEST_OR_BARREL: [ChestType; 12] = [
     ChestType::Crate,
     ChestType::Crate,
     ChestType::Crate,
@@ -45,6 +47,7 @@ pub const CHEST_OR_BARREL: [ChestType; 11] = [
     ChestType::Barrel,
     ChestType::Barrel,
     ChestType::Barrel,
+    ChestType::BarrelBomb,
     ChestType::Jar(JarColor::Red),
     ChestType::Jar(JarColor::Blue),
     ChestType::Jar(JarColor::Green),
@@ -71,6 +74,7 @@ pub fn spawn_chest(
         ChestType::Chest => 30,
         ChestType::Crate => 30,
         ChestType::Barrel => 20,
+        ChestType::BarrelBomb => 20,
         ChestType::Jar(_) => 1,
     };
     commands
@@ -84,10 +88,13 @@ pub fn spawn_chest(
                     ChestType::Chest => 10,
                     ChestType::Crate => 1,
                     ChestType::Barrel => 1,
+                    ChestType::BarrelBomb => 3,
                     ChestType::Jar(_) => 1,
                 },
             },
-            Burnable,
+            Burnable {
+                life: 60 * 20 + rand::random::<u32>() % 30,
+            },
             EntityDepth::new(),
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
@@ -127,6 +134,7 @@ pub fn spawn_chest(
                         ChestType::Chest => "chest",
                         ChestType::Crate => "crate",
                         ChestType::Barrel => "barrel",
+                        ChestType::BarrelBomb => "barrel_bomb",
                         ChestType::Jar(JarColor::Red) => "jar",
                         ChestType::Jar(JarColor::Blue) => "jar_blue",
                         ChestType::Jar(JarColor::Green) => "jar_green",
@@ -139,12 +147,13 @@ pub fn spawn_chest(
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(Entity, &Life, &Transform, &Chest)>,
+    query: Query<(Entity, &Life, &Transform, &Chest, &Burnable)>,
     assets: Res<GameAssets>,
     mut writer: EventWriter<SEEvent>,
+    mut explosion: EventWriter<SpawnExplosion>,
 ) {
-    for (entity, breakabke, transform, chest) in query.iter() {
-        if breakabke.life <= 0 {
+    for (entity, breakabke, transform, chest, burnable) in query.iter() {
+        if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
             writer.send(SEEvent::pos(
@@ -152,6 +161,7 @@ fn break_chest(
                     ChestType::Chest => SE::Break,
                     ChestType::Crate => SE::Break,
                     ChestType::Barrel => SE::Break,
+                    ChestType::BarrelBomb => SE::Break,
                     ChestType::Jar(_) => SE::Glass,
                 },
                 position,
@@ -189,6 +199,14 @@ fn break_chest(
                             i,
                         );
                     }
+                }
+                ChestType::BarrelBomb => {
+                    explosion.send(SpawnExplosion {
+                        position,
+                        radius: 60.0,
+                        impulse: 100000.0,
+                        damage: 100,
+                    });
                 }
                 ChestType::Jar(color) => {
                     for i in 0..4 {
