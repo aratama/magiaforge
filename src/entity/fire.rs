@@ -11,9 +11,7 @@ use crate::constant::WITCH_GROUP;
 use crate::entity::EntityDepth;
 use crate::states::GameState;
 use bevy::audio::PlaybackMode;
-use bevy::audio::Volume;
 use bevy::prelude::*;
-use bevy::render::camera;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -86,7 +84,7 @@ pub fn spawn_fire(
         },
         WithPointLight {
             radius: 128.0,
-            intensity: 1.0,
+            intensity: 3.0,
             falloff: 10.0,
             color: Color::hsl(42.0, 1.0, 0.71),
             animation_offset: rand::random::<u32>() % 1000,

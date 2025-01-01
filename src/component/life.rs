@@ -2,7 +2,6 @@ use crate::constant::SENSOR_GROUP;
 use crate::constant::WITCH_GROUP;
 use crate::entity::actor::ActorEvent;
 use crate::entity::fire::Fire;
-use crate::page::in_game;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;

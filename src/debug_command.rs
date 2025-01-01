@@ -1,8 +1,8 @@
+use crate::component::life::Life;
 use crate::constant::LAST_BOSS_LEVEL;
 use crate::constant::LEVELS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::component::life::Life;
 use crate::equipment::EquipmentType;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
@@ -118,7 +118,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::Fireball));
         inventory.sort();
 
-        actor.wands[1] = Wand::with_slots([
+        actor.wands[0] = Wand::with_slots([
             Some(WandSpell {
                 spell_type: SpellType::Fireball,
                 price: 0,
@@ -131,7 +131,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
             None,
             None,
         ]);
-        actor.wands[2] = Wand::with_slots([
+        actor.wands[1] = Wand::with_slots([
             Some(WandSpell::new(SpellType::HeavyShot)),
             Some(WandSpell::new(SpellType::HeavyShot)),
             Some(WandSpell::new(SpellType::TripleCast)),
@@ -142,7 +142,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
             None,
         ]);
 
-        actor.wands[3] = Wand::with_slots([
+        actor.wands[2] = Wand::with_slots([
             Some(WandSpell {
                 spell_type: SpellType::Dash,
                 price: 0,

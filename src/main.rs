@@ -29,6 +29,7 @@ mod message;
 mod page;
 mod physics;
 mod player_state;
+mod random;
 mod save;
 mod se;
 mod set;

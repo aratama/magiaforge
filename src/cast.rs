@@ -1,3 +1,5 @@
+use core::f32;
+
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::DROPPED_ITEM_GROUP;
@@ -23,6 +25,7 @@ use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
+use crate::random::randomize_velocity;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -310,9 +313,10 @@ pub fn cast_spell(
                     se_writer.send(SEEvent::pos(SE::Status2, position));
                 }
                 SpellCast::Fireball => {
-                    let from = actor_transform.translation.truncate();
-                    let to = from + actor.pointer;
-                    spawn_fireball(&mut commands, &assets, from, to);
+                    let actor_position = actor_transform.translation.truncate();
+                    let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
+                    let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
+                    spawn_fireball(&mut commands, &assets, position, velocity);
                 }
             }
         } else {

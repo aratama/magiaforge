@@ -18,7 +18,12 @@ use bevy_rapier2d::prelude::*;
 #[derive(Default, Component, Reflect)]
 struct Fireball;
 
-pub fn spawn_fireball(commands: &mut Commands, assets: &Res<GameAssets>, from: Vec2, to: Vec2) {
+pub fn spawn_fireball(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    position: Vec2,
+    velocity: Vec2,
+) {
     commands
         .spawn((
             Name::new("fireball"),
@@ -26,7 +31,7 @@ pub fn spawn_fireball(commands: &mut Commands, assets: &Res<GameAssets>, from: V
             Fireball,
             EntityDepth::new(),
             Visibility::default(),
-            Transform::from_translation(from.extend(0.0)),
+            Transform::from_translation(position.extend(0.0)),
             WithPointLight {
                 radius: 64.0,
                 intensity: 1.0,
@@ -45,7 +50,7 @@ pub fn spawn_fireball(commands: &mut Commands, assets: &Res<GameAssets>, from: V
                 },
                 Collider::ball(6.0),
                 CollisionGroups::new(ENTITY_GROUP, ENTITY_GROUP | WALL_GROUP | RABBIT_GROUP),
-                Velocity::linear((to - from).normalize_or_zero() * 200.0),
+                Velocity::linear(velocity),
                 ExternalImpulse::default(),
             ),
         ))
