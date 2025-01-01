@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
@@ -10,6 +10,8 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+use super::fire::Burnable;
 
 const ENTITY_WIDTH: f32 = 16.0;
 
@@ -28,7 +30,8 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
         StateScoped(GameState::InGame),
         Life::new(25),
         Bookshelf,
-        EntityDepth,
+        Burnable,
+        EntityDepth::new(),
         Visibility::default(),
         Transform::from_translation(position.extend(0.0)),
         (

@@ -1,10 +1,10 @@
+use crate::component::life::Life;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
-use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::level::wall::WallCollider;
 use crate::physics::InGameTime;
@@ -117,7 +117,7 @@ pub fn spawn_bullet(
             actor_group: spawn.actor_group,
             remaining_time: spawn.remaining_time,
         },
-        EntityDepth,
+        EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
             * Transform::from_rotation(Quat::from_rotation_z(spawn.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
         AseSpriteSlice {
@@ -345,7 +345,7 @@ fn process_bullet_event(
                             aseprite: sprite.aseprite.clone(),
                             name: sprite.name.clone(),
                         },
-                        EntityDepth,
+                        EntityDepth::new(),
                         bullet_transform.clone(),
                     ));
                 }

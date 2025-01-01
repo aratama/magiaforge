@@ -2,6 +2,8 @@ use crate::constant::SENSOR_GROUP;
 use crate::constant::WITCH_GROUP;
 use crate::entity::actor::ActorEvent;
 use crate::entity::fire::Fire;
+use crate::page::in_game;
+use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -72,7 +74,11 @@ fn fire_damage(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
     mut se_writer: EventWriter<SEEvent>,
+    in_game_time: Res<InGameTime>,
 ) {
+    if !in_game_time.active {
+        return;
+    }
     for (mut life, actor_transform) in actor_query.iter_mut() {
         if life.fire_damage_wait <= 0 {
             let mut entities = Vec::<Entity>::new();
@@ -102,7 +108,7 @@ fn fire_damage(
             for entity in entities {
                 let damage = 4;
                 life.damage(damage);
-                life.fire_damage_wait = 60;
+                life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
                 let position = actor_transform.translation.truncate();
                 actor_event.send(ActorEvent::Damaged {
                     actor: entity,

@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
 use crate::enemy::huge_slime::Boss;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::states::GameState;
 use bevy::prelude::*;
 

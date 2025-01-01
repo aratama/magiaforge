@@ -2,7 +2,7 @@ use crate::constant::LAST_BOSS_LEVEL;
 use crate::constant::LEVELS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::equipment::EquipmentType;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;

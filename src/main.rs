@@ -7,6 +7,7 @@ mod asset_credit;
 mod audio;
 mod camera;
 mod cast;
+mod component;
 mod config;
 mod constant;
 mod controller;

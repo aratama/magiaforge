@@ -6,19 +6,15 @@ pub mod broken_magic_circle;
 pub mod bullet;
 pub mod bullet_particle;
 pub mod chest;
-pub mod counter;
 pub mod damege;
 pub mod dropped_item;
 pub mod explosion;
-pub mod falling;
 pub mod fire;
-pub mod firebaall;
+pub mod fireball;
 pub mod gold;
 pub mod impact;
-pub mod life;
 pub mod magic_circle;
 pub mod piece;
-pub mod point_light;
 pub mod rabbit;
 pub mod rock;
 pub mod servant_seed;
@@ -62,7 +58,18 @@ pub enum GameEntity {
 }
 
 #[derive(Component)]
-pub struct EntityDepth;
+pub struct EntityDepth {
+    offset: f32,
+}
+
+impl EntityDepth {
+    pub fn new() -> Self {
+        Self { offset: 0.0 }
+    }
+    pub fn offset(offset: f32) -> Self {
+        Self { offset }
+    }
+}
 
 /// 親のy座標に応じて子のz座標を自動で設定します
 #[derive(Component)]
@@ -70,9 +77,9 @@ pub struct EntityChildrenAutoDepth {
     offset: f32,
 }
 
-fn update_entity_z(mut query: Query<&mut Transform, (With<EntityDepth>, Changed<Transform>)>) {
-    for mut transform in query.iter_mut() {
-        transform.translation.z = get_entity_z(transform.translation.y);
+fn update_entity_z(mut query: Query<(&EntityDepth, &mut Transform), Changed<Transform>>) {
+    for (depth, mut transform) in query.iter_mut() {
+        transform.translation.z = get_entity_z(transform.translation.y) + depth.offset;
     }
 }
 

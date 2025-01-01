@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::constant::DROPPED_ITEM_GROUP;
 use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUP;
@@ -16,9 +17,8 @@ use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
-use crate::entity::firebaall::spawn_fireball;
+use crate::entity::fireball::spawn_fireball;
 use crate::entity::impact::SpawnImpact;
-use crate::entity::life::Life;
 use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;

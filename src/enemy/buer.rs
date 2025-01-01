@@ -1,7 +1,7 @@
 // use crate::constant::*;
 // use crate::controller::enemy::Enemy;
 // use crate::entity::actor::{Actor, ActorFireState, ActorState};
-// use crate::entity::life::Life;
+// use crate::component::life::Life;
 // use crate::entity::EntityDepth;
 // use crate::spell::SpellType;
 // use crate::states::GameState;

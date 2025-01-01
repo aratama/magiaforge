@@ -1,7 +1,7 @@
 use super::actor::ActorEvent;
-use super::life::Life;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::se::SEEvent;
 use crate::se::SE;

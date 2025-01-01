@@ -1,4 +1,4 @@
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::set::GameSet;
 use crate::states::GameState;
 use bevy::prelude::*;

@@ -40,6 +40,9 @@ pub fn setup_camera(commands: &mut Commands, position: Vec2) {
     let mut projection = OrthographicProjection::default_2d();
     projection.scale = 2.0_f32.powf(initial_scale_factor);
 
+    // let gap = 10.0;
+    // let listener = SpatialListener::new(gap);
+
     commands.spawn((
         Name::new("default camera"),
         StateScoped(GameState::InGame),
@@ -63,6 +66,7 @@ pub fn setup_camera(commands: &mut Commands, position: Vec2) {
             color: Color::WHITE,
             brightness: BLIGHTNESS_IN_GAME,
         },
+        // listener.clone(),
     ));
 }
 

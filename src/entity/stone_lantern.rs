@@ -1,9 +1,9 @@
-use super::counter::CounterAnimated;
-use super::point_light::WithPointLight;
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
+use crate::component::point_light::WithPointLight;
 use crate::constant::*;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
@@ -26,7 +26,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, po
             StateScoped(GameState::InGame),
             Life::new(50),
             StoneLantern,
-            EntityDepth,
+            EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             RigidBody::Dynamic,

@@ -1,5 +1,7 @@
-use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::player::Equipment;
 use crate::controller::training_dummy::TraningDummyController;
@@ -8,8 +10,6 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;

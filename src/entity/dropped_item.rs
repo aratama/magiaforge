@@ -1,9 +1,9 @@
-use super::counter::Counter;
 use crate::asset::GameAssets;
+use crate::component::counter::Counter;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::life::Life;
 use crate::entity::EntityDepth;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -59,7 +59,7 @@ pub fn spawn_dropped_item(
             Name::new(format!("dropped item {}", name)),
             StateScoped(GameState::InGame),
             DroppedItemEntity { item },
-            EntityDepth,
+            EntityDepth::new(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
             Visibility::default(),

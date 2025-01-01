@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::Interlevel;

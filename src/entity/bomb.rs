@@ -1,10 +1,10 @@
-use super::counter::CounterAnimated;
-use super::explosion::SpawnExplosion;
 use crate::asset::GameAssets;
+use crate::component::counter::Counter;
+use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
-use crate::entity::counter::Counter;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
+use crate::entity::explosion::SpawnExplosion;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -42,7 +42,7 @@ pub fn spawn_bomb(
                 Life::new(10),
                 Bomb,
                 Counter::up(0),
-                EntityDepth,
+                EntityDepth::new(),
                 Transform::from_translation(position.extend(0.0)),
                 GlobalTransform::default(),
                 Visibility::default(),

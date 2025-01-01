@@ -1,8 +1,8 @@
+use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::CRATE_NAME;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::life::Life;
 use crate::page::in_game::Interlevel;
 use crate::player_state::PlayerState;
 use crate::states::GameState;

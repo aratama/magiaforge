@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
+use crate::component::counter::CounterAnimated;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
@@ -7,9 +8,8 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
-use crate::entity::counter::CounterAnimated;
 use crate::entity::gold::Gold;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::equipment::EquipmentType;
 use crate::input::get_direction;
 use crate::input::get_fire_trigger;

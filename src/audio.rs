@@ -38,6 +38,7 @@ pub fn play_se(
         PlaybackSettings {
             volume: Volume::new(config.se_volume * volume),
             mode: bevy::audio::PlaybackMode::Despawn,
+            // spatial: true,
             ..default()
         },
     ));

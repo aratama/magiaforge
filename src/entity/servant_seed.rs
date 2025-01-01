@@ -1,5 +1,5 @@
-use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;

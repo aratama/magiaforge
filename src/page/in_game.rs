@@ -9,7 +9,7 @@ use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;

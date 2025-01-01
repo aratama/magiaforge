@@ -1,10 +1,10 @@
-use super::counter::CounterAnimated;
-use super::falling::Falling;
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
+use crate::component::falling::Falling;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
 use crate::level::tile::Tile;
 use crate::page::in_game::Interlevel;
@@ -27,7 +27,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, pos
             Name::new("falling rock"),
             StateScoped(GameState::InGame),
             FallingRock,
-            EntityDepth,
+            EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             AseSpriteSlice {
@@ -88,7 +88,7 @@ fn spawn_fallen_rock(commands: &mut Commands, assets: &Res<GameAssets>, position
             StateScoped(GameState::InGame),
             Life::new(200),
             FallenRock,
-            EntityDepth,
+            EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             RigidBody::Dynamic,

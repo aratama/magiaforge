@@ -1,12 +1,12 @@
-use super::counter::CounterAnimated;
-use super::falling::Falling;
 use super::fire::spawn_fire;
-use super::point_light::WithPointLight;
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
+use crate::component::falling::Falling;
+use crate::component::life::LifeBeingSprite;
+use crate::component::point_light::WithPointLight;
 use crate::constant::ENTITY_GROUP;
 use crate::constant::RABBIT_GROUP;
 use crate::constant::WALL_GROUP;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
 use crate::level::tile::Tile;
 use crate::page::in_game::Interlevel;
@@ -24,7 +24,7 @@ pub fn spawn_fireball(commands: &mut Commands, assets: &Res<GameAssets>, from: V
             Name::new("fireball"),
             StateScoped(GameState::InGame),
             Fireball,
-            EntityDepth,
+            EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(from.extend(0.0)),
             WithPointLight {
@@ -79,7 +79,7 @@ fn fall(
                     let position = parent_transform.translation.truncate();
                     let tile = level.get_tile_by_coords(position);
                     if tile != Tile::Wall && tile != Tile::Blank {
-                        spawn_fire(&mut commands, &assets, position);
+                        spawn_fire(&mut commands, &assets, position, None);
                     }
                 }
             }

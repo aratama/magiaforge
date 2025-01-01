@@ -1,3 +1,6 @@
+use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
@@ -6,9 +9,6 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
-use crate::entity::counter::CounterAnimated;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::EntityDepth;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
@@ -73,7 +73,7 @@ pub fn spawn_basic_enemy<T: Component>(
             state: ActorState::default(),
             wait: 0,
         },
-        EntityDepth,
+        EntityDepth::new(),
         Life {
             life: max_life,
             max_life,

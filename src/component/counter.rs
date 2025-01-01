@@ -20,9 +20,6 @@ pub struct Counter {
 pub struct CounterAnimated;
 
 impl Counter {
-    pub fn new(count: i32, delta: i32) -> Self {
-        Self { count, delta }
-    }
     pub fn up(count: i32) -> Self {
         Self { count, delta: 1 }
     }

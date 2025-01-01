@@ -24,7 +24,7 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
         Name::new("gold"),
         StateScoped(GameState::InGame),
         Gold { magnet: false },
-        EntityDepth,
+        EntityDepth::new(),
         Transform::from_translation(Vec3::new(
             tx + (random::<f32>() - 0.5) * 16.0,
             ty + (random::<f32>() - 0.5) * 16.0,

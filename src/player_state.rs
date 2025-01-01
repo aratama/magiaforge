@@ -3,7 +3,7 @@ use crate::constant::MAX_WANDS;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::spell::SpellType;

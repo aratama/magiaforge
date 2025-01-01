@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
 use crate::entity::gold::spawn_gold;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::GameSet;

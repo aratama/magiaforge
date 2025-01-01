@@ -6,7 +6,7 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::spawn_witch;

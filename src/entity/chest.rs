@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::gold::spawn_gold;
-use crate::entity::life::Life;
-use crate::entity::life::LifeBeingSprite;
 use crate::entity::piece::spawn_broken_piece;
 use crate::entity::EntityDepth;
 use crate::se::SEEvent;
@@ -12,6 +12,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
+
+use super::fire::Burnable;
 
 const ENTITY_WIDTH: f32 = 8.0;
 
@@ -85,7 +87,8 @@ pub fn spawn_chest(
                     ChestType::Jar(_) => 1,
                 },
             },
-            EntityDepth,
+            Burnable,
+            EntityDepth::new(),
             Transform::from_translation(Vec3::new(tx, ty, 0.0)),
             GlobalTransform::default(),
             Visibility::default(),

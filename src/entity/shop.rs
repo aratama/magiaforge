@@ -47,7 +47,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
             Sensor,
             Collider::cuboid(TILE_SIZE * 2.0, TILE_SIZE * 3.5),
             Transform::from_translation(Vec3::new(position.x + TILE_HALF, position.y, 0.0)),
-            EntityDepth,
+            EntityDepth::new(),
             ActiveEvents::COLLISION_EVENTS,
             CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
             Visibility::default(),

@@ -1,5 +1,9 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
+use crate::component::counter::Counter;
+use crate::component::counter::CounterAnimated;
+use crate::component::falling::Falling;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
@@ -7,11 +11,7 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
-use crate::entity::counter::Counter;
-use crate::entity::counter::CounterAnimated;
-use crate::entity::falling::Falling;
 use crate::entity::impact::SpawnImpact;
-use crate::entity::life::Life;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::EntityDepth;
@@ -103,7 +103,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 state: ActorState::default(),
                 wait: 0,
             },
-            EntityDepth,
+            EntityDepth::new(),
             CounterAnimated,
             AseSpriteAnimation {
                 aseprite: assets.huge_slime_shadow.clone(),
@@ -363,7 +363,7 @@ fn despown(
                     },
                     StateScoped(GameState::InGame),
                     Transform::from_translation(boss_transform.translation),
-                    EntityDepth,
+                    EntityDepth::new(),
                 ));
 
                 let entity = e.id();

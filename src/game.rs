@@ -1,6 +1,10 @@
 use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
+use crate::component::counter::CounterPlugin;
+use crate::component::falling::FallingPlugin;
+use crate::component::life::LifePlugin;
+use crate::component::point_light::EntityPointLightPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
@@ -25,18 +29,14 @@ use crate::entity::book_shelf::BookshelfPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::chest::ChestPlugin;
-use crate::entity::counter::CounterPlugin;
 use crate::entity::damege::DamagePlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::explosion::ExplosionPlugin;
-use crate::entity::falling::FallingPlugin;
 use crate::entity::fire::FirePlugin;
-use crate::entity::firebaall::FireballPlugin;
+use crate::entity::fireball::FireballPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::impact::ImpactPlugin;
-use crate::entity::life::LifePlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
-use crate::entity::point_light::EntityPointLightPlugin;
 use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::rock::RockPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
@@ -86,6 +86,8 @@ use crate::ui::spell_list::SpellListPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use bevy::asset::AssetMetaCheck;
+// use bevy::audio::AudioPlugin;
+// use bevy::audio::SpatialScale;
 use bevy::log::*;
 use bevy::prelude::*;
 use bevy::window::CursorOptions;
@@ -103,6 +105,8 @@ use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
 use gameover::GameoverPlugin;
 use wall::WallPlugin;
+
+// const AUDIO_SCALE: f32 = 1. / 1000.0;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -122,6 +126,10 @@ pub fn run_game() {
         .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
         .add_plugins(
             DefaultPlugins
+                // .set(AudioPlugin {
+                //     default_spatial_scale: SpatialScale::new_2d(AUDIO_SCALE),
+                //     ..default()
+                // })
                 .set(AssetPlugin {
                     // https://github.com/bevyengine/bevy/issues/10157
                     meta_check: AssetMetaCheck::Never,

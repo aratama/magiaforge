@@ -1,11 +1,11 @@
-use super::counter::CounterAnimated;
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
-use crate::entity::life::Life;
+use crate::component::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
 use crate::states::GameState;
