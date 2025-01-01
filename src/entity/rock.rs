@@ -7,7 +7,7 @@ use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::EntityDepth;
 use crate::level::tile::Tile;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -56,7 +56,7 @@ fn fall(
     assets: Res<GameAssets>,
     child_query: Query<(&Parent, &Transform)>,
     parent_query: Query<(Entity, &Transform), (With<FallingRock>, Without<Falling>)>,
-    interlevel: Res<Interlevel>,
+    interlevel: Res<LevelSetup>,
     mut impact: EventWriter<SpawnImpact>,
 ) {
     for (parent, child_transform) in child_query.iter() {

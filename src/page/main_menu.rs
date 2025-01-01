@@ -8,7 +8,7 @@ use crate::language::language_to_font;
 use crate::language::Languages;
 use crate::language::M18NTtext;
 use crate::message::CLICK_TO_START;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -46,7 +46,7 @@ fn setup(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
-    mut current: ResMut<Interlevel>,
+    mut current: ResMut<LevelSetup>,
 ) {
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 

@@ -3,14 +3,14 @@ use crate::config::GameConfig;
 use crate::constant::CRATE_NAME;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::{setup_level, LevelSetup};
 use crate::player_state::PlayerState;
 use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_pkv::PkvStore;
 
-fn startup(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
+fn load_config(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
     if let Ok(v) = pkv.get::<String>("config") {
         if let Ok(deserialized) = serde_json::from_str(v.as_str()) {
             *config = deserialized;
@@ -22,7 +22,7 @@ fn startup(pkv: Res<PkvStore>, mut config: ResMut<GameConfig>) {
     }
 }
 
-fn on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
+fn save_config_on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
     if config.is_changed() {
         if let Ok(serialized) = serde_json::to_string(&config.into_inner()) {
             if let Err(err) = pkv.set::<String>("config", &serialized) {
@@ -34,7 +34,7 @@ fn on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
     }
 }
 
-fn load(pkv: Res<PkvStore>, mut interlevel: ResMut<Interlevel>) {
+fn load_player(pkv: Res<PkvStore>, mut interlevel: ResMut<LevelSetup>) {
     if let Ok(v) = pkv.get::<String>("state") {
         if let Ok(deserialized) = serde_json::from_str(v.as_str()) {
             interlevel.next_state = deserialized;
@@ -47,7 +47,7 @@ fn load(pkv: Res<PkvStore>, mut interlevel: ResMut<Interlevel>) {
     }
 }
 
-fn save(
+fn save_player(
     mut pkv: ResMut<PkvStore>,
     frame_count: Res<FrameCount>,
     player_query: Query<(&Player, &Actor, &Life)>,
@@ -71,9 +71,9 @@ pub struct SavePlugin;
 impl Plugin for SavePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PkvStore::new(CRATE_NAME, CRATE_NAME));
-        app.add_systems(Startup, startup);
-        app.add_systems(Update, on_change);
-        app.add_systems(OnEnter(GameState::MainMenu), load);
-        app.add_systems(Update, save.run_if(in_state(GameState::InGame)));
+        app.add_systems(Startup, load_config);
+        app.add_systems(Update, save_config_on_change);
+        app.add_systems(OnExit(GameState::MainMenu), load_player.before(setup_level));
+        app.add_systems(Update, save_player.run_if(in_state(GameState::InGame)));
     }
 }

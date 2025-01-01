@@ -7,7 +7,7 @@ use crate::equipment::EquipmentType;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::GameLevel;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::physics::InGameTime;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -158,7 +158,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
     }
 }
 
-fn debug_next(mut level: ResMut<Interlevel>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_next(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
     match level.next_level {
         GameLevel::Level(n) => {
             level.next_level = GameLevel::Level((n + 1) % LEVELS);
@@ -171,17 +171,17 @@ fn debug_next(mut level: ResMut<Interlevel>, mut writer: EventWriter<OverlayEven
     };
 }
 
-fn debug_home(mut level: ResMut<Interlevel>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_home(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
     level.next_level = GameLevel::Level(0);
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
-fn debug_arena(mut level: ResMut<Interlevel>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_arena(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
     level.next_level = GameLevel::MultiPlayArena;
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
-fn debug_boss(mut level: ResMut<Interlevel>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_boss(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
     level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
     writer.send(OverlayEvent::Close(GameState::Warp));
 }

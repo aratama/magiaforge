@@ -13,7 +13,7 @@ use crate::message::RESUME;
 use crate::message::RETURN_TO_TITLE;
 use crate::message::SFX_VOLUME;
 use crate::page::in_game::GameLevel;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -101,7 +101,7 @@ fn exit(
     mut writer: EventWriter<SEEvent>,
     mut websocket: EventWriter<ClientMessage>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
-    mut next: ResMut<Interlevel>,
+    mut next: ResMut<LevelSetup>,
 ) {
     next.next_level = GameLevel::Level(0);
     overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));

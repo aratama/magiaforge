@@ -9,7 +9,7 @@ use crate::constant::RABBIT_GROUP;
 use crate::constant::WALL_GROUP;
 use crate::entity::EntityDepth;
 use crate::level::tile::Tile;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -69,7 +69,7 @@ fn fall(
     assets: Res<GameAssets>,
     child_query: Query<(&Parent, &Falling)>,
     parent_query: Query<(Entity, &Transform), With<Fireball>>,
-    interlevel: Res<Interlevel>,
+    interlevel: Res<LevelSetup>,
 ) {
     for (parent, falling) in child_query.iter() {
         if falling.just_landed {

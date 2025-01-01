@@ -14,7 +14,7 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::page::in_game::setup_level;
 use crate::page::in_game::GameLevel;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -105,7 +105,7 @@ fn send_player_states(
     mut query: Query<(&mut Player, &Actor, &Life, &GlobalTransform, &Velocity)>,
     state: Res<WebSocketState>,
     frame_count: Res<FrameCount>,
-    current: Res<Interlevel>,
+    current: Res<LevelSetup>,
 ) {
     if current.level == Some(GameLevel::MultiPlayArena) && state.ready_state == ReadyState::OPEN {
         if let Ok((mut player, actor, actor_life, transform, velocity)) = query.get_single_mut() {
@@ -147,7 +147,7 @@ fn send_player_states(
     }
 }
 
-fn on_enter(mut writer: EventWriter<ClientMessage>, current: Res<Interlevel>) {
+fn on_enter(mut writer: EventWriter<ClientMessage>, current: Res<LevelSetup>) {
     if current.level != Some(GameLevel::MultiPlayArena)
         && current.next_level == GameLevel::MultiPlayArena
     {
@@ -156,7 +156,7 @@ fn on_enter(mut writer: EventWriter<ClientMessage>, current: Res<Interlevel>) {
     }
 }
 
-fn on_exit(mut writer: EventWriter<ClientMessage>, current: Res<Interlevel>) {
+fn on_exit(mut writer: EventWriter<ClientMessage>, current: Res<LevelSetup>) {
     if current.level == Some(GameLevel::MultiPlayArena)
         && current.next_level != GameLevel::MultiPlayArena
     {

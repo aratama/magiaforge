@@ -14,7 +14,7 @@ use crate::equipment::EquipmentType;
 use crate::input::get_direction;
 use crate::input::get_fire_trigger;
 use crate::page::in_game::GameLevel;
-use crate::page::in_game::Interlevel;
+use crate::page::in_game::LevelSetup;
 use crate::physics::InGameTime;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
@@ -213,7 +213,7 @@ fn die_player(
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
-    mut next: ResMut<Interlevel>,
+    mut next: ResMut<LevelSetup>,
 ) {
     if let Ok((entity, actor, player_life, transform, player)) = player_query.get_single() {
         if player_life.life <= 0 {

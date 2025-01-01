@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
+use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -9,7 +10,6 @@ use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::component::life::Life;
 use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
@@ -50,7 +50,7 @@ pub enum GameLevel {
 /// 現在のレベル、次のレベル、次のレベルでのプレイヤーキャラクターの状態など、
 /// レベル間を移動するときの情報を保持します
 #[derive(Resource, Debug, Clone)]
-pub struct Interlevel {
+pub struct LevelSetup {
     /// 現在プレイ中のレベル
     pub level: Option<GameLevel>,
 
@@ -66,9 +66,9 @@ pub struct Interlevel {
     pub next_state: PlayerState,
 }
 
-impl Default for Interlevel {
+impl Default for LevelSetup {
     fn default() -> Self {
-        Interlevel {
+        LevelSetup {
             level: None,
             chunk: None,
             next_level: GameLevel::Level(INITIAL_LEVEL),
@@ -84,7 +84,7 @@ pub fn setup_level(
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
     life_bar_res: Res<LifeBarResource>,
-    mut current: ResMut<Interlevel>,
+    mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
 ) {
     let mut rng = StdRng::from_entropy();
@@ -225,7 +225,7 @@ pub fn setup_level(
 }
 
 fn select_level_bgm(
-    next_level: Res<Interlevel>,
+    next_level: Res<LevelSetup>,
     mut next_bgm: ResMut<NextBGM>,
     assets: Res<GameAssets>,
 ) {
@@ -403,7 +403,7 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
 /// レベル遷移前にプレイヤーの状態を保存します
 /// ただし、ゲームオーバー時や魔法陣でのワープ時はプレイヤーのエンティティが存在しないため、
 /// その場合は個別にnext_stateを設定しておく必要があります
-fn on_exit(player_query: Query<(&Player, &Actor, &Life)>, mut next: ResMut<Interlevel>) {
+fn on_exit(player_query: Query<(&Player, &Actor, &Life)>, mut next: ResMut<LevelSetup>) {
     if let Ok((player, actor, life)) = player_query.get_single() {
         next.next_state = PlayerState::new(player, actor, life);
     }
@@ -416,6 +416,6 @@ impl Plugin for WorldPlugin {
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.add_systems(OnExit(GameState::InGame), on_exit);
-        app.init_resource::<Interlevel>();
+        app.init_resource::<LevelSetup>();
     }
 }
