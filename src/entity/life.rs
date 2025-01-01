@@ -1,18 +1,16 @@
-use crate::{
-    constant::{SENSOR_GROUP, WITCH_GROUP},
-    se::{SEEvent, SE},
-    states::GameState,
-};
+use crate::constant::SENSOR_GROUP;
+use crate::constant::WITCH_GROUP;
+use crate::entity::actor::ActorEvent;
+use crate::entity::fire::Fire;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_rapier2d::{
-    plugin::{DefaultRapierContext, RapierContext},
-    prelude::{Collider, CollisionGroups, QueryFilter},
-};
-
-use super::{
-    actor::{Actor, ActorEvent},
-    firebaall::Fire,
-};
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::CollisionGroups;
+use bevy_rapier2d::prelude::QueryFilter;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます

@@ -78,7 +78,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 state: HugeSlimeState::Growl,
                 promoted: false,
             },
-            Counter::new(),
+            Counter::up(0),
             Actor {
                 uuid: Uuid::new_v4(),
                 pointer: Vec2::ZERO,

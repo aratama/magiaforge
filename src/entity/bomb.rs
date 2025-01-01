@@ -41,7 +41,7 @@ pub fn spawn_bomb(
                 StateScoped(GameState::InGame),
                 Life::new(10),
                 Bomb,
-                Counter::new(),
+                Counter::up(0),
                 EntityDepth,
                 Transform::from_translation(position.extend(0.0)),
                 GlobalTransform::default(),

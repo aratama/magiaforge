@@ -30,6 +30,7 @@ use crate::entity::damege::DamagePlugin;
 use crate::entity::dropped_item::SpellEntityPlugin;
 use crate::entity::explosion::ExplosionPlugin;
 use crate::entity::falling::FallingPlugin;
+use crate::entity::fire::FirePlugin;
 use crate::entity::firebaall::FireballPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::impact::ImpactPlugin;
@@ -190,6 +191,7 @@ pub fn run_game() {
         .add_plugins(EquipmentListPlugin)
         .add_plugins(ExplosionPlugin)
         .add_plugins(FallingPlugin)
+        .add_plugins(FirePlugin)
         .add_plugins(FireballPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)

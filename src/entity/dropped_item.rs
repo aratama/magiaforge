@@ -90,7 +90,7 @@ pub fn spawn_dropped_item(
         .with_children(|parent| {
             parent
                 .spawn((
-                    Counter::new(),
+                    Counter::up(0),
                     SpellSprites {
                         swing,
                         frame_count_offset: rand::random::<u32>() % 360,
@@ -137,7 +137,7 @@ pub fn spawn_dropped_item(
 fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
     for (mut transform, sprite, counter) in query.iter_mut() {
         transform.translation.y =
-            ((sprite.frame_count_offset + counter.count) as f32 * 0.05).sin() * sprite.swing;
+            ((sprite.frame_count_offset as i32 + counter.count) as f32 * 0.05).sin() * sprite.swing;
     }
 }
 

@@ -10,7 +10,8 @@ use bevy_rapier2d::plugin::PhysicsSet;
 /// ただし、ポーズメニューが開いているなどのときはカウントアップされません
 #[derive(Default, Component, Reflect)]
 pub struct Counter {
-    pub count: u32,
+    pub count: i32,
+    pub delta: i32,
 }
 
 /// AseSpriteAnimation や AseUiAnimation と同時に使います
@@ -19,15 +20,21 @@ pub struct Counter {
 pub struct CounterAnimated;
 
 impl Counter {
-    pub fn new() -> Self {
-        Self { count: 0 }
+    pub fn new(count: i32, delta: i32) -> Self {
+        Self { count, delta }
+    }
+    pub fn up(count: i32) -> Self {
+        Self { count, delta: 1 }
+    }
+    pub fn down(count: i32) -> Self {
+        Self { count, delta: -1 }
     }
 }
 
-fn countup(mut query: Query<&mut Counter>, in_game_time: Res<InGameTime>) {
+fn count(mut query: Query<&mut Counter>, in_game_time: Res<InGameTime>) {
     if in_game_time.active {
         for mut counter in query.iter_mut() {
-            counter.count += 1;
+            counter.count += counter.delta;
         }
     }
 }
@@ -64,7 +71,7 @@ impl Plugin for CounterPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (countup, animate, animate_ui)
+            (count, animate, animate_ui)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );
