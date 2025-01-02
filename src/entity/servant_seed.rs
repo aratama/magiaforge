@@ -58,82 +58,66 @@ impl ServantType {
 #[derive(Component)]
 pub struct ServantSeedSprite;
 
-#[derive(Event)]
-pub struct SpawnServantSeed {
-    pub from: Vec2,
-    pub to: Vec2,
-    pub actor_group: ActorGroup,
-    pub owner: Option<Entity>,
-    pub servant_type: ServantType,
-    pub remote: bool,
-    pub servant: bool,
-}
-
 pub fn spawn_servant_seed(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut reader: EventReader<SpawnServantSeed>,
-    mut writer: EventWriter<ClientMessage>,
-    websocket: Res<WebSocketState>,
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    writer: &mut EventWriter<ClientMessage>,
+    websocket: &Res<WebSocketState>,
+    from: Vec2,
+    to: Vec2,
+    actor_group: ActorGroup,
+    owner: Option<Entity>,
+    servant_type: ServantType,
+    remote: bool,
+    servant: bool,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
-    for SpawnServantSeed {
-        from,
-        to,
-        actor_group,
-        owner,
-        servant_type,
-        remote,
-        servant,
-    } in reader.read()
-    {
-        commands
-            .spawn((
-                Name::new("servant_seed"),
-                StateScoped(GameState::InGame),
-                ServantSeed {
-                    animation: 0,
-                    from: *from,
-                    to: Vec2::new(
-                        to.x + 16.0 * (rand::random::<f32>() - 0.5),
-                        to.y + 16.0 * (rand::random::<f32>() - 0.5),
-                    ),
-                    speed: 60 + rand::random::<u32>() % 30,
-                    actor_group: *actor_group,
-                    master: *owner,
-                    servant_type: *servant_type,
-                    servant: *servant,
-                },
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "entity_shadow".into(),
-                },
-                Transform::from_translation(from.extend(SHADOW_LAYER_Z)),
-            ))
-            .with_child((
-                ServantSeedSprite,
-                CounterAnimated,
-                AseSpriteAnimation {
-                    aseprite: servant_type.to_asset(&assets, *actor_group),
-                    animation: "idle".into(),
-                },
-            ));
+    commands
+        .spawn((
+            Name::new("servant_seed"),
+            StateScoped(GameState::InGame),
+            ServantSeed {
+                animation: 0,
+                from: from,
+                to: Vec2::new(
+                    to.x + 16.0 * (rand::random::<f32>() - 0.5),
+                    to.y + 16.0 * (rand::random::<f32>() - 0.5),
+                ),
+                speed: 60 + rand::random::<u32>() % 30,
+                actor_group: actor_group,
+                master: owner,
+                servant_type: servant_type,
+                servant: servant,
+            },
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "entity_shadow".into(),
+            },
+            Transform::from_translation(from.extend(SHADOW_LAYER_Z)),
+        ))
+        .with_child((
+            ServantSeedSprite,
+            CounterAnimated,
+            AseSpriteAnimation {
+                aseprite: servant_type.to_asset(&assets, actor_group),
+                animation: "idle".into(),
+            },
+        ));
 
-        if *remote && online {
-            let message = RemoteMessage::ServantSeed {
-                from: *from,
-                to: *to,
-                actor_group: match actor_group {
-                    ActorGroup::Player => ActorGroup::Enemy,
-                    ActorGroup::Enemy => ActorGroup::Player,
-                    ActorGroup::Neutral => ActorGroup::Neutral,
-                },
-                servant_type: *servant_type,
-            };
-            let serialized = bincode::serialize::<RemoteMessage>(&message).unwrap();
-            writer.send(ClientMessage::Binary(serialized));
-        }
+    if remote && online {
+        let message = RemoteMessage::ServantSeed {
+            from: from,
+            to: to,
+            actor_group: match actor_group {
+                ActorGroup::Player => ActorGroup::Enemy,
+                ActorGroup::Enemy => ActorGroup::Player,
+                ActorGroup::Neutral => ActorGroup::Neutral,
+            },
+            servant_type: servant_type,
+        };
+        let serialized = bincode::serialize::<RemoteMessage>(&message).unwrap();
+        writer.send(ClientMessage::Binary(serialized));
     }
 }
 
@@ -248,16 +232,10 @@ pub struct ServantSeedPlugin;
 
 impl Plugin for ServantSeedPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnServantSeed>();
         app.add_event::<SpawnEvent>();
         app.add_systems(
             FixedUpdate,
-            (
-                spawn_servant_seed,
-                update_servant_seed,
-                update_slime_seed_sprite,
-                spawn_servant,
-            )
+            (update_servant_seed, update_slime_seed_sprite, spawn_servant)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

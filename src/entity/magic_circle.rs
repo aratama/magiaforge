@@ -52,8 +52,7 @@ pub struct MagicCircleLight;
 pub fn spawn_magic_circle(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
-    x: f32,
-    y: f32,
+    position: Vec2,
     destination: MagicCircleDestination,
 ) {
     let light_entity = commands.spawn_empty().id();
@@ -68,7 +67,7 @@ pub fn spawn_magic_circle(
                 light: light_entity,
                 destination,
             },
-            Transform::from_translation(Vec3::new(x, y, PAINT_LAYER_Z)),
+            Transform::from_translation(position.extend(PAINT_LAYER_Z)),
             Sprite {
                 color: Color::hsla(0.0, 1.0, 1.0, 0.7),
                 ..default()
@@ -101,7 +100,7 @@ pub fn spawn_magic_circle(
     commands.entity(light_entity).insert((
         Name::new("magic_circle_light"),
         MagicCircleLight,
-        Transform::from_xyz(x, y, 0.0),
+        Transform::from_translation(position.extend(0.0)),
         PointLight2d {
             color: Color::hsla(240.0, 1.0, 0.5, 1.0),
             radius: MIN_RADIUS_ON,

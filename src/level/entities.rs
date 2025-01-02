@@ -10,6 +10,7 @@ use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
+use crate::entity::actor::ActorGroup;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
 use crate::entity::book_shelf::spawn_book_shelf;
@@ -21,6 +22,8 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
+use crate::entity::servant_seed::spawn_servant_seed;
+use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::hud::life_bar::LifeBarResource;
@@ -49,56 +52,101 @@ use crate::page::in_game::LevelSetup;
 use crate::theater::Act;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_simple_websocket::ClientMessage;
+use bevy_simple_websocket::WebSocketState;
 use rand::seq::IteratorRandom;
 
-/// レベルマップで生成されるエンティティです
-/// これはあくまでレベルマップをもとに生成させるエンティティを表しており、
-/// すべてのエンティティの一覧となるものではありません
-/// また、生成にパラメータが不要なエンティティであり、
-/// 生成時にパラメータが必要なエンティティについては、生成を指示するのにこの型を使うのは適切ではありません
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
-pub enum MapEntityType {
+#[derive(Event, Clone, Debug)]
+pub enum SpawnEntity {
     // 施設
-    MagicCircle,
-    MagicCircleHome,
-    MultiPlayArenaMagicCircle,
-    BrokenMagicCircle,
-    Usage,
-    Routes,
-    ShopSpell,
-    ShopDoor,
-    BGM,
+    MagicCircle {
+        position: Vec2,
+    },
+    MagicCircleHome {
+        position: Vec2,
+    },
+    MultiPlayArenaMagicCircle {
+        position: Vec2,
+    },
+    BrokenMagicCircle {
+        position: Vec2,
+    },
+    Usage {
+        position: Vec2,
+    },
+    Routes {
+        position: Vec2,
+    },
+    ShopSpell {
+        position: Vec2,
+    },
+    ShopDoor {
+        position: Vec2,
+    },
+    BGM {
+        position: Vec2,
+    },
 
     // ウサギ
-    ShopRabbit,
-    TrainingRabbit,
-    GuideRabbit,
-    SinglePlayRabbit,
-    MultiplayerRabbit,
-    ReadingRabbit,
-    SpellListRabbit,
+    ShopRabbit {
+        position: Vec2,
+    },
+    TrainingRabbit {
+        position: Vec2,
+    },
+    GuideRabbit {
+        position: Vec2,
+    },
+    SinglePlayRabbit {
+        position: Vec2,
+    },
+    MultiplayerRabbit {
+        position: Vec2,
+    },
+    ReadingRabbit {
+        position: Vec2,
+    },
+    SpellListRabbit {
+        position: Vec2,
+    },
 
     // 魔法で生成されるもの
-    Chest,
-    Crate,
-    CrateOrBarrel,
-    BookShelf,
-    StoneLantern,
-    HugeSlime,
-    Sandbug,
-    Bomb,
-    Chiken,
-}
-
-/// エンティティを生成する汎用のイベントです
-/// これは cast のようなシステムで必要なシステムパラメータが増えすぎないようにするためです
-/// これは生成時に必要なシステムパラメータが少ないものに使われており、
-/// 生成時に必要なシステムパラメータが多いエンティティは専用のイベントを定義します
-#[derive(Event)]
-pub enum SpawnEntity {
-    Spawn {
-        entity: MapEntityType,
+    Chest {
         position: Vec2,
+    },
+    Crate {
+        position: Vec2,
+    },
+    CrateOrBarrel {
+        position: Vec2,
+    },
+    BookShelf {
+        position: Vec2,
+    },
+    StoneLantern {
+        position: Vec2,
+    },
+    HugeSlime {
+        position: Vec2,
+    },
+    Sandbug {
+        position: Vec2,
+    },
+    Bomb {
+        position: Vec2,
+    },
+    Chiken {
+        position: Vec2,
+    },
+
+    Seed {
+        from: Vec2,
+        to: Vec2,
+        actor_group: ActorGroup,
+        owner: Option<Entity>,
+        servant_type: ServantType,
+        remote: bool,
+        servant: bool,
     },
 }
 
@@ -108,290 +156,267 @@ pub fn spawn_entity(
     life_bar_resource: Res<LifeBarResource>,
     mut setup: ResMut<LevelSetup>,
     mut reader: EventReader<SpawnEntity>,
+    mut client_message_writer: EventWriter<ClientMessage>,
+    websocket: Res<WebSocketState>,
 ) {
-    for spawn in reader.read() {
-        match spawn {
-            SpawnEntity::Spawn { entity, position } => {
-                if setup.shop_items.is_empty() {
-                    setup.shop_items = new_shop_item_queue(
-                        setup.next_state.discovered_spells.iter().cloned().collect(),
-                    )
-                }
+    for event in reader.read() {
+        if setup.shop_items.is_empty() {
+            setup.shop_items =
+                new_shop_item_queue(setup.next_state.discovered_spells.iter().cloned().collect())
+        }
 
-                let tx = position.x;
-                let ty = position.y;
-                match entity {
-                    MapEntityType::BookShelf => {
-                        spawn_book_shelf(
-                            &mut commands,
-                            assets.atlas.clone(),
-                            Vec2::new(tx + TILE_SIZE, ty - TILE_HALF),
-                        );
-                    }
-                    MapEntityType::Chest => {
-                        spawn_chest(
-                            &mut commands,
-                            assets.atlas.clone(),
-                            tx + TILE_HALF,
-                            ty - TILE_HALF,
-                            ChestType::Chest,
-                        );
-                    }
-                    MapEntityType::Crate => {
-                        spawn_chest(
-                            &mut commands,
-                            assets.atlas.clone(),
-                            tx + TILE_HALF,
-                            ty - TILE_HALF,
-                            ChestType::Crate,
-                        );
-                    }
-                    MapEntityType::CrateOrBarrel => {
-                        if rand::random::<u32>() % 4 != 0 {
-                            spawn_chest(
-                                &mut commands,
-                                assets.atlas.clone(),
-                                tx + TILE_HALF,
-                                ty - TILE_HALF,
-                                *CHEST_OR_BARREL
-                                    .iter()
-                                    .choose(&mut rand::thread_rng())
-                                    .unwrap(),
-                            );
-                        }
-                    }
-                    MapEntityType::MagicCircle => {
-                        spawn_magic_circle(
-                            &mut commands,
-                            &assets,
-                            tx + TILE_HALF,
-                            ty - TILE_HALF,
-                            MagicCircleDestination::NextLevel,
-                        );
-                    }
-                    MapEntityType::MagicCircleHome => {
-                        spawn_magic_circle(
-                            &mut commands,
-                            &assets,
-                            tx + TILE_HALF,
-                            ty - TILE_HALF,
-                            MagicCircleDestination::Home,
-                        );
-                    }
-                    MapEntityType::MultiPlayArenaMagicCircle => {
-                        spawn_magic_circle(
-                            &mut commands,
-                            &assets,
-                            tx + TILE_HALF,
-                            ty - TILE_HALF,
-                            MagicCircleDestination::MultiplayArena,
-                        );
-                    }
-                    MapEntityType::BrokenMagicCircle => {
-                        spawn_broken_magic_circle(
-                            &mut commands,
-                            assets.atlas.clone(),
-                            tx + TILE_HALF,
-                            ty - TILE_HALF,
-                        );
-                    }
-                    MapEntityType::StoneLantern => {
-                        spawn_stone_lantern(
-                            &mut commands,
-                            &assets,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                        );
-                    }
-                    MapEntityType::Usage => {
-                        commands.spawn((
-                            Name::new("usage"),
-                            Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
-                            Sprite {
-                                color: Color::hsla(0.0, 0.0, 1.0, 0.7),
-                                ..default()
-                            },
-                            AseSpriteSlice {
-                                aseprite: assets.atlas.clone(),
-                                name: "usage".into(),
-                            },
-                        ));
-                    }
-                    MapEntityType::Routes => {
-                        commands.spawn((
-                            Name::new("routes"),
-                            Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
-                            Sprite {
-                                color: Color::hsla(0.0, 0.0, 1.0, 0.7),
-                                ..default()
-                            },
-                            AseSpriteSlice {
-                                aseprite: assets.atlas.clone(),
-                                name: "routes".into(),
-                            },
-                        ));
-                    }
-                    MapEntityType::ShopSpell => {
-                        if let Some(item) = setup.shop_items.pop() {
-                            spawn_dropped_item(
-                                &mut commands,
-                                &assets,
-                                Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                                item,
-                            );
-                        }
-                    }
-                    MapEntityType::HugeSlime => {
-                        spawn_huge_slime(
-                            &mut commands,
-                            &assets,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                        );
-                    }
-                    MapEntityType::ShopRabbit => {
-                        spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_yellow,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            ShopRabbit,
-                            ShopRabbitSensor,
-                            ShopRabbitOuterSensor,
-                        );
-                    }
-                    MapEntityType::TrainingRabbit => {
-                        spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_red,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            MessageRabbit {
-                                messages: vec![
-                                    Act::Speech(TRAINING_RABBIT.to_string()),
-                                    Act::Speech(TRAINING_RABBIT_1.to_string()),
-                                    Act::Speech(TRAINING_RABBIT_2.to_string()),
-                                    Act::Speech(TRAINING_RABBIT_3.to_string()),
-                                    Act::Speech(TRAINING_RABBIT_4.to_string()),
-                                    Act::Speech(TRAINING_RABBIT_5.to_string()),
-                                ],
-                            },
-                            MessageRabbitInnerSensor,
-                            MessageRabbitOuterSensor,
-                        );
-                    }
-                    MapEntityType::SinglePlayRabbit => {
-                        spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_white,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            MessageRabbit {
-                                messages: vec![
-                                    Act::Speech(SINGLEPLAY.to_string()),
-                                    Act::Speech(SINGLEPLAY_2.to_string()),
-                                ],
-                            },
-                            MessageRabbitInnerSensor,
-                            MessageRabbitOuterSensor,
-                        );
-                    }
-                    MapEntityType::GuideRabbit => {
-                        spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_blue,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            MessageRabbit {
-                                messages: vec![
-                                    Act::BGM(Some(assets.saihate.clone())),
-                                    Act::Speech(HELLO.to_string()),
-                                    Act::Speech(HELLO_RABBITS.to_string()),
-                                ],
-                            },
-                            MessageRabbitInnerSensor,
-                            MessageRabbitOuterSensor,
-                        );
-                    }
-                    MapEntityType::MultiplayerRabbit => {
-                        spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_black,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            MessageRabbit {
-                                messages: vec![Act::Speech(MULTIPLAY.to_string())],
-                            },
-                            MessageRabbitInnerSensor,
-                            MessageRabbitOuterSensor,
-                        );
-                    }
-                    MapEntityType::ReadingRabbit => {
-                        spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_green,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            MessageRabbit {
-                                messages: vec![
-                                    Act::Speech(RESERCH_RABBIT_0.to_string()),
-                                    Act::Speech(RESERCH_RABBIT_1.to_string()),
-                                    Act::Speech(RESERCH_RABBIT_2.to_string()),
-                                    Act::Speech(RESERCH_RABBIT_3.to_string()),
-                                    Act::Speech(RESERCH_RABBIT_4.to_string()),
-                                    Act::Speech(RESERCH_RABBIT_5.to_string()),
-                                ],
-                            },
-                            MessageRabbitInnerSensor,
-                            MessageRabbitOuterSensor,
-                        );
-                    }
-                    MapEntityType::SpellListRabbit => {
-                        let entity = spawn_rabbit(
-                            &mut commands,
-                            &assets,
-                            &assets.rabbit_blue,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            MessageRabbit {
-                                messages: vec![
-                                    Act::Speech(SPELL_LIST1.to_string()),
-                                    Act::Speech(SPELL_LIST2.to_string()),
-                                    Act::Speech(SPELL_LIST3.to_string()),
-                                ],
-                            },
-                            MessageRabbitInnerSensor,
-                            MessageRabbitOuterSensor,
-                        );
-
-                        commands.entity(entity).insert(SpellListRabbit);
-                    }
-                    MapEntityType::Sandbug => {
-                        spawn_sandbag(
-                            &mut commands,
-                            &assets,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                            &life_bar_resource,
-                        );
-                    }
-                    MapEntityType::ShopDoor => {
-                        spawn_shop_door(
-                            &mut commands,
-                            &assets,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                        );
-                    }
-                    MapEntityType::BGM => {
-                        spawn_bgm_switch(
-                            &mut commands,
-                            &assets,
-                            Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                        );
-                    }
-                    MapEntityType::Bomb => {
-                        spawn_bomb(&mut commands, &assets, *position);
-                    }
-                    MapEntityType::Chiken => {
-                        spawn_chiken(&mut commands, &assets, &life_bar_resource, *position, false);
-                    }
+        match event {
+            SpawnEntity::BookShelf { position } => {
+                spawn_book_shelf(&mut commands, assets.atlas.clone(), *position);
+            }
+            SpawnEntity::Chest { position } => {
+                spawn_chest(
+                    &mut commands,
+                    assets.atlas.clone(),
+                    *position,
+                    ChestType::Chest,
+                );
+            }
+            SpawnEntity::Crate { position } => {
+                spawn_chest(
+                    &mut commands,
+                    assets.atlas.clone(),
+                    *position,
+                    ChestType::Crate,
+                );
+            }
+            SpawnEntity::CrateOrBarrel { position } => {
+                if rand::random::<u32>() % 4 != 0 {
+                    spawn_chest(
+                        &mut commands,
+                        assets.atlas.clone(),
+                        *position,
+                        *CHEST_OR_BARREL
+                            .iter()
+                            .choose(&mut rand::thread_rng())
+                            .unwrap(),
+                    );
                 }
+            }
+            SpawnEntity::MagicCircle { position } => {
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    *position,
+                    MagicCircleDestination::NextLevel,
+                );
+            }
+            SpawnEntity::MagicCircleHome { position } => {
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    *position,
+                    MagicCircleDestination::Home,
+                );
+            }
+            SpawnEntity::MultiPlayArenaMagicCircle { position } => {
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    *position,
+                    MagicCircleDestination::MultiplayArena,
+                );
+            }
+            SpawnEntity::BrokenMagicCircle { position } => {
+                spawn_broken_magic_circle(&mut commands, assets.atlas.clone(), *position);
+            }
+            SpawnEntity::StoneLantern { position } => {
+                spawn_stone_lantern(&mut commands, &assets, *position);
+            }
+            SpawnEntity::Usage { position } => {
+                commands.spawn((
+                    Name::new("usage"),
+                    Transform::from_translation(position.extend(PAINT_LAYER_Z)),
+                    Sprite {
+                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
+                        ..default()
+                    },
+                    AseSpriteSlice {
+                        aseprite: assets.atlas.clone(),
+                        name: "usage".into(),
+                    },
+                ));
+            }
+            SpawnEntity::Routes { position } => {
+                commands.spawn((
+                    Name::new("routes"),
+                    Transform::from_translation(position.extend(PAINT_LAYER_Z)),
+                    Sprite {
+                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
+                        ..default()
+                    },
+                    AseSpriteSlice {
+                        aseprite: assets.atlas.clone(),
+                        name: "routes".into(),
+                    },
+                ));
+            }
+            SpawnEntity::ShopSpell { position } => {
+                if let Some(item) = setup.shop_items.pop() {
+                    spawn_dropped_item(&mut commands, &assets, *position, item);
+                }
+            }
+            SpawnEntity::HugeSlime { position } => {
+                spawn_huge_slime(&mut commands, &assets, *position);
+            }
+            SpawnEntity::ShopRabbit { position } => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_yellow,
+                    *position,
+                    ShopRabbit,
+                    ShopRabbitSensor,
+                    ShopRabbitOuterSensor,
+                );
+            }
+            SpawnEntity::TrainingRabbit { position } => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_red,
+                    *position,
+                    MessageRabbit {
+                        messages: vec![
+                            Act::Speech(TRAINING_RABBIT.to_string()),
+                            Act::Speech(TRAINING_RABBIT_1.to_string()),
+                            Act::Speech(TRAINING_RABBIT_2.to_string()),
+                            Act::Speech(TRAINING_RABBIT_3.to_string()),
+                            Act::Speech(TRAINING_RABBIT_4.to_string()),
+                            Act::Speech(TRAINING_RABBIT_5.to_string()),
+                        ],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
+            SpawnEntity::SinglePlayRabbit { position } => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_white,
+                    *position,
+                    MessageRabbit {
+                        messages: vec![
+                            Act::Speech(SINGLEPLAY.to_string()),
+                            Act::Speech(SINGLEPLAY_2.to_string()),
+                        ],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
+            SpawnEntity::GuideRabbit { position } => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_blue,
+                    *position,
+                    MessageRabbit {
+                        messages: vec![
+                            Act::BGM(Some(assets.saihate.clone())),
+                            Act::Speech(HELLO.to_string()),
+                            Act::Speech(HELLO_RABBITS.to_string()),
+                        ],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
+            SpawnEntity::MultiplayerRabbit { position } => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_black,
+                    *position,
+                    MessageRabbit {
+                        messages: vec![Act::Speech(MULTIPLAY.to_string())],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
+            SpawnEntity::ReadingRabbit { position } => {
+                spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_green,
+                    *position,
+                    MessageRabbit {
+                        messages: vec![
+                            Act::Speech(RESERCH_RABBIT_0.to_string()),
+                            Act::Speech(RESERCH_RABBIT_1.to_string()),
+                            Act::Speech(RESERCH_RABBIT_2.to_string()),
+                            Act::Speech(RESERCH_RABBIT_3.to_string()),
+                            Act::Speech(RESERCH_RABBIT_4.to_string()),
+                            Act::Speech(RESERCH_RABBIT_5.to_string()),
+                        ],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+            }
+            SpawnEntity::SpellListRabbit { position } => {
+                let entity = spawn_rabbit(
+                    &mut commands,
+                    &assets,
+                    &assets.rabbit_blue,
+                    *position,
+                    MessageRabbit {
+                        messages: vec![
+                            Act::Speech(SPELL_LIST1.to_string()),
+                            Act::Speech(SPELL_LIST2.to_string()),
+                            Act::Speech(SPELL_LIST3.to_string()),
+                        ],
+                    },
+                    MessageRabbitInnerSensor,
+                    MessageRabbitOuterSensor,
+                );
+
+                commands.entity(entity).insert(SpellListRabbit);
+            }
+            SpawnEntity::Sandbug { position } => {
+                spawn_sandbag(&mut commands, &assets, *position, &life_bar_resource);
+            }
+            SpawnEntity::ShopDoor { position } => {
+                spawn_shop_door(&mut commands, &assets, *position);
+            }
+            SpawnEntity::BGM { position } => {
+                spawn_bgm_switch(&mut commands, &assets, *position);
+            }
+            SpawnEntity::Bomb { position } => {
+                spawn_bomb(&mut commands, &assets, *position);
+            }
+            SpawnEntity::Chiken { position } => {
+                spawn_chiken(&mut commands, &assets, &life_bar_resource, *position, false);
+            }
+            SpawnEntity::Seed {
+                from,
+                to,
+                actor_group,
+                owner,
+                servant_type,
+                remote,
+                servant,
+            } => {
+                spawn_servant_seed(
+                    &mut commands,
+                    &assets,
+                    &mut client_message_writer,
+                    &websocket,
+                    *from,
+                    *to,
+                    *actor_group,
+                    *owner,
+                    *servant_type,
+                    *remote,
+                    *servant,
+                );
             }
         }
     }

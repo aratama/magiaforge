@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::gold::spawn_gold;
 use crate::entity::piece::spawn_broken_piece;
-use crate::component::entity_depth::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -64,12 +64,9 @@ struct Chest {
 pub fn spawn_chest(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
-    x: f32,
-    y: f32,
+    position: Vec2,
     chest_type: ChestType,
 ) {
-    let tx = x + ENTITY_WIDTH - TILE_SIZE / 2.0;
-    let ty = y - ENTITY_HEIGHT + TILE_SIZE / 2.0;
     let life = match chest_type {
         ChestType::Chest => 30,
         ChestType::Crate => 30,
@@ -96,7 +93,7 @@ pub fn spawn_chest(
                 life: 60 * 20 + rand::random::<u32>() % 30,
             },
             EntityDepth::new(),
-            Transform::from_translation(Vec3::new(tx, ty, 0.0)),
+            Transform::from_translation(position.extend(0.0)),
             GlobalTransform::default(),
             Visibility::default(),
             (

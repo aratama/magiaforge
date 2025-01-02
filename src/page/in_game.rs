@@ -18,7 +18,6 @@ use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::spawn_level_appearance;
 use crate::level::entities::spawn_entity;
-use crate::level::entities::MapEntityType;
 use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
@@ -158,11 +157,8 @@ pub fn setup_level(
     spawn_wall_collisions(&mut commands, &chunk);
 
     // 宝箱や灯篭などのエンティティを生成します
-    for (entity, x, y) in &chunk.entities {
-        spawn_entity.send(SpawnEntity::Spawn {
-            entity: *entity,
-            position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
-        });
+    for entity in &chunk.entities {
+        spawn_entity.send(entity.clone());
     }
 
     // 空間
@@ -220,8 +216,7 @@ pub fn setup_level(
     if level == GameLevel::Level(0) {
         for _ in 0..4 {
             if let Some((x, y)) = empties.choose(&mut rng) {
-                spawn_entity.send(SpawnEntity::Spawn {
-                    entity: MapEntityType::Chiken,
+                spawn_entity.send(SpawnEntity::Chiken {
                     position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
                 });
             }

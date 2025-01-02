@@ -9,8 +9,7 @@ pub struct BrokenMagicCircle;
 pub fn spawn_broken_magic_circle(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
-    x: f32,
-    y: f32,
+    position: Vec2,
 ) {
     commands.spawn((
         Name::new("broken_magic_circle"),
@@ -20,6 +19,6 @@ pub fn spawn_broken_magic_circle(
             aseprite: aseprite,
             name: "broken_magic_circle".into(),
         },
-        Transform::from_translation(Vec3::new(x, y, PAINT_LAYER_Z)),
+        Transform::from_translation(position.extend(PAINT_LAYER_Z)),
     ));
 }

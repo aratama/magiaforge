@@ -54,7 +54,7 @@ fn spawn_explosion(
             QueryFilter {
                 groups: Some(CollisionGroups::new(
                     ENEMY_GROUP,
-                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP,
+                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP | NEUTRAL_GROUP,
                 )),
                 ..default()
             },

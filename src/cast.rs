@@ -22,9 +22,7 @@ use crate::entity::fireball::spawn_fireball;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
-use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
-use crate::level::entities::MapEntityType;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
 use crate::se::SEEvent;
@@ -36,6 +34,16 @@ use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use rand::random;
 use uuid::Uuid;
+
+/// SpawnEntityによって生成されるエンティティの種別を表します
+/// SpawnEntityは呪文の種別によって静的に決定し、動的なパラメータを取らないので、
+/// この型もそれぞれフィールドは持ちません
+#[derive(Debug)]
+pub enum SpellCastEntityType {
+    BookShelf,
+    HugeSlime,
+    CrateOrBarrel,
+}
 
 /// 呪文を詠唱したときの動作を表します
 /// 弾丸系魔法は Bullet にまとめられており、
@@ -85,7 +93,7 @@ pub enum SpellCast {
     Bomb,
     RockFall,
     Fireball,
-    SpawnEntity(MapEntityType),
+    SpawnEntity(SpellCastEntityType),
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -102,7 +110,6 @@ pub fn cast_spell(
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
     se_writer: &mut EventWriter<SEEvent>,
-    slime_writer: &mut EventWriter<SpawnServantSeed>,
     impact_writer: &mut EventWriter<SpawnImpact>,
     spawn: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
@@ -263,7 +270,7 @@ pub fn cast_spell(
                     servant_type,
                     servant,
                 } => {
-                    slime_writer.send(SpawnServantSeed {
+                    spawn.send(SpawnEntity::Seed {
                         from: actor_transform.translation.truncate(),
                         to: actor_transform.translation.truncate() + actor.pointer,
                         owner: Some(actor_entity),
@@ -308,20 +315,26 @@ pub fn cast_spell(
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    spawn.send(SpawnEntity::Spawn {
-                        entity: MapEntityType::Bomb,
-                        position,
-                    });
+                    spawn.send(SpawnEntity::Bomb { position });
                 }
                 SpellCast::SpawnEntity(entity_type) => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    spawn.send(SpawnEntity::Spawn {
-                        position,
-                        entity: entity_type,
-                    });
-                    se_writer.send(SEEvent::pos(SE::Status2, position));
+                    match entity_type {
+                        SpellCastEntityType::BookShelf => {
+                            spawn.send(SpawnEntity::BookShelf { position });
+                            se_writer.send(SEEvent::pos(SE::Status2, position));
+                        }
+                        SpellCastEntityType::HugeSlime => {
+                            spawn.send(SpawnEntity::HugeSlime { position });
+                            se_writer.send(SEEvent::pos(SE::Status2, position));
+                        }
+                        SpellCastEntityType::CrateOrBarrel => {
+                            spawn.send(SpawnEntity::CrateOrBarrel { position });
+                            se_writer.send(SEEvent::pos(SE::Status2, position));
+                        }
+                    }
                 }
                 SpellCast::RockFall => {
                     let position = actor_transform.translation.truncate() + actor.pointer;

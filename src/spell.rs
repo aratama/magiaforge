@@ -1,7 +1,7 @@
 use crate::cast::SpellCast;
+use crate::cast::SpellCastEntityType;
 use crate::constant::TILE_SIZE;
 use crate::entity::servant_seed::ServantType;
-use crate::level::entities::MapEntityType;
 use crate::language::Dict;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
@@ -176,7 +176,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "spawn_jar_icon",
                 price: 20,
-                cast: SpellCast::SpawnEntity(MapEntityType::CrateOrBarrel),
+                cast: SpellCast::SpawnEntity(SpellCastEntityType::CrateOrBarrel),
             },
             SpellType::PurpleBolt =>  SpellProps {
                 rank: 1,
@@ -677,7 +677,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "spawn_bookshelf_icon",
                 price: 500,
-                cast: SpellCast::SpawnEntity(MapEntityType::BookShelf),
+                cast: SpellCast::SpawnEntity(SpellCastEntityType::BookShelf),
             },
             SpellType::Fireball => SpellProps {
                 rank: 3,
@@ -979,7 +979,7 @@ impl SpellType {
                 cast_delay: 180,
                 icon: "summon_huge_slime_icon",
                 price: 10000,
-                cast: SpellCast::SpawnEntity(MapEntityType::HugeSlime)
+                cast: SpellCast::SpawnEntity(SpellCastEntityType::HugeSlime)
             },
         }
     }

@@ -14,8 +14,8 @@ use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
-use crate::entity::servant_seed::SpawnServantSeed;
 use crate::inventory::Inventory;
+use crate::level::entities::SpawnEntity;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -258,7 +258,7 @@ fn update_huge_slime_summon(
     >,
     mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
-    mut seed_writer: EventWriter<SpawnServantSeed>,
+    mut spawn: EventWriter<SpawnEntity>,
 ) {
     for parent in sprite_query.iter_mut() {
         let (huge_slime_entity, mut huge_slime, transform, mut counter) =
@@ -278,7 +278,7 @@ fn update_huge_slime_summon(
                             let offset = Vec2::from_angle(angle) * 100.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
                             let to = player.translation.truncate() + offset;
                             info!("seed_writer.send(SpawnServantSeed");
-                            seed_writer.send(SpawnServantSeed {
+                            spawn.send(SpawnEntity::Seed {
                                 from: transform.translation.truncate(),
                                 to,
                                 actor_group: ActorGroup::Enemy,

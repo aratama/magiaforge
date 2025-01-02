@@ -4,6 +4,7 @@ use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
+use crate::constant::NEUTRAL_GROUP;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::WITCH_GROUP;
 use crate::entity::actor::ActorEvent;
@@ -61,7 +62,7 @@ fn read_impact_event(
             QueryFilter {
                 groups: Some(CollisionGroups::new(
                     ENEMY_GROUP,
-                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP,
+                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP | NEUTRAL_GROUP,
                 )),
                 ..default()
             },

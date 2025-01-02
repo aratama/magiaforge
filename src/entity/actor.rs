@@ -11,7 +11,6 @@ use crate::constant::TILE_SIZE;
 use crate::constant::WITCH_GROUP;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
-use crate::entity::servant_seed::SpawnServantSeed;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
@@ -381,7 +380,6 @@ fn fire_bullet(
     >,
     mut remote_writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SEEvent>,
-    mut summon: EventWriter<SpawnServantSeed>,
     mut impact_writer: EventWriter<SpawnImpact>,
     mut spawn: EventWriter<SpawnEntity>,
     websocket: Res<WebSocketState>,
@@ -409,7 +407,6 @@ fn fire_bullet(
                 online,
                 &mut remote_writer,
                 &mut se_writer,
-                &mut summon,
                 &mut impact_writer,
                 &mut spawn,
                 current_wand,
@@ -429,7 +426,6 @@ fn fire_bullet(
                 online,
                 &mut remote_writer,
                 &mut se_writer,
-                &mut summon,
                 &mut impact_writer,
                 &mut spawn,
                 MAX_WANDS - 1,

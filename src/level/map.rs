@@ -1,5 +1,5 @@
-use crate::constant::TILE_SIZE;
-use crate::level::entities::MapEntityType;
+use crate::constant::{TILE_HALF, TILE_SIZE};
+use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
 use bevy::prelude::*;
 
@@ -25,7 +25,7 @@ pub struct LevelChunk {
     pub min_y: i32,
     pub max_x: i32,
     pub max_y: i32,
-    pub entities: Vec<(MapEntityType, i32, i32)>,
+    pub entities: Vec<SpawnEntity>,
     pub entry_points: Vec<(i32, i32)>,
 }
 
@@ -85,6 +85,16 @@ impl LevelChunk {
     }
 }
 
+/// レベルマップでのタイルの整数での位置を、ワールド座標に変換します
+/// 変換後の座標はタイルの角ではなく、タイルの中央となります
+/// これは通常はエンティティの中心と一致します
+fn tuple_to_vec2((x, y): (i32, i32)) -> Vec2 {
+    Vec2::new(
+        x as f32 * TILE_SIZE + TILE_HALF,
+        -y as f32 * TILE_SIZE - TILE_HALF,
+    )
+}
+
 pub fn image_to_tilemap(
     level_image: &Image,
     min_x: i32,
@@ -103,6 +113,8 @@ pub fn image_to_tilemap(
             let g = level_image.data[i + 1];
             let b = level_image.data[i + 2];
             let a = level_image.data[i + 3];
+
+            let position = tuple_to_vec2((x, y));
 
             match (r, g, b, a) {
                 (203, 219, 252, 255) => {
@@ -128,42 +140,45 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::BookShelf, x, y));
+                    entities.push(SpawnEntity::BookShelf {
+                        // 本棚は横2タイルの幅があるため、エンティティの中央はタイルの中央より半タイル分だけ右になります
+                        position: position + Vec2::new(TILE_HALF, 0.0),
+                    });
                 }
                 (251, 242, 54, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::Chest, x, y));
+                    entities.push(SpawnEntity::Chest { position });
                 }
                 (255, 155, 87, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::CrateOrBarrel, x, y));
+                    entities.push(SpawnEntity::CrateOrBarrel { position });
                 }
                 (48, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::MagicCircle, x, y));
+                    entities.push(SpawnEntity::MagicCircle { position });
                 }
                 (47, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::MultiPlayArenaMagicCircle, x, y));
+                    entities.push(SpawnEntity::MultiPlayArenaMagicCircle { position });
                 }
                 (56, 111, 161, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::MagicCircleHome, x, y));
+                    entities.push(SpawnEntity::MagicCircleHome { position });
                 }
                 (255, 0, 0, 255) => {
                     tiles.push(LevelTileMapile {
@@ -171,119 +186,121 @@ pub fn image_to_tilemap(
                         zone: Zone::SafeZone,
                     });
                     entry_points.push((x, y));
-                    entities.push((MapEntityType::BrokenMagicCircle, x, y));
+                    entities.push(SpawnEntity::BrokenMagicCircle { position });
                 }
                 (255, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::Usage, x, y));
+                    entities.push(SpawnEntity::Usage { position });
                 }
                 (254, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::Routes, x, y));
+                    entities.push(SpawnEntity::Routes { position });
                 }
                 (223, 113, 38, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::StoneLantern, x, y));
+                    entities.push(SpawnEntity::StoneLantern {
+                        position: tuple_to_vec2((x, y)),
+                    });
                 }
                 (0, 222, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::ShopSpell, x, y));
+                    entities.push(SpawnEntity::ShopSpell { position });
                 }
                 (102, 57, 49, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::Crate, x, y));
+                    entities.push(SpawnEntity::Crate { position });
                 }
                 (184, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::HugeSlime, x, y));
+                    entities.push(SpawnEntity::HugeSlime { position });
                 }
                 (255, 243, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::ShopRabbit, x, y));
+                    entities.push(SpawnEntity::ShopRabbit { position });
                 }
                 (255, 244, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::TrainingRabbit, x, y));
+                    entities.push(SpawnEntity::TrainingRabbit { position });
                 }
                 (255, 245, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::GuideRabbit, x, y));
+                    entities.push(SpawnEntity::GuideRabbit { position });
                 }
                 (255, 246, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::MultiplayerRabbit, x, y));
+                    entities.push(SpawnEntity::MultiplayerRabbit { position });
                 }
                 (255, 247, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::SinglePlayRabbit, x, y));
+                    entities.push(SpawnEntity::SinglePlayRabbit { position });
                 }
                 (255, 248, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::ReadingRabbit, x, y));
+                    entities.push(SpawnEntity::ReadingRabbit { position });
                 }
                 (255, 249, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::SpellListRabbit, x, y));
+                    entities.push(SpawnEntity::SpellListRabbit { position });
                 }
                 (182, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::Sandbug, x, y));
+                    entities.push(SpawnEntity::Sandbug { position });
                 }
                 (197, 255, 142, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::ShopDoor, x, y));
+                    entities.push(SpawnEntity::ShopDoor { position });
                 }
                 (68, 0, 94, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((MapEntityType::BGM, x, y));
+                    entities.push(SpawnEntity::BGM { position });
                 }
                 (153, 229, 80, 255) => {
                     tiles.push(LevelTileMapile {
