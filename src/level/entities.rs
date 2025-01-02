@@ -27,18 +27,24 @@ use crate::entity::EntityType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::message::HELLO;
 use crate::message::HELLO_RABBITS;
-use crate::message::HUGE_SLIME;
-use crate::message::HUGE_SLIME2;
-use crate::message::HUGE_SLIME3;
-use crate::message::HUGE_SLIME4;
-use crate::message::HUGE_SLIME5;
 use crate::message::MULTIPLAY;
+use crate::message::RESERCH_RABBIT_0;
+use crate::message::RESERCH_RABBIT_1;
+use crate::message::RESERCH_RABBIT_2;
+use crate::message::RESERCH_RABBIT_3;
+use crate::message::RESERCH_RABBIT_4;
+use crate::message::RESERCH_RABBIT_5;
 use crate::message::SINGLEPLAY;
+use crate::message::SINGLEPLAY_2;
 use crate::message::SPELL_LIST1;
 use crate::message::SPELL_LIST2;
 use crate::message::SPELL_LIST3;
 use crate::message::TRAINING_RABBIT;
-use crate::message::WITCHES_ARE;
+use crate::message::TRAINING_RABBIT_1;
+use crate::message::TRAINING_RABBIT_2;
+use crate::message::TRAINING_RABBIT_3;
+use crate::message::TRAINING_RABBIT_4;
+use crate::message::TRAINING_RABBIT_5;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::theater::Act;
@@ -218,7 +224,14 @@ pub fn spawn_entity(
                             &assets.rabbit_red,
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                             MessageRabbit {
-                                messages: vec![Act::Speech(TRAINING_RABBIT.to_string())],
+                                messages: vec![
+                                    Act::Speech(TRAINING_RABBIT.to_string()),
+                                    Act::Speech(TRAINING_RABBIT_1.to_string()),
+                                    Act::Speech(TRAINING_RABBIT_2.to_string()),
+                                    Act::Speech(TRAINING_RABBIT_3.to_string()),
+                                    Act::Speech(TRAINING_RABBIT_4.to_string()),
+                                    Act::Speech(TRAINING_RABBIT_5.to_string()),
+                                ],
                             },
                             MessageRabbitInnerSensor,
                             MessageRabbitOuterSensor,
@@ -231,7 +244,10 @@ pub fn spawn_entity(
                             &assets.rabbit_white,
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                             MessageRabbit {
-                                messages: vec![Act::Speech(SINGLEPLAY.to_string())],
+                                messages: vec![
+                                    Act::Speech(SINGLEPLAY.to_string()),
+                                    Act::Speech(SINGLEPLAY_2.to_string()),
+                                ],
                             },
                             MessageRabbitInnerSensor,
                             MessageRabbitOuterSensor,
@@ -275,12 +291,12 @@ pub fn spawn_entity(
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                             MessageRabbit {
                                 messages: vec![
-                                    Act::Speech(WITCHES_ARE.to_string()),
-                                    Act::Speech(HUGE_SLIME.to_string()),
-                                    Act::Speech(HUGE_SLIME2.to_string()),
-                                    Act::Speech(HUGE_SLIME3.to_string()),
-                                    Act::Speech(HUGE_SLIME4.to_string()),
-                                    Act::Speech(HUGE_SLIME5.to_string()),
+                                    Act::Speech(RESERCH_RABBIT_0.to_string()),
+                                    Act::Speech(RESERCH_RABBIT_1.to_string()),
+                                    Act::Speech(RESERCH_RABBIT_2.to_string()),
+                                    Act::Speech(RESERCH_RABBIT_3.to_string()),
+                                    Act::Speech(RESERCH_RABBIT_4.to_string()),
+                                    Act::Speech(RESERCH_RABBIT_5.to_string()),
                                 ],
                             },
                             MessageRabbitInnerSensor,

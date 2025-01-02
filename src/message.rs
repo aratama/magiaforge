@@ -184,30 +184,42 @@ pub const HELLO: Dict<&'static str> = Dict {
 };
 
 pub const HELLO_RABBITS: Dict<&'static str> = Dict {
-    ja: "ほかの仲間たちにもぜひあいさつしていってくれ。",
-    en: "Please say hello to the other rabbits.",
-    zh_cn: "请向其他兔子问好。",
-    es: "Por favor, saluda a los otros conejos.",
-    fr: "Veuillez dire bonjour aux autres lapins.",
-    pt: "Por favor, cumprimente os outros coelhos.",
-    de: "Bitte grüße die anderen Kaninchen.",
-    ko: "다른 토끼들에게도 인사해 주세요.",
-    ru: "Пожалуйста, поздоровайтесь с другими кроликами.",
+    ja: "迷宮に行きたいなら入り口はこの奥だよ。でもよかったら仲間たちにもあいさつしていってくれ。",
+    en: "If you want to go to the labyrinth, the entrance is at the back. But if you like, please say hello to my friends.",
+    zh_cn: "如果你想去迷宫，入口在后面。但如果你愿意，也请向我的朋友们问好。",
+    es: "Si quieres ir al laberinto, la entrada está en la parte trasera. Pero si quieres, por favor saluda a mis amigos.",
+    fr: "Si vous voulez aller dans le labyrinthe, l'entrée est à l'arrière. Mais si vous le souhaitez, saluez mes amis.",
+    pt: "Se você quiser ir ao labirinto, a entrada é na parte de trás. Mas se quiser, por favor, cumprimente meus amigos.",
+    de: "Wenn du in das Labyrinth gehen möchtest, ist der Eingang hinten. Aber wenn du möchtest, grüße bitte meine Freunde.",
+    ko: "미로로 가고 싶다면 입구는 뒤에 있어. 하지만 원한다면 내 친구들에게 인사해 주세요.",
+    ru: "Если хочешь пойти в лабиринт, вход находится сзади. Но если хочешь, пожалуйста, поздоровайся с моими друзьями.",
 };
 
 pub const SINGLEPLAY: Dict<&'static str> = Dict {
-    ja: "その魔法陣は地下迷宮の入り口だよ。\n行くなら気をつけてね。\nあなたは魔法使いだから\n大丈夫だと思うけど。",
-    en: "This is the entrance to the underground labyrinth.\nBe careful.\nI think you'll be fine\nbecause you are a witch.",
-    zh_cn: "这是地下迷宫的入口。\n小心。\n我认为你会没事的\n因为你是女巫。",
-    es: "Esta es la entrada al laberinto subterráneo.\nTen cuidado.\nCreo que estarás bien\nporque eres una bruja.",
-    fr: "Ceci est l'entrée du labyrinthe souterrain.\nFaites attention.\nJe pense que vous serez bien\nparce que vous êtes une sorcière.",
-    pt: "Esta é a entrada para o labirinto subterrâneo.\nTenha cuidado.\nAcho que você ficará bem\nporque você é uma bruxa.",
-    de: "Dies ist der Eingang zum unterirdischen Labyrinth.\nSei vorsichtig.\nIch denke, du wirst in Ordnung sein,\nweil du eine Hexe bist.",
-    ko: "여기는 지하 미로의 입구야.\n조심해.\n너는 마녀니까 괜찮을 거야.",
-    ru: "Это вход в подземный лабиринт.\nБудь осторожен.\nДумаю, с тобой все будет в порядке,\nпотому что ты ведьма.",
+    ja: "長い黒髪の魔女だって？うーん、この島でそんな魔女を見かけたことがある気がする。",
+    en: "A witch with long black hair? Hmm, I feel like I've seen such a witch on this island.",
+    zh_cn: "一个长发黑发的女巫？嗯，我觉得我在这个岛上见过这样的女巫。",
+    es: "¿Una bruja con el pelo largo y negro? Hmm, siento que he visto a una bruja así en esta isla.",
+    fr: "Une sorcière aux longs cheveux noirs ? Hmm, je crois avoir vu une telle sorcière sur cette île.",
+    pt: "Uma bruxa de cabelos longos e pretos? Hmm, sinto que já vi uma bruxa assim nesta ilha.",
+    de: "Eine Hexe mit langen schwarzen Haaren? Hm, ich glaube, ich habe so eine Hexe auf dieser Insel gesehen.",
+    ko: "긴 검은 머리의 마녀? 음, 이 섬에서 그런 마녀를 본 적이 있는 것 같아.",
+    ru: "Ведьма с длинными черными волосами? Хм, кажется, я видел такую ведьму на этом острове.",
 };
 
-pub const WITCHES_ARE: Dict<&'static str> = Dict {
+pub const SINGLEPLAY_2: Dict<&'static str> = Dict {
+    ja: "その魔法陣が地下迷宮の入り口だよ。その探し人が見つかるように幸運を祈るよ。",
+    en: "That magic circle is the entrance to the underground labyrinth. I wish you luck in finding the person you're looking for.",
+    zh_cn: "那个魔法阵是地下迷宫的入口。祝你好运找到你要找的人。",
+    es: "Ese círculo mágico es la entrada al laberinto subterráneo. Te deseo suerte en encontrar a la persona que buscas.",
+    fr: "Ce cercle magique est l'entrée du labyrinthe souterrain. Je vous souhaite bonne chance pour trouver la personne que vous cherchez.",
+    pt: "Esse círculo mágico é a entrada para o labirinto subterrâneo. Desejo-lhe sorte em encontrar a pessoa que procura.",
+    de: "Dieser magische Kreis ist der Eingang zum unterirdischen Labyrinth. Ich wünsche dir viel Glück bei der Suche nach der Person, die du suchst.",
+    ko: "그 마법진이 지하 미로의 입구야. 찾고 있는 사람을 찾기를 바랄게.",
+    ru: "Этот магический круг - вход в подземный лабиринт. Желаю удачи в поисках того, кого ты ищешь.",
+};
+
+pub const RESERCH_RABBIT_0: Dict<&'static str> = Dict {
     ja: "昔はこの島にも多くのヒト族がいたらしいが、今は魔法使いが時折訪れるくらいさ。君たち魔法使いはこの地底でいったい何を探しているんだい？",
     en: "There used to be many humans on this island but now only witches occasionally visit. What are you witches looking for in the depths?",
     zh_cn: "这个岛上曾经有很多人类，但现在只有女巫偶尔会来访。你们女巫在深处寻找什么？",
@@ -219,64 +231,64 @@ pub const WITCHES_ARE: Dict<&'static str> = Dict {
     ru: "Раньше на этом острове было много людей, но теперь его изредка посещают только ведьмы. Что вы, ведьмы, ищете в глубинах?",
 };
 
-pub const HUGE_SLIME: Dict<&'static str> = Dict {
-    ja: "ところで最近、地下迷宮にとても大きなスライムが現れてね。大暴れして困っているんだ。",
-    en: "Lately, a huge slime has appeared in the labyrinth. It's causing a lot of trouble.",
-    zh_cn: "最近，一个巨大的史莱姆出现在迷宫里。它造成了很多麻烦。",
-    es: "Últimamente, un gran slime ha aparecido en el laberinto. Está causando muchos problemas.",
-    fr: "Dernièrement, un énorme slime est apparu dans le labyrinthe. Il cause beaucoup de problèmes.",
-    pt: "Ultimamente, um grande slime apareceu no labirinto. Está causando muitos problemas.",
-    de: "In letzter Zeit ist ein riesiger Schleim im Labyrinth aufgetaucht. Es verursacht viele Probleme.",
-    ko: "최근에 미로에 거대한 슬라임이 나타났어. 많은 문제를 일으키고 있어.",
-    ru: "В последнее время в лабиринте появился огромный слизень. Он вызывает много проблем.",
+pub const RESERCH_RABBIT_1: Dict<&'static str> = Dict {
+    ja: "ふうん、君は黒髪の魔女を探しているのか。たしか半年ほど前にそんな魔女がキャンプを訪れたな。それが君の探し人かはわからないが。",
+    en: "Hmm, you're looking for a witch with black hair. I remember a witch like that visited the camp about half a year ago. I don't know if that's the person you're looking for.",
+    zh_cn: "嗯，你在找一个黑发女巫。我记得大约半年前有一个这样的女巫来过营地。我不知道那是否是你要找的人。",
+    es: "Hmm, estás buscando a una bruja con el pelo negro. Recuerdo que una bruja así visitó el campamento hace unos seis meses. No sé si es la persona que estás buscando.",
+    fr: "Hmm, vous cherchez une sorcière aux cheveux noirs. Je me souviens qu'une sorcière comme ça a visité le camp il y a environ six mois. Je ne sais pas si c'est la personne que vous cherchez.",
+    pt: "Hmm, você está procurando uma bruxa de cabelo preto. Eu me lembro de uma bruxa assim ter visitado o acampamento há cerca de seis meses. Não sei se é a pessoa que você está procurando.",
+    de: "Hmm, du suchst eine Hexe mit schwarzen Haaren. Ich erinnere mich, dass vor etwa einem halben Jahr eine solche Hexe das Lager besucht hat. Ich weiß nicht, ob das die Person ist, die du suchst.",
+    ko: "흠, 검은 머리의 마녀를 찾고 있구나. 약 반년 전에 그런 마녀가 캠프를 방문한 적이 있어. 네가 찾는 사람이 맞는지는 모르겠어.",
+    ru: "Хм, ты ищешь ведьму с черными волосами. Помню, такая ведьма посещала лагерь около полугода назад. Не знаю, та ли это, кого ты ищешь.",
 };
 
-pub const HUGE_SLIME2: Dict<&'static str> = Dict {
-    ja: "なにしろぼくらは地下迷宮で遺物を拾って生計を立てているからね。あんなのがうろついていたら落ち着いて探索もできやしない。",
-    en: "After all, we make a living by picking up relics in the labyrinth. If such a thing is wandering around, we can't explore calmly.",
-    zh_cn: "毕竟，我们是靠在迷宫里捡遗物谋生的。如果这样的东西四处游荡，我们就无法平静地探索。",
-    es: "Después de todo, nos ganamos la vida recogiendo reliquias en el laberinto. Si algo así está deambulando, no podemos explorar con calma.",
-    fr: "Après tout, nous gagnons notre vie en ramassant des reliques dans le labyrinthe. Si une telle chose erre, nous ne pouvons pas explorer calmement.",
-    pt: "Afinal, ganhamos a vida recolhendo relíquias no labirinto. Se algo assim estiver vagando, não podemos explorar calmamente.",
-    de: "Schließlich verdienen wir unseren Lebensunterhalt, indem wir Relikte im Labyrinth aufsammeln. Wenn so etwas herumwandert, können wir nicht ruhig erkunden.",
-    ko: "결국 우리는 미로에서 유물을 주워 생계를 유지해. 그런 것이 돌아다니면 우리는 차분하게 탐험할 수 없어.",
-    ru: "В конце концов, мы зарабатываем на жизнь, собирая реликвии в лабиринте. Если такое существо будет бродить вокруг, мы не сможем спокойно исследовать.",
+pub const RESERCH_RABBIT_2: Dict<&'static str> = Dict {
+    ja: "その魔女は迷宮に入っていった。それからはずっと姿を見ていない。まあ迷宮の中を探してみるほかないだろうな。",
+    en: "That witch went into the labyrinth. I haven't seen her since. You'll have to search the labyrinth.",
+    zh_cn: "那个女巫进入了迷宫。从那以后我就没见过她。你得在迷宫里找找。",
+    es: "Esa bruja entró en el laberinto. No la he visto desde entonces. Tendrás que buscar en el laberinto.",
+    fr: "Cette sorcière est entrée dans le labyrinthe. Je ne l'ai pas vue depuis. Vous devrez chercher dans le labyrinthe.",
+    pt: "Aquela bruxa entrou no labirinto. Não a vi desde então. Você terá que procurar no labirinto.",
+    de: "Diese Hexe ging in das Labyrinth. Ich habe sie seitdem nicht mehr gesehen. Du musst im Labyrinth suchen.",
+    ko: "그 마녀는 미로로 들어갔어. 그 이후로 그녀를 본 적이 없어. 미로에서 찾아봐야 할 거야.",
+    ru: "Та ведьма пошла в лабиринт. С тех пор я ее не видел. Тебе придется искать в лабиринте.",
 };
 
-pub const HUGE_SLIME3: Dict<&'static str> = Dict {
-    ja: "あなたがあのスライムを討伐してくれたら、とても助かるんだけど。",
-    en: "If you could defeat that slime, I would be very grateful.",
-    zh_cn: "如果你能打败那个史莱姆，我会非常感激。",
-    es: "Si pudieras derrotar a ese slime, estaría muy agradecido.",
-    fr: "Si vous pouviez vaincre ce slime, je vous en serais très reconnaissant.",
-    pt: "Se você pudesse derrotar aquele slime, eu ficaria muito grato.",
-    de: "Wenn du diesen Schleim besiegen könntest, wäre ich dir sehr dankbar.",
-    ko: "네가 그 슬라임을 물리쳐 준다면 정말 고마울 거야.",
-    ru: "Если бы ты мог победить этого слизня, я был бы очень благодарен.",
+pub const RESERCH_RABBIT_3: Dict<&'static str> = Dict {
+    ja: "ところで、キャンプにどこからかニワトリが入り込んでいて鬱陶しいな。鳴き声がうるさくて研究に差し支える",
+    en: "By the way, a chicken has somehow gotten into the camp. Its clucking is annoying and it's disturbing my research.",
+    zh_cn: "顺便说一下，一只鸡不知怎么进了营地。它的咯咯叫声很烦人，打扰了我的研究。",
+    es: "Por cierto, una gallina se ha metido en el campamento. Su cacareo es molesto y está perturbando mi investigación.",
+    fr: "Au fait, une poule est entrée dans le camp. Son caquètement est agaçant et perturbe mes recherches.",
+    pt: "A propósito, uma galinha entrou no acampamento. Seu cacarejo é irritante e está atrapalhando minha pesquisa.",
+    de: "Übrigens, ein Huhn hat sich irgendwie ins Lager geschlichen. Sein Gackern ist nervig und stört meine Forschung.",
+    ko: "그런데 닭 한 마리가 캠프에 들어왔어. 그 울음소리가 짜증나고 내 연구를 방해하고 있어.",
+    ru: "Кстати, в лагерь как-то пробралась курица. Ее кудахтанье раздражает и мешает моим исследованиям.",
 };
 
-pub const HUGE_SLIME4: Dict<&'static str> = Dict {
-    ja: "その大きなスライムは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
-    en: "The huge slime attacks with a body blow, but if you have fast legs, it's not hard to escape.",
-    zh_cn: "巨大的史莱姆会用身体冲击攻击，但如果你的腿很快",
-    es: "El gran slime ataca con un golpe de cuerpo, pero si tienes piernas rápidas, no es difícil escapar.",
-    fr: "Le gros slime attaque avec un coup de corps, mais si vous avez des jambes rapides, il n'est pas difficile de s'échapper.",
-    pt: "O grande slime ataca com um golpe corporal, mas se você tiver pernas rápidas, não é difícil escapar.",
-    de: "Der riesige Schleim greift mit einem Körperstoß an, aber wenn du schnelle Beine hast, ist es nicht schwer zu entkommen.",
-    ko: "거대한 슬라임은 몸통 박치기로 공격하지만, 다리가 빠르면 도망치는 것은 어렵지 않아.",
-    ru: "Огромный слизень атакует телесным ударом, но если у тебя быстрые ноги, убежать несложно.",
+pub const RESERCH_RABBIT_4: Dict<&'static str> = Dict {
+    ja: "ぼくらがニワトリを飼っているわけじゃない。あいつらはぼくらの食料を狙って勝手に入り込んでいるんだ。",
+    en: "We don't keep chickens. They sneak in to steal our food.",
+    zh_cn: "我们不养鸡。它们偷偷进来偷我们的食物。",
+    es: "No criamos pollos. Se cuelan para robar nuestra comida.",
+    fr: "Nous n'élevons pas de poulets. Ils se faufilent pour voler notre nourriture.",
+    pt: "Nós não criamos galinhas. Elas entram sorrateiramente para roubar nossa comida.",
+    de: "Wir halten keine Hühner. Sie schleichen sich ein, um unser Essen zu stehlen.",
+    ko: "우리는 닭을 키우지 않아. 그들은 우리의 음식을 훔치기 위해 몰래 들어와.",
+    ru: "Мы не держим кур. Они проникают, чтобы украсть нашу еду.",
 };
 
-pub const HUGE_SLIME5: Dict<&'static str> = Dict {
-    ja: "それと、あいつは仲間の小さなスライムを呼び寄せるんだ。囲まれると逃げ道を失う。周囲のスライムは素早く倒したほうがいい。",
-    en: "And it calls small slimes to its side. If you are surrounded, you will lose your escape route. It's better to defeat the surrounding slimes quickly.",
-    zh_cn: "它会召唤小史莱姆来帮忙。如果你被包围，你就会失去逃跑的路线。最好快速击败周围的史莱姆。",
-    es: "Y llama a pequeños slimes a su lado. Si estás rodeado, perderás tu ruta de escape. Es mejor derrotar rápidamente a los slimes circundantes.",
-    fr: "Et il appelle des petits slimes à ses côtés. Si vous êtes entouré, vous perdrez votre route d'évasion. Il vaut mieux vaincre rapidement les slimes environnants.",
-    pt: "E ele chama pequenos slimes para o seu lado. Se você estiver cercado, perderá sua rota de fuga. É melhor derrotar rapidamente os slimes ao redor.",
-    de: "Und es ruft kleine Schleime zu sich. Wenn du umzingelt bist, verlierst du deinen Fluchtweg. Es ist besser, die umliegenden Schleime schnell zu besiegen.",
-    ko: "그리고 작은 슬라임들을 불러들여. 둘러싸이면 도망갈 길을 잃게 돼. 주변의 슬라임들을 빨리 물리치는 것이 좋아.",
-    ru: "И он зовет к себе маленьких слизней. Если ты окажешься окружен, ты потеряешь путь к бегству. Лучше быстро победить окружающих слизней.",
+pub const RESERCH_RABBIT_5: Dict<&'static str> = Dict {
+    ja: "ぼくらはニワトリなんて食べないよ。むしろニワトリがぼくらを食べようとしてるのさ。",
+    en: "We don't eat chickens. Rather, the chickens are trying to eat us.",
+    zh_cn: "我们不吃鸡。相反，鸡在试图吃我们。",
+    es: "No comemos pollos. Más bien, los pollos están tratando de comernos.",
+    fr: "Nous ne mangeons pas de poulets. Au contraire, ce sont les poulets qui essaient de nous manger.",
+    pt: "Nós não comemos frango. Na verdade, os frangos estão tentando nos comer.",
+    de: "Wir essen keine Hühner. Vielmehr versuchen die Hühner, uns zu essen.",
+    ko: "우리는 닭을 먹지 않아. 오히려 닭들이 우리를 먹으려고 해.",
+    ru: "Мы не едим кур. Скорее, куры пытаются съесть нас.",
 };
 
 pub const MULTIPLAY: Dict<&'static str> = Dict {
@@ -301,6 +313,66 @@ pub const TRAINING_RABBIT: Dict<&'static str> = Dict {
     de: "Willst du stark werden?\nEs ist gut, hier zu üben.\nDie Sandsäcke werden deine Gegner sein.",
     ko: "강해지고 싶어?\n여기서 연습하는 것이 좋아.\n샌드백들이 상대가 되어줄 거야.",
     ru: "Хочешь стать сильным?\nЗдесь хорошо тренироваться.\nМешки с песком будут твоими противниками.",
+};
+
+pub const TRAINING_RABBIT_1: Dict<&'static str> = Dict {
+    ja: "ところで最近、地下迷宮にとても大きなスライムが現れてね。大暴れして困っているんだ。",
+    en: "Lately, a huge slime has appeared in the labyrinth. It's causing a lot of trouble.",
+    zh_cn: "最近，一个巨大的史莱姆出现在迷宫里。它造成了很多麻烦。",
+    es: "Últimamente, un gran slime ha aparecido en el laberinto. Está causando muchos problemas.",
+    fr: "Dernièrement, un énorme slime est apparu dans le labyrinthe. Il cause beaucoup de problèmes.",
+    pt: "Ultimamente, um grande slime apareceu no labirinto. Está causando muitos problemas.",
+    de: "In letzter Zeit ist ein riesiger Schleim im Labyrinth aufgetaucht. Es verursacht viele Probleme.",
+    ko: "최근에 미로에 거대한 슬라임이 나타났어. 많은 문제를 일으키고 있어.",
+    ru: "В последнее время в лабиринте появился огромный слизень. Он вызывает много проблем.",
+};
+
+pub const TRAINING_RABBIT_2: Dict<&'static str> = Dict {
+    ja: "なにしろぼくらは地下迷宮で遺物を拾って生計を立てているからね。あんなのがうろついていたら落ち着いて探索もできやしない。",
+    en: "After all, we make a living by picking up relics in the labyrinth. If such a thing is wandering around, we can't explore calmly.",
+    zh_cn: "毕竟，我们是靠在迷宫里捡遗物谋生的。如果这样的东西四处游荡，我们就无法平静地探索。",
+    es: "Después de todo, nos ganamos la vida recogiendo reliquias en el laberinto. Si algo así está deambulando, no podemos explorar con calma.",
+    fr: "Après tout, nous gagnons notre vie en ramassant des reliques dans le labyrinthe. Si une telle chose erre, nous ne pouvons pas explorer calmement.",
+    pt: "Afinal, ganhamos a vida recolhendo relíquias no labirinto. Se algo assim estiver vagando, não podemos explorar calmamente.",
+    de: "Schließlich verdienen wir unseren Lebensunterhalt, indem wir Relikte im Labyrinth aufsammeln. Wenn so etwas herumwandert, können wir nicht ruhig erkunden.",
+    ko: "결국 우리는 미로에서 유물을 주워 생계를 유지해. 그런 것이 돌아다니면 우리는 차분하게 탐험할 수 없어.",
+    ru: "В конце концов, мы зарабатываем на жизнь, собирая реликвии в лабиринте. Если такое существо будет бродить вокруг, мы не сможем спокойно исследовать.",
+};
+
+pub const TRAINING_RABBIT_3: Dict<&'static str> = Dict {
+    ja: "あなたがあのスライムを討伐してくれたら、とても助かるんだけど。",
+    en: "If you could defeat that slime, I would be very grateful.",
+    zh_cn: "如果你能打败那个史莱姆，我会非常感激。",
+    es: "Si pudieras derrotar a ese slime, estaría muy agradecido.",
+    fr: "Si vous pouviez vaincre ce slime, je vous en serais très reconnaissant.",
+    pt: "Se você pudesse derrotar aquele slime, eu ficaria muito grato.",
+    de: "Wenn du diesen Schleim besiegen könntest, wäre ich dir sehr dankbar.",
+    ko: "네가 그 슬라임을 물리쳐 준다면 정말 고마울 거야.",
+    ru: "Если бы ты мог победить этого слизня, я был бы очень благодарен.",
+};
+
+pub const TRAINING_RABBIT_4: Dict<&'static str> = Dict {
+    ja: "その大きなスライムは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
+    en: "The huge slime attacks with a body blow, but if you have fast legs, it's not hard to escape.",
+    zh_cn: "巨大的史莱姆会用身体冲击攻击，但如果你的腿很快",
+    es: "El gran slime ataca con un golpe de cuerpo, pero si tienes piernas rápidas, no es difícil escapar.",
+    fr: "Le gros slime attaque avec un coup de corps, mais si vous avez des jambes rapides, il n'est pas difficile de s'échapper.",
+    pt: "O grande slime ataca com um golpe corporal, mas se você tiver pernas rápidas, não é difícil escapar.",
+    de: "Der riesige Schleim greift mit einem Körperstoß an, aber wenn du schnelle Beine hast, ist es nicht schwer zu entkommen.",
+    ko: "거대한 슬라임은 몸통 박치기로 공격하지만, 다리가 빠르면 도망치는 것은 어렵지 않아.",
+    ru: "Огромный слизень атакует телесным ударом, но если у тебя быстрые ноги, убежать несложно.",
+};
+
+pub const TRAINING_RABBIT_5: Dict<&'static str> = Dict {
+    ja: "それと、あいつは仲間の小さなスライムを呼び寄せるんだ。囲まれると逃げ道を失う。周囲のスライムは素早く倒したほうがいい。",
+    en: "And it calls small slimes to its side. If you are surrounded, you will lose your escape route. It's better to defeat the surrounding slimes quickly.",
+    zh_cn: "它会召唤小史莱姆来帮忙。如果你被包围，你就会失去逃跑的路线。最好快速击败周围的史莱姆。",
+    es: "Y llama a pequeños slimes a su lado. Si estás rodeado, perderás tu ruta de escape. Es mejor derrotar rápidamente a los slimes circundantes.",
+    fr: "Et il appelle des petits slimes à ses côtés. Si vous êtes entouré, vous perdrez votre route d'évasion. Il vaut mieux vaincre rapidement les slimes environnants.",
+    pt: "E ele chama pequenos slimes para o seu lado. Se você estiver cercado, perderá sua rota de fuga. É melhor derrotar rapidamente os slimes ao redor.",
+    de: "Und es ruft kleine Schleime zu sich. Wenn du umzingelt bist, verlierst du deinen Fluchtweg. Es ist besser, die umliegenden Schleime schnell zu besiegen.",
+    ko: "그리고 작은 슬라임들을 불러들여. 둘러싸이면 도망갈 길을 잃게 돼. 주변의 슬라임들을 빨리 물리치는 것이 좋아.",
+    ru: "И он зовет к себе маленьких слизней. Если ты окажешься окружен, ты потеряешь путь к бегству. Лучше быстро победить окружающих слизней.",
 };
 
 pub const SPELL_LIST1: Dict<&'static str> = Dict {
