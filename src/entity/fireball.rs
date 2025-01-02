@@ -8,7 +8,7 @@ use crate::constant::ENTITY_GROUP;
 use crate::constant::NEUTRAL_GROUP;
 use crate::constant::RABBIT_GROUP;
 use crate::constant::WALL_GROUP;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::states::GameState;

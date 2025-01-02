@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
 use crate::component::counter::CounterPlugin;
+use crate::component::entity_depth::EntityDepthPlugin;
 use crate::component::falling::FallingPlugin;
 use crate::component::life::LifePlugin;
 use crate::component::point_light::EntityPointLightPlugin;
@@ -45,7 +46,6 @@ use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::witch::WitchPlugin;
-use crate::entity::EntityPlugin;
 use crate::footsteps::FootStepsPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
@@ -197,7 +197,7 @@ pub fn run_game() {
         .add_plugins(DespawnWithGoldPlugin)
         .add_plugins(EndingPlugin)
         .add_plugins(EyeballControlPlugin)
-        .add_plugins(EntityPlugin)
+        .add_plugins(EntityDepthPlugin)
         .add_plugins(EntityPointLightPlugin)
         .add_plugins(EquipmentListPlugin)
         .add_plugins(ExplosionPlugin)

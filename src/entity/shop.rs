@@ -13,7 +13,7 @@ use crate::constant::WITCH_GROUP;
 use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::entity::actor::Actor;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;

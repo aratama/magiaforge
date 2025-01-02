@@ -5,7 +5,7 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::explosion::SpawnExplosion;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;

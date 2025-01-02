@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
@@ -10,7 +11,6 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
-use crate::entity::EntityChildrenAutoDepth;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
@@ -153,7 +153,7 @@ pub fn spawn_witch<T: Component>(
                 aseprite: assets.witch.clone(),
                 animation: Animation::default().with_tag("idle_r"),
             },
-            EntityChildrenAutoDepth { offset: 0.0 },
+            ChildEntityDepth { offset: 0.0 },
         ));
 
         spawn_children.spawn((
@@ -162,7 +162,7 @@ pub fn spawn_witch<T: Component>(
                 aseprite: assets.atlas.clone(),
                 name: "wand_cypress".into(),
             },
-            EntityChildrenAutoDepth { offset: -0.001 },
+            ChildEntityDepth { offset: -0.001 },
         ));
 
         // リモートプレイヤーの名前

@@ -1,12 +1,12 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
-use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
 use crate::states::GameState;
 use crate::wand::Wand;
@@ -101,7 +101,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
                 aseprite: sprite.clone(),
                 animation: "idle_d".into(),
             },
-            EntityChildrenAutoDepth { offset: 0.0 },
+            ChildEntityDepth { offset: 0.0 },
         ));
 
         builder.spawn((

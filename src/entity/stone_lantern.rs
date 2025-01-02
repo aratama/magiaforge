@@ -5,7 +5,7 @@ use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::constant::*;
 use crate::entity::piece::spawn_broken_piece;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;

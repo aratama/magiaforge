@@ -24,7 +24,7 @@ use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
-use crate::entity::EntityType;
+use crate::level::entities::MapEntityType;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
 use crate::se::SEEvent;
@@ -85,7 +85,7 @@ pub enum SpellCast {
     Bomb,
     RockFall,
     Fireball,
-    SpawnEntity(EntityType),
+    SpawnEntity(MapEntityType),
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -309,7 +309,7 @@ pub fn cast_spell(
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
                     spawn.send(SpawnEntity::Spawn {
-                        entity: EntityType::Bomb,
+                        entity: MapEntityType::Bomb,
                         position,
                     });
                 }

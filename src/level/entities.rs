@@ -23,7 +23,6 @@ use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
-use crate::entity::EntityType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::message::HELLO;
 use crate::message::HELLO_RABBITS;
@@ -52,13 +51,55 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use rand::seq::IteratorRandom;
 
+/// レベルマップで生成されるエンティティです
+/// これはあくまでレベルマップをもとに生成させるエンティティを表しており、
+/// すべてのエンティティの一覧となるものではありません
+/// また、生成にパラメータが不要なエンティティであり、
+/// 生成時にパラメータが必要なエンティティについては、生成を指示するのにこの型を使うのは適切ではありません
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+pub enum MapEntityType {
+    // 施設
+    MagicCircle,
+    MagicCircleHome,
+    MultiPlayArenaMagicCircle,
+    BrokenMagicCircle,
+    Usage,
+    Routes,
+    ShopSpell,
+    ShopDoor,
+    BGM,
+
+    // ウサギ
+    ShopRabbit,
+    TrainingRabbit,
+    GuideRabbit,
+    SinglePlayRabbit,
+    MultiplayerRabbit,
+    ReadingRabbit,
+    SpellListRabbit,
+
+    // 魔法で生成されるもの
+    Chest,
+    Crate,
+    CrateOrBarrel,
+    BookShelf,
+    StoneLantern,
+    HugeSlime,
+    Sandbug,
+    Bomb,
+    Chiken,
+}
+
 /// エンティティを生成する汎用のイベントです
 /// これは cast のようなシステムで必要なシステムパラメータが増えすぎないようにするためです
 /// これは生成時に必要なシステムパラメータが少ないものに使われており、
 /// 生成時に必要なシステムパラメータが多いエンティティは専用のイベントを定義します
 #[derive(Event)]
 pub enum SpawnEntity {
-    Spawn { entity: EntityType, position: Vec2 },
+    Spawn {
+        entity: MapEntityType,
+        position: Vec2,
+    },
 }
 
 pub fn spawn_entity(
@@ -80,14 +121,14 @@ pub fn spawn_entity(
                 let tx = position.x;
                 let ty = position.y;
                 match entity {
-                    EntityType::BookShelf => {
+                    MapEntityType::BookShelf => {
                         spawn_book_shelf(
                             &mut commands,
                             assets.atlas.clone(),
                             Vec2::new(tx + TILE_SIZE, ty - TILE_HALF),
                         );
                     }
-                    EntityType::Chest => {
+                    MapEntityType::Chest => {
                         spawn_chest(
                             &mut commands,
                             assets.atlas.clone(),
@@ -96,7 +137,7 @@ pub fn spawn_entity(
                             ChestType::Chest,
                         );
                     }
-                    EntityType::Crate => {
+                    MapEntityType::Crate => {
                         spawn_chest(
                             &mut commands,
                             assets.atlas.clone(),
@@ -105,7 +146,7 @@ pub fn spawn_entity(
                             ChestType::Crate,
                         );
                     }
-                    EntityType::CrateOrBarrel => {
+                    MapEntityType::CrateOrBarrel => {
                         if rand::random::<u32>() % 4 != 0 {
                             spawn_chest(
                                 &mut commands,
@@ -119,7 +160,7 @@ pub fn spawn_entity(
                             );
                         }
                     }
-                    EntityType::MagicCircle => {
+                    MapEntityType::MagicCircle => {
                         spawn_magic_circle(
                             &mut commands,
                             &assets,
@@ -128,7 +169,7 @@ pub fn spawn_entity(
                             MagicCircleDestination::NextLevel,
                         );
                     }
-                    EntityType::MagicCircleHome => {
+                    MapEntityType::MagicCircleHome => {
                         spawn_magic_circle(
                             &mut commands,
                             &assets,
@@ -137,7 +178,7 @@ pub fn spawn_entity(
                             MagicCircleDestination::Home,
                         );
                     }
-                    EntityType::MultiPlayArenaMagicCircle => {
+                    MapEntityType::MultiPlayArenaMagicCircle => {
                         spawn_magic_circle(
                             &mut commands,
                             &assets,
@@ -146,7 +187,7 @@ pub fn spawn_entity(
                             MagicCircleDestination::MultiplayArena,
                         );
                     }
-                    EntityType::BrokenMagicCircle => {
+                    MapEntityType::BrokenMagicCircle => {
                         spawn_broken_magic_circle(
                             &mut commands,
                             assets.atlas.clone(),
@@ -154,14 +195,14 @@ pub fn spawn_entity(
                             ty - TILE_HALF,
                         );
                     }
-                    EntityType::StoneLantern => {
+                    MapEntityType::StoneLantern => {
                         spawn_stone_lantern(
                             &mut commands,
                             &assets,
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                         );
                     }
-                    EntityType::Usage => {
+                    MapEntityType::Usage => {
                         commands.spawn((
                             Name::new("usage"),
                             Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
@@ -175,7 +216,7 @@ pub fn spawn_entity(
                             },
                         ));
                     }
-                    EntityType::Routes => {
+                    MapEntityType::Routes => {
                         commands.spawn((
                             Name::new("routes"),
                             Transform::from_translation(Vec3::new(tx, ty, PAINT_LAYER_Z)),
@@ -189,7 +230,7 @@ pub fn spawn_entity(
                             },
                         ));
                     }
-                    EntityType::ShopSpell => {
+                    MapEntityType::ShopSpell => {
                         if let Some(item) = setup.shop_items.pop() {
                             spawn_dropped_item(
                                 &mut commands,
@@ -199,14 +240,14 @@ pub fn spawn_entity(
                             );
                         }
                     }
-                    EntityType::HugeSlime => {
+                    MapEntityType::HugeSlime => {
                         spawn_huge_slime(
                             &mut commands,
                             &assets,
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                         );
                     }
-                    EntityType::ShopRabbit => {
+                    MapEntityType::ShopRabbit => {
                         spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -217,7 +258,7 @@ pub fn spawn_entity(
                             ShopRabbitOuterSensor,
                         );
                     }
-                    EntityType::TrainingRabbit => {
+                    MapEntityType::TrainingRabbit => {
                         spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -237,7 +278,7 @@ pub fn spawn_entity(
                             MessageRabbitOuterSensor,
                         );
                     }
-                    EntityType::SinglePlayRabbit => {
+                    MapEntityType::SinglePlayRabbit => {
                         spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -253,7 +294,7 @@ pub fn spawn_entity(
                             MessageRabbitOuterSensor,
                         );
                     }
-                    EntityType::GuideRabbit => {
+                    MapEntityType::GuideRabbit => {
                         spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -270,7 +311,7 @@ pub fn spawn_entity(
                             MessageRabbitOuterSensor,
                         );
                     }
-                    EntityType::MultiplayerRabbit => {
+                    MapEntityType::MultiplayerRabbit => {
                         spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -283,7 +324,7 @@ pub fn spawn_entity(
                             MessageRabbitOuterSensor,
                         );
                     }
-                    EntityType::ReadingRabbit => {
+                    MapEntityType::ReadingRabbit => {
                         spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -303,7 +344,7 @@ pub fn spawn_entity(
                             MessageRabbitOuterSensor,
                         );
                     }
-                    EntityType::SpellListRabbit => {
+                    MapEntityType::SpellListRabbit => {
                         let entity = spawn_rabbit(
                             &mut commands,
                             &assets,
@@ -322,7 +363,7 @@ pub fn spawn_entity(
 
                         commands.entity(entity).insert(SpellListRabbit);
                     }
-                    EntityType::Sandbug => {
+                    MapEntityType::Sandbug => {
                         spawn_sandbag(
                             &mut commands,
                             &assets,
@@ -330,24 +371,24 @@ pub fn spawn_entity(
                             &life_bar_resource,
                         );
                     }
-                    EntityType::ShopDoor => {
+                    MapEntityType::ShopDoor => {
                         spawn_shop_door(
                             &mut commands,
                             &assets,
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                         );
                     }
-                    EntityType::BGM => {
+                    MapEntityType::BGM => {
                         spawn_bgm_switch(
                             &mut commands,
                             &assets,
                             Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
                         );
                     }
-                    EntityType::Bomb => {
+                    MapEntityType::Bomb => {
                         spawn_bomb(&mut commands, &assets, *position);
                     }
-                    EntityType::Chiken => {
+                    MapEntityType::Chiken => {
                         spawn_chiken(&mut commands, &assets, &life_bar_resource, *position, false);
                     }
                 }

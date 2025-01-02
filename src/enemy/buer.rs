@@ -2,7 +2,7 @@
 // use crate::controller::enemy::Enemy;
 // use crate::entity::actor::{Actor, ActorFireState, ActorState};
 // use crate::component::life::Life;
-// use crate::entity::EntityDepth;
+// use crate::component::entity_depth::EntityDepth;
 // use crate::spell::SpellType;
 // use crate::states::GameState;
 // use crate::wand::{Wand, WandType};

@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;

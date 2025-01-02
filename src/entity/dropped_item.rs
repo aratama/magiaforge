@@ -4,7 +4,7 @@ use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::physics::identify;

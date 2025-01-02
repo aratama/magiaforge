@@ -5,7 +5,7 @@ use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::level::wall::WallCollider;
 use crate::se::SEEvent;
 use crate::se::SE;

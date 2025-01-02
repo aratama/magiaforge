@@ -11,7 +11,6 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
-use crate::entity::EntityType;
 use crate::equipment::EquipmentType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
@@ -19,6 +18,7 @@ use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::spawn_level_appearance;
 use crate::level::entities::spawn_entity;
+use crate::level::entities::MapEntityType;
 use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
@@ -221,7 +221,7 @@ pub fn setup_level(
         for _ in 0..4 {
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn_entity.send(SpawnEntity::Spawn {
-                    entity: EntityType::Chiken,
+                    entity: MapEntityType::Chiken,
                     position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
                 });
             }

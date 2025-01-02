@@ -8,7 +8,7 @@ use crate::constant::ENTITY_GROUP;
 use crate::constant::RABBIT_GROUP;
 use crate::constant::SENSOR_GROUP;
 use crate::constant::WITCH_GROUP;
-use crate::entity::EntityDepth;
+use crate::component::entity_depth::EntityDepth;
 use crate::states::GameState;
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
