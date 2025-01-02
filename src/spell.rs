@@ -1,6 +1,7 @@
 use crate::cast::SpellCast;
 use crate::constant::TILE_SIZE;
 use crate::entity::servant_seed::ServantType;
+use crate::entity::EntityType;
 use crate::language::Dict;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
@@ -46,6 +47,7 @@ pub enum SpellType {
     LightSword,
     RockFall,
     Fireball,
+    SpawnJar,
 }
 
 /// 呪文の基礎情報
@@ -143,6 +145,35 @@ impl SpellType {
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
                     remaining_time: 0
                 },
+            },
+            SpellType::SpawnJar => SpellProps {
+                rank: 0,
+                name: Dict {
+                    ja: "壺生成",
+                    en: "Spawn Jar",
+                    zh_cn: "生成罐子",
+                    es: "Generar Jarra",
+                    fr: "Générer un Pot",
+                    pt: "Gerar Jarra",
+                    de: "Krüge Erzeugen",
+                    ko: "항아리 생성",
+                    ru: "Создать Банку"
+                },
+                description: Dict {
+                    ja: "壺を生成します。",
+                    en: "Spawns a jar.",
+                    zh_cn: "生成一个罐子。",
+                    es: "Genera una jarra.",
+                    fr: "Génère un pot.",
+                    pt: "Gera uma jarra.",
+                    de: "Erzeugt Krüge.",
+                    ko: "항아리를 생성합니다.",
+                    ru: "Создает банку."
+                },
+                cast_delay: 120,
+                icon: "spawn_jar_icon",
+                price: 20,
+                cast: SpellCast::SpawnEntity(EntityType::CrateOrBarrel),
             },
             SpellType::PurpleBolt =>  SpellProps {
                 rank: 1,
@@ -585,7 +616,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "spawn_bookshelf_icon",
                 price: 500,
-                cast: SpellCast::SpawnBookshelf,
+                cast: SpellCast::SpawnEntity(EntityType::BookShelf),
             },
             SpellType::Fireball => SpellProps {
                 rank: 3,

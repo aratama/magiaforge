@@ -81,9 +81,9 @@ pub enum SpellCast {
     Impact,
     PrecisionUp,
     Bomb,
-    SpawnBookshelf,
     RockFall,
     Fireball,
+    SpawnEntity(EntityType),
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -102,7 +102,7 @@ pub fn cast_spell(
     se_writer: &mut EventWriter<SEEvent>,
     slime_writer: &mut EventWriter<SpawnServantSeed>,
     impact_writer: &mut EventWriter<SpawnImpact>,
-    spawn_entity_writer: &mut EventWriter<SpawnEntity>,
+    spawn: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
     is_player: bool,
 ) {
@@ -298,18 +298,18 @@ pub fn cast_spell(
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    spawn_entity_writer.send(SpawnEntity::Spawn {
+                    spawn.send(SpawnEntity::Spawn {
                         entity: EntityType::Bomb,
                         position,
                     });
                 }
-                SpellCast::SpawnBookshelf => {
+                SpellCast::SpawnEntity(entity_type) => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    spawn_entity_writer.send(SpawnEntity::Spawn {
+                    spawn.send(SpawnEntity::Spawn {
                         position,
-                        entity: EntityType::BookShelf,
+                        entity: entity_type,
                     });
                     se_writer.send(SEEvent::pos(SE::Status2, position));
                 }
