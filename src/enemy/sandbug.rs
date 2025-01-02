@@ -5,7 +5,6 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
-use crate::spell::SpellType;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AnimationState;
@@ -13,6 +12,13 @@ use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::plugin::PhysicsSet;
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
+
+/// Sandbugは敵のアクターグループですが攻撃を行いません
+#[derive(Component)]
+struct Sandbug {
+    home: Vec2,
+    animation: u32,
+}
 
 pub fn spawn_sandbag(
     mut commands: &mut Commands,
@@ -30,19 +36,13 @@ pub fn spawn_sandbag(
             animation: 0,
         },
         "sandbag",
-        SpellType::SlimeCharge,
+        None,
         ENEMY_MOVE_FORCE,
         0,
         ActorGroup::Enemy,
         None,
         10000000,
     );
-}
-
-#[derive(Component)]
-struct Sandbug {
-    home: Vec2,
-    animation: u32,
 }
 
 fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbug)>) {

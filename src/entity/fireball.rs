@@ -5,6 +5,7 @@ use crate::component::falling::Falling;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::constant::ENTITY_GROUP;
+use crate::constant::NEUTRAL_GROUP;
 use crate::constant::RABBIT_GROUP;
 use crate::constant::WALL_GROUP;
 use crate::entity::EntityDepth;
@@ -49,7 +50,10 @@ pub fn spawn_fireball(
                     angular_damping: 0.0,
                 },
                 Collider::ball(6.0),
-                CollisionGroups::new(ENTITY_GROUP, ENTITY_GROUP | WALL_GROUP | RABBIT_GROUP),
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    ENTITY_GROUP | NEUTRAL_GROUP | WALL_GROUP | RABBIT_GROUP,
+                ),
                 Velocity::linear(velocity),
                 ExternalImpulse::default(),
             ),

@@ -1,11 +1,11 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
-use crate::component::life::Life;
 use crate::entity::EntityChildrenAutoDepth;
 use crate::inventory::Inventory;
 use crate::states::GameState;
@@ -77,6 +77,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
                 RABBIT_GROUP,
                 ENTITY_GROUP
                     | WALL_GROUP
+                    | NEUTRAL_GROUP
                     | WITCH_GROUP
                     | ENEMY_GROUP
                     | DOOR_GROUP

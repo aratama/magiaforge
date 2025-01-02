@@ -103,6 +103,7 @@ fn spawn_fallen_rock(commands: &mut Commands, assets: &Res<GameAssets>, position
                 ENTITY_GROUP,
                 PIECE_GROUP
                     | ENTITY_GROUP
+                    | NEUTRAL_GROUP
                     | WITCH_GROUP
                     | WITCH_BULLET_GROUP
                     | ENEMY_GROUP

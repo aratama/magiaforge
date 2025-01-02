@@ -31,7 +31,7 @@ pub fn spawn_basic_enemy<T: Component>(
     life_bar_locals: &Res<LifeBarResource>,
     marker: T,
     name: &str,
-    spell: SpellType,
+    spell: Option<SpellType>,
     move_force: f32,
     golds: u32,
     actor_group: ActorGroup,
@@ -39,10 +39,7 @@ pub fn spawn_basic_enemy<T: Component>(
     max_life: i32,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
-    slots[0] = Some(WandSpell {
-        spell_type: spell,
-        price: 0,
-    });
+    slots[0] = spell.map(|s| WandSpell::new(s));
 
     let mut builder = commands.spawn((
         Name::new(name.to_string()),
@@ -101,7 +98,9 @@ pub fn spawn_basic_enemy<T: Component>(
                 match actor_group {
                     ActorGroup::Enemy => WITCH_BULLET_GROUP,
                     ActorGroup::Player => ENEMY_BULLET_GROUP,
+                    ActorGroup::Neutral => WITCH_BULLET_GROUP | ENEMY_BULLET_GROUP, // 中立は両方の弾丸に当たります
                 } | ENTITY_GROUP
+                    | NEUTRAL_GROUP
                     | WALL_GROUP
                     | WITCH_GROUP
                     | ENEMY_GROUP

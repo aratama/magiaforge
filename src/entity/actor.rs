@@ -6,6 +6,7 @@ use crate::component::life::LifeBeingSprite;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
+use crate::constant::NEUTRAL_GROUP;
 use crate::constant::TILE_SIZE;
 use crate::constant::WITCH_GROUP;
 use crate::controller::player::Equipment;
@@ -267,6 +268,9 @@ pub enum ActorFireState {
 pub enum ActorGroup {
     Player,
     Enemy,
+
+    /// 中立のアクターは敵と味方の両方の攻撃を受けます
+    Neutral,
 }
 
 impl ActorGroup {
@@ -274,6 +278,7 @@ impl ActorGroup {
         match self {
             ActorGroup::Player => WITCH_GROUP,
             ActorGroup::Enemy => ENEMY_GROUP,
+            ActorGroup::Neutral => NEUTRAL_GROUP,
         }
     }
 }

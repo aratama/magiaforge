@@ -117,6 +117,7 @@ pub fn spawn_witch<T: Component>(
                 actor_group.to_group(),
                 ENTITY_GROUP
                     | WALL_GROUP
+                    | NEUTRAL_GROUP
                     | WITCH_GROUP
                     | WITCH_BULLET_GROUP
                     | ENEMY_GROUP

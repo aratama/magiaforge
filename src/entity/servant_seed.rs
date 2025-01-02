@@ -3,6 +3,7 @@ use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
+use crate::enemy::chiken::spawn_chiken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
@@ -36,15 +37,19 @@ pub struct ServantSeed {
 pub enum ServantType {
     Slime,
     Eyeball,
+    Chiken,
 }
 
 impl ServantType {
     pub fn to_asset(&self, assets: &Res<GameAssets>, actor_group: ActorGroup) -> Handle<Aseprite> {
         match (self, actor_group) {
             (ServantType::Slime, ActorGroup::Player) => assets.friend_slime.clone(),
+            (ServantType::Slime, ActorGroup::Neutral) => assets.friend_slime.clone(),
             (ServantType::Slime, ActorGroup::Enemy) => assets.slime.clone(),
             (ServantType::Eyeball, ActorGroup::Player) => assets.eyeball_friend.clone(),
+            (ServantType::Eyeball, ActorGroup::Neutral) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Enemy) => assets.eyeball.clone(),
+            (ServantType::Chiken, _) => assets.chiken.clone(),
         }
     }
 }
@@ -118,6 +123,7 @@ pub fn spawn_servant_seed(
                 actor_group: match actor_group {
                     ActorGroup::Player => ActorGroup::Enemy,
                     ActorGroup::Enemy => ActorGroup::Player,
+                    ActorGroup::Neutral => ActorGroup::Neutral,
                 },
                 servant_type: *servant_type,
             };
@@ -185,8 +191,6 @@ fn spawn_servant(
     mut reader: EventReader<SpawnEvent>,
 ) {
     for event in reader.read() {
-        info!("spawn_servant: {:?}", event);
-
         match event.servant_type {
             ServantType::Slime => {
                 spawn_slime(
@@ -209,6 +213,9 @@ fn spawn_servant(
                     event.actor_group,
                     0,
                 );
+            }
+            ServantType::Chiken => {
+                spawn_chiken(&mut commands, &assets, &life_bar_locals, event.position);
             }
         }
     }

@@ -7,6 +7,7 @@ use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
 use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::constant::NEUTRAL_GROUP;
 use crate::constant::WALL_GROUP;
 use crate::constant::WITCH_BULLET_GROUP;
 use crate::constant::WITCH_GROUP;
@@ -150,7 +151,7 @@ pub fn cast_spell(
                         actor_transform.translation.truncate() + range * normalized;
 
                     // 誰が発射したかに関わらず、弾丸は以下のグループに衝突します
-                    let filter_base = ENTITY_GROUP | WALL_GROUP;
+                    let filter_base = ENTITY_GROUP | WALL_GROUP | NEUTRAL_GROUP;
 
                     let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
@@ -173,15 +174,18 @@ pub fn cast_spell(
                         memberships: match actor.actor_group {
                             ActorGroup::Player => WITCH_BULLET_GROUP,
                             ActorGroup::Enemy => ENEMY_BULLET_GROUP,
+                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
                         },
                         filters: match actor.actor_group {
                             ActorGroup::Player => ENEMY_GROUP,
                             ActorGroup::Enemy => WITCH_GROUP,
+                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
                         } | match actor.actor_group {
                             // アイテムを押して動かせるように、プレイヤーの弾丸はアイテムに衝突します
                             // 敵がアイテムを盾に接近するのを避けるために、敵の弾丸はアイテムに衝突しません
                             ActorGroup::Player => DROPPED_ITEM_GROUP,
                             ActorGroup::Enemy => Group::NONE,
+                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
                         } | filter_base,
                     };
 
@@ -210,11 +214,13 @@ pub fn cast_spell(
                         remove_bullet_props.memberships = match actor.actor_group {
                             ActorGroup::Player => ENEMY_BULLET_GROUP,
                             ActorGroup::Enemy => WITCH_BULLET_GROUP,
+                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
                         };
                         // ややこしいが、受信側にとってはプレイヤーキャラクター自信は WITCH_GROUP
                         remove_bullet_props.filters = match actor.actor_group {
                             ActorGroup::Player => WITCH_GROUP,
                             ActorGroup::Enemy => ENEMY_GROUP,
+                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
                         } | filter_base;
 
                         send_remote_message(
@@ -265,6 +271,7 @@ pub fn cast_spell(
                             (ActorGroup::Player, false) => ActorGroup::Enemy,
                             (ActorGroup::Enemy, true) => ActorGroup::Enemy,
                             (ActorGroup::Enemy, false) => ActorGroup::Player,
+                            (ActorGroup::Neutral, _) => ActorGroup::Neutral,
                         },
                         remote: true,
                     });

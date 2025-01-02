@@ -18,6 +18,7 @@ use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
+use crate::enemy::chiken::ChikenControlPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::sandbug::SandbagPlugin;
@@ -189,6 +190,7 @@ pub fn run_game() {
         .add_plugins(BulletParticlePlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(ChestPlugin)
+        .add_plugins(ChikenControlPlugin)
         .add_plugins(CommandButtonPlugin)
         .add_plugins(CounterPlugin)
         .add_plugins(DamagePlugin)

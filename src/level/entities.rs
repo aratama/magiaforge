@@ -7,6 +7,7 @@ use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
+use crate::enemy::chiken::spawn_chiken;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
 use crate::entity::bgm::spawn_bgm_switch;
@@ -24,7 +25,6 @@ use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::EntityType;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::map::LevelChunk;
 use crate::message::HELLO;
 use crate::message::HELLO_RABBITS;
 use crate::message::HUGE_SLIME;
@@ -330,6 +330,9 @@ pub fn spawn_entity(
                     }
                     EntityType::Bomb => {
                         spawn_bomb(&mut commands, &assets, *position);
+                    }
+                    EntityType::Chiken => {
+                        spawn_chiken(&mut commands, &assets, &life_bar_resource, *position);
                     }
                 }
             }

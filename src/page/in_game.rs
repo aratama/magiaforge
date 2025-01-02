@@ -11,6 +11,7 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
+use crate::entity::EntityType;
 use crate::equipment::EquipmentType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
@@ -214,6 +215,16 @@ pub fn setup_level(
             _ => vec![],
         },
     );
+
+    // 拠点のみ、数羽のニワトリを生成します
+    for _ in 0..20 {
+        if let Some((x, y)) = empties.choose(&mut rng) {
+            spawn_entity.send(SpawnEntity::Spawn {
+                entity: EntityType::Chiken,
+                position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
+            });
+        }
+    }
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します

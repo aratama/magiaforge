@@ -63,6 +63,7 @@ pub enum EntityType {
     HugeSlime,
     Sandbug,
     Bomb,
+    Chiken,
 }
 
 #[derive(Component)]

@@ -98,6 +98,9 @@ pub const PIECE_GROUP: Group = Group::GROUP_2;
 
 pub const WALL_GROUP: Group = Group::GROUP_3;
 
+/// ニワトリなどの中立キャラクターのグループ
+pub const NEUTRAL_GROUP: Group = Group::GROUP_4;
+
 /// プレイヤーキャラクターのグループ
 /// 自分の生成した弾丸に衝突します
 pub const WITCH_GROUP: Group = Group::GROUP_5;

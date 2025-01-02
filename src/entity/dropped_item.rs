@@ -76,6 +76,7 @@ pub fn spawn_dropped_item(
                     DROPPED_ITEM_GROUP,
                     DROPPED_ITEM_GROUP
                         | ENTITY_GROUP
+                        | NEUTRAL_GROUP
                         | WITCH_GROUP
                         | WITCH_BULLET_GROUP
                         | WALL_GROUP

@@ -49,6 +49,7 @@ pub enum SpellType {
     Fireball,
     SpawnJar,
     SummonHugeSlime,
+    SummonChiken,
 }
 
 /// 呪文の基礎情報
@@ -258,6 +259,35 @@ impl SpellType {
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     remaining_time: 0
                 },
+            },
+            SpellType::SummonChiken => SpellProps {
+                rank: 3,
+                name: Dict {
+                    ja: "ニワトリ召喚",
+                    en: "Summon Chicken",
+                    zh_cn: "召唤鸡",
+                    es: "Invocar Pollo",
+                    fr: "Invoquer Poulet",
+                    pt: "Invocar Galinha",
+                    de: "Huhn Beschwören",
+                    ko: "닭 소환",
+                    ru: "Призвать Курицу"
+                },
+                description: Dict {
+                    ja: "おとりのニワトリをどこかから呼び寄せます。",
+                    en: "Summons a decoy chicken from nowhere.",
+                    zh_cn: "从无处召唤一个诱饵鸡。",
+                    es: "Invoca un pollo señuelo de la nada.",
+                    fr: "Invoque un poulet leurre de nulle part.",
+                    pt: "Invoca uma galinha de isca do nada.",
+                    de: "Beschwört ein Lockhuhn aus dem Nichts.",
+                    ko: "어디서나 속임수 닭을 소환합니다.",
+                    ru: "Призывает прим кающую курицу из ниоткуда."
+                },
+                cast_delay: 120,
+                icon: "spawn_chiken_icon",
+                price: 100,
+                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Chiken },
             },
             SpellType::WaterBall =>  SpellProps {
                 rank: 2,
