@@ -31,8 +31,9 @@ use bevy::ecs::query::QueryFilter;
 use bevy::ecs::query::ROQueryItem;
 use bevy::prelude::*;
 
+/// レベルマップで生成されるエンティティです
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
-pub enum GameEntity {
+pub enum EntityType {
     Chest,
     Crate,
     CrateOrBarrel,
@@ -56,6 +57,7 @@ pub enum GameEntity {
     Sandbug,
     ShopDoor,
     BGM,
+    Bomb,
 }
 
 #[derive(Component)]

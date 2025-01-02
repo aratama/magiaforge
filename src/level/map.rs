@@ -1,5 +1,5 @@
 use crate::constant::TILE_SIZE;
-use crate::entity::GameEntity;
+use crate::entity::EntityType;
 use crate::level::tile::Tile;
 use bevy::prelude::*;
 
@@ -25,7 +25,7 @@ pub struct LevelChunk {
     pub min_y: i32,
     pub max_x: i32,
     pub max_y: i32,
-    pub entities: Vec<(GameEntity, i32, i32)>,
+    pub entities: Vec<(EntityType, i32, i32)>,
     pub entry_points: Vec<(i32, i32)>,
 }
 
@@ -128,42 +128,42 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::BookShelf, x, y));
+                    entities.push((EntityType::BookShelf, x, y));
                 }
                 (251, 242, 54, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::Chest, x, y));
+                    entities.push((EntityType::Chest, x, y));
                 }
                 (255, 155, 87, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::CrateOrBarrel, x, y));
+                    entities.push((EntityType::CrateOrBarrel, x, y));
                 }
                 (48, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::MagicCircle, x, y));
+                    entities.push((EntityType::MagicCircle, x, y));
                 }
                 (47, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::MultiPlayArenaMagicCircle, x, y));
+                    entities.push((EntityType::MultiPlayArenaMagicCircle, x, y));
                 }
                 (56, 111, 161, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::MagicCircleHome, x, y));
+                    entities.push((EntityType::MagicCircleHome, x, y));
                 }
                 (255, 0, 0, 255) => {
                     tiles.push(LevelTileMapile {
@@ -171,119 +171,119 @@ pub fn image_to_tilemap(
                         zone: Zone::SafeZone,
                     });
                     entry_points.push((x, y));
-                    entities.push((GameEntity::BrokenMagicCircle, x, y));
+                    entities.push((EntityType::BrokenMagicCircle, x, y));
                 }
                 (255, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::Usage, x, y));
+                    entities.push((EntityType::Usage, x, y));
                 }
                 (254, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::Routes, x, y));
+                    entities.push((EntityType::Routes, x, y));
                 }
                 (223, 113, 38, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::StoneLantern, x, y));
+                    entities.push((EntityType::StoneLantern, x, y));
                 }
                 (0, 222, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::ShopSpell, x, y));
+                    entities.push((EntityType::ShopSpell, x, y));
                 }
                 (102, 57, 49, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::Crate, x, y));
+                    entities.push((EntityType::Crate, x, y));
                 }
                 (184, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::HugeSlime, x, y));
+                    entities.push((EntityType::HugeSlime, x, y));
                 }
                 (255, 243, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::ShopRabbit, x, y));
+                    entities.push((EntityType::ShopRabbit, x, y));
                 }
                 (255, 244, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::TrainingRabbit, x, y));
+                    entities.push((EntityType::TrainingRabbit, x, y));
                 }
                 (255, 245, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::GuideRabbit, x, y));
+                    entities.push((EntityType::GuideRabbit, x, y));
                 }
                 (255, 246, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::MultiplayerRabbit, x, y));
+                    entities.push((EntityType::MultiplayerRabbit, x, y));
                 }
                 (255, 247, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::SinglePlayRabbit, x, y));
+                    entities.push((EntityType::SinglePlayRabbit, x, y));
                 }
                 (255, 248, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::ReadingRabbit, x, y));
+                    entities.push((EntityType::ReadingRabbit, x, y));
                 }
                 (255, 249, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::SpellListRabbit, x, y));
+                    entities.push((EntityType::SpellListRabbit, x, y));
                 }
                 (182, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::Sandbug, x, y));
+                    entities.push((EntityType::Sandbug, x, y));
                 }
                 (197, 255, 142, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::ShopDoor, x, y));
+                    entities.push((EntityType::ShopDoor, x, y));
                 }
                 (68, 0, 94, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push((GameEntity::BGM, x, y));
+                    entities.push((EntityType::BGM, x, y));
                 }
                 (153, 229, 80, 255) => {
                     tiles.push(LevelTileMapile {

@@ -14,7 +14,6 @@ use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::bomb::SpawnBomb;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
@@ -24,7 +23,7 @@ use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
-use crate::entity::GameEntity;
+use crate::entity::EntityType;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
 use crate::se::SEEvent;
@@ -103,7 +102,6 @@ pub fn cast_spell(
     se_writer: &mut EventWriter<SEEvent>,
     slime_writer: &mut EventWriter<SpawnServantSeed>,
     impact_writer: &mut EventWriter<SpawnImpact>,
-    bomb_writer: &mut EventWriter<SpawnBomb>,
     spawn_entity_writer: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
     is_player: bool,
@@ -300,15 +298,18 @@ pub fn cast_spell(
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    bomb_writer.send(SpawnBomb { position });
+                    spawn_entity_writer.send(SpawnEntity::Spawn {
+                        entity: EntityType::Bomb,
+                        position,
+                    });
                 }
                 SpellCast::SpawnBookshelf => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    spawn_entity_writer.send(SpawnEntity {
+                    spawn_entity_writer.send(SpawnEntity::Spawn {
                         position,
-                        entity: GameEntity::BookShelf,
+                        entity: EntityType::BookShelf,
                     });
                     se_writer.send(SEEvent::pos(SE::Status2, position));
                 }

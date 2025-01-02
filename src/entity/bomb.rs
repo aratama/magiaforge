@@ -6,8 +6,6 @@ use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::EntityDepth;
-use crate::se::SEEvent;
-use crate::se::SE;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -16,70 +14,54 @@ use bevy_rapier2d::prelude::*;
 #[derive(Default, Component, Reflect)]
 struct Bomb;
 
-#[derive(Event)]
-pub struct SpawnBomb {
-    pub position: Vec2,
-}
-
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_bomb(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut reader: EventReader<SpawnBomb>,
-    mut se: EventWriter<SEEvent>,
-) {
-    if !reader.is_empty() {
-        se.send(SEEvent::new(SE::PickUp));
-    }
-
-    for SpawnBomb { position } in reader.read() {
-        let aseprite = assets.bomb.clone();
-        commands
-            .spawn((
-                Name::new("bomb"),
-                StateScoped(GameState::InGame),
-                Life::new(10),
-                Bomb,
-                Counter::up(0),
-                EntityDepth::new(),
-                Transform::from_translation(position.extend(0.0)),
-                GlobalTransform::default(),
-                Visibility::default(),
-                (
-                    RigidBody::Dynamic,
-                    LockedAxes::ROTATION_LOCKED,
-                    Damping {
-                        linear_damping: 1.0,
-                        angular_damping: 0.0,
-                    },
-                    Collider::ball(6.0),
-                    CollisionGroups::new(
-                        ENTITY_GROUP,
-                        PIECE_GROUP
-                            | ENTITY_GROUP
-                            | WITCH_GROUP
-                            | WITCH_BULLET_GROUP
-                            | ENEMY_GROUP
-                            | ENEMY_BULLET_GROUP
-                            | WALL_GROUP
-                            | RABBIT_GROUP
-                            | DROPPED_ITEM_GROUP,
-                    ),
-                    ExternalImpulse::default(),
+pub fn spawn_bomb(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+    let aseprite = assets.bomb.clone();
+    commands
+        .spawn((
+            Name::new("bomb"),
+            StateScoped(GameState::InGame),
+            Life::new(10),
+            Bomb,
+            Counter::up(0),
+            EntityDepth::new(),
+            Transform::from_translation(position.extend(0.0)),
+            GlobalTransform::default(),
+            Visibility::default(),
+            (
+                RigidBody::Dynamic,
+                LockedAxes::ROTATION_LOCKED,
+                Damping {
+                    linear_damping: 1.0,
+                    angular_damping: 0.0,
+                },
+                Collider::ball(6.0),
+                CollisionGroups::new(
+                    ENTITY_GROUP,
+                    PIECE_GROUP
+                        | ENTITY_GROUP
+                        | WITCH_GROUP
+                        | WITCH_BULLET_GROUP
+                        | ENEMY_GROUP
+                        | ENEMY_BULLET_GROUP
+                        | WALL_GROUP
+                        | RABBIT_GROUP
+                        | DROPPED_ITEM_GROUP,
                 ),
-            ))
-            .with_children(move |parent| {
-                parent.spawn((
-                    LifeBeingSprite,
-                    CounterAnimated,
-                    AseSpriteAnimation {
-                        aseprite: aseprite.clone(),
-                        animation: "default".into(), // TODO
-                    },
-                ));
-            });
-    }
+                ExternalImpulse::default(),
+            ),
+        ))
+        .with_children(move |parent| {
+            parent.spawn((
+                LifeBeingSprite,
+                CounterAnimated,
+                AseSpriteAnimation {
+                    aseprite: aseprite.clone(),
+                    animation: "default".into(), // TODO
+                },
+            ));
+        });
 }
 
 fn explode_bomb(
@@ -118,10 +100,9 @@ pub struct BombPlugin;
 
 impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnBomb>();
         app.add_systems(
             FixedUpdate,
-            (spawn_bomb, explode_bomb, set_bomb_rotation)
+            (explode_bomb, set_bomb_rotation)
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

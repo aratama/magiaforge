@@ -1,4 +1,3 @@
-use super::bomb::SpawnBomb;
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
@@ -379,7 +378,6 @@ fn fire_bullet(
     mut se_writer: EventWriter<SEEvent>,
     mut slime_writer: EventWriter<SpawnServantSeed>,
     mut impact_writer: EventWriter<SpawnImpact>,
-    mut bomb_writer: EventWriter<SpawnBomb>,
     mut spawn_entity_writer: EventWriter<SpawnEntity>,
     websocket: Res<WebSocketState>,
     in_game_timer: Res<InGameTime>,
@@ -413,7 +411,6 @@ fn fire_bullet(
                 &mut se_writer,
                 &mut slime_writer,
                 &mut impact_writer,
-                &mut bomb_writer,
                 &mut spawn_entity_writer,
                 current_wand,
                 player.is_some(),
@@ -434,7 +431,6 @@ fn fire_bullet(
                 &mut se_writer,
                 &mut slime_writer,
                 &mut impact_writer,
-                &mut bomb_writer,
                 &mut spawn_entity_writer,
                 MAX_WANDS - 1,
                 player.is_some(),

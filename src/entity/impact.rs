@@ -1,12 +1,12 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::ENTITY_GROUP;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::WITCH_GROUP;
 use crate::entity::actor::ActorEvent;
-use crate::component::life::Life;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
