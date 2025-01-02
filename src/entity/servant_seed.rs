@@ -3,7 +3,7 @@ use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
-use crate::enemy::chiken::spawn_chiken;
+use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
@@ -49,7 +49,7 @@ impl ServantType {
             (ServantType::Eyeball, ActorGroup::Player) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Neutral) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Enemy) => assets.eyeball.clone(),
-            (ServantType::Chiken, _) => assets.chiken.clone(),
+            (ServantType::Chiken, _) => assets.chicken.clone(),
         }
     }
 }

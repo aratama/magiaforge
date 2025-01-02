@@ -22,13 +22,14 @@ struct Sandbug {
 
 pub fn spawn_sandbag(
     mut commands: &mut Commands,
-    aseprite: &Res<GameAssets>,
+    assets: &Res<GameAssets>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
 ) {
     spawn_basic_enemy(
         &mut commands,
-        aseprite.sandbug.clone(),
+        &assets,
+        assets.sandbug.clone(),
         position,
         life_bar_locals,
         Sandbug {
@@ -42,6 +43,7 @@ pub fn spawn_sandbag(
         ActorGroup::Enemy,
         None,
         10000000,
+        8.0,
     );
 }
 

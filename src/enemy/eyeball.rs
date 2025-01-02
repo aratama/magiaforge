@@ -33,6 +33,7 @@ pub fn spawn_eyeball(
 ) {
     spawn_basic_enemy(
         &mut commands,
+        &assets,
         match actor_group {
             ActorGroup::Player => assets.eyeball_friend.clone(),
             ActorGroup::Enemy => assets.eyeball.clone(),
@@ -48,6 +49,7 @@ pub fn spawn_eyeball(
         actor_group,
         None,
         25,
+        8.0,
     );
 }
 

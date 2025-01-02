@@ -27,7 +27,7 @@ const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
 pub fn spawn_slime(
     mut commands: &mut Commands,
-    aseprite: &Res<GameAssets>,
+    assets: &Res<GameAssets>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
     initial_wait: u32,
@@ -37,10 +37,11 @@ pub fn spawn_slime(
 ) {
     spawn_basic_enemy(
         &mut commands,
+        &assets,
         match group {
-            ActorGroup::Player => aseprite.friend_slime.clone(),
-            ActorGroup::Enemy => aseprite.slime.clone(),
-            ActorGroup::Neutral => aseprite.friend_slime.clone(),
+            ActorGroup::Player => assets.friend_slime.clone(),
+            ActorGroup::Enemy => assets.slime.clone(),
+            ActorGroup::Neutral => assets.friend_slime.clone(),
         },
         position,
         life_bar_locals,
@@ -52,6 +53,7 @@ pub fn spawn_slime(
         group,
         owner,
         15,
+        8.0,
     );
 }
 

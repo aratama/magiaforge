@@ -7,7 +7,7 @@ use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
-use crate::enemy::chiken::spawn_chiken;
+use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
 use crate::entity::bgm::spawn_bgm_switch;

@@ -1,6 +1,7 @@
 use core::f32;
 
 use crate::asset::GameAssets;
+use crate::component::falling::Falling;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
@@ -12,49 +13,51 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Debug)]
-enum ChikenState {
+enum ChickenState {
     Wait(u32),
     Walk { angle: f32, count: u32 },
 }
 
 #[derive(Component, Debug)]
-struct Chiken {
-    state: ChikenState,
+struct Chicken {
+    state: ChickenState,
 }
 
-const CHIKEN_MOVE_FORCE: f32 = 50000.0;
+const CHIKEN_MOVE_FORCE: f32 = 10000.0;
 
 pub fn spawn_chiken(
     mut commands: &mut Commands,
-    aseprite: &Res<GameAssets>,
+    assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
 ) {
     spawn_basic_enemy(
         &mut commands,
-        aseprite.chiken.clone(),
+        &assets,
+        assets.chicken.clone(),
         position,
         life_bar_locals,
-        Chiken {
-            state: ChikenState::Wait(60),
+        Chicken {
+            state: ChickenState::Wait(60),
         },
-        "chiken",
+        "chicken",
         None,
         CHIKEN_MOVE_FORCE,
         0,
         ActorGroup::Neutral,
         None,
         3,
+        4.0,
     );
 }
 
-fn control_chiken(mut chiken_query: Query<(&mut Chiken, &mut Actor)>) {
+fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor)>) {
     for (mut chilken, mut actor) in chiken_query.iter_mut() {
         match chilken.state {
-            ChikenState::Wait(ref mut count) => {
+            ChickenState::Wait(ref mut count) => {
                 actor.move_force = 0.0;
                 if *count <= 0 {
-                    chilken.state = ChikenState::Walk {
+                    chilken.state = ChickenState::Walk {
                         angle: f32::consts::PI * 2.0 * rand::random::<f32>(),
                         count: 60,
                     };
@@ -62,18 +65,45 @@ fn control_chiken(mut chiken_query: Query<(&mut Chiken, &mut Actor)>) {
                     *count -= 1;
                 }
             }
-            ChikenState::Walk {
+            ChickenState::Walk {
                 ref mut angle,
                 ref mut count,
             } => {
                 actor.move_force = CHIKEN_MOVE_FORCE;
                 actor.move_direction = Vec2::from_angle(*angle);
+                actor.pointer = actor.move_direction.normalize_or_zero();
                 if *count <= 0 {
-                    chilken.state = ChikenState::Wait(rand::random::<u32>() % 120 + 120);
+                    chilken.state = ChickenState::Wait(rand::random::<u32>() % 120 + 120);
                 } else {
                     *count -= 1;
                 }
             }
+        }
+    }
+}
+
+fn hopping(mut chiken_query: Query<&mut Chicken>, mut fall_query: Query<(&Parent, &mut Falling)>) {
+    for (parent, mut fall) in fall_query.iter_mut() {
+        if let Ok(chicken) = chiken_query.get_mut(parent.get()) {
+            match chicken.state {
+                ChickenState::Wait(..) => {}
+                ChickenState::Walk { .. } => {
+                    if fall.just_landed || fall.velocity == 0.0 {
+                        fall.velocity = 0.5;
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn flip(
+    mut chiken_query: Query<&Actor, With<Chicken>>,
+    mut fall_query: Query<(&Parent, &mut Sprite)>,
+) {
+    for (parent, mut sprite) in fall_query.iter_mut() {
+        if let Ok(chicken) = chiken_query.get_mut(parent.get()) {
+            sprite.flip_x = chicken.pointer.x < 0.0;
         }
     }
 }
@@ -84,7 +114,7 @@ impl Plugin for ChikenControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (control_chiken)
+            (control_chiken, hopping, flip)
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),

@@ -1,4 +1,6 @@
+use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
@@ -22,10 +24,9 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
 
-const BASIC_ACTOR_RADIUS: f32 = 8.0;
-
 pub fn spawn_basic_enemy<T: Component>(
     commands: &mut Commands,
+    assets: &Res<GameAssets>,
     aseprite: Handle<Aseprite>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
@@ -37,6 +38,7 @@ pub fn spawn_basic_enemy<T: Component>(
     actor_group: ActorGroup,
     master: Option<Entity>,
     max_life: i32,
+    radius: f32,
 ) {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = spell.map(|s| WandSpell::new(s));
@@ -50,7 +52,7 @@ pub fn spawn_basic_enemy<T: Component>(
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
             point_light_radius: 0.0,
-            radius: BASIC_ACTOR_RADIUS,
+            radius,
             move_direction: Vec2::ZERO,
             move_force: move_force,
             fire_state: ActorFireState::Idle,
@@ -78,12 +80,12 @@ pub fn spawn_basic_enemy<T: Component>(
             fire_damage_wait: 0,
         },
         HomingTarget,
-        Transform::from_translation(position.extend(5.0)),
+        Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),
         Visibility::default(),
         (
             RigidBody::Dynamic,
-            Collider::ball(BASIC_ACTOR_RADIUS),
+            Collider::ball(radius),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
             Damping {
@@ -107,10 +109,15 @@ pub fn spawn_basic_enemy<T: Component>(
                     | RABBIT_GROUP,
             ),
         ),
+        AseSpriteSlice {
+            aseprite: assets.atlas.clone(),
+            name: "chicken_shadow".into(),
+        },
     ));
 
     builder.with_children(|mut parent| {
         parent.spawn((
+            Falling::new(0.0, -0.1),
             LifeBeingSprite,
             CounterAnimated,
             AseSpriteAnimation {

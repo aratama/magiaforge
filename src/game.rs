@@ -18,7 +18,7 @@ use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
-use crate::enemy::chiken::ChikenControlPlugin;
+use crate::enemy::chicken::ChikenControlPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::sandbug::SandbagPlugin;

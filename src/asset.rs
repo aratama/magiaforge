@@ -53,8 +53,8 @@ pub struct GameAssets {
     #[asset(path = "entity/eyeball_friend.aseprite")]
     pub eyeball_friend: Handle<Aseprite>,
 
-    #[asset(path = "entity/chiken.aseprite")]
-    pub chiken: Handle<Aseprite>,
+    #[asset(path = "entity/chicken.aseprite")]
+    pub chicken: Handle<Aseprite>,
 
     #[asset(path = "entity/sandbug.aseprite")]
     pub sandbug: Handle<Aseprite>,
