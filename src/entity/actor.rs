@@ -2,6 +2,8 @@ use super::bomb::SpawnBomb;
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
+use crate::component::life::Life;
+use crate::component::life::LifeBeingSprite;
 use crate::constant::ENEMY_GROUP;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
@@ -9,12 +11,11 @@ use crate::constant::TILE_SIZE;
 use crate::constant::WITCH_GROUP;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
+use crate::level::entities::SpawnEntity;
 use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::spell::SpellType;
@@ -379,6 +380,7 @@ fn fire_bullet(
     mut slime_writer: EventWriter<SpawnServantSeed>,
     mut impact_writer: EventWriter<SpawnImpact>,
     mut bomb_writer: EventWriter<SpawnBomb>,
+    mut spawn_entity_writer: EventWriter<SpawnEntity>,
     websocket: Res<WebSocketState>,
     in_game_timer: Res<InGameTime>,
 ) {
@@ -412,6 +414,7 @@ fn fire_bullet(
                 &mut slime_writer,
                 &mut impact_writer,
                 &mut bomb_writer,
+                &mut spawn_entity_writer,
                 current_wand,
                 player.is_some(),
             );
@@ -432,6 +435,7 @@ fn fire_bullet(
                 &mut slime_writer,
                 &mut impact_writer,
                 &mut bomb_writer,
+                &mut spawn_entity_writer,
                 MAX_WANDS - 1,
                 player.is_some(),
             );

@@ -11,12 +11,15 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
+use crate::equipment::EquipmentType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::spawn_level_appearance;
 use crate::level::entities::spawn_entities;
+use crate::level::entities::spawn_entity;
+use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
 use crate::level::wall::spawn_wall_collisions;
@@ -34,6 +37,7 @@ use bevy::asset::*;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_rapier2d::plugin::PhysicsSet;
 use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
@@ -64,6 +68,10 @@ pub struct LevelSetup {
     /// 次のプレイヤー状態
     /// 魔法陣から転移したとき、この状態でプレイヤーを初期化します
     pub next_state: PlayerState,
+
+    /// 次に生成するショップアイテムのキュー
+    /// これが空になったときは改めてキューを生成します
+    pub shop_items: Vec<InventoryItem>,
 }
 
 impl Default for LevelSetup {
@@ -73,8 +81,33 @@ impl Default for LevelSetup {
             chunk: None,
             next_level: GameLevel::Level(INITIAL_LEVEL),
             next_state: PlayerState::default(),
+            shop_items: Vec::new(),
         }
     }
+}
+
+pub fn new_shop_item_queue(discovered_spells: Vec<SpellType>) -> Vec<InventoryItem> {
+    let mut rng = rand::thread_rng();
+
+    let mut shop_items: Vec<InventoryItem> = discovered_spells
+        .iter()
+        .map(|s| InventoryItem {
+            item_type: InventoryItemType::Spell(*s),
+            price: s.to_props().price,
+        })
+        .collect();
+    shop_items.extend(
+        EquipmentType::iter()
+            .filter(|e| e.to_props().rank == 0)
+            .map(|e| InventoryItem {
+                item_type: InventoryItemType::Equipment(e),
+                price: e.to_props().price,
+            }),
+    );
+
+    shop_items.shuffle(&mut rng);
+
+    shop_items
 }
 
 /// レベルとプレイヤーキャラクターを生成します
@@ -86,6 +119,7 @@ pub fn setup_level(
     life_bar_res: Res<LifeBarResource>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
+    mut spawn_entity: EventWriter<SpawnEntity>,
 ) {
     let mut rng = StdRng::from_entropy();
 
@@ -124,13 +158,7 @@ pub fn setup_level(
     spawn_wall_collisions(&mut commands, &chunk);
 
     // 宝箱や灯篭などのエンティティを生成します
-    spawn_entities(
-        &mut commands,
-        &assets,
-        &life_bar_res,
-        &chunk,
-        &player_state.discovered_spells,
-    );
+    spawn_entities(&chunk, &mut spawn_entity);
 
     // 空間
     // ここに敵モブや落ちているアイテムを生成します
@@ -413,6 +441,14 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<SpawnEntity>();
+        app.add_systems(
+            FixedUpdate,
+            spawn_entity
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
+        );
+
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.add_systems(OnExit(GameState::InGame), on_exit);

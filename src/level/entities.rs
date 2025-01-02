@@ -22,10 +22,7 @@ use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::GameEntity;
-use crate::equipment::EquipmentType;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::level::map::LevelChunk;
 use crate::message::HELLO;
 use crate::message::HELLO_RABBITS;
@@ -41,46 +38,45 @@ use crate::message::SPELL_LIST2;
 use crate::message::SPELL_LIST3;
 use crate::message::TRAINING_RABBIT;
 use crate::message::WITCHES_ARE;
-use crate::spell::SpellType;
+use crate::page::in_game::new_shop_item_queue;
+use crate::page::in_game::LevelSetup;
 use crate::theater::Act;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use rand::seq::IteratorRandom;
-use rand::seq::SliceRandom;
-use std::collections::HashSet;
-use strum::IntoEnumIterator;
 
-pub fn spawn_entities(
-    mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    life_bar_resource: &Res<LifeBarResource>,
-    chunk: &LevelChunk,
-    discovered_spells: &HashSet<SpellType>,
-) {
-    let mut rng = rand::thread_rng();
-
-    let mut shop_items: Vec<InventoryItem> = discovered_spells
-        .iter()
-        .map(|s| InventoryItem {
-            item_type: InventoryItemType::Spell(*s),
-            price: s.to_props().price,
-        })
-        .collect();
-    shop_items.extend(
-        EquipmentType::iter()
-            .filter(|e| e.to_props().rank == 0)
-            .map(|e| InventoryItem {
-                item_type: InventoryItemType::Equipment(e),
-                price: e.to_props().price,
-            }),
-    );
-
-    shop_items.shuffle(&mut rng);
-
-    // エンティティの生成
+pub fn spawn_entities(chunk: &LevelChunk, spawn: &mut EventWriter<SpawnEntity>) {
     for (entity, x, y) in &chunk.entities {
         let tx = TILE_SIZE * *x as f32;
         let ty = TILE_SIZE * -*y as f32;
+        spawn.send(SpawnEntity {
+            entity: *entity,
+            position: Vec2::new(tx, ty),
+        });
+    }
+}
+
+#[derive(Event)]
+pub struct SpawnEntity {
+    pub entity: GameEntity,
+    pub position: Vec2,
+}
+
+pub fn spawn_entity(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    life_bar_resource: Res<LifeBarResource>,
+    mut setup: ResMut<LevelSetup>,
+    mut reader: EventReader<SpawnEntity>,
+) {
+    for SpawnEntity { entity, position } in reader.read() {
+        if setup.shop_items.is_empty() {
+            setup.shop_items =
+                new_shop_item_queue(setup.next_state.discovered_spells.iter().cloned().collect())
+        }
+
+        let tx = position.x;
+        let ty = position.y;
         match entity {
             GameEntity::BookShelf => {
                 spawn_book_shelf(
@@ -192,7 +188,7 @@ pub fn spawn_entities(
                 ));
             }
             GameEntity::ShopSpell => {
-                if let Some(item) = shop_items.pop() {
+                if let Some(item) = setup.shop_items.pop() {
                     spawn_dropped_item(
                         &mut commands,
                         &assets,
@@ -319,7 +315,7 @@ pub fn spawn_entities(
                     &mut commands,
                     &assets,
                     Vec2::new(tx + TILE_HALF, ty - TILE_HALF),
-                    life_bar_resource,
+                    &life_bar_resource,
                 );
             }
             GameEntity::ShopDoor => {

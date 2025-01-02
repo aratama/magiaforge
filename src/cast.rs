@@ -15,7 +15,6 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bomb::SpawnBomb;
-use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
@@ -25,6 +24,8 @@ use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
+use crate::entity::GameEntity;
+use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -103,6 +104,7 @@ pub fn cast_spell(
     slime_writer: &mut EventWriter<SpawnServantSeed>,
     impact_writer: &mut EventWriter<SpawnImpact>,
     bomb_writer: &mut EventWriter<SpawnBomb>,
+    spawn_entity_writer: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
     is_player: bool,
 ) {
@@ -304,7 +306,10 @@ pub fn cast_spell(
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    spawn_book_shelf(&mut commands, assets.atlas.clone(), position);
+                    spawn_entity_writer.send(SpawnEntity {
+                        position,
+                        entity: GameEntity::BookShelf,
+                    });
                     se_writer.send(SEEvent::pos(SE::Status2, position));
                 }
                 SpellCast::RockFall => {
