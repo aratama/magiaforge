@@ -152,6 +152,8 @@ fn update_icons(
                 let props = spell_type.to_props();
                 let discovered = player.discovered_spells.contains(&spell_type);
                 aseprite.name = (if discovered { props.icon } else { "unknown" }).into()
+            } else {
+                aseprite.name = "empty".into();
             }
         }
     }

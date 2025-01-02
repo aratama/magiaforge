@@ -46,17 +46,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use rand::seq::IteratorRandom;
 
-pub fn spawn_entities(chunk: &LevelChunk, spawn: &mut EventWriter<SpawnEntity>) {
-    for (entity, x, y) in &chunk.entities {
-        let tx = TILE_SIZE * *x as f32;
-        let ty = TILE_SIZE * -*y as f32;
-        spawn.send(SpawnEntity::Spawn {
-            entity: *entity,
-            position: Vec2::new(tx, ty),
-        });
-    }
-}
-
 /// エンティティを生成する汎用のイベントです
 /// これは cast のようなシステムで必要なシステムパラメータが増えすぎないようにするためです
 /// これは生成時に必要なシステムパラメータが少ないものに使われており、

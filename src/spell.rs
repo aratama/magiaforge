@@ -48,6 +48,7 @@ pub enum SpellType {
     RockFall,
     Fireball,
     SpawnJar,
+    SummonHugeSlime,
 }
 
 /// 呪文の基礎情報
@@ -890,6 +891,35 @@ impl SpellType {
                     light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
                     remaining_time: 120
                 },
+            },
+            SpellType::SummonHugeSlime =>  SpellProps {
+                rank: 6,
+                name: Dict {
+                    ja: "巨大スライム召喚",
+                    en: "Summon Giant Slime",
+                    zh_cn: "召唤巨型史莱姆",
+                    es: "Invocar Slime Gigante",
+                    fr: "Invoquer Slime Géant",
+                    pt: "Invocar Slime Gigante",
+                    de: "Riesigen Schleim Beschwören",
+                    ko: "거대 슬라임 소환",
+                    ru: "",
+                },
+                description: Dict {
+                    ja: "巨大なスライムの王を召喚します。",
+                    en: "Summons a giant slime king",
+                    zh_cn: "召唤一个巨型史莱姆王",
+                    es: "Invoca un rey de slime gigante.",
+                    fr: "Invoque un roi de slime géant.",
+                    pt: "Invoca um rei de slime gigante.",
+                    de: "Beschwört einen riesigen Schleimkönig.",
+                    ko: "거대한 슬라임 왕을 소환합니다.",
+                    ru: "Призывает гигантского короля слизней."
+                },
+                cast_delay: 180,
+                icon: "summon_huge_slime_icon",
+                price: 10000,
+                cast: SpellCast::SpawnEntity(EntityType::HugeSlime)
             },
         }
     }

@@ -34,19 +34,18 @@ use bevy::prelude::*;
 /// レベルマップで生成されるエンティティです
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum EntityType {
-    Chest,
-    Crate,
-    CrateOrBarrel,
-    BookShelf,
+    // 施設
     MagicCircle,
     MagicCircleHome,
     MultiPlayArenaMagicCircle,
     BrokenMagicCircle,
     Usage,
     Routes,
-    StoneLantern,
     ShopSpell,
-    HugeSlime,
+    ShopDoor,
+    BGM,
+
+    // ウサギ
     ShopRabbit,
     TrainingRabbit,
     GuideRabbit,
@@ -54,9 +53,15 @@ pub enum EntityType {
     MultiplayerRabbit,
     ReadingRabbit,
     SpellListRabbit,
+
+    // 魔法で生成されるもの
+    Chest,
+    Crate,
+    CrateOrBarrel,
+    BookShelf,
+    StoneLantern,
+    HugeSlime,
     Sandbug,
-    ShopDoor,
-    BGM,
     Bomb,
 }
 

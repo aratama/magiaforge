@@ -17,7 +17,6 @@ use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::spawn_level_appearance;
-use crate::level::entities::spawn_entities;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
@@ -158,7 +157,12 @@ pub fn setup_level(
     spawn_wall_collisions(&mut commands, &chunk);
 
     // 宝箱や灯篭などのエンティティを生成します
-    spawn_entities(&chunk, &mut spawn_entity);
+    for (entity, x, y) in &chunk.entities {
+        spawn_entity.send(SpawnEntity::Spawn {
+            entity: *entity,
+            position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
+        });
+    }
 
     // 空間
     // ここに敵モブや落ちているアイテムを生成します
