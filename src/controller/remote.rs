@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
@@ -6,7 +7,6 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
-use crate::component::life::Life;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::witch::spawn_witch;
@@ -347,6 +347,7 @@ fn receive_events(
                                 owner: None,
                                 servant_type,
                                 remote: false,
+                                servant: false,
                             });
                         }
                     };

@@ -119,11 +119,12 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::Fireball));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonHugeSlime));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonChiken));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Servant));
         inventory.sort();
 
         actor.wands[0] = Wand::with_slots([
             Some(WandSpell {
-                spell_type: SpellType::SummonChiken,
+                spell_type: SpellType::Servant,
                 price: 0,
             }),
             None,

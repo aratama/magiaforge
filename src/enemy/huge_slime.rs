@@ -285,6 +285,7 @@ fn update_huge_slime_summon(
                                 owner: Some(huge_slime_entity),
                                 servant_type: ServantType::Slime,
                                 remote: false,
+                                servant: false,
                             });
                         }
                     }

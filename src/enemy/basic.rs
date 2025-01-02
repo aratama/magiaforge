@@ -39,7 +39,7 @@ pub fn spawn_basic_enemy<T: Component>(
     master: Option<Entity>,
     max_life: i32,
     radius: f32,
-) {
+) -> Entity {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = spell.map(|s| WandSpell::new(s));
 
@@ -132,4 +132,6 @@ pub fn spawn_basic_enemy<T: Component>(
     if let Some(owner) = master {
         builder.insert(Servant { master: owner });
     }
+
+    builder.id()
 }

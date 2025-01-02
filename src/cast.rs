@@ -76,6 +76,7 @@ pub enum SpellCast {
     Summon {
         friend: bool,
         servant_type: ServantType,
+        servant: bool,
     },
     Dash,
     QuickCast,
@@ -260,6 +261,7 @@ pub fn cast_spell(
                 SpellCast::Summon {
                     friend,
                     servant_type,
+                    servant,
                 } => {
                     slime_writer.send(SpawnServantSeed {
                         from: actor_transform.translation.truncate(),
@@ -274,6 +276,7 @@ pub fn cast_spell(
                             (ActorGroup::Neutral, _) => ActorGroup::Neutral,
                         },
                         remote: true,
+                        servant,
                     });
                 }
                 SpellCast::Dash => {

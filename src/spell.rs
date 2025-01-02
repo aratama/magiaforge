@@ -50,6 +50,7 @@ pub enum SpellType {
     SpawnJar,
     SummonHugeSlime,
     SummonChiken,
+    Servant,
 }
 
 /// 呪文の基礎情報
@@ -287,7 +288,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "spawn_chiken_icon",
                 price: 100,
-                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Chiken },
+                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Chiken, servant: false },
             },
             SpellType::WaterBall =>  SpellProps {
                 rank: 2,
@@ -415,7 +416,7 @@ impl SpellType {
                 cast_delay: 30,
                 icon: "slime",
                 price: 200,
-                cast: SpellCast::Summon { friend: false, servant_type: ServantType::Slime },
+                cast: SpellCast::Summon { friend: false, servant_type: ServantType::Slime, servant: false },
             },
             SpellType::SummonEnemyEyeball => SpellProps {
                 rank: 2,
@@ -444,7 +445,36 @@ impl SpellType {
                 cast_delay: 30,
                 icon: "eyeball",
                 price: 200,
-                cast: SpellCast::Summon { friend: false, servant_type: ServantType::Eyeball },
+                cast: SpellCast::Summon { friend: false, servant_type: ServantType::Eyeball, servant: false },
+            },
+            SpellType::Servant => SpellProps {
+                rank: 2,
+                name: Dict {
+                    ja: "使い魔召喚",
+                    en: "Summon Servant",
+                    zh_cn: "召唤仆从",
+                    es: "Invocar Sirviente",
+                    fr: "Invoquer Serviteur",
+                    pt: "Invocar Servo",
+                    de: "Diener Beschwören",
+                    ko: "하수인 소환",
+                    ru: "Призвать Слугу"
+                },
+                description: Dict {
+                    ja: "使い魔のニワトリを召喚し、操作することができます。",
+                    en: "Summons a servant chicken that you can control.",
+                    zh_cn: "召唤一个您可以控制的仆从鸡。",
+                    es: "Invoca un pollo sirviente que puedes controlar.",
+                    fr: "Invoque un poulet serviteur que vous pouvez contrôler.",
+                    pt: "Invoca um servo de galinha que você pode controlar.",
+                    de: "Beschwört ein Dienerhuhn, das du kontrollieren kannst.",
+                    ko: "조종할 수 있는 하수인 닭을 소환합니다.",
+                    ru: "Призывает служебную курицу, которую вы можете контролировать."
+                },
+                cast_delay: 30,
+                icon: "summon_servant",
+                price: 200,        
+                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Chiken, servant: true },
             },
             SpellType::HeavyShot => SpellProps {
                 rank: 3,
@@ -589,7 +619,7 @@ impl SpellType {
                 cast_delay: 30,
                 icon: "slime",
                 price: 200,
-                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Slime },
+                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Slime, servant: false },
             },
             SpellType::PrecisionUp => SpellProps {
                 rank: 3,
@@ -705,7 +735,7 @@ impl SpellType {
                 cast_delay: 30,
                 icon: "eyeball",
                 price: 200,
-                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Eyeball },
+                cast: SpellCast::Summon { friend: true, servant_type: ServantType::Eyeball, servant: false },
             },
             SpellType::Dash => SpellProps {
                 rank: 4,

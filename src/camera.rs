@@ -1,5 +1,6 @@
 use crate::constant::CAMERA_SPEED;
 use crate::controller::player::Player;
+use crate::controller::player::PlayerServant;
 use crate::entity::actor::Actor;
 use crate::entity::explosion::ExplosionPointLight;
 use crate::entity::explosion::EXPLOSION_COUNT;
@@ -72,9 +73,10 @@ pub fn setup_camera(commands: &mut Commands, position: Vec2) {
 
 fn update_camera_position(
     player_query: Query<(&Transform, &Actor), With<Player>>,
+    servant_query: Query<&Transform, (With<PlayerServant>, Without<Player>)>,
     mut camera_query: Query<
         (&mut Transform, &mut OrthographicProjection, &mut GameCamera),
-        (With<Camera2d>, Without<Player>),
+        (With<Camera2d>, Without<Player>, Without<PlayerServant>),
     >,
     frame_count: Res<FrameCount>,
     target_query: Query<&GlobalTransform, (Without<Player>, Without<Camera2d>)>,
@@ -83,23 +85,23 @@ fn update_camera_position(
         if let Ok((mut camera_transform, mut ortho, mut game_camera)) =
             camera_query.get_single_mut()
         {
-            // ポインターのある方向にカメラをずらして遠方を見やすくする係数
-            // カメラがブレるように感じて酔いやすい？
-            let point_by_mouse_factor = 0.0; // 0.2;
-
-            let p = player.translation.truncate()
-                + actor.pointer.normalize_or_zero()
-                    * (actor.pointer.length() * point_by_mouse_factor).min(50.0);
-
             let vrp: Vec2 = match game_camera.target {
                 Some(target) => {
                     if let Ok(global_transform) = target_query.get(target) {
                         global_transform.translation().truncate()
+                    } else if let Ok(servant) = servant_query.get_single() {
+                        servant.translation.truncate()
                     } else {
-                        p
+                        player.translation.truncate()
                     }
                 }
-                _ => p,
+                _ => {
+                    if let Some(servant) = servant_query.iter().next() {
+                        servant.translation.truncate()
+                    } else {
+                        player.translation.truncate()
+                    }
+                }
             };
 
             // 目的の値を計算

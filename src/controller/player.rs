@@ -69,11 +69,16 @@ impl Player {
     }
 }
 
+/// 現在プレイヤーが操作対象としている召喚キャラクターです
+#[derive(Component, Debug, Clone)]
+pub struct PlayerServant;
+
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません
 /// Actor側で ExternalForce にアクセスして、移動を行います
 fn move_player(
     mut player_query: Query<(&mut Actor, &Player)>,
+    mut servant_query: Query<&mut Actor, (With<PlayerServant>, Without<Player>)>,
     keys: Res<ButtonInput<KeyCode>>,
     menu: Res<State<GameMenuState>>,
 ) {
@@ -84,12 +89,21 @@ fn move_player(
         match *menu.get() {
             GameMenuState::Closed => {
                 let direction = get_direction(keys);
-                actor.move_direction = direction;
-                actor.state = if direction != Vec2::ZERO {
+                let state = if direction != Vec2::ZERO {
                     ActorState::Run
                 } else {
                     ActorState::Idle
                 };
+                if let Some(mut servant) = servant_query.iter_mut().next() {
+                    actor.move_direction = Vec2::ZERO;
+                    actor.state = ActorState::Idle;
+                    servant.move_direction = direction;
+                    servant.move_force = 50000.0;
+                    servant.state = state;
+                } else {
+                    actor.move_direction = direction;
+                    actor.state = state;
+                }
             }
             _ => {
                 actor.move_direction = Vec2::ZERO;
@@ -119,7 +133,9 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 
 /// 魔法の発射
 pub fn actor_cast(
+    mut commands: Commands,
     mut player_query: Query<(&mut Actor, &Player), Without<Camera2d>>,
+    servant_query: Query<Entity, (With<PlayerServant>, Without<Player>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
     camera_query: Query<&GameCamera>,
@@ -140,10 +156,17 @@ pub fn actor_cast(
                 } else {
                     ActorFireState::Idle
                 };
-                if buttons.pressed(MouseButton::Right) {
-                    actor.fire_state_secondary = ActorFireState::Fire;
+
+                if let Some(servant) = servant_query.iter().next() {
+                    if buttons.just_pressed(MouseButton::Right) {
+                        commands.entity(servant).remove::<PlayerServant>();
+                    }
                 } else {
-                    actor.fire_state_secondary = ActorFireState::Idle;
+                    if buttons.pressed(MouseButton::Right) {
+                        actor.fire_state_secondary = ActorFireState::Fire;
+                    } else {
+                        actor.fire_state_secondary = ActorFireState::Idle;
+                    }
                 }
             }
             _ => {

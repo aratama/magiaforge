@@ -2,6 +2,7 @@ use core::f32;
 
 use crate::asset::GameAssets;
 use crate::component::falling::Falling;
+use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
@@ -30,8 +31,9 @@ pub fn spawn_chiken(
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
+    servant: bool,
 ) {
-    spawn_basic_enemy(
+    let entity = spawn_basic_enemy(
         &mut commands,
         &assets,
         assets.chicken.clone(),
@@ -46,36 +48,42 @@ pub fn spawn_chiken(
         0,
         ActorGroup::Neutral,
         None,
-        3,
+        2,
         4.0,
     );
+
+    if servant {
+        commands.entity(entity).insert(PlayerServant);
+    }
 }
 
-fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor)>) {
-    for (mut chilken, mut actor) in chiken_query.iter_mut() {
-        match chilken.state {
-            ChickenState::Wait(ref mut count) => {
-                actor.move_force = 0.0;
-                if *count <= 0 {
-                    chilken.state = ChickenState::Walk {
-                        angle: f32::consts::PI * 2.0 * rand::random::<f32>(),
-                        count: 60,
-                    };
-                } else {
-                    *count -= 1;
+fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&PlayerServant>)>) {
+    for (mut chilken, mut actor, servant) in chiken_query.iter_mut() {
+        if servant.is_none() {
+            match chilken.state {
+                ChickenState::Wait(ref mut count) => {
+                    actor.move_force = 0.0;
+                    if *count <= 0 {
+                        chilken.state = ChickenState::Walk {
+                            angle: f32::consts::PI * 2.0 * rand::random::<f32>(),
+                            count: 60,
+                        };
+                    } else {
+                        *count -= 1;
+                    }
                 }
-            }
-            ChickenState::Walk {
-                ref mut angle,
-                ref mut count,
-            } => {
-                actor.move_force = CHIKEN_MOVE_FORCE;
-                actor.move_direction = Vec2::from_angle(*angle);
-                actor.pointer = actor.move_direction.normalize_or_zero();
-                if *count <= 0 {
-                    chilken.state = ChickenState::Wait(rand::random::<u32>() % 120 + 120);
-                } else {
-                    *count -= 1;
+                ChickenState::Walk {
+                    ref mut angle,
+                    ref mut count,
+                } => {
+                    actor.move_force = CHIKEN_MOVE_FORCE;
+                    actor.move_direction = Vec2::from_angle(*angle);
+                    actor.pointer = actor.move_direction.normalize_or_zero();
+                    if *count <= 0 {
+                        chilken.state = ChickenState::Wait(rand::random::<u32>() % 120 + 120);
+                    } else {
+                        *count -= 1;
+                    }
                 }
             }
         }

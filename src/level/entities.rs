@@ -332,7 +332,7 @@ pub fn spawn_entity(
                         spawn_bomb(&mut commands, &assets, *position);
                     }
                     EntityType::Chiken => {
-                        spawn_chiken(&mut commands, &assets, &life_bar_resource, *position);
+                        spawn_chiken(&mut commands, &assets, &life_bar_resource, *position, false);
                     }
                 }
             }

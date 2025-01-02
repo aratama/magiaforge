@@ -31,6 +31,7 @@ pub struct ServantSeed {
     actor_group: ActorGroup,
     master: Option<Entity>,
     servant_type: ServantType,
+    servant: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -65,6 +66,7 @@ pub struct SpawnServantSeed {
     pub owner: Option<Entity>,
     pub servant_type: ServantType,
     pub remote: bool,
+    pub servant: bool,
 }
 
 pub fn spawn_servant_seed(
@@ -83,6 +85,7 @@ pub fn spawn_servant_seed(
         owner,
         servant_type,
         remote,
+        servant,
     } in reader.read()
     {
         commands
@@ -100,6 +103,7 @@ pub fn spawn_servant_seed(
                     actor_group: *actor_group,
                     master: *owner,
                     servant_type: *servant_type,
+                    servant: *servant,
                 },
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -168,6 +172,7 @@ fn update_servant_seed(
                         position: seed.to,
                         actor_group: seed.actor_group,
                         master: seed.master,
+                        servant: seed.servant,
                     });
                     se_writer.send(SEEvent::pos(SE::Bicha, seed.to));
                 }
@@ -182,6 +187,7 @@ struct SpawnEvent {
     position: Vec2,
     actor_group: ActorGroup,
     master: Option<Entity>,
+    servant: bool,
 }
 
 fn spawn_servant(
@@ -215,7 +221,13 @@ fn spawn_servant(
                 );
             }
             ServantType::Chiken => {
-                spawn_chiken(&mut commands, &assets, &life_bar_locals, event.position);
+                spawn_chiken(
+                    &mut commands,
+                    &assets,
+                    &life_bar_locals,
+                    event.position,
+                    event.servant,
+                );
             }
         }
     }
