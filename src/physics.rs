@@ -1,4 +1,5 @@
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::ecs::query::QueryData;
 use bevy::ecs::query::QueryFilter;
 use bevy::ecs::query::QueryItem;
@@ -10,34 +11,24 @@ use bevy_rapier2d::plugin::RapierConfiguration;
 use bevy_rapier2d::prelude::CollisionEvent;
 use std::cmp::Ordering;
 
-/// ゲーム内の時間の流れを制御します
-/// active == true のときは物理シミュレーションとアニメーションが進行します
-#[derive(Resource)]
-pub struct InGameTime {
-    pub active: bool,
-}
-
-impl Default for InGameTime {
-    fn default() -> Self {
-        Self { active: true }
-    }
-}
-
 fn switch_physics_activation(
-    state: Res<InGameTime>,
+    state: Res<State<TimeState>>,
     mut rapier_query: Query<&mut RapierConfiguration, With<DefaultRapierContext>>,
 ) {
     if state.is_changed() {
-        if state.active {
-            if let Ok(mut rapier) = rapier_query.get_single_mut() {
-                rapier.physics_pipeline_active = true;
-                rapier.query_pipeline_active = true;
-            };
-        } else {
-            if let Ok(mut rapier) = rapier_query.get_single_mut() {
-                rapier.physics_pipeline_active = false;
-                rapier.query_pipeline_active = false;
-            };
+        match *state.get() {
+            TimeState::Active => {
+                if let Ok(mut rapier) = rapier_query.get_single_mut() {
+                    rapier.physics_pipeline_active = true;
+                    rapier.query_pipeline_active = true;
+                };
+            }
+            TimeState::Inactive => {
+                if let Ok(mut rapier) = rapier_query.get_single_mut() {
+                    rapier.physics_pipeline_active = false;
+                    rapier.query_pipeline_active = false;
+                };
+            }
         }
     }
 }
@@ -216,7 +207,6 @@ pub struct GamePhysicsPlugin;
 
 impl Plugin for GamePhysicsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<InGameTime>();
         app.add_systems(
             FixedUpdate,
             switch_physics_activation

@@ -1,18 +1,18 @@
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::component::life::Life;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
-use crate::physics::InGameTime;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
@@ -141,12 +141,7 @@ fn warp(
     mut next: ResMut<LevelSetup>,
     mut writer: EventWriter<SEEvent>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
-
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step < MAX_POWER {
             if 0 < circle.players {
@@ -241,13 +236,13 @@ impl Plugin for MagicCirclePlugin {
         app.add_systems(
             FixedUpdate,
             (power_on_circle, warp)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
         app.add_systems(
             Update,
             (update_circle_color, change_slice, change_star_slice)
-                .run_if(in_state(GameState::InGame)),
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
     }
 }

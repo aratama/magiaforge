@@ -5,8 +5,8 @@ use crate::entity::explosion::ExplosionPointLight;
 use crate::entity::explosion::EXPLOSION_COUNT;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
-use crate::physics::InGameTime;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
@@ -78,11 +78,7 @@ fn update_camera_position(
     >,
     frame_count: Res<FrameCount>,
     target_query: Query<&GlobalTransform, (Without<Player>, Without<Camera2d>)>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     if let Ok((player, actor)) = player_query.get_single() {
         if let Ok((mut camera_transform, mut ortho, mut game_camera)) =
             camera_query.get_single_mut()
@@ -133,11 +129,7 @@ fn update_camera_brightness(
     state: Res<State<GameState>>,
     level: Res<LevelSetup>,
     explosion_query: Query<&ExplosionPointLight>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     if let Ok(mut light) = camera_query.get_single_mut() {
         // 爆発エフェクトを考慮しない、レベルごとの画面の明るさ
         let brightness = match state.get() {
@@ -169,7 +161,7 @@ impl Plugin for CameraPlugin {
         app.add_systems(
             FixedUpdate,
             (update_camera_position, update_camera_brightness)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
     }

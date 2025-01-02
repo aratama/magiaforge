@@ -5,9 +5,9 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
-use crate::physics::InGameTime;
 use crate::set::GameSet;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -44,18 +44,11 @@ pub fn spawn_chiken(
         0,
         ActorGroup::Neutral,
         None,
-        15,
+        3,
     );
 }
 
-fn control_chiken(
-    mut chiken_query: Query<(&mut Chiken, &mut Actor)>,
-    in_game_timer: Res<InGameTime>,
-) {
-    if !in_game_timer.active {
-        return;
-    }
-
+fn control_chiken(mut chiken_query: Query<(&mut Chiken, &mut Actor)>) {
     for (mut chilken, mut actor) in chiken_query.iter_mut() {
         match chilken.state {
             ChikenState::Wait(ref mut count) => {
@@ -92,7 +85,7 @@ impl Plugin for ChikenControlPlugin {
         app.add_systems(
             FixedUpdate,
             (control_chiken)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),
         );

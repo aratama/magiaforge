@@ -17,10 +17,10 @@ use crate::entity::EntityDepth;
 use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::states::TimeState;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
 use bevy::prelude::*;
@@ -159,12 +159,7 @@ fn sensor(
 fn update_door_position(
     sensor_query: Query<&ShopDoorSensor>,
     mut door_query: Query<(&Parent, &mut ShopDoor, &mut Transform)>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
-
     for (parent, mut door, mut transform) in door_query.iter_mut() {
         let sensor = sensor_query.get(parent.get()).unwrap();
         let delta = if sensor.open { 0.1 } else { -0.1 };
@@ -181,7 +176,7 @@ impl Plugin for ShopPlugin {
         app.add_systems(
             FixedUpdate,
             (sensor, update_door_position)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
     }

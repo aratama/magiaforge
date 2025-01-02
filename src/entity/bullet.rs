@@ -7,10 +7,10 @@ use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::EntityDepth;
 use crate::level::wall::WallCollider;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -370,12 +370,8 @@ fn process_bullet_event(
 fn despown_bullet_residual(
     mut commands: Commands,
     mut query: Query<(Entity, &mut BulletResidual, &Transform)>,
-    in_game_time: Res<InGameTime>,
     resource: Res<BulletParticleResource>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     for (entity, mut residual, transform) in query.iter_mut() {
         residual.count -= 1;
         if residual.count <= 0 {
@@ -391,12 +387,13 @@ impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            despown_bullet_residual.run_if(in_state(GameState::InGame)),
+            despown_bullet_residual
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
         app.add_systems(
             FixedUpdate,
             (despawn_bullet_by_lifetime, bullet_collision, bullet_homing)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
         app.register_type::<Bullet>();

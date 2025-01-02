@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
+use crate::component::life::Life;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
@@ -9,19 +10,18 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
 use crate::entity::gold::Gold;
-use crate::component::life::Life;
 use crate::equipment::EquipmentType;
 use crate::input::get_direction;
 use crate::input::get_fire_trigger;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
-use crate::physics::InGameTime;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
@@ -262,11 +262,7 @@ fn die_player(
     }
 }
 
-fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>, in_game_time: Res<InGameTime>) {
-    if !in_game_time.active {
-        return;
-    }
-
+fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>) {
     for (mut actor, mut player) in player_query.iter_mut() {
         if 0 < player.getting_up {
             player.getting_up -= 1;
@@ -325,8 +321,17 @@ impl Plugin for PlayerPlugin {
             // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
             // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
+            (update_pointer_by_mouse,)
+                .run_if(in_state(GameState::InGame))
+                .before(PhysicsSet::SyncBackend),
+        );
+
+        app.add_systems(
+            // FixedUpdateでスケジュールされたシステムには、before(PhysicsSet::SyncBackend) でスケジュールをする必要があります
+            // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
+            // https://taintedcoders.com/bevy/physics/rapier
+            FixedUpdate,
             (
-                update_pointer_by_mouse,
                 getting_up,
                 move_player,
                 actor_cast,
@@ -336,7 +341,7 @@ impl Plugin for PlayerPlugin {
                 switch_wand,
                 insert_discovered_spells,
             )
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
     }

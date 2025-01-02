@@ -16,10 +16,10 @@ use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::states::TimeState;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
@@ -385,12 +385,7 @@ fn fire_bullet(
     mut impact_writer: EventWriter<SpawnImpact>,
     mut spawn: EventWriter<SpawnEntity>,
     websocket: Res<WebSocketState>,
-    in_game_timer: Res<InGameTime>,
 ) {
-    if !in_game_timer.active {
-        return;
-    }
-
     let online = websocket.ready_state == ReadyState::OPEN;
 
     for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse, player) in
@@ -472,12 +467,13 @@ impl Plugin for ActorPlugin {
         app.add_event::<ActorEvent>();
         app.add_systems(
             Update,
-            (update_sprite_flip, update_actor_light).run_if(in_state(GameState::InGame)),
+            (update_sprite_flip, update_actor_light)
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
         app.add_systems(
             FixedUpdate,
             (apply_external_force, fire_bullet)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
     }

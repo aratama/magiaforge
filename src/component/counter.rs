@@ -1,5 +1,5 @@
-use crate::physics::InGameTime;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
@@ -28,37 +28,43 @@ impl Counter {
     }
 }
 
-fn count(mut query: Query<&mut Counter>, in_game_time: Res<InGameTime>) {
-    if in_game_time.active {
-        for mut counter in query.iter_mut() {
-            counter.count += counter.delta;
-        }
+fn count(mut query: Query<&mut Counter>) {
+    for mut counter in query.iter_mut() {
+        counter.count += counter.delta;
     }
 }
 
 fn animate(
     mut query: Query<&mut AseSpriteAnimation, With<CounterAnimated>>,
-    in_game_time: Res<InGameTime>,
+    in_game_time: Res<State<TimeState>>,
 ) {
     for mut animation in query.iter_mut() {
-        animation.animation.playing = in_game_time.active;
+        animation.animation.playing = *in_game_time == TimeState::Active;
 
         // animation.animation.playingが未実装のようなので上のコードは効果がないです
         // ワークアラウンド
-        animation.animation.speed = if in_game_time.active { 1.0 } else { 0.0 };
+        animation.animation.speed = if *in_game_time == TimeState::Active {
+            1.0
+        } else {
+            0.0
+        };
     }
 }
 
 fn animate_ui(
     mut query: Query<&mut AseUiAnimation, With<CounterAnimated>>,
-    in_game_time: Res<InGameTime>,
+    in_game_time: Res<State<TimeState>>,
 ) {
     for mut animation in query.iter_mut() {
-        animation.animation.playing = in_game_time.active;
+        animation.animation.playing = *in_game_time == TimeState::Active;
 
         // animation.animation.playingが未実装のようなので上のコードは効果がないです
         // ワークアラウンド
-        animation.animation.speed = if in_game_time.active { 1.0 } else { 0.0 };
+        animation.animation.speed = if *in_game_time == TimeState::Active {
+            1.0
+        } else {
+            0.0
+        };
     }
 }
 

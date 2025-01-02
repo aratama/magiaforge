@@ -57,3 +57,12 @@ pub enum GameMenuState {
 
     WandEditOpen,
 }
+
+#[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+#[source(GameState = GameState::InGame)]
+pub enum TimeState {
+    #[default]
+    Active,
+
+    Inactive,
+}

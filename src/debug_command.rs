@@ -8,9 +8,9 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
-use crate::physics::InGameTime;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::states::TimeState;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::input::keyboard::Key;
@@ -207,12 +207,12 @@ fn debug_ending(mut writer: EventWriter<OverlayEvent>) {
     writer.send(OverlayEvent::Close(GameState::Ending));
 }
 
-fn debug_pause(mut in_game_time: ResMut<InGameTime>) {
-    in_game_time.active = false;
+fn debug_pause(mut in_game_time: ResMut<NextState<TimeState>>) {
+    in_game_time.set(TimeState::Inactive);
 }
 
-fn debug_resume(mut in_game_time: ResMut<InGameTime>) {
-    in_game_time.active = true;
+fn debug_resume(mut in_game_time: ResMut<NextState<TimeState>>) {
+    in_game_time.set(TimeState::Active);
 }
 
 pub struct DebugCommandPlugin;

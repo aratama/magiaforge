@@ -15,11 +15,11 @@ use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::language::Languages;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameMenuState;
 use crate::states::GameState;
+use crate::states::TimeState;
 use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
@@ -139,12 +139,7 @@ fn countup(
     mut theater: ResMut<Theater>,
     mut writer: EventWriter<OverlayEvent>,
     mut se_writer: EventWriter<SEEvent>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
-
     let (mut visibility, mut speech) = speech_query.single_mut();
 
     let mut camera = camera.single_mut();
@@ -369,7 +364,7 @@ impl Plugin for SenarioPlugin {
                 next_page,
                 flash_ligh_fade_out,
             )
-                .run_if(in_state(GameState::InGame)),
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
         app.add_systems(OnExit(GameState::InGame), clear_senario);
     }

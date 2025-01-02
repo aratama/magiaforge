@@ -14,11 +14,11 @@ use crate::message::RETURN_TO_TITLE;
 use crate::message::SFX_VOLUME;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameMenuState;
 use crate::states::GameState;
+use crate::states::TimeState;
 use crate::ui::label::spawn_label;
 use crate::ui::menu_button::menu_button;
 use crate::ui::range::spawn_range;
@@ -459,12 +459,12 @@ fn handle_escape_key(
 
 fn switch_physics_activation(
     state: Res<State<GameMenuState>>,
-    mut in_game_time: ResMut<InGameTime>,
+    mut in_game_time: ResMut<NextState<TimeState>>,
 ) {
     if state.is_changed() {
         match *state.get() {
-            GameMenuState::PauseMenuOpen => in_game_time.active = false,
-            _ => in_game_time.active = true,
+            GameMenuState::PauseMenuOpen => in_game_time.set(TimeState::Inactive),
+            _ => in_game_time.set(TimeState::Active),
         }
     }
 }

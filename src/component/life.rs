@@ -3,10 +3,10 @@ use crate::constant::WITCH_GROUP;
 use crate::entity::actor::ActorEvent;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
@@ -77,11 +77,7 @@ fn fire_damage(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
     mut se_writer: EventWriter<SEEvent>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     for (actor_entity, mut life, actor_transform) in actor_query.iter_mut() {
         if life.fire_damage_wait <= 0 {
             let mut fire_entities = Vec::<Entity>::new();
@@ -134,7 +130,8 @@ impl Plugin for LifePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (vibrate_breakabke_sprite, fire_damage).run_if(in_state(GameState::InGame)),
+            (vibrate_breakabke_sprite, fire_damage)
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
     }
 }

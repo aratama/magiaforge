@@ -1,5 +1,4 @@
-use crate::physics::InGameTime;
-use crate::states::GameState;
+use crate::states::{GameState, TimeState};
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
@@ -62,11 +61,7 @@ fn update_transform(
         (&EntityPointLight, &mut Transform),
         (With<PointLight2d>, Without<WithPointLight>),
     >,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     for (child, mut transform) in child_query.iter_mut() {
         if let Ok((_, lantern_transform)) = parent_query.get(child.parent) {
             transform.translation = lantern_transform.translation;
@@ -78,11 +73,7 @@ fn update_intensity(
     parent_query: Query<&WithPointLight>,
     mut child_query: Query<(&EntityPointLight, &mut PointLight2d)>,
     frame_count: Res<FrameCount>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     for (child, mut light) in child_query.iter_mut() {
         if let Ok(lantern) = parent_query.get(child.parent) {
             light.intensity = lantern.intensity
@@ -110,7 +101,8 @@ impl Plugin for EntityPointLightPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_transform, update_intensity).run_if(in_state(GameState::InGame)),
+            (update_transform, update_intensity)
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
         app.add_systems(
             FixedUpdate,

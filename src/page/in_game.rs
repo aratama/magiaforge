@@ -217,12 +217,14 @@ pub fn setup_level(
     );
 
     // 拠点のみ、数羽のニワトリを生成します
-    for _ in 0..20 {
-        if let Some((x, y)) = empties.choose(&mut rng) {
-            spawn_entity.send(SpawnEntity::Spawn {
-                entity: EntityType::Chiken,
-                position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
-            });
+    if level == GameLevel::Level(0) {
+        for _ in 0..4 {
+            if let Some((x, y)) = empties.choose(&mut rng) {
+                spawn_entity.send(SpawnEntity::Spawn {
+                    entity: EntityType::Chiken,
+                    position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
+                });
+            }
         }
     }
 

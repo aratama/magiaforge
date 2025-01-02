@@ -5,10 +5,10 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
-use crate::physics::InGameTime;
 use crate::set::GameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::cmp::Ordering;
@@ -65,12 +65,7 @@ fn control_slime(
         &mut Transform,
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    in_game_timer: Res<InGameTime>,
 ) {
-    if !in_game_timer.active {
-        return;
-    }
-
     let context: &RapierContext = rapier_context.single();
 
     // 多対多の参照になるので、HashMapでキャッシュしておく
@@ -97,7 +92,10 @@ fn control_slime(
                 0.0,
                 &Collider::ball(ENEMY_DETECTION_RANGE),
                 QueryFilter {
-                    groups: Some(CollisionGroups::new(ENEMY_GROUP, WITCH_GROUP | ENEMY_GROUP)),
+                    groups: Some(CollisionGroups::new(
+                        ENEMY_GROUP,
+                        WITCH_GROUP | ENEMY_GROUP | NEUTRAL_GROUP,
+                    )),
                     ..default()
                 },
                 |e| {
@@ -145,7 +143,7 @@ impl Plugin for SlimeControlPlugin {
         app.add_systems(
             FixedUpdate,
             (control_slime)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),
         );

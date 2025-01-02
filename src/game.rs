@@ -268,6 +268,7 @@ pub fn run_game() {
         .init_state::<GameState>()
         .add_sub_state::<MainMenuPhase>()
         .add_sub_state::<GameMenuState>()
+        .add_sub_state::<TimeState>()
         .add_loading_state(
             LoadingState::new(GameState::Setup)
                 .continue_to_state(INITIAL_STATE)

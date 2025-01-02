@@ -1,5 +1,4 @@
-use crate::physics::InGameTime;
-use crate::states::GameState;
+use crate::states::{GameState, TimeState};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -22,10 +21,7 @@ impl Falling {
     }
 }
 
-fn fall(mut child_query: Query<(&mut Transform, &mut Falling)>, in_game_time: Res<InGameTime>) {
-    if !in_game_time.active {
-        return;
-    }
+fn fall(mut child_query: Query<(&mut Transform, &mut Falling)>) {
     for (mut child_transform, mut falling) in child_query.iter_mut() {
         let next = child_transform.translation.y + falling.velocity;
         if next <= 0.0 {
@@ -46,7 +42,7 @@ impl Plugin for FallingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            fall.run_if(in_state(GameState::InGame))
+            fall.run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
     }

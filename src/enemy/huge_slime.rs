@@ -16,11 +16,11 @@ use crate::entity::servant_seed::ServantType;
 use crate::entity::servant_seed::SpawnServantSeed;
 use crate::entity::EntityDepth;
 use crate::inventory::Inventory;
-use crate::physics::InGameTime;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::states::TimeState;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
 use crate::wand::Wand;
@@ -159,11 +159,7 @@ fn control(
         (&Parent, &Transform),
         (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
     >,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     for (parent, offset) in sprite_query.iter_mut() {
         let (transform, mut actor) = slime_query.get_mut(parent.get()).unwrap();
 
@@ -189,11 +185,7 @@ fn impact(
     slime_query: Query<&Transform, With<HugeSlime>>,
     sprite_query: Query<(&Parent, &Falling), With<HugeSlimeSprite>>,
     mut impact_writer: EventWriter<SpawnImpact>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !in_game_time.active {
-        return;
-    }
     for (parent, falling) in sprite_query.iter() {
         if falling.just_landed {
             let transform = slime_query.get(parent.get()).unwrap();
@@ -438,7 +430,7 @@ impl Plugin for HugeSlimePlugin {
                 despown,
             )
                 .chain(),)
-                .run_if(in_state(GameState::InGame))
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
         );
     }
