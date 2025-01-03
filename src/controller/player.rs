@@ -62,6 +62,21 @@ pub struct Player {
 }
 
 impl Player {
+    pub fn new(name: String, getting_up: bool) -> Self {
+        Self {
+            name,
+            last_idle_frame_count: FrameCount(0),
+            last_ilde_x: 0.0,
+            last_ilde_y: 0.0,
+            last_idle_vx: 0.0,
+            last_idle_vy: 0.0,
+            last_idle_life: 0,
+            last_idle_max_life: 0,
+            getting_up: if getting_up { 240 } else { 0 },
+            discovered_spells: HashSet::new(),
+        }
+    }
+
     pub fn update_discovered_spells(&mut self, actor: &Actor) {
         self.discovered_spells = self
             .discovered_spells
@@ -80,15 +95,12 @@ pub struct PlayerServant;
 /// ここではまだ ExternalForce へはアクセスしません
 /// Actor側で ExternalForce にアクセスして、移動を行います
 fn move_player(
-    mut player_query: Query<(&mut Actor, &Player)>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut servant_query: Query<&mut Actor, (With<PlayerServant>, Without<Player>)>,
     keys: Res<ButtonInput<KeyCode>>,
     menu: Res<State<GameMenuState>>,
 ) {
-    if let Ok((mut actor, player)) = player_query.get_single_mut() {
-        if player.getting_up > 0 {
-            return;
-        }
+    if let Ok(mut actor) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
                 let direction = get_direction(keys);
@@ -137,7 +149,7 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 /// 魔法の発射
 pub fn actor_cast(
     mut commands: Commands,
-    mut player_query: Query<(&mut Actor, &Player), Without<Camera2d>>,
+    mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
     servant_query: Query<Entity, (With<PlayerServant>, Without<Player>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
@@ -148,10 +160,7 @@ pub fn actor_cast(
         return;
     }
 
-    if let Ok((mut actor, player)) = player_query.get_single_mut() {
-        if player.getting_up > 0 {
-            return;
-        }
+    if let Ok(mut actor) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
                 actor.fire_state = if get_fire_trigger(&buttons) {
@@ -181,13 +190,10 @@ pub fn actor_cast(
 }
 
 pub fn rotate_holded_bullets(
-    player_query: Query<(Entity, &Actor, &Player, &Transform), Without<Camera2d>>,
+    player_query: Query<(Entity, &Actor, &Transform), (With<Player>, Without<Camera2d>)>,
     mut bullet_query: Query<(&Bullet, &mut Transform), Without<Actor>>,
 ) {
-    if let Ok((player_entity, actor, player, player_transform)) = player_query.get_single() {
-        if player.getting_up > 0 {
-            return;
-        }
+    if let Ok((player_entity, actor, player_transform)) = player_query.get_single() {
         let to = player_transform.translation.truncate() + actor.pointer;
         for (bullet, mut transform) in bullet_query.iter_mut() {
             if let Some((holder_entity, trigger)) = bullet.holder {
@@ -201,15 +207,12 @@ pub fn rotate_holded_bullets(
 }
 
 pub fn release_holded_bullets(
-    player_query: Query<(Entity, &Actor, &Player, &Transform), Without<Camera2d>>,
+    player_query: Query<(Entity, &Actor, &Transform), (With<Player>, Without<Camera2d>)>,
     mut bullet_query: Query<(&mut Bullet, &mut Velocity, &mut Transform), Without<Actor>>,
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
     if buttons.just_released(MouseButton::Left) {
-        if let Ok((player_entity, actor, player, player_transform)) = player_query.get_single() {
-            if player.getting_up > 0 {
-                return;
-            }
+        if let Ok((player_entity, actor, player_transform)) = player_query.get_single() {
             let to = player_transform.translation.truncate() + actor.pointer;
             for (mut bullet, mut velocity, mut transform) in bullet_query.iter_mut() {
                 if let Some((holder_entity, trigger)) = bullet.holder {
@@ -333,13 +336,17 @@ fn die_player(
     }
 }
 
-fn getting_up(mut player_query: Query<(&mut Actor, &mut Player)>) {
+fn getting_up(
+    mut player_query: Query<(&mut Actor, &mut Player)>,
+    mut next: ResMut<NextState<GameMenuState>>,
+) {
     for (mut actor, mut player) in player_query.iter_mut() {
         if 0 < player.getting_up {
             player.getting_up -= 1;
             if player.getting_up == 0 {
                 actor.fire_state = ActorFireState::Idle;
                 actor.fire_state_secondary = ActorFireState::Idle;
+                next.set(GameMenuState::Closed);
             } else {
                 actor.state = ActorState::GettingUp;
             }
@@ -404,12 +411,9 @@ impl Plugin for PlayerPlugin {
             FixedUpdate,
             (
                 getting_up,
-                move_player,
-                actor_cast,
                 pick_gold,
                 die_player,
                 apply_intensity_by_lantern,
-                switch_wand,
                 insert_discovered_spells,
             )
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
@@ -417,11 +421,14 @@ impl Plugin for PlayerPlugin {
         );
 
         app.add_systems(
-            // FixedUpdateでスケジュールされたシステムには、before(PhysicsSet::SyncBackend) でスケジュールをする必要があります
-            // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
-            // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
-            (rotate_holded_bullets, release_holded_bullets)
+            (
+                move_player,
+                actor_cast,
+                switch_wand,
+                rotate_holded_bullets,
+                release_holded_bullets,
+            )
                 .chain()
                 .run_if(
                     in_state(GameState::InGame)

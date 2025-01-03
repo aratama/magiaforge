@@ -48,6 +48,8 @@ pub enum MainMenuPhase {
 #[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 #[source(GameState = GameState::InGame)]
 pub enum GameMenuState {
+    /// メニューが閉じている状態
+    /// このときのみプレイヤーを操作できます
     #[default]
     Closed,
 
@@ -56,6 +58,10 @@ pub enum GameMenuState {
     PauseMenuClosing,
 
     WandEditOpen,
+
+    /// プレイヤーキャラクターが起き上がるアニメーション中
+    /// 本来はメニューのステートではないが、切り替えに便利なのでここに置いている
+    PlayerInActive,
 }
 
 #[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]

@@ -30,9 +30,9 @@ use crate::message::MULTIPLAY_ARENA;
 use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
 use crate::spell::SpellType;
+use crate::states::GameMenuState;
 use crate::states::GameState;
 use bevy::asset::*;
-use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::plugin::PhysicsSet;
@@ -118,11 +118,17 @@ pub fn setup_level(
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntity>,
+    mut next: ResMut<NextState<GameMenuState>>,
 ) {
     let mut rng = StdRng::from_entropy();
 
     let level = current.next_level;
     current.level = Some(current.next_level);
+
+    // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
+    if level == GameLevel::Level(0) {
+        next.set(GameMenuState::PlayerInActive);
+    }
 
     // レベルの外観を生成します
     let chunk = spawn_level_appearance(
@@ -251,18 +257,7 @@ pub fn setup_level(
         player_state.wands,
         player_state.inventory,
         player_state.equipments,
-        Player {
-            name: player_state.name,
-            last_idle_frame_count: FrameCount(0),
-            last_ilde_x: player_x,
-            last_ilde_y: player_y,
-            last_idle_vx: 0.0,
-            last_idle_vy: 0.0,
-            last_idle_life: player_state.life,
-            last_idle_max_life: player_state.max_life,
-            getting_up: if level == GameLevel::Level(0) { 240 } else { 0 },
-            discovered_spells: player_state.discovered_spells.clone(),
-        },
+        Player::new(player_state.name, level == GameLevel::Level(0)),
         ActorGroup::Player,
         player_state.current_wand as usize,
     );
