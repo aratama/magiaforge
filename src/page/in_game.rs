@@ -224,9 +224,9 @@ pub fn setup_level(
     }
 
     // テスト用
-    spawn_entity.send(SpawnEntity::Shadow {
-        position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
-    });
+    // spawn_entity.send(SpawnEntity::Shadow {
+    //     position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
+    // });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します

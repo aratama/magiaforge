@@ -322,6 +322,7 @@ fn process_bullet_event(
                 breakabke.amplitude = 2.0;
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
+                writer.send(SEEvent::pos(SE::Damage, bullet_position));
                 spawn_particle_system(&mut commands, bullet_position, resource);
 
                 if let Some(mut impilse) = impulse_optional {
