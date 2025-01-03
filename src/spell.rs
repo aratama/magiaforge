@@ -1,4 +1,5 @@
 use crate::cast::SpellCast;
+use crate::cast::SpellCastBullet;
 use crate::cast::SpellCastEntityType;
 use crate::constant::TILE_SIZE;
 use crate::entity::servant_seed::ServantType;
@@ -94,7 +95,7 @@ impl SpellType {
                 cast_delay: 20,
                 icon: "bullet_magic_bolt",
                 price: 10,
-                cast: SpellCast::Bullet {
+                cast: SpellCast::Bullet(SpellCastBullet {
                     slices: vec!["bullet_magic_bolt".to_string()],
                     collier_radius: 5.0,
                     speed: 100.0,
@@ -106,7 +107,7 @@ impl SpellType {
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
                     remaining_time: 0
-                },
+                }),
             },
             SpellType::LightBall =>  SpellProps {
                 rank: 0,
@@ -135,7 +136,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "light_ball_icon",
                 price: 10,
-                cast: SpellCast::Bullet {
+                cast: SpellCast::Bullet(SpellCastBullet {
                     slices: vec!["light_ball".to_string()],
                     collier_radius: 5.0,
                     speed: 4.0,
@@ -147,7 +148,7 @@ impl SpellType {
                     light_radius: TILE_SIZE * 10.0,
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
                     remaining_time: 0
-                },
+                }),
             },
             SpellType::SpawnJar => SpellProps {
                 rank: 0,
@@ -206,7 +207,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "bullet_purple",
                 price: 5,
-                cast: SpellCast::Bullet {
+                cast: SpellCast::Bullet(SpellCastBullet {
                     slices: vec!["bullet_purple".to_string()],
                     collier_radius: 5.0,
                     speed: 50.0,
@@ -218,7 +219,7 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     remaining_time: 0
-                },
+                }),
             },
             SpellType::SlimeCharge => SpellProps {
                 rank: 1,
@@ -247,7 +248,7 @@ impl SpellType {
                 cast_delay: 30,
                 icon: "bullet_slime_charge",
                 price: 15,
-                cast: SpellCast::Bullet {
+                cast: SpellCast::Bullet(SpellCastBullet {
                     slices: vec!["bullet_slime_charge".to_string()],
                     collier_radius: 5.0,
                     speed: 2.0,
@@ -259,7 +260,7 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     remaining_time: 0
-                },
+                }),
             },
             SpellType::SummonChiken => SpellProps {
                 rank: 3,
@@ -317,7 +318,7 @@ impl SpellType {
                 cast_delay: 8,
                 icon: "spell_water_ball",
                 price: 15,
-                cast: SpellCast::Bullet {
+                cast: SpellCast::Bullet(SpellCastBullet {
                     slices: vec!["water_ball".to_string()],
                     collier_radius: 5.0,
                     speed: 80.0,
@@ -329,7 +330,7 @@ impl SpellType {
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
                     remaining_time: 0
-                },
+                }),
             },
             SpellType::BulletSpeedDoown =>  SpellProps {
                 rank: 2,
@@ -938,19 +939,7 @@ impl SpellType {
                 cast_delay: 20,
                 icon: "light_sowrd_icon",
                 price: 1000,
-                cast: SpellCast::Bullet {
-                    slices: vec!["light_sword".to_string(), "light_catlass".to_string(), "light_knife".to_string(), "light_spear".to_string(), "light_axe".to_string(), "light_trident".to_string(), "light_rapier".to_string(), "light_flamberge".to_string()],
-                    collier_radius: 5.0,
-                    speed: 200.0,
-                    lifetime: 240,
-                    damage: 20,
-                    impulse: 0.0,
-                    scattering: 0.2,
-                    light_intensity: 1.0,
-                    light_radius: 50.0,
-                    light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
-                    remaining_time: 120
-                },
+                cast: SpellCast::LightSword,
             },
             SpellType::SummonHugeSlime =>  SpellProps {
                 rank: 6,
@@ -1071,7 +1060,7 @@ const HEAL_TEXT: Dict<&'static str> = Dict {
 
 pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
     match cast {
-        SpellCast::Bullet {
+        SpellCast::Bullet(SpellCastBullet {
             slices: _,
             collier_radius,
             speed,
@@ -1083,7 +1072,7 @@ pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
             light_radius: _,
             light_color_hlsa: _,
             remaining_time: _,
-        } => {
+        }) => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();
             empty += Dict::literal(damage);

@@ -41,6 +41,7 @@ pub struct Bullet {
     homing: f32,
     actor_group: ActorGroup,
     remaining_time: u32,
+    pub holder: Option<(Entity, Trigger)>,
 }
 
 #[derive(Bundle)]
@@ -58,6 +59,12 @@ pub struct BulletResidual {
     count: u32,
 }
 
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Reflect, PartialEq, Eq)]
+pub enum Trigger {
+    Primary,
+    Secondary,
+}
+
 /// 生成される弾丸の大半の情報を収めた構造体です
 /// 実際に弾丸を生成する spawn_bullet 関数のパラメータとして使われるほか、
 /// リモートで送信される RemoteMessage::Fire のデータとしても共通で使われることで、
@@ -67,6 +74,9 @@ pub struct BulletResidual {
 pub struct SpawnBullet {
     /// 発射したアクターのUUID
     pub sender: Option<Uuid>,
+
+    // LightSwordで待機中
+    pub holder: Option<(Entity, Trigger)>,
 
     /// 発射したアクターのグループ
     pub actor_group: ActorGroup,
@@ -115,6 +125,7 @@ pub fn spawn_bullet(
             homing: spawn.homing,
             actor_group: spawn.actor_group,
             remaining_time: spawn.remaining_time,
+            holder: spawn.holder,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)

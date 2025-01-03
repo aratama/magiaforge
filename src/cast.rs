@@ -9,6 +9,7 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
+use crate::entity::bullet::Trigger;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::fireball::spawn_fireball;
 use crate::entity::impact::SpawnImpact;
@@ -39,33 +40,36 @@ pub enum SpellCastEntityType {
     CrateOrBarrel,
 }
 
+#[derive(Debug)]
+pub struct SpellCastBullet {
+    pub slices: Vec<String>,
+
+    pub collier_radius: f32,
+
+    /// 魔法弾の速度
+    /// pixels_per_meter が 100.0 に設定されているので、
+    /// 200は1フレームに2ピクセル移動する速度です
+    pub speed: f32,
+
+    pub lifetime: u32,
+    pub damage: i32,
+    pub impulse: f32,
+
+    pub scattering: f32,
+
+    pub light_intensity: f32,
+    pub light_radius: f32,
+    pub light_color_hlsa: [f32; 4],
+
+    pub remaining_time: u32,
+}
+
 /// 呪文を詠唱したときの動作を表します
 /// 弾丸系魔法は Bullet にまとめられており、
 /// そのほかの魔法も動作の種別によって分類されています
 #[derive(Debug)]
 pub enum SpellCast {
-    Bullet {
-        slices: Vec<String>,
-
-        collier_radius: f32,
-
-        /// 魔法弾の速度
-        /// pixels_per_meter が 100.0 に設定されているので、
-        /// 200は1フレームに2ピクセル移動する速度です
-        speed: f32,
-
-        lifetime: u32,
-        damage: i32,
-        impulse: f32,
-
-        scattering: f32,
-
-        light_intensity: f32,
-        light_radius: f32,
-        light_color_hlsa: [f32; 4],
-
-        remaining_time: u32,
-    },
+    Bullet(SpellCastBullet),
     Heal,
     BulletSpeedUpDown {
         delta: f32,
@@ -88,6 +92,7 @@ pub enum SpellCast {
     RockFall,
     Fireball,
     SpawnEntity(SpellCastEntityType),
+    LightSword,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -108,44 +113,36 @@ pub fn cast_spell(
     spawn: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
     is_player: bool,
+    trigger: Trigger,
 ) {
-    let ref mut wand = &mut actor.wands[wand_index];
     // 1フレームあたりの残りの呪文詠唱回数
     // MultipleCast で増加することがあります
     let mut multicast = 1;
 
-    if 0 < wand.delay {
+    if 0 < actor.wands[wand_index].delay {
         return;
     }
 
+    let mut wand_delay = 0;
+
+    let mut spell_index: usize = actor.wands[wand_index].index;
+
     let mut clear_effect = false;
 
-    while 0 < multicast && wand.index < MAX_SPELLS_IN_WAND {
-        if let Some(spell) = wand.slots[wand.index] {
+    while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
+        if let Some(spell) = actor.wands[wand_index].slots[spell_index] {
             let props = spell.spell_type.to_props();
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;
-            wand.delay += delay as u32;
+            wand_delay += delay as u32;
             multicast -= 1;
 
             match props.cast {
-                SpellCast::Bullet {
-                    slices,
-                    collier_radius,
-                    speed,
-                    lifetime,
-                    damage,
-                    impulse,
-                    scattering,
-                    light_intensity,
-                    light_radius,
-                    light_color_hlsa,
-                    remaining_time,
-                } => {
+                SpellCast::Bullet(cast) => {
                     let normalized = actor.pointer.normalize();
                     let angle = actor.pointer.to_angle();
-                    let updated_scattering = (scattering - actor.effects.precision).max(0.0);
+                    let updated_scattering = (cast.scattering - actor.effects.precision).max(0.0);
                     let angle_with_random = angle + (random::<f32>() - 0.5) * updated_scattering;
                     let direction = Vec2::from_angle(angle_with_random);
                     let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
@@ -154,22 +151,23 @@ pub fn cast_spell(
 
                     let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
+                        holder: None,
                         actor_group: actor.actor_group,
                         position: bullet_position,
                         velocity: direction
-                            * speed
+                            * cast.speed
                             * (1.0 + actor.effects.bullet_speed_buff_factor),
-                        bullet_lifetime: lifetime,
+                        bullet_lifetime: cast.lifetime,
                         sender: Some(actor.uuid),
-                        damage: damage + actor.effects.bullet_damage_buff_amount,
-                        impulse,
-                        slices,
-                        collier_radius,
-                        light_intensity,
-                        light_radius,
-                        light_color_hlsa,
+                        damage: cast.damage + actor.effects.bullet_damage_buff_amount,
+                        impulse: cast.impulse,
+                        slices: cast.slices,
+                        collier_radius: cast.collier_radius,
+                        light_intensity: cast.light_intensity,
+                        light_radius: cast.light_radius,
+                        light_color_hlsa: cast.light_color_hlsa,
                         homing: actor.effects.homing,
-                        remaining_time,
+                        remaining_time: cast.remaining_time,
                         groups: match actor.actor_group {
                             ActorGroup::Player => *PLAYER_BULLET_GROUP,
                             ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
@@ -221,7 +219,7 @@ pub fn cast_spell(
                 SpellCast::Heal => {
                     if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
                     {
-                        wand.delay += 1;
+                        wand_delay += 1;
                     } else {
                         actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
                         se_writer.send(SEEvent::pos(
@@ -321,18 +319,66 @@ pub fn cast_spell(
                     let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
                     spawn_fireball(&mut commands, &assets, position, velocity);
                 }
+                SpellCast::LightSword => {
+                    let normalized = actor.pointer.normalize_or_zero();
+
+                    // ポインターのベクトルに垂直な単位ベクトル
+                    let vertical: Vec2 = Vec2::from_angle(f32::consts::PI * 0.5).rotate(normalized);
+
+                    let bullet_offset = (rand::random::<f32>() - 0.5) * 128.0;
+
+                    let bullet_position = actor_transform.translation.truncate()
+                        + normalized * -64.0 // ポインタと反対方向に戻る
+                        + vertical* bullet_offset; // ポインタに垂直な方向にランダムにずらす
+
+                    let spawn = SpawnBullet {
+                        uuid: Uuid::new_v4(),
+                        holder: Some((actor_entity, trigger)),
+                        actor_group: actor.actor_group,
+                        position: bullet_position,
+                        velocity: normalized * 0.01,
+                        bullet_lifetime: 240,
+                        sender: Some(actor.uuid),
+                        damage: 20 + actor.effects.bullet_damage_buff_amount,
+                        impulse: 0.0,
+                        slices: vec![
+                            "light_sword".to_string(),
+                            "light_catlass".to_string(),
+                            "light_knife".to_string(),
+                            "light_spear".to_string(),
+                            "light_axe".to_string(),
+                            "light_trident".to_string(),
+                            "light_rapier".to_string(),
+                            "light_flamberge".to_string(),
+                        ],
+                        collier_radius: 5.0,
+                        light_intensity: 1.0,
+                        light_radius: 50.0,
+                        light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
+                        homing: actor.effects.homing,
+                        remaining_time: 120,
+                        groups: match actor.actor_group {
+                            ActorGroup::Player => *PLAYER_BULLET_GROUP,
+                            ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
+                            ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
+                        },
+                    };
+
+                    spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
+                    clear_effect = true;
+                }
             }
         } else {
             // 空欄の場合は残り詠唱回数は減りません
         }
 
-        wand.index = wand.index + 1;
+        spell_index += 1;
     }
 
     if clear_effect {
         actor.effects = default();
     }
 
-    // actor.effects = default();
-    wand.index %= MAX_SPELLS_IN_WAND;
+    actor.wands[wand_index].delay = wand_delay;
+    actor.wands[wand_index].index = spell_index % MAX_SPELLS_IN_WAND;
 }

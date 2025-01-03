@@ -9,6 +9,8 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
+use crate::entity::bullet::Bullet;
+use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
 use crate::equipment::EquipmentType;
 use crate::input::get_direction;
@@ -173,6 +175,51 @@ pub fn actor_cast(
             _ => {
                 actor.fire_state = ActorFireState::Idle;
                 actor.fire_state_secondary = ActorFireState::Idle;
+            }
+        }
+    }
+}
+
+pub fn rotate_holded_bullets(
+    player_query: Query<(Entity, &Actor, &Player, &Transform), Without<Camera2d>>,
+    mut bullet_query: Query<(&Bullet, &mut Transform), Without<Actor>>,
+) {
+    if let Ok((player_entity, actor, player, player_transform)) = player_query.get_single() {
+        if player.getting_up > 0 {
+            return;
+        }
+        let to = player_transform.translation.truncate() + actor.pointer;
+        for (bullet, mut transform) in bullet_query.iter_mut() {
+            if let Some((holder_entity, trigger)) = bullet.holder {
+                if holder_entity == player_entity && trigger == Trigger::Primary {
+                    let direction = to - transform.translation.truncate();
+                    transform.rotation = Quat::from_rotation_z(direction.to_angle());
+                }
+            }
+        }
+    }
+}
+
+pub fn release_holded_bullets(
+    player_query: Query<(Entity, &Actor, &Player, &Transform), Without<Camera2d>>,
+    mut bullet_query: Query<(&mut Bullet, &mut Velocity, &mut Transform), Without<Actor>>,
+    buttons: Res<ButtonInput<MouseButton>>,
+) {
+    if buttons.just_released(MouseButton::Left) {
+        if let Ok((player_entity, actor, player, player_transform)) = player_query.get_single() {
+            if player.getting_up > 0 {
+                return;
+            }
+            let to = player_transform.translation.truncate() + actor.pointer;
+            for (mut bullet, mut velocity, mut transform) in bullet_query.iter_mut() {
+                if let Some((holder_entity, trigger)) = bullet.holder {
+                    if holder_entity == player_entity && trigger == Trigger::Primary {
+                        let direction = to - transform.translation.truncate();
+                        transform.rotation = Quat::from_rotation_z(direction.to_angle());
+                        velocity.linvel = direction.normalize() * 300.0;
+                        bullet.holder = None;
+                    }
+                }
             }
         }
     }
@@ -366,6 +413,21 @@ impl Plugin for PlayerPlugin {
                 insert_discovered_spells,
             )
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
+                .before(PhysicsSet::SyncBackend),
+        );
+
+        app.add_systems(
+            // FixedUpdateでスケジュールされたシステムには、before(PhysicsSet::SyncBackend) でスケジュールをする必要があります
+            // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
+            // https://taintedcoders.com/bevy/physics/rapier
+            FixedUpdate,
+            (rotate_holded_bullets, release_holded_bullets)
+                .chain()
+                .run_if(
+                    in_state(GameState::InGame)
+                        .and(in_state(TimeState::Active))
+                        .and(in_state(GameMenuState::Closed)),
+                )
                 .before(PhysicsSet::SyncBackend),
         );
     }

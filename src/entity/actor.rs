@@ -1,3 +1,4 @@
+use super::bullet::Trigger;
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
@@ -413,6 +414,7 @@ fn fire_bullet(
                 &mut spawn,
                 current_wand,
                 player.is_some(),
+                Trigger::Primary,
             );
         }
 
@@ -432,6 +434,7 @@ fn fire_bullet(
                 &mut spawn,
                 MAX_WANDS - 1,
                 player.is_some(),
+                Trigger::Secondary,
             );
         }
 

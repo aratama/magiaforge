@@ -1,14 +1,12 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
-use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::shadow::spawn_shadow;
 use crate::enemy::slime::spawn_slime;
-use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
