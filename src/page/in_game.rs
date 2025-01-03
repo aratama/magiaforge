@@ -118,7 +118,7 @@ pub fn setup_level(
     life_bar_res: Res<LifeBarResource>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
-    mut spawn_entity: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntity>,
 ) {
     let mut rng = StdRng::from_entropy();
 
@@ -158,7 +158,7 @@ pub fn setup_level(
 
     // 宝箱や灯篭などのエンティティを生成します
     for entity in &chunk.entities {
-        spawn_entity.send(entity.clone());
+        spawn.send(entity.clone());
     }
 
     // 空間
@@ -216,7 +216,7 @@ pub fn setup_level(
     if level == GameLevel::Level(0) {
         for _ in 0..4 {
             if let Some((x, y)) = empties.choose(&mut rng) {
-                spawn_entity.send(SpawnEntity::Chiken {
+                spawn.send(SpawnEntity::Chiken {
                     position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
                 });
             }
@@ -224,9 +224,9 @@ pub fn setup_level(
     }
 
     // テスト用
-    // spawn_entity.send(SpawnEntity::Shadow {
-    //     position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
-    // });
+    spawn.send(SpawnEntity::Shadow {
+        position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
+    });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します

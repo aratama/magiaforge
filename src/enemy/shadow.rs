@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
+use crate::component::flip::Flip;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
@@ -11,6 +12,7 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
+use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
@@ -23,6 +25,10 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
+
+const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
+
+const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
 #[derive(Debug)]
 enum ShadowState {
@@ -106,6 +112,7 @@ pub fn spawn_shadow(
         parent.spawn((
             ShadowSprite,
             Falling::new(0.0, -0.1),
+            Flip,
             LifeBeingSprite,
             CounterAnimated,
             AseSpriteAnimation {
@@ -120,33 +127,63 @@ pub fn spawn_shadow(
     builder.id()
 }
 
-fn transition(mut query: Query<&mut Shadow>) {
-    for mut shadow in query.iter_mut() {
-        // info!("shadow {:?}", shadow.state);
-        match shadow.state {
-            ShadowState::Wait(ref mut count) if *count < 180 => {
-                *count += 1;
-            }
-            ShadowState::Wait(_) => {
-                shadow.state = ShadowState::Hide(0);
-            }
-            ShadowState::Hide(ref mut count) if *count < 360 => {
-                *count += 1;
-            }
-            ShadowState::Hide(_) => {
-                shadow.state = ShadowState::Appear(0);
-            }
-            ShadowState::Appear(ref mut count) if *count < 60 => {
-                *count += 1;
-            }
-            ShadowState::Appear(_) => {
-                shadow.state = ShadowState::Attack(0);
-            }
-            ShadowState::Attack(ref mut count) if *count < 60 => {
-                *count += 1;
-            }
-            ShadowState::Attack(_) => {
-                shadow.state = ShadowState::Wait(0);
+fn transition(
+    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+) {
+    let finder = Finder::new(&query);
+    for (entity, shadow, mut actor, transform) in query.iter_mut() {
+        if let Some(mut shadow) = shadow {
+            let origin = transform.translation.truncate();
+            let nearest = finder.nearest(&rapier_context, entity, actor.actor_group, origin);
+
+            match shadow.state {
+                ShadowState::Wait(count) if count < 60 => {
+                    shadow.state = ShadowState::Wait(count + 1);
+                }
+                ShadowState::Wait(_) => {
+                    shadow.state = ShadowState::Hide(0);
+                }
+                ShadowState::Hide(count) if count < 360 => {
+                    if let Some(nearest) = nearest {
+                        let diff = nearest.position - origin;
+
+                        actor.pointer = diff.normalize_or_zero();
+
+                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                            shadow.state = ShadowState::Attack(0);
+                        } else {
+                            shadow.state = ShadowState::Hide(count + 1);
+                        }
+                    } else {
+                        shadow.state = ShadowState::Hide(count + 1);
+                    }
+                }
+                ShadowState::Hide(_) => {
+                    shadow.state = ShadowState::Appear(0);
+                }
+                ShadowState::Appear(count) if count < 30 => {
+                    shadow.state = ShadowState::Appear(count + 1);
+                }
+                ShadowState::Appear(_) => {
+                    if let Some(nearest) = nearest {
+                        let diff = nearest.position - origin;
+
+                        actor.pointer = diff.normalize_or_zero();
+
+                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                            shadow.state = ShadowState::Attack(0);
+                        } else {
+                            shadow.state = ShadowState::Wait(0);
+                        }
+                    }
+                }
+                ShadowState::Attack(count) if count < 60 => {
+                    shadow.state = ShadowState::Attack(count + 1);
+                }
+                ShadowState::Attack(_) => {
+                    shadow.state = ShadowState::Wait(0);
+                }
             }
         }
     }
@@ -187,6 +224,43 @@ fn animate(
     }
 }
 
+fn approach(
+    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+) {
+    let finder = Finder::new(&query);
+
+    for (entity, shadow, mut actor, transform) in query.iter_mut() {
+        if let Some(shadow) = shadow {
+            match shadow.state {
+                ShadowState::Hide(count) if 60 < count => {
+                    let origin = transform.translation.truncate();
+                    if let Some(nearest) =
+                        finder.nearest(&rapier_context, entity, actor.actor_group, origin)
+                    {
+                        let diff = nearest.position - origin;
+                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                            actor.move_direction = Vec2::ZERO;
+                            actor.move_force = 0.0;
+                        } else if diff.length() < ENEMY_DETECTION_RANGE {
+                            actor.move_direction = diff.normalize_or_zero();
+                            actor.move_force = 100000.0;
+                        }
+                    } else {
+                        actor.move_direction = Vec2::ZERO;
+                        actor.move_force = 0.0;
+                    }
+                }
+
+                _ => {
+                    actor.move_direction = Vec2::ZERO;
+                    actor.move_force = 0.0;
+                }
+            }
+        }
+    }
+}
+
 fn group(mut query: Query<(&Shadow, &Actor, &mut CollisionGroups)>) {
     for (shadow, actor, mut group) in query.iter_mut() {
         match shadow.state {
@@ -213,7 +287,7 @@ impl Plugin for ShadowPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (transition, animate, group)
+            (transition, animate, approach, group)
                 .chain()
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)

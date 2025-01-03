@@ -4,6 +4,7 @@ use crate::camera::*;
 use crate::component::counter::CounterPlugin;
 use crate::component::entity_depth::EntityDepthPlugin;
 use crate::component::falling::FallingPlugin;
+use crate::component::flip::FlipPlugin;
 use crate::component::life::LifePlugin;
 use crate::component::point_light::EntityPointLightPlugin;
 use crate::config::GameConfigPlugin;
@@ -210,6 +211,7 @@ pub fn run_game() {
         .add_plugins(GameoverPlugin)
         .add_plugins(GrassPlugin)
         .add_plugins(SECommandPlugin)
+        .add_plugins(FlipPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)
         .add_plugins(GameInputPlugin)

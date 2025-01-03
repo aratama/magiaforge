@@ -165,7 +165,8 @@ pub const WALL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | ENEMY_BULLET_MEMBESHIPS
             | RABBIT_MEMBERSHIPS
             | DROPPED_ITEM_MEMBERSHIPS
-            | GOLD_MEMBERSHIPS,
+            | GOLD_MEMBERSHIPS
+            | SHADOW_MEMBERSHIPS,
     )
 });
 

@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
+use crate::component::flip::Flip;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
@@ -92,6 +93,7 @@ pub fn spawn_basic_enemy<T: Component>(
     builder.with_children(|mut parent| {
         parent.spawn((
             Falling::new(0.0, -0.1),
+            Flip,
             LifeBeingSprite,
             CounterAnimated,
             AseSpriteAnimation {

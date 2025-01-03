@@ -105,24 +105,13 @@ fn hopping(mut chiken_query: Query<&mut Chicken>, mut fall_query: Query<(&Parent
     }
 }
 
-fn flip(
-    mut chiken_query: Query<&Actor, With<Chicken>>,
-    mut fall_query: Query<(&Parent, &mut Sprite)>,
-) {
-    for (parent, mut sprite) in fall_query.iter_mut() {
-        if let Ok(chicken) = chiken_query.get_mut(parent.get()) {
-            sprite.flip_x = chicken.pointer.x < 0.0;
-        }
-    }
-}
-
 pub struct ChikenControlPlugin;
 
 impl Plugin for ChikenControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (control_chiken, hopping, flip)
+            (control_chiken, hopping)
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)
                 .before(PhysicsSet::SyncBackend),

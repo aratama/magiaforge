@@ -4,6 +4,7 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
+use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::GameSet;
 use crate::spell::SpellType;
@@ -11,8 +12,6 @@ use crate::states::GameState;
 use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use std::cmp::Ordering;
-use std::collections::HashMap;
 
 #[derive(Component, Debug)]
 pub struct SlimeControl {
@@ -68,13 +67,7 @@ fn control_slime(
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let context: &RapierContext = rapier_context.single();
-
-    // 多対多の参照になるので、HashMapでキャッシュしておく
-    let map: HashMap<Entity, (ActorGroup, Vec2, f32)> = actor_query
-        .iter()
-        .map(|(e, _, a, t)| (e, (a.actor_group, t.translation.truncate(), a.radius)))
-        .collect();
+    let finder = Finder::new(&actor_query);
 
     // 各スライムの行動を選択します
     for (slime_entity, slime_optional, mut slime_actor, slime_transform) in actor_query.iter_mut() {
@@ -87,34 +80,17 @@ fn control_slime(
                 continue;
             }
 
-            // 指定した範囲にいる、自分以外で、かつ別のグループに所属するアクターの一覧を取得
-            let mut enemies: Vec<(Vec2, f32)> = Vec::new();
-            context.intersections_with_shape(
-                slime_transform.translation.truncate(),
-                0.0,
-                &Collider::ball(ENEMY_DETECTION_RANGE),
-                QueryFilter {
-                    groups: Some(*SENSOR_GROUPS),
-                    ..default()
-                },
-                |e| {
-                    if e != slime_entity {
-                        if let Some((e_g, e_t, e_r)) = map.get(&e) {
-                            if *e_g != slime_actor.actor_group {
-                                enemies.push((*e_t, *e_r));
-                            }
-                        }
-                    }
-                    true // 交差図形の検索を続ける
-                },
-            );
-
             // 最も近くにいる、別グループのアクターに対して接近または攻撃
             let origin = slime_transform.translation.truncate();
-            enemies.sort_by(compare_distance(origin));
-            if let Some((nearest_actor_position, nearest_actor_radius)) = enemies.first() {
-                let diff = nearest_actor_position - origin;
-                if diff.length() < slime_actor.radius + nearest_actor_radius + ENEMY_ATTACK_MARGIN {
+
+            if let Some(nearest) = finder.nearest(
+                &rapier_context,
+                slime_entity,
+                slime_actor.actor_group,
+                origin,
+            ) {
+                let diff = nearest.position - origin;
+                if diff.length() < slime_actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                     slime_actor.move_direction = Vec2::ZERO;
                     slime_actor.pointer = diff;
                     slime_actor.fire_state = ActorFireState::Fire;
@@ -124,14 +100,6 @@ fn control_slime(
                 }
             }
         }
-    }
-}
-
-pub fn compare_distance(origin: Vec2) -> impl FnMut(&(Vec2, f32), &(Vec2, f32)) -> Ordering {
-    move |(a, _), (b, _)| {
-        let a_diff = a - origin;
-        let b_diff = b - origin;
-        a_diff.length().partial_cmp(&b_diff.length()).unwrap()
     }
 }
 

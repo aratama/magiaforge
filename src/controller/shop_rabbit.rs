@@ -27,7 +27,7 @@ fn collision_inner_sensor(
     mut collision_events: EventReader<CollisionEvent>,
     sensor_query: Query<&ShopRabbitSensor>,
     mut camera_query: Query<&mut GameCamera>,
-    mut player_query: Query<&mut Actor>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut speech_writer: EventWriter<TheaterEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
