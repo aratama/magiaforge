@@ -1,9 +1,9 @@
+use crate::component::life::Life;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::component::life::Life;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::spell::SpellType;
@@ -119,6 +119,11 @@ impl PlayerState {
         };
         instance.update_discovered_spell();
         instance
+    }
+
+    pub fn from_query(query: &Query<(&Player, &Actor, &Life)>) -> Self {
+        let (player, actor, life) = query.single();
+        PlayerState::from_player(player, actor, life)
     }
 }
 

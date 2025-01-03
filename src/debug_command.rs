@@ -8,6 +8,7 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
+use crate::player_state::PlayerState;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::states::TimeState;
@@ -124,7 +125,7 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
 
         actor.wands[0] = Wand::with_slots([
             Some(WandSpell {
-                spell_type: SpellType::Servant,
+                spell_type: SpellType::LightSword,
                 price: 0,
             }),
             None,
@@ -176,10 +177,15 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
     }
 }
 
-fn debug_next(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_next(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
     match level.next_level {
         GameLevel::Level(n) => {
             level.next_level = GameLevel::Level((n + 1) % LEVELS);
+            level.next_state = PlayerState::from_query(&player_query);
             writer.send(OverlayEvent::Close(GameState::Warp));
         }
         GameLevel::MultiPlayArena => {
@@ -189,18 +195,33 @@ fn debug_next(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEven
     };
 }
 
-fn debug_home(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_home(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
     level.next_level = GameLevel::Level(0);
+    level.next_state = PlayerState::from_query(&player_query);
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
-fn debug_arena(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_arena(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
     level.next_level = GameLevel::MultiPlayArena;
+    level.next_state = PlayerState::from_query(&player_query);
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
-fn debug_boss(mut level: ResMut<LevelSetup>, mut writer: EventWriter<OverlayEvent>) {
+fn debug_boss(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
     level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
+    level.next_state = PlayerState::from_query(&player_query);
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 

@@ -452,15 +452,6 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
     }
 }
 
-/// レベル遷移前にプレイヤーの状態を保存します
-/// ただし、ゲームオーバー時や魔法陣でのワープ時はプレイヤーのエンティティが存在しないため、
-/// その場合は個別にnext_stateを設定しておく必要があります
-fn on_exit(player_query: Query<(&Player, &Actor, &Life)>, mut next: ResMut<LevelSetup>) {
-    if let Ok((player, actor, life)) = player_query.get_single() {
-        next.next_state = PlayerState::new(player, actor, life);
-    }
-}
-
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
@@ -475,7 +466,6 @@ impl Plugin for WorldPlugin {
 
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
-        app.add_systems(OnExit(GameState::InGame), on_exit);
         app.init_resource::<LevelSetup>();
     }
 }
