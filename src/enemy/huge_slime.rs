@@ -124,16 +124,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 ExternalForce::default(),
                 ExternalImpulse::default(),
                 ActiveEvents::COLLISION_EVENTS,
-                CollisionGroups::new(
-                    ENEMY_GROUP,
-                    ENTITY_GROUP
-                        | WALL_GROUP
-                        | NEUTRAL_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | RABBIT_GROUP,
-                ),
+                *ENEMY_GROUPS,
             ),
         ))
         .with_children(|parent| {

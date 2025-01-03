@@ -107,19 +107,7 @@ pub fn spawn_chest(
                     ChestType::Jar(_) => Collider::ball(6.0),
                     _ => Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
                 },
-                CollisionGroups::new(
-                    ENTITY_GROUP,
-                    PIECE_GROUP
-                        | ENTITY_GROUP
-                        | NEUTRAL_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP
-                        | WALL_GROUP
-                        | RABBIT_GROUP
-                        | DROPPED_ITEM_GROUP,
-                ),
+                *ENTITY_GROUPS,
                 ExternalImpulse::default(),
             ),
         ))

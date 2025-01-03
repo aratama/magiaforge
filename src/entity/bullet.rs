@@ -1,3 +1,4 @@
+use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::actor::Actor;
@@ -5,7 +6,6 @@ use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
-use crate::component::entity_depth::EntityDepth;
 use crate::level::wall::WallCollider;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -83,8 +83,7 @@ pub struct SpawnBullet {
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
-    pub memberships: Group,
-    pub filters: Group,
+    pub groups: CollisionGroups,
     pub remaining_time: u32,
 }
 
@@ -140,7 +139,7 @@ pub fn spawn_bullet(
             // 衝突を発生されるには ActiveEvents も必要
             ActiveEvents::COLLISION_EVENTS,
             // https://rapier.rs/docs/user_guides/bevy_plugin/colliders#collision-groups-and-solver-groups
-            CollisionGroups::new(spawn.memberships, spawn.filters),
+            spawn.groups,
             //
             Velocity {
                 linvel: spawn.velocity,

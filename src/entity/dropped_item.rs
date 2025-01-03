@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
 use crate::component::counter::Counter;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::component::entity_depth::EntityDepth;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::physics::identify;
@@ -72,17 +72,7 @@ pub fn spawn_dropped_item(
                     angular_damping: 1.0,
                 },
                 Collider::cuboid(collider_width, 8.0),
-                CollisionGroups::new(
-                    DROPPED_ITEM_GROUP,
-                    DROPPED_ITEM_GROUP
-                        | ENTITY_GROUP
-                        | NEUTRAL_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | WALL_GROUP
-                        | DOOR_GROUP
-                        | RABBIT_GROUP,
-                ),
+                *DROPPED_ITEM_GROUPS,
                 ActiveEvents::COLLISION_EVENTS,
                 ExternalForce::default(),
                 ExternalImpulse::default(),
@@ -142,7 +132,7 @@ fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
     }
 }
 
-fn collision(
+fn pickup_dropped_item(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
@@ -170,7 +160,7 @@ impl Plugin for SpellEntityPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            collision
+            pickup_dropped_item
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );

@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
+use crate::component::entity_depth::EntityDepth;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::component::entity_depth::EntityDepth;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -44,7 +44,7 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
             angular_damping: 0.8,
         },
         Collider::cuboid(1.5, 2.5),
-        CollisionGroups::new(ENTITY_GROUP, ENTITY_GROUP | WALL_GROUP),
+        *GOLD_GROUPS,
         // ActiveCollisionTypes::default(),
         // ActiveEvents::COLLISION_EVENTS,
         ExternalForce::default(),

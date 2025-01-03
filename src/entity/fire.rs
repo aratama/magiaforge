@@ -2,13 +2,10 @@ use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::point_light::WithPointLight;
-use crate::constant::ENEMY_GROUP;
-use crate::constant::ENTITY_GROUP;
-use crate::constant::RABBIT_GROUP;
-use crate::constant::SENSOR_GROUP;
-use crate::constant::WITCH_GROUP;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::point_light::WithPointLight;
+use crate::constant::ENTITY_GROUPS;
+use crate::constant::SENSOR_GROUPS;
 use crate::states::GameState;
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
@@ -103,12 +100,12 @@ pub fn spawn_fire(
             amplitude: 0.1,
         },
         (
+            // Fireはセンサーとして機能するわけではありませんが、
+            // 炎ダメージ判定をするときにはアクター側から交差判定を行うので、
+            // それで検出できるようにコリジョンとグループを設定しています
             Sensor,
             Collider::ball(8.0),
-            CollisionGroups::new(
-                SENSOR_GROUP,
-                ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP | RABBIT_GROUP,
-            ),
+            *SENSOR_GROUPS,
             ActiveEvents::COLLISION_EVENTS,
             ActiveCollisionTypes::all(),
         ),
@@ -167,10 +164,7 @@ fn ignite(
                 &Collider::ball(32.0),
                 QueryFilter {
                     // 延焼センサーは ENTITY_GROUP (本棚やチェストなど) と SENSOR_GROUP (草など) にのみ反応する
-                    groups: Some(CollisionGroups::new(
-                        ENTITY_GROUP,
-                        ENTITY_GROUP | SENSOR_GROUP,
-                    )),
+                    groups: Some(*ENTITY_GROUPS),
                     ..default()
                 },
                 |entity| {

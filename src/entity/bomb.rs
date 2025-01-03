@@ -1,11 +1,11 @@
 use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::explosion::SpawnExplosion;
-use crate::component::entity_depth::EntityDepth;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -37,19 +37,7 @@ pub fn spawn_bomb(commands: &mut Commands, assets: &Res<GameAssets>, position: V
                     angular_damping: 0.0,
                 },
                 Collider::ball(6.0),
-                CollisionGroups::new(
-                    ENTITY_GROUP,
-                    PIECE_GROUP
-                        | ENTITY_GROUP
-                        | NEUTRAL_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP
-                        | WALL_GROUP
-                        | RABBIT_GROUP
-                        | DROPPED_ITEM_GROUP,
-                ),
+                *ENTITY_GROUPS,
                 ExternalImpulse::default(),
             ),
         ))

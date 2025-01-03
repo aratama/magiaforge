@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
+use crate::component::entity_depth::EntityDepth;
 use crate::constant::*;
 use crate::entity::fire::Burnable;
-use crate::component::entity_depth::EntityDepth;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -22,11 +22,13 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
             },
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
-            Sensor,
-            Collider::cuboid(TILE_HALF, TILE_HALF),
-            // 草はいかなる弾丸も妨げないので SENSOR_GROUP に属します
-            CollisionGroups::new(SENSOR_GROUP, ENTITY_GROUP),
-            ActiveEvents::COLLISION_EVENTS,
+            (
+                Sensor,
+                Collider::cuboid(TILE_HALF, TILE_HALF),
+                // 草はいかなる弾丸も妨げないので SENSOR_GROUP に属します
+                *SENSOR_GROUPS,
+                ActiveEvents::COLLISION_EVENTS,
+            ),
         ))
         .with_children(|builder| {
             builder.spawn((

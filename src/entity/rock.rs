@@ -1,11 +1,11 @@
 use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
-use crate::component::entity_depth::EntityDepth;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
@@ -99,19 +99,7 @@ fn spawn_fallen_rock(commands: &mut Commands, assets: &Res<GameAssets>, position
             LockedAxes::ROTATION_LOCKED,
             Collider::ball(16.0),
             ColliderMassProperties::Density(10.0),
-            CollisionGroups::new(
-                ENTITY_GROUP,
-                PIECE_GROUP
-                    | ENTITY_GROUP
-                    | NEUTRAL_GROUP
-                    | WITCH_GROUP
-                    | WITCH_BULLET_GROUP
-                    | ENEMY_GROUP
-                    | ENEMY_BULLET_GROUP
-                    | WALL_GROUP
-                    | RABBIT_GROUP
-                    | DROPPED_ITEM_GROUP,
-            ),
+            *ENTITY_GROUPS,
             ExternalImpulse::default(),
         ))
         .with_children(|parent| {

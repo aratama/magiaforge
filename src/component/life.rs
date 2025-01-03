@@ -1,5 +1,4 @@
-use crate::constant::SENSOR_GROUP;
-use crate::constant::WITCH_GROUP;
+use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
@@ -11,7 +10,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::Collider;
-use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::QueryFilter;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
@@ -72,28 +70,33 @@ fn vibrate_breakabke_sprite(
 /// ただし、Burnableである場合はダメージを受けませんが、その代わりに引火することがあり、
 /// 引火したあとで Burnable の life がゼロになった場合はエンティティは消滅します
 fn fire_damage(
-    mut actor_query: Query<(Entity, &mut Life, &Transform), Without<Burnable>>,
+    mut actor_query: Query<(Entity, &Actor, &mut Life, &Transform), Without<Burnable>>,
     fire_query: Query<&mut Transform, (With<Fire>, Without<Life>)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
-    for (actor_entity, mut life, actor_transform) in actor_query.iter_mut() {
+    for (actor_entity, actor, mut life, actor_transform) in actor_query.iter_mut() {
         if life.fire_damage_wait <= 0 {
-            let mut fire_entities = Vec::<Entity>::new();
+            let mut detected_fires = Vec::<Entity>::new();
             let context = rapier_context.single();
+
+            // 各アクターは、自分の周囲に対して炎を検索します
+            // 炎は多数になる可能性があることや、
+            // アクターはダメージの待機時間があり大半のフレームでは判定を行わないため、
+            // 炎側からアクター側へ判定を行うのではなく、アクター側から炎側へ判定を行ったほうが効率が良くなります
             context.intersections_with_shape(
                 actor_transform.translation.truncate(),
                 0.0,
                 &Collider::ball(12.0),
                 QueryFilter {
-                    groups: Some(CollisionGroups::new(WITCH_GROUP, SENSOR_GROUP)),
+                    groups: Some(actor.actor_group.to_groups()),
                     ..default()
                 },
                 |entity| {
                     if fire_query.contains(entity) {
                         if life.fire_damage_wait <= 0 {
-                            fire_entities.push(entity);
+                            detected_fires.push(entity);
 
                             // 一度炎ダメージを受けたらそれ以上他の炎からダメージを受けることはないため、
                             // 探索を打ち切る
@@ -104,7 +107,7 @@ fn fire_damage(
                 },
             );
 
-            for _ in fire_entities {
+            for _ in detected_fires {
                 let damage = 4;
                 life.damage(damage);
                 life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);

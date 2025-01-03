@@ -73,16 +73,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveCollisionTypes::DYNAMIC_KINEMATIC,
-            CollisionGroups::new(
-                RABBIT_GROUP,
-                ENTITY_GROUP
-                    | WALL_GROUP
-                    | NEUTRAL_GROUP
-                    | WITCH_GROUP
-                    | ENEMY_GROUP
-                    | DOOR_GROUP
-                    | DROPPED_ITEM_GROUP,
-            ),
+            *RABBIT_GROUPS,
         ),
     ));
 
@@ -110,7 +101,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             Collider::ball(16.0),
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+            *SENSOR_GROUPS,
             Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
         ));
 
@@ -119,7 +110,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             Collider::ball(32.0),
             Sensor,
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+            *SENSOR_GROUPS,
         ));
     });
 

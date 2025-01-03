@@ -1,4 +1,3 @@
-use crate::constant::WALL_GROUP;
 use crate::constant::*;
 use crate::level::map::LevelChunk;
 use crate::level::tile::Tile;
@@ -6,7 +5,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::CoefficientCombineRule;
 use bevy_rapier2d::prelude::Collider;
-use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::Friction;
 use bevy_rapier2d::prelude::RigidBody;
 use std::collections::HashMap;
@@ -113,18 +111,7 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
                 coefficient: 0.0,
                 combine_rule: CoefficientCombineRule::Min,
             },
-            CollisionGroups::new(
-                WALL_GROUP,
-                PIECE_GROUP
-                    | ENTITY_GROUP
-                    | NEUTRAL_GROUP
-                    | WITCH_GROUP
-                    | WITCH_BULLET_GROUP
-                    | ENEMY_GROUP
-                    | ENEMY_BULLET_GROUP
-                    | RABBIT_GROUP
-                    | DROPPED_ITEM_GROUP,
-            ),
+            *WALL_GROUPS,
         ));
     }
 

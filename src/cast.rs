@@ -1,16 +1,8 @@
-use core::f32;
-
 use crate::asset::GameAssets;
 use crate::component::life::Life;
-use crate::constant::DROPPED_ITEM_GROUP;
 use crate::constant::ENEMY_BULLET_GROUP;
-use crate::constant::ENEMY_GROUP;
-use crate::constant::ENTITY_GROUP;
 use crate::constant::MAX_SPELLS_IN_WAND;
-use crate::constant::NEUTRAL_GROUP;
-use crate::constant::WALL_GROUP;
-use crate::constant::WITCH_BULLET_GROUP;
-use crate::constant::WITCH_GROUP;
+use crate::constant::PLAYER_BULLET_GROUP;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
@@ -29,9 +21,11 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
+use core::f32;
 use rand::random;
 use uuid::Uuid;
 
@@ -158,9 +152,6 @@ pub fn cast_spell(
                     let bullet_position =
                         actor_transform.translation.truncate() + range * normalized;
 
-                    // 誰が発射したかに関わらず、弾丸は以下のグループに衝突します
-                    let filter_base = ENTITY_GROUP | WALL_GROUP | NEUTRAL_GROUP;
-
                     let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
                         actor_group: actor.actor_group,
@@ -179,22 +170,11 @@ pub fn cast_spell(
                         light_color_hlsa,
                         homing: actor.effects.homing,
                         remaining_time,
-                        memberships: match actor.actor_group {
-                            ActorGroup::Player => WITCH_BULLET_GROUP,
-                            ActorGroup::Enemy => ENEMY_BULLET_GROUP,
-                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
+                        groups: match actor.actor_group {
+                            ActorGroup::Player => *PLAYER_BULLET_GROUP,
+                            ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
+                            ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
                         },
-                        filters: match actor.actor_group {
-                            ActorGroup::Player => ENEMY_GROUP,
-                            ActorGroup::Enemy => WITCH_GROUP,
-                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
-                        } | match actor.actor_group {
-                            // アイテムを押して動かせるように、プレイヤーの弾丸はアイテムに衝突します
-                            // 敵がアイテムを盾に接近するのを避けるために、敵の弾丸はアイテムに衝突しません
-                            ActorGroup::Player => DROPPED_ITEM_GROUP,
-                            ActorGroup::Enemy => Group::NONE,
-                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
-                        } | filter_base,
                     };
 
                     spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
@@ -219,18 +199,12 @@ pub fn cast_spell(
 
                         // 送信側の魔女が発射した弾丸は、受信側では敵が発射した弾丸として扱われ、
                         // membershipsやfilterが逆になります
-                        remove_bullet_props.memberships = match actor.actor_group {
-                            ActorGroup::Player => ENEMY_BULLET_GROUP,
-                            ActorGroup::Enemy => WITCH_BULLET_GROUP,
-                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
-                        };
                         // ややこしいが、受信側にとってはプレイヤーキャラクター自信は WITCH_GROUP
-                        remove_bullet_props.filters = match actor.actor_group {
-                            ActorGroup::Player => WITCH_GROUP,
-                            ActorGroup::Enemy => ENEMY_GROUP,
-                            ActorGroup::Neutral => Group::NONE, // 中立グループは弾丸を発射しません
-                        } | filter_base;
-
+                        remove_bullet_props.groups = match actor.actor_group {
+                            ActorGroup::Player => *ENEMY_BULLET_GROUP,
+                            ActorGroup::Enemy => *PLAYER_BULLET_GROUP,
+                            ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
+                        };
                         send_remote_message(
                             writer,
                             online,

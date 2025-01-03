@@ -23,7 +23,7 @@ pub fn spawn_broken_piece(
         },
         RigidBody::Dynamic,
         Collider::ball(4.0),
-        CollisionGroups::new(PIECE_GROUP, PIECE_GROUP | WALL_GROUP | ENTITY_GROUP),
+        *PIECE_GROUPS,
         Velocity {
             linvel: Vec2::new(
                 rand::random::<f32>() * 100.0 - 50.0,

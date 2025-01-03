@@ -94,10 +94,7 @@ fn control_slime(
                 0.0,
                 &Collider::ball(ENEMY_DETECTION_RANGE),
                 QueryFilter {
-                    groups: Some(CollisionGroups::new(
-                        ENEMY_GROUP,
-                        WITCH_GROUP | ENEMY_GROUP | NEUTRAL_GROUP,
-                    )),
+                    groups: Some(*SENSOR_GROUPS),
                     ..default()
                 },
                 |e| {

@@ -113,20 +113,7 @@ pub fn spawn_witch<T: Component>(
             },
             ExternalForce::default(),
             ExternalImpulse::default(),
-            CollisionGroups::new(
-                actor_group.to_memberships(),
-                ENTITY_GROUP
-                    | WALL_GROUP
-                    | NEUTRAL_GROUP
-                    | WITCH_GROUP
-                    | WITCH_BULLET_GROUP
-                    | ENEMY_GROUP
-                    | ENEMY_BULLET_GROUP
-                    | MAGIC_CIRCLE_GROUP
-                    | SENSOR_GROUP
-                    | RABBIT_GROUP
-                    | DROPPED_ITEM_GROUP,
-            ),
+            actor_group.to_groups(),
         ),
     ));
 

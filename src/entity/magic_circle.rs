@@ -20,7 +20,6 @@ use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::CollisionEvent;
-use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::Sensor;
 
 const MAX_POWER: i32 = 360;
@@ -78,7 +77,7 @@ pub fn spawn_magic_circle(
             },
             Collider::cuboid(TILE_HALF, TILE_HALF),
             Sensor,
-            CollisionGroups::new(MAGIC_CIRCLE_GROUP, WITCH_GROUP),
+            *SENSOR_GROUPS,
             ActiveEvents::COLLISION_EVENTS,
         ))
         .with_children(|parent| {

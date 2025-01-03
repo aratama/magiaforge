@@ -1,19 +1,13 @@
 use crate::asset::GameAssets;
-use crate::constant::DOOR_GROUP;
-use crate::constant::DROPPED_ITEM_GROUP;
-use crate::constant::ENEMY_BULLET_GROUP;
-use crate::constant::ENEMY_GROUP;
-use crate::constant::ENTITY_GROUP;
-use crate::constant::RABBIT_GROUP;
-use crate::constant::SENSOR_GROUP;
+use crate::component::entity_depth::EntityDepth;
+use crate::constant::ENTITY_GROUPS;
+use crate::constant::HIDDEN_WALL_GROUPS;
+use crate::constant::SENSOR_GROUPS;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
-use crate::constant::WITCH_BULLET_GROUP;
-use crate::constant::WITCH_GROUP;
 use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::entity::actor::Actor;
-use crate::component::entity_depth::EntityDepth;
 use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
@@ -49,7 +43,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
             Transform::from_translation(Vec3::new(position.x + TILE_HALF, position.y, 0.0)),
             EntityDepth::new(),
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(SENSOR_GROUP, WITCH_GROUP),
+            *SENSOR_GROUPS,
             Visibility::default(),
         ))
         .with_children(|builder| {
@@ -59,7 +53,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 Collider::cuboid(TILE_SIZE * 1.0, TILE_SIZE * 1.5),
                 Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                 ActiveEvents::COLLISION_EVENTS,
-                CollisionGroups::new(DOOR_GROUP, ENTITY_GROUP | RABBIT_GROUP | DROPPED_ITEM_GROUP),
+                *HIDDEN_WALL_GROUPS,
             ));
 
             // 左側のドア
@@ -73,15 +67,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                 LockedAxes::ROTATION_LOCKED,
                 ActiveCollisionTypes::DYNAMIC_KINEMATIC,
-                CollisionGroups::new(
-                    ENTITY_GROUP,
-                    ENTITY_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP
-                        | DROPPED_ITEM_GROUP,
-                ),
+                *ENTITY_GROUPS,
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
                     name: "door_left".into(),
@@ -99,15 +85,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 Transform::from_translation(Vec3::new(TILE_SIZE, 0.0, 0.0)),
                 LockedAxes::ROTATION_LOCKED,
                 ActiveCollisionTypes::DYNAMIC_KINEMATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
-                CollisionGroups::new(
-                    ENTITY_GROUP,
-                    ENTITY_GROUP
-                        | WITCH_GROUP
-                        | WITCH_BULLET_GROUP
-                        | ENEMY_GROUP
-                        | ENEMY_BULLET_GROUP
-                        | DROPPED_ITEM_GROUP,
-                ),
+                *ENTITY_GROUPS,
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
                     name: "door_right".into(),

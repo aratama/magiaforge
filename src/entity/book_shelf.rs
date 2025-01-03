@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::piece::spawn_broken_piece;
-use crate::component::entity_depth::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -45,19 +45,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
             LockedAxes::ROTATION_LOCKED,
             Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
             ColliderMassProperties::Density(10.0),
-            CollisionGroups::new(
-                ENTITY_GROUP,
-                PIECE_GROUP
-                    | ENTITY_GROUP
-                    | NEUTRAL_GROUP
-                    | WITCH_GROUP
-                    | WITCH_BULLET_GROUP
-                    | ENEMY_GROUP
-                    | ENEMY_BULLET_GROUP
-                    | WALL_GROUP
-                    | RABBIT_GROUP
-                    | DROPPED_ITEM_GROUP,
-            ),
+            *ENTITY_GROUPS,
             ExternalImpulse::default(),
         ),
     ));

@@ -6,7 +6,6 @@ use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::shadow::spawn_shadow;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;

@@ -1,14 +1,11 @@
 use super::fire::spawn_fire;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
-use crate::constant::ENTITY_GROUP;
-use crate::constant::NEUTRAL_GROUP;
-use crate::constant::RABBIT_GROUP;
-use crate::constant::WALL_GROUP;
-use crate::component::entity_depth::EntityDepth;
+use crate::constant::ENTITY_GROUPS;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::states::GameState;
@@ -50,10 +47,7 @@ pub fn spawn_fireball(
                     angular_damping: 0.0,
                 },
                 Collider::ball(6.0),
-                CollisionGroups::new(
-                    ENTITY_GROUP,
-                    ENTITY_GROUP | NEUTRAL_GROUP | WALL_GROUP | RABBIT_GROUP,
-                ),
+                *ENTITY_GROUPS,
                 Velocity::linear(velocity),
                 ExternalImpulse::default(),
             ),

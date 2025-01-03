@@ -52,10 +52,7 @@ fn spawn_explosion(
             0.0,
             &Collider::ball(*radius),
             QueryFilter {
-                groups: Some(CollisionGroups::new(
-                    ENEMY_GROUP,
-                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP | NEUTRAL_GROUP,
-                )),
+                groups: Some(*SENSOR_GROUPS),
                 ..default()
             },
             |entity| {

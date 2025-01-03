@@ -122,7 +122,7 @@ pub fn spawn_shadow(
 
 fn transition(mut query: Query<&mut Shadow>) {
     for mut shadow in query.iter_mut() {
-        info!("shadow {:?}", shadow.state);
+        // info!("shadow {:?}", shadow.state);
         match shadow.state {
             ShadowState::Wait(ref mut count) if *count < 180 => {
                 *count += 1;
@@ -130,7 +130,7 @@ fn transition(mut query: Query<&mut Shadow>) {
             ShadowState::Wait(_) => {
                 shadow.state = ShadowState::Hide(0);
             }
-            ShadowState::Hide(ref mut count) if *count < 180 => {
+            ShadowState::Hide(ref mut count) if *count < 360 => {
                 *count += 1;
             }
             ShadowState::Hide(_) => {

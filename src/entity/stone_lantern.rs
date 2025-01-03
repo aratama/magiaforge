@@ -1,11 +1,11 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::constant::*;
 use crate::entity::piece::spawn_broken_piece;
-use crate::component::entity_depth::EntityDepth;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -37,19 +37,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, po
             LockedAxes::ROTATION_LOCKED,
             Collider::cuboid(8.0, 8.0),
             ColliderMassProperties::Density(10.0),
-            CollisionGroups::new(
-                ENTITY_GROUP,
-                PIECE_GROUP
-                    | ENTITY_GROUP
-                    | NEUTRAL_GROUP
-                    | WITCH_GROUP
-                    | WITCH_BULLET_GROUP
-                    | ENEMY_GROUP
-                    | ENEMY_BULLET_GROUP
-                    | WALL_GROUP
-                    | RABBIT_GROUP
-                    | DROPPED_ITEM_GROUP,
-            ),
+            *ENTITY_GROUPS,
             ExternalImpulse::default(),
             WithPointLight {
                 radius: 64.0,

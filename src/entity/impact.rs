@@ -2,11 +2,8 @@ use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
-use crate::constant::ENEMY_GROUP;
-use crate::constant::ENTITY_GROUP;
-use crate::constant::NEUTRAL_GROUP;
 use crate::constant::PAINT_LAYER_Z;
-use crate::constant::WITCH_GROUP;
+use crate::constant::SENSOR_GROUPS;
 use crate::entity::actor::ActorEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -60,10 +57,7 @@ fn read_impact_event(
             0.0,
             &Collider::ball(*radius),
             QueryFilter {
-                groups: Some(CollisionGroups::new(
-                    ENEMY_GROUP,
-                    WITCH_GROUP | ENEMY_GROUP | ENTITY_GROUP | NEUTRAL_GROUP,
-                )),
+                groups: Some(*SENSOR_GROUPS),
                 ..default()
             },
             |entity| {
