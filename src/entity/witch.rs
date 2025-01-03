@@ -114,7 +114,7 @@ pub fn spawn_witch<T: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             CollisionGroups::new(
-                actor_group.to_group(),
+                actor_group.to_memberships(),
                 ENTITY_GROUP
                     | WALL_GROUP
                     | NEUTRAL_GROUP

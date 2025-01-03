@@ -1,3 +1,5 @@
+use std::cell::LazyCell;
+
 use crate::states::GameState;
 use bevy::color::Color;
 use bevy_rapier2d::prelude::*;
@@ -107,17 +109,27 @@ pub const WITCH_GROUP: Group = Group::GROUP_5;
 
 pub const WITCH_BULLET_GROUP: Group = Group::GROUP_6;
 
-pub const ENEMY_GROUP: Group = Group::GROUP_6;
+pub const ENEMY_GROUP: Group = Group::GROUP_7;
 
-pub const ENEMY_BULLET_GROUP: Group = Group::GROUP_7;
+pub const ENEMY_BULLET_GROUP: Group = Group::GROUP_8;
 
-pub const MAGIC_CIRCLE_GROUP: Group = Group::GROUP_8;
+pub const MAGIC_CIRCLE_GROUP: Group = Group::GROUP_9;
 
-pub const SENSOR_GROUP: Group = Group::GROUP_9;
+pub const SENSOR_GROUP: Group = Group::GROUP_10;
 
-pub const DOOR_GROUP: Group = Group::GROUP_10;
+pub const DOOR_GROUP: Group = Group::GROUP_11;
 
-pub const RABBIT_GROUP: Group = Group::GROUP_11;
+pub const RABBIT_GROUP: Group = Group::GROUP_12;
+
+/// SHADOW_GROUP はシャドウが隠れているときのみのメンバーシップで、
+/// 壁やアクターには衝突しますが、弾丸は当たりません
+pub const SHADOW_MEMBERSHIPS: Group = Group::GROUP_13;
+
+pub const SHADOW_FILTERS: LazyCell<Group> =
+    LazyCell::new(|| WALL_GROUP | ENTITY_GROUP | WITCH_GROUP | ENEMY_GROUP | RABBIT_GROUP);
+
+pub const SHADOW_GROUPS: LazyCell<CollisionGroups> =
+    LazyCell::new(|| CollisionGroups::new(SHADOW_MEMBERSHIPS, *SHADOW_FILTERS));
 
 /// ドロップアイテムのグループ
 /// ENTITY_GROUPと似ていますが、敵キャラクターと敵キャラクターの弾丸には衝突しません

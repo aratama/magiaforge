@@ -18,7 +18,6 @@ use crate::inventory::Inventory;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::Wand;
-use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -40,9 +39,6 @@ pub fn spawn_basic_enemy<T: Component>(
     max_life: i32,
     radius: f32,
 ) -> Entity {
-    let mut slots = [None; MAX_SPELLS_IN_WAND];
-    slots[0] = spell.map(|s| WandSpell::new(s));
-
     let mut builder = commands.spawn((
         Name::new(name.to_string()),
         StateScoped(GameState::InGame),
@@ -63,22 +59,12 @@ pub fn spawn_basic_enemy<T: Component>(
             golds,
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
-            wands: [
-                Wand::with_slots(slots),
-                Wand::empty(),
-                Wand::empty(),
-                Wand::empty(),
-            ],
+            wands: Wand::single(spell),
             state: ActorState::default(),
             wait: 0,
         },
         EntityDepth::new(),
-        Life {
-            life: max_life,
-            max_life,
-            amplitude: 0.0,
-            fire_damage_wait: 0,
-        },
+        Life::new(max_life),
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),
@@ -95,19 +81,7 @@ pub fn spawn_basic_enemy<T: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(
-                actor_group.to_group(),
-                match actor_group {
-                    ActorGroup::Enemy => WITCH_BULLET_GROUP,
-                    ActorGroup::Player => ENEMY_BULLET_GROUP,
-                    ActorGroup::Neutral => WITCH_BULLET_GROUP | ENEMY_BULLET_GROUP, // 中立は両方の弾丸に当たります
-                } | ENTITY_GROUP
-                    | NEUTRAL_GROUP
-                    | WALL_GROUP
-                    | WITCH_GROUP
-                    | ENEMY_GROUP
-                    | RABBIT_GROUP,
-            ),
+            actor_group.to_groups(),
         ),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),

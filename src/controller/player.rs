@@ -70,6 +70,7 @@ impl Player {
 }
 
 /// 現在プレイヤーが操作対象としている召喚キャラクターです
+/// これを付与したアクターは、そのエンティティ本来の操作と、プレイヤーの操作が、衝突しないように注意します
 #[derive(Component, Debug, Clone)]
 pub struct PlayerServant;
 

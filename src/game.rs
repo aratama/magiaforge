@@ -23,6 +23,7 @@ use crate::enemy::chicken::ChikenControlPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::sandbug::SandbagPlugin;
+use crate::enemy::shadow::ShadowPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
@@ -242,6 +243,7 @@ pub fn run_game() {
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
+        .add_plugins(ShadowPlugin)
         .add_plugins(SlimeControlPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)

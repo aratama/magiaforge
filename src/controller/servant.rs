@@ -4,6 +4,8 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+/// 他のアクターに召喚されたアクターであることを表します
+/// マスターのアクターが存在しなくなったら、このアクターも消滅します
 #[derive(Component, Debug)]
 pub struct Servant {
     pub master: Entity,

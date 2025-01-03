@@ -1,4 +1,5 @@
 use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::constant::MAX_WANDS;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
@@ -51,6 +52,17 @@ impl Wand {
             index: 0,
             delay: 0,
         }
+    }
+
+    pub fn single(spell: Option<SpellType>) -> [Wand; MAX_WANDS] {
+        let mut slots = [None; MAX_SPELLS_IN_WAND];
+        slots[0] = spell.map(|s| WandSpell::new(s));
+        [
+            Wand::with_slots(slots),
+            Wand::empty(),
+            Wand::empty(),
+            Wand::empty(),
+        ]
     }
 
     pub fn dept(&self) -> u32 {

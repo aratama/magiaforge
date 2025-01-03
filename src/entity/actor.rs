@@ -3,11 +3,16 @@ use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUP;
+use crate::constant::ENTITY_GROUP;
 use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
 use crate::constant::NEUTRAL_GROUP;
+use crate::constant::RABBIT_GROUP;
 use crate::constant::TILE_SIZE;
+use crate::constant::WALL_GROUP;
+use crate::constant::WITCH_BULLET_GROUP;
 use crate::constant::WITCH_GROUP;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
@@ -25,6 +30,7 @@ use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::PhysicsSet;
+use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
@@ -273,12 +279,29 @@ pub enum ActorGroup {
 }
 
 impl ActorGroup {
-    pub fn to_group(&self) -> Group {
+    pub fn to_memberships(&self) -> Group {
         match self {
             ActorGroup::Player => WITCH_GROUP,
             ActorGroup::Enemy => ENEMY_GROUP,
             ActorGroup::Neutral => NEUTRAL_GROUP,
         }
+    }
+
+    pub fn to_filter(&self) -> Group {
+        (match self {
+            ActorGroup::Enemy => WITCH_BULLET_GROUP,
+            ActorGroup::Player => ENEMY_BULLET_GROUP,
+            ActorGroup::Neutral => WITCH_BULLET_GROUP | ENEMY_BULLET_GROUP, // 中立は両方の弾丸に当たります
+        } | ENTITY_GROUP
+            | NEUTRAL_GROUP
+            | WALL_GROUP
+            | WITCH_GROUP
+            | ENEMY_GROUP
+            | RABBIT_GROUP)
+    }
+
+    pub fn to_groups(&self) -> CollisionGroups {
+        CollisionGroups::new(self.to_memberships(), self.to_filter())
     }
 }
 

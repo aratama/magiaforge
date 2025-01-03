@@ -59,6 +59,9 @@ pub struct GameAssets {
     #[asset(path = "entity/sandbug.aseprite")]
     pub sandbug: Handle<Aseprite>,
 
+    #[asset(path = "entity/shadow.aseprite")]
+    pub shadow: Handle<Aseprite>,
+
     // #[asset(path = "entity/buer.aseprite")]
     // pub buer: Handle<Aseprite>,
     #[asset(path = "entity/huge_slime.aseprite")]
