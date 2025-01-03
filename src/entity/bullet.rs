@@ -219,11 +219,8 @@ fn bullet_homing(
 fn bullet_collision(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity, &AseSpriteSlice)>,
-    mut actor_query: Query<
-        (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
-        Without<RemotePlayer>,
-    >,
-    mut lifebeing_query: Query<(&mut Life, Option<&mut ExternalImpulse>), Without<Actor>>,
+    mut actor_query: Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
+    mut lifebeing_query: Query<&Life, Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
     mut writer: EventWriter<SEEvent>,
@@ -275,11 +272,8 @@ fn bullet_collision(
 fn process_bullet_event(
     mut commands: &mut Commands,
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity, &AseSpriteSlice)>,
-    actors: &mut Query<
-        (&mut Actor, Option<&mut ExternalImpulse>, &mut Life),
-        Without<RemotePlayer>,
-    >,
-    breakabke_query: &mut Query<(&mut Life, Option<&mut ExternalImpulse>), Without<Actor>>,
+    actors: &mut Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
+    breakabke_query: &Query<&Life, Without<Actor>>,
     despownings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
@@ -292,7 +286,7 @@ fn process_bullet_event(
         let bullet_position = bullet_transform.translation.truncate();
 
         if !despownings.contains(&bullet_entity) {
-            if let Ok((actor, actor_impilse, mut lifebeing)) = actors.get_mut(*b) {
+            if let Ok(actor) = actors.get_mut(*b) {
                 trace!("bullet hit actor: {:?}", actor.uuid);
 
                 // 弾丸がアクターに衝突したとき
@@ -300,34 +294,30 @@ fn process_bullet_event(
                 // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
                 // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
-                    lifebeing.life = (lifebeing.life - bullet.damage).max(0);
-                    lifebeing.amplitude = 6.0;
-                    if let Some(mut impilse) = actor_impilse {
-                        impilse.impulse +=
-                            bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
-                    }
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position, resource);
-                    writer.send(SEEvent::pos(SE::Damage, bullet_position));
                     actor_event.send(ActorEvent::Damaged {
                         actor: *b,
                         damage: bullet.damage as u32,
                         position: bullet_position,
+                        fire: false,
+                        impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
                     });
                 }
-            } else if let Ok((mut breakabke, impulse_optional)) = breakabke_query.get_mut(*b) {
+            } else if let Ok(_) = breakabke_query.get(*b) {
                 trace!("bullet hit: {:?}", b);
-                breakabke.life -= bullet.damage;
-                breakabke.amplitude = 2.0;
+
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
-                writer.send(SEEvent::pos(SE::Damage, bullet_position));
                 spawn_particle_system(&mut commands, bullet_position, resource);
-
-                if let Some(mut impilse) = impulse_optional {
-                    impilse.impulse += bullet_velocity.linvel.normalize_or_zero() * bullet.impulse;
-                }
+                actor_event.send(ActorEvent::Damaged {
+                    actor: *b,
+                    damage: bullet.damage as u32,
+                    position: bullet_position,
+                    fire: false,
+                    impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
+                });
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);
                 despownings.insert(bullet_entity.clone());
@@ -335,6 +325,7 @@ fn process_bullet_event(
                 spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(SEEvent::pos(SE::Steps, bullet_position));
 
+                // 壁に当たった場合、一部の弾丸は痕跡を残す
                 if 0 < bullet.remaining_time {
                     commands.spawn((
                         BulletResidual {

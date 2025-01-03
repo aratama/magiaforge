@@ -10,6 +10,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::QueryFilter;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
@@ -36,13 +37,6 @@ impl Life {
             max_life: life,
             amplitude: 0.0,
             fire_damage_wait: 0,
-        }
-    }
-
-    pub fn damage(&mut self, damage: u32) {
-        if 0 < self.life {
-            self.life = (self.life - damage as i32).max(0);
-            self.amplitude = 6.0;
         }
     }
 }
@@ -74,7 +68,6 @@ fn fire_damage(
     fire_query: Query<&mut Transform, (With<Fire>, Without<Life>)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
-    mut se_writer: EventWriter<SEEvent>,
 ) {
     for (actor_entity, actor, mut life, actor_transform) in actor_query.iter_mut() {
         if life.fire_damage_wait <= 0 {
@@ -108,21 +101,50 @@ fn fire_damage(
             );
 
             for _ in detected_fires {
-                let damage = 4;
-                life.damage(damage);
-                life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
-                let position = actor_transform.translation.truncate();
                 actor_event.send(ActorEvent::Damaged {
                     actor: actor_entity,
-                    damage: damage as u32,
-                    position,
+                    damage: 4,
+                    position: actor_transform.translation.truncate(),
+                    fire: true,
+                    impulse: Vec2::ZERO,
                 });
-                se_writer.send(SEEvent::pos(SE::Damage, position));
             }
         }
 
         if 0 < life.fire_damage_wait {
             life.fire_damage_wait -= 1;
+        }
+    }
+}
+
+fn damage(
+    mut query: Query<(&mut Life, Option<&mut ExternalImpulse>)>,
+    mut reader: EventReader<ActorEvent>,
+    mut se_writer: EventWriter<SEEvent>,
+) {
+    for event in reader.read() {
+        match event {
+            ActorEvent::Damaged {
+                actor,
+                damage,
+                position,
+                fire,
+                impulse,
+            } => {
+                if 0 < *damage {
+                    if let Ok((mut life, life_impulse)) = query.get_mut(*actor) {
+                        life.life = (life.life - *damage as i32).max(0);
+                        life.amplitude = 6.0;
+                        se_writer.send(SEEvent::pos(SE::Damage, *position));
+                        if *fire {
+                            life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
+                        }
+                        if let Some(mut life_impulse) = life_impulse {
+                            life_impulse.impulse += *impulse;
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -133,7 +155,7 @@ impl Plugin for LifePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (vibrate_breakabke_sprite, fire_damage)
+            (damage, vibrate_breakabke_sprite, fire_damage)
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
     }

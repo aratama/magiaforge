@@ -10,7 +10,6 @@ use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
-use crate::enemy::shadow::spawn_shadow;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
@@ -137,10 +136,6 @@ pub enum SpawnEntity {
         position: Vec2,
     },
     Chiken {
-        position: Vec2,
-    },
-
-    Shadow {
         position: Vec2,
     },
 
@@ -422,9 +417,6 @@ pub fn spawn_entity(
                     *remote,
                     *servant,
                 );
-            }
-            SpawnEntity::Shadow { position } => {
-                spawn_shadow(&mut commands, &assets, &life_bar_resource, *position);
             }
         }
     }

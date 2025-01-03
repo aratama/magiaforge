@@ -59,7 +59,7 @@ pub fn spawn_slime(
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます
 /// また、プレイヤーを狙います
 fn control_slime(
-    mut actor_query: Query<(
+    mut query: Query<(
         Entity,
         Option<&mut SlimeControl>,
         &mut Actor,
@@ -67,10 +67,11 @@ fn control_slime(
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let finder = Finder::new(&actor_query);
+    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
+    let finder = Finder::new(&lens.query());
 
     // 各スライムの行動を選択します
-    for (slime_entity, slime_optional, mut slime_actor, slime_transform) in actor_query.iter_mut() {
+    for (slime_entity, slime_optional, mut slime_actor, slime_transform) in query.iter_mut() {
         if let Some(mut slime) = slime_optional {
             slime_actor.move_direction = Vec2::ZERO;
             slime_actor.fire_state = ActorFireState::Idle;

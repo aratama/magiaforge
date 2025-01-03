@@ -33,7 +33,7 @@ fn read_impact_event(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut writer: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnImpact>,
-    mut life_query: Query<(&mut Life, &Transform, Option<&mut ExternalImpulse>)>,
+    mut life_query: Query<&Transform, With<Life>>,
     mut camera_query: Query<(&mut GameCamera, &Transform), Without<Life>>,
     mut damage_writer: EventWriter<ActorEvent>,
 ) {
@@ -75,21 +75,15 @@ fn read_impact_event(
         );
 
         for entity in entities {
-            if let Ok((mut life, life_transform, mut external_impulse)) = life_query.get_mut(entity)
-            {
-                let damage = 10;
+            if let Ok(life_transform) = life_query.get_mut(entity) {
                 let p = life_transform.translation.truncate();
-                life.life = (life.life - damage).max(0);
-                life.amplitude = 6.0;
                 damage_writer.send(ActorEvent::Damaged {
                     actor: entity,
                     damage: 10,
                     position: p,
+                    fire: false,
+                    impulse: (p - position).normalize_or_zero() * impulse,
                 });
-                writer.send(SEEvent::pos(SE::Damage, p));
-                if let Some(ref mut ex) = external_impulse {
-                    ex.impulse = (p - position).normalize_or_zero() * impulse;
-                }
             }
         }
 

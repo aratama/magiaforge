@@ -23,13 +23,11 @@ pub struct FindResult {
 }
 
 impl Finder {
-    pub fn new<T: Component>(
-        query: &Query<(Entity, Option<&mut T>, &mut Actor, &mut Transform)>,
-    ) -> Self {
+    pub fn new(query: &Query<(Entity, &Actor, &Transform)>) -> Self {
         Self {
             map: query
                 .iter()
-                .map(|(e, _, a, t)| (e, (a.actor_group, t.translation.truncate(), a.radius)))
+                .map(|(e, a, t)| (e, (a.actor_group, t.translation.truncate(), a.radius)))
                 .collect(),
         }
     }

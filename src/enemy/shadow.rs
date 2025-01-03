@@ -8,6 +8,7 @@ use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::entity::actor::Actor;
+use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
@@ -83,7 +84,7 @@ pub fn spawn_shadow(
             wait: 0,
         },
         EntityDepth::new(),
-        Life::new(100),
+        Life::new(40),
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),
@@ -131,12 +132,12 @@ fn transition(
     mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let finder = Finder::new(&query);
-    for (entity, shadow, mut actor, transform) in query.iter_mut() {
+    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
+    let finder = Finder::new(&lens.query());
+    for (entity, shadow, actor, transform) in query.iter_mut() {
         if let Some(mut shadow) = shadow {
             let origin = transform.translation.truncate();
             let nearest = finder.nearest(&rapier_context, entity, actor.actor_group, origin);
-
             match shadow.state {
                 ShadowState::Wait(count) if count < 60 => {
                     shadow.state = ShadowState::Wait(count + 1);
@@ -147,9 +148,6 @@ fn transition(
                 ShadowState::Hide(count) if count < 360 => {
                     if let Some(nearest) = nearest {
                         let diff = nearest.position - origin;
-
-                        actor.pointer = diff.normalize_or_zero();
-
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             shadow.state = ShadowState::Attack(0);
                         } else {
@@ -168,9 +166,6 @@ fn transition(
                 ShadowState::Appear(_) => {
                     if let Some(nearest) = nearest {
                         let diff = nearest.position - origin;
-
-                        actor.pointer = diff.normalize_or_zero();
-
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             shadow.state = ShadowState::Attack(0);
                         } else {
@@ -184,6 +179,24 @@ fn transition(
                 ShadowState::Attack(_) => {
                     shadow.state = ShadowState::Wait(0);
                 }
+            }
+        }
+    }
+}
+
+fn pointer(
+    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+) {
+    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
+    let finder = Finder::new(&lens.query());
+    for (entity, shadow, mut actor, transform) in query.iter_mut() {
+        if let Some(_) = shadow {
+            let origin = transform.translation.truncate();
+            let nearest = finder.nearest(&rapier_context, entity, actor.actor_group, origin);
+            if let Some(nearest) = nearest {
+                let diff = nearest.position - origin;
+                actor.pointer = diff.normalize_or_zero();
             }
         }
     }
@@ -228,7 +241,8 @@ fn approach(
     mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let finder = Finder::new(&query);
+    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
+    let finder = Finder::new(&lens.query());
 
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(shadow) = shadow {
@@ -261,6 +275,47 @@ fn approach(
     }
 }
 
+fn attack(
+    mut query: Query<(
+        Entity,
+        Option<&mut Shadow>,
+        &mut Actor,
+        &mut Transform,
+        &mut Life,
+    )>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    mut actor_event: EventWriter<ActorEvent>,
+) {
+    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
+    let finder = Finder::new(&lens.query());
+    for (entity, shadow, actor, transform, _) in query.iter_mut() {
+        if let Some(shadow) = shadow {
+            match shadow.state {
+                // 攻撃モーションを開始してから実際にダメージが発生するまで20フレームあり、
+                // そのあいだに範囲外に逃げればダメージは受けない
+                ShadowState::Attack(count) if count == 20 => {
+                    let origin = transform.translation.truncate();
+                    if let Some(nearest) =
+                        finder.nearest(&rapier_context, entity, actor.actor_group, origin)
+                    {
+                        let diff = nearest.position - origin;
+                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                            actor_event.send(ActorEvent::Damaged {
+                                actor: nearest.entity,
+                                position: nearest.position,
+                                damage: 4,
+                                fire: false,
+                                impulse: Vec2::ZERO,
+                            });
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 fn group(mut query: Query<(&Shadow, &Actor, &mut CollisionGroups)>) {
     for (shadow, actor, mut group) in query.iter_mut() {
         match shadow.state {
@@ -287,7 +342,7 @@ impl Plugin for ShadowPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (transition, animate, approach, group)
+            (transition, animate, approach, attack, pointer, group)
                 .chain()
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)

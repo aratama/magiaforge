@@ -278,8 +278,8 @@ pub fn cast_spell(
                     impact_writer.send(SpawnImpact {
                         owner: Some(actor_entity),
                         position: actor_transform.translation.truncate(),
-                        radius: 24.0,
-                        impulse: 30000.0,
+                        radius: 32.0,
+                        impulse: 60000.0,
                     });
                 }
                 SpellCast::PrecisionUp => {

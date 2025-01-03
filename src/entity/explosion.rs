@@ -35,7 +35,7 @@ fn spawn_explosion(
     mut reader: EventReader<SpawnExplosion>,
     mut camera_query: Query<&mut GameCamera>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut life_query: Query<(&mut Life, &Transform, Option<&mut ExternalImpulse>)>,
+    mut life_query: Query<&Transform, With<Life>>,
     mut damage_writer: EventWriter<ActorEvent>,
 ) {
     let context: &RapierContext = rapier_context.single();
@@ -56,26 +56,20 @@ fn spawn_explosion(
                 ..default()
             },
             |entity| {
-                if let Ok((mut life, life_transform, mut external_impulse)) =
-                    life_query.get_mut(entity)
-                {
+                if let Ok(life_transform) = life_query.get_mut(entity) {
                     let p = life_transform.translation.truncate();
                     let distance = p.distance(*position);
 
                     let damage = (*damage as f32 * 0.1
                         + (1.0 - distance / radius) * *damage as f32 * 0.9)
                         as u32;
-                    life.life = (life.life - damage as i32).max(0);
-                    life.amplitude = 6.0;
                     damage_writer.send(ActorEvent::Damaged {
                         actor: entity,
                         damage,
                         position: p,
+                        fire: false,
+                        impulse: (p - position).normalize_or_zero() * impulse,
                     });
-                    se.send(SEEvent::pos(SE::Damage, p));
-                    if let Some(ref mut ex) = external_impulse {
-                        ex.impulse = (p - position).normalize_or_zero() * impulse;
-                    }
                 }
 
                 true // 交差図形の検索を続ける

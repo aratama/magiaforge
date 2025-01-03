@@ -53,7 +53,7 @@ pub fn spawn_eyeball(
 }
 
 fn control_eyeball(
-    mut actor_query: Query<(
+    mut query: Query<(
         Entity,
         Option<&mut EyeballControl>,
         &mut Actor,
@@ -61,11 +61,11 @@ fn control_eyeball(
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let finder = Finder::new(&actor_query);
+    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
+    let finder = Finder::new(&lens.query());
 
     // 各アイボールの行動を選択します
-    for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in
-        actor_query.iter_mut()
+    for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in query.iter_mut()
     {
         if let Some(_) = eyeball_optional {
             eyeball_actor.move_direction = Vec2::ZERO;

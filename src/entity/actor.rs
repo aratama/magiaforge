@@ -288,6 +288,8 @@ pub enum ActorEvent {
         actor: Entity,
         position: Vec2,
         damage: u32,
+        fire: bool,
+        impulse: Vec2,
     },
 }
 

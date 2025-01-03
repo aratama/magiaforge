@@ -6,6 +6,7 @@ use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::enemy::eyeball::spawn_eyeball;
+use crate::enemy::shadow::spawn_shadow;
 use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
@@ -176,9 +177,11 @@ pub fn setup_level(
     let spaw_enemy_types = match level {
         GameLevel::Level(0) => vec![],
         GameLevel::Level(1) => vec![SpawnEnemyType::Slime],
+        GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Eyeball],
+        GameLevel::Level(3) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
         GameLevel::Level(4) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
-        _ => vec![SpawnEnemyType::Slime, SpawnEnemyType::Eyeball],
+        _ => vec![],
     };
     spawn_random_enemies(
         &mut commands,
@@ -223,10 +226,10 @@ pub fn setup_level(
         }
     }
 
-    // テスト用
-    spawn.send(SpawnEntity::Shadow {
-        position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
-    });
+    // テスト用モンスター
+    // spawn.send(SpawnEntity::Shadow {
+    //     position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
+    // });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
@@ -312,6 +315,7 @@ fn select_level_bgm(
 pub enum SpawnEnemyType {
     Slime,
     Eyeball,
+    Shadow,
 }
 
 fn spawn_random_enemies(
@@ -368,6 +372,9 @@ fn spawn_random_enemies(
                     ActorGroup::Enemy,
                     8,
                 );
+            }
+            Some(SpawnEnemyType::Shadow) => {
+                spawn_shadow(&mut commands, &assets, &life_bar_res, position);
             }
             None => {
                 warn!("No enemy type found");
