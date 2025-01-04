@@ -91,6 +91,9 @@ impl Player {
 #[derive(Component, Debug, Clone)]
 pub struct PlayerServant;
 
+#[derive(Component, Debug, Clone)]
+pub struct PlayerDown;
+
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません
 /// Actor側で ExternalForce にアクセスして、移動を行います
@@ -119,6 +122,11 @@ fn move_player(
                     actor.move_direction = direction;
                     actor.state = state;
                 }
+            }
+            GameMenuState::PlayerInActive => {
+                // 起き上がりアニメーションのときは ActorState::GettingUp になっているはず
+                actor.move_direction = Vec2::ZERO;
+                actor.state = ActorState::GettingUp;
             }
             _ => {
                 actor.move_direction = Vec2::ZERO;
@@ -306,6 +314,7 @@ fn die_player(
 
             // 倒れるアニメーションを残す
             commands.spawn((
+                PlayerDown,
                 StateScoped(GameState::InGame),
                 CounterAnimated,
                 AseSpriteAnimation {

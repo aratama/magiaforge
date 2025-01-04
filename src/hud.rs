@@ -8,6 +8,7 @@ use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
+use crate::controller::player::PlayerDown;
 use crate::entity::actor::Actor;
 use crate::page::in_game::level_to_name;
 use crate::page::in_game::GameLevel;
@@ -242,6 +243,7 @@ fn update_hud(
     player_query: Query<(&Actor, &Life), (With<Player>, Without<Camera2d>)>,
     mut player_life_query: Query<&mut StatusBar, With<PlayerLifeBar>>,
     mut player_gold_query: Query<&mut Text, (With<PlayerGold>,)>,
+    player_down_query: Query<&PlayerDown>,
 ) {
     let mut player_life = player_life_query.single_mut();
     let mut player_gold = player_gold_query.single_mut();
@@ -249,6 +251,8 @@ fn update_hud(
         player_life.value = actor_life.life;
         player_life.max_value = actor_life.max_life;
         player_gold.0 = format!("{}", actor.golds);
+    } else if player_down_query.is_empty() {
+        // ワープでプレイヤーがいない
     } else {
         player_life.value = 0;
     }
