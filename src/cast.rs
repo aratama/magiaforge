@@ -60,8 +60,6 @@ pub struct SpellCastBullet {
     pub light_intensity: f32,
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
-
-    pub remaining_time: u32,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -167,7 +165,6 @@ pub fn cast_spell(
                         light_radius: cast.light_radius,
                         light_color_hlsa: cast.light_color_hlsa,
                         homing: actor.effects.homing,
-                        remaining_time: cast.remaining_time,
                         groups: match actor.actor_group {
                             ActorGroup::Player => *PLAYER_BULLET_GROUP,
                             ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
@@ -356,7 +353,6 @@ pub fn cast_spell(
                         light_radius: 50.0,
                         light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
                         homing: actor.effects.homing,
-                        remaining_time: 120,
                         groups: match actor.actor_group {
                             ActorGroup::Player => *PLAYER_BULLET_GROUP,
                             ActorGroup::Enemy => *ENEMY_BULLET_GROUP,

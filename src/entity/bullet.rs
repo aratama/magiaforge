@@ -40,7 +40,6 @@ pub struct Bullet {
     owner: Option<Uuid>,
     homing: f32,
     actor_group: ActorGroup,
-    remaining_time: u32,
     pub holder: Option<(Entity, Trigger)>,
 }
 
@@ -94,7 +93,6 @@ pub struct SpawnBullet {
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
     pub groups: CollisionGroups,
-    pub remaining_time: u32,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -124,7 +122,6 @@ pub fn spawn_bullet(
             owner: spawn.sender,
             homing: spawn.homing,
             actor_group: spawn.actor_group,
-            remaining_time: spawn.remaining_time,
             holder: spawn.holder,
         },
         EntityDepth::new(),
@@ -229,7 +226,7 @@ fn bullet_homing(
 
 fn bullet_collision(
     mut commands: Commands,
-    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity, &AseSpriteSlice)>,
+    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     mut actor_query: Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
     mut lifebeing_query: Query<&Life, Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
@@ -282,7 +279,7 @@ fn bullet_collision(
 
 fn process_bullet_event(
     mut commands: &mut Commands,
-    query: &Query<(Entity, &mut Bullet, &Transform, &Velocity, &AseSpriteSlice)>,
+    query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     actors: &mut Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
     breakabke_query: &Query<&Life, Without<Actor>>,
     despownings: &mut HashSet<Entity>,
@@ -293,8 +290,14 @@ fn process_bullet_event(
     actor_event: &mut EventWriter<ActorEvent>,
     resource: &Res<BulletParticleResource>,
 ) -> bool {
-    if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity, sprite)) = query.get(*a) {
+    if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
         let bullet_position = bullet_transform.translation.truncate();
+
+        let bullet_damage = if bullet.holder.is_some() {
+            0
+        } else {
+            bullet.damage
+        };
 
         if !despownings.contains(&bullet_entity) {
             if let Ok(actor) = actors.get_mut(*b) {
@@ -310,7 +313,7 @@ fn process_bullet_event(
                     spawn_particle_system(&mut commands, bullet_position, resource);
                     actor_event.send(ActorEvent::Damaged {
                         actor: *b,
-                        damage: bullet.damage as u32,
+                        damage: bullet_damage as u32,
                         position: bullet_position,
                         fire: false,
                         impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
@@ -324,7 +327,7 @@ fn process_bullet_event(
                 spawn_particle_system(&mut commands, bullet_position, resource);
                 actor_event.send(ActorEvent::Damaged {
                     actor: *b,
-                    damage: bullet.damage as u32,
+                    damage: bullet_damage as u32,
                     position: bullet_position,
                     fire: false,
                     impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
@@ -335,22 +338,6 @@ fn process_bullet_event(
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
                 writer.send(SEEvent::pos(SE::Steps, bullet_position));
-
-                // 壁に当たった場合、一部の弾丸は痕跡を残す
-                if 0 < bullet.remaining_time {
-                    commands.spawn((
-                        BulletResidual {
-                            count: bullet.remaining_time,
-                        },
-                        StateScoped(GameState::InGame),
-                        AseSpriteSlice {
-                            aseprite: sprite.aseprite.clone(),
-                            name: sprite.name.clone(),
-                        },
-                        EntityDepth::new(),
-                        bullet_transform.clone(),
-                    ));
-                }
             } else {
                 // リモートプレイヤーに命中した場合もここ
                 // ヒット判定やダメージなどはリモート側で処理します

@@ -59,6 +59,8 @@ pub const SERVANT_SEED_LAYER_Z: f32 = 23.0;
 
 pub const DAMAGE_NUMBER_LAYER_Z: f32 = 22.0;
 
+pub const PARTICLE_LAYER_Z: f32 = 21.6;
+
 pub const CEIL_LAYER_Z: f32 = 21.5;
 
 /// キャラクターやチェストなどのレイヤー

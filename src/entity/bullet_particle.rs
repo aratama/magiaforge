@@ -1,4 +1,4 @@
-use crate::states::GameState;
+use crate::{constant::PARTICLE_LAYER_Z, states::GameState};
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
@@ -38,7 +38,7 @@ pub fn spawn_particle_system(
             BulletParticle { velocity, lifetime },
             Mesh2d(resource.shape.clone()),
             MeshMaterial2d(resource.material.clone()),
-            Transform::from_translation(position.extend(11.0)),
+            Transform::from_translation(position.extend(PARTICLE_LAYER_Z)),
         ));
     }
 }
