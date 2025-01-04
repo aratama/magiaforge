@@ -535,7 +535,7 @@ fn apply_external_force(
         if 0.0 < force.length() {
             if 0 < actor.trapped {
                 external_force.force = Vec2::ZERO;
-                actor.trapped -= 1;
+                actor.trapped -= actor.floundering;
                 if actor.trapped == 0 {
                     actor.trap_moratorium = 180;
                     se.send(SEEvent::pos(SE::Zombie, transform.translation.truncate()));

@@ -3,6 +3,7 @@ pub mod buer;
 pub mod chicken;
 pub mod eyeball;
 pub mod huge_slime;
+pub mod salamander;
 pub mod sandbug;
 pub mod shadow;
 pub mod slime;

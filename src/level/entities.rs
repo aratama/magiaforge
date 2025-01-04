@@ -10,6 +10,7 @@ use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::huge_slime::spawn_huge_slime;
+use crate::enemy::salamander::spawn_salamander;
 use crate::enemy::sandbug::spawn_sandbag;
 use crate::enemy::shadow::spawn_shadow;
 use crate::enemy::slime::spawn_slime;
@@ -172,6 +173,7 @@ pub enum SpawnEnemyType {
     Eyeball,
     Shadow,
     Spider,
+    Salamander,
 }
 
 pub fn spawn_entity(
@@ -475,6 +477,9 @@ pub fn spawn_entity(
                 }
                 SpawnEnemyType::Spider => {
                     spawn_spider(&mut commands, &assets, &life_bar_resource, *position);
+                }
+                SpawnEnemyType::Salamander => {
+                    spawn_salamander(&mut commands, &assets, &life_bar_resource, *position);
                 }
             },
 

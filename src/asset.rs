@@ -69,6 +69,9 @@ pub struct GameAssets {
     #[asset(path = "entity/spider.aseprite")]
     pub spider: Handle<Aseprite>,
 
+    #[asset(path = "entity/salamander.aseprite")]
+    pub salamander: Handle<Aseprite>,
+
     // ボス ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // #[asset(path = "entity/buer.aseprite")]

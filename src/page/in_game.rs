@@ -175,7 +175,8 @@ pub fn setup_level(
         GameLevel::Level(2) => 10,
         GameLevel::Level(3) => 10,
         GameLevel::Level(4) => 10,
-        GameLevel::Level(5) => 0, // ボス部屋
+        GameLevel::Level(5) => 10,
+        GameLevel::Level(6) => 0, // ボス部屋
         GameLevel::MultiPlayArena => 0,
         _ => 0,
     };
@@ -185,7 +186,8 @@ pub fn setup_level(
         GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Spider],
         GameLevel::Level(3) => vec![SpawnEnemyType::Spider, SpawnEnemyType::Eyeball],
         GameLevel::Level(4) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
-        GameLevel::Level(5) => vec![], // ボス部屋
+        GameLevel::Level(5) => vec![SpawnEnemyType::Shadow, SpawnEnemyType::Salamander],
+        GameLevel::Level(6) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
         _ => vec![],
     };
@@ -209,13 +211,15 @@ pub fn setup_level(
             GameLevel::Level(2) => 3,
             GameLevel::Level(3) => 3,
             GameLevel::Level(4) => 3,
+            GameLevel::Level(5) => 3,
             _ => 0,
         },
         match level {
             GameLevel::Level(1) => vec![0, 1, 2],
-            GameLevel::Level(2) => vec![2, 3, 4],
-            GameLevel::Level(3) => vec![3, 4, 5],
-            GameLevel::Level(4) => vec![4, 5, 6],
+            GameLevel::Level(2) => vec![1, 2, 3],
+            GameLevel::Level(3) => vec![2, 3, 4],
+            GameLevel::Level(4) => vec![3, 4, 5],
+            GameLevel::Level(5) => vec![4, 5, 6],
             _ => vec![],
         },
     );

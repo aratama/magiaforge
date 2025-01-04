@@ -23,6 +23,7 @@ use crate::debug_command::DebugCommandPlugin;
 use crate::enemy::chicken::ChikenControlPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
+use crate::enemy::salamander::SalamanderPlugin;
 use crate::enemy::sandbug::SandbagPlugin;
 use crate::enemy::shadow::ShadowPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
@@ -244,6 +245,7 @@ pub fn run_game() {
         .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(RockPlugin)
+        .add_plugins(SalamanderPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
