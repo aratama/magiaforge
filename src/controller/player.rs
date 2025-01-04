@@ -415,6 +415,7 @@ impl Plugin for PlayerPlugin {
                 die_player,
                 apply_intensity_by_lantern,
                 insert_discovered_spells,
+                move_player,
             )
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .before(PhysicsSet::SyncBackend),
@@ -423,7 +424,6 @@ impl Plugin for PlayerPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                move_player,
                 actor_cast,
                 switch_wand,
                 rotate_holded_bullets,

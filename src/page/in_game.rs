@@ -172,16 +172,20 @@ pub fn setup_level(
     let spaw_enemy_count = match level {
         GameLevel::Level(0) => 0,
         GameLevel::Level(1) => 10,
-        GameLevel::Level(4) => 0, // ボス部屋
+        GameLevel::Level(2) => 10,
+        GameLevel::Level(3) => 10,
+        GameLevel::Level(4) => 10,
+        GameLevel::Level(5) => 0, // ボス部屋
         GameLevel::MultiPlayArena => 0,
-        _ => 30,
+        _ => 0,
     };
     let spaw_enemy_types = match level {
         GameLevel::Level(0) => vec![],
         GameLevel::Level(1) => vec![SpawnEnemyType::Slime],
         GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Spider],
-        GameLevel::Level(3) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
-        GameLevel::Level(4) => vec![], // ボス部屋
+        GameLevel::Level(3) => vec![SpawnEnemyType::Spider, SpawnEnemyType::Eyeball],
+        GameLevel::Level(4) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
+        GameLevel::Level(5) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
         _ => vec![],
     };
@@ -227,10 +231,10 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    spawn.send(SpawnEntity::Enemy {
-        enemy_type: SpawnEnemyType::Spider,
-        position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
-    });
+    // spawn.send(SpawnEntity::Enemy {
+    //     enemy_type: SpawnEnemyType::Spider,
+    //     position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
+    // });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
