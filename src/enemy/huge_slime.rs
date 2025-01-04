@@ -14,7 +14,9 @@ use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
 use crate::inventory::Inventory;
+use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
+use crate::message::HUGE_SLIME;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -34,7 +36,9 @@ const HUGE_SLIME_COLLIDER_RADIUS: f32 = 24.0;
 const IMPACT_MARGIN: f32 = 16.0;
 
 #[derive(Component)]
-pub struct Boss;
+pub struct Boss {
+    pub name: Dict<String>,
+}
 
 #[derive(Component)]
 pub struct HugeSlime {
@@ -85,9 +89,11 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 
     commands
         .spawn((
-            Name::new("スライムの王 エミルス"),
+            Name::new("huge slime"),
             StateScoped(GameState::InGame),
-            Boss,
+            Boss {
+                name: HUGE_SLIME.to_string(),
+            },
             DespawnHugeSlime,
             Life {
                 life: 1200,

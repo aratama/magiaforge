@@ -528,6 +528,21 @@ pub const PAY_FIRST: Dict<&'static str> = Dict {
     ru: "Эй, эй, сначала заплати, прежде чем уйти",
 };
 
+// ボス　//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+pub const HUGE_SLIME: Dict<&'static str> = Dict {
+    ja: "スライムの王 エミルス",
+    en: "Slime King Emils",
+    zh_cn: "史莱姆之王 艾米尔斯",
+    zh_tw: "史萊姆之王 艾米爾斯",
+    es: "Rey Slime Emils",
+    fr: "Roi Slime Emils",
+    pt: "Rei Slime Emils",
+    de: "Schleimkönig Emils",
+    ko: "슬라임 왕 에밀스",
+    ru: "Король слизней Эмильс",
+};
+
 // 地名 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 pub const LEVEL0: Dict<&'static str> = Dict {

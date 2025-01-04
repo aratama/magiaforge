@@ -531,7 +531,7 @@ impl SpellType {
                     ko: "거미줄을 만듭니다. 만지면 잠시 동안 움직일 수 없습니다.",
                     ru: "Создает паутину. Прикосновение к ней не позволит вам двигаться некоторое время."
                 },
-                cast_delay: 30,
+                cast_delay: 120,
                 icon: "spell_web_icon",
                 price: 200,
                 cast: SpellCast::Web,

@@ -49,7 +49,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
         .with_child((
             SpeechBubbleText,
             Text::new(""),
-            TextColor(Color::hsva(0.0, 0.0, 0.1, 1.0)),
+            TextColor(Color::hsva(0.0, 0.0, 0.3, 1.0)),
             TextFont {
                 font: assets.noto_sans_jp.clone(),
                 font_size: 24.0,

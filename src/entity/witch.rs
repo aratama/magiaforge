@@ -1,4 +1,3 @@
-use super::actor::ActorProps;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
@@ -9,6 +8,7 @@ use crate::controller::player::Equipment;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
+use crate::entity::actor::ActorProps;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;

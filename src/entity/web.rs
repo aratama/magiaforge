@@ -1,9 +1,9 @@
-use super::actor::Actor;
-use super::actor::ActorGroup;
-use super::fire::Burnable;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorGroup;
+use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;

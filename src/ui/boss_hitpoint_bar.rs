@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::enemy::huge_slime::Boss;
+use crate::language::{Dict, M18NTtext};
 use crate::states::GameState;
 use bevy::prelude::*;
 
@@ -104,6 +105,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
             parent.spawn((
                 BossNameText,
                 Text::new(""),
+                M18NTtext(Dict::empty()),
                 TextColor(Color::hsva(0.0, 0.0, 1.0, 0.5)),
                 TextFont {
                     font: assets.noto_sans_jp.clone(),
@@ -123,7 +125,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
 
 fn update_bar_visibility(
     mut bar_query: Query<&mut Visibility, With<BossHitpointBar>>,
-    boss_query: Query<(&Name, &Life), With<Boss>>,
+    boss_query: Query<(&Boss, &Life)>,
     mut rect_query: Query<&mut Node, (With<StatusBarRect>, Without<StatusBarBackground>)>,
     mut text_query: Query<
         &mut Text,
@@ -134,7 +136,7 @@ fn update_bar_visibility(
         ),
     >,
     mut name_query: Query<
-        &mut Text,
+        &mut M18NTtext,
         (
             With<BossNameText>,
             Without<StatusBarText>,
@@ -144,7 +146,7 @@ fn update_bar_visibility(
     >,
 ) {
     for mut visibility in bar_query.iter_mut() {
-        if let Ok((name, life)) = boss_query.get_single() {
+        if let Ok((boss, life)) = boss_query.get_single() {
             *visibility = Visibility::Inherited;
 
             for mut rect in rect_query.iter_mut() {
@@ -156,7 +158,7 @@ fn update_bar_visibility(
             }
 
             for mut text in name_query.iter_mut() {
-                text.0 = name.as_str().to_string();
+                text.0 = boss.name.clone();
             }
         } else {
             *visibility = Visibility::Hidden;
