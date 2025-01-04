@@ -1,5 +1,3 @@
-use super::bullet::Trigger;
-use super::impact::SpawnImpact;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::component::life::Life;
@@ -12,6 +10,8 @@ use crate::constant::PLAYER_GROUPS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Equipment;
 use crate::controller::player::Player;
+use crate::entity::bullet::Trigger;
+use crate::entity::impact::SpawnImpact;
 use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
@@ -121,9 +121,70 @@ pub struct Actor {
     /// フキダシを閉じたあとなど、一定時間詠唱不能にしておかないと、
     /// フキダシを閉じると同時に詠唱をしてしまう
     pub wait: u32,
+
+    /// 蜘蛛の巣などの罠に引っかかって動けなくなっている場合は正の数
+    /// 歩くと減少します
+    pub trapped: u32,
+
+    /// この値が正の数のときはトラップを回避できます
+    /// 歩くと減少します
+    pub trap_moratorium: u32,
+}
+
+pub struct ActorProps {
+    pub uuid: Uuid,
+    pub angle: f32,
+    pub point_light_radius: f32,
+    pub current_wand: usize,
+    pub actor_group: ActorGroup,
+    pub golds: u32,
+    pub wands: [Wand; MAX_WANDS],
+    pub inventory: Inventory,
+    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
+    pub radius: f32,
+    pub move_force: f32,
 }
 
 impl Actor {
+    pub fn new(
+        ActorProps {
+            uuid,
+            angle,
+            point_light_radius,
+            current_wand,
+            actor_group,
+            golds,
+            wands,
+            inventory,
+            equipments,
+            radius,
+            move_force,
+        }: ActorProps,
+    ) -> Self {
+        Actor {
+            uuid,
+            pointer: Vec2::from_angle(angle),
+            point_light_radius,
+            radius,
+            current_wand,
+            actor_group,
+            golds,
+            wands,
+            inventory,
+            equipments,
+            move_force,
+
+            move_direction: Vec2::ZERO,
+            fire_state: ActorFireState::Idle,
+            fire_state_secondary: ActorFireState::Idle,
+            effects: default(),
+            state: ActorState::default(),
+            wait: 0,
+            trapped: 0,
+            trap_moratorium: 0,
+        }
+    }
+
     #[allow(dead_code)]
     pub fn get_item_icon(&self, index: FloatingContent) -> Option<&str> {
         match index {
@@ -446,9 +507,9 @@ fn fire_bullet(
 
 /// actor.move_direction の値に従って、アクターに外力を適用します
 /// 魔法の発射中は移動速度が低下します
-fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
-    for (actor, mut force) in player_query.iter_mut() {
-        force.force = actor.move_direction
+fn apply_external_force(mut player_query: Query<(&mut Actor, &mut ExternalForce)>) {
+    for (mut actor, mut external_force) in player_query.iter_mut() {
+        let force = actor.move_direction
             * actor.get_total_move_force()
             * if actor.fire_state == ActorFireState::Fire
                 || actor.fire_state_secondary == ActorFireState::Fire
@@ -457,6 +518,24 @@ fn apply_external_force(mut player_query: Query<(&Actor, &mut ExternalForce)>) {
             } else {
                 1.0
             };
+
+        if 0.0 < force.length() {
+            if 0 < actor.trapped {
+                external_force.force = Vec2::ZERO;
+                actor.trapped -= 1;
+                if actor.trapped == 0 {
+                    actor.trap_moratorium = 60;
+                }
+            } else {
+                external_force.force = force;
+            }
+
+            if 0 < actor.trap_moratorium {
+                actor.trap_moratorium -= 1;
+            }
+        } else {
+            external_force.force = Vec2::ZERO;
+        }
     }
 }
 

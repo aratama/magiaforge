@@ -4,11 +4,11 @@ pub mod overlay;
 pub mod pointer;
 
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::component::life::Life;
 use crate::page::in_game::level_to_name;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;

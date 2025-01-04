@@ -7,7 +7,6 @@ use crate::constant::*;
 use crate::controller::player::Equipment;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::entity::actor::Actor;
-use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
@@ -22,6 +21,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
+
+use super::actor::ActorProps;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
@@ -59,25 +60,19 @@ pub fn spawn_witch<T: Component>(
     let mut entity = commands.spawn((
         Name::new("witch"),
         StateScoped(GameState::InGame),
-        Actor {
+        Actor::new(ActorProps {
             uuid,
-            pointer: Vec2::from_angle(angle),
             point_light_radius,
             radius: WITCH_COLLIDER_RADIUS,
-            move_direction: Vec2::ZERO,
-            move_force: PLAYER_MOVE_FORCE,
-            fire_state: ActorFireState::Idle,
-            fire_state_secondary: ActorFireState::Idle,
             current_wand,
-            effects: default(),
             actor_group,
             golds,
             wands,
             inventory,
             equipments,
-            state: ActorState::default(),
-            wait: 0,
-        },
+            move_force: PLAYER_MOVE_FORCE,
+            angle,
+        }),
         Witch,
         controller,
         Life {

@@ -73,12 +73,9 @@ fn control_eyeball(
 
             // 最も近くにいる、別グループのアクターに対して接近または攻撃
             let origin = eyeball_transform.translation.truncate();
-            if let Some(nearest) = finder.nearest(
-                &rapier_context,
-                eyeball_entity,
-                eyeball_actor.actor_group,
-                origin,
-            ) {
+            if let Some(nearest) =
+                finder.nearest(&rapier_context, eyeball_entity, ENEMY_DETECTION_RANGE)
+            {
                 let diff = nearest.position - origin;
                 if diff.length() < ENEMY_ATTACK_RANGE {
                     eyeball_actor.move_direction = Vec2::ZERO;

@@ -1,15 +1,13 @@
+use crate::constant::SENSOR_GROUPS;
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorGroup;
+use bevy::prelude::*;
+use bevy::utils::HashMap;
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::QueryFilter;
 use std::cmp::Ordering;
-
-use bevy::{prelude::*, utils::HashMap};
-use bevy_rapier2d::{
-    plugin::{DefaultRapierContext, RapierContext},
-    prelude::{Collider, QueryFilter},
-};
-
-use crate::{
-    constant::{SENSOR_GROUPS, TILE_SIZE},
-    entity::actor::{Actor, ActorGroup},
-};
 
 pub struct Finder {
     map: HashMap<Entity, (ActorGroup, Vec2, f32)>,
@@ -36,37 +34,40 @@ impl Finder {
         &self,
         rapier_context: &Query<&RapierContext, With<DefaultRapierContext>>,
         entity: Entity,
-        self_actor_group: ActorGroup,
-        origin: Vec2,
+        range: f32,
     ) -> Option<FindResult> {
         let context: &RapierContext = rapier_context.single();
 
-        // 指定した範囲にいる、自分以外で、かつ別のグループに所属するアクターの一覧を取得
-        let mut enemies: Vec<FindResult> = Vec::new();
-        context.intersections_with_shape(
-            origin,
-            0.0,
-            &Collider::ball(8.0 * TILE_SIZE),
-            QueryFilter::from(*SENSOR_GROUPS),
-            |e| {
-                if e != entity {
-                    if let Some((e_g, e_t, e_r)) = self.map.get(&e) {
-                        if *e_g != self_actor_group {
-                            enemies.push(FindResult {
-                                entity: e,
-                                position: *e_t,
-                                radius: *e_r,
-                            });
+        if let Some((self_actor_group, origin, _)) = self.map.get(&entity) {
+            // 指定した範囲にいる、自分以外で、かつ別のグループに所属するアクターの一覧を取得
+            let mut enemies: Vec<FindResult> = Vec::new();
+            context.intersections_with_shape(
+                *origin,
+                0.0,
+                &Collider::ball(range),
+                QueryFilter::from(*SENSOR_GROUPS),
+                |e| {
+                    if e != entity {
+                        if let Some((e_g, e_t, e_r)) = self.map.get(&e) {
+                            if *e_g != *self_actor_group {
+                                enemies.push(FindResult {
+                                    entity: e,
+                                    position: *e_t,
+                                    radius: *e_r,
+                                });
+                            }
                         }
                     }
-                }
-                true // 交差図形の検索を続ける
-            },
-        );
+                    true // 交差図形の検索を続ける
+                },
+            );
 
-        // 最も近くにいる、別グループのアクターに対して接近または攻撃
-        enemies.sort_by(compare_distance(origin));
-        enemies.first().cloned()
+            // 最も近くにいる、別グループのアクターに対して接近または攻撃
+            enemies.sort_by(compare_distance(*origin));
+            enemies.first().cloned()
+        } else {
+            None
+        }
     }
 }
 

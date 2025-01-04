@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
-use crate::config::GameConfig;
 use crate::component::counter::CounterAnimated;
+use crate::config::GameConfig;
 use crate::language::language_to_font;
 use crate::states::GameState;
 use crate::theater::Act;

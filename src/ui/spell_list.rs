@@ -1,5 +1,3 @@
-use super::popup::PopUp;
-use super::popup::PopupContent;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::UI_PRIMARY;
@@ -11,6 +9,8 @@ use crate::language::M18NTtext;
 use crate::message::DISCOVERED_SPELLS;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::ui::popup::PopUp;
+use crate::ui::popup::PopupContent;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use strum::IntoEnumIterator;

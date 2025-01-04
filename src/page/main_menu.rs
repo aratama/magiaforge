@@ -1,4 +1,3 @@
-use super::in_game::GameLevel;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::config::GameConfig;
@@ -8,6 +7,7 @@ use crate::language::language_to_font;
 use crate::language::Languages;
 use crate::language::M18NTtext;
 use crate::message::CLICK_TO_START;
+use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;

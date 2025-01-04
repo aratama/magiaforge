@@ -9,9 +9,8 @@ use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
 use crate::entity::actor::Actor;
-use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorState;
+use crate::entity::actor::ActorProps;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
@@ -45,25 +44,19 @@ pub fn spawn_basic_enemy<T: Component>(
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
         marker,
-        Actor {
+        Actor::new(ActorProps {
             uuid: Uuid::new_v4(),
-            pointer: Vec2::ZERO,
+            angle: 0.0,
             point_light_radius: 0.0,
             radius,
-            move_direction: Vec2::ZERO,
             move_force: move_force,
-            fire_state: ActorFireState::Idle,
-            fire_state_secondary: ActorFireState::Idle,
             current_wand: 0,
-            effects: default(),
             actor_group,
             golds,
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: Wand::single(spell),
-            state: ActorState::default(),
-            wait: 0,
-        },
+        }),
         EntityDepth::new(),
         Life::new(max_life),
         HomingTarget,

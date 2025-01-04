@@ -26,6 +26,7 @@ use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::sandbug::SandbagPlugin;
 use crate::enemy::shadow::ShadowPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
+use crate::enemy::spider::SpiderPlugin;
 use crate::entity::actor::ActorPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
 use crate::entity::bomb::BombPlugin;
@@ -47,6 +48,7 @@ use crate::entity::rock::RockPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
+use crate::entity::web::WebPlugin;
 use crate::entity::witch::WitchPlugin;
 use crate::footsteps::FootStepsPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
@@ -255,6 +257,7 @@ pub fn run_game() {
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
         .add_plugins(SpellListPlugin)
+        .add_plugins(SpiderPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
@@ -263,6 +266,7 @@ pub fn run_game() {
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)
         .add_plugins(WarpPagePlugin)
+        .add_plugins(WebPlugin)
         .add_plugins(WebSocketPlugin)
         .add_plugins(WitchPlugin)
         .add_plugins(WorldPlugin)

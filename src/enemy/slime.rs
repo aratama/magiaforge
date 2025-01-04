@@ -84,12 +84,9 @@ fn control_slime(
             // 最も近くにいる、別グループのアクターに対して接近または攻撃
             let origin = slime_transform.translation.truncate();
 
-            if let Some(nearest) = finder.nearest(
-                &rapier_context,
-                slime_entity,
-                slime_actor.actor_group,
-                origin,
-            ) {
+            if let Some(nearest) =
+                finder.nearest(&rapier_context, slime_entity, ENEMY_DETECTION_RANGE)
+            {
                 let diff = nearest.position - origin;
                 if diff.length() < slime_actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                     slime_actor.move_direction = Vec2::ZERO;

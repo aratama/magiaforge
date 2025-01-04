@@ -41,6 +41,7 @@ pub struct GameAssets {
     #[asset(path = "entity/witch.aseprite")]
     pub witch: Handle<Aseprite>,
 
+    // モンスター //////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/slime.aseprite")]
     pub slime: Handle<Aseprite>,
 
@@ -62,6 +63,11 @@ pub struct GameAssets {
     #[asset(path = "entity/shadow.aseprite")]
     pub shadow: Handle<Aseprite>,
 
+    #[asset(path = "entity/spider.aseprite")]
+    pub spider: Handle<Aseprite>,
+
+    // ボス ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // #[asset(path = "entity/buer.aseprite")]
     // pub buer: Handle<Aseprite>,
     #[asset(path = "entity/huge_slime.aseprite")]
@@ -70,12 +76,9 @@ pub struct GameAssets {
     #[asset(path = "entity/huge_slime_shadow.aseprite")]
     pub huge_slime_shadow: Handle<Aseprite>,
 
-    #[asset(path = "entity/stone_lantern.aseprite")]
-    pub stone_lantern: Handle<Aseprite>,
+    // ウサギ //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    #[asset(path = "entity/impact.aseprite")]
-    pub impact: Handle<Aseprite>,
-
+    //
     #[asset(path = "entity/rabbit_yellow.aseprite")]
     pub rabbit_yellow: Handle<Aseprite>,
 
@@ -94,6 +97,7 @@ pub struct GameAssets {
     #[asset(path = "entity/rabbit_green.aseprite")]
     pub rabbit_green: Handle<Aseprite>,
 
+    // 呪文 /////////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/bomb.aseprite")]
     pub bomb: Handle<Aseprite>,
 
@@ -105,6 +109,12 @@ pub struct GameAssets {
 
     #[asset(path = "entity/fire.aseprite")]
     pub fire: Handle<Aseprite>,
+
+    #[asset(path = "entity/stone_lantern.aseprite")]
+    pub stone_lantern: Handle<Aseprite>,
+
+    #[asset(path = "entity/impact.aseprite")]
+    pub impact: Handle<Aseprite>,
 
     // 効果音 ////////////////////////////////////////////////////////////////////////////
     #[asset(path = "audio/dageki.ogg")]

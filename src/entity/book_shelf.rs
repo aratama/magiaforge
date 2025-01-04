@@ -3,6 +3,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
+use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -10,8 +11,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::fire::Burnable;
 
 const ENTITY_WIDTH: f32 = 16.0;
 

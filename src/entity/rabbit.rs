@@ -49,6 +49,8 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
             state: ActorState::default(),
             wait: 0,
+            trapped: 0,
+            trap_moratorium: 0,
         },
         Life {
             life: 100000,

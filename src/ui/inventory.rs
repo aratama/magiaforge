@@ -1,4 +1,3 @@
-use super::popup::PopupContent;
 use crate::asset::GameAssets;
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::controller::player::Player;
@@ -9,6 +8,7 @@ use crate::ui::floating::FloatingContent;
 use crate::ui::item_panel::spawn_item_panel;
 use crate::ui::item_panel::ItemPanel;
 use crate::ui::popup::PopUp;
+use crate::ui::popup::PopupContent;
 use bevy::prelude::*;
 
 #[derive(Component)]

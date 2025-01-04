@@ -8,8 +8,12 @@ use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::chicken::spawn_chiken;
+use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::sandbug::spawn_sandbag;
+use crate::enemy::shadow::spawn_shadow;
+use crate::enemy::slime::spawn_slime;
+use crate::enemy::spider::spawn_spider;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
@@ -26,6 +30,7 @@ use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
+use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
 use crate::message::HELLO;
 use crate::message::HELLO_RABBITS;
@@ -148,6 +153,24 @@ pub enum SpawnEntity {
         remote: bool,
         servant: bool,
     },
+
+    Enemy {
+        enemy_type: SpawnEnemyType,
+        position: Vec2,
+    },
+
+    Web {
+        position: Vec2,
+        owner_actor_group: ActorGroup,
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpawnEnemyType {
+    Slime,
+    Eyeball,
+    Shadow,
+    Spider,
 }
 
 pub fn spawn_entity(
@@ -417,6 +440,47 @@ pub fn spawn_entity(
                     *remote,
                     *servant,
                 );
+            }
+
+            SpawnEntity::Enemy {
+                enemy_type,
+                position,
+            } => match enemy_type {
+                SpawnEnemyType::Slime => {
+                    spawn_slime(
+                        &mut commands,
+                        &assets,
+                        *position,
+                        &life_bar_resource,
+                        0,
+                        5,
+                        ActorGroup::Enemy,
+                        None,
+                    );
+                }
+                SpawnEnemyType::Eyeball => {
+                    spawn_eyeball(
+                        &mut commands,
+                        &assets,
+                        *position,
+                        &life_bar_resource,
+                        ActorGroup::Enemy,
+                        8,
+                    );
+                }
+                SpawnEnemyType::Shadow => {
+                    spawn_shadow(&mut commands, &assets, &life_bar_resource, *position);
+                }
+                SpawnEnemyType::Spider => {
+                    spawn_spider(&mut commands, &assets, &life_bar_resource, *position);
+                }
+            },
+
+            SpawnEntity::Web {
+                position,
+                owner_actor_group,
+            } => {
+                spawn_web(&mut commands, &assets, *position, *owner_actor_group);
             }
         }
     }

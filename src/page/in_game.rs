@@ -4,9 +4,6 @@ use crate::camera::setup_camera;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::shadow::spawn_shadow;
-use crate::enemy::slime::spawn_slime;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
@@ -17,6 +14,7 @@ use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::spawn_level_appearance;
 use crate::level::entities::spawn_entity;
+use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
@@ -181,21 +179,19 @@ pub fn setup_level(
     let spaw_enemy_types = match level {
         GameLevel::Level(0) => vec![],
         GameLevel::Level(1) => vec![SpawnEnemyType::Slime],
-        GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Eyeball],
+        GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Spider],
         GameLevel::Level(3) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
         GameLevel::Level(4) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
         _ => vec![],
     };
     spawn_random_enemies(
-        &mut commands,
-        &assets,
-        &life_bar_res,
         &empties,
         &mut rng,
         entry_point.clone(),
         spaw_enemy_count,
         &spaw_enemy_types,
+        &mut spawn,
     );
 
     let spaw_item_count = match level {
@@ -231,9 +227,10 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    // spawn.send(SpawnEntity::Shadow {
-    //     position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
-    // });
+    spawn.send(SpawnEntity::Enemy {
+        enemy_type: SpawnEnemyType::Spider,
+        position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
+    });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
@@ -304,22 +301,13 @@ fn select_level_bgm(
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SpawnEnemyType {
-    Slime,
-    Eyeball,
-    Shadow,
-}
-
 fn spawn_random_enemies(
-    mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    life_bar_res: &Res<LifeBarResource>,
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
     spaw_enemy_count: u32,
     enemy_types: &Vec<SpawnEnemyType>,
+    spawn: &mut EventWriter<SpawnEntity>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -344,30 +332,11 @@ fn spawn_random_enemies(
         );
 
         match enemy_types.choose(&mut rng) {
-            Some(SpawnEnemyType::Slime) => {
-                spawn_slime(
-                    &mut commands,
-                    &assets,
+            Some(enemy_type) => {
+                spawn.send(SpawnEntity::Enemy {
+                    enemy_type: *enemy_type,
                     position,
-                    &life_bar_res,
-                    0,
-                    5,
-                    ActorGroup::Enemy,
-                    None,
-                );
-            }
-            Some(SpawnEnemyType::Eyeball) => {
-                spawn_eyeball(
-                    &mut commands,
-                    &assets,
-                    position,
-                    &life_bar_res,
-                    ActorGroup::Enemy,
-                    8,
-                );
-            }
-            Some(SpawnEnemyType::Shadow) => {
-                spawn_shadow(&mut commands, &assets, &life_bar_res, position);
+                });
             }
             None => {
                 warn!("No enemy type found");

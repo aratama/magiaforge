@@ -21,4 +21,5 @@ pub mod rock;
 pub mod servant_seed;
 pub mod shop;
 pub mod stone_lantern;
+pub mod web;
 pub mod witch;

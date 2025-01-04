@@ -1,9 +1,7 @@
+use crate::entity::actor::Actor;
+use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
-
-use crate::{
-    entity::actor::Actor,
-    states::{GameState, TimeState},
-};
 
 #[derive(Component, Debug)]
 pub struct Flip;

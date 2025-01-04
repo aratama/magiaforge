@@ -1,4 +1,5 @@
-use crate::constant::{TILE_HALF, TILE_SIZE};
+use crate::constant::TILE_HALF;
+use crate::constant::TILE_SIZE;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
 use bevy::prelude::*;

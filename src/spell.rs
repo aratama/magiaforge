@@ -474,7 +474,7 @@ impl SpellType {
                 },
                 cast_delay: 30,
                 icon: "summon_servant",
-                price: 200,        
+                price: 200,
                 cast: SpellCast::Summon { friend: true, servant_type: ServantType::Chiken, servant: true },
             },
             SpellType::HeavyShot => SpellProps {

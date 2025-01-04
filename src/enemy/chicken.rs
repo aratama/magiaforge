@@ -1,5 +1,3 @@
-use core::f32;
-
 use crate::asset::GameAssets;
 use crate::component::falling::Falling;
 use crate::controller::player::PlayerServant;
@@ -12,6 +10,7 @@ use crate::states::GameState;
 use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use core::f32;
 
 #[derive(Debug)]
 enum ChickenState {

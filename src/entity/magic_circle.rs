@@ -75,10 +75,12 @@ pub fn spawn_magic_circle(
                 aseprite: assets.atlas.clone(),
                 name: "magic_circle0".into(),
             },
-            Collider::cuboid(TILE_HALF, TILE_HALF),
-            Sensor,
-            *SENSOR_GROUPS,
-            ActiveEvents::COLLISION_EVENTS,
+            (
+                Collider::cuboid(TILE_HALF, TILE_HALF),
+                Sensor,
+                *SENSOR_GROUPS,
+                ActiveEvents::COLLISION_EVENTS,
+            ),
         ))
         .with_children(|parent| {
             parent.spawn((

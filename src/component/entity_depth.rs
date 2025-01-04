@@ -1,9 +1,7 @@
+use crate::constant::ENTITY_LAYER_Z;
+use crate::constant::Z_ORDER_SCALE;
+use crate::states::GameState;
 use bevy::prelude::*;
-
-use crate::{
-    constant::{ENTITY_LAYER_Z, Z_ORDER_SCALE},
-    states::GameState,
-};
 
 /// y座標の値に応じて自動的にz座標を設定し、スプライトの重なりを調整するコンポーネントです
 #[derive(Component)]

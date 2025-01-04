@@ -1,8 +1,7 @@
-use std::cell::LazyCell;
-
 use crate::states::GameState;
 use bevy::color::Color;
 use bevy_rapier2d::prelude::*;
+use std::cell::LazyCell;
 
 // Setupステートでの初期化が完了した直後に遷移する先のステート
 // 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています

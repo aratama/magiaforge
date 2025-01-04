@@ -16,6 +16,7 @@ use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
+use crate::level::entities::SpawnEntity;
 use crate::set::GameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -28,25 +29,24 @@ use uuid::*;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
-const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
+const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 20.0;
 
 #[derive(Debug)]
 enum State {
     Wait(u32),
-    Hide(u32),
-    Appear(u32),
+    Approarch(u32),
     Attack(u32),
 }
 
 #[derive(Component, Debug)]
-pub struct Shadow {
+pub struct Spider {
     state: State,
 }
 
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
-pub fn spawn_shadow(
+pub fn spawn_spider(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
@@ -57,10 +57,10 @@ pub fn spawn_shadow(
     let spell = Some(SpellType::Fireball);
     let actor_group = ActorGroup::Enemy;
     let mut builder = commands.spawn((
-        Name::new("shadow"),
+        Name::new("spider"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Shadow {
+        Spider {
             state: State::Wait(60),
         },
         Actor::new(ActorProps {
@@ -110,7 +110,7 @@ pub fn spawn_shadow(
             LifeBeingSprite,
             CounterAnimated,
             AseSpriteAnimation {
-                aseprite: assets.shadow.clone(),
+                aseprite: assets.spider.clone(),
                 animation: Animation::tag("idle"),
             },
         ));
@@ -122,8 +122,9 @@ pub fn spawn_shadow(
 }
 
 fn transition(
-    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
+    mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    mut spawn: EventWriter<SpawnEntity>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&lens.query());
@@ -132,39 +133,30 @@ fn transition(
             let origin = transform.translation.truncate();
             let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             match shadow.state {
-                State::Wait(count) if count < 60 => {
+                State::Wait(count) if count < 30 => {
                     shadow.state = State::Wait(count + 1);
                 }
                 State::Wait(_) => {
-                    shadow.state = State::Hide(0);
+                    shadow.state = State::Approarch(0);
                 }
-                State::Hide(count) if count < 360 => {
+                State::Approarch(count) if count < 240 => {
                     if let Some(nearest) = nearest {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             shadow.state = State::Attack(0);
                         } else {
-                            shadow.state = State::Hide(count + 1);
+                            shadow.state = State::Approarch(count + 1);
                         }
                     } else {
-                        shadow.state = State::Hide(count + 1);
+                        shadow.state = State::Approarch(count + 1);
                     }
                 }
-                State::Hide(_) => {
-                    shadow.state = State::Appear(0);
-                }
-                State::Appear(count) if count < 30 => {
-                    shadow.state = State::Appear(count + 1);
-                }
-                State::Appear(_) => {
-                    if let Some(nearest) = nearest {
-                        let diff = nearest.position - origin;
-                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
-                            shadow.state = State::Attack(0);
-                        } else {
-                            shadow.state = State::Wait(0);
-                        }
-                    }
+                State::Approarch(_) => {
+                    spawn.send(SpawnEntity::Web {
+                        position: origin,
+                        owner_actor_group: actor.actor_group,
+                    });
+                    shadow.state = State::Wait(0);
                 }
                 State::Attack(count) if count < 60 => {
                     shadow.state = State::Attack(count + 1);
@@ -178,7 +170,7 @@ fn transition(
 }
 
 fn pointer(
-    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
+    mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
@@ -196,7 +188,7 @@ fn pointer(
 }
 
 fn animate(
-    query: Query<&Shadow>,
+    query: Query<&Spider>,
     mut sprite_query: Query<
         (&Parent, &mut AseSpriteAnimation, &mut AnimationState),
         With<ChildSprite>,
@@ -210,18 +202,13 @@ fn animate(
                 animation.animation.repeat = AnimationRepeat::Loop;
                 animation_state.current_frame = 0;
             }
-            State::Hide(count) if count == 0 => {
-                animation.animation.tag = Some("hide".to_string());
+            State::Approarch(count) if count == 0 => {
+                animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
                 animation_state.current_frame = 2;
             }
-            State::Appear(count) if count == 0 => {
-                animation.animation.tag = Some("appear".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
-                animation_state.current_frame = 7;
-            }
             State::Attack(count) if count == 0 => {
-                animation.animation.tag = Some("attack".to_string());
+                animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
                 animation_state.current_frame = 11;
             }
@@ -231,7 +218,7 @@ fn animate(
 }
 
 fn approach(
-    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
+    mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
@@ -240,7 +227,7 @@ fn approach(
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(shadow) = shadow {
             match shadow.state {
-                State::Hide(count) if 60 < count => {
+                State::Approarch(count) if 60 < count => {
                     let origin = transform.translation.truncate();
                     if let Some(nearest) =
                         finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE)
@@ -271,7 +258,7 @@ fn approach(
 fn attack(
     mut query: Query<(
         Entity,
-        Option<&mut Shadow>,
+        Option<&mut Spider>,
         &mut Actor,
         &mut Transform,
         &mut Life,
@@ -309,33 +296,13 @@ fn attack(
     }
 }
 
-fn group(mut query: Query<(&Shadow, &Actor, &mut CollisionGroups)>) {
-    for (shadow, actor, mut group) in query.iter_mut() {
-        match shadow.state {
-            State::Wait(count) if count == 0 => {
-                *group = actor.actor_group.to_groups();
-            }
-            State::Hide(count) if count == 0 => {
-                *group = *SHADOW_GROUPS;
-            }
-            State::Appear(count) if count == 0 => {
-                *group = actor.actor_group.to_groups();
-            }
-            State::Attack(count) if count == 0 => {
-                *group = actor.actor_group.to_groups();
-            }
-            _ => {}
-        }
-    }
-}
+pub struct SpiderPlugin;
 
-pub struct ShadowPlugin;
-
-impl Plugin for ShadowPlugin {
+impl Plugin for SpiderPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (transition, animate, approach, attack, pointer, group)
+            (transition, animate, approach, attack, pointer)
                 .chain()
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
                 .in_set(GameSet)
