@@ -4,9 +4,8 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::Actor;
-use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorState;
+use crate::entity::actor::ActorProps;
 use crate::inventory::Inventory;
 use crate::states::GameState;
 use crate::wand::Wand;
@@ -31,27 +30,19 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         Name::new("rabbit"),
         marker,
         StateScoped(GameState::InGame),
-        Actor {
+        Actor::new(ActorProps {
             uuid: uuid::Uuid::new_v4(),
-            pointer: Vec2::from_angle(0.0),
+            angle: 0.0,
             point_light_radius: 0.0,
             radius: RABBIT_RADIUS,
-            move_direction: Vec2::ZERO,
             move_force: 0.0,
-            fire_state: ActorFireState::Idle,
-            fire_state_secondary: ActorFireState::Idle,
             current_wand: 0,
-            effects: default(),
             actor_group: ActorGroup::Player,
             golds: 0,
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
-            state: ActorState::default(),
-            wait: 0,
-            trapped: 0,
-            trap_moratorium: 0,
-        },
+        }),
         Life {
             life: 100000,
             max_life: 100000,

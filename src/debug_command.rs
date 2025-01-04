@@ -121,11 +121,12 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonHugeSlime));
         inventory.insert_free(InventoryItemType::Spell(SpellType::SummonChiken));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Servant));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Web));
         inventory.sort();
 
         actor.wands[0] = Wand::with_slots([
             Some(WandSpell {
-                spell_type: SpellType::LightSword,
+                spell_type: SpellType::Web,
                 price: 0,
             }),
             None,
@@ -137,14 +138,14 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
             None,
         ]);
         actor.wands[1] = Wand::with_slots([
+            Some(WandSpell::new(SpellType::QuickCast)),
+            Some(WandSpell::new(SpellType::QuickCast)),
             Some(WandSpell::new(SpellType::HeavyShot)),
             Some(WandSpell::new(SpellType::HeavyShot)),
             Some(WandSpell::new(SpellType::TripleCast)),
             Some(WandSpell::new(SpellType::MagicBolt)),
             Some(WandSpell::new(SpellType::MagicBolt)),
             Some(WandSpell::new(SpellType::MagicBolt)),
-            None,
-            None,
         ]);
 
         actor.wands[2] = Wand::with_slots([

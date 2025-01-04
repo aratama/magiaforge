@@ -52,6 +52,8 @@ pub enum SE {
     Jishin,
     Bakuhatsu,
     Status2,
+    Zombie,
+    Kamae,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -114,6 +116,8 @@ fn se_events(
             SE::Jishin => &assets.jishin,
             SE::Bakuhatsu => &assets.bakuhatsu,
             SE::Status2 => &assets.status2,
+            SE::Zombie => &assets.zombie,
+            SE::Kamae => &assets.kamae,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

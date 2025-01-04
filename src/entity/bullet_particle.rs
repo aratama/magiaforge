@@ -1,4 +1,5 @@
-use crate::{constant::PARTICLE_LAYER_Z, states::GameState};
+use crate::constant::PARTICLE_LAYER_Z;
+use crate::states::GameState;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 

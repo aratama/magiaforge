@@ -60,6 +60,29 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         price: 0,
     });
 
+    let mut actor = Actor::new(ActorProps {
+        uuid: Uuid::new_v4(),
+        angle: 0.0,
+        point_light_radius: 0.0,
+        radius: HUGE_SLIME_COLLIDER_RADIUS,
+        move_force: 0.0,
+        current_wand: 0,
+        actor_group: ActorGroup::Enemy,
+        golds: 0,
+        inventory: Inventory::new(),
+        equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
+        wands: [
+            Wand::with_slots(slots),
+            Wand::empty(),
+            Wand::empty(),
+            Wand::empty(),
+        ],
+    });
+
+    // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
+    // 通常1秒しか拘束
+    actor.floundering = 4;
+
     commands
         .spawn((
             Name::new("スライムの王 エミルス"),
@@ -78,24 +101,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 promoted: false,
             },
             Counter::up(0),
-            Actor::new(ActorProps {
-                uuid: Uuid::new_v4(),
-                angle: 0.0,
-                point_light_radius: 0.0,
-                radius: HUGE_SLIME_COLLIDER_RADIUS,
-                move_force: 0.0,
-                current_wand: 0,
-                actor_group: ActorGroup::Enemy,
-                golds: 0,
-                inventory: Inventory::new(),
-                equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
-                wands: [
-                    Wand::with_slots(slots),
-                    Wand::empty(),
-                    Wand::empty(),
-                    Wand::empty(),
-                ],
-            }),
+            actor,
             EntityDepth::new(),
             CounterAnimated,
             AseSpriteAnimation {

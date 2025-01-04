@@ -1,3 +1,4 @@
+use super::actor::ActorProps;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
@@ -21,8 +22,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
-
-use super::actor::ActorProps;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 

@@ -269,18 +269,17 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.zh,
-                                120.0,
+                                180.0,
                                 50.0,
-                                Dict::literal("中文"),
+                                Dict::literal("简体中文"),
                             );
-
                             menu_button(
                                 parent,
                                 &assets,
-                                shots.es,
-                                120.0,
+                                shots.zh,
+                                180.0,
                                 50.0,
-                                Dict::literal("Es"),
+                                Dict::literal("繁体中文"),
                             );
                         });
 
@@ -292,6 +291,15 @@ fn setup_game_menu(
                             ..default()
                         })
                         .with_children(|parent| {
+                            menu_button(
+                                parent,
+                                &assets,
+                                shots.es,
+                                120.0,
+                                50.0,
+                                Dict::literal("Es"),
+                            );
+
                             menu_button(
                                 parent,
                                 &assets,

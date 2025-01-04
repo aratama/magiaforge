@@ -15,6 +15,7 @@ use crate::entity::fireball::spawn_fireball;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
+use crate::entity::web::spawn_web;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
@@ -91,6 +92,7 @@ pub enum SpellCast {
     Fireball,
     SpawnEntity(SpellCastEntityType),
     LightSword,
+    Web,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -106,8 +108,8 @@ pub fn cast_spell(
     actor_impulse: &mut ExternalImpulse,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
-    se_writer: &mut EventWriter<SEEvent>,
-    impact_writer: &mut EventWriter<SpawnImpact>,
+    mut se: &mut EventWriter<SEEvent>,
+    impact: &mut EventWriter<SpawnImpact>,
     spawn: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
     is_player: bool,
@@ -172,7 +174,7 @@ pub fn cast_spell(
                         },
                     };
 
-                    spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
+                    spawn_bullet(commands, assets.atlas.clone(), se, &spawn);
                     clear_effect = true;
 
                     // リモートへ呪文詠唱を伝えます
@@ -219,7 +221,7 @@ pub fn cast_spell(
                         wand_delay += 1;
                     } else {
                         actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
-                        se_writer.send(SEEvent::pos(
+                        se.send(SEEvent::pos(
                             SE::Heal,
                             actor_transform.translation.truncate(),
                         ));
@@ -261,7 +263,7 @@ pub fn cast_spell(
                     } else {
                         actor.pointer.normalize()
                     } * 50000.0;
-                    se_writer.send(SEEvent::pos(
+                    se.send(SEEvent::pos(
                         SE::Shuriken,
                         actor_transform.translation.truncate(),
                     ));
@@ -270,7 +272,7 @@ pub fn cast_spell(
                     actor.effects.quick_cast += 6;
                 }
                 SpellCast::Impact => {
-                    impact_writer.send(SpawnImpact {
+                    impact.send(SpawnImpact {
                         owner: Some(actor_entity),
                         position: actor_transform.translation.truncate(),
                         radius: 32.0,
@@ -293,22 +295,22 @@ pub fn cast_spell(
                     match entity_type {
                         SpellCastEntityType::BookShelf => {
                             spawn.send(SpawnEntity::BookShelf { position });
-                            se_writer.send(SEEvent::pos(SE::Status2, position));
+                            se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::HugeSlime => {
                             spawn.send(SpawnEntity::HugeSlime { position });
-                            se_writer.send(SEEvent::pos(SE::Status2, position));
+                            se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::CrateOrBarrel => {
                             spawn.send(SpawnEntity::CrateOrBarrel { position });
-                            se_writer.send(SEEvent::pos(SE::Status2, position));
+                            se.send(SEEvent::pos(SE::Status2, position));
                         }
                     }
                 }
                 SpellCast::RockFall => {
                     let position = actor_transform.translation.truncate() + actor.pointer;
                     spawn_falling_rock(&mut commands, &assets, position);
-                    se_writer.send(SEEvent::pos(SE::Status2, position));
+                    se.send(SEEvent::pos(SE::Status2, position));
                 }
                 SpellCast::Fireball => {
                     let actor_position = actor_transform.translation.truncate();
@@ -360,8 +362,13 @@ pub fn cast_spell(
                         },
                     };
 
-                    spawn_bullet(commands, assets.atlas.clone(), se_writer, &spawn);
+                    spawn_bullet(commands, assets.atlas.clone(), se, &spawn);
                     clear_effect = true;
+                }
+                SpellCast::Web => {
+                    let actor_position = actor_transform.translation.truncate();
+                    let position = actor_position + actor.pointer;
+                    spawn_web(&mut commands, &assets, &mut se, position, actor.actor_group);
                 }
             }
         } else {

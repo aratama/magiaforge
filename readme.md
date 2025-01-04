@@ -59,6 +59,8 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - お風呂 https://soundeffect-lab.info/sound/environment/
 - 手裏剣を投げる https://soundeffect-lab.info/sound/battle/battle2.html
 - バスのドアが開く 2 https://soundeffect-lab.info/sound/machine/machine2.html
+- ゾンビの食事 https://soundeffect-lab.info/sound/battle/battle2.html
+- 構えを取る https://soundeffect-lab.info/sound/battle/
 
 #### BGMs
 

@@ -17,6 +17,7 @@ use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
 use crate::se::SEEvent;
+use crate::se::SE;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::states::TimeState;
@@ -78,14 +79,16 @@ pub struct Actor {
     pub point_light_radius: f32,
 
     /// アクターが移動しようとしている方向を表します
+    /// 移動と停止を切り替えるときは move_direction を変更します
     /// この値と各アクターの移動力係数の積が、実際の ExternalForce になります
     /// プレイヤーキャラクターの場合はキーボードやゲームパッドの方向キーの入力、
     /// 敵キャラクターの場合は Enemy によって決定された移動方向を表します
     /// また、このベクトルがゼロでないときは歩行アニメーションになります
     pub move_direction: Vec2,
 
-    /// 種族や装備によって決まる移動速度係数
-    /// あとで修正する
+    /// 種族や装備によって決まる移動速度係数です
+    /// 歩行と停止の切り替えは state を切り替えることで行うため、
+    /// move_force を操作中に変更はしません
     pub move_force: f32,
 
     pub fire_state: ActorFireState,
@@ -129,6 +132,12 @@ pub struct Actor {
     /// この値が正の数のときはトラップを回避できます
     /// 歩くと減少します
     pub trap_moratorium: u32,
+
+    /// 蜘蛛の巣から逃れる速度
+    /// 毎ターンこの値が trapped から減算され、trappedが0になるとアクターが解放されます
+    /// また、解放された瞬間に trap_moratorium が 180 に設定され、
+    /// 3秒間は再びトラップにかからないようになります
+    pub floundering: u32,
 }
 
 pub struct ActorProps {
@@ -182,6 +191,7 @@ impl Actor {
             wait: 0,
             trapped: 0,
             trap_moratorium: 0,
+            floundering: 1,
         }
     }
 
@@ -507,8 +517,11 @@ fn fire_bullet(
 
 /// actor.move_direction の値に従って、アクターに外力を適用します
 /// 魔法の発射中は移動速度が低下します
-fn apply_external_force(mut player_query: Query<(&mut Actor, &mut ExternalForce)>) {
-    for (mut actor, mut external_force) in player_query.iter_mut() {
+fn apply_external_force(
+    mut query: Query<(&mut Actor, &mut ExternalForce, &Transform)>,
+    mut se: EventWriter<SEEvent>,
+) {
+    for (mut actor, mut external_force, transform) in query.iter_mut() {
         let force = actor.move_direction
             * actor.get_total_move_force()
             * if actor.fire_state == ActorFireState::Fire
@@ -524,7 +537,8 @@ fn apply_external_force(mut player_query: Query<(&mut Actor, &mut ExternalForce)
                 external_force.force = Vec2::ZERO;
                 actor.trapped -= 1;
                 if actor.trapped == 0 {
-                    actor.trap_moratorium = 60;
+                    actor.trap_moratorium = 180;
+                    se.send(SEEvent::pos(SE::Zombie, transform.translation.truncate()));
                 }
             } else {
                 external_force.force = force;

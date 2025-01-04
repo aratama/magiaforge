@@ -54,6 +54,7 @@ use crate::message::TRAINING_RABBIT_4;
 use crate::message::TRAINING_RABBIT_5;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
+use crate::se::SEEvent;
 use crate::theater::Act;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -178,6 +179,7 @@ pub fn spawn_entity(
     assets: Res<GameAssets>,
     life_bar_resource: Res<LifeBarResource>,
     mut setup: ResMut<LevelSetup>,
+    mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnEntity>,
     mut client_message_writer: EventWriter<ClientMessage>,
     websocket: Res<WebSocketState>,
@@ -480,7 +482,13 @@ pub fn spawn_entity(
                 position,
                 owner_actor_group,
             } => {
-                spawn_web(&mut commands, &assets, *position, *owner_actor_group);
+                spawn_web(
+                    &mut commands,
+                    &assets,
+                    &mut se,
+                    *position,
+                    *owner_actor_group,
+                );
             }
         }
     }

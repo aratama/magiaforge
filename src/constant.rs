@@ -232,7 +232,8 @@ pub const SENSOR_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | ENTITY_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
             | ENEMY_MEMBERSHIPS
-            | SHADOW_MEMBERSHIPS,
+            | SHADOW_MEMBERSHIPS
+            | SENSOR_MEMBERSHIPS, // 爆弾で蜘蛛の巣を破壊するため、センサーはセンサーと衝突します
     )
 });
 

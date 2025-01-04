@@ -40,6 +40,12 @@ struct DicoveredSpellCount;
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>) {
     let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
+    spells.sort_by(|a, b| match (a, b) {
+        (Some(a), Some(b)) => a.to_props().rank.cmp(&b.to_props().rank),
+        (Some(_), None) => std::cmp::Ordering::Less,
+        (None, Some(_)) => std::cmp::Ordering::Greater,
+        (None, None) => std::cmp::Ordering::Equal,
+    });
     spells.extend(vec![None; ROWS * COLUMNS - SpellType::iter().count()]);
 
     commands

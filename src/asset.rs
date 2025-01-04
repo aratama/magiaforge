@@ -5,13 +5,16 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
-    #[asset(path = "font/NotoSansJP-Light.ttf")]
+    #[asset(path = "font/NotoSansJP-Medium.ttf")]
     pub noto_sans_jp: Handle<Font>,
 
-    #[asset(path = "font/NotoSansSC-Light.ttf")]
+    #[asset(path = "font/NotoSansSC-Medium.ttf")]
     pub noto_sans_sc: Handle<Font>,
 
-    #[asset(path = "font/NotoSansKR-Light.ttf")]
+    #[asset(path = "font/NotoSansSC-Medium.ttf")]
+    pub noto_sans_tc: Handle<Font>,
+
+    #[asset(path = "font/NotoSansKR-Medium.ttf")]
     pub noto_sans_kr: Handle<Font>,
 
     #[asset(path = "image/atlas.aseprite")]
@@ -135,8 +138,6 @@ pub struct GameAssets {
     #[asset(path = "audio/suburi.ogg")]
     pub suburi: Handle<AudioSource>,
 
-    // #[asset(path = "audio/革靴で走る.ogg")]
-    // pub kawagutsu: Handle<AudioSource>,
     #[asset(path = "audio/アスファルトの上を歩く2.ogg")]
     pub asphalt: Handle<AudioSource>,
 
@@ -158,9 +159,6 @@ pub struct GameAssets {
     #[asset(path = "audio/カーソル移動2.ogg")]
     pub cursor2: Handle<AudioSource>,
 
-    // #[asset(path = "audio/カーソル移動8.ogg")]
-    // pub cursor8: Handle<AudioSource>,
-    //
     #[asset(path = "audio/爆発3_drop.ogg")]
     pub drop: Handle<AudioSource>,
 
@@ -202,6 +200,12 @@ pub struct GameAssets {
 
     #[asset(path = "audio/たき火.ogg")]
     pub takibi: Handle<AudioSource>,
+
+    #[asset(path = "audio/ゾンビの食事.ogg")]
+    pub zombie: Handle<AudioSource>,
+
+    #[asset(path = "audio/構えを取る.ogg")]
+    pub kamae: Handle<AudioSource>,
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BGM //////////////////////////////////////////////////////////////////////////////////////////////////////////

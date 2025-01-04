@@ -236,7 +236,8 @@ fn setup(
                                     Text::new(match language {
                                         Languages::Ja => "日本語",
                                         Languages::En => "English",
-                                        Languages::ZhCn => "中文",
+                                        Languages::ZhCn => "简体中文",
+                                        Languages::ZhTw => "繁体中文",
                                         Languages::Es => "Español",
                                         Languages::Fr => "Français",
                                         Languages::Pt => "Português",
