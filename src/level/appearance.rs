@@ -39,11 +39,6 @@ pub fn spawn_level_appearance(
 
     let slice = level_aseprite.slices.get(level_slice).unwrap();
 
-    info!(
-        "bounds min_x:{} max_x:{} min_y:{} max_y:{}",
-        slice.rect.min.x, slice.rect.max.x, slice.rect.min.y, slice.rect.max.y
-    );
-
     let chunk = image_to_tilemap(
         &level_image,
         slice.rect.min.x as i32,

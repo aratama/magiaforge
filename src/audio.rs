@@ -69,7 +69,6 @@ fn change_bgm(
                 if bgm.volume == 0.0 {
                     // AudioPlayer を上書きするだけでは音声を変更できないことに注意
                     // いったん despawn する必要がある
-                    info!("BGM stopped");
                     commands.entity(entity).despawn_recursive();
 
                     spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
@@ -80,7 +79,6 @@ fn change_bgm(
             sink.set_volume(config.bgm_volume * bgm.volume);
         }
     } else if let Some(ref next) = next_bgm.0 {
-        info!("BGM started: {:?}", next);
         spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
     }
 }

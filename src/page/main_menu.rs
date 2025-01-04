@@ -148,7 +148,7 @@ fn setup(
 
     commands
         .spawn((
-            Name::new("click_to_start"),
+            Name::new("bottom items"),
             StateScoped(GameState::MainMenu),
             GlobalZIndex(-700),
             Node {
@@ -157,19 +157,81 @@ fn setup(
                 bottom: Val::Px(20.0),
                 width: Val::Percent(100.0),
                 display: Display::Flex,
+                flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                row_gap: Val::Px(8.0),
                 ..default()
             },
         ))
-        .with_child((
-            M18NTtext(CLICK_TO_START.to_string()),
-            TextColor::from(Color::WHITE),
-            TextFont {
-                font_size: 16.0,
-                font: assets.noto_sans_jp.clone(),
-                ..default()
-            },
-        ));
+        .with_children(|builder| {
+            builder
+                .spawn((Node {
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Row,
+                    column_gap: Val::Px(2.0),
+                    ..default()
+                },))
+                .with_children(|builder| {
+                    for language in Languages::iter() {
+                        builder
+                            .spawn((
+                                Name::new("language_button"),
+                                LanguageButton { language },
+                                Button,
+                                BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.05)),
+                            ))
+                            .with_children(|builder| {
+                                builder
+                                    .spawn((Node {
+                                        padding: UiRect::new(
+                                            Val::Px(8.0),
+                                            Val::Px(8.0),
+                                            Val::Px(4.0),
+                                            Val::Px(4.0),
+                                        ),
+                                        display: Display::Flex,
+                                        justify_content: JustifyContent::Center,
+                                        align_content: AlignContent::Center,
+                                        ..default()
+                                    },))
+                                    .with_children(|builder| {
+                                        builder.spawn((
+                                            Text::new(match language {
+                                                Languages::Ja => "日本語",
+                                                Languages::En => "English",
+                                                Languages::ZhCn => "简体中文",
+                                                Languages::ZhTw => "繁体中文",
+                                                Languages::Es => "Español",
+                                                Languages::Fr => "Français",
+                                                Languages::Pt => "Português",
+                                                Languages::Ru => "Русский",
+                                                Languages::De => "Deutsch",
+                                                Languages::Ko => "한국어",
+                                            }),
+                                            Label,
+                                            TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
+                                            TextFont {
+                                                font_size: 12.0,
+                                                font: language_to_font(&assets, language),
+                                                ..default()
+                                            },
+                                        ));
+                                    });
+                            });
+                    }
+                });
+
+            builder.spawn((
+                M18NTtext(CLICK_TO_START.to_string()),
+                TextColor::from(Color::WHITE),
+                TextFont {
+                    font_size: 16.0,
+                    font: assets.noto_sans_jp.clone(),
+                    ..default()
+                },
+            ));
+        });
 
     commands.spawn((
         Name::new("Git Version"),
@@ -193,70 +255,6 @@ fn setup(
             ..default()
         },
     ));
-
-    commands
-        .spawn((
-            StateScoped(GameState::MainMenu),
-            GlobalZIndex(HUD_Z_INDEX),
-            Node {
-                position_type: PositionType::Absolute,
-                right: Val::Px(20.0),
-                bottom: Val::Px(20.0),
-                display: Display::Flex,
-                flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(2.0),
-                ..default()
-            },
-        ))
-        .with_children(|builder| {
-            for language in Languages::iter() {
-                builder
-                    .spawn((
-                        Name::new("language_button"),
-                        LanguageButton { language },
-                        Button,
-                        BackgroundColor::from(Color::hsva(0.0, 0.0, 1.0, 0.05)),
-                    ))
-                    .with_children(|builder| {
-                        builder
-                            .spawn((Node {
-                                padding: UiRect::new(
-                                    Val::Px(8.0),
-                                    Val::Px(8.0),
-                                    Val::Px(4.0),
-                                    Val::Px(4.0),
-                                ),
-                                display: Display::Flex,
-                                justify_content: JustifyContent::Center,
-                                align_content: AlignContent::Center,
-                                ..default()
-                            },))
-                            .with_children(|builder| {
-                                builder.spawn((
-                                    Text::new(match language {
-                                        Languages::Ja => "日本語",
-                                        Languages::En => "English",
-                                        Languages::ZhCn => "简体中文",
-                                        Languages::ZhTw => "繁体中文",
-                                        Languages::Es => "Español",
-                                        Languages::Fr => "Français",
-                                        Languages::Pt => "Português",
-                                        Languages::Ru => "Русский",
-                                        Languages::De => "Deutsch",
-                                        Languages::Ko => "한국어",
-                                    }),
-                                    Label,
-                                    TextColor::from(Color::hsl(0.0, 0.0, 0.0)),
-                                    TextFont {
-                                        font_size: 12.0,
-                                        font: language_to_font(&assets, language),
-                                        ..default()
-                                    },
-                                ));
-                            });
-                    });
-            }
-        });
 }
 
 fn spawn_cloud<T: Component>(
@@ -366,10 +364,18 @@ fn update_language_button_background(
 
 fn start_game(
     buttons: Res<ButtonInput<MouseButton>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut writer: EventWriter<Events>,
     changed: Res<LanguageChanged>,
 ) {
-    if !changed.0 && buttons.any_just_pressed(vec![MouseButton::Left, MouseButton::Right]) {
+    if keys.any_just_pressed([
+        KeyCode::Enter,
+        KeyCode::Space,
+        KeyCode::KeyZ,
+        KeyCode::KeyX,
+        KeyCode::KeyC,
+    ]) || (!changed.0 && buttons.any_just_pressed(vec![MouseButton::Left, MouseButton::Right]))
+    {
         writer.send(Events::Start);
     }
 }
