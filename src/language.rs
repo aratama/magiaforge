@@ -19,7 +19,7 @@ pub enum Languages {
     /// 繁体中文
     ZhTw,
 
-    /// español
+    /// Español
     Es,
 
     /// Français
@@ -181,7 +181,7 @@ fn update_text_on_change_config(
     assets: Res<GameAssets>,
 ) {
     if config.is_changed() || config.is_added() {
-        update_text(&mut text_query, &config, &assets);
+        update_text_and_font(&mut text_query, &config, &assets);
     }
 }
 
@@ -190,10 +190,10 @@ fn update_text_on_change_text(
     config: Res<GameConfig>,
     assets: Res<GameAssets>,
 ) {
-    update_text(&mut text_query, &config, &assets);
+    update_text_and_font(&mut text_query, &config, &assets);
 }
 
-fn update_text(
+fn update_text_and_font(
     text_query: &mut Query<(&mut Text, &mut TextFont, &M18NTtext)>,
     config: &Res<GameConfig>,
     assets: &Res<GameAssets>,

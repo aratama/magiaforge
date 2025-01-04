@@ -39,7 +39,8 @@ struct ButtonShots {
     se_volume_down: SystemId,
     ja: SystemId,
     en: SystemId,
-    zh: SystemId,
+    zh_cn: SystemId,
+    zh_tw: SystemId,
     es: SystemId,
     fr: SystemId,
     pt: SystemId,
@@ -76,7 +77,8 @@ impl FromWorld for ButtonShots {
             se_volume_down: world.register_system(se_volume_down),
             ja: world.register_system(ja),
             en: world.register_system(en),
-            zh: world.register_system(zh),
+            zh_cn: world.register_system(zh_cn),
+            zh_tw: world.register_system(zh_tw),
             es: world.register_system(es),
             fr: world.register_system(fr),
             pt: world.register_system(pt),
@@ -139,8 +141,13 @@ fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     writer.send(SEEvent::new(SE::Click));
 }
 
-fn zh(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+fn zh_cn(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::ZhCn;
+    writer.send(SEEvent::new(SE::Click));
+}
+
+fn zh_tw(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
+    config.language = Languages::ZhTw;
     writer.send(SEEvent::new(SE::Click));
 }
 
@@ -253,7 +260,7 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.ja,
-                                120.0,
+                                140.0,
                                 50.0,
                                 Dict::literal("日本語"),
                             );
@@ -261,14 +268,14 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.en,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("En"),
+                                Dict::literal("English"),
                             );
                             menu_button(
                                 parent,
                                 &assets,
-                                shots.zh,
+                                shots.zh_cn,
                                 180.0,
                                 50.0,
                                 Dict::literal("简体中文"),
@@ -276,7 +283,7 @@ fn setup_game_menu(
                             menu_button(
                                 parent,
                                 &assets,
-                                shots.zh,
+                                shots.zh_tw,
                                 180.0,
                                 50.0,
                                 Dict::literal("繁体中文"),
@@ -295,54 +302,54 @@ fn setup_game_menu(
                                 parent,
                                 &assets,
                                 shots.es,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("Es"),
+                                Dict::literal("Eespañol"),
                             );
 
                             menu_button(
                                 parent,
                                 &assets,
                                 shots.fr,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("Fr"),
+                                Dict::literal("Français"),
                             );
 
                             menu_button(
                                 parent,
                                 &assets,
                                 shots.pt,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("Pt"),
+                                Dict::literal("Português"),
                             );
 
                             menu_button(
                                 parent,
                                 &assets,
                                 shots.ru,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("Ru"),
+                                Dict::literal("Русский"),
                             );
 
                             menu_button(
                                 parent,
                                 &assets,
                                 shots.de,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("De"),
+                                Dict::literal("Deutsch"),
                             );
 
                             menu_button(
                                 parent,
                                 &assets,
                                 shots.ko,
-                                120.0,
+                                140.0,
                                 50.0,
-                                Dict::literal("Ko"),
+                                Dict::literal("한국어"),
                             );
                         });
 

@@ -40,7 +40,7 @@ pub fn menu_button<'a>(
                 M18NTtext(text),
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
-                    font_size: 32.0,
+                    font_size: 24.0,
                     font: assets.noto_sans_jp.clone(),
                     ..default()
                 },
