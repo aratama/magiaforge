@@ -23,10 +23,6 @@ pub fn to_s(keys: &Res<ButtonInput<KeyCode>>, code: bevy::input::keyboard::KeyCo
     return if keys.pressed(code) { 1.0 } else { 0.0 };
 }
 
-pub fn get_fire_trigger(mouse_buttons: &Res<ButtonInput<MouseButton>>) -> bool {
-    mouse_buttons.pressed(MouseButton::Left)
-}
-
 pub struct GameInputPlugin;
 
 impl Plugin for GameInputPlugin {

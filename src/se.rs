@@ -54,6 +54,7 @@ pub enum SE {
     Status2,
     Zombie,
     Kamae,
+    Sen,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -118,6 +119,7 @@ fn se_events(
             SE::Status2 => &assets.status2,
             SE::Zombie => &assets.zombie,
             SE::Kamae => &assets.kamae,
+            SE::Sen => &assets.sen,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

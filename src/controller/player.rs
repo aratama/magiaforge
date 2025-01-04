@@ -14,7 +14,6 @@ use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
 use crate::equipment::EquipmentType;
 use crate::input::get_direction;
-use crate::input::get_fire_trigger;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
@@ -162,6 +161,7 @@ pub fn actor_cast(
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
     camera_query: Query<&GameCamera>,
+    mut se: EventWriter<SEEvent>,
 ) {
     let camera = camera_query.single();
     if camera.target.is_some() {
@@ -171,21 +171,38 @@ pub fn actor_cast(
     if let Ok(mut actor) = player_query.get_single_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                actor.fire_state = if get_fire_trigger(&buttons) {
+                // プライマリ魔法の発射
+                actor.fire_state = if buttons.pressed(MouseButton::Left) {
                     ActorFireState::Fire
                 } else {
                     ActorFireState::Idle
                 };
 
+                // 杖が空の場合の失敗音
+                if actor.wands[actor.current_wand].is_empty()
+                    && buttons.just_pressed(MouseButton::Left)
+                {
+                    se.send(SEEvent::new(SE::Sen));
+                }
+
                 if let Some(servant) = servant_query.iter().next() {
+                    // 憑依の解除
                     if buttons.just_pressed(MouseButton::Right) {
                         commands.entity(servant).remove::<PlayerServant>();
                     }
                 } else {
+                    // セカンダリ魔法の発射
                     if buttons.pressed(MouseButton::Right) {
                         actor.fire_state_secondary = ActorFireState::Fire;
                     } else {
                         actor.fire_state_secondary = ActorFireState::Idle;
+                    }
+
+                    // 杖が空の場合の失敗音
+                    if actor.wands[actor.wands.len() - 1].is_empty()
+                        && buttons.just_pressed(MouseButton::Right)
+                    {
+                        se.send(SEEvent::new(SE::Sen));
                     }
                 }
             }

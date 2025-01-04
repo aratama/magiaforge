@@ -46,6 +46,10 @@ impl Wand {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.slots.iter().all(|spell| spell.is_none())
+    }
+
     pub fn with_slots(slots: [Option<WandSpell>; MAX_SPELLS_IN_WAND]) -> Self {
         Self {
             slots,
