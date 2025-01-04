@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
+use crate::states::GameState;
 use bevy::prelude::*;
 use serde::*;
 use std::ops;
@@ -224,7 +225,12 @@ impl Plugin for LanguagePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_text_on_change_config, update_text_on_change_text),
+            (update_text_on_change_config, update_text_on_change_text).run_if(
+                in_state(GameState::InGame)
+                    .or(in_state(GameState::MainMenu))
+                    .or(in_state(GameState::NameInput))
+                    .or(in_state(GameState::Ending)),
+            ),
         );
     }
 }
