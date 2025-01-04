@@ -198,23 +198,24 @@ pub fn setup_level(
         &mut spawn,
     );
 
-    let spaw_item_count = match level {
-        GameLevel::Level(0) => 0,
-        GameLevel::Level(4) => 0, // ボス部屋
-        GameLevel::MultiPlayArena => 0,
-        _ => 3,
-    };
     spawn_dropped_items(
         &mut commands,
         &assets,
         &empties,
         &mut rng,
         entry_point.clone(),
-        spaw_item_count,
+        match level {
+            GameLevel::Level(1) => 3,
+            GameLevel::Level(2) => 3,
+            GameLevel::Level(3) => 3,
+            GameLevel::Level(4) => 3,
+            _ => 0,
+        },
         match level {
             GameLevel::Level(1) => vec![0, 1, 2],
             GameLevel::Level(2) => vec![2, 3, 4],
             GameLevel::Level(3) => vec![3, 4, 5],
+            GameLevel::Level(4) => vec![4, 5, 6],
             _ => vec![],
         },
     );

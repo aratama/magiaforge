@@ -937,7 +937,7 @@ impl SpellType {
                 cast: SpellCast::LightSword,
             },
             SpellType::SummonHugeSlime =>  SpellProps {
-                rank: 6,
+                rank: 8,
                 name: Dict {
                     ja: "巨大スライム召喚",
                     en: "Summon Giant Slime",
