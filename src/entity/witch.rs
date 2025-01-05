@@ -71,6 +71,7 @@ pub fn spawn_witch<T: Component>(
             equipments,
             move_force: PLAYER_MOVE_FORCE,
             angle,
+            fire_resistance: false,
         }),
         Witch,
         controller,

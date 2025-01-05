@@ -42,6 +42,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
+            fire_resistance: true,
         }),
         Life {
             life: 100000,

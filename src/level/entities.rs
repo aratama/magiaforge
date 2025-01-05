@@ -24,6 +24,7 @@ use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestType;
 use crate::entity::chest::CHEST_OR_BARREL;
 use crate::entity::dropped_item::spawn_dropped_item;
+use crate::entity::fireball::spawn_fireball;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
@@ -144,6 +145,10 @@ pub enum SpawnEntity {
     },
     Chiken {
         position: Vec2,
+    },
+    Fireball {
+        position: Vec2,
+        velocity: Vec2,
     },
 
     Seed {
@@ -494,6 +499,10 @@ pub fn spawn_entity(
                     *position,
                     *owner_actor_group,
                 );
+            }
+
+            SpawnEntity::Fireball { position, velocity } => {
+                spawn_fireball(&mut commands, &assets, *position, *velocity);
             }
         }
     }

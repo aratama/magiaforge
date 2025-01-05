@@ -11,7 +11,6 @@ use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
-use crate::entity::fireball::spawn_fireball;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
@@ -316,7 +315,7 @@ pub fn cast_spell(
                     let actor_position = actor_transform.translation.truncate();
                     let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                     let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                    spawn_fireball(&mut commands, &assets, position, velocity);
+                    spawn.send(SpawnEntity::Fireball { position, velocity });
                 }
                 SpellCast::LightSword => {
                     let normalized = actor.pointer.normalize_or_zero();

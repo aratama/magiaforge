@@ -138,6 +138,8 @@ pub struct Actor {
     /// また、解放された瞬間に trap_moratorium が 180 に設定され、
     /// 3秒間は再びトラップにかからないようになります
     pub floundering: u32,
+
+    pub fire_resistance: bool,
 }
 
 pub struct ActorProps {
@@ -152,6 +154,7 @@ pub struct ActorProps {
     pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     pub radius: f32,
     pub move_force: f32,
+    pub fire_resistance: bool,
 }
 
 impl Actor {
@@ -168,6 +171,7 @@ impl Actor {
             equipments,
             radius,
             move_force,
+            fire_resistance,
         }: ActorProps,
     ) -> Self {
         Actor {
@@ -182,6 +186,7 @@ impl Actor {
             inventory,
             equipments,
             move_force,
+            fire_resistance,
 
             move_direction: Vec2::ZERO,
             fire_state: ActorFireState::Idle,

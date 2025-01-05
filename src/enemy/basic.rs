@@ -56,6 +56,7 @@ pub fn spawn_basic_enemy<T: Component>(
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: Wand::single(spell),
+            fire_resistance: false,
         }),
         EntityDepth::new(),
         Life::new(max_life),

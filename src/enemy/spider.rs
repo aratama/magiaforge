@@ -75,6 +75,7 @@ pub fn spawn_spider(
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: Wand::single(spell),
+            fire_resistance: false,
         }),
         EntityDepth::new(),
         Life::new(40),

@@ -8,7 +8,6 @@ use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::entity::actor::Actor;
-use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorProps;
 use crate::entity::bullet::HomingTarget;
@@ -17,6 +16,7 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::level::entities::SpawnEntity;
+use crate::random::randomize_velocity;
 use crate::set::GameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -27,7 +27,7 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
 
-const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
+const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 6.0;
 
 const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 20.0;
 
@@ -75,9 +75,10 @@ pub fn spawn_salamander(
             inventory: Inventory::new(),
             equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: Wand::single(spell),
+            fire_resistance: true,
         }),
         EntityDepth::new(),
-        Life::new(40),
+        Life::new(100),
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),
@@ -124,7 +125,6 @@ pub fn spawn_salamander(
 fn transition(
     mut query: Query<(Entity, Option<&mut Salamander>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut spawn: EventWriter<SpawnEntity>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&lens.query());
@@ -152,10 +152,6 @@ fn transition(
                     }
                 }
                 State::Approarch(_) => {
-                    spawn.send(SpawnEntity::Web {
-                        position: origin,
-                        owner_actor_group: actor.actor_group,
-                    });
                     shadow.state = State::Wait(0);
                 }
                 State::Attack(count) if count < 60 => {
@@ -181,7 +177,7 @@ fn pointer(
             let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             if let Some(nearest) = nearest {
                 let diff = nearest.position - origin;
-                actor.pointer = diff.normalize_or_zero();
+                actor.pointer = diff; // 火球を当てるためにここでは正規化しない
             }
         }
     }
@@ -264,7 +260,7 @@ fn attack(
         &mut Life,
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut actor_event: EventWriter<ActorEvent>,
+    mut spawn: EventWriter<SpawnEntity>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&lens.query());
@@ -280,13 +276,11 @@ fn attack(
                     {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
-                            actor_event.send(ActorEvent::Damaged {
-                                actor: nearest.entity,
-                                position: nearest.position,
-                                damage: 4,
-                                fire: false,
-                                impulse: Vec2::ZERO,
-                            });
+                            let actor_position = transform.translation.truncate();
+                            let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
+                            let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
+                            info!("velocity: {:?}", velocity);
+                            spawn.send(SpawnEntity::Fireball { position, velocity });
                         }
                     }
                 }

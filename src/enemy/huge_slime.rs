@@ -81,6 +81,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             Wand::empty(),
             Wand::empty(),
         ],
+        fire_resistance: false,
     });
 
     // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます

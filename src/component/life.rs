@@ -70,7 +70,7 @@ fn fire_damage(
     mut actor_event: EventWriter<ActorEvent>,
 ) {
     for (actor_entity, actor, mut life, actor_transform) in actor_query.iter_mut() {
-        if life.fire_damage_wait <= 0 {
+        if life.fire_damage_wait <= 0 && !actor.fire_resistance {
             let mut detected_fires = Vec::<Entity>::new();
             let context = rapier_context.single();
 
