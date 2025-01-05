@@ -1,18 +1,12 @@
-use crate::states::GameState;
 use bevy::color::Color;
 use bevy_rapier2d::prelude::*;
 use std::cell::LazyCell;
 
-// Setupステートでの初期化が完了した直後に遷移する先のステート
-// 本来は MainMenu にするが、開発時はここで起動時の画面を切り替えています
-pub const INITIAL_STATE: GameState = GameState::MainMenu;
-pub const INITIAL_LEVEL: i32 = 0;
-// pub const INITIAL_STATE: GameState = GameState::InGame;
-// pub const INITIAL_LEVEL: i32 = 3;
-
 pub const CRATE_NAME: &str = "magiaforge";
 
 pub const WEBSOCKET_URL: &str = "wss://magia-server-38847751193.asia-northeast1.run.app";
+
+pub const INITIAL_LEVEL: i32 = 0;
 
 pub const DEFAULT_BGM_VOLUME: f32 = 0.3;
 
@@ -82,9 +76,8 @@ pub const PAINT_LAYER_Z: f32 = 10.0;
 /// すべてのスプライトの最下部
 pub const FLOOR_LAYER_Z: f32 = 0.0;
 
-//
-
-pub const Z_ORDER_SCALE: f32 = 0.001;
+/// y座標に対してのz座標の増加量
+pub const Z_ORDER_SCALE: f32 = -0.001;
 
 pub const CAMERA_SPEED: f32 = 0.1;
 

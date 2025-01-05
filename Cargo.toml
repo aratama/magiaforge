@@ -29,6 +29,7 @@ strip = true
 debug = []
 debug_command = []
 save = []
+ingame = []
 default = ["debug_command"]
 
 [dependencies]

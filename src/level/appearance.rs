@@ -124,7 +124,7 @@ fn spawn_ceil_for_blank(
 ) {
     let tx = x as f32 * TILE_SIZE;
     let ty = y as f32 * -TILE_SIZE;
-    let tz = ENTITY_LAYER_Z + (-ty * Z_ORDER_SCALE);
+    let tz = ENTITY_LAYER_Z + (ty * Z_ORDER_SCALE);
 
     // 壁
     if !chunk.equals(x as i32, y as i32 + 1, Tile::Wall) {

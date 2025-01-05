@@ -281,7 +281,14 @@ pub fn run_game() {
         .add_sub_state::<TimeState>()
         .add_loading_state(
             LoadingState::new(GameState::Setup)
-                .continue_to_state(INITIAL_STATE)
+                .continue_to_state(
+                    // Setupステートでの初期化が完了した直後に遷移する先のステート
+                    if cfg!(feature = "ingame") {
+                        GameState::InGame
+                    } else {
+                        GameState::MainMenu
+                    },
+                )
                 .load_collection::<GameAssets>(),
         )
         // State Scoped Entities をオンにすることで、

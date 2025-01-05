@@ -33,7 +33,7 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
         .with_children(|builder| {
             builder.spawn((
                 Name::new("grass2"),
-                Transform::from_xyz(0.0, 12.0, Z_ORDER_SCALE * -12.0),
+                Transform::from_xyz(0.0, 12.0, Z_ORDER_SCALE * 12.0),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
                     name: format!("grass_{}", rand::random::<u32>() % 3).into(),
@@ -41,7 +41,7 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
             ));
             builder.spawn((
                 Name::new("grass1"),
-                Transform::from_xyz(0.0, 8.0, Z_ORDER_SCALE * -8.0),
+                Transform::from_xyz(0.0, 8.0, Z_ORDER_SCALE * 8.0),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
                     name: format!("grass_{}", rand::random::<u32>() % 3).into(),
@@ -49,7 +49,7 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
             ));
             builder.spawn((
                 Name::new("grass0"),
-                Transform::from_xyz(0.0, 4.0, Z_ORDER_SCALE * -4.0),
+                Transform::from_xyz(0.0, 4.0, Z_ORDER_SCALE * 4.0),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
                     name: format!("grass_{}", rand::random::<u32>() % 3).into(),

@@ -236,10 +236,10 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    // spawn.send(SpawnEntity::Enemy {
-    //     enemy_type: SpawnEnemyType::Spider,
-    //     position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
-    // });
+    spawn.send(SpawnEntity::Enemy {
+        enemy_type: SpawnEnemyType::Salamander,
+        position: Vec2::new(TILE_SIZE * 14 as f32, TILE_SIZE * -34 as f32),
+    });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します

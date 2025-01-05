@@ -43,7 +43,7 @@ fn update_entity_chilren_z(
 }
 
 pub fn get_entity_z(y: f32) -> f32 {
-    ENTITY_LAYER_Z - y * Z_ORDER_SCALE
+    ENTITY_LAYER_Z + y * Z_ORDER_SCALE
 }
 
 pub struct EntityDepthPlugin;
