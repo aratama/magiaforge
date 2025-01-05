@@ -172,10 +172,10 @@ pub fn setup_level(
     let spaw_enemy_count = match level {
         GameLevel::Level(0) => 0,
         GameLevel::Level(1) => 10,
-        GameLevel::Level(2) => 10,
-        GameLevel::Level(3) => 10,
-        GameLevel::Level(4) => 10,
-        GameLevel::Level(5) => 10,
+        GameLevel::Level(2) => 15,
+        GameLevel::Level(3) => 20,
+        GameLevel::Level(4) => 20,
+        GameLevel::Level(5) => 20,
         GameLevel::Level(6) => 0, // ボス部屋
         GameLevel::MultiPlayArena => 0,
         _ => 0,

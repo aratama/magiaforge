@@ -29,7 +29,7 @@ use uuid::*;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
-const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 20.0;
+const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 25.0;
 
 #[derive(Debug)]
 enum State {
@@ -68,7 +68,7 @@ pub fn spawn_spider(
             angle: 0.0,
             point_light_radius: 0.0,
             radius,
-            move_force: 100000.0,
+            move_force: 150000.0,
             current_wand: 0,
             actor_group,
             golds,
@@ -134,22 +134,22 @@ fn transition(
             let origin = transform.translation.truncate();
             let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             match shadow.state {
-                State::Wait(count) if count < 30 => {
-                    shadow.state = State::Wait(count + 1);
+                State::Wait(count) if 0 < count => {
+                    shadow.state = State::Wait(count - 1);
                 }
                 State::Wait(_) => {
-                    shadow.state = State::Approarch(0);
+                    shadow.state = State::Approarch(120 + rand::random::<u32>() % 120);
                 }
-                State::Approarch(count) if count < 240 => {
+                State::Approarch(count) if 0 < count => {
                     if let Some(nearest) = nearest {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
-                            shadow.state = State::Attack(0);
+                            shadow.state = State::Attack(30 + rand::random::<u32>() % 30);
                         } else {
-                            shadow.state = State::Approarch(count + 1);
+                            shadow.state = State::Approarch(count - 1);
                         }
                     } else {
-                        shadow.state = State::Approarch(count + 1);
+                        shadow.state = State::Approarch(count - 1);
                     }
                 }
                 State::Approarch(_) => {
@@ -157,13 +157,13 @@ fn transition(
                         position: origin,
                         owner_actor_group: actor.actor_group,
                     });
-                    shadow.state = State::Wait(0);
+                    shadow.state = State::Wait(30 + rand::random::<u32>() % 30);
                 }
-                State::Attack(count) if count < 60 => {
-                    shadow.state = State::Attack(count + 1);
+                State::Attack(count) if 0 < count => {
+                    shadow.state = State::Attack(count - 1);
                 }
                 State::Attack(_) => {
-                    shadow.state = State::Wait(0);
+                    shadow.state = State::Wait(30 + rand::random::<u32>() % 30);
                 }
             }
         }
@@ -204,14 +204,14 @@ fn animate(
                 animation_state.current_frame = 0;
             }
             State::Approarch(count) if count == 0 => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
+                animation.animation.tag = Some("run".to_string());
+                animation.animation.repeat = AnimationRepeat::Loop;
                 animation_state.current_frame = 2;
             }
             State::Attack(count) if count == 0 => {
                 animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
-                animation_state.current_frame = 11;
+                animation.animation.repeat = AnimationRepeat::Loop;
+                animation_state.current_frame = 0;
             }
             _ => {}
         }
@@ -236,20 +236,16 @@ fn approach(
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             actor.move_direction = Vec2::ZERO;
-                            actor.move_force = 0.0;
                         } else if diff.length() < ENEMY_DETECTION_RANGE {
                             actor.move_direction = diff.normalize_or_zero();
-                            actor.move_force = 100000.0;
                         }
                     } else {
                         actor.move_direction = Vec2::ZERO;
-                        actor.move_force = 0.0;
                     }
                 }
 
                 _ => {
                     actor.move_direction = Vec2::ZERO;
-                    actor.move_force = 0.0;
                 }
             }
         }

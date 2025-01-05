@@ -61,6 +61,10 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, po
                     aseprite: assets.stone_lantern.clone(),
                     ..default()
                 },
+                AnimationState {
+                    current_frame: rand::random::<u16>() % 4,
+                    ..default()
+                },
             ));
         });
 }

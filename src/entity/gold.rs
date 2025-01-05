@@ -34,6 +34,10 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
             aseprite: assets.gold.clone(),
             animation: "default".into(),
         },
+        AnimationState {
+            current_frame: rand::random::<u16>() % 4,
+            ..default()
+        },
         LockedAxes::ROTATION_LOCKED,
         Velocity::linear(Vec2::from_angle(2.0 * PI * random::<f32>()) * 20.0),
         RigidBody::Dynamic,
