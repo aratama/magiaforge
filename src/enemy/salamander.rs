@@ -199,14 +199,14 @@ fn animate(
                 animation_state.current_frame = 0;
             }
             State::Approarch(count) if count == 0 => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
+                animation.animation.tag = Some("run".to_string());
+                animation.animation.repeat = AnimationRepeat::Loop;
                 animation_state.current_frame = 2;
             }
             State::Attack(count) if count == 0 => {
                 animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
-                animation_state.current_frame = 11;
+                animation.animation.repeat = AnimationRepeat::Loop;
+                animation_state.current_frame = 0;
             }
             _ => {}
         }
