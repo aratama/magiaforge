@@ -7,7 +7,6 @@ use crate::controller::player::Player;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
-use crate::equipment::EquipmentType;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -92,14 +91,6 @@ pub fn new_shop_item_queue(discovered_spells: Vec<SpellType>) -> Vec<InventoryIt
             price: s.to_props().price,
         })
         .collect();
-    shop_items.extend(
-        EquipmentType::iter()
-            .filter(|e| e.to_props().rank == 0)
-            .map(|e| InventoryItem {
-                item_type: InventoryItemType::Equipment(e),
-                price: e.to_props().price,
-            }),
-    );
 
     shop_items.shuffle(&mut rng);
 
@@ -262,7 +253,6 @@ pub fn setup_level(
         player_state.golds,
         player_state.wands,
         player_state.inventory,
-        player_state.equipments,
         Player::new(player_state.name, level == GameLevel::Level(0)),
         ActorGroup::Player,
         player_state.current_wand as usize,

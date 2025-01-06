@@ -75,7 +75,6 @@ use crate::theater::SenarioPlugin;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
 use crate::ui::command_button::CommandButtonPlugin;
-use crate::ui::equipment_list::EquipmentListPlugin;
 use crate::ui::floating::InventoryItemFloatingPlugin;
 use crate::ui::hover_color::HoverColorPlugin;
 use crate::ui::inventory::InventoryPlugin;
@@ -204,7 +203,6 @@ pub fn run_game() {
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityDepthPlugin)
         .add_plugins(EntityPointLightPlugin)
-        .add_plugins(EquipmentListPlugin)
         .add_plugins(ExplosionPlugin)
         .add_plugins(FallingPlugin)
         .add_plugins(FirePlugin)

@@ -3,16 +3,13 @@ use crate::cast::cast_spell;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::ENEMY_GROUPS;
-use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
 use crate::constant::NEUTRAL_GROUPS;
 use crate::constant::PLAYER_GROUPS;
 use crate::constant::TILE_SIZE;
-use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::bullet::Trigger;
 use crate::entity::impact::SpawnImpact;
-use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
@@ -104,8 +101,6 @@ pub struct Actor {
     // pub queue: Vec,
     pub inventory: Inventory,
 
-    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
-
     // 弾丸へのバフ効果
     // 一回発射するごとにリセットされます
     pub effects: CastEffects,
@@ -151,7 +146,6 @@ pub struct ActorProps {
     pub golds: u32,
     pub wands: [Wand; MAX_WANDS],
     pub inventory: Inventory,
-    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     pub radius: f32,
     pub move_force: f32,
     pub fire_resistance: bool,
@@ -168,7 +162,6 @@ impl Actor {
             golds,
             wands,
             inventory,
-            equipments,
             radius,
             move_force,
             fire_resistance,
@@ -184,7 +177,6 @@ impl Actor {
             golds,
             wands,
             inventory,
-            equipments,
             move_force,
             fire_resistance,
 
@@ -205,9 +197,6 @@ impl Actor {
         match index {
             FloatingContent::Inventory(index) => {
                 self.inventory.get(index).map(|i| i.item_type.get_icon())
-            }
-            FloatingContent::Equipment(index) => {
-                self.equipments[index].map(|i| i.equipment_type.to_props().icon)
             }
             FloatingContent::WandSpell(w, s) => {
                 self.wands[w].slots[s].map(|spell| spell.spell_type.to_props().icon)
@@ -231,12 +220,6 @@ impl Actor {
 
         dept += w;
 
-        for e in self.equipments {
-            if let Some(equipment) = e {
-                dept += equipment.price;
-            }
-        }
-
         return dept;
     }
 
@@ -256,12 +239,6 @@ impl Actor {
             }
         }
 
-        for e in self.equipments.iter_mut() {
-            if let Some(equipment) = e {
-                equipment.price = 0;
-            }
-        }
-
         for wand in self.wands.iter_mut() {
             for s in wand.slots.iter_mut() {
                 if let Some(ref mut spell) = s {
@@ -277,13 +254,18 @@ impl Actor {
     /// ただし魔法発射中のペナルティは含まれません
     fn get_total_move_force(&self) -> f32 {
         let mut force = self.move_force;
-        for equipment in self.equipments {
-            force += match equipment {
-                Some(Equipment {
-                    equipment_type: EquipmentType::SpikeBoots,
-                    ..
-                }) => 40000.0,
-                _ => 0.0,
+
+        //todo
+
+        for wand in self.wands.iter() {
+            for slot in wand.slots {
+                force += match slot {
+                    Some(WandSpell {
+                        spell_type: SpellType::SpikeBoots,
+                        ..
+                    }) => 40000.0,
+                    _ => 0.0,
+                }
             }
         }
         force
@@ -291,19 +273,25 @@ impl Actor {
 
     pub fn get_total_scale_factor(&self) -> f32 {
         let mut scale_factor: f32 = -1.0;
-        for equipment in self.equipments {
-            scale_factor += match equipment {
-                Some(Equipment {
-                    equipment_type: EquipmentType::Telescope,
-                    ..
-                }) => 0.5,
-                Some(Equipment {
-                    equipment_type: EquipmentType::Magnifier,
-                    ..
-                }) => -0.5,
-                _ => 0.0,
+
+        // todo
+
+        for wand in self.wands.iter() {
+            for slot in wand.slots {
+                scale_factor += match slot {
+                    Some(WandSpell {
+                        spell_type: SpellType::Telescope,
+                        ..
+                    }) => 0.5,
+                    Some(WandSpell {
+                        spell_type: SpellType::Magnifier,
+                        ..
+                    }) => -0.5,
+                    _ => 0.0,
+                }
             }
         }
+
         scale_factor.max(-2.0).min(1.0)
     }
 

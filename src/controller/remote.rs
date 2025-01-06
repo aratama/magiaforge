@@ -275,7 +275,6 @@ fn receive_events(
                                     0,
                                     [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
                                     Inventory::new(),
-                                    [None, None, None, None, None, None, None, None],
                                     RemotePlayer {
                                         name,
                                         golds,

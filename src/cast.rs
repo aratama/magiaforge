@@ -67,6 +67,7 @@ pub struct SpellCastBullet {
 /// そのほかの魔法も動作の種別によって分類されています
 #[derive(Debug)]
 pub enum SpellCast {
+    None,
     Bullet(SpellCastBullet),
     Heal,
     BulletSpeedUpDown {
@@ -138,6 +139,7 @@ pub fn cast_spell(
             multicast -= 1;
 
             match props.cast {
+                SpellCast::None => {}
                 SpellCast::Bullet(cast) => {
                     let normalized = actor.pointer.normalize();
                     let angle = actor.pointer.to_angle();

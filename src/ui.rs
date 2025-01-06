@@ -1,7 +1,6 @@
 pub mod bar;
 pub mod boss_hitpoint_bar;
 pub mod command_button;
-pub mod equipment_list;
 pub mod floating;
 pub mod hover_color;
 pub mod inventory;

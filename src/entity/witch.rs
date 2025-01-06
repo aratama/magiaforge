@@ -4,7 +4,6 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
-use crate::controller::player::Equipment;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
@@ -51,7 +50,6 @@ pub fn spawn_witch<T: Component>(
     golds: u32,
     wands: [Wand; 4],
     inventory: Inventory,
-    equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     controller: T,
     actor_group: ActorGroup,
     current_wand: usize,
@@ -68,7 +66,6 @@ pub fn spawn_witch<T: Component>(
             golds,
             wands,
             inventory,
-            equipments,
             move_force: PLAYER_MOVE_FORCE,
             angle,
             fire_resistance: false,
@@ -194,7 +191,6 @@ pub fn spawn_enemy_witch(
         10,
         player.wands,
         player.inventory,
-        player.equipments,
         TraningDummyController {
             home: position,
             fire: false,

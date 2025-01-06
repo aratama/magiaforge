@@ -74,7 +74,6 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
         actor_group: ActorGroup::Enemy,
         golds: 0,
         inventory: Inventory::new(),
-        equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
         wands: [
             Wand::with_slots(slots),
             Wand::empty(),

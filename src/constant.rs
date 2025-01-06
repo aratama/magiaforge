@@ -23,8 +23,6 @@ pub const MAX_ITEMS_IN_INVENTORY_COLUMN: usize = 8;
 pub const MAX_ITEMS_IN_INVENTORY: usize =
     MAX_ITEMS_IN_INVENTORY_ROW * MAX_ITEMS_IN_INVENTORY_COLUMN;
 
-pub const MAX_ITEMS_IN_EQUIPMENT: usize = 8;
-
 /// 拠点を含むシングルプレイ用ステージの数
 /// level.aseprite のスライスの最大値 - 1
 pub const LEVELS: i32 = 7;

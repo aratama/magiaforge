@@ -1,10 +1,7 @@
 use crate::component::life::Life;
-use crate::constant::MAX_ITEMS_IN_EQUIPMENT;
 use crate::constant::MAX_WANDS;
-use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
-use crate::equipment::EquipmentType;
 use crate::inventory::Inventory;
 use crate::spell::SpellType;
 use crate::wand::Wand;
@@ -20,7 +17,6 @@ pub struct PlayerState {
     pub life: i32,
     pub max_life: i32,
     pub inventory: Inventory,
-    pub equipments: [Option<Equipment>; MAX_ITEMS_IN_EQUIPMENT],
     pub wands: [Wand; MAX_WANDS],
     pub golds: u32,
     pub current_wand: u32,
@@ -30,12 +26,6 @@ pub struct PlayerState {
 impl Default for PlayerState {
     fn default() -> Self {
         let inventory = Inventory::new();
-
-        let mut equipments = [None; MAX_ITEMS_IN_EQUIPMENT];
-        equipments[0] = Some(Equipment {
-            equipment_type: EquipmentType::Lantern,
-            price: 0,
-        });
 
         let wands = [
             Wand::with_slots([
@@ -52,7 +42,7 @@ impl Default for PlayerState {
             Wand::empty(),
             Wand::with_slots([
                 Some(WandSpell::new(SpellType::LightBall)),
-                None,
+                Some(WandSpell::new(SpellType::Lantern)),
                 None,
                 None,
                 None,
@@ -67,7 +57,6 @@ impl Default for PlayerState {
             life: 60,
             max_life: 60,
             inventory,
-            equipments,
             wands,
             golds: 1000,
             current_wand: 0,
@@ -85,7 +74,6 @@ impl PlayerState {
             life: life.life,
             max_life: life.max_life,
             inventory: actor.inventory.clone(),
-            equipments: actor.equipments.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
             current_wand: actor.current_wand as u32,
@@ -111,7 +99,6 @@ impl PlayerState {
             life: life.life,
             max_life: life.max_life,
             inventory: actor.inventory.clone(),
-            equipments: actor.equipments.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
             current_wand: actor.current_wand as u32,

@@ -12,7 +12,6 @@ use crate::entity::actor::ActorState;
 use crate::entity::bullet::Bullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
-use crate::equipment::EquipmentType;
 use crate::input::get_direction;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
@@ -23,6 +22,7 @@ use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::states::TimeState;
+use crate::wand::WandSpell;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
@@ -33,15 +33,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
-use serde::Deserialize;
-use serde::Serialize;
 use std::collections::HashSet;
-
-#[derive(Debug, Clone, Copy, Reflect, Serialize, Deserialize)]
-pub struct Equipment {
-    pub equipment_type: EquipmentType,
-    pub price: u32,
-}
 
 /// 操作可能なプレイヤーキャラクターを表します
 #[derive(Component, Debug, Clone)]
@@ -138,17 +130,21 @@ fn move_player(
 fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>) {
     if let Ok(mut actor) = player_query.get_single_mut() {
         let mut point_light_radius: f32 = 0.0;
-        for equiped_lantern in actor.equipments {
-            match equiped_lantern {
-                Some(Equipment {
-                    equipment_type: EquipmentType::Lantern,
-                    ..
-                }) => {
-                    point_light_radius += 160.0;
+
+        for wand in actor.wands.iter() {
+            for slot in wand.slots {
+                match slot {
+                    Some(WandSpell {
+                        spell_type: SpellType::Lantern,
+                        ..
+                    }) => {
+                        point_light_radius += 160.0;
+                    }
+                    _ => {}
                 }
-                _ => {}
             }
         }
+
         actor.point_light_radius = point_light_radius;
     }
 }

@@ -17,7 +17,6 @@ use crate::states::GameState;
 use crate::ui::bar::spawn_status_bar;
 use crate::ui::bar::StatusBar;
 use crate::ui::boss_hitpoint_bar::spawn_boss_hitpoint_bar;
-use crate::ui::equipment_list::spawn_equipment_list;
 use crate::ui::floating::spawn_inventory_floating;
 use crate::ui::floating::Floating;
 use crate::ui::speech_bubble::spawn_speech_bubble;
@@ -95,8 +94,6 @@ fn setup_hud(
                         ))
                         .with_children(|mut parent| {
                             spawn_wand_list(&mut parent, &assets);
-
-                            spawn_equipment_list(&mut parent, &assets);
                         });
 
                     // 右下

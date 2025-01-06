@@ -73,7 +73,6 @@ pub fn spawn_salamander(
             actor_group,
             golds,
             inventory: Inventory::new(),
-            equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: Wand::single(spell),
             fire_resistance: true,
         }),

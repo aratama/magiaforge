@@ -203,24 +203,23 @@ fn update_item_description(
                 if let Some(first) = content.get_item(actor) {
                     let mut dict = first.item_type.to_props().description.to_string();
 
-                    if let InventoryItemType::Spell(spell) = first.item_type {
-                        let props = spell.to_props();
-                        let appendix = get_spell_appendix(props.cast);
-                        // dict += format!("\n{}", appendix).as_str();
+                    let InventoryItemType::Spell(spell) = first.item_type;
+                    let props = spell.to_props();
+                    let appendix = get_spell_appendix(props.cast);
+                    // dict += format!("\n{}", appendix).as_str();
 
-                        // dict += format!(
-                        //     "\n{}: {}",
-                        //     (Dict {
-                        //         ja: "ランク",
-                        //         en: "Rank",
-                        //     })
-                        //     .get(config.language),
-                        //     props.rank
-                        // )
-                        // .as_str();
+                    // dict += format!(
+                    //     "\n{}: {}",
+                    //     (Dict {
+                    //         ja: "ランク",
+                    //         en: "Rank",
+                    //     })
+                    //     .get(config.language),
+                    //     props.rank
+                    // )
+                    // .as_str();
 
-                        dict += appendix;
-                    }
+                    dict += appendix;
 
                     if 0 < first.price {
                         dict = dict + UNPAID.to_string();

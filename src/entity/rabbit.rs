@@ -40,7 +40,6 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             actor_group: ActorGroup::Player,
             golds: 0,
             inventory: Inventory::new(),
-            equipments: [None; MAX_ITEMS_IN_EQUIPMENT],
             wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
             fire_resistance: true,
         }),

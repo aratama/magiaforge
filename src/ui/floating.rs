@@ -1,6 +1,5 @@
 use crate::asset::GameAssets;
 use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
-use crate::controller::player::Equipment;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::dropped_item::spawn_dropped_item;
@@ -23,7 +22,6 @@ use bevy::window::PrimaryWindow;
 pub enum FloatingContent {
     Inventory(usize),
     WandSpell(usize, usize),
-    Equipment(usize),
 }
 
 impl FloatingContent {
@@ -38,12 +36,6 @@ impl FloatingContent {
                     }),
                     None => None,
                 }
-            }
-            FloatingContent::Equipment(index) => {
-                actor.equipments[*index].clone().map(|ref e| InventoryItem {
-                    item_type: InventoryItemType::Equipment(e.equipment_type),
-                    price: e.price,
-                })
             }
         }
     }
@@ -212,10 +204,6 @@ impl FloatingContent {
                 item_type: InventoryItemType::Spell(w.spell_type),
                 price: w.price,
             }),
-            FloatingContent::Equipment(e) => actor.equipments[*e].map(|e| InventoryItem {
-                item_type: InventoryItemType::Equipment(e.equipment_type),
-                price: e.price,
-            }),
         }
     }
 
@@ -240,24 +228,6 @@ impl FloatingContent {
             (FloatingContent::WandSpell(w, s), None) => {
                 actor.wands[*w].slots[*s] = None;
             }
-            (
-                FloatingContent::Equipment(e),
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Equipment(equipment),
-                    price,
-                }),
-            ) => {
-                actor.equipments[*e] = Some(Equipment {
-                    equipment_type: equipment,
-                    price,
-                })
-            }
-            (FloatingContent::Equipment(e), None) => {
-                actor.equipments[*e] = None;
-            }
-            _ => {
-                warn!("Invalid operation dest:{:?} item:{:?}", self, item);
-            }
         }
     }
 
@@ -272,15 +242,6 @@ impl FloatingContent {
                 }),
             ) => true,
             (FloatingContent::WandSpell(..), None) => true,
-            (
-                FloatingContent::Equipment(_),
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Equipment(_),
-                    ..
-                }),
-            ) => true,
-            (FloatingContent::Equipment(_), None) => true,
-            _ => false,
         }
     }
 }
