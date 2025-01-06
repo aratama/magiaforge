@@ -135,7 +135,7 @@ pub fn cast_spell(
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;
-            wand_delay += delay as u32;
+            wand_delay = wand_delay.max(delay as u32);
             multicast -= 1;
 
             match props.cast {
@@ -219,7 +219,7 @@ pub fn cast_spell(
                 SpellCast::Heal => {
                     if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
                     {
-                        wand_delay += 1;
+                        wand_delay = wand_delay.max(1);
                     } else {
                         actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
                         se.send(SEEvent::pos(

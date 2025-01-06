@@ -128,8 +128,8 @@ fn transition(
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&lens.query());
-    for (entity, shadow, actor, transform) in query.iter_mut() {
-        if let Some(mut shadow) = shadow {
+    for (entity, spider, actor, transform) in query.iter_mut() {
+        if let Some(mut shadow) = spider {
             let origin = transform.translation.truncate();
             let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             match shadow.state {
@@ -197,17 +197,17 @@ fn animate(
     for (parent, mut animation, mut animation_state) in sprite_query.iter_mut() {
         let shadow = query.get(parent.get()).unwrap();
         match shadow.state {
-            State::Wait(count) if count == 0 => {
+            State::Wait(_) if animation.animation.tag != Some("idle".to_string()) => {
                 animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
                 animation_state.current_frame = 0;
             }
-            State::Approarch(count) if count == 0 => {
+            State::Approarch(_) if animation.animation.tag != Some("run".to_string()) => {
                 animation.animation.tag = Some("run".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
                 animation_state.current_frame = 2;
             }
-            State::Attack(count) if count == 0 => {
+            State::Attack(_) if animation.animation.tag != Some("idle".to_string()) => {
                 animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
                 animation_state.current_frame = 0;
@@ -227,7 +227,7 @@ fn approach(
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(shadow) = shadow {
             match shadow.state {
-                State::Approarch(count) if 60 < count => {
+                State::Approarch(..) => {
                     let origin = transform.translation.truncate();
                     if let Some(nearest) =
                         finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE)
@@ -242,7 +242,6 @@ fn approach(
                         actor.move_direction = Vec2::ZERO;
                     }
                 }
-
                 _ => {
                     actor.move_direction = Vec2::ZERO;
                 }

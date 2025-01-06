@@ -227,6 +227,7 @@ impl FloatingContent {
             }
             (FloatingContent::WandSpell(w, s), None) => {
                 actor.wands[*w].slots[*s] = None;
+                actor.wands[*w].index = 0;
             }
         }
     }

@@ -228,7 +228,7 @@ pub fn setup_level(
 
     // テスト用モンスター
     // spawn.send(SpawnEntity::Enemy {
-    //     enemy_type: SpawnEnemyType::Salamander,
+    //     enemy_type: SpawnEnemyType::Spider,
     //     position: Vec2::new(TILE_SIZE * 24 as f32, TILE_SIZE * -34 as f32),
     // });
 

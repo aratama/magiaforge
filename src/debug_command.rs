@@ -166,7 +166,10 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
                 spell_type: SpellType::Dash,
                 price: 0,
             }),
-            None,
+            Some(WandSpell {
+                spell_type: SpellType::Lantern,
+                price: 0,
+            }),
             None,
             None,
             None,
