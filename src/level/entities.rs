@@ -149,6 +149,7 @@ pub enum SpawnEntity {
     Fireball {
         position: Vec2,
         velocity: Vec2,
+        actor_group: ActorGroup,
     },
 
     Seed {
@@ -501,8 +502,12 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Fireball { position, velocity } => {
-                spawn_fireball(&mut commands, &assets, *position, *velocity);
+            SpawnEntity::Fireball {
+                position,
+                velocity,
+                actor_group,
+            } => {
+                spawn_fireball(&mut commands, &assets, *position, *velocity, *actor_group);
             }
         }
     }

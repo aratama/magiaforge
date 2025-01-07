@@ -6,7 +6,7 @@ use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
-use crate::level::wall::WallCollider;
+use crate::level::collision::WallCollider;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;

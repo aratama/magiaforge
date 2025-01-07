@@ -74,6 +74,10 @@ pub const PAINT_LAYER_Z: f32 = 10.0;
 /// すべてのスプライトの最下部
 pub const FLOOR_LAYER_Z: f32 = 0.0;
 
+pub const WATER_LAYER_Z: f32 = -1.0;
+
+pub const SHORE_LAYER_Z: f32 = -2.0;
+
 /// y座標に対してのz座標の増加量
 pub const Z_ORDER_SCALE: f32 = -0.001;
 
@@ -124,6 +128,8 @@ const SHADOW_MEMBERSHIPS: Group = Group::GROUP_13;
 /// 敵キャラクターがアイテムを押して盾にするのを避けるためです
 const DROPPED_ITEM_MEMBERSHIPS: Group = Group::GROUP_14;
 
+const WATER_MEMBERSHIPS: Group = Group::GROUP_15;
+
 pub const ENTITY_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         ENTITY_MEMBERSHIPS,
@@ -138,12 +144,17 @@ pub const ENTITY_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | RABBIT_MEMBERSHIPS
             | DROPPED_ITEM_MEMBERSHIPS
             | GOLD_MEMBERSHIPS
-            | SENSOR_MEMBERSHIPS,
+            | SENSOR_MEMBERSHIPS
+            | WATER_MEMBERSHIPS,
     )
 });
 
-pub const PIECE_GROUPS: LazyCell<CollisionGroups> =
-    LazyCell::new(|| CollisionGroups::new(PIECE_MEMBERSHIPS, PIECE_MEMBERSHIPS | WALL_MEMBERSHIPS));
+pub const PIECE_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
+    CollisionGroups::new(
+        PIECE_MEMBERSHIPS,
+        PIECE_MEMBERSHIPS | WALL_MEMBERSHIPS | WATER_MEMBERSHIPS | WATER_MEMBERSHIPS,
+    )
+});
 
 pub const WALL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
@@ -171,6 +182,7 @@ const ACTOR_FILTER_BASE: LazyCell<Group> = LazyCell::new(|| {
         | RABBIT_MEMBERSHIPS
         | SENSOR_MEMBERSHIPS
         | SHADOW_MEMBERSHIPS
+        | WATER_MEMBERSHIPS
 });
 
 pub const NEUTRAL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
@@ -213,8 +225,12 @@ pub const ENEMY_BULLET_GROUP: LazyCell<CollisionGroups> = LazyCell::new(|| {
     )
 });
 
-pub const GOLD_GROUPS: LazyCell<CollisionGroups> =
-    LazyCell::new(|| CollisionGroups::new(GOLD_MEMBERSHIPS, ENTITY_MEMBERSHIPS | WALL_MEMBERSHIPS));
+pub const GOLD_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
+    CollisionGroups::new(
+        GOLD_MEMBERSHIPS,
+        ENTITY_MEMBERSHIPS | WALL_MEMBERSHIPS | WATER_MEMBERSHIPS,
+    )
+});
 
 pub const SENSOR_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
@@ -245,7 +261,8 @@ pub const RABBIT_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | ENEMY_MEMBERSHIPS
             | SHADOW_MEMBERSHIPS
             | HIDDEN_WALL_MEMBERSHIPS
-            | DROPPED_ITEM_MEMBERSHIPS,
+            | DROPPED_ITEM_MEMBERSHIPS
+            | WATER_MEMBERSHIPS,
     )
 });
 
@@ -261,7 +278,23 @@ pub const DROPPED_ITEM_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | PLAYER_BULLET_MEMBERSHIPS
             | WALL_MEMBERSHIPS
             | HIDDEN_WALL_MEMBERSHIPS
-            | RABBIT_MEMBERSHIPS,
+            | RABBIT_MEMBERSHIPS
+            | WATER_MEMBERSHIPS,
+    )
+});
+
+pub const WATER_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
+    CollisionGroups::new(
+        WATER_MEMBERSHIPS,
+        PIECE_MEMBERSHIPS
+            | ENTITY_MEMBERSHIPS
+            | NEUTRAL_MEMBERSHIPS
+            | PLAYER_MEMBERSHIPS
+            | ENEMY_MEMBERSHIPS
+            | RABBIT_MEMBERSHIPS
+            | DROPPED_ITEM_MEMBERSHIPS
+            | GOLD_MEMBERSHIPS
+            | SHADOW_MEMBERSHIPS,
     )
 });
 

@@ -91,6 +91,35 @@ fn spawn_world_tilemap(
                 Tile::Blank => {
                     spawn_ceil_for_blank(commands, assets, chunk, x, y);
                 }
+                Tile::Water => {
+                    if chunk.is_visible_ceil(x, y - 1, 1, Tile::StoneTile, Tile::Biome) {
+                        commands.spawn((
+                            AseSpriteSlice {
+                                aseprite: assets.atlas.clone(),
+                                name: "stone_wall".to_string(),
+                            },
+                            Transform::from_xyz(
+                                x as f32 * TILE_SIZE,
+                                -y as f32 * TILE_SIZE,
+                                SHORE_LAYER_Z,
+                            ),
+                        ));
+                    }
+
+                    spawn_roof_tiles(
+                        "water",
+                        commands,
+                        assets,
+                        &chunk,
+                        Tile::Water,
+                        Tile::Water,
+                        -4.0,
+                        x,
+                        y,
+                        WATER_LAYER_Z,
+                        1,
+                    );
+                }
             }
         }
     }
@@ -141,8 +170,20 @@ fn spawn_ceil_for_blank(
     }
 
     // // 天井
-    if chunk.is_visible_ceil(x, y) {
-        spawn_roof_tiles(commands, assets, &chunk, x, y)
+    if chunk.is_visible_ceil(x, y, 3, Tile::Wall, Tile::Blank) {
+        spawn_roof_tiles(
+            "roof",
+            commands,
+            assets,
+            &chunk,
+            Tile::Wall,
+            Tile::Blank,
+            WALL_HEIGHT,
+            x,
+            y,
+            CEIL_LAYER_Z,
+            3,
+        )
     }
 }
 

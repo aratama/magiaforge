@@ -79,10 +79,14 @@ impl LevelChunk {
     /// 実際に描画する天井タイルかどうかを返します
     /// 天井が奥の床を隠して見えづらくなるのを避けるため、
     /// 天井タイルが3連続するところだけを描画します
-    pub fn is_visible_ceil(&self, x: i32, y: i32) -> bool {
-        (self.equals(x + 0, y - 0, Tile::Wall) || self.equals(x + 0, y - 0, Tile::Blank))
-            && (self.equals(x + 0, y - 1, Tile::Wall) || self.equals(x + 0, y - 1, Tile::Blank))
-            && (self.equals(x + 0, y - 2, Tile::Wall) || self.equals(x + 0, y - 2, Tile::Blank))
+    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, a: Tile, b: Tile) -> bool {
+        for i in 0..depth {
+            if self.equals(x, y - i, a) || self.equals(x, y - i, b) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 }
 
@@ -312,6 +316,12 @@ pub fn image_to_tilemap(
                 (156, 156, 156, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
+                        zone: Zone::SafeZone,
+                    });
+                }
+                (55, 79, 225, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Water,
                         zone: Zone::SafeZone,
                     });
                 }

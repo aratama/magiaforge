@@ -58,7 +58,6 @@ use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
 use crate::language::LanguagePlugin;
-use crate::level::*;
 use crate::page::ending::EndingPlugin;
 use crate::page::in_game::WorldPlugin;
 use crate::page::main_menu::MainMenuPlugin;
@@ -110,7 +109,6 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
 use gameover::GameoverPlugin;
-use wall::WallPlugin;
 
 // const AUDIO_SCALE: f32 = 1. / 1000.0;
 
@@ -262,7 +260,6 @@ pub fn run_game() {
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
         .add_plugins(MessageRabbitPlugin)
-        .add_plugins(WallPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)
         .add_plugins(WarpPagePlugin)

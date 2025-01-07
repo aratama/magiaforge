@@ -7,6 +7,7 @@ pub enum Tile {
     Biome,
     StoneTile,
     Grassland,
+    Water,
 }
 
 #[derive(Component)]

@@ -60,6 +60,21 @@ fn process_debug_command(
     } else if local.ends_with("@resume") {
         local.clear();
         commands.run_system_cached(debug_resume);
+    } else if local.ends_with("@level1") {
+        local.clear();
+        commands.run_system_cached(debug_level_1);
+    } else if local.ends_with("@level2") {
+        local.clear();
+        commands.run_system_cached(debug_level_2);
+    } else if local.ends_with("@level3") {
+        local.clear();
+        commands.run_system_cached(debug_level_3);
+    } else if local.ends_with("@level4") {
+        local.clear();
+        commands.run_system_cached(debug_level_4);
+    } else if local.ends_with("@level5") {
+        local.clear();
+        commands.run_system_cached(debug_level_5);
     }
 }
 
@@ -204,6 +219,56 @@ fn debug_home(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(0);
+    level.next_state = PlayerState::from_query(&player_query);
+    writer.send(OverlayEvent::Close(GameState::Warp));
+}
+
+fn debug_level_1(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
+    level.next_level = GameLevel::Level(1);
+    level.next_state = PlayerState::from_query(&player_query);
+    writer.send(OverlayEvent::Close(GameState::Warp));
+}
+
+fn debug_level_2(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
+    level.next_level = GameLevel::Level(2);
+    level.next_state = PlayerState::from_query(&player_query);
+    writer.send(OverlayEvent::Close(GameState::Warp));
+}
+
+fn debug_level_3(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
+    level.next_level = GameLevel::Level(3);
+    level.next_state = PlayerState::from_query(&player_query);
+    writer.send(OverlayEvent::Close(GameState::Warp));
+}
+
+fn debug_level_4(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
+    level.next_level = GameLevel::Level(4);
+    level.next_state = PlayerState::from_query(&player_query);
+    writer.send(OverlayEvent::Close(GameState::Warp));
+}
+
+fn debug_level_5(
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor, &Life)>,
+) {
+    level.next_level = GameLevel::Level(5);
     level.next_state = PlayerState::from_query(&player_query);
     writer.send(OverlayEvent::Close(GameState::Warp));
 }

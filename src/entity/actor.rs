@@ -2,9 +2,11 @@ use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::ENEMY_GROUPS;
 use crate::constant::MAX_WANDS;
 use crate::constant::NEUTRAL_GROUPS;
+use crate::constant::PLAYER_BULLET_GROUP;
 use crate::constant::PLAYER_GROUPS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
@@ -27,6 +29,7 @@ use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
+use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
@@ -343,6 +346,14 @@ impl ActorGroup {
             ActorGroup::Player => *PLAYER_GROUPS,
             ActorGroup::Enemy => *ENEMY_GROUPS,
             ActorGroup::Neutral => *NEUTRAL_GROUPS,
+        }
+    }
+
+    pub fn to_bullet_group(&self) -> CollisionGroups {
+        match self {
+            ActorGroup::Player => *PLAYER_BULLET_GROUP,
+            ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
+            ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
         }
     }
 }

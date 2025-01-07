@@ -279,7 +279,11 @@ fn attack(
                             let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                             let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
                             info!("velocity: {:?}", velocity);
-                            spawn.send(SpawnEntity::Fireball { position, velocity });
+                            spawn.send(SpawnEntity::Fireball {
+                                position,
+                                velocity,
+                                actor_group: actor.actor_group,
+                            });
                         }
                     }
                 }

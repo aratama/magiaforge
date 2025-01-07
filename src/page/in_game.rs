@@ -12,12 +12,12 @@ use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::spawn_level_appearance;
+use crate::level::collision::spawn_wall_collisions;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
-use crate::level::wall::spawn_wall_collisions;
 use crate::message::LEVEL0;
 use crate::message::LEVEL1;
 use crate::message::LEVEL2;
@@ -150,6 +150,8 @@ pub fn setup_level(
     // レベルのコリジョンを生成します
     spawn_wall_collisions(&mut commands, &chunk);
 
+    commands.insert_resource(chunk.clone());
+
     // 宝箱や灯篭などのエンティティを生成します
     for entity in &chunk.entities {
         spawn.send(entity.clone());
@@ -166,7 +168,7 @@ pub fn setup_level(
         GameLevel::Level(2) => 15,
         GameLevel::Level(3) => 20,
         GameLevel::Level(4) => 20,
-        GameLevel::Level(5) => 20,
+        GameLevel::Level(5) => 30,
         GameLevel::Level(6) => 0, // ボス部屋
         GameLevel::MultiPlayArena => 0,
         _ => 0,
@@ -177,7 +179,12 @@ pub fn setup_level(
         GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Spider],
         GameLevel::Level(3) => vec![SpawnEnemyType::Spider, SpawnEnemyType::Eyeball],
         GameLevel::Level(4) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
-        GameLevel::Level(5) => vec![SpawnEnemyType::Shadow, SpawnEnemyType::Salamander],
+        GameLevel::Level(5) => vec![
+            SpawnEnemyType::Spider,
+            SpawnEnemyType::Eyeball,
+            SpawnEnemyType::Shadow,
+            SpawnEnemyType::Salamander,
+        ],
         GameLevel::Level(6) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
         _ => vec![],

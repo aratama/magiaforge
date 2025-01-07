@@ -149,6 +149,7 @@ fn update_servant_seed(
                         warn!("ServantSeed: Hit non-stone tile: Blank");
                         false
                     }
+                    Tile::Water => false,
                 };
                 if spawn {
                     spawn_writer.send(SpawnEvent {

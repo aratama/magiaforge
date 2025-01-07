@@ -4,7 +4,6 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
-use crate::constant::ENTITY_GROUPS;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -12,6 +11,8 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+use super::actor::ActorGroup;
 
 #[derive(Default, Component, Reflect)]
 struct Fireball;
@@ -21,6 +22,7 @@ pub fn spawn_fireball(
     assets: &Res<GameAssets>,
     position: Vec2,
     velocity: Vec2,
+    actor_group: ActorGroup,
 ) {
     commands
         .spawn((
@@ -47,7 +49,7 @@ pub fn spawn_fireball(
                     angular_damping: 0.0,
                 },
                 Collider::ball(6.0),
-                *ENTITY_GROUPS,
+                actor_group.to_bullet_group(),
                 Velocity::linear(velocity),
                 ExternalImpulse::default(),
             ),
@@ -81,7 +83,7 @@ fn fall(
                 if let Some(ref level) = interlevel.chunk {
                     let position = parent_transform.translation.truncate();
                     let tile = level.get_tile_by_coords(position);
-                    if tile != Tile::Wall && tile != Tile::Blank {
+                    if tile != Tile::Wall && tile != Tile::Blank && tile != Tile::Water {
                         spawn_fire(&mut commands, &assets, position, None);
                     }
                 }

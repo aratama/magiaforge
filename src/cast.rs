@@ -168,11 +168,7 @@ pub fn cast_spell(
                         light_radius: cast.light_radius,
                         light_color_hlsa: cast.light_color_hlsa,
                         homing: actor.effects.homing,
-                        groups: match actor.actor_group {
-                            ActorGroup::Player => *PLAYER_BULLET_GROUP,
-                            ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
-                            ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
-                        },
+                        groups: actor.actor_group.to_bullet_group(),
                     };
 
                     spawn_bullet(commands, assets.atlas.clone(), se, &spawn);
@@ -317,7 +313,11 @@ pub fn cast_spell(
                     let actor_position = actor_transform.translation.truncate();
                     let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                     let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                    spawn.send(SpawnEntity::Fireball { position, velocity });
+                    spawn.send(SpawnEntity::Fireball {
+                        position,
+                        velocity,
+                        actor_group: actor.actor_group,
+                    });
                 }
                 SpellCast::LightSword => {
                     let normalized = actor.pointer.normalize_or_zero();
@@ -356,11 +356,7 @@ pub fn cast_spell(
                         light_radius: 50.0,
                         light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
                         homing: actor.effects.homing,
-                        groups: match actor.actor_group {
-                            ActorGroup::Player => *PLAYER_BULLET_GROUP,
-                            ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
-                            ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
-                        },
+                        groups: actor.actor_group.to_bullet_group(),
                     };
 
                     spawn_bullet(commands, assets.atlas.clone(), se, &spawn);
