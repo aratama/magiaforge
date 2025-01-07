@@ -74,7 +74,11 @@ pub const PAINT_LAYER_Z: f32 = 10.0;
 /// すべてのスプライトの最下部
 pub const FLOOR_LAYER_Z: f32 = 0.0;
 
-pub const WATER_LAYER_Z: f32 = -1.0;
+pub const WATER_FOAM_LAYER_Z: f32 = -1.0;
+
+pub const WATER_MESH_LIGHTER_LAYER_Z: f32 = -1.4;
+
+pub const WATER_MESH_DARKER_LAYER_Z: f32 = -1.5;
 
 pub const SHORE_LAYER_Z: f32 = -2.0;
 

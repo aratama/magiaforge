@@ -8,7 +8,10 @@ use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
 use crate::page::in_game::GameLevel;
+use crate::states::GameMenuState;
 use crate::states::GameState;
+use crate::states::TimeState;
+use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use rand::rngs::StdRng;
@@ -92,7 +95,10 @@ fn spawn_world_tilemap(
                     spawn_ceil_for_blank(commands, assets, chunk, x, y);
                 }
                 Tile::Water => {
-                    if chunk.is_visible_ceil(x, y - 1, 1, Tile::StoneTile, Tile::Biome) {
+                    // 水辺の岸の壁
+                    if chunk.is_visible_ceil(x, y - 1, 1, Tile::StoneTile, Tile::Biome)
+                        || chunk.is_visible_ceil(x, y - 1, 1, Tile::Wall, Tile::Wall)
+                    {
                         commands.spawn((
                             AseSpriteSlice {
                                 aseprite: assets.atlas.clone(),
@@ -106,22 +112,70 @@ fn spawn_world_tilemap(
                         ));
                     }
 
+                    const WATER_PLANE_OFFEST: f32 = -4.0;
+
+                    // 岸にできる泡
                     spawn_roof_tiles(
-                        "water",
+                        "water_form_0",
                         commands,
                         assets,
                         &chunk,
                         Tile::Water,
                         Tile::Water,
-                        -4.0,
+                        WATER_PLANE_OFFEST,
                         x,
                         y,
-                        WATER_LAYER_Z,
+                        WATER_FOAM_LAYER_Z,
                         1,
                     );
+
+                    // 網状の泡の明るいほう
+                    let index = rand::random::<u32>() % 2;
+                    commands.spawn((
+                        WaterMeshLighter(index),
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: format!("water_mesh_lighter_{}", index).to_string(),
+                        },
+                        Transform::from_xyz(
+                            x as f32 * TILE_SIZE,
+                            -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                            WATER_MESH_LIGHTER_LAYER_Z,
+                        ),
+                    ));
+
+                    // 網状の泡
+                    commands.spawn((
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: format!("water_mesh_{}", rand::random::<u32>() % 2).to_string(),
+                        },
+                        Transform::from_xyz(
+                            x as f32 * TILE_SIZE,
+                            -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                            WATER_MESH_DARKER_LAYER_Z,
+                        ),
+                    ));
                 }
             }
         }
+    }
+}
+
+#[derive(Debug, Clone, Component)]
+struct WaterMeshLighter(u32);
+
+fn update_water_mesh_lighter(
+    mut query: Query<(&WaterMeshLighter, &mut AseSpriteSlice)>,
+    frame_count: Res<FrameCount>,
+) {
+    for (water, mut sprite) in query.iter_mut() {
+        sprite.name = format!(
+            "water_mesh_lighter_{}_{}",
+            water.0,
+            (frame_count.0 / 50) % 4
+        )
+        .to_string();
     }
 }
 
@@ -203,5 +257,17 @@ fn spawn_grassland(mut commands: &mut Commands, assets: &Res<GameAssets>, x: i32
     if rand::random::<u32>() % 6 != 0 {
         let center = left_top + Vec2::new(TILE_HALF, -TILE_HALF);
         spawn_grasses(&mut commands, &assets, center);
+    }
+}
+
+pub struct WaterPlugin;
+
+impl Plugin for WaterPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            update_water_mesh_lighter
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
+        );
     }
 }

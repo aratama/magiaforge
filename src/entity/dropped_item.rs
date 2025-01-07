@@ -41,7 +41,7 @@ pub fn spawn_dropped_item(
         InventoryItemType::Spell(spell) => spell.to_props().name.en,
     };
     let frame_slice = match item_type {
-        InventoryItemType::Spell(_) if 0 < item.price => "spell_frame_yellow",
+        InventoryItemType::Spell(_) if 0 < item.price => "spell_frame",
         InventoryItemType::Spell(_) => "spell_frame",
     };
     let collider_width = match item_type {
