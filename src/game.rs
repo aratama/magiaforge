@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
+use crate::component::animated_slice::AnimatedSlicePlugin;
 use crate::component::counter::CounterPlugin;
 use crate::component::entity_depth::EntityDepthPlugin;
 use crate::component::falling::FallingPlugin;
@@ -58,7 +59,6 @@ use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
 use crate::language::LanguagePlugin;
-use crate::level::appearance::WaterPlugin;
 use crate::page::ending::EndingPlugin;
 use crate::page::in_game::WorldPlugin;
 use crate::page::main_menu::MainMenuPlugin;
@@ -184,6 +184,7 @@ pub fn run_game() {
         //
         .add_systems(Update, toggle_fullscreen)
         .add_plugins(ActorPlugin)
+        .add_plugins(AnimatedSlicePlugin)
         .add_plugins(BGMSwitchPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BombPlugin)
@@ -261,7 +262,6 @@ pub fn run_game() {
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
         .add_plugins(MessageRabbitPlugin)
-        .add_plugins(WaterPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)
         .add_plugins(WarpPagePlugin)

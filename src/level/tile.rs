@@ -1,5 +1,3 @@
-use bevy::prelude::Component;
-
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Tile {
     Blank,
@@ -9,6 +7,3 @@ pub enum Tile {
     Grassland,
     Water,
 }
-
-#[derive(Component)]
-pub struct WorldTile;

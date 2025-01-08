@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::map::LevelChunk;
-use crate::level::tile::WorldTile;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -11,33 +11,16 @@ use super::tile::Tile;
 
 pub const WALL_HEIGHT_IN_TILES: u32 = 2;
 
-pub fn spawn_roof_tiles(
-    prefix: &'static str,
-    commands: &mut Commands,
-    assets: &Res<GameAssets>,
+/// 描画しようとしているタイルの、左上のタイルを4x4タイルセットのインデックスで返します
+pub fn get_tile_index_left_top(
     chunk: &LevelChunk,
-    a: Tile,
-    b: Tile,
-    y_offset: f32,
     xi: i32,
     yi: i32,
-    z: f32,
     depth: i32,
-) {
-    // デバッグ用
-    // commands.spawn((
-    //     AseSpriteSlice {
-    //         aseprite: assets.atlas.clone(),
-    //         name: "roof_test".to_string(),
-    //     },
-    //     Transform::from_xyz(
-    //         TILE_SIZE * x as f32,
-    //         (TILE_SIZE * (-y + WALL_HEIGHT_IN_TILES as i32) as f32),
-    //         999.0,
-    //     ),
-    // ));
-
-    let left_top = match (
+    a: Tile,
+    b: Tile,
+) -> i32 {
+    match (
         chunk.is_visible_ceil(xi - 1, yi - 1, depth, a, b),
         chunk.is_visible_ceil(xi + 0, yi - 1, depth, a, b),
         chunk.is_visible_ceil(xi - 1, yi + 0, depth, a, b),
@@ -50,20 +33,18 @@ pub fn spawn_roof_tiles(
         (true, false, true) => 1,
         (true, true, false) => 4,
         (true, true, true) => 16,
-    };
-    spawn_roof_tile(
-        prefix, commands, assets, y_offset, xi, yi, z, 0, 0, left_top,
-    );
-
-    if xi == 12 && yi == 33 {
-        info!("xi: {}, yi: {}", xi, yi);
-        let t0 = chunk.is_visible_ceil(xi + 0, yi - 1, depth, a, b);
-        let t1 = chunk.is_visible_ceil(xi + 1, yi - 1, depth, a, b);
-        let t2 = chunk.is_visible_ceil(xi + 1, yi + 0, depth, a, b);
-        info!("t0: {}, t1: {}, t2: {}", t0, t1, t2);
     }
+}
 
-    let right_top = match (
+pub fn get_tile_index_right_top(
+    chunk: &LevelChunk,
+    xi: i32,
+    yi: i32,
+    depth: i32,
+    a: Tile,
+    b: Tile,
+) -> i32 {
+    match (
         chunk.is_visible_ceil(xi + 0, yi - 1, depth, a, b),
         chunk.is_visible_ceil(xi + 1, yi - 1, depth, a, b),
         chunk.is_visible_ceil(xi + 1, yi + 0, depth, a, b),
@@ -76,12 +57,18 @@ pub fn spawn_roof_tiles(
         (true, false, true) => 9,
         (true, true, false) => 7,
         (true, true, true) => 16,
-    };
-    spawn_roof_tile(
-        prefix, commands, assets, y_offset, xi, yi, z, 1, 0, right_top,
-    );
+    }
+}
 
-    let left_bottom = match (
+pub fn get_tile_index_left_bottom(
+    chunk: &LevelChunk,
+    xi: i32,
+    yi: i32,
+    depth: i32,
+    a: Tile,
+    b: Tile,
+) -> i32 {
+    match (
         chunk.is_visible_ceil(xi - 1, yi + 0, depth, a, b),
         chunk.is_visible_ceil(xi - 1, yi + 1, depth, a, b),
         chunk.is_visible_ceil(xi + 0, yi + 1, depth, a, b),
@@ -94,21 +81,18 @@ pub fn spawn_roof_tiles(
         (true, false, true) => 6,
         (true, true, false) => 13,
         (true, true, true) => 16,
-    };
-    spawn_roof_tile(
-        prefix,
-        commands,
-        assets,
-        y_offset,
-        xi,
-        yi,
-        z,
-        0,
-        1,
-        left_bottom,
-    );
+    }
+}
 
-    let right_bottom = match (
+pub fn get_tile_index_right_bottom(
+    chunk: &LevelChunk,
+    xi: i32,
+    yi: i32,
+    depth: i32,
+    a: Tile,
+    b: Tile,
+) -> i32 {
+    match (
         chunk.is_visible_ceil(xi + 1, yi + 0, depth, a, b),
         chunk.is_visible_ceil(xi + 0, yi + 1, depth, a, b),
         chunk.is_visible_ceil(xi + 1, yi + 1, depth, a, b),
@@ -121,9 +105,54 @@ pub fn spawn_roof_tiles(
         (true, false, true) => 13,
         (true, true, false) => 5,
         (true, true, true) => 16,
-    };
-    spawn_roof_tile(
-        prefix,
+    }
+}
+
+/// ひとつのタイルを四分割し、それぞれのオートタイルを選択して描画します
+/// prefixesにはアニメーションのフレームごとにスライスのプリフィックスを渡します
+/// オートタイルが選択されると、そのプリフィックスに _0 ～ _16 を選択して追加しスライス名とします
+pub fn spawn_autotiles<T: Component>(
+    prefixes: &Vec<String>,
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    chunk: &LevelChunk,
+    a: Tile,
+    b: Tile,
+    y_offset: f32,
+    xi: i32,
+    yi: i32,
+    z: f32,
+    depth: i32,
+    left_top: T,
+    right_top: T,
+    left_bottom: T,
+    right_bottom: T,
+) {
+    let lt = get_tile_index_left_top(chunk, xi, yi, depth, a, b);
+    spawn_autotile(
+        prefixes, commands, assets, y_offset, xi, yi, z, 0, 0, lt, left_top,
+    );
+    let rt = get_tile_index_right_top(chunk, xi, yi, depth, a, b);
+    spawn_autotile(
+        prefixes, commands, assets, y_offset, xi, yi, z, 1, 0, rt, right_top,
+    );
+    let lb = get_tile_index_left_bottom(chunk, xi, yi, depth, a, b);
+    spawn_autotile(
+        prefixes,
+        commands,
+        assets,
+        y_offset,
+        xi,
+        yi,
+        z,
+        0,
+        1,
+        lb,
+        left_bottom,
+    );
+    let rb = get_tile_index_right_bottom(chunk, xi, yi, depth, a, b);
+    spawn_autotile(
+        prefixes,
         commands,
         assets,
         y_offset,
@@ -132,12 +161,13 @@ pub fn spawn_roof_tiles(
         z,
         1,
         1,
+        rb,
         right_bottom,
     );
 }
 
-fn spawn_roof_tile(
-    prefix: &'static str,
+fn spawn_autotile<T: Component>(
+    prefix: &Vec<String>,
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     y_offset: f32,
@@ -147,17 +177,26 @@ fn spawn_roof_tile(
     dx: i32,
     dy: i32,
     roof_index: i32,
+    marker: T,
 ) {
     let x = TILE_SIZE * xi as f32 + TILE_HALF * dx as f32;
     let y = (TILE_SIZE * -yi as f32) + TILE_HALF * -dy as f32 + y_offset;
     commands.spawn((
-        Name::new(prefix),
-        WorldTile,
+        Name::new(prefix[0].clone()),
         StateScoped(GameState::InGame),
         Transform::from_xyz(x, y, z),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),
-            name: format!("{}_{:?}", prefix, roof_index).to_string(),
+            name: format!("{}_{:?}", prefix[0], roof_index).to_string(),
         },
+        AnimatedSlice {
+            slices: prefix
+                .clone()
+                .iter()
+                .map(|s| format!("{}_{}", s, roof_index))
+                .collect(),
+            wait: 50,
+        },
+        marker,
     ));
 }

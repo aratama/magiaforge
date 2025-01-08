@@ -1,3 +1,4 @@
+pub mod animated_slice;
 pub mod counter;
 pub mod entity_depth;
 pub mod falling;
