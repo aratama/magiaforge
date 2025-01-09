@@ -225,7 +225,7 @@ impl SpellType {
                 cast_delay: 120,
                 icon: "spawn_jar_icon",
                 price: 20,
-                cast: SpellCast::SpawnEntity(SpellCastEntityType::CrateOrBarrel),
+                cast: SpellCast::SpawnEntity(SpellCastEntityType::Jar),
             },
             SpellType::PurpleBolt =>  SpellProps {
                 rank: 1,

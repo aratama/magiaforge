@@ -52,6 +52,12 @@ pub const CHEST_OR_BARREL: [ChestType; 12] = [
     ChestType::Jar(JarColor::Green),
 ];
 
+pub const JARS: [ChestType; 3] = [
+    ChestType::Jar(JarColor::Red),
+    ChestType::Jar(JarColor::Blue),
+    ChestType::Jar(JarColor::Green),
+];
+
 #[derive(Default, Component, Reflect)]
 struct Chest {
     pub chest_type: ChestType,

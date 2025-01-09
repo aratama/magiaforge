@@ -186,55 +186,69 @@ pub const SORT: Dict<&'static str> = Dict {
 };
 
 pub const HELLO: Dict<&'static str> = Dict {
-    ja: "おや、魔法使いか。\nここはぼくらの商人キャンプだよ。\n来客は歓迎さ。",
-    en: "Oh, a witch.\nThis is our merchant camp.\nGuests are welcome.",
-    zh_cn: "哦，一个女巫。\n这是我们的商人营地。\n欢迎客人。",
-    zh_tw: "哦，一個女巫。\n這是我們的商人營地。\n歡迎客人。",
-    es: "Oh, una bruja.\nEste es nuestro campamento de comerciantes.\nLos invitados son bienvenidos.",
-    fr: "Oh, une sorcière.\nCeci est notre camp de marchands.\nLes invités sont les bienvenus.",
-    pt: "Oh, uma bruxa.\nEste é nosso acampamento de mercadores.\nOs convidados são bem-vindos.",
-    de: "Oh, eine Hexe.\nDies ist unser Händlerlager.\nGäste sind willkommen.",
-    ko: "오, 마녀야.\n여기는 우리 상인 캠프야.\n손님을 환영해.",
-    ru: "О, ведьма.\nЭто наш лагерь торговцев.\nГостям рады.",
+    ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
+    en: "Oh, you are a wizard. This is our merchant camp. Visitors are welcome.",
+    zh_cn: "哦，你是个巫师。这是我们的商人营地。欢迎来访。",
+    zh_tw: "哦，你是個巫師。這是我們的商人營地。歡迎來訪。",
+    es: "Oh, eres un mago. Este es nuestro campamento de comerciantes. Los visitantes son bienvenidos.",
+    fr: "Oh, vous êtes un sorcier. C'est notre camp de marchands. Les visiteurs sont les bienvenus.",
+    pt: "Oh, você é um mago. Este é o nosso acampamento de comerciantes. Visitantes são bem-vindos.",
+    de: "Oh, du bist ein Zauberer. Dies ist unser Händlerlager. Besucher sind willkommen.",
+    ko: "오, 당신은 마법사군요. 여기는 우리 상인 캠프입니다. 방문객을 환영합니다.",
+    ru: "О, вы волшебник. Это наш лагерь торговцев. Посетители приветствуются.",
+
 };
 
-pub const HELLO_RABBITS: Dict<&'static str> = Dict {
-    ja: "迷宮に行きたいなら入り口はこの奥だよ。でもよかったら仲間たちにもあいさつしていってくれ。",
-    en: "If you want to go to the labyrinth, the entrance is at the back. But if you like, please say hello to my friends.",
-    zh_cn: "如果你想去迷宫，入口在后面。但如果你愿意，也请向我的朋友们问好。",
-    zh_tw: "如果你想去迷宮，入口在後面。但如果你願意，也請向我的朋友們問好。",
-    es: "Si quieres ir al laberinto, la entrada está en la parte trasera. Pero si quieres, por favor saluda a mis amigos.",
-    fr: "Si vous voulez aller dans le labyrinthe, l'entrée est à l'arrière. Mais si vous le souhaitez, saluez mes amis.",
-    pt: "Se você quiser ir ao labirinto, a entrada é na parte de trás. Mas se quiser, por favor, cumprimente meus amigos.",
-    de: "Wenn du in das Labyrinth gehen möchtest, ist der Eingang hinten. Aber wenn du möchtest, grüße bitte meine Freunde.",
-    ko: "미로로 가고 싶다면 입구는 뒤에 있어. 하지만 원한다면 내 친구들에게 인사해 주세요.",
-    ru: "Если хочешь пойти в лабиринт, вход находится сзади. Но если хочешь, пожалуйста, поздоровайся с моими друзьями.",
+pub const HELLO_RABBIT_1: Dict<&'static str> = Dict {
+    ja: "きみも古代の呪文を探しに来たんだろう？この島に来る魔法使いはみんなそうさ。迷宮に行きたいなら入り口はこの奥だよ。",
+    en: "You came to find ancient spells too, didn't you? Every wizard who comes to this island does. If you want to go to the labyrinth, the entrance is further in.",
+    zh_cn: "你也是来寻找古代咒语的吧？每个来到这个岛的巫师都是。如果你想去迷宫，入口在里面。",
+    zh_tw: "你也是來尋找古代咒語的吧？每個來到這個島的巫師都是。如果你想去迷宮，入口在裡面。",
+    es: "¿También viniste a buscar hechizos antiguos, verdad? Todos los magos que vienen a esta isla lo hacen. Si quieres ir al laberinto, la entrada está más adentro.",
+    fr: "Vous êtes venu chercher des sorts anciens, n'est-ce pas ? Tous les sorciers qui viennent sur cette île le font. Si vous voulez aller dans le labyrinthe, l'entrée est plus loin.",
+    pt: "Você também veio procurar feitiços antigos, não é? Todo mago que vem a esta ilha faz isso. Se você quiser ir ao labirinto, a entrada está mais adiante.",
+    de: "Du bist auch hier, um alte Zauber zu finden, nicht wahr? Jeder Zauberer, der auf diese Insel kommt, tut das. Wenn du in das Labyrinth gehen willst, ist der Eingang weiter drinnen.",
+    ko: "너도 고대 주문을 찾으러 온 거지? 이 섬에 오는 마법사들은 모두 그래. 미로에 가고 싶다면 입구는 더 안쪽에 있어.",
+    ru: "Ты тоже пришел искать древние заклинания, не так ли? Каждый волшебник, который приходит на этот остров, делает это. Если хочешь попасть в лабиринт, вход дальше."
 };
 
-pub const SINGLEPLAY: Dict<&'static str> = Dict {
-    ja: "長い黒髪の魔女だって？うーん、この島でそんな魔女を見かけたことがある気がする。",
-    en: "A witch with long black hair? Hmm, I feel like I've seen such a witch on this island.",
-    zh_cn: "一个长发黑发的女巫？嗯，我觉得我在这个岛上见过这样的女巫。",
-    zh_tw: "一個長發黑發的女巫？嗯，我覺得我在這個島上見過這樣的女巫。",
-    es: "¿Una bruja con el pelo largo y negro? Hmm, siento que he visto a una bruja así en esta isla.",
-    fr: "Une sorcière aux longs cheveux noirs ? Hmm, je crois avoir vu une telle sorcière sur cette île.",
-    pt: "Uma bruxa de cabelos longos e pretos? Hmm, sinto que já vi uma bruxa assim nesta ilha.",
-    de: "Eine Hexe mit langen schwarzen Haaren? Hm, ich glaube, ich habe so eine Hexe auf dieser Insel gesehen.",
-    ko: "긴 검은 머리의 마녀? 음, 이 섬에서 그런 마녀를 본 적이 있는 것 같아.",
-    ru: "Ведьма с длинными черными волосами? Хм, кажется, я видел такую ведьму на этом острове.",
+pub const HELLO_RABBIT_2: Dict<&'static str> = Dict {
+    ja: "でもその前に、ぼくらの店に立ち寄るといい。迷宮で拾った呪文を売っているんだ。",
+    en: "But before that, you should stop by our shop. We sell spells picked up in the labyrinth.",
+    zh_cn: "但在那之前，你应该先去我们的商店看看。我们卖的是在迷宫里捡到的咒语。",
+    zh_tw: "但在那之前，你應該先去我們的商店看看。我們賣的是在迷宮裡撿到的咒語。",
+    es: "Pero antes de eso, deberías pasar por nuestra tienda. Vendemos hechizos recogidos en el laberinto.",
+    fr: "Mais avant cela, vous devriez passer par notre boutique. Nous vendons des sorts ramassés dans le labyrinthe.",
+    pt: "Mas antes disso, você deve passar pela nossa loja. Vendemos feitiços encontrados no labirinto.",
+    de: "Aber vorher solltest du in unserem Laden vorbeischauen. Wir verkaufen Zauber, die im Labyrinth gefunden wurden.",
+    ko: "하지만 그 전에 우리 가게에 들러봐. 우리는 미로에서 주운 주문을 팔고 있어.",
+    ru: "Но прежде чем идти, загляни в наш магазин. Мы продаем заклинания, найденные в лабиринте.",
 };
 
-pub const SINGLEPLAY_2: Dict<&'static str> = Dict {
-    ja: "その魔法陣が地下迷宮の入り口だよ。その探し人が見つかるように幸運を祈るよ。",
-    en: "That magic circle is the entrance to the underground labyrinth. I wish you luck in finding the person you're looking for.",
-    zh_cn: "那个魔法阵是地下迷宫的入口。祝你好运找到你要找的人。",
-    zh_tw: "那個魔法陣是地下迷宮的入口。祝你好運找到你要找的人。",
-    es: "Ese círculo mágico es la entrada al laberinto subterráneo. Te deseo suerte en encontrar a la persona que buscas.",
-    fr: "Ce cercle magique est l'entrée du labyrinthe souterrain. Je vous souhaite bonne chance pour trouver la personne que vous cherchez.",
-    pt: "Esse círculo mágico é a entrada para o labirinto subterrâneo. Desejo-lhe sorte em encontrar a pessoa que procura.",
-    de: "Dieser magische Kreis ist der Eingang zum unterirdischen Labyrinth. Ich wünsche dir viel Glück bei der Suche nach der Person, die du suchst.",
-    ko: "그 마법진이 지하 미로의 입구야. 찾고 있는 사람을 찾기를 바랄게.",
-    ru: "Этот магический круг - вход в подземный лабиринт. Желаю удачи в поисках того, кого ты ищешь.",
+pub const SINGLEPLAY_RABBIT_1: Dict<&'static str> = Dict {
+    ja: "その魔法陣が地下迷宮の入り口だよ。探しものが見つかるよう、幸運を祈るよ。",
+    en: "That magic circle is the entrance to the underground labyrinth. I wish you luck in finding what you're looking for.",
+    zh_cn: "那个魔法阵是地下迷宫的入口。祝你好运找到你要找的东西。",
+    zh_tw: "那個魔法陣是地下迷宮的入口。祝你好運找到你要找的東西。",
+    es: "Ese círculo mágico es la entrada al laberinto subterráneo. Te deseo suerte en encontrar lo que buscas.",
+    fr: "Ce cercle magique est l'entrée du labyrinthe souterrain. Je vous souhaite bonne chance pour trouver ce que vous cherchez.",
+    pt: "Esse círculo mágico é a entrada para o labirinto subterrâneo. Desejo-lhe sorte em encontrar o que procura.",
+    de: "Dieser magische Kreis ist der Eingang zum unterirdischen Labyrinth. Ich wünsche dir viel Glück bei der Suche nach dem, was du suchst.",
+    ko: "그 마법진이 지하 미로의 입구야. 찾고 있는 것을 찾기를 바랄게.",
+    ru: "Этот магический круг - вход в подземный лабиринт. Желаю удачи в поисках того, что ты ищешь.",
+};
+
+pub const SINGLEPLAY_RABBIT_2: Dict<&'static str> = Dict {
+    ja: "そうそう、最近迷宮の奥に大きなスライムが現れるようになってね。気を付けたほうがいいよ。",
+    en: "By the way, a huge slime has recently appeared deep in the labyrinth. You should be careful.",
+    zh_cn: "顺便说一下，最近在迷宫深处出现了一个巨大的史莱姆。你应该小心。",
+    zh_tw: "順便說一下，最近在迷宮深處出現了一個巨大的史萊姆。你應該小心。",
+    es: "Por cierto, recientemente ha aparecido un gran slime en lo profundo del laberinto. Deberías tener cuidado.",
+    fr: "Au fait, un énorme slime est récemment apparu au fond du labyrinthe. Vous devriez faire attention.",
+    pt: "A propósito, recentemente apareceu um grande slime no fundo do labirinto. Você deve ter cuidado.",
+    de: "Übrigens, tief im Labyrinth ist kürzlich ein riesiger Schleim aufgetaucht. Du solltest vorsichtig sein.",
+    ko: "그런데 최근에 미로 깊숙한 곳에 거대한 슬라임이 나타났어. 조심하는 게 좋아.",
+    ru: "Кстати, недавно в глубине лабиринта появился огромный слизень. Тебе следует быть осторожным.",
 };
 
 pub const RESERCH_RABBIT_0: Dict<&'static str> = Dict {
@@ -546,16 +560,16 @@ pub const HUGE_SLIME: Dict<&'static str> = Dict {
 // 地名 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 pub const LEVEL0: Dict<&'static str> = Dict {
-    ja: "見捨てられた工房",
-    en: "Abandoned Workshop",
-    zh_cn: "废弃的车间",
-    zh_tw: "廢棄的車間",
-    es: "Taller Abandonado",
-    fr: "Atelier Abandonné",
-    pt: "Oficina Abandonada",
-    de: "Verlassene Werkstatt",
-    ko: "버려진 작업장",
-    ru: "Заброшенная мастерская",
+    ja: "ウサギ族のキャンプ",
+    en: "Rabbit's Camp",
+    zh_cn: "兔子的营地",
+    zh_tw: "兔子的營地",
+    es: "Campamento de Conejos",
+    fr: "Camp des Lapins",
+    pt: "Acampamento dos Coelhos",
+    de: "Kaninchenlager",
+    ko: "토끼 캠프",
+    ru: "Лагерь кроликов",
 };
 
 pub const LEVEL1: Dict<&'static str> = Dict {

@@ -37,7 +37,7 @@ use uuid::Uuid;
 pub enum SpellCastEntityType {
     BookShelf,
     HugeSlime,
-    CrateOrBarrel,
+    Jar,
 }
 
 #[derive(Debug)]
@@ -298,8 +298,8 @@ pub fn cast_spell(
                             spawn.send(SpawnEntity::HugeSlime { position });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
-                        SpellCastEntityType::CrateOrBarrel => {
-                            spawn.send(SpawnEntity::CrateOrBarrel { position });
+                        SpellCastEntityType::Jar => {
+                            spawn.send(SpawnEntity::Jar { position });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                     }
