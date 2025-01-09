@@ -23,6 +23,7 @@ use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestType;
 use crate::entity::chest::CHEST_OR_BARREL;
+use crate::entity::chest::JARS;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::fireball::spawn_fireball;
 use crate::entity::magic_circle::spawn_magic_circle;
@@ -35,7 +36,8 @@ use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
 use crate::message::HELLO;
-use crate::message::HELLO_RABBITS;
+use crate::message::HELLO_RABBIT_1;
+use crate::message::HELLO_RABBIT_2;
 use crate::message::MULTIPLAY;
 use crate::message::RESERCH_RABBIT_0;
 use crate::message::RESERCH_RABBIT_1;
@@ -43,8 +45,8 @@ use crate::message::RESERCH_RABBIT_2;
 use crate::message::RESERCH_RABBIT_3;
 use crate::message::RESERCH_RABBIT_4;
 use crate::message::RESERCH_RABBIT_5;
-use crate::message::SINGLEPLAY;
-use crate::message::SINGLEPLAY_2;
+use crate::message::SINGLEPLAY_RABBIT_1;
+use crate::message::SINGLEPLAY_RABBIT_2;
 use crate::message::SPELL_LIST1;
 use crate::message::SPELL_LIST2;
 use crate::message::SPELL_LIST3;
@@ -126,6 +128,9 @@ pub enum SpawnEntity {
         position: Vec2,
     },
     CrateOrBarrel {
+        position: Vec2,
+    },
+    Jar {
         position: Vec2,
     },
     BookShelf {
@@ -230,6 +235,14 @@ pub fn spawn_entity(
                             .unwrap(),
                     );
                 }
+            }
+            SpawnEntity::Jar { position } => {
+                spawn_chest(
+                    &mut commands,
+                    assets.atlas.clone(),
+                    *position,
+                    *JARS.iter().choose(&mut rand::thread_rng()).unwrap(),
+                );
             }
             SpawnEntity::MagicCircle { position } => {
                 spawn_magic_circle(
@@ -336,8 +349,8 @@ pub fn spawn_entity(
                     *position,
                     MessageRabbit {
                         messages: vec![
-                            Act::Speech(SINGLEPLAY.to_string()),
-                            Act::Speech(SINGLEPLAY_2.to_string()),
+                            Act::Speech(SINGLEPLAY_RABBIT_1.to_string()),
+                            Act::Speech(SINGLEPLAY_RABBIT_2.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,
@@ -354,7 +367,8 @@ pub fn spawn_entity(
                         messages: vec![
                             Act::BGM(Some(assets.saihate.clone())),
                             Act::Speech(HELLO.to_string()),
-                            Act::Speech(HELLO_RABBITS.to_string()),
+                            Act::Speech(HELLO_RABBIT_1.to_string()),
+                            Act::Speech(HELLO_RABBIT_2.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,
