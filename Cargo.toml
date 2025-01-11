@@ -30,6 +30,7 @@ debug = []
 debug_command = []
 save = []
 ingame = []
+opening = []
 default = ["debug_command"]
 
 [dependencies]
@@ -58,7 +59,7 @@ default-features = false
 # https://docs.rs/crate/bevy/latest/features
 features = [
     # "android_shared_stdcxx",
-    # "animation",
+    "animation",
     "bevy_asset",
     "bevy_audio",
     "bevy_color",

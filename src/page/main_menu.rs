@@ -396,7 +396,7 @@ fn read_events(
                 }
                 menu_next_state.set(MainMenuPhase::Paused);
                 writer.send(SEEvent::new(SE::Click));
-                overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
+                overlay_event_writer.send(OverlayEvent::Close(GameState::Opening));
                 *next_bgm = NextBGM(None);
             }
         }
