@@ -58,7 +58,10 @@ fn setup(
     assets: Res<GameAssets>,
     shots: Res<ButtonShots>,
     config: Res<GameConfig>,
+    mut overlay: EventWriter<OverlayEvent>,
 ) {
+    overlay.send(OverlayEvent::SetOpen(true));
+
     commands.spawn((Camera2d::default(), StateScoped(GameState::NameInput)));
 
     commands

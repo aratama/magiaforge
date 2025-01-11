@@ -84,7 +84,6 @@ fn update_overlay(
         match overlay.next {
             Some(next) => {
                 next_state.set(next);
-                overlay.open = true;
             }
             _ => {}
         }

@@ -8,6 +8,7 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
+use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
@@ -108,7 +109,10 @@ pub fn setup_level(
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntity>,
     mut next: ResMut<NextState<GameMenuState>>,
+    mut overlay: EventWriter<OverlayEvent>,
 ) {
+    overlay.send(OverlayEvent::SetOpen(true));
+
     let mut rng = StdRng::from_entropy();
 
     let level = current.next_level;

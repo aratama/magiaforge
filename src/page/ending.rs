@@ -8,7 +8,14 @@ use bevy_aseprite_ultra::prelude::AseUiAnimation;
 #[derive(Component)]
 pub struct EndingImage;
 
-fn setup(mut commands: Commands, assets: Res<GameAssets>, mut next_bgm: ResMut<NextBGM>) {
+fn setup(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    mut next_bgm: ResMut<NextBGM>,
+    mut overlay: EventWriter<OverlayEvent>,
+) {
+    overlay.send(OverlayEvent::SetOpen(true));
+
     commands.spawn((StateScoped(GameState::Ending), Camera2d::default()));
 
     next_bgm.0 = Some(assets.ending_bgm.clone());

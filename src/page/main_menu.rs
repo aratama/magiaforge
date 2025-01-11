@@ -47,7 +47,10 @@ fn setup(
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
     mut current: ResMut<LevelSetup>,
+    mut overlay: EventWriter<OverlayEvent>,
 ) {
+    overlay.send(OverlayEvent::SetOpen(true));
+
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
