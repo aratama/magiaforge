@@ -9,10 +9,10 @@ use bevy::animation::{animated_field, AnimationTarget, AnimationTargetId};
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::{AnimationState, AseSpriteAnimation};
 
-const FADE_IN: f32 = 5.0;
+const FADE_IN: f32 = 3.0;
 const CRY: f32 = FADE_IN + 5.0;
 const APPEAR: f32 = CRY + 2.0;
-const TURN: f32 = APPEAR + 2.0;
+const TURN: f32 = APPEAR + 1.0;
 const ATTACK: f32 = TURN + 2.0;
 const HIT: f32 = ATTACK + 0.2;
 const FADE_OUT: f32 = HIT + 3.0;
@@ -88,75 +88,54 @@ fn setup_witch(
 
     let mut animation = AnimationClip::default();
 
+    let mut translation_samples = vec![(0.0, Vec3::new(0.0, 0.0, 0.0))];
+
+    // 浮遊アニメーション
+    // 0.1秒刻みで HIT までキーフレームを打つ
+    for i in 0..(HIT * 10.0).floor() as usize {
+        translation_samples.push((
+            0.1 * i as f32,
+            Vec3::new(
+                0.0 + (i as f32 * 0.1).cos() * 10.0,
+                -20.0 + (i as f32 * 0.37).cos() * 5.0,
+                0.0,
+            ),
+        ));
+    }
+
+    // 落下アニメーション
+    translation_samples.push((HIT, Vec3::new(0.0, 0.0, 0.0)));
+    translation_samples.push((HIT + 2.0, Vec3::new(0.0, -120.0, 0.0)));
+
     animation.add_curve_to_target(
         animation_target_id,
         AnimatableCurve::new(
             animated_field!(Transform::translation),
-            UnevenSampleAutoCurve::new([
-                (0.0, Vec3::new(0.0, 0.0, 0.0)),
-                (HIT, Vec3::new(0.0, 0.0, 0.0)),
-                (HIT + 2.0, Vec3::new(0.0, -120.0, 0.0)),
-            ])
-            .expect("should be able to build translation curve because we pass in valid samples"),
+            UnevenSampleAutoCurve::new(translation_samples).expect(
+                "should be able to build translation curve because we pass in valid samples",
+            ),
         ),
     );
-    let rot = 0.6;
+
+    let mut rotation_samples: Vec<(f32, Quat)> =
+        vec![(0.0, Quat::from_rotation_z(f32::consts::PI * 0.0))];
+
+    // 攻撃の瞬間から回転アニメーションを開始
+    // 0.5 * PI づつキーフレームを打たないとうまく回転が補間されないことに注意
+    for i in 0..12 {
+        rotation_samples.push((
+            HIT + 0.6 * i as f32,
+            Quat::from_rotation_z(f32::consts::PI * 0.5 * i as f32),
+        ));
+    }
+
     animation.add_curve_to_target(
         animation_target_id,
         AnimatableCurve::new(
             animated_field!(Transform::rotation),
-            UnevenSampleAutoCurve::new([
-                (0.0, Quat::from_rotation_z(f32::consts::PI * 0.0)),
-                (
-                    HIT + rot * 0.0,
-                    Quat::from_rotation_z(f32::consts::PI * 0.0),
-                ),
-                (
-                    HIT + rot * 1.0,
-                    Quat::from_rotation_z(f32::consts::PI * 0.5),
-                ),
-                (
-                    HIT + rot * 2.0,
-                    Quat::from_rotation_z(f32::consts::PI * 1.0),
-                ),
-                (
-                    HIT + rot * 3.0,
-                    Quat::from_rotation_z(f32::consts::PI * 1.5),
-                ),
-                (
-                    HIT + rot * 4.0,
-                    Quat::from_rotation_z(f32::consts::PI * 2.0),
-                ),
-                (
-                    HIT + rot * 5.0,
-                    Quat::from_rotation_z(f32::consts::PI * 2.5),
-                ),
-                (
-                    HIT + rot * 6.0,
-                    Quat::from_rotation_z(f32::consts::PI * 3.0),
-                ),
-                (
-                    HIT + rot * 7.0,
-                    Quat::from_rotation_z(f32::consts::PI * 3.5),
-                ),
-                (
-                    HIT + rot * 8.0,
-                    Quat::from_rotation_z(f32::consts::PI * 4.0),
-                ),
-                (
-                    HIT + rot * 9.0,
-                    Quat::from_rotation_z(f32::consts::PI * 4.5),
-                ),
-                (
-                    HIT + rot * 10.0,
-                    Quat::from_rotation_z(f32::consts::PI * 5.0),
-                ),
-                (
-                    HIT + rot * 11.0,
-                    Quat::from_rotation_z(f32::consts::PI * 5.5),
-                ),
-            ])
-            .expect("should be able to build translation curve because we pass in valid samples"),
+            UnevenSampleAutoCurve::new(rotation_samples).expect(
+                "should be able to build translation curve because we pass in valid samples",
+            ),
         ),
     );
 
@@ -244,11 +223,6 @@ fn setup_raven(
     animation.add_event(APPEAR + 1.0, OpeningEvent::SE(SE::DragonFlutter));
     animation.add_event(APPEAR + 2.0, OpeningEvent::SE(SE::DragonFlutter));
     animation.add_event(APPEAR + 3.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 4.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 5.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 6.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 7.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 8.0, OpeningEvent::SE(SE::DragonFlutter));
     animation.add_event(
         ATTACK,
         OpeningEvent::Animate {

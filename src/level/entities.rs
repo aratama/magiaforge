@@ -35,9 +35,10 @@ use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
-use crate::message::HELLO;
+use crate::message::HELLO_RABBIT_0;
 use crate::message::HELLO_RABBIT_1;
 use crate::message::HELLO_RABBIT_2;
+use crate::message::HELLO_RABBIT_3;
 use crate::message::MULTIPLAY;
 use crate::message::RESERCH_RABBIT_0;
 use crate::message::RESERCH_RABBIT_1;
@@ -366,9 +367,10 @@ pub fn spawn_entity(
                     MessageRabbit {
                         messages: vec![
                             Act::BGM(Some(assets.saihate.clone())),
-                            Act::Speech(HELLO.to_string()),
+                            Act::Speech(HELLO_RABBIT_0.to_string()),
                             Act::Speech(HELLO_RABBIT_1.to_string()),
                             Act::Speech(HELLO_RABBIT_2.to_string()),
+                            Act::Speech(HELLO_RABBIT_3.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,

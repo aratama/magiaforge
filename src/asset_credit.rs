@@ -10,12 +10,13 @@ pub struct AssetCredit {
 
 pub fn asset_to_credit(handle: &Handle<AudioSource>) -> AssetCredit {
     if let Some(path) = handle.path() {
-        match path
+        let name = path
             .path()
             .file_stem()
             .and_then(|s| s.to_str())
-            .unwrap_or("")
-        {
+            .unwrap_or("");
+
+        match name {
             // 拠点
             "茫漠たる庭" => AssetCredit {
                 authoer: "のる",
@@ -33,6 +34,13 @@ pub fn asset_to_credit(handle: &Handle<AudioSource>) -> AssetCredit {
             "最果てのルージュ" => AssetCredit {
                 authoer: "のる",
                 title: "最果てのルージュ",
+                appendix: "",
+            },
+
+            // オープニング
+            "風が吹く1" => AssetCredit {
+                authoer: "",
+                title: "",
                 appendix: "",
             },
 

@@ -185,44 +185,56 @@ pub const SORT: Dict<&'static str> = Dict {
     ru: "Сортировать",
 };
 
-pub const HELLO: Dict<&'static str> = Dict {
+pub const HELLO_RABBIT_0: Dict<&'static str> = Dict {
     ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
-    en: "Oh, you are a wizard. This is our merchant camp. Visitors are welcome.",
-    zh_cn: "哦，你是个巫师。这是我们的商人营地。欢迎来访。",
-    zh_tw: "哦，你是個巫師。這是我們的商人營地。歡迎來訪。",
+    en: "Oh, you are a mage. This is our merchant camp. Visitors are welcome.",
+    zh_cn: "哦，你是一个法师。这是我们的商人营地。欢迎来访。",
+    zh_tw: "哦，你是一個法師。這是我們的商人營地。歡迎來訪。",
     es: "Oh, eres un mago. Este es nuestro campamento de comerciantes. Los visitantes son bienvenidos.",
-    fr: "Oh, vous êtes un sorcier. C'est notre camp de marchands. Les visiteurs sont les bienvenus.",
+    fr: "Oh, vous êtes un mage. C'est notre camp de marchands. Les visiteurs sont les bienvenus.",
     pt: "Oh, você é um mago. Este é o nosso acampamento de comerciantes. Visitantes são bem-vindos.",
-    de: "Oh, du bist ein Zauberer. Dies ist unser Händlerlager. Besucher sind willkommen.",
-    ko: "오, 당신은 마법사군요. 여기는 우리 상인 캠프입니다. 방문객을 환영합니다.",
-    ru: "О, вы волшебник. Это наш лагерь торговцев. Посетители приветствуются.",
-
+    de: "Oh, du bist ein Magier. Dies ist unser Händlerlager. Besucher sind willkommen.",
+    ko: "오, 당신은 마법사군요. 여기는 우리의 상인 캠프입니다. 방문객을 환영합니다.",
+    ru: "О, вы маг. Это наш лагерь торговцев. Посетители приветствуются.",
 };
 
 pub const HELLO_RABBIT_1: Dict<&'static str> = Dict {
-    ja: "きみも古代の呪文を探しに来たんだろう？この島に来る魔法使いはみんなそうさ。迷宮に行きたいなら入り口はこの奥だよ。",
-    en: "You came to find ancient spells too, didn't you? Every wizard who comes to this island does. If you want to go to the labyrinth, the entrance is further in.",
-    zh_cn: "你也是来寻找古代咒语的吧？每个来到这个岛的巫师都是。如果你想去迷宫，入口在里面。",
-    zh_tw: "你也是來尋找古代咒語的吧？每個來到這個島的巫師都是。如果你想去迷宮，入口在裡面。",
-    es: "¿También viniste a buscar hechizos antiguos, verdad? Todos los magos que vienen a esta isla lo hacen. Si quieres ir al laberinto, la entrada está más adentro.",
-    fr: "Vous êtes venu chercher des sorts anciens, n'est-ce pas ? Tous les sorciers qui viennent sur cette île le font. Si vous voulez aller dans le labyrinthe, l'entrée est plus loin.",
-    pt: "Você também veio procurar feitiços antigos, não é? Todo mago que vem a esta ilha faz isso. Se você quiser ir ao labirinto, a entrada está mais adiante.",
-    de: "Du bist auch hier, um alte Zauber zu finden, nicht wahr? Jeder Zauberer, der auf diese Insel kommt, tut das. Wenn du in das Labyrinth gehen willst, ist der Eingang weiter drinnen.",
-    ko: "너도 고대 주문을 찾으러 온 거지? 이 섬에 오는 마법사들은 모두 그래. 미로에 가고 싶다면 입구는 더 안쪽에 있어.",
-    ru: "Ты тоже пришел искать древние заклинания, не так ли? Каждый волшебник, который приходит на этот остров, делает это. Если хочешь попасть в лабиринт, вход дальше."
+    ja: "通りすがりに大鴉に襲われた？それは災難だったね。おそらくはこの島に住む『漆黒の魔女』の使い魔のしわざだろう。",
+    en: "You were attacked by a large raven on the way? That's unfortunate. It was probably the work of the 'Black Witch' who lives on this island.",
+    zh_cn: "你在路上被一只大乌鸦袭击了？那真是不幸。可能是住在这个岛上的“黑女巫”的使魔干的。",
+    zh_tw: "你在路上被一隻大烏鴉襲擊了？那真是不幸。可能是住在這個島上的“黑女巫”的使魔幹的。",
+    es: "¿Fuiste atacado por un gran cuervo en el camino aquí? Eso es desafortunado. Probablemente fue obra de la 'Bruja Negra' que vive en esta isla.",
+    fr: "Vous avez été attaqué par un grand corbeau en venant ici ? C'est malheureux. C'était probablement l'œuvre de la 'Sorcière Noire' qui vit sur cette île.",
+    pt: "Você foi atacado por um grande corvo no caminho para cá? Isso é lamentável. Provavelmente foi obra da 'Bruxa Negra' que vive nesta ilha.",
+    de: "Wurden Sie auf dem Weg hierher von einem großen Raben angegriffen? Das ist bedauerlich. Es war wahrscheinlich das Werk der 'Schwarzen Hexe', die auf dieser Insel lebt.",
+    ko: "여기 오는 길에 큰 까마귀에게 공격당했어? 그것 참 불운하군. 아마도 이 섬에 사는 '검은 마녀'의 소행일 거야.",
+    ru: "Тебя по пути сюда атаковал большой ворон? Это неудача. Вероятно, это дело рук 'Черной Ведьмы', которая живет на этом острове."
 };
 
 pub const HELLO_RABBIT_2: Dict<&'static str> = Dict {
-    ja: "でもその前に、ぼくらの店に立ち寄るといい。迷宮で拾った呪文を売っているんだ。",
-    en: "But before that, you should stop by our shop. We sell spells picked up in the labyrinth.",
-    zh_cn: "但在那之前，你应该先去我们的商店看看。我们卖的是在迷宫里捡到的咒语。",
-    zh_tw: "但在那之前，你應該先去我們的商店看看。我們賣的是在迷宮裡撿到的咒語。",
-    es: "Pero antes de eso, deberías pasar por nuestra tienda. Vendemos hechizos recogidos en el laberinto.",
-    fr: "Mais avant cela, vous devriez passer par notre boutique. Nous vendons des sorts ramassés dans le labyrinthe.",
-    pt: "Mas antes disso, você deve passar pela nossa loja. Vendemos feitiços encontrados no labirinto.",
-    de: "Aber vorher solltest du in unserem Laden vorbeischauen. Wir verkaufen Zauber, die im Labyrinth gefunden wurden.",
-    ko: "하지만 그 전에 우리 가게에 들러봐. 우리는 미로에서 주운 주문을 팔고 있어.",
-    ru: "Но прежде чем идти, загляни в наш магазин. Мы продаем заклинания, найденные в лабиринте.",
+    ja: "我々では折れた箒の修理はできないな。この島の迷宮に行けば、修理の役に立つ呪文があるかもしれない。迷宮の入り口はこの奥だよ。",
+    en: "We can't repair a broken broom. If you go to the labyrinth on this island, you might find a spell that can help with the repair. The entrance to the labyrinth is further in.",
+    zh_cn: "我们无法修理破损的扫帚。如果你去这个岛上的迷宫，你可能会找到有助于修理的咒语。迷宫的入口在里面。",
+    zh_tw: "我們無法修理破損的掃帚。如果你去這個島上的迷宮，你可能會找到有助於修理的咒語。迷宮的入口在裡面。",
+    es: "No podemos reparar una escoba rota. Si vas al laberinto en esta isla, podrías encontrar un hechizo que pueda ayudar con la reparación. La entrada al laberinto está más adentro.",
+    fr: "Nous ne pouvons pas réparer un balai cassé. Si vous allez dans le labyrinthe de cette île, vous pourriez trouver un sort qui peut aider à la réparation. L'entrée du labyrinthe est plus loin.",
+    pt: "Não podemos consertar uma vassoura quebrada. Se você for ao labirinto nesta ilha, pode encontrar um feitiço que pode ajudar no conserto. A entrada do labirinto está mais adiante.",
+    de: "Wir können keinen kaputten Besen reparieren. Wenn du in das Labyrinth auf dieser Insel gehst, findest du vielleicht einen Zauber, der bei der Reparatur hilft. Der Eingang zum Labyrinth ist weiter drinnen.",
+    ko: "우리는 부러진 빗자루를 고칠 수 없어. 이 섬의 미로에 가면 수리에 도움이 되는 주문을 찾을 수 있을 거야. 미로의 입구는 더 안쪽에 있어.",
+    ru: "Мы не можем починить сломанное метлу. Если ты пойдешь в лабиринт на этом острове, возможно, найдешь заклинание, которое поможет с ремонтом. Вход в лабиринт дальше."
+};
+
+pub const HELLO_RABBIT_3: Dict<&'static str> = Dict {
+    ja: "迷宮に行く前に、ぼくらの店に立ち寄るといい。迷宮で拾った呪文を売っているんだ。",
+    en: "Before going to the labyrinth, you should stop by our shop. We sell spells that we found in the labyrinth.",
+    zh_cn: "在去迷宫之前，你应该先去我们的商店。我们出售在迷宫中找到的咒语。",
+    zh_tw: "在去迷宮之前，你應該先去我們的商店。我們出售在迷宮中找到的咒語。",
+    es: "Antes de ir al laberinto, deberías pasar por nuestra tienda. Vendemos hechizos que encontramos en el laberinto.",
+    fr: "Avant d'aller dans le labyrinthe, vous devriez passer par notre boutique. Nous vendons des sorts que nous avons trouvés dans le labyrinthe.",
+    pt: "Antes de ir ao labirinto, você deve passar pela nossa loja. Vendemos feitiços que encontramos no labirinto.",
+    de: "Bevor du in das Labyrinth gehst, solltest du in unserem Laden vorbeischauen. Wir verkaufen Zauber, die wir im Labyrinth gefunden haben.",
+    ko: "미로에 가기 전에 우리 가게에 들르는 것이 좋아. 우리는 미로에서 발견한 주문을 팔고 있어.",
+    ru: "Перед тем как идти в лабиринт, тебе стоит заглянуть в наш магазин. Мы продаем заклинания, которые нашли в лабиринте.",
 };
 
 pub const SINGLEPLAY_RABBIT_1: Dict<&'static str> = Dict {
