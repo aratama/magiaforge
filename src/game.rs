@@ -63,6 +63,7 @@ use crate::page::ending::EndingPlugin;
 use crate::page::in_game::WorldPlugin;
 use crate::page::main_menu::MainMenuPlugin;
 use crate::page::name_input::NameInputPagePlugin;
+use crate::page::opening::OpeningPlugin;
 use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
@@ -235,6 +236,7 @@ pub fn run_game() {
         .add_plugins(NameInputPagePlugin)
         .add_plugins(OnPressPlugin)
         .add_plugins(OverlayPlugin)
+        .add_plugins(OpeningPlugin)
         .add_plugins(PlayerListPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(PlayerStatePlugin)
@@ -282,6 +284,8 @@ pub fn run_game() {
                     // Setupステートでの初期化が完了した直後に遷移する先のステート
                     if cfg!(feature = "ingame") {
                         GameState::InGame
+                    } else if cfg!(feature = "opening") {
+                        GameState::Opening
                     } else {
                         GameState::MainMenu
                     },

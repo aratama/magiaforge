@@ -38,6 +38,9 @@ pub struct GameAssets {
     #[asset(path = "image/title_cloud2.aseprite")]
     pub title_cloud2: Handle<Aseprite>,
 
+    #[asset(path = "image/opening.aseprite")]
+    pub opening: Handle<Aseprite>,
+
     #[asset(path = "image/ending.aseprite")]
     pub ending: Handle<Aseprite>,
 
@@ -81,6 +84,9 @@ pub struct GameAssets {
 
     #[asset(path = "entity/huge_slime_shadow.aseprite")]
     pub huge_slime_shadow: Handle<Aseprite>,
+
+    #[asset(path = "entity/raven.aseprite")]
+    pub raven: Handle<Aseprite>,
 
     // ウサギ //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -212,6 +218,18 @@ pub struct GameAssets {
 
     #[asset(path = "audio/コルク栓を抜く1.ogg")]
     pub sen: Handle<AudioSource>,
+
+    #[asset(path = "audio/風が吹く1.ogg")]
+    pub kaze: Handle<AudioSource>,
+
+    #[asset(path = "audio/ドラゴンの鳴き声2.ogg")]
+    pub dragon: Handle<AudioSource>,
+
+    #[asset(path = "audio/ドラゴンの羽ばたき.ogg")]
+    pub dragon_flutter: Handle<AudioSource>,
+
+    #[asset(path = "audio/倒れる.ogg")]
+    pub taoreru: Handle<AudioSource>,
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BGM //////////////////////////////////////////////////////////////////////////////////////////////////////////

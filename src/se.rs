@@ -55,6 +55,9 @@ pub enum SE {
     Zombie,
     Kamae,
     Sen,
+    Dragon,
+    DragonFlutter,
+    Taoreru,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -120,6 +123,9 @@ fn se_events(
             SE::Zombie => &assets.zombie,
             SE::Kamae => &assets.kamae,
             SE::Sen => &assets.sen,
+            SE::Dragon => &assets.dragon,
+            SE::DragonFlutter => &assets.dragon_flutter,
+            SE::Taoreru => &assets.taoreru,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

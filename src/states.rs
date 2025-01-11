@@ -16,6 +16,9 @@ pub enum GameState {
     /// タイトル画面
     MainMenu,
 
+    /// オープニング
+    Opening,
+
     /// 通常のプレイ画面
     InGame,
 

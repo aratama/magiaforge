@@ -7,6 +7,7 @@ const SPEED: f32 = 0.02;
 #[derive(Event)]
 pub enum OverlayEvent {
     Close(GameState),
+    SetOpen(bool),
 }
 
 #[derive(Component, Debug)]
@@ -49,6 +50,9 @@ fn read_overlay_event(mut query: Query<&mut Overlay>, mut reader: EventReader<Ov
                 overlay.open = false;
                 overlay.next = Some(*next);
                 overlay.wait = 30;
+            }
+            OverlayEvent::SetOpen(open) => {
+                overlay.open = *open;
             }
         }
     }
@@ -99,6 +103,7 @@ impl Plugin for OverlayPlugin {
                 update_overlay.after(read_overlay_event).run_if(
                     in_state(GameState::InGame)
                         .or(in_state(GameState::MainMenu))
+                        .or(in_state(GameState::Opening))
                         .or(in_state(GameState::NameInput))
                         .or(in_state(GameState::Warp))
                         .or(in_state(GameState::Ending)),
