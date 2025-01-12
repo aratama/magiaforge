@@ -7,6 +7,7 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 
+use super::appearance::TileSprite;
 use super::tile::Tile;
 
 pub const WALL_HEIGHT_IN_TILES: u32 = 2;
@@ -182,6 +183,7 @@ fn spawn_autotile<T: Component>(
     let x = TILE_SIZE * xi as f32 + TILE_HALF * dx as f32;
     let y = (TILE_SIZE * -yi as f32) + TILE_HALF * -dy as f32 + y_offset;
     commands.spawn((
+        TileSprite((xi, yi)),
         Name::new(prefix[0].clone()),
         StateScoped(GameState::InGame),
         Transform::from_xyz(x, y, z),

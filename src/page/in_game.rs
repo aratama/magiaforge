@@ -12,7 +12,9 @@ use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
-use crate::level::appearance::spawn_level_appearance;
+use crate::level::appearance::read_level_chunk_data;
+use crate::level::appearance::spawn_world_tilemap;
+use crate::level::biome::Biome;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEnemyType;
@@ -123,14 +125,19 @@ pub fn setup_level(
         next.set(GameMenuState::PlayerInActive);
     }
 
+    // 画像データからレベルの情報を選択して読み取ります
+    let chunk = read_level_chunk_data(&level_aseprites, &images, &assets, level, &mut rng);
+
     // レベルの外観を生成します
-    let chunk = spawn_level_appearance(
+    spawn_world_tilemap(
         &mut commands,
-        &level_aseprites,
-        &images,
         &assets,
-        level,
-        &mut rng,
+        &chunk,
+        // バイオームをハードコーディングしているけどこれでいい？
+        match level {
+            GameLevel::Level(2) => Biome::Grassland,
+            _ => Biome::StoneTile,
+        },
     );
 
     // エントリーポイントを選択
@@ -435,7 +442,6 @@ impl Plugin for WorldPlugin {
                 .run_if(in_state(GameState::InGame))
                 .before(PhysicsSet::SyncBackend),
         );
-
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.init_resource::<LevelSetup>();

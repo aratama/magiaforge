@@ -15,9 +15,12 @@ use bevy_aseprite_ultra::prelude::*;
 use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 
-/// 床や壁の外観(スプライト)を生成します
-pub fn spawn_level_appearance(
-    mut commands: &mut Commands,
+#[derive(Component)]
+pub struct TileSprite(pub (i32, i32));
+
+/// レベルの番号を指定して、画像データからレベル情報を取得します
+/// このとき、該当するレベルの複数のスライスからランダムにひとつが選択されます、
+pub fn read_level_chunk_data(
     level_aseprites: &Res<Assets<Aseprite>>,
     images: &Res<Assets<Image>>,
     assets: &Res<GameAssets>,
@@ -48,17 +51,6 @@ pub fn spawn_level_appearance(
         slice.rect.max.y as i32,
     );
 
-    spawn_world_tilemap(
-        &mut commands,
-        &assets,
-        &chunk,
-        // バイオームをハードコーディングしているけどこれでいい？
-        match level {
-            GameLevel::Level(2) => Biome::Grassland,
-            _ => Biome::StoneTile,
-        },
-    );
-
     return chunk;
 }
 
@@ -68,7 +60,8 @@ struct FoamTile;
 #[derive(Component)]
 struct CeilmTile;
 
-fn spawn_world_tilemap(
+/// 床や壁の外観(スプライト)を生成します
+pub fn spawn_world_tilemap(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     chunk: &LevelChunk,
@@ -104,6 +97,7 @@ fn spawn_world_tilemap(
                         || chunk.is_visible_ceil(x, y - 1, 1, Tile::Wall, Tile::Wall)
                     {
                         commands.spawn((
+                            TileSprite((x, y)),
                             AseSpriteSlice {
                                 aseprite: assets.atlas.clone(),
                                 name: "stone_wall".to_string(),
@@ -140,6 +134,7 @@ fn spawn_world_tilemap(
                     // 網状の泡の明るいほう
                     let index = rand::random::<u32>() % 2;
                     commands.spawn((
+                        TileSprite((x, y)),
                         AnimatedSlice {
                             slices: (0..4)
                                 .map(|i| format!("water_mesh_lighter_{}_{}", index, i))
@@ -159,6 +154,7 @@ fn spawn_world_tilemap(
 
                     // 網状の泡
                     commands.spawn((
+                        TileSprite((x, y)),
                         AseSpriteSlice {
                             aseprite: assets.atlas.clone(),
                             name: format!("water_mesh_{}", rand::random::<u32>() % 2).to_string(),
@@ -179,6 +175,7 @@ fn spawn_stone_tile(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y
     let r = rand::random::<u32>() % 3;
     let slice = format!("stone_tile{}", r);
     commands.spawn((
+        TileSprite((x, y)),
         Name::new("stone_tile"),
         StateScoped(GameState::InGame),
         Transform::from_translation(Vec3::new(
@@ -207,6 +204,7 @@ fn spawn_ceil_for_blank(
     // 壁
     if !chunk.equals(x as i32, y as i32 + 1, Tile::Wall) {
         commands.spawn((
+            TileSprite((x, y)),
             Name::new("wall"),
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(tx, ty, tz)),
@@ -242,6 +240,7 @@ fn spawn_ceil_for_blank(
 fn spawn_grassland(mut commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
     let left_top = Vec2::new(x as f32 * TILE_SIZE, y as f32 * -TILE_SIZE);
     commands.spawn((
+        TileSprite((x, y)),
         Name::new("grassland"),
         StateScoped(GameState::InGame),
         Transform::from_translation(left_top.extend(FLOOR_LAYER_Z)),
