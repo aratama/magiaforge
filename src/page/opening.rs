@@ -7,7 +7,7 @@ use crate::states::GameState;
 use crate::{asset::GameAssets, se::SEEvent};
 use bevy::animation::{animated_field, AnimationTarget, AnimationTargetId};
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AnimationState, AseSpriteAnimation};
+use bevy_aseprite_ultra::prelude::{AnimationState, AseSpriteAnimation, Aseprite};
 
 const FADE_IN: f32 = 3.0;
 const CRY: f32 = FADE_IN + 5.0;
@@ -61,6 +61,7 @@ fn setup(
         },
     ));
 
+    // 背景の空と月
     commands.spawn((
         Name::new("background"),
         StateScoped(GameState::Opening),
@@ -68,12 +69,88 @@ fn setup(
             aseprite: assets.opening.clone(),
             animation: "default".into(),
         },
-        Transform::from_xyz(0.0, 0.0, -100.0),
+        Transform::from_xyz(0.0, 0.0, -200.0),
     ));
+
+    setup_cloud(
+        &mut commands,
+        &assets.title_cloud,
+        &mut animations,
+        &mut graphs,
+        // 雲が左右に流れるアニメーション
+        // 幅1024ピクセルで、画面幅が320ピクセルなので、
+        vec![
+            (0.0, Vec3::new(320.0, 0.0, -1.0)),
+            (3.0, Vec3::new(320.0, 0.0, -1.0)),
+            (18.0, Vec3::new(-320.0, 0.0, -1.0)),
+        ],
+    );
+
+    setup_cloud(
+        &mut commands,
+        &assets.title_cloud2,
+        &mut animations,
+        &mut graphs,
+        // 雲が左右に流れるアニメーション
+        // 幅1024ピクセルで、画面幅が320ピクセルなので、320から-320で動かす
+        vec![
+            (0.0, Vec3::new(320.0, 0.0, -2.0)),
+            (3.0, Vec3::new(320.0, 0.0, -2.0)),
+            (32.0, Vec3::new(-320.0, 0.0, -2.0)),
+        ],
+    );
 
     setup_witch(&mut commands, &assets, &mut animations, &mut graphs);
 
     setup_raven(&mut commands, &assets, &mut animations, &mut graphs);
+}
+
+fn setup_cloud(
+    commands: &mut Commands,
+    assets: &Handle<Aseprite>,
+    animations: &mut ResMut<Assets<AnimationClip>>,
+    graphs: &mut ResMut<Assets<AnimationGraph>>,
+    translation_samples: Vec<(f32, Vec3)>,
+) {
+    let name = Name::new("cloud");
+
+    let animation_target_id = AnimationTargetId::from_name(&name);
+
+    let mut animation = AnimationClip::default();
+
+    animation.add_curve_to_target(
+        animation_target_id,
+        AnimatableCurve::new(
+            animated_field!(Transform::translation),
+            UnevenSampleAutoCurve::new(translation_samples).expect(
+                "should be able to build translation curve because we pass in valid samples",
+            ),
+        ),
+    );
+
+    let (graph, animation_index) = AnimationGraph::from_clip(animations.add(animation));
+
+    let mut player = AnimationPlayer::default();
+    player.play(animation_index);
+
+    let entity = commands
+        .spawn((
+            name,
+            StateScoped(GameState::Opening),
+            AseSpriteAnimation {
+                aseprite: assets.clone(),
+                animation: "default".into(),
+            },
+            Transform::default(),
+            AnimationGraphHandle(graphs.add(graph)),
+            player,
+        ))
+        .id();
+
+    commands.entity(entity).insert(AnimationTarget {
+        id: animation_target_id,
+        player: entity,
+    });
 }
 
 fn setup_witch(
