@@ -17,15 +17,14 @@ use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::states::TimeState;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
@@ -564,15 +563,14 @@ impl Plugin for ActorPlugin {
         app.register_type::<Actor>();
         app.add_event::<ActorEvent>();
         app.add_systems(
-            Update,
-            (update_sprite_flip, update_actor_light)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
-        );
-        app.add_systems(
             FixedUpdate,
-            (apply_external_force, fire_bullet)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+            (
+                update_sprite_flip,
+                update_actor_light,
+                apply_external_force,
+                fire_bullet,
+            )
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

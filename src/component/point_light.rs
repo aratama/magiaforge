@@ -1,9 +1,8 @@
+use crate::set::{FixedUpdateGameActiveSet, FixedUpdateInGameSet};
 use crate::states::GameState;
-use crate::states::TimeState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-use bevy_rapier2d::prelude::*;
 
 /// 他のエンティティに付加する形で、点光源を表します
 /// PointLight2Dは一般には他のコンポーネントの子として追加できないため、
@@ -101,16 +100,10 @@ pub struct EntityPointLightPlugin;
 impl Plugin for EntityPointLightPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (update_transform, update_intensity)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
-        );
-        app.add_systems(
             FixedUpdate,
-            (spawn, despawn)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (update_transform, update_intensity).in_set(FixedUpdateGameActiveSet),
         );
+        app.add_systems(FixedUpdate, (spawn, despawn).in_set(FixedUpdateInGameSet));
         app.register_type::<EntityPointLight>();
     }
 }

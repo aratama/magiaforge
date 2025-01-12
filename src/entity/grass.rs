@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::component::entity_depth::EntityDepth;
 use crate::constant::*;
 use crate::entity::fire::Burnable;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -70,12 +71,7 @@ pub struct GrassPlugin;
 
 impl Plugin for GrassPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            burnout
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, burnout.in_set(FixedUpdateGameActiveSet));
         app.register_type::<Grasses>();
     }
 }

@@ -6,12 +6,11 @@ use crate::entity::explosion::ExplosionPointLight;
 use crate::entity::explosion::EXPLOSION_COUNT;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::states::TimeState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy_light_2d::light::AmbientLight2d;
-use bevy_rapier2d::plugin::PhysicsSet;
 
 #[derive(Component)]
 pub struct GameCamera {
@@ -162,9 +161,7 @@ impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (update_camera_position, update_camera_brightness)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+            (update_camera_position, update_camera_brightness).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

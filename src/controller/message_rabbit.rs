@@ -5,7 +5,7 @@ use crate::physics::identify;
 use crate::physics::identify_item;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::physics::IdentifiedCollisionItem;
-use crate::states::GameState;
+use crate::set::FixedUpdateInGameSet;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
 use bevy::prelude::*;
@@ -82,9 +82,7 @@ impl Plugin for MessageRabbitPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (collision_inner_sensor, collision_outer_sensor)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (collision_inner_sensor, collision_outer_sensor).in_set(FixedUpdateInGameSet),
         );
     }
 }

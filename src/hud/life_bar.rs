@@ -1,6 +1,5 @@
 use crate::component::life::Life;
-use crate::set::GameSet;
-use crate::states::GameState;
+use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
 
 const LIFE_BAR_WIDTH: f32 = 16.0;
@@ -96,11 +95,6 @@ impl Plugin for LifeBarPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<LifeBarResource>();
         app.add_systems(Startup, setup_life_bar);
-        app.add_systems(
-            Update,
-            update_life_bar
-                .run_if(in_state(GameState::InGame))
-                .in_set(GameSet),
-        );
+        app.add_systems(FixedUpdate, update_life_bar.in_set(FixedUpdateInGameSet));
     }
 }

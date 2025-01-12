@@ -5,6 +5,7 @@ use crate::constant::*;
 use crate::entity::actor::ActorEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -126,9 +127,7 @@ impl Plugin for ExplosionPlugin {
         app.add_event::<SpawnExplosion>();
         app.add_systems(
             FixedUpdate,
-            (spawn_explosion, update_pointlight)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (spawn_explosion, update_pointlight).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

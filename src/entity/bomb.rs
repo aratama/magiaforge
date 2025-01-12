@@ -6,6 +6,7 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::entity::explosion::SpawnExplosion;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -91,9 +92,7 @@ impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (explode_bomb, set_bomb_rotation)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (explode_bomb, set_bomb_rotation).in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<Bomb>();
     }

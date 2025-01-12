@@ -12,10 +12,10 @@ use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
@@ -237,8 +237,7 @@ impl Plugin for ServantSeedPlugin {
         app.add_systems(
             FixedUpdate,
             (update_servant_seed, update_slime_seed_sprite, spawn_servant)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

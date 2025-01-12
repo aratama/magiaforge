@@ -6,6 +6,7 @@ use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -60,11 +61,6 @@ pub struct BGMSwitchPlugin;
 
 impl Plugin for BGMSwitchPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            (sensor,)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, (sensor,).in_set(FixedUpdateInGameSet));
     }
 }

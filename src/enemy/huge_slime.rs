@@ -19,9 +19,9 @@ use crate::level::entities::SpawnEntity;
 use crate::message::HUGE_SLIME;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::states::TimeState;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
 use crate::wand::Wand;
@@ -423,8 +423,7 @@ impl Plugin for HugeSlimePlugin {
                 despown,
             )
                 .chain(),)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

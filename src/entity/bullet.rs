@@ -9,8 +9,8 @@ use crate::entity::bullet_particle::BulletParticleResource;
 use crate::level::collision::WallCollider;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -375,15 +375,14 @@ pub struct BulletPlugin;
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            despown_bullet_residual
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
-        );
-        app.add_systems(
             FixedUpdate,
-            (despawn_bullet_by_lifetime, bullet_collision, bullet_homing)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+            (
+                despawn_bullet_by_lifetime,
+                bullet_collision,
+                bullet_homing,
+                despown_bullet_residual,
+            )
+                .in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<Bullet>();
     }

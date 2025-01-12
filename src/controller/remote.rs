@@ -17,12 +17,12 @@ use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
-use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
@@ -401,8 +401,7 @@ impl Plugin for RemotePlayerPlugin {
                 receive_events,
                 despawn_no_contact_remotes,
             )
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateInGameSet),
         );
     }
 }

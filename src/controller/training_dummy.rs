@@ -1,9 +1,8 @@
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
-use crate::states::GameState;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct TraningDummyController {
@@ -50,9 +49,7 @@ impl Plugin for TrainingDummyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            update_enemy_witch_controller
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            update_enemy_witch_controller.in_set(FixedUpdateGameActiveSet),
         );
     }
 }

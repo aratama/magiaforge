@@ -1,8 +1,6 @@
 use crate::component::life::Life;
-use crate::set::GameSet;
-use crate::states::GameState;
+use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 /// 他のアクターに召喚されたアクターであることを表します
 /// マスターのアクターが存在しなくなったら、このアクターも消滅します
@@ -28,10 +26,7 @@ impl Plugin for ServantPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (despown_if_no_master)
-                .run_if(in_state(GameState::InGame))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
+            despown_if_no_master.in_set(FixedUpdateInGameSet),
         );
     }
 }

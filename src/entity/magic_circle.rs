@@ -11,12 +11,11 @@ use crate::physics::IdentifiedCollisionEvent;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::CollisionEvent;
@@ -235,14 +234,14 @@ impl Plugin for MagicCirclePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (power_on_circle, warp)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
-        );
-        app.add_systems(
-            Update,
-            (update_circle_color, change_slice, change_star_slice)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
+            (
+                power_on_circle,
+                warp,
+                update_circle_color,
+                change_slice,
+                change_star_slice,
+            )
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

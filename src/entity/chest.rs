@@ -9,6 +9,7 @@ use crate::entity::gold::spawn_gold;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -240,12 +241,7 @@ pub struct ChestPlugin;
 
 impl Plugin for ChestPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            break_chest
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, break_chest.in_set(FixedUpdateGameActiveSet));
         app.register_type::<Chest>();
     }
 }

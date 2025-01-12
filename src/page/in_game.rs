@@ -29,13 +29,13 @@ use crate::message::LEVEL4;
 use crate::message::MULTIPLAY_ARENA;
 use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_rapier2d::plugin::PhysicsSet;
 use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
@@ -436,12 +436,7 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnEntity>();
-        app.add_systems(
-            FixedUpdate,
-            spawn_entity
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, spawn_entity.in_set(FixedUpdateGameActiveSet));
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.init_resource::<LevelSetup>();

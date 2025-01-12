@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::component::entity_depth::EntityDepth;
 use crate::constant::*;
 use crate::controller::player::Player;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -80,12 +81,7 @@ pub struct GoldPlugin;
 
 impl Plugin for GoldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            (magnet)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, (magnet).in_set(FixedUpdateGameActiveSet));
         app.register_type::<Gold>();
     }
 }

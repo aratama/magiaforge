@@ -16,6 +16,7 @@ use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateInGameSet;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::states::TimeState;
@@ -26,7 +27,6 @@ use bevy::ecs::system::SystemId;
 use bevy::prelude::*;
 #[cfg(not(target_arch = "wasm32"))]
 use bevy::window::WindowMode;
-use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_simple_websocket::ClientMessage;
 
 #[derive(Resource)]
@@ -527,21 +527,16 @@ impl Plugin for GameMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_game_menu);
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
                 update_game_menu,
                 update_se_volume_label,
                 update_bgm_volume_label,
                 handle_escape_key,
                 switch_physics_activation,
+                closing_to_closed,
             )
-                .run_if(in_state(GameState::InGame)),
-        );
-        app.add_systems(
-            FixedUpdate,
-            closing_to_closed
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateInGameSet),
         );
         app.init_resource::<ButtonShots>();
     }

@@ -7,6 +7,7 @@ use crate::component::point_light::WithPointLight;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -96,12 +97,7 @@ pub struct FireballPlugin;
 
 impl Plugin for FireballPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            (fall)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, fall.in_set(FixedUpdateGameActiveSet));
         app.register_type::<Fireball>();
     }
 }

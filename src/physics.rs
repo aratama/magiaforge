@@ -1,4 +1,4 @@
-use crate::states::GameState;
+use crate::set::FixedUpdateInGameSet;
 use crate::states::TimeState;
 use bevy::ecs::query::QueryData;
 use bevy::ecs::query::QueryFilter;
@@ -6,7 +6,6 @@ use bevy::ecs::query::QueryItem;
 use bevy::ecs::query::ROQueryItem;
 use bevy::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
-use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::plugin::RapierConfiguration;
 use bevy_rapier2d::prelude::CollisionEvent;
 
@@ -200,9 +199,7 @@ impl Plugin for GamePhysicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            switch_physics_activation
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            switch_physics_activation.in_set(FixedUpdateInGameSet),
         );
     }
 }

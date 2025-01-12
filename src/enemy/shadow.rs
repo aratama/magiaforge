@@ -16,10 +16,9 @@ use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
-use crate::set::GameSet;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::states::TimeState;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -337,9 +336,7 @@ impl Plugin for ShadowPlugin {
             FixedUpdate,
             (transition, animate, approach, attack, pointer, group)
                 .chain()
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

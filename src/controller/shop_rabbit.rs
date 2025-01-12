@@ -8,7 +8,7 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
-use crate::states::GameState;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
 use bevy::prelude::*;
@@ -96,9 +96,7 @@ impl Plugin for ShopRabbitPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (collision_inner_sensor, collision_outer_sensor)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (collision_inner_sensor, collision_outer_sensor).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

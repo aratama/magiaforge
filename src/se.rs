@@ -3,7 +3,6 @@ use crate::audio::play_se;
 use crate::config::GameConfig;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashSet;
-use bevy_rapier2d::plugin::PhysicsSet;
 use std::cmp::Ordering;
 
 #[derive(Event, Clone, Copy)]
@@ -137,12 +136,6 @@ pub struct SECommandPlugin;
 impl Plugin for SECommandPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SEEvent>();
-
-        app.add_systems(
-            FixedUpdate,
-            se_events
-                .run_if(resource_exists::<GameAssets>)
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(Update, se_events.run_if(resource_exists::<GameAssets>));
     }
 }

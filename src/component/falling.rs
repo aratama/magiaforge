@@ -1,7 +1,5 @@
-use crate::states::GameState;
-use crate::states::TimeState;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 /// 子エンティティのスプライトに付与し
 /// y座標を変化させて落下させるコンポーネントです
@@ -41,10 +39,6 @@ pub struct FallingPlugin;
 
 impl Plugin for FallingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            fall.run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, fall.in_set(FixedUpdateGameActiveSet));
     }
 }

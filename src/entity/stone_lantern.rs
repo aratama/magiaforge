@@ -8,6 +8,7 @@ use crate::constant::*;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
@@ -99,9 +100,7 @@ impl Plugin for StoneLanternPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            break_stone_lantern
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            break_stone_lantern.in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<StoneLantern>();
     }

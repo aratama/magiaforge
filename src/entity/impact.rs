@@ -7,7 +7,7 @@ use crate::constant::SENSOR_GROUPS;
 use crate::entity::actor::ActorEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
-use crate::states::GameState;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
@@ -117,9 +117,7 @@ impl Plugin for ImpactPlugin {
 
         app.add_systems(
             FixedUpdate,
-            (read_impact_event, update_impact)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (read_impact_event, update_impact).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

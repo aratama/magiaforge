@@ -18,10 +18,11 @@ use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateInGameSet;
+use crate::set::FixedUpdatePlayerActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
-use crate::states::TimeState;
 use crate::wand::WandSpell;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
@@ -417,21 +418,9 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            // FixedUpdateでスケジュールされたシステムには、before(PhysicsSet::SyncBackend) でスケジュールをする必要があります
-            // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
-            // https://taintedcoders.com/bevy/physics/rapier
-            FixedUpdate,
-            (update_pointer_by_mouse,)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
-        );
-
-        app.add_systems(
-            // FixedUpdateでスケジュールされたシステムには、before(PhysicsSet::SyncBackend) でスケジュールをする必要があります
-            // これがない場合、変更が正しく rapier に通知されず、数回に一度のような再現性の低いバグが起きることがあるようです
-            // https://taintedcoders.com/bevy/physics/rapier
             FixedUpdate,
             (
+                update_pointer_by_mouse,
                 getting_up,
                 pick_gold,
                 die_player,
@@ -439,8 +428,7 @@ impl Plugin for PlayerPlugin {
                 insert_discovered_spells,
                 move_player,
             )
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateInGameSet),
         );
 
         app.add_systems(
@@ -452,12 +440,7 @@ impl Plugin for PlayerPlugin {
                 release_holded_bullets,
             )
                 .chain()
-                .run_if(
-                    in_state(GameState::InGame)
-                        .and(in_state(TimeState::Active))
-                        .and(in_state(GameMenuState::Closed)),
-                )
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdatePlayerActiveSet),
         );
     }
 }

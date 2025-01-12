@@ -3,10 +3,8 @@ use crate::component::life::Life;
 use crate::entity::gold::spawn_gold;
 use crate::se::SEEvent;
 use crate::se::SE;
-use crate::set::GameSet;
-use crate::states::GameState;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 /// 攻撃されてライフがゼロになったら金塊を残して消滅するアクターを表します
 #[derive(Component)]
@@ -44,12 +42,6 @@ pub struct DespawnWithGoldPlugin;
 
 impl Plugin for DespawnWithGoldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            dead_enemy
-                .run_if(in_state(GameState::InGame))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, dead_enemy.in_set(FixedUpdateGameActiveSet));
     }
 }

@@ -1,9 +1,8 @@
-use crate::states::GameState;
+use crate::set::FixedUpdateInGameSet;
 use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
-use bevy_rapier2d::plugin::PhysicsSet;
 
 /// ゲーム内の時間の流れをカウントする汎用のカウンターです
 /// 1フレームに1ずつカウントアップされます
@@ -74,9 +73,7 @@ impl Plugin for CounterPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (count, animate, animate_ui)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (count, animate, animate_ui).in_set(FixedUpdateInGameSet),
         );
         app.register_type::<Counter>();
     }

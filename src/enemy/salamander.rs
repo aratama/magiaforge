@@ -17,10 +17,9 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
-use crate::set::GameSet;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::states::TimeState;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -301,9 +300,7 @@ impl Plugin for SalamanderPlugin {
             FixedUpdate,
             (transition, animate, approach, attack, pointer)
                 .chain()
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

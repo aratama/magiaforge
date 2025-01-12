@@ -13,8 +13,8 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::states::TimeState;
 use crate::theater::Act;
 use crate::theater::TheaterEvent;
 use bevy::prelude::*;
@@ -153,9 +153,7 @@ impl Plugin for ShopPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (sensor, update_door_position)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+            (sensor, update_door_position).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

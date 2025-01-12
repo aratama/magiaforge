@@ -5,11 +5,8 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
-use crate::set::GameSet;
-use crate::states::GameState;
-use crate::states::TimeState;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 use core::f32;
 
 #[derive(Debug)]
@@ -110,10 +107,7 @@ impl Plugin for ChikenControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (control_chiken, hopping)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
+            (control_chiken, hopping).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

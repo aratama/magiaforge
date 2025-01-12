@@ -8,11 +8,10 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_rapier2d::plugin::PhysicsSet;
 use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::CollisionEvent;
@@ -99,9 +98,7 @@ impl Plugin for WebPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (trap, despawn)
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .before(PhysicsSet::SyncBackend),
+            (trap, despawn).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

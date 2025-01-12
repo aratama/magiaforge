@@ -11,6 +11,7 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -154,12 +155,11 @@ pub struct SpellEntityPlugin;
 
 impl Plugin for SpellEntityPlugin {
     fn build(&self, app: &mut App) {
+        // swing は FixedUpdate ではなく Update でもいいですが、
+        // 分けるのも面倒な割に意味がないので FixedUpdate に含めています
         app.add_systems(
             FixedUpdate,
-            pickup_dropped_item
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (pickup_dropped_item, swing).in_set(FixedUpdateGameActiveSet),
         );
-        app.add_systems(Update, swing.run_if(in_state(GameState::InGame)));
     }
 }

@@ -71,6 +71,7 @@ use crate::player_state::PlayerStatePlugin;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
 use crate::se::SECommandPlugin;
+use crate::set::GameSetPlugin;
 use crate::states::*;
 use crate::theater::SenarioPlugin;
 use crate::ui::bar::StatusBarPlugin;
@@ -218,6 +219,7 @@ pub fn run_game() {
         .add_plugins(GameMenuPlugin)
         .add_plugins(GameInputPlugin)
         .add_plugins(GamePhysicsPlugin)
+        .add_plugins(GameSetPlugin)
         .add_plugins(GoldPlugin)
         .add_plugins(HoverColorPlugin)
         .add_plugins(HudPlugin)

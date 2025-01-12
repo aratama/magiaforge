@@ -6,10 +6,8 @@ use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
-use crate::set::GameSet;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
-use crate::states::GameState;
-use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -94,12 +92,6 @@ pub struct EyeballControlPlugin;
 
 impl Plugin for EyeballControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            control_eyeball
-                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
-                .in_set(GameSet)
-                .before(PhysicsSet::SyncBackend),
-        );
+        app.add_systems(FixedUpdate, control_eyeball.in_set(FixedUpdateGameActiveSet));
     }
 }

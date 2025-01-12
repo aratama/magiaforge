@@ -7,6 +7,7 @@ use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -89,9 +90,7 @@ impl Plugin for BookshelfPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            break_book_shelf
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            break_book_shelf.in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<Bookshelf>();
     }

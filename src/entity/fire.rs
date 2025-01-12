@@ -6,6 +6,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::point_light::WithPointLight;
 use crate::constant::ENTITY_GROUPS;
 use crate::constant::SENSOR_GROUPS;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::audio::PlaybackMode;
 use bevy::prelude::*;
@@ -203,14 +204,8 @@ impl Plugin for FirePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup);
         app.add_systems(
-            Update,
-            (update_se_volume, burn).run_if(in_state(GameState::InGame)),
-        );
-        app.add_systems(
             FixedUpdate,
-            (despown, translate, ignite)
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (despown, translate, ignite, update_se_volume, burn).in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<Fire>();
     }

@@ -5,11 +5,10 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
-use crate::states::GameState;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AnimationState;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
-use bevy_rapier2d::plugin::PhysicsSet;
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
@@ -100,14 +99,8 @@ pub struct SandbagPlugin;
 impl Plugin for SandbagPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (frown_on_damage, idle).run_if(in_state(GameState::InGame)),
-        );
-        app.add_systems(
             FixedUpdate,
-            go_back
-                .run_if(in_state(GameState::InGame))
-                .before(PhysicsSet::SyncBackend),
+            (frown_on_damage, idle, go_back).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

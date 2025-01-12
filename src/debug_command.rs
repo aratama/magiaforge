@@ -8,6 +8,7 @@ use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
+use crate::set::FixedUpdateInGameSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::states::TimeState;
@@ -17,7 +18,6 @@ use bevy::input::keyboard::Key;
 use bevy::input::keyboard::KeyboardInput;
 use bevy::input::ButtonState;
 use bevy::prelude::*;
-use bevy_rapier2d::plugin::PhysicsSet;
 
 fn process_debug_command(
     mut commands: Commands,
@@ -311,9 +311,7 @@ impl Plugin for DebugCommandPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            process_debug_command
-                .before(PhysicsSet::SyncBackend)
-                .run_if(in_state(GameState::InGame)),
+            process_debug_command.in_set(FixedUpdateInGameSet),
         );
     }
 }
