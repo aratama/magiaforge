@@ -14,7 +14,7 @@ use std::collections::HashMap;
 /// TODO: 本棚などのエンティティもここで一括で生成したほうが効率はいい？
 /// でもエンティティが個別に削除されることも多そうなので、その場合はエンティティは別のほうがいいかも
 /// https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/walls.rs
-pub fn get_wall_collisions(chunk: &LevelChunk, target: Tile) -> Vec<Rect> {
+pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> {
     /// Represents a wide wall that is 1 tile tall
     /// Used to spawn wall collisions
     #[derive(Clone, Eq, PartialEq, Debug, Default, Hash)]
@@ -32,7 +32,10 @@ pub fn get_wall_collisions(chunk: &LevelChunk, target: Tile) -> Vec<Rect> {
 
         // + 1 to the width so the algorithm "terminates" plates that touch the right edge
         for x in chunk.min_x..(chunk.max_x + 1) {
-            match (plate_start, chunk.get_tile(x as i32, y as i32) == target) {
+            match (
+                plate_start,
+                targets.contains(&chunk.get_tile(x as i32, y as i32)),
+            ) {
                 (Some(s), false) => {
                     row_plates.push(Plate {
                         left: s,
@@ -90,7 +93,7 @@ pub struct WallCollider;
 
 pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
     // 衝突形状の生成
-    for rect in get_wall_collisions(&chunk, Tile::Wall) {
+    for rect in get_wall_collisions(&chunk, vec![Tile::Wall, Tile::PermanentWall]) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;
@@ -112,7 +115,7 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
         ));
     }
 
-    for rect in get_wall_collisions(&chunk, Tile::Water) {
+    for rect in get_wall_collisions(&chunk, vec![Tile::Water]) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;

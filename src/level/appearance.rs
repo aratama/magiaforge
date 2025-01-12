@@ -70,105 +70,123 @@ pub fn spawn_world_tilemap(
     // 床と壁の生成
     for y in chunk.min_y..(chunk.max_y + WALL_HEIGHT_IN_TILES as i32) {
         for x in chunk.min_x..chunk.max_x {
-            match chunk.get_tile(x, y) {
-                Tile::Biome => match biome {
-                    Biome::StoneTile => {
-                        spawn_stone_tile(commands, assets, x, y);
-                    }
-                    Biome::Grassland => {
-                        spawn_grassland(commands, &assets, x, y);
-                    }
-                },
-                Tile::StoneTile => {
-                    spawn_stone_tile(commands, assets, x, y);
-                }
-                Tile::Wall => {
-                    spawn_ceil_for_blank(commands, assets, chunk, x, y);
-                }
-                Tile::Grassland => {
-                    spawn_grassland(commands, &assets, x, y);
-                }
-                Tile::Blank => {
-                    spawn_ceil_for_blank(commands, assets, chunk, x, y);
-                }
-                Tile::Water => {
-                    // 水辺の岸の壁
-                    if chunk.is_visible_ceil(x, y - 1, 1, Tile::StoneTile, Tile::Biome)
-                        || chunk.is_visible_ceil(x, y - 1, 1, Tile::Wall, Tile::Wall)
-                    {
-                        commands.spawn((
-                            TileSprite((x, y)),
-                            AseSpriteSlice {
-                                aseprite: assets.atlas.clone(),
-                                name: "stone_wall".to_string(),
-                            },
-                            Transform::from_xyz(
-                                x as f32 * TILE_SIZE,
-                                -y as f32 * TILE_SIZE,
-                                SHORE_LAYER_Z,
-                            ),
-                        ));
-                    }
-
-                    const WATER_PLANE_OFFEST: f32 = -4.0;
-
-                    // 岸にできる泡
-                    spawn_autotiles(
-                        &vec!["water_form_0".to_string(), "water_form_1".to_string()],
-                        commands,
-                        assets,
-                        &chunk,
-                        Tile::Water,
-                        Tile::Water,
-                        WATER_PLANE_OFFEST,
-                        x,
-                        y,
-                        WATER_FOAM_LAYER_Z,
-                        1,
-                        FoamTile,
-                        FoamTile,
-                        FoamTile,
-                        FoamTile,
-                    );
-
-                    // 網状の泡の明るいほう
-                    let index = rand::random::<u32>() % 2;
-                    commands.spawn((
-                        TileSprite((x, y)),
-                        AnimatedSlice {
-                            slices: (0..4)
-                                .map(|i| format!("water_mesh_lighter_{}_{}", index, i))
-                                .collect(),
-                            wait: 53,
-                        },
-                        AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
-                            name: format!("water_mesh_lighter_{}_0", index).to_string(),
-                        },
-                        Transform::from_xyz(
-                            x as f32 * TILE_SIZE,
-                            -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-                            WATER_MESH_LIGHTER_LAYER_Z,
-                        ),
-                    ));
-
-                    // 網状の泡
-                    commands.spawn((
-                        TileSprite((x, y)),
-                        AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
-                            name: format!("water_mesh_{}", rand::random::<u32>() % 2).to_string(),
-                        },
-                        Transform::from_xyz(
-                            x as f32 * TILE_SIZE,
-                            -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-                            WATER_MESH_DARKER_LAYER_Z,
-                        ),
-                    ));
-                }
-            }
+            spawn_world_tile(commands, assets, chunk, biome, x, y);
         }
     }
+}
+
+/// 床や壁の外観(スプライト)を生成します
+pub fn spawn_world_tile(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    chunk: &LevelChunk,
+    biome: Biome,
+    x: i32,
+    y: i32,
+) {
+    match chunk.get_tile(x, y) {
+        Tile::Biome => match biome {
+            Biome::StoneTile => {
+                spawn_stone_tile(commands, assets, x, y);
+            }
+            Biome::Grassland => {
+                spawn_grassland(commands, &assets, x, y);
+            }
+        },
+        Tile::StoneTile => {
+            spawn_stone_tile(commands, assets, x, y);
+        }
+        Tile::Wall => {
+            spawn_ceil_for_blank(commands, assets, chunk, x, y);
+        }
+        Tile::PermanentWall => {
+            spawn_ceil_for_blank(commands, assets, chunk, x, y);
+        }
+        Tile::Grassland => {
+            spawn_grassland(commands, &assets, x, y);
+        }
+        Tile::Blank => {
+            spawn_ceil_for_blank(commands, assets, chunk, x, y);
+        }
+        Tile::Water => {
+            // 水辺の岸の壁
+            if chunk.is_visible_ceil(
+                x,
+                y - 1,
+                1,
+                &vec![
+                    Tile::StoneTile,
+                    Tile::Biome,
+                    Tile::Wall,
+                    Tile::PermanentWall,
+                ],
+            ) {
+                commands.spawn((
+                    TileSprite((x, y)),
+                    AseSpriteSlice {
+                        aseprite: assets.atlas.clone(),
+                        name: "stone_wall".to_string(),
+                    },
+                    Transform::from_xyz(x as f32 * TILE_SIZE, -y as f32 * TILE_SIZE, SHORE_LAYER_Z),
+                ));
+            }
+
+            const WATER_PLANE_OFFEST: f32 = -4.0;
+
+            // 岸にできる泡
+            spawn_autotiles(
+                &vec!["water_form_0".to_string(), "water_form_1".to_string()],
+                commands,
+                assets,
+                &chunk,
+                &vec![Tile::Water],
+                WATER_PLANE_OFFEST,
+                x,
+                y,
+                WATER_FOAM_LAYER_Z,
+                1,
+                FoamTile,
+                FoamTile,
+                FoamTile,
+                FoamTile,
+            );
+
+            // 網状の泡の明るいほう
+            let index = rand::random::<u32>() % 2;
+            commands.spawn((
+                TileSprite((x, y)),
+                AnimatedSlice {
+                    slices: (0..4)
+                        .map(|i| format!("water_mesh_lighter_{}_{}", index, i))
+                        .collect(),
+                    wait: 53,
+                },
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: format!("water_mesh_lighter_{}_0", index).to_string(),
+                },
+                Transform::from_xyz(
+                    x as f32 * TILE_SIZE,
+                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                    WATER_MESH_LIGHTER_LAYER_Z,
+                ),
+            ));
+
+            // 網状の泡
+            commands.spawn((
+                TileSprite((x, y)),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: format!("water_mesh_{}", rand::random::<u32>() % 2).to_string(),
+                },
+                Transform::from_xyz(
+                    x as f32 * TILE_SIZE,
+                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                    WATER_MESH_DARKER_LAYER_Z,
+                ),
+            ));
+        }
+    };
 }
 
 fn spawn_stone_tile(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
@@ -202,7 +220,7 @@ fn spawn_ceil_for_blank(
     let tz = ENTITY_LAYER_Z + (ty * Z_ORDER_SCALE);
 
     // 壁
-    if !chunk.equals(x as i32, y as i32 + 1, Tile::Wall) {
+    if !chunk.is_wall(x as i32, y as i32 + 1) {
         commands.spawn((
             TileSprite((x, y)),
             Name::new("wall"),
@@ -216,14 +234,14 @@ fn spawn_ceil_for_blank(
     }
 
     // // 天井
-    if chunk.is_visible_ceil(x, y, 3, Tile::Wall, Tile::Blank) {
+    let targets = vec![Tile::Wall, Tile::Blank, Tile::PermanentWall];
+    if chunk.is_visible_ceil(x, y, 3, &targets) {
         spawn_autotiles(
             &vec!["roof".to_string()],
             commands,
             assets,
             &chunk,
-            Tile::Wall,
-            Tile::Blank,
+            &targets,
             WALL_HEIGHT,
             x,
             y,

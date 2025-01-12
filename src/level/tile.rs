@@ -2,8 +2,20 @@
 pub enum Tile {
     Blank,
     Wall,
+    PermanentWall,
     Biome,
     StoneTile,
     Grassland,
     Water,
+}
+
+impl Tile {
+    pub fn is_wall(&self) -> bool {
+        match self {
+            Tile::Wall => true,
+            Tile::PermanentWall => true,
+            Tile::Blank => true,
+            _ => false,
+        }
+    }
 }

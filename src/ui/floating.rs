@@ -6,7 +6,6 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::DropArea;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
-use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -152,7 +151,7 @@ fn drop(
                                 {
                                     let pointer_in_world = mouse_in_world.origin.truncate();
                                     let tile = chunk.get_tile_by_coords(pointer_in_world);
-                                    if tile != Tile::Wall && tile != Tile::Blank {
+                                    if !tile.is_wall() {
                                         if let Some(item) = content.get_inventory_item(&actor) {
                                             content.set_item(None, &mut actor);
 

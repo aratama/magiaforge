@@ -67,7 +67,7 @@ fn fall(
                 commands.entity(entity).despawn_recursive();
                 if let Some(ref level) = interlevel.chunk {
                     let tile = level.get_tile_by_coords(position);
-                    if tile != Tile::Wall && tile != Tile::Blank {
+                    if tile != Tile::Wall && tile != Tile::Blank && tile != Tile::PermanentWall {
                         impact.send(SpawnImpact {
                             owner: None,
                             position,

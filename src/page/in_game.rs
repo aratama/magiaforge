@@ -13,10 +13,12 @@ use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::read_level_chunk_data;
+use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
 use crate::level::biome::Biome;
 use crate::level::collision::spawn_wall_collisions;
+use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
@@ -136,10 +138,7 @@ pub fn setup_level(
         &assets,
         &chunk,
         // バイオームをハードコーディングしているけどこれでいい？
-        match level {
-            GameLevel::Level(2) => Biome::Grassland,
-            _ => Biome::StoneTile,
-        },
+        level_to_biome(level),
     );
 
     // エントリーポイントを選択
@@ -431,19 +430,49 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
     }
 }
 
+pub fn level_to_biome(level: GameLevel) -> Biome {
+    match level {
+        GameLevel::Level(2) => Biome::Grassland,
+        _ => Biome::StoneTile,
+    }
+}
+
 fn update_tile_sprites(
     mut current: ResMut<LevelSetup>,
+    assets: Res<GameAssets>,
     mut commands: Commands,
     tiles_query: Query<(Entity, &TileSprite)>,
+    collider_query: Query<Entity, With<WallCollider>>,
 ) {
+    let biome = level_to_biome(current.level.unwrap());
     if let Some(ref mut chunk) = current.chunk {
         if let Some((left, top, right, bottom)) = chunk.dirty {
-            // dirty の範囲をいったん削除し、スプライトを再生成する
+            let min_x = (left - 1).max(chunk.min_x);
+            let max_x = (right + 1).min(chunk.max_x);
+            let min_y = (top - 1).max(chunk.min_y);
+            let max_y = (bottom + 3).min(chunk.max_y); // 縦方向のみ広めに更新することに注意
+
+            // dirty の範囲のスプライトをいったんすべて削除
             for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
-                if left <= *tx && *tx <= right && top <= *ty && *ty <= bottom {
+                if min_x <= *tx && *tx <= max_x && min_y <= *ty && *ty <= max_y {
                     commands.entity(entity).despawn_recursive();
                 }
             }
+
+            // スプライトを再生成
+            for y in min_y..(max_y + 1) {
+                for x in min_x..(max_x + 1) {
+                    spawn_world_tile(&mut commands, &assets, chunk, biome, x, y);
+                }
+            }
+
+            // コリジョンはすべて再生成
+            for entity in collider_query.iter() {
+                commands.entity(entity).despawn_recursive();
+            }
+            spawn_wall_collisions(&mut commands, chunk);
+
+            // ダーティーフラグをクリア
             chunk.dirty = None;
         }
     }

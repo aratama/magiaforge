@@ -3,7 +3,6 @@ use crate::camera::GameCamera;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::ActorEvent;
-use crate::level::appearance::TileSprite;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
@@ -30,8 +29,6 @@ pub struct SpawnExplosion {
     pub damage: u32,
 }
 
-/// チェストを生成します
-/// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 fn spawn_explosion(
     mut commands: Commands,
     assets: Res<GameAssets>,
@@ -41,7 +38,6 @@ fn spawn_explosion(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut life_query: Query<&Transform, With<Life>>,
     mut damage_writer: EventWriter<ActorEvent>,
-    tiles_query: Query<&TileSprite>,
     mut level: ResMut<LevelSetup>,
 ) {
     let context: &RapierContext = rapier_context.single();
@@ -110,10 +106,15 @@ fn spawn_explosion(
         camera.vibration = 12.0;
 
         if let Some(ref mut chunk) = level.chunk {
-            for TileSprite((tx, ty)) in tiles_query.iter() {
-                let distance = index_to_position((*tx, *ty)).distance(*position);
-                if distance < TILE_SIZE * 5.0 {
-                    chunk.set_tile(*tx, *ty, Tile::StoneTile);
+            let range = 5;
+            for dy in -range..(range + 1) {
+                for dx in -range..(range + 1) {
+                    let x = (position.x / TILE_SIZE) as i32 + dx;
+                    let y = (position.y / -TILE_SIZE) as i32 + dy;
+                    let distance = index_to_position((x, y)).distance(*position);
+                    if distance < TILE_SIZE * 5.0 && chunk.get_tile(x, y) == Tile::Wall {
+                        chunk.set_tile(x, y, Tile::StoneTile);
+                    }
                 }
             }
         }

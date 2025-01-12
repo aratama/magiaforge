@@ -145,6 +145,10 @@ fn update_servant_seed(
                         warn!("ServantSeed: Hit non-stone tile: Wall");
                         false
                     }
+                    Tile::PermanentWall => {
+                        warn!("ServantSeed: Hit non-stone tile: PermanentWall");
+                        false
+                    }
                     Tile::Blank => {
                         warn!("ServantSeed: Hit non-stone tile: Blank");
                         false

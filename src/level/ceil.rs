@@ -18,13 +18,12 @@ pub fn get_tile_index_left_top(
     xi: i32,
     yi: i32,
     depth: i32,
-    a: Tile,
-    b: Tile,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
-        chunk.is_visible_ceil(xi - 1, yi - 1, depth, a, b),
-        chunk.is_visible_ceil(xi + 0, yi - 1, depth, a, b),
-        chunk.is_visible_ceil(xi - 1, yi + 0, depth, a, b),
+        chunk.is_visible_ceil(xi - 1, yi - 1, depth, targets),
+        chunk.is_visible_ceil(xi + 0, yi - 1, depth, targets),
+        chunk.is_visible_ceil(xi - 1, yi + 0, depth, targets),
     ) {
         (false, false, false) => 0,
         (false, false, true) => 1,
@@ -42,13 +41,12 @@ pub fn get_tile_index_right_top(
     xi: i32,
     yi: i32,
     depth: i32,
-    a: Tile,
-    b: Tile,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
-        chunk.is_visible_ceil(xi + 0, yi - 1, depth, a, b),
-        chunk.is_visible_ceil(xi + 1, yi - 1, depth, a, b),
-        chunk.is_visible_ceil(xi + 1, yi + 0, depth, a, b),
+        chunk.is_visible_ceil(xi + 0, yi - 1, depth, targets),
+        chunk.is_visible_ceil(xi + 1, yi - 1, depth, targets),
+        chunk.is_visible_ceil(xi + 1, yi + 0, depth, targets),
     ) {
         (false, false, false) => 3,
         (false, false, true) => 1,
@@ -66,13 +64,12 @@ pub fn get_tile_index_left_bottom(
     xi: i32,
     yi: i32,
     depth: i32,
-    a: Tile,
-    b: Tile,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
-        chunk.is_visible_ceil(xi - 1, yi + 0, depth, a, b),
-        chunk.is_visible_ceil(xi - 1, yi + 1, depth, a, b),
-        chunk.is_visible_ceil(xi + 0, yi + 1, depth, a, b),
+        chunk.is_visible_ceil(xi - 1, yi + 0, depth, targets),
+        chunk.is_visible_ceil(xi - 1, yi + 1, depth, targets),
+        chunk.is_visible_ceil(xi + 0, yi + 1, depth, targets),
     ) {
         (false, false, false) => 12,
         (false, false, true) => 4,
@@ -90,13 +87,12 @@ pub fn get_tile_index_right_bottom(
     xi: i32,
     yi: i32,
     depth: i32,
-    a: Tile,
-    b: Tile,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
-        chunk.is_visible_ceil(xi + 1, yi + 0, depth, a, b),
-        chunk.is_visible_ceil(xi + 0, yi + 1, depth, a, b),
-        chunk.is_visible_ceil(xi + 1, yi + 1, depth, a, b),
+        chunk.is_visible_ceil(xi + 1, yi + 0, depth, targets),
+        chunk.is_visible_ceil(xi + 0, yi + 1, depth, targets),
+        chunk.is_visible_ceil(xi + 1, yi + 1, depth, targets),
     ) {
         (false, false, false) => 15,
         (false, false, true) => 15,
@@ -117,8 +113,7 @@ pub fn spawn_autotiles<T: Component>(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     chunk: &LevelChunk,
-    a: Tile,
-    b: Tile,
+    targets: &Vec<Tile>,
     y_offset: f32,
     xi: i32,
     yi: i32,
@@ -129,15 +124,15 @@ pub fn spawn_autotiles<T: Component>(
     left_bottom: T,
     right_bottom: T,
 ) {
-    let lt = get_tile_index_left_top(chunk, xi, yi, depth, a, b);
+    let lt = get_tile_index_left_top(chunk, xi, yi, depth, targets);
     spawn_autotile(
         prefixes, commands, assets, y_offset, xi, yi, z, 0, 0, lt, left_top,
     );
-    let rt = get_tile_index_right_top(chunk, xi, yi, depth, a, b);
+    let rt = get_tile_index_right_top(chunk, xi, yi, depth, targets);
     spawn_autotile(
         prefixes, commands, assets, y_offset, xi, yi, z, 1, 0, rt, right_top,
     );
-    let lb = get_tile_index_left_bottom(chunk, xi, yi, depth, a, b);
+    let lb = get_tile_index_left_bottom(chunk, xi, yi, depth, targets);
     spawn_autotile(
         prefixes,
         commands,
@@ -151,7 +146,7 @@ pub fn spawn_autotiles<T: Component>(
         lb,
         left_bottom,
     );
-    let rb = get_tile_index_right_bottom(chunk, xi, yi, depth, a, b);
+    let rb = get_tile_index_right_bottom(chunk, xi, yi, depth, targets);
     spawn_autotile(
         prefixes,
         commands,

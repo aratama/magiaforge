@@ -84,7 +84,11 @@ fn fall(
                 if let Some(ref level) = interlevel.chunk {
                     let position = parent_transform.translation.truncate();
                     let tile = level.get_tile_by_coords(position);
-                    if tile != Tile::Wall && tile != Tile::Blank && tile != Tile::Water {
+                    if tile != Tile::Wall
+                        && tile != Tile::Blank
+                        && tile != Tile::Water
+                        && tile != Tile::PermanentWall
+                    {
                         spawn_fire(&mut commands, &assets, position, None);
                     }
                 }

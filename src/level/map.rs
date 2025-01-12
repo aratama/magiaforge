@@ -56,15 +56,9 @@ impl LevelChunk {
         return self.tiles[i].zone;
     }
 
-    /// 指定した位置のタイルが、指定したタイルと同じ種類かどうかを返します
-    /// 範囲外を指定した場合は、trueを返します
-    pub fn equals(&self, x: i32, y: i32, tile: Tile) -> bool {
-        if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
-            return true;
-        }
-        let w = self.max_x - self.min_x;
-        let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
-        return self.tiles[i].tile == tile;
+    pub fn is_wall(&self, x: i32, y: i32) -> bool {
+        let tile = self.get_tile(x, y);
+        tile == Tile::Wall || tile == Tile::PermanentWall || tile == Tile::Blank
     }
 
     #[allow(dead_code)]
@@ -85,9 +79,9 @@ impl LevelChunk {
     /// 実際に描画する天井タイルかどうかを返します
     /// 天井が奥の床を隠して見えづらくなるのを避けるため、
     /// 天井タイルが3連続するところだけを描画します
-    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, a: Tile, b: Tile) -> bool {
+    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<Tile>) -> bool {
         for i in 0..depth {
-            if self.equals(x, y - i, a) || self.equals(x, y - i, b) {
+            if targets.contains(&self.get_tile(x, y - i)) {
                 continue;
             }
             return false;
@@ -328,6 +322,12 @@ pub fn image_to_tilemap(
                 (55, 79, 225, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Water,
+                        zone: Zone::SafeZone,
+                    });
+                }
+                (0, 0, 0, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::PermanentWall,
                         zone: Zone::SafeZone,
                     });
                 }
