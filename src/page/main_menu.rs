@@ -390,6 +390,7 @@ fn read_events(
     mut reader: EventReader<Events>,
     mut next_bgm: ResMut<NextBGM>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
+    interlevel: Res<LevelSetup>,
 ) {
     for event in reader.read() {
         match event {
@@ -399,7 +400,14 @@ fn read_events(
                 }
                 menu_next_state.set(MainMenuPhase::Paused);
                 writer.send(SEEvent::new(SE::Click));
-                overlay_event_writer.send(OverlayEvent::Close(GameState::Opening));
+
+                overlay_event_writer.send(OverlayEvent::Close(
+                    if interlevel.next_state.is_none() {
+                        GameState::Opening
+                    } else {
+                        GameState::InGame
+                    },
+                ));
                 *next_bgm = NextBGM(None);
             }
         }

@@ -200,8 +200,16 @@ pub fn spawn_entity(
 ) {
     for event in reader.read() {
         if setup.shop_items.is_empty() {
-            setup.shop_items =
-                new_shop_item_queue(setup.next_state.discovered_spells.iter().cloned().collect())
+            setup.shop_items = new_shop_item_queue(
+                setup
+                    .next_state
+                    .clone()
+                    .unwrap_or_default()
+                    .discovered_spells
+                    .iter()
+                    .cloned()
+                    .collect(),
+            )
         }
 
         match event {

@@ -320,10 +320,10 @@ fn die_player(
             next.next_level = GameLevel::Level(0);
 
             // 次のシーンのためにプレイヤーの状態を保存
-            next.next_state = PlayerState::from_player(&player, &actor, &player_life);
-
+            let mut player_state = PlayerState::from_player(&player, &actor, &player_life);
             // 全回復させてから戻る
-            next.next_state.life = next.next_state.max_life;
+            player_state.life = player_state.max_life;
+            next.next_state = Some(player_state);
 
             // 倒れるアニメーションを残す
             commands.spawn((

@@ -203,7 +203,7 @@ fn debug_next(
     match level.next_level {
         GameLevel::Level(n) => {
             level.next_level = GameLevel::Level((n + 1) % LEVELS);
-            level.next_state = PlayerState::from_query(&player_query);
+            level.next_state = Some(PlayerState::from_query(&player_query));
             writer.send(OverlayEvent::Close(GameState::Warp));
         }
         GameLevel::MultiPlayArena => {
@@ -219,7 +219,7 @@ fn debug_home(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(0);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -229,7 +229,7 @@ fn debug_level_1(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(1);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -239,7 +239,7 @@ fn debug_level_2(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(2);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -249,7 +249,7 @@ fn debug_level_3(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(3);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -259,7 +259,7 @@ fn debug_level_4(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(4);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -269,7 +269,7 @@ fn debug_level_5(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(5);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -279,7 +279,7 @@ fn debug_arena(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::MultiPlayArena;
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 
@@ -289,7 +289,7 @@ fn debug_boss(
     player_query: Query<(&Player, &Actor, &Life)>,
 ) {
     level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
-    level.next_state = PlayerState::from_query(&player_query);
+    level.next_state = Some(PlayerState::from_query(&player_query));
     writer.send(OverlayEvent::Close(GameState::Warp));
 }
 

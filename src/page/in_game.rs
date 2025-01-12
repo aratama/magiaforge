@@ -63,7 +63,7 @@ pub struct LevelSetup {
 
     /// 次のプレイヤー状態
     /// 魔法陣から転移したとき、この状態でプレイヤーを初期化します
-    pub next_state: PlayerState,
+    pub next_state: Option<PlayerState>,
 
     /// 次に生成するショップアイテムのキュー
     /// これが空になったときは改めてキューを生成します
@@ -76,7 +76,7 @@ impl Default for LevelSetup {
             level: None,
             chunk: None,
             next_level: GameLevel::Level(INITIAL_LEVEL),
-            next_state: PlayerState::default(),
+            next_state: None,
             shop_items: Vec::new(),
         }
     }
@@ -140,7 +140,7 @@ pub fn setup_level(
         .choose(&mut rng)
         .expect("No entrypoint found");
 
-    let mut player_state = current.next_state.clone();
+    let mut player_state = current.next_state.clone().unwrap_or_default();
 
     player_state.name = config.player_name.clone();
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;

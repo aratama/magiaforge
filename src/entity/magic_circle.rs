@@ -161,21 +161,21 @@ fn warp(
                         match next.next_level {
                             GameLevel::Level(level) => {
                                 next.next_level = GameLevel::Level((level + 1) % LEVELS);
-                                next.next_state = player_state;
+                                next.next_state = Some(player_state);
                             }
                             GameLevel::MultiPlayArena => {
                                 next.next_level = GameLevel::Level(1);
-                                next.next_state = player_state;
+                                next.next_state = Some(player_state);
                             }
                         };
                     }
                     MagicCircleDestination::Home => {
                         next.next_level = GameLevel::Level(0);
-                        next.next_state = player_state;
+                        next.next_state = Some(player_state);
                     }
                     MagicCircleDestination::MultiplayArena => {
                         next.next_level = GameLevel::MultiPlayArena;
-                        next.next_state = player_state;
+                        next.next_state = Some(player_state);
                     }
                 }
             }

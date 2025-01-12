@@ -74,7 +74,10 @@ impl Plugin for SavePlugin {
         app.insert_resource(PkvStore::new(CRATE_NAME, CRATE_NAME));
         app.add_systems(Startup, load_config);
         app.add_systems(Update, save_config_on_change);
-        app.add_systems(OnExit(GameState::MainMenu), load_player.before(setup_level));
+        app.add_systems(
+            OnEnter(GameState::MainMenu),
+            load_player.before(setup_level),
+        );
         app.add_systems(Update, save_player.run_if(in_state(GameState::InGame)));
     }
 }

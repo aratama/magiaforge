@@ -287,7 +287,7 @@ pub fn cast_spell(
                 }
                 SpellCast::SpawnEntity(entity_type) => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
-                    let direction = Vec2::from_angle(angle) * 16.0;
+                    let direction = Vec2::from_angle(angle) * 32.0;
                     let position = actor_transform.translation.truncate() + direction;
                     match entity_type {
                         SpellCastEntityType::BookShelf => {
@@ -339,7 +339,7 @@ pub fn cast_spell(
                         velocity: normalized * 0.01,
                         bullet_lifetime: 240,
                         sender: Some(actor.uuid),
-                        damage: 20 + actor.effects.bullet_damage_buff_amount,
+                        damage: 5 + actor.effects.bullet_damage_buff_amount,
                         impulse: 0.0,
                         slices: vec![
                             "light_sword".to_string(),

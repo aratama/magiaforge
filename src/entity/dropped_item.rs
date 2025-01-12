@@ -107,7 +107,7 @@ pub fn spawn_dropped_item(
                             aseprite: assets.atlas.clone(),
                             name: frame_slice.into(),
                         },
-                        Transform::from_xyz(0.0, 0.0, 0.0),
+                        Transform::from_xyz(0.0, 0.0, 0.0001),
                     ));
 
                     parent.spawn((
@@ -115,7 +115,7 @@ pub fn spawn_dropped_item(
                             aseprite: assets.atlas.clone(),
                             name: icon.into(),
                         },
-                        Transform::from_xyz(0.0, 0.0, 0.0001),
+                        Transform::from_xyz(0.0, 0.0, 0.0),
                     ));
                 });
         });
