@@ -14,6 +14,9 @@ pub struct FixedUpdateGameActiveSet;
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct FixedUpdatePlayerActiveSet;
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct FixedUpdateAfterAll;
+
 pub struct GameSetPlugin;
 
 impl Plugin for GameSetPlugin {
@@ -45,6 +48,16 @@ impl Plugin for GameSetPlugin {
                         .and(in_state(GameMenuState::Closed)),
                 )
                 .before(PhysicsSet::SyncBackend),
+        );
+
+        app.configure_sets(
+            FixedUpdate,
+            FixedUpdateAfterAll
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active)))
+                .before(PhysicsSet::SyncBackend)
+                .after(FixedUpdateInGameSet)
+                .after(FixedUpdateGameActiveSet)
+                .after(FixedUpdatePlayerActiveSet),
         );
     }
 }

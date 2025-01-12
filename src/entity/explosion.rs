@@ -3,6 +3,9 @@ use crate::camera::GameCamera;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::ActorEvent;
+use crate::level::appearance::TileSprite;
+use crate::level::tile::Tile;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -38,6 +41,8 @@ fn spawn_explosion(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut life_query: Query<&Transform, With<Life>>,
     mut damage_writer: EventWriter<ActorEvent>,
+    tiles_query: Query<&TileSprite>,
+    mut level: ResMut<LevelSetup>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
@@ -103,7 +108,20 @@ fn spawn_explosion(
 
         let mut camera = camera_query.single_mut();
         camera.vibration = 12.0;
+
+        if let Some(ref mut chunk) = level.chunk {
+            for TileSprite((tx, ty)) in tiles_query.iter() {
+                let distance = index_to_position((*tx, *ty)).distance(*position);
+                if distance < TILE_SIZE * 5.0 {
+                    chunk.set_tile(*tx, *ty, Tile::StoneTile);
+                }
+            }
+        }
     }
+}
+
+fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
+    Vec2::new(tx as f32 * TILE_SIZE, ty as f32 * -TILE_SIZE) + Vec2::new(TILE_HALF, TILE_HALF)
 }
 
 fn update_pointlight(

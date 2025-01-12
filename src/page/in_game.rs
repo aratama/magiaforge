@@ -14,6 +14,7 @@ use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::level::appearance::read_level_chunk_data;
 use crate::level::appearance::spawn_world_tilemap;
+use crate::level::appearance::TileSprite;
 use crate::level::biome::Biome;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::entities::spawn_entity;
@@ -29,6 +30,7 @@ use crate::message::LEVEL4;
 use crate::message::MULTIPLAY_ARENA;
 use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
+use crate::set::FixedUpdateAfterAll;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
@@ -160,8 +162,6 @@ pub fn setup_level(
 
     // レベルのコリジョンを生成します
     spawn_wall_collisions(&mut commands, &chunk);
-
-    commands.insert_resource(chunk.clone());
 
     // 宝箱や灯篭などのエンティティを生成します
     for entity in &chunk.entities {
@@ -431,6 +431,24 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
     }
 }
 
+fn update_tile_sprites(
+    mut current: ResMut<LevelSetup>,
+    mut commands: Commands,
+    tiles_query: Query<(Entity, &TileSprite)>,
+) {
+    if let Some(ref mut chunk) = current.chunk {
+        if let Some((left, top, right, bottom)) = chunk.dirty {
+            // dirty の範囲をいったん削除し、スプライトを再生成する
+            for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
+                if left <= *tx && *tx <= right && top <= *ty && *ty <= bottom {
+                    commands.entity(entity).despawn_recursive();
+                }
+            }
+            chunk.dirty = None;
+        }
+    }
+}
+
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
@@ -439,6 +457,7 @@ impl Plugin for WorldPlugin {
         app.add_systems(FixedUpdate, spawn_entity.in_set(FixedUpdateGameActiveSet));
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
+        app.add_systems(FixedUpdate, update_tile_sprites.in_set(FixedUpdateAfterAll));
         app.init_resource::<LevelSetup>();
     }
 }

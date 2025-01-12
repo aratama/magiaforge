@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -31,6 +32,7 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: 
             ty + (random::<f32>() - 0.5) * 16.0,
             0.0,
         )),
+        CounterAnimated,
         AseSpriteAnimation {
             aseprite: assets.gold.clone(),
             animation: "default".into(),

@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::constant::DAMAGE_NUMBER_LAYER_Z;
 use crate::entity::actor::ActorEvent;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 
@@ -57,8 +58,8 @@ pub struct DamagePlugin;
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (spawn_damage_number, update_damage).run_if(in_state(GameState::InGame)),
+            FixedUpdate,
+            (spawn_damage_number, update_damage).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

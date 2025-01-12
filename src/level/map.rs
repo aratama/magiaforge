@@ -19,7 +19,7 @@ struct LevelTileMapile {
     zone: Zone,
 }
 
-#[derive(Clone, Resource, Debug)]
+#[derive(Clone, Debug)]
 pub struct LevelChunk {
     tiles: Vec<LevelTileMapile>,
     pub min_x: i32,
@@ -28,6 +28,7 @@ pub struct LevelChunk {
     pub max_y: i32,
     pub entities: Vec<SpawnEntity>,
     pub entry_points: Vec<(i32, i32)>,
+    pub dirty: Option<(i32, i32, i32, i32)>,
 }
 
 impl LevelChunk {
@@ -74,6 +75,11 @@ impl LevelChunk {
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
         self.tiles[i].tile = tile;
+        self.dirty = if let Some((min_x, min_y, max_x, max_y)) = self.dirty {
+            Some((min_x.min(x), min_y.min(y), max_x.max(x), max_y.max(y)))
+        } else {
+            Some((x, y, x, y))
+        };
     }
 
     /// 実際に描画する天井タイルかどうかを返します
@@ -346,6 +352,7 @@ pub fn image_to_tilemap(
         max_y,
         entities,
         entry_points,
+        dirty: None,
     };
 }
 
