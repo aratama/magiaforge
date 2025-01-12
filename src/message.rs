@@ -199,32 +199,58 @@ pub const HELLO_RABBIT_0: Dict<&'static str> = Dict {
 };
 
 pub const HELLO_RABBIT_1: Dict<&'static str> = Dict {
-    ja: "通りすがりに大鴉に襲われた？それは災難だったね。おそらくはこの島に住む『漆黒の魔女』の使い魔のしわざだろう。",
-    en: "You were attacked by a large raven on the way? That's unfortunate. It was probably the work of the 'Black Witch' who lives on this island.",
-    zh_cn: "你在路上被一只大乌鸦袭击了？那真是不幸。可能是住在这个岛上的“黑女巫”的使魔干的。",
-    zh_tw: "你在路上被一隻大烏鴉襲擊了？那真是不幸。可能是住在這個島上的“黑女巫”的使魔幹的。",
-    es: "¿Fuiste atacado por un gran cuervo en el camino aquí? Eso es desafortunado. Probablemente fue obra de la 'Bruja Negra' que vive en esta isla.",
-    fr: "Vous avez été attaqué par un grand corbeau en venant ici ? C'est malheureux. C'était probablement l'œuvre de la 'Sorcière Noire' qui vit sur cette île.",
-    pt: "Você foi atacado por um grande corvo no caminho para cá? Isso é lamentável. Provavelmente foi obra da 'Bruxa Negra' que vive nesta ilha.",
-    de: "Wurden Sie auf dem Weg hierher von einem großen Raben angegriffen? Das ist bedauerlich. Es war wahrscheinlich das Werk der 'Schwarzen Hexe', die auf dieser Insel lebt.",
-    ko: "여기 오는 길에 큰 까마귀에게 공격당했어? 그것 참 불운하군. 아마도 이 섬에 사는 '검은 마녀'의 소행일 거야.",
-    ru: "Тебя по пути сюда атаковал большой ворон? Это неудача. Вероятно, это дело рук 'Черной Ведьмы', которая живет на этом острове."
+    ja: "通りすがりに大鴉に襲われた？それは災難だったね。",
+    en: "You were attacked by a large raven on the way? That's unfortunate.",
+    zh_cn: "你在路上被一只大乌鸦袭击了？那真是不幸。",
+    zh_tw: "你在路上被一隻大烏鴉襲擊了？那真是不幸。",
+    es: "¿Fuiste atacado por un gran cuervo en el camino aquí? Eso es desafortunado.",
+    fr: "Vous avez été attaqué par un grand corbeau en venant ici ? C'est malheureux.",
+    pt: "Você foi atacado por um grande corvo no caminho para cá? Isso é lamentável.",
+    de: "Wurden Sie auf dem Weg hierher von einem großen Raben angegriffen? Das ist bedauerlich.",
+    ko: "여기 오는 길에 큰 까마귀에게 공격당했어? 그것 참 불운하군.",
+    ru: "Тебя по пути сюда атаковал большой ворон? Это неудача.",
 };
 
 pub const HELLO_RABBIT_2: Dict<&'static str> = Dict {
-    ja: "我々では折れた箒の修理はできないな。この島の迷宮に行けば、修理の役に立つ呪文があるかもしれない。迷宮の入り口はこの奥だよ。",
-    en: "We can't repair a broken broom. If you go to the labyrinth on this island, you might find a spell that can help with the repair. The entrance to the labyrinth is further in.",
-    zh_cn: "我们无法修理破损的扫帚。如果你去这个岛上的迷宫，你可能会找到有助于修理的咒语。迷宫的入口在里面。",
-    zh_tw: "我們無法修理破損的掃帚。如果你去這個島上的迷宮，你可能會找到有助於修理的咒語。迷宮的入口在裡面。",
-    es: "No podemos reparar una escoba rota. Si vas al laberinto en esta isla, podrías encontrar un hechizo que pueda ayudar con la reparación. La entrada al laberinto está más adentro.",
-    fr: "Nous ne pouvons pas réparer un balai cassé. Si vous allez dans le labyrinthe de cette île, vous pourriez trouver un sort qui peut aider à la réparation. L'entrée du labyrinthe est plus loin.",
-    pt: "Não podemos consertar uma vassoura quebrada. Se você for ao labirinto nesta ilha, pode encontrar um feitiço que pode ajudar no conserto. A entrada do labirinto está mais adiante.",
-    de: "Wir können keinen kaputten Besen reparieren. Wenn du in das Labyrinth auf dieser Insel gehst, findest du vielleicht einen Zauber, der bei der Reparatur hilft. Der Eingang zum Labyrinth ist weiter drinnen.",
-    ko: "우리는 부러진 빗자루를 고칠 수 없어. 이 섬의 미로에 가면 수리에 도움이 되는 주문을 찾을 수 있을 거야. 미로의 입구는 더 안쪽에 있어.",
-    ru: "Мы не можем починить сломанное метлу. Если ты пойдешь в лабиринт на этом острове, возможно, найдешь заклинание, которое поможет с ремонтом. Вход в лабиринт дальше."
+    ja: "おそらくはこの島に住む『漆黒の魔女』の使い魔のしわざだろう。",
+    en: "It is probably the work of the 'Witch of Jet Black' who lives on this island.",
+    zh_cn: "这可能是住在这个岛上的“漆黑女巫”的杰作。",
+    zh_tw: "這可能是住在這個島上的“漆黑女巫”的傑作。",
+    es: "Probablemente sea obra de la 'Bruja de Azabache' que vive en esta isla.",
+    fr: "C'est probablement l'œuvre de la 'Sorcière de Jais' qui vit sur cette île.",
+    pt: "Provavelmente é obra da 'Bruxa de Ébano' que vive nesta ilha.",
+    de: "Es ist wahrscheinlich das Werk der 'Hexe von Pechschwarz', die auf dieser Insel lebt.",
+    ko: "아마도 이 섬에 사는 '칠흑의 마녀'의 짓일 거야.",
+    ru: "Вероятно, это дело рук 'Ведьмы Черного Яшмы', которая живет на этом острове.",
 };
 
 pub const HELLO_RABBIT_3: Dict<&'static str> = Dict {
+    ja: "我々では折れた魔法の箒の修理はできないな。自分で直してもらうしかない。",
+    en: "We can't repair your broken magic broom. You'll have to fix it yourself.",
+    zh_cn: "我们无法修理你破损的魔法扫帚。你得自己修理。",
+    zh_tw: "我們無法修理你破損的魔法掃帚。你得自己修理。",
+    es: "No podemos reparar tu escoba mágica rota. Tendrás que arreglarla tú mismo.",
+    fr: "Nous ne pouvons pas réparer votre balai magique cassé. Vous devrez le réparer vous-même.",
+    pt: "Não podemos consertar sua vassoura mágica quebrada. Você terá que consertá-la sozinho.",
+    de: "Wir können deinen kaputten magischen Besen nicht reparieren. Du musst ihn selbst reparieren.",
+    ko: "우리는 당신의 부러진 마법 빗자루를 고칠 수 없습니다. 당신이 직접 고쳐야 합니다.",
+    ru: "Мы не можем починить вашу сломанную волшебную метлу. Вам придется починить ее самостоятельно."
+};
+
+pub const HELLO_RABBIT_4: Dict<&'static str> = Dict {
+    ja: "この島の迷宮に行けば、修理の役に立つ呪文があるかもしれない。迷宮の入り口はこの奥だよ。",
+    en: "If you go to the labyrinth on this island, you might find a spell that can help with the repair. The entrance to the labyrinth is further in.",
+    zh_cn: "如果你去这个岛上的迷宫，你可能会找到一个可以帮助修理的咒语。迷宫的入口在里面。",
+    zh_tw: "如果你去這個島上的迷宮，你可能會找到一個可以幫助修理的咒語。迷宮的入口在裡面。",
+    es: "Si vas al laberinto en esta isla, podrías encontrar un hechizo que pueda ayudar con la reparación. La entrada al laberinto está más adentro.",
+    fr: "Si vous allez dans le labyrinthe de cette île, vous pourriez trouver un sort qui peut aider à la réparation. L'entrée du labyrinthe est plus loin.",
+    pt: "Se você for ao labirinto nesta ilha, pode encontrar um feitiço que pode ajudar no reparo. A entrada do labirinto está mais adiante.",
+    de: "Wenn du in das Labyrinth auf dieser Insel gehst, könntest du einen Zauber finden, der bei der Reparatur hilft. Der Eingang zum Labyrinth ist weiter drinnen.",
+    ko: "이 섬의 미로에 가면 수리에 도움이 될 수 있는 주문을 찾을 수 있을 거야. 미로의 입구는 더 안쪽에 있어.",
+    ru: "Если ты пойдешь в лабиринт на этом острове, возможно, найдешь заклинание, которое поможет с ремонтом. Вход в лабиринт находится дальше.",
+};
+
+pub const HELLO_RABBIT_5: Dict<&'static str> = Dict {
     ja: "迷宮に行く前に、ぼくらの店に立ち寄るといい。迷宮で拾った呪文を売っているんだ。",
     en: "Before going to the labyrinth, you should stop by our shop. We sell spells that we found in the labyrinth.",
     zh_cn: "在去迷宫之前，你应该先去我们的商店。我们出售在迷宫中找到的咒语。",
@@ -342,29 +368,30 @@ pub const RESERCH_RABBIT_5: Dict<&'static str> = Dict {
 };
 
 pub const MULTIPLAY: Dict<&'static str> = Dict {
-    ja: "この先はマルチプレイ用レベルだよ。\n気軽に遊んでいってね。\n誰かいるかはわからないけど。",
-    en: "It seems that this is a level for multiplayer.\nFeel free to play.\nI don't know if anyone is there.",
-    zh_cn: "这似乎是一个多人游戏的级别。\n随意玩。\n我不知道有没有人在那里。",
-    zh_tw: "這似乎是一個多人遊戲的級別。\n隨意玩。\n我不知道有沒有人在那裡。",
-    es: "Parece que este es un nivel para multijugador.\nSiéntete libre de jugar.\nNo sé si hay alguien allí.",
-    fr: "Il semble que ce soit un niveau pour multijoueur.\nN'hésitez pas à jouer.\nJe ne sais pas si quelqu'un est là.",
-    pt: "Parece que este é um nível para multijogador.\nSinta-se à vontade para jogar.\nNão sei se há alguém lá.",
-    de: "Es scheint, dass dies ein Level für Mehrspieler ist.\nFühlen Sie sich frei zu spielen.\nIch weiß nicht, ob jemand da ist.",
-    ko: "이것은 멀티플레이어를 위한 레벨인 것 같아.\n편하게 플레이해.\n누가 있는지 모르겠어.",
-    ru: "Кажется, это уровень для многопользовательской игры.\nНе стесняйтесь играть.\nНе знаю, есть ли там кто-нибудь.",
+    ja: "この先はマルチプレイ用レベルだよ。気軽に遊んでいってね。誰かいるかはわからないけど。",
+    en: "This is a multiplayer level. Feel free to play. I don't know if anyone is here though.",
+    zh_cn: "这是一个多人游戏关卡。随便玩吧。不过我不知道有没有人在这里。",
+    zh_tw: "這是一個多人遊戲關卡。隨便玩吧。不過我不知道有沒有人在這裡。",
+    es: "Este es un nivel multijugador. Siéntete libre de jugar. No sé si hay alguien aquí, sin embargo.",
+    fr: "Ceci est un niveau multijoueur. N'hésitez pas à jouer. Je ne sais pas si quelqu'un est là, cependant.",
+    pt: "Este é um nível multijogador. Sinta-se à vontade para jogar. Não sei se há alguém aqui, no entanto.",
+    de: "Dies ist ein Mehrspieler-Level. Fühlen Sie sich frei zu spielen. Ich weiß jedoch nicht, ob jemand hier ist.",
+    ko: "이곳은 멀티플레이 레벨입니다. 마음껏 플레이하세요. 여기에 누가 있는지는 모르겠어요.",
+    ru: "Это многопользовательский уровень. Играйте на здоровье. Не знаю, есть ли здесь кто-нибудь, правда.",
 };
 
 pub const TRAINING_RABBIT: Dict<&'static str> = Dict {
-    ja: "キミも強くなりたいのかい？\nここで練習していくといい。\nサンドバッグくんたちが相手になってくれる。",
-    en: "Do you want to be strong?\nIt's good to practice here.\nThe sandbag guys will be your opponent.",
-    zh_cn: "你想变强吗？\n在这里练习是很好的。\n沙袋们会成为你的对手。",
-    zh_tw: "你想變強嗎？\n在這裡練習是很好的。\n沙袋們會成為你的對手。",
-    es: "¿Quieres ser fuerte?\nEs bueno practicar aquí.\nLos sacos de arena serán tus oponentes.",
-    fr: "Voulez-vous devenir fort?\nC'est bien de s'entraîner ici.\nLes sacs de sable seront vos adversaires.",
-    pt: "Você quer ser forte?\nÉ bom praticar aqui.\nOs sacos de areia serão seus oponentes.",
-    de: "Willst du stark werden?\nEs ist gut, hier zu üben.\nDie Sandsäcke werden deine Gegner sein.",
-    ko: "강해지고 싶어?\n여기서 연습하는 것이 좋아.\n샌드백들이 상대가 되어줄 거야.",
-    ru: "Хочешь стать сильным?\nЗдесь хорошо тренироваться.\nМешки с песком будут твоими противниками.",
+    ja: "キミも強くなりたいのかい？ここで練習していくといい。サンドバッグくんたちが相手になってくれる。",
+    en: "Do you want to become stronger too? You can practice here. The sandbags will be your opponents.",
+    zh_cn: "你也想变得更强吗？你可以在这里练习。沙袋会成为你的对手。",
+    zh_tw: "你也想變得更強嗎？你可以在這裡練習。沙袋會成為你的對手。",
+    es: "¿También quieres volverte más fuerte? Puedes practicar aquí. Los sacos de arena serán tus oponentes.",
+    fr: "Vous voulez devenir plus fort aussi ? Vous pouvez vous entraîner ici. Les sacs de sable seront vos adversaires.",
+    pt: "Você também quer ficar mais forte? Você pode praticar aqui. Os sacos de areia serão seus oponentes.",
+    de: "Willst du auch stärker werden? Du kannst hier üben. Die Sandsäcke werden deine Gegner sein.",
+    ko: "너도 강해지고 싶니? 여기서 연습할 수 있어. 샌드백이 네 상대가 될 거야.",
+    ru: "Ты тоже хочешь стать сильнее? Ты можешь тренироваться здесь. Мешки с песком будут твоими противниками.",
+
 };
 
 pub const TRAINING_RABBIT_1: Dict<&'static str> = Dict {
@@ -472,16 +499,16 @@ pub const SPELL_LIST3: Dict<&'static str> = Dict {
 };
 
 pub const SHOP_RABBIT: Dict<&'static str> = Dict {
-    ja: "いらっしゃいませ！\n欲しい商品があったら\n持ってきてくださいね",
-    en: "Welcome!\nBring me the item\nyou want to buy.",
-    zh_cn: "欢迎！\n给我带来\n你想买的商品。",
-    zh_tw: "歡迎！\n給我帶來\n你想買的商品。",
-    es: "¡Bienvenido!\nTráeme el artículo\nque quieres comprar.",
-    fr: "Bienvenue!\nApportez-moi l'article\nque vous voulez acheter.",
-    pt: "Bem-vindo!\nTraga-me o item\nque você quer comprar.",
-    de: "Willkommen!\nBring mir den Artikel,\nden du kaufen möchtest.",
-    ko: "어서 오세요!\n사고 싶은 물건을\n가져와 주세요.",
-    ru: "Добро пожаловать!\nПринеси мне предмет,\nкоторый хочешь купить.",
+    ja: "いらっしゃいませ！欲しい商品があったら、ここへ持ってきてくださいね",
+    en: "Welcome! If you find something you want, please bring it here.",
+    zh_cn: "欢迎光临！如果您找到想要的商品，请带到这里。",
+    zh_tw: "歡迎光臨！如果您找到想要的商品，請帶到這裡。",
+    es: "¡Bienvenido! Si encuentras algo que quieras, por favor tráelo aquí.",
+    fr: "Bienvenue! Si vous trouvez quelque chose que vous voulez, veuillez l'apporter ici.",
+    pt: "Bem-vindo! Se encontrar algo que deseja, por favor traga aqui.",
+    de: "Willkommen! Wenn Sie etwas finden, das Sie möchten, bringen Sie es bitte hierher.",
+    ko: "환영합니다! 원하는 상품을 찾으시면 여기로 가져오세요.",
+    ru: "Добро пожаловать! Если найдете что-то, что хотите, принесите это сюда.",
 };
 
 pub fn shop_rabbit(golds: u32) -> Dict<String> {
@@ -505,39 +532,18 @@ pub fn shop_rabbit(golds: u32) -> Dict<String> {
 pub fn too_few_golds(golds: u32) -> Dict<String> {
     Dict {
         ja: format!(
-            "おいおい\n{}ゴールド足りませんよ\n買わない商品は\n戻しておいてくださいね",
+            "おいおい。{}ゴールド足りませんよ。買わない商品は戻しておいてくださいね。",
             golds
         ),
-        en: format!(
-            "Hey, hey!\nYou are {} Golds short!\nPut it back that you won't buy",
-            golds
-        ),
-        zh_cn: format!("嘿，嘿！\n你少了{}枚金牌！\n把你不买的东西放回去", golds),
-        zh_tw: format!("嘿，嘿！\n你少了{}枚金牌！\n把你不買的東西放回去", golds),
-        es: format!(
-            "¡Oye, oye!\nTe faltan {} oros!\nDevuelve lo que no vas a comprar",
-            golds
-        ),
-        fr: format!(
-            "Hé, hé!\nIl vous manque {} pièces d'or!\nRemettez ce que vous n'achetez pas",
-            golds
-        ),
-        pt: format!(
-            "Ei, ei!\nVocê está {} ouros a menos!\nDevolva o que você não vai comprar",
-            golds
-        ),
-        de: format!(
-            "Hey, hey!\nDir fehlen {} Gold!\nGib zurück, was du nicht kaufen wirst",
-            golds
-        ),
-        ko: format!(
-            "이봐, 이봐!\n{} 골드가 부족해!\n사지 않을 물건은 돌려놔",
-            golds
-        ),
-        ru: format!(
-            "Эй, эй!\nВам не хватает {} золота!\nВерните то, что не будете покупать",
-            golds
-        ),
+        en: format!("Hey, you're {} golds short. Please return the items you can't afford.", golds),
+        zh_cn: format!("嘿，你还差 {} 金币。请退还你买不起的商品。", golds),
+        zh_tw: format!("嘿，你還差 {} 金幣。請退還你買不起的商品。", golds),
+        es: format!("Oye, te faltan {} oros. Por favor, devuelve los artículos que no puedes pagar.", golds),
+        fr: format!("Hé, il te manque {} pièces d'or. Veuillez retourner les articles que vous ne pouvez pas vous permettre.", golds),
+        pt: format!("Ei, você está {} ouros a menos. Por favor, devolva os itens que você não pode pagar.", golds),
+        de: format!("Hey, dir fehlen {} Gold. Bitte gib die Artikel zurück, die du dir nicht leisten kannst.", golds),
+        ko: format!("이봐, {} 골드가 부족해. 살 수 없는 물건을 반환해 주세요.", golds),
+        ru: format!("Эй, тебе не хватает {} золота. Пожалуйста, верни товары, которые не можешь себе позволить.", golds),
     }
 }
 

@@ -39,6 +39,8 @@ use crate::message::HELLO_RABBIT_0;
 use crate::message::HELLO_RABBIT_1;
 use crate::message::HELLO_RABBIT_2;
 use crate::message::HELLO_RABBIT_3;
+use crate::message::HELLO_RABBIT_4;
+use crate::message::HELLO_RABBIT_5;
 use crate::message::MULTIPLAY;
 use crate::message::RESERCH_RABBIT_0;
 use crate::message::RESERCH_RABBIT_1;
@@ -379,6 +381,8 @@ pub fn spawn_entity(
                             Act::Speech(HELLO_RABBIT_1.to_string()),
                             Act::Speech(HELLO_RABBIT_2.to_string()),
                             Act::Speech(HELLO_RABBIT_3.to_string()),
+                            Act::Speech(HELLO_RABBIT_4.to_string()),
+                            Act::Speech(HELLO_RABBIT_5.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,

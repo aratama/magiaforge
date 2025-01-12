@@ -335,31 +335,12 @@ fn setup_raven(
     });
 }
 
-fn timeline(mut count: ResMut<OpeningCount>) {
-    count.count += 1;
-}
-
-fn click(
-    mouse: Res<ButtonInput<MouseButton>>,
-    mut writer: EventWriter<SEEvent>,
-    mut overlay_event_writer: EventWriter<OverlayEvent>,
-) {
-    if mouse.just_pressed(MouseButton::Left) {
-        writer.send(SEEvent::new(SE::Click));
-        overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));
-    }
-}
-
 pub struct OpeningPlugin;
 
 impl Plugin for OpeningPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(OpeningCount { count: 0 });
         app.add_systems(OnEnter(GameState::Opening), setup);
-        app.add_systems(
-            Update,
-            (timeline, click).run_if(in_state(GameState::Opening)),
-        );
         app.add_event::<OpeningEvent>();
         app.add_observer(
             |trigger: Trigger<OpeningEvent>,
