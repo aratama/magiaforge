@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
+use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
-use crate::constant::*;
 use crate::entity::explosion::SpawnExplosion;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;

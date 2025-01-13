@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::collision::ENEMY_BULLET_GROUP;
+use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::life::Life;
-use crate::constant::ENEMY_BULLET_GROUP;
 use crate::constant::MAX_SPELLS_IN_WAND;
-use crate::constant::PLAYER_BULLET_GROUP;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;

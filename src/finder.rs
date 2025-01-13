@@ -1,4 +1,4 @@
-use crate::constant::SENSOR_GROUPS;
+use crate::collision::SENSOR_GROUPS;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use bevy::prelude::*;

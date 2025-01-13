@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
+use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
-use crate::constant::*;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;
 use crate::se::SE;

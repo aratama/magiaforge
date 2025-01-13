@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::collision::ENTITY_GROUPS;
+use crate::collision::HIDDEN_WALL_GROUPS;
+use crate::collision::SENSOR_GROUPS;
 use crate::component::entity_depth::EntityDepth;
-use crate::constant::ENTITY_GROUPS;
-use crate::constant::HIDDEN_WALL_GROUPS;
-use crate::constant::SENSOR_GROUPS;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;

@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
-use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory::InventoryItem;

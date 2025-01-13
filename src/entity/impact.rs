@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
+use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::constant::PAINT_LAYER_Z;
-use crate::constant::SENSOR_GROUPS;
 use crate::constant::TILE_SIZE;
 use crate::entity::actor::ActorEvent;
 use crate::level::map::index_to_position;

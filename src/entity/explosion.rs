@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
+use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::ActorEvent;

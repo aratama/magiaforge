@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
+use crate::collision::*;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
-use crate::constant::*;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;

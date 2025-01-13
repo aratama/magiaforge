@@ -1,11 +1,11 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
+use crate::collision::ENTITY_GROUPS;
+use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::point_light::WithPointLight;
-use crate::constant::ENTITY_GROUPS;
-use crate::constant::SENSOR_GROUPS;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::set::FixedUpdateGameActiveSet;

@@ -1,4 +1,6 @@
 use crate::asset::GameAssets;
+use crate::collision::RABBIT_GROUPS;
+use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;

@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
+use crate::collision::*;
 use crate::component::entity_depth::EntityDepth;
-use crate::constant::*;
+use crate::constant::{TILE_HALF, Z_ORDER_SCALE};
 use crate::entity::fire::Burnable;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;

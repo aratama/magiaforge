@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
+use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
-use crate::constant::*;
 use crate::entity::impact::SpawnImpact;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;

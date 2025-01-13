@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
+use crate::collision::SENSOR_GROUPS;
 use crate::constant::PAINT_LAYER_Z;
-use crate::constant::SENSOR_GROUPS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::physics::identify;

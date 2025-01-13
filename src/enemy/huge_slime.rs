@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
+use crate::collision::ENEMY_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;

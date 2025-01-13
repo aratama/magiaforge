@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::collision::SHADOW_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
