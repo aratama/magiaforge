@@ -42,8 +42,8 @@ impl LevelChunk {
     }
 
     pub fn get_tile_by_coords(&self, p: Vec2) -> Tile {
-        let x = (p.x / TILE_SIZE as f32).floor() as i32;
-        let y = (-p.y / TILE_SIZE as f32).floor() as i32;
+        let x = (p.x / TILE_SIZE as f32).trunc() as i32;
+        let y = (-p.y / TILE_SIZE as f32).trunc() as i32;
         self.get_tile(x, y)
     }
 
@@ -61,7 +61,6 @@ impl LevelChunk {
         tile == Tile::Wall || tile == Tile::PermanentWall || tile == Tile::Blank
     }
 
-    #[allow(dead_code)]
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
         if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
             return;
@@ -76,6 +75,14 @@ impl LevelChunk {
         };
     }
 
+    pub fn set_tile_by_position(&mut self, position: Vec2, tile: Tile) {
+        self.set_tile(
+            (position.x / TILE_SIZE).trunc() as i32,
+            (-position.y / TILE_SIZE).trunc() as i32,
+            tile,
+        );
+    }
+
     /// 実際に描画する天井タイルかどうかを返します
     /// 天井が奥の床を隠して見えづらくなるのを避けるため、
     /// 天井タイルが3連続するところだけを描画します
@@ -88,6 +95,10 @@ impl LevelChunk {
         }
         return true;
     }
+}
+
+pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
+    Vec2::new(tx as f32 * TILE_SIZE, ty as f32 * -TILE_SIZE) + Vec2::new(TILE_HALF, TILE_HALF)
 }
 
 /// レベルマップでのタイルの整数での位置を、ワールド座標に変換します
@@ -322,6 +333,12 @@ pub fn image_to_tilemap(
                 (55, 79, 225, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Water,
+                        zone: Zone::SafeZone,
+                    });
+                }
+                (222, 233, 255, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Ice,
                         zone: Zone::SafeZone,
                     });
                 }

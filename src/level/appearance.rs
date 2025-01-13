@@ -15,6 +15,8 @@ use bevy_aseprite_ultra::prelude::*;
 use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 
+const WATER_PLANE_OFFEST: f32 = -4.0;
+
 #[derive(Component)]
 pub struct TileSprite(pub (i32, i32));
 
@@ -77,7 +79,7 @@ pub fn spawn_world_tilemap(
 
 /// 床や壁の外観(スプライト)を生成します
 pub fn spawn_world_tile(
-    commands: &mut Commands,
+    mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     chunk: &LevelChunk,
     biome: Biome,
@@ -110,28 +112,7 @@ pub fn spawn_world_tile(
         }
         Tile::Water => {
             // 水辺の岸の壁
-            if chunk.is_visible_ceil(
-                x,
-                y - 1,
-                1,
-                &vec![
-                    Tile::StoneTile,
-                    Tile::Biome,
-                    Tile::Wall,
-                    Tile::PermanentWall,
-                ],
-            ) {
-                commands.spawn((
-                    TileSprite((x, y)),
-                    AseSpriteSlice {
-                        aseprite: assets.atlas.clone(),
-                        name: "stone_wall".to_string(),
-                    },
-                    Transform::from_xyz(x as f32 * TILE_SIZE, -y as f32 * TILE_SIZE, SHORE_LAYER_Z),
-                ));
-            }
-
-            const WATER_PLANE_OFFEST: f32 = -4.0;
+            spawn_water_wall(&mut commands, &assets, &chunk, x, y);
 
             // 岸にできる泡
             spawn_autotiles(
@@ -186,7 +167,53 @@ pub fn spawn_world_tile(
                 ),
             ));
         }
+        Tile::Ice => {
+            spawn_water_wall(&mut commands, &assets, &chunk, x, y);
+
+            commands.spawn((
+                TileSprite((x, y)),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "tile_ice".to_string(),
+                },
+                Transform::from_xyz(
+                    x as f32 * TILE_SIZE,
+                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                    WATER_MESH_DARKER_LAYER_Z,
+                ),
+            ));
+        }
     };
+}
+
+// 水辺の岸の壁
+fn spawn_water_wall(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    chunk: &LevelChunk,
+    x: i32,
+    y: i32,
+) {
+    if chunk.is_visible_ceil(
+        x,
+        y - 1,
+        1,
+        &vec![
+            Tile::StoneTile,
+            Tile::Biome,
+            Tile::Wall,
+            Tile::PermanentWall,
+        ],
+    ) {
+        commands.spawn((
+            TileSprite((x, y)),
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "stone_wall".to_string(),
+            },
+            Transform::from_xyz(x as f32 * TILE_SIZE, -y as f32 * TILE_SIZE, SHORE_LAYER_Z),
+        ));
+    }
 }
 
 fn spawn_stone_tile(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {

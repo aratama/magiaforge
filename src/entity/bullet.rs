@@ -1,3 +1,4 @@
+use crate::asset::GameAssets;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::controller::remote::RemotePlayer;
@@ -7,13 +8,15 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::level::collision::WallCollider;
+use crate::level::tile::Tile;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
-use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
 use rand::seq::SliceRandom;
@@ -39,6 +42,7 @@ pub struct Bullet {
     impulse: f32,
     owner: Option<Uuid>,
     homing: f32,
+    freeze: bool,
     actor_group: ActorGroup,
     pub holder: Option<(Entity, Trigger)>,
 }
@@ -64,6 +68,12 @@ pub enum Trigger {
     Secondary,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum BulletImage {
+    Slice(Vec<String>),
+    Freeze,
+}
+
 /// 生成される弾丸の大半の情報を収めた構造体です
 /// 実際に弾丸を生成する spawn_bullet 関数のパラメータとして使われるほか、
 /// リモートで送信される RemoteMessage::Fire のデータとしても共通で使われることで、
@@ -86,12 +96,13 @@ pub struct SpawnBullet {
     pub bullet_lifetime: u32,
     pub damage: i32,
     pub impulse: f32,
-    pub slices: Vec<String>,
+    pub slices: BulletImage,
     pub collier_radius: f32,
     pub light_intensity: f32,
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
+    pub freeze: bool,
     pub groups: CollisionGroups,
 }
 
@@ -104,7 +115,7 @@ pub struct SpawnBullet {
 /// それ以外の物体に衝突した場合はそのまま消滅します
 pub fn spawn_bullet(
     commands: &mut Commands,
-    aseprite: Handle<Aseprite>,
+    assets: &Res<GameAssets>,
     writer: &mut EventWriter<SEEvent>,
     spawn: &SpawnBullet,
 ) {
@@ -121,16 +132,13 @@ pub fn spawn_bullet(
             impulse: spawn.impulse,
             owner: spawn.sender,
             homing: spawn.homing,
+            freeze: spawn.freeze,
             actor_group: spawn.actor_group,
             holder: spawn.holder,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
             * Transform::from_rotation(Quat::from_rotation_z(spawn.velocity.to_angle())), // .looking_to(velocity.extend(BULLET_Z), Vec3::Z)
-        AseSpriteSlice {
-            aseprite,
-            name: spawn.slices.choose(&mut rng).unwrap().clone().into(),
-        },
         (
             // 衝突にはColliderが必要
             Collider::ball(spawn.collier_radius),
@@ -158,6 +166,17 @@ pub fn spawn_bullet(
             Ccd::enabled(),
         ),
     ));
+
+    match spawn.slices {
+        BulletImage::Slice(ref slices) => entity.insert(AseSpriteSlice {
+            aseprite: assets.atlas.clone(),
+            name: slices.choose(&mut rng).unwrap().clone().into(),
+        }),
+        BulletImage::Freeze => entity.insert(AseSpriteAnimation {
+            aseprite: assets.freeze.clone(),
+            animation: "default".into(),
+        }),
+    };
 
     if 0.0 < spawn.light_intensity {
         entity.insert(PointLight2d {
@@ -219,6 +238,25 @@ fn bullet_homing(
                 velocity.linvel =
                     Vec2::from_angle(bullet_angle + next_angle) * velocity.linvel.length();
                 bullet_transform.rotation = Quat::from_rotation_z(velocity.linvel.to_angle());
+            }
+        }
+    }
+}
+
+fn bullet_freeze(
+    bullet_query: Query<(&Bullet, &Transform)>,
+    mut level: ResMut<LevelSetup>,
+    mut se: EventWriter<SEEvent>,
+) {
+    if let Some(ref mut chunk) = level.chunk {
+        for (bullet, transform) in bullet_query.iter() {
+            if bullet.freeze {
+                let position = transform.translation.truncate();
+                let tile = chunk.get_tile_by_coords(position);
+                if tile == Tile::Water {
+                    chunk.set_tile_by_position(position, Tile::Ice);
+                    se.send(SEEvent::pos(SE::Status2, position));
+                }
             }
         }
     }
@@ -380,6 +418,7 @@ impl Plugin for BulletPlugin {
                 despawn_bullet_by_lifetime,
                 bullet_collision,
                 bullet_homing,
+                bullet_freeze,
                 despown_bullet_residual,
             )
                 .in_set(FixedUpdateGameActiveSet),

@@ -4,7 +4,11 @@ use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::SENSOR_GROUPS;
+use crate::constant::TILE_SIZE;
 use crate::entity::actor::ActorEvent;
+use crate::level::map::index_to_position;
+use crate::level::tile::Tile;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -30,6 +34,7 @@ pub struct SpawnImpact {
 fn read_impact_event(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    mut level: ResMut<LevelSetup>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut writer: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnImpact>,
@@ -74,6 +79,7 @@ fn read_impact_event(
             },
         );
 
+        // 付近のエンティティにダメージ
         for entity in entities {
             if let Ok(life_transform) = life_query.get_mut(entity) {
                 let p = life_transform.translation.truncate();
@@ -84,6 +90,26 @@ fn read_impact_event(
                     fire: false,
                     impulse: (p - position).normalize_or_zero() * impulse,
                 });
+            }
+        }
+
+        // 付近の氷床を破壊
+        if let Some(ref mut chunk) = level.chunk {
+            let range = 5;
+            for dy in -range..(range + 1) {
+                for dx in -range..(range + 1) {
+                    let x = (position.x / TILE_SIZE) as i32 + dx;
+                    let y = (position.y / -TILE_SIZE) as i32 + dy;
+                    let distance = index_to_position((x, y)).distance(*position);
+                    if distance < TILE_SIZE * 5.0 {
+                        match chunk.get_tile(x, y) {
+                            Tile::Ice => {
+                                chunk.set_tile(x, y, Tile::Water);
+                            }
+                            _ => {}
+                        };
+                    }
+                }
             }
         }
 

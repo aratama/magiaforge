@@ -47,6 +47,9 @@ pub struct GameAssets {
     #[asset(path = "entity/witch.aseprite")]
     pub witch: Handle<Aseprite>,
 
+    #[asset(path = "entity/freeze.aseprite")]
+    pub freeze: Handle<Aseprite>,
+
     // モンスター //////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/slime.aseprite")]
     pub slime: Handle<Aseprite>,

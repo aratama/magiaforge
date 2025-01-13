@@ -131,8 +131,6 @@ fn drop(
         let content_optional = floating.content;
         let target_optional = floating.target;
 
-        info!("from {:?} to {:?}", content_optional, target_optional);
-
         floating.content = None;
         floating.target = None;
 
@@ -178,9 +176,6 @@ fn drop(
                     // 移動先のアイテムを取得
                     let item_optional_to = target.get_inventory_item(&actor);
 
-                    info!("item_optional_from {:?}", item_optional_from);
-                    info!("item_optional_to {:?}", item_optional_to);
-
                     if target.is_settable(item_optional_from)
                         && content.is_settable(item_optional_to)
                     {
@@ -219,8 +214,6 @@ impl FloatingContent {
                     price,
                 }),
             ) => {
-                info!("set_item {:?}", item);
-
                 actor.wands[*w].slots[*s] = Some(WandSpell { spell_type, price });
                 actor.wands[*w].index = 0;
             }

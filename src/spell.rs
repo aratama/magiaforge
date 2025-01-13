@@ -2,6 +2,7 @@ use crate::cast::SpellCast;
 use crate::cast::SpellCastBullet;
 use crate::cast::SpellCastEntityType;
 use crate::constant::TILE_SIZE;
+use crate::entity::bullet::BulletImage;
 use crate::entity::servant_seed::ServantType;
 use crate::language::Dict;
 use bevy::reflect::Reflect;
@@ -63,6 +64,7 @@ pub enum SpellType {
     SpikeBoots,
     // ランク 6
     LightSword,
+    Freeze,
     // ランク7
     SummonHugeSlime,
 }
@@ -111,7 +113,7 @@ impl SpellType {
                 icon: "bullet_magic_bolt",
                 price: 10,
                 cast: SpellCast::Bullet(SpellCastBullet {
-                    slices: vec!["bullet_magic_bolt".to_string()],
+                    slices: BulletImage::Slice(vec!["bullet_magic_bolt".to_string()]),
                     collier_radius: 5.0,
                     speed: 100.0,
                     lifetime: 240,
@@ -121,6 +123,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                    freeze: false,
                 }),
             },
             SpellType::LightBall =>  SpellProps {
@@ -153,7 +156,7 @@ impl SpellType {
                 icon: "light_ball_icon",
                 price: 10,
                 cast: SpellCast::Bullet(SpellCastBullet {
-                    slices: vec!["light_ball".to_string()],
+                    slices: BulletImage::Slice(vec!["light_ball".to_string()]),
                     collier_radius: 5.0,
                     speed: 4.0,
                     lifetime: 60 * 60,
@@ -163,6 +166,7 @@ impl SpellType {
                     light_intensity: 4.0,
                     light_radius: TILE_SIZE * 10.0,
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
+                    freeze: false,
                 }),
             },
             SpellType::Lantern => SpellProps {
@@ -258,7 +262,7 @@ impl SpellType {
                 icon: "bullet_purple",
                 price: 5,
                 cast: SpellCast::Bullet(SpellCastBullet {
-                    slices: vec!["bullet_purple".to_string()],
+                    slices: BulletImage::Slice(vec!["bullet_purple".to_string()]),
                     collier_radius: 5.0,
                     speed: 50.0,
                     lifetime: 500,
@@ -268,6 +272,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
+                    freeze: false,
                 }),
             },
             SpellType::SlimeCharge => SpellProps {
@@ -300,7 +305,7 @@ impl SpellType {
                 icon: "bullet_slime_charge",
                 price: 15,
                 cast: SpellCast::Bullet(SpellCastBullet {
-                    slices: vec!["bullet_slime_charge".to_string()],
+                    slices: BulletImage::Slice(vec!["bullet_slime_charge".to_string()]),
                     collier_radius: 5.0,
                     speed: 2.0,
                     lifetime: 5,
@@ -310,6 +315,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
+                    freeze: false,
                 }),
             },
             SpellType::Telescope => SpellProps {
@@ -404,7 +410,7 @@ impl SpellType {
                 icon: "spell_water_ball",
                 price: 15,
                 cast: SpellCast::Bullet(SpellCastBullet {
-                    slices: vec!["water_ball".to_string()],
+                    slices: BulletImage::Slice(vec!["water_ball".to_string()]),
                     collier_radius: 5.0,
                     speed: 80.0,
                     lifetime: 240,
@@ -414,6 +420,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
+                    freeze: false,
                 }),
             },
             SpellType::BulletSpeedDoown =>  SpellProps {
@@ -1160,6 +1167,50 @@ impl SpellType {
                 price: 1000,
                 cast: SpellCast::LightSword,
             },
+            SpellType::Freeze =>  SpellProps {
+                rank: 6,
+                name: Dict {
+                    ja: "氷結",
+                    en: "Freeze",
+                    zh_cn: "冻结",
+                    zh_tw: "凍結",
+                    es: "Congelar",
+                    fr: "Geler",
+                    pt: "Congelar",
+                    de: "Einfrieren",
+                    ko: "얼리기",
+                    ru: "Заморозка"
+                },
+                description: Dict {
+                    ja: "超低温の風を生み出し対象を凍結させます。",
+                    en: "Creates a gust of extremely cold wind that freezes the target.",
+                    zh_cn: "产生一阵极冷的风，冻结目标。",
+                    zh_tw: "產生一陣極冷的風，凍結目標。",
+                    es: "Crea una ráfaga de viento extremadamente frío que congela al objetivo.",
+                    fr: "Crée une rafale de vent extrêmement froid qui gèle la cible.",
+                    pt: "Cria uma rajada de vento extremamente frio que congela o alvo.",
+                    de: "Erzeugt einen extrem kalten Windstoß, der das Ziel einfriert.",
+                    ko: "대상을 얼리는 매우 차가운 바람을 생성합니다.",
+                    ru: "Создает порыв чрезвычайно холодного ветра, который замораживает цель."
+
+                },
+                cast_delay: 20,
+                icon: "tile_ice",
+                price: 1000,
+                cast: SpellCast::Bullet(SpellCastBullet {
+                    slices: BulletImage::Freeze,
+                    collier_radius: 5.0,
+                    speed: 64.0,
+                    lifetime: 180,
+                    damage: 0,
+                    impulse: 0.0,
+                    scattering: 0.4,
+                    light_intensity: 0.0,
+                    light_radius: 0.0,
+                    light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
+                    freeze: true,
+                }),
+            },
             SpellType::SummonHugeSlime =>  SpellProps {
                 rank: 8,
                 name: Dict {
@@ -1299,6 +1350,7 @@ pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
             light_intensity: _,
             light_radius: _,
             light_color_hlsa: _,
+            freeze: _,
         }) => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();

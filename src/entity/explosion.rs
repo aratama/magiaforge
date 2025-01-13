@@ -3,6 +3,7 @@ use crate::camera::GameCamera;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::ActorEvent;
+use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
@@ -13,6 +14,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
+
+use super::fire::Fire;
 
 pub const EXPLOSION_COUNT: u32 = 10;
 
@@ -37,6 +40,7 @@ fn spawn_explosion(
     mut camera_query: Query<&mut GameCamera>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut life_query: Query<&Transform, With<Life>>,
+    fire_query: Query<(Entity, &Transform), (With<Fire>, Without<Life>)>,
     mut damage_writer: EventWriter<ActorEvent>,
     mut level: ResMut<LevelSetup>,
 ) {
@@ -105,6 +109,15 @@ fn spawn_explosion(
         let mut camera = camera_query.single_mut();
         camera.vibration = 12.0;
 
+        // 付近の炎を消火
+        for (entity, transform) in fire_query.iter() {
+            let distance = transform.translation.truncate().distance(*position);
+            if distance < TILE_SIZE * 5.0 {
+                commands.entity(entity).despawn();
+            }
+        }
+
+        // 付近の壁を破壊、または氷床を水に変更
         if let Some(ref mut chunk) = level.chunk {
             let range = 5;
             for dy in -range..(range + 1) {
@@ -112,17 +125,21 @@ fn spawn_explosion(
                     let x = (position.x / TILE_SIZE) as i32 + dx;
                     let y = (position.y / -TILE_SIZE) as i32 + dy;
                     let distance = index_to_position((x, y)).distance(*position);
-                    if distance < TILE_SIZE * 5.0 && chunk.get_tile(x, y) == Tile::Wall {
-                        chunk.set_tile(x, y, Tile::StoneTile);
+                    if distance < TILE_SIZE * 5.0 {
+                        match chunk.get_tile(x, y) {
+                            Tile::Wall => {
+                                chunk.set_tile(x, y, Tile::StoneTile);
+                            }
+                            Tile::Ice => {
+                                chunk.set_tile(x, y, Tile::Water);
+                            }
+                            _ => {}
+                        };
                     }
                 }
             }
         }
     }
-}
-
-fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
-    Vec2::new(tx as f32 * TILE_SIZE, ty as f32 * -TILE_SIZE) + Vec2::new(TILE_HALF, TILE_HALF)
 }
 
 fn update_pointlight(

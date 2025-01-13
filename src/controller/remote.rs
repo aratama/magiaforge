@@ -287,12 +287,7 @@ fn receive_events(
                             }
                         }
                         RemoteMessage::Fire(spawning) => {
-                            spawn_bullet(
-                                &mut commands,
-                                assets.atlas.clone(),
-                                &mut writer,
-                                &spawning,
-                            );
+                            spawn_bullet(&mut commands, &assets, &mut writer, &spawning);
                         }
                         RemoteMessage::Hit {
                             sender: _sender,

@@ -12,7 +12,11 @@ use crate::entity::actor::ActorState;
 use crate::entity::bullet::Bullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
+use crate::entity::witch::spawn_witch;
+use crate::hud::overlay::OverlayEvent;
 use crate::input::get_direction;
+use crate::level::map::index_to_position;
+use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
@@ -34,6 +38,7 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use rand::seq::SliceRandom;
 use std::collections::HashSet;
 
 /// 操作可能なプレイヤーキャラクターを表します
@@ -359,6 +364,24 @@ fn die_player(
     }
 }
 
+fn drown(
+    mut commands: Commands,
+    player_query: Query<(Entity, &Transform), With<Player>>,
+    level: Res<LevelSetup>,
+    mut overlay_writer: EventWriter<OverlayEvent>,
+) {
+    if let Ok((entity, transform)) = player_query.get_single() {
+        if let Some(ref chunk) = level.chunk {
+            let position = transform.translation.truncate();
+            let tile = chunk.get_tile_by_coords(position);
+            if tile == Tile::Water {
+                commands.entity(entity).despawn_recursive();
+                overlay_writer.send(OverlayEvent::Close(GameState::InGame));
+            }
+        }
+    }
+}
+
 fn getting_up(
     mut player_query: Query<(&mut Actor, &mut Player)>,
     mut next: ResMut<NextState<GameMenuState>>,
@@ -427,6 +450,7 @@ impl Plugin for PlayerPlugin {
                 apply_intensity_by_lantern,
                 insert_discovered_spells,
                 move_player,
+                drown,
             )
                 .in_set(FixedUpdateInGameSet),
         );

@@ -8,6 +8,7 @@ use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
+use crate::entity::bullet::BulletImage;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
@@ -42,7 +43,7 @@ pub enum SpellCastEntityType {
 
 #[derive(Debug)]
 pub struct SpellCastBullet {
-    pub slices: Vec<String>,
+    pub slices: BulletImage,
 
     pub collier_radius: f32,
 
@@ -60,6 +61,8 @@ pub struct SpellCastBullet {
     pub light_intensity: f32,
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
+
+    pub freeze: bool,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -93,6 +96,7 @@ pub enum SpellCast {
     SpawnEntity(SpellCastEntityType),
     LightSword,
     Web,
+    // Freeze,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -168,10 +172,11 @@ pub fn cast_spell(
                         light_radius: cast.light_radius,
                         light_color_hlsa: cast.light_color_hlsa,
                         homing: actor.effects.homing,
+                        freeze: cast.freeze,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
-                    spawn_bullet(commands, assets.atlas.clone(), se, &spawn);
+                    spawn_bullet(commands, &assets, se, &spawn);
                     clear_effect = true;
 
                     // リモートへ呪文詠唱を伝えます
@@ -341,7 +346,7 @@ pub fn cast_spell(
                         sender: Some(actor.uuid),
                         damage: 5 + actor.effects.bullet_damage_buff_amount,
                         impulse: 0.0,
-                        slices: vec![
+                        slices: BulletImage::Slice(vec![
                             "light_sword".to_string(),
                             "light_catlass".to_string(),
                             "light_knife".to_string(),
@@ -350,16 +355,17 @@ pub fn cast_spell(
                             "light_trident".to_string(),
                             "light_rapier".to_string(),
                             "light_flamberge".to_string(),
-                        ],
+                        ]),
                         collier_radius: 5.0,
                         light_intensity: 1.0,
                         light_radius: 50.0,
                         light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
                         homing: actor.effects.homing,
+                        freeze: false,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
-                    spawn_bullet(commands, assets.atlas.clone(), se, &spawn);
+                    spawn_bullet(commands, &assets, se, &spawn);
                     clear_effect = true;
                 }
                 SpellCast::Web => {

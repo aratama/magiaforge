@@ -6,6 +6,8 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::point_light::WithPointLight;
 use crate::constant::ENTITY_GROUPS;
 use crate::constant::SENSOR_GROUPS;
+use crate::level::tile::Tile;
+use crate::page::in_game::LevelSetup;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::audio::PlaybackMode;
@@ -198,6 +200,34 @@ fn ignite(
     }
 }
 
+fn melt_ice(fire_query: Query<&Transform, With<Fire>>, mut level: ResMut<LevelSetup>) {
+    if let Some(ref mut level) = level.chunk {
+        for fire_transform in fire_query.iter() {
+            let position = fire_transform.translation.truncate();
+            let tile = level.get_tile_by_coords(position);
+            if tile == Tile::Ice {
+                level.set_tile_by_position(position, Tile::Water);
+            }
+        }
+    }
+}
+
+fn despawn_on_water(
+    mut commands: Commands,
+    fire_query: Query<(Entity, &Transform), With<Fire>>,
+    level: Res<LevelSetup>,
+) {
+    if let Some(ref level) = level.chunk {
+        for (entity, fire_transform) in fire_query.iter() {
+            let position = fire_transform.translation.truncate();
+            let tile = level.get_tile_by_coords(position);
+            if tile == Tile::Water {
+                commands.entity(entity).despawn_recursive();
+            }
+        }
+    }
+}
+
 pub struct FirePlugin;
 
 impl Plugin for FirePlugin {
@@ -205,7 +235,15 @@ impl Plugin for FirePlugin {
         app.add_systems(OnEnter(GameState::InGame), setup);
         app.add_systems(
             FixedUpdate,
-            (despown, translate, ignite, update_se_volume, burn).in_set(FixedUpdateGameActiveSet),
+            (
+                despown,
+                translate,
+                ignite,
+                update_se_volume,
+                burn,
+                (melt_ice, despawn_on_water).chain(),
+            )
+                .in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<Fire>();
     }

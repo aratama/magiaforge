@@ -7,6 +7,7 @@ pub enum Tile {
     StoneTile,
     Grassland,
     Water,
+    Ice,
 }
 
 impl Tile {
