@@ -57,6 +57,7 @@ pub enum SE {
     Dragon,
     DragonFlutter,
     Taoreru,
+    Freeze,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -125,6 +126,7 @@ fn se_events(
             SE::Dragon => &assets.dragon,
             SE::DragonFlutter => &assets.dragon_flutter,
             SE::Taoreru => &assets.taoreru,
+            SE::Freeze => &assets.freeze_se,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

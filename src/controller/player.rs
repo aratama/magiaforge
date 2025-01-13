@@ -12,10 +12,8 @@ use crate::entity::actor::ActorState;
 use crate::entity::bullet::Bullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
-use crate::entity::witch::spawn_witch;
 use crate::hud::overlay::OverlayEvent;
 use crate::input::get_direction;
-use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
@@ -38,7 +36,6 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
-use rand::seq::SliceRandom;
 use std::collections::HashSet;
 
 /// 操作可能なプレイヤーキャラクターを表します

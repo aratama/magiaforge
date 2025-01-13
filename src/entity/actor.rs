@@ -137,6 +137,12 @@ pub struct Actor {
     pub floundering: u32,
 
     pub fire_resistance: bool,
+
+    /// 0 より大きい場合は凍結状態
+    /// 1フレームごとに減少します
+    pub frozen: u32,
+
+    pub defreeze: u32,
 }
 
 pub struct ActorProps {
@@ -191,6 +197,8 @@ impl Actor {
             trapped: 0,
             trap_moratorium: 0,
             floundering: 1,
+            frozen: 0,
+            defreeze: 1,
         }
     }
 
@@ -466,6 +474,11 @@ fn fire_bullet(
     for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse, player) in
         actor_query.iter_mut()
     {
+        // 凍結時は攻撃不可
+        if 0 < actor.frozen {
+            continue;
+        }
+
         if actor.fire_state == ActorFireState::Fire {
             if 0 < actor.wait {
                 actor.wait -= 1;
@@ -525,6 +538,12 @@ fn apply_external_force(
     mut se: EventWriter<SEEvent>,
 ) {
     for (mut actor, mut external_force, transform) in query.iter_mut() {
+        // 凍結時は移動不能
+        if 0 < actor.frozen {
+            external_force.force = Vec2::ZERO;
+            continue;
+        }
+
         let force = actor.move_direction
             * actor.get_total_move_force()
             * if actor.fire_state == ActorFireState::Fire
@@ -556,6 +575,16 @@ fn apply_external_force(
     }
 }
 
+fn defreeze(mut query: Query<&mut Actor>) {
+    for mut actor in query.iter_mut() {
+        if actor.defreeze <= actor.frozen {
+            actor.frozen -= actor.defreeze;
+        } else if 0 < actor.frozen {
+            actor.frozen = 0;
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -569,6 +598,7 @@ impl Plugin for ActorPlugin {
                 update_actor_light,
                 apply_external_force,
                 fire_bullet,
+                defreeze,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

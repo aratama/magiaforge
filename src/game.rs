@@ -21,6 +21,7 @@ use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
+use crate::enemy::basic::BasicEnemyPlugin;
 use crate::enemy::chicken::ChikenControlPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
@@ -187,6 +188,7 @@ pub fn run_game() {
         .add_systems(Update, toggle_fullscreen)
         .add_plugins(ActorPlugin)
         .add_plugins(AnimatedSlicePlugin)
+        .add_plugins(BasicEnemyPlugin)
         .add_plugins(BGMSwitchPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BombPlugin)

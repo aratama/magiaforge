@@ -123,7 +123,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
-                    freeze: false,
+                    freeze: 0,
                 }),
             },
             SpellType::LightBall =>  SpellProps {
@@ -166,7 +166,7 @@ impl SpellType {
                     light_intensity: 4.0,
                     light_radius: TILE_SIZE * 10.0,
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
-                    freeze: false,
+                    freeze: 0,
                 }),
             },
             SpellType::Lantern => SpellProps {
@@ -272,7 +272,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
-                    freeze: false,
+                    freeze: 0,
                 }),
             },
             SpellType::SlimeCharge => SpellProps {
@@ -315,7 +315,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
-                    freeze: false,
+                    freeze: 0,
                 }),
             },
             SpellType::Telescope => SpellProps {
@@ -420,7 +420,7 @@ impl SpellType {
                     light_intensity: 1.0,
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
-                    freeze: false,
+                    freeze: 0,
                 }),
             },
             SpellType::BulletSpeedDoown =>  SpellProps {
@@ -1208,7 +1208,7 @@ impl SpellType {
                     light_intensity: 0.0,
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
-                    freeze: true,
+                    freeze: 120,
                 }),
             },
             SpellType::SummonHugeSlime =>  SpellProps {

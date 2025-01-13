@@ -15,6 +15,7 @@ use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::Wand;
@@ -22,6 +23,12 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use uuid::*;
+
+#[derive(Component, Debug)]
+pub struct BasicEnemy;
+
+#[derive(Component, Debug)]
+pub struct BasicEnemySprite;
 
 pub fn spawn_basic_enemy<T: Component>(
     commands: &mut Commands,
@@ -40,6 +47,7 @@ pub fn spawn_basic_enemy<T: Component>(
     radius: f32,
 ) -> Entity {
     let mut builder = commands.spawn((
+        BasicEnemy,
         Name::new(name.to_string()),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
@@ -85,6 +93,7 @@ pub fn spawn_basic_enemy<T: Component>(
 
     builder.with_children(|mut parent| {
         parent.spawn((
+            BasicEnemySprite,
             Falling::new(0.0, -0.1),
             Flip,
             LifeBeingSprite,
@@ -103,4 +112,34 @@ pub fn spawn_basic_enemy<T: Component>(
     }
 
     builder.id()
+}
+
+fn animate(
+    query: Query<&Actor, With<BasicEnemy>>,
+    mut sprite_query: Query<
+        (&Parent, &mut AseSpriteAnimation, &mut AnimationState),
+        With<BasicEnemySprite>,
+    >,
+) {
+    for (parent, mut animation, mut animation_state) in sprite_query.iter_mut() {
+        if let Ok(slime) = query.get(parent.get()) {
+            if 0 < slime.frozen {
+                animation.animation.tag = Some("frozen".to_string());
+                animation.animation.repeat = AnimationRepeat::Loop;
+                animation_state.current_frame = 2;
+            } else {
+                animation.animation.tag = Some("idle".to_string());
+                animation.animation.repeat = AnimationRepeat::Loop;
+                animation_state.current_frame = 0;
+            }
+        }
+    }
+}
+
+pub struct BasicEnemyPlugin;
+
+impl Plugin for BasicEnemyPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(FixedUpdate, animate.in_set(FixedUpdateGameActiveSet));
+    }
 }

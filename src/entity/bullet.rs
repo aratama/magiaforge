@@ -42,7 +42,7 @@ pub struct Bullet {
     impulse: f32,
     owner: Option<Uuid>,
     homing: f32,
-    freeze: bool,
+    freeze: u32,
     actor_group: ActorGroup,
     pub holder: Option<(Entity, Trigger)>,
 }
@@ -102,7 +102,7 @@ pub struct SpawnBullet {
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
-    pub freeze: bool,
+    pub freeze: u32,
     pub groups: CollisionGroups,
 }
 
@@ -243,19 +243,19 @@ fn bullet_homing(
     }
 }
 
-fn bullet_freeze(
+fn bullet_freeze_water(
     bullet_query: Query<(&Bullet, &Transform)>,
     mut level: ResMut<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
     if let Some(ref mut chunk) = level.chunk {
         for (bullet, transform) in bullet_query.iter() {
-            if bullet.freeze {
+            if 0 < bullet.freeze {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::Water {
                     chunk.set_tile_by_position(position, Tile::Ice);
-                    se.send(SEEvent::pos(SE::Status2, position));
+                    se.send(SEEvent::pos(SE::Freeze, position));
                 }
             }
         }
@@ -269,9 +269,9 @@ fn bullet_collision(
     mut lifebeing_query: Query<&Life, Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
-    mut writer: EventWriter<SEEvent>,
     mut actor_event: EventWriter<ActorEvent>,
     resource: Res<BulletParticleResource>,
+    mut se: EventWriter<SEEvent>,
 ) {
     // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
     // すでにdespawnしたentityに対して再びdespawnしてしまうことがあり、
@@ -291,7 +291,7 @@ fn bullet_collision(
                     &a,
                     &b,
                     &wall_collider_query,
-                    &mut writer,
+                    &mut se,
                     &mut actor_event,
                     &resource,
                 ) {
@@ -304,7 +304,7 @@ fn bullet_collision(
                         &b,
                         &a,
                         &wall_collider_query,
-                        &mut writer,
+                        &mut se,
                         &mut actor_event,
                         &resource,
                     );
@@ -324,7 +324,7 @@ fn process_bullet_event(
     a: &Entity,
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
-    writer: &mut EventWriter<SEEvent>,
+    se: &mut EventWriter<SEEvent>,
     actor_event: &mut EventWriter<ActorEvent>,
     resource: &Res<BulletParticleResource>,
 ) -> bool {
@@ -338,7 +338,7 @@ fn process_bullet_event(
         };
 
         if !despownings.contains(&bullet_entity) {
-            if let Ok(actor) = actors.get_mut(*b) {
+            if let Ok(mut actor) = actors.get_mut(*b) {
                 trace!("bullet hit actor: {:?}", actor.uuid);
 
                 // 弾丸がアクターに衝突したとき
@@ -349,6 +349,16 @@ fn process_bullet_event(
                     despownings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     spawn_particle_system(&mut commands, bullet_position, resource);
+
+                    // TODO
+                    // Life と Actor は分離されているので、Damagedイベントでは扱わない
+                    // 一貫性がない？
+                    if actor.frozen == 0 && 0 < bullet.freeze {
+                        se.send(SEEvent::pos(SE::Freeze, bullet_position));
+                    }
+                    actor.frozen += bullet.freeze;
+                    info!("actor frozen: {:?}", actor.frozen);
+
                     actor_event.send(ActorEvent::Damaged {
                         actor: *b,
                         damage: bullet_damage as u32,
@@ -375,7 +385,7 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
-                writer.send(SEEvent::pos(SE::Steps, bullet_position));
+                se.send(SEEvent::pos(SE::Steps, bullet_position));
             } else {
                 // リモートプレイヤーに命中した場合もここ
                 // ヒット判定やダメージなどはリモート側で処理します
@@ -383,7 +393,7 @@ fn process_bullet_event(
                 despownings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 spawn_particle_system(&mut commands, bullet_position, resource);
-                writer.send(SEEvent::pos(SE::NoDamage, bullet_position));
+                se.send(SEEvent::pos(SE::NoDamage, bullet_position));
             }
             true
         } else {
@@ -418,7 +428,7 @@ impl Plugin for BulletPlugin {
                 despawn_bullet_by_lifetime,
                 bullet_collision,
                 bullet_homing,
-                bullet_freeze,
+                bullet_freeze_water,
                 despown_bullet_residual,
             )
                 .in_set(FixedUpdateGameActiveSet),

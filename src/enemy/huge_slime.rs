@@ -87,6 +87,9 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
     // 通常1秒しか拘束
     actor.floundering = 8;
 
+    // スライムの王は凍結無効
+    actor.defreeze = 10000;
+
     commands
         .spawn((
             Name::new("huge slime"),

@@ -55,6 +55,10 @@ pub fn spawn_chiken(
 
 fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&PlayerServant>)>) {
     for (mut chilken, mut actor, servant) in chiken_query.iter_mut() {
+        if 0 < actor.frozen {
+            continue;
+        }
+
         if servant.is_none() {
             match chilken.state {
                 ChickenState::Wait(ref mut count) => {
@@ -86,9 +90,15 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
     }
 }
 
-fn hopping(mut chiken_query: Query<&mut Chicken>, mut fall_query: Query<(&Parent, &mut Falling)>) {
+fn hopping(
+    chiken_query: Query<(&Chicken, &Actor)>,
+    mut fall_query: Query<(&Parent, &mut Falling)>,
+) {
     for (parent, mut fall) in fall_query.iter_mut() {
-        if let Ok(chicken) = chiken_query.get_mut(parent.get()) {
+        if let Ok((chicken, actor)) = chiken_query.get(parent.get()) {
+            if 0 < actor.frozen {
+                continue;
+            }
             match chicken.state {
                 ChickenState::Wait(..) => {}
                 ChickenState::Walk { .. } => {
