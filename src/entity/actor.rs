@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::ENEMY_GROUPS;
+use crate::collision::FLYING_PLAYER_GROUPS;
 use crate::collision::NEUTRAL_GROUPS;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::collision::PLAYER_GROUPS;
@@ -143,6 +144,8 @@ pub struct Actor {
     pub frozen: u32,
 
     pub defreeze: u32,
+
+    pub levitation: u32,
 }
 
 pub struct ActorProps {
@@ -199,6 +202,7 @@ impl Actor {
             floundering: 1,
             frozen: 0,
             defreeze: 1,
+            levitation: 0,
         }
     }
 
@@ -585,6 +589,26 @@ fn defreeze(mut query: Query<&mut Actor>) {
     }
 }
 
+fn collision_group(mut query: Query<(&Actor, &mut CollisionGroups)>) {
+    for (actor, mut groups) in query.iter_mut() {
+        *groups = match actor.actor_group {
+            // todo
+            ActorGroup::Player if 0 < actor.levitation => *FLYING_PLAYER_GROUPS,
+            ActorGroup::Player => *PLAYER_GROUPS,
+            ActorGroup::Enemy => *ENEMY_GROUPS,
+            ActorGroup::Neutral => *NEUTRAL_GROUPS,
+        }
+    }
+}
+
+fn levitation(mut actor_query: Query<&mut Actor>) {
+    for mut actor in actor_query.iter_mut() {
+        if 0 < actor.levitation {
+            actor.levitation -= 1;
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -599,6 +623,8 @@ impl Plugin for ActorPlugin {
                 apply_external_force,
                 fire_bullet,
                 defreeze,
+                collision_group,
+                levitation,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

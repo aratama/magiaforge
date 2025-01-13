@@ -1,6 +1,8 @@
 use crate::asset::GameAssets;
+use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
@@ -14,6 +16,7 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::player_state::PlayerState;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::audio::Volume;
@@ -31,6 +34,12 @@ pub struct WitchWandSprite;
 
 #[derive(Default, Component, Reflect)]
 pub struct WitchAnimationSprite;
+
+#[derive(Default, Component, Reflect)]
+pub struct WitchLevitationEffect;
+
+#[derive(Default, Component, Reflect)]
+pub struct WitchSpriteGroup;
 
 #[derive(Component)]
 pub struct Witch;
@@ -111,38 +120,54 @@ pub fn spawn_witch<T: Component>(
 
     entity.with_children(move |spawn_children| {
         spawn_children.spawn((
-            Transform::from_translation(Vec2::new(0.0, -8.0).extend(SHADOW_LAYER_Z)),
+            Transform::from_translation(Vec2::new(0.0, -4.0).extend(SHADOW_LAYER_Z)),
             AseSpriteSlice {
                 aseprite: assets.atlas.clone(),
                 name: "entity_shadow".into(),
             },
         ));
 
-        spawn_children.spawn((
-            WitchAnimationSprite,
-            LifeBeingSprite,
-            Sprite {
-                // flip_x: true,
-                // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
-                // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
-                ..default()
-            },
-            CounterAnimated,
-            AseSpriteAnimation {
-                aseprite: assets.witch.clone(),
-                animation: Animation::default().with_tag("idle_r"),
-            },
-            ChildEntityDepth { offset: 0.0 },
-        ));
-
-        spawn_children.spawn((
-            WitchWandSprite,
-            AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
-                name: "wand_cypress".into(),
-            },
-            ChildEntityDepth { offset: -0.001 },
-        ));
+        spawn_children
+            .spawn((
+                WitchSpriteGroup,
+                Falling::new(0.0, 0.0),
+                Transform::from_xyz(0.0, 0.0, 0.0),
+                ChildEntityDepth { offset: 0.0 },
+                Counter::up(0),
+            ))
+            .with_child((
+                WitchAnimationSprite,
+                LifeBeingSprite,
+                Sprite {
+                    // flip_x: true,
+                    // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
+                    // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
+                    ..default()
+                },
+                CounterAnimated,
+                AseSpriteAnimation {
+                    aseprite: assets.witch.clone(),
+                    animation: Animation::default().with_tag("idle_r"),
+                },
+            ))
+            .with_child((
+                WitchWandSprite,
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "wand_cypress".into(),
+                },
+                Transform::from_xyz(0.0, 4.0, -0.0001),
+            ))
+            .with_child((
+                WitchLevitationEffect,
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "levitation".into(),
+                },
+                Transform::from_xyz(0.0, -4.0, -0.0002),
+                Visibility::Hidden,
+                Counter::up(0),
+            ));
 
         // リモートプレイヤーの名前
         // 自分のプレイヤーキャラクターは名前を表示しません
@@ -202,6 +227,7 @@ pub fn spawn_enemy_witch(
 
 fn update_witch_animation(
     witch_query: Query<&Actor, With<Witch>>,
+    witch_sprite_group_query: Query<&Parent, With<WitchSpriteGroup>>,
     mut witch_animation_query: Query<
         (
             &Parent,
@@ -214,103 +240,145 @@ fn update_witch_animation(
 ) {
     for (parent, mut sprite, mut animation, mut animation_state) in witch_animation_query.iter_mut()
     {
-        if let Ok(actor) = witch_query.get(parent.get()) {
-            let angle = actor.pointer.to_angle();
-            let pi = std::f32::consts::PI;
-            match actor.state {
-                ActorState::Idle => {
-                    if angle < pi * -0.75 || pi * 0.75 < angle {
-                        sprite.flip_x = true;
-                        if animation.animation.tag != Some("idle_r".to_string()) {
-                            animation.animation.tag = Some("idle_r".to_string());
-                            animation_state.current_frame = 0;
-                        }
-                    } else if pi * 0.25 < angle && angle < pi * 0.75 {
-                        sprite.flip_x = false;
-                        if animation.animation.tag != Some("idle_u".to_string()) {
-                            animation.animation.tag = Some("idle_u".to_string());
-                            animation_state.current_frame = 6;
-                        }
-                    } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
-                        sprite.flip_x = false;
-                        if animation.animation.tag != Some("idle_d".to_string()) {
-                            animation.animation.tag = Some("idle_d".to_string());
-                            animation_state.current_frame = 3;
-                        }
-                    } else {
-                        sprite.flip_x = false;
-                        if animation.animation.tag != Some("idle_r".to_string()) {
-                            animation.animation.tag = Some("idle_r".to_string());
-                            animation_state.current_frame = 0;
-                        }
-                    };
-                }
-                ActorState::Run => {
-                    if angle < pi * -0.75 || pi * 0.75 < angle {
-                        sprite.flip_x = true;
-                        if animation.animation.tag != Some("run_r".to_string()) {
-                            animation.animation.tag = Some("run_r".to_string());
-                            animation_state.current_frame = 9;
-                        }
-                    } else if pi * 0.25 < angle && angle < pi * 0.75 {
-                        sprite.flip_x = false;
-                        if animation.animation.tag != Some("run_u".to_string()) {
-                            animation.animation.tag = Some("run_u".to_string());
-                            animation_state.current_frame = 13;
-                        }
-                    } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
-                        sprite.flip_x = false;
-                        if animation.animation.tag != Some("run_d".to_string()) {
-                            animation.animation.tag = Some("run_d".to_string());
-                            animation_state.current_frame = 17;
-                        }
-                    } else {
-                        sprite.flip_x = false;
-                        if animation.animation.tag != Some("run_r".to_string()) {
-                            animation.animation.tag = Some("run_r".to_string());
-                            animation_state.current_frame = 9;
-                        }
-                    };
-                }
-                ActorState::GettingUp => {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("get_up".to_string()) {
-                        animation.animation.tag = Some("get_up".to_string());
-                        animation_state.current_frame = 26;
+        // 魔女エンティティは３階層になっていることに注意
+        // 魔女スプライトから Actor を辿るのには２回 get が必要です
+        let sprite_group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
+        let actor = witch_query.get(sprite_group_parent.get()).unwrap();
+
+        let angle = actor.pointer.to_angle();
+        let pi = std::f32::consts::PI;
+        match actor.state {
+            ActorState::Idle => {
+                if angle < pi * -0.75 || pi * 0.75 < angle {
+                    sprite.flip_x = true;
+                    if animation.animation.tag != Some("idle_r".to_string()) {
+                        animation.animation.tag = Some("idle_r".to_string());
+                        animation_state.current_frame = 0;
                     }
+                } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("idle_u".to_string()) {
+                        animation.animation.tag = Some("idle_u".to_string());
+                        animation_state.current_frame = 6;
+                    }
+                } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("idle_d".to_string()) {
+                        animation.animation.tag = Some("idle_d".to_string());
+                        animation_state.current_frame = 3;
+                    }
+                } else {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("idle_r".to_string()) {
+                        animation.animation.tag = Some("idle_r".to_string());
+                        animation_state.current_frame = 0;
+                    }
+                };
+            }
+            ActorState::Run => {
+                if angle < pi * -0.75 || pi * 0.75 < angle {
+                    sprite.flip_x = true;
+                    if animation.animation.tag != Some("run_r".to_string()) {
+                        animation.animation.tag = Some("run_r".to_string());
+                        animation_state.current_frame = 9;
+                    }
+                } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("run_u".to_string()) {
+                        animation.animation.tag = Some("run_u".to_string());
+                        animation_state.current_frame = 13;
+                    }
+                } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("run_d".to_string()) {
+                        animation.animation.tag = Some("run_d".to_string());
+                        animation_state.current_frame = 17;
+                    }
+                } else {
+                    sprite.flip_x = false;
+                    if animation.animation.tag != Some("run_r".to_string()) {
+                        animation.animation.tag = Some("run_r".to_string());
+                        animation_state.current_frame = 9;
+                    }
+                };
+            }
+            ActorState::GettingUp => {
+                sprite.flip_x = false;
+                if animation.animation.tag != Some("get_up".to_string()) {
+                    animation.animation.tag = Some("get_up".to_string());
+                    animation_state.current_frame = 26;
                 }
-            };
-        } else {
-            warn!("parent of witch not found");
-        }
+            }
+        };
     }
 }
 
 fn update_wand(
     actor_query: Query<&Actor>,
+    witch_sprite_group_query: Query<&Parent, With<WitchSpriteGroup>>,
     mut query: Query<
         (&Parent, &mut Transform, &mut Visibility),
         (With<WitchWandSprite>, Without<Actor>),
     >,
 ) {
     for (parent, mut transform, mut visibility) in query.iter_mut() {
-        if let Ok(actor) = actor_query.get(parent.get()) {
-            let direction = actor.pointer;
-            let angle = direction.to_angle();
-            let pi = std::f32::consts::PI;
-            transform.rotation = Quat::from_rotation_z(angle);
-            transform.translation.x = if pi * 0.25 < angle && angle < pi * 0.75 {
-                4.0
-            } else if angle < pi * -0.25 && pi * -0.75 < angle {
-                -4.0
-            } else {
-                0.0
-            };
+        let group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
+        let actor = actor_query.get(group_parent.get()).unwrap();
+        let direction = actor.pointer;
+        let angle = direction.to_angle();
+        let pi = std::f32::consts::PI;
+        transform.rotation = Quat::from_rotation_z(angle);
+        transform.translation.x = if pi * 0.25 < angle && angle < pi * 0.75 {
+            4.0
+        } else if angle < pi * -0.25 && pi * -0.75 < angle {
+            -4.0
+        } else {
+            0.0
+        };
 
-            *visibility = match actor.state {
-                ActorState::GettingUp => Visibility::Hidden,
-                _ => Visibility::Visible,
-            }
+        *visibility = match actor.state {
+            ActorState::GettingUp => Visibility::Hidden,
+            _ => Visibility::Visible,
+        }
+    }
+}
+
+fn levitation(
+    actor_query: Query<&Actor, With<Witch>>,
+    mut group_query: Query<
+        (&Parent, &mut Transform, &Counter, &mut Falling),
+        With<WitchSpriteGroup>,
+    >,
+) {
+    for (parent, mut transform, counter, mut falling) in group_query.iter_mut() {
+        let actor = actor_query.get(parent.get()).unwrap();
+        if 0 < actor.levitation {
+            transform.translation.y = 6.0 + (counter.count as f32 * 0.08).sin() * 4.0;
+            falling.gravity = 0.0;
+        } else {
+            falling.gravity = -0.1;
+        }
+    }
+}
+
+fn levitation_effect(
+    actor_query: Query<&Actor, With<Witch>>,
+    group_query: Query<&Parent, With<WitchSpriteGroup>>,
+    mut effect_query: Query<(&Parent, &mut Visibility, &Counter), With<WitchLevitationEffect>>,
+) {
+    for (parent, mut visibility, counter) in effect_query.iter_mut() {
+        let group = group_query.get(parent.get()).unwrap();
+        let actor = actor_query.get(group.get()).unwrap();
+        if 120 < actor.levitation {
+            *visibility = Visibility::Inherited;
+        } else if 0 < actor.levitation {
+            *visibility = if (counter.count / 4) % 2 == 0 {
+                Visibility::Inherited
+            } else {
+                Visibility::Hidden
+            };
+        } else {
+            *visibility = Visibility::Hidden;
         }
     }
 }
@@ -320,8 +388,14 @@ pub struct WitchPlugin;
 impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (update_witch_animation, update_wand).run_if(in_state(GameState::InGame)),
+            FixedUpdate,
+            (
+                update_witch_animation,
+                update_wand,
+                levitation,
+                levitation_effect,
+            )
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }

@@ -4,6 +4,7 @@ use bevy::prelude::*;
 /// 子エンティティのスプライトに付与し
 /// y座標を変化させて落下させるコンポーネントです
 #[derive(Default, Component, Reflect)]
+#[require(Transform)]
 pub struct Falling {
     pub velocity: f32,
     pub gravity: f32,

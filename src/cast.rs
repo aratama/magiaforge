@@ -96,7 +96,7 @@ pub enum SpellCast {
     SpawnEntity(SpellCastEntityType),
     LightSword,
     Web,
-    // Freeze,
+    Levitation,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -372,6 +372,11 @@ pub fn cast_spell(
                     let actor_position = actor_transform.translation.truncate();
                     let position = actor_position + actor.pointer;
                     spawn_web(&mut commands, &assets, &mut se, position, actor.actor_group);
+                }
+                SpellCast::Levitation => {
+                    actor.levitation += 300;
+                    let position = actor_transform.translation.truncate();
+                    se.send(SEEvent::pos(SE::Status2, position));
                 }
             }
         } else {

@@ -56,6 +56,9 @@ pub const CEIL_LAYER_Z: f32 = 21.5;
 /// キャラクターやチェストなどのレイヤー
 pub const ENTITY_LAYER_Z: f32 = 20.0;
 
+/// 浮遊魔法エフェクトのレイヤー
+pub const LEVITATION_LAYER_Z: f32 = 12.0;
+
 pub const SHADOW_LAYER_Z: f32 = 11.0;
 
 /// ツボの破片のレイヤー

@@ -137,11 +137,12 @@ fn debug_item(mut player_query: Query<(&Player, &mut Actor, &Life)>) {
         inventory.insert_free(InventoryItemType::Spell(SpellType::Servant));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Web));
         inventory.insert_free(InventoryItemType::Spell(SpellType::Freeze));
+        inventory.insert_free(InventoryItemType::Spell(SpellType::Levitation));
         inventory.sort();
 
         actor.wands[0] = Wand::with_slots([
             Some(WandSpell {
-                spell_type: SpellType::Freeze,
+                spell_type: SpellType::Levitation,
                 price: 0,
             }),
             None,

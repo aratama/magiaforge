@@ -363,17 +363,21 @@ fn die_player(
 
 fn drown(
     mut commands: Commands,
-    player_query: Query<(Entity, &Transform), With<Player>>,
+    player_query: Query<(Entity, &Actor, &Transform), With<Player>>,
     level: Res<LevelSetup>,
     mut overlay_writer: EventWriter<OverlayEvent>,
+    mut se: EventWriter<SEEvent>,
 ) {
-    if let Ok((entity, transform)) = player_query.get_single() {
-        if let Some(ref chunk) = level.chunk {
-            let position = transform.translation.truncate();
-            let tile = chunk.get_tile_by_coords(position);
-            if tile == Tile::Water {
-                commands.entity(entity).despawn_recursive();
-                overlay_writer.send(OverlayEvent::Close(GameState::InGame));
+    if let Some(ref chunk) = level.chunk {
+        if let Ok((entity, actor, transform)) = player_query.get_single() {
+            if actor.levitation == 0 {
+                let position = transform.translation.truncate();
+                let tile = chunk.get_tile_by_coords(position);
+                if tile == Tile::Water {
+                    commands.entity(entity).despawn_recursive();
+                    se.send(SEEvent::pos(SE::Basha2, position));
+                    overlay_writer.send(OverlayEvent::Close(GameState::InGame));
+                }
             }
         }
     }
