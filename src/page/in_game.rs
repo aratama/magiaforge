@@ -24,6 +24,7 @@ use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
+use crate::level::tile::Tile;
 use crate::message::LEVEL0;
 use crate::message::LEVEL1;
 use crate::message::LEVEL2;
@@ -446,6 +447,26 @@ fn update_tile_sprites(
 ) {
     let biome = level_to_biome(current.level.unwrap());
     if let Some(ref mut chunk) = current.chunk {
+        // 縦２タイルのみ孤立して残っているものがあれば削除
+        for y in chunk.min_y..(chunk.max_y + 1) {
+            for x in chunk.min_x..(chunk.max_x + 1) {
+                if !chunk.get_tile(x, y + 0).is_wall()
+                    && chunk.get_tile(x, y + 1).is_wall()
+                    && !chunk.get_tile(x, y + 2).is_wall()
+                {
+                    chunk.set_tile(x, y + 1, Tile::StoneTile);
+                } else if !chunk.get_tile(x, y + 0).is_wall()
+                    && chunk.get_tile(x, y + 1).is_wall()
+                    && chunk.get_tile(x, y + 2).is_wall()
+                    && !chunk.get_tile(x, y + 3).is_wall()
+                {
+                    chunk.set_tile(x, y + 1, Tile::StoneTile);
+                    chunk.set_tile(x, y + 2, Tile::StoneTile);
+                }
+            }
+        }
+
+        // 範囲内を更新
         if let Some((left, top, right, bottom)) = chunk.dirty {
             let min_x = (left - 1).max(chunk.min_x);
             let max_x = (right + 1).min(chunk.max_x);
