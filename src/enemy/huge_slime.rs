@@ -11,6 +11,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorProps;
+use crate::entity::actor::ActorSpriteGroup;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
@@ -137,8 +138,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
             ),
         ))
         .with_children(|parent| {
-            parent.spawn((
-                Falling::new(0.0, -0.2),
+            parent.spawn(ActorSpriteGroup).with_child((
                 HugeSlimeSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
@@ -154,19 +154,13 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 // 空中にいる場合は移動の外力が働く
 fn control(
     player_query: Query<&Transform, With<Player>>,
-    mut slime_query: Query<(&Transform, &mut Actor), (With<HugeSlime>, Without<Player>)>,
-    mut sprite_query: Query<
-        (&Parent, &Transform),
-        (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
-    >,
+    mut slime_query: Query<(&Transform, &mut Actor, &Falling), (With<HugeSlime>, Without<Player>)>,
 ) {
-    for (parent, offset) in sprite_query.iter_mut() {
-        let (transform, mut actor) = slime_query.get_mut(parent.get()).unwrap();
-
+    for (transform, mut actor, falling) in slime_query.iter_mut() {
         actor.move_force = 0.0;
 
         if let Ok(player_transform) = player_query.get_single() {
-            if 0.0 < offset.translation.y {
+            if 0.0 < falling.v {
                 let direction = (player_transform.translation.truncate()
                     - transform.translation.truncate())
                 .normalize_or_zero();
@@ -182,15 +176,13 @@ fn control(
 }
 
 fn impact(
-    slime_query: Query<&Transform, With<HugeSlime>>,
-    sprite_query: Query<(&Parent, &Falling), With<HugeSlimeSprite>>,
+    slime_query: Query<(Entity, &Transform, &Falling), With<HugeSlime>>,
     mut impact_writer: EventWriter<SpawnImpact>,
 ) {
-    for (parent, falling) in sprite_query.iter() {
+    for (entity, transform, falling) in slime_query.iter() {
         if falling.just_landed {
-            let transform = slime_query.get(parent.get()).unwrap();
             impact_writer.send(SpawnImpact {
-                owner: Some(parent.get()),
+                owner: Some(entity),
                 position: transform.translation.truncate(),
                 radius: HUGE_SLIME_COLLIDER_RADIUS + IMPACT_MARGIN,
                 impulse: 30000.0,
@@ -201,12 +193,9 @@ fn impact(
 
 fn update_huge_slime_growl(
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut Counter), Without<Player>>,
-    mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
-    for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform, mut counter) =
-            huge_slime_query.get_mut(parent.get()).unwrap();
+    for (mut huge_slime, transform, mut counter) in huge_slime_query.iter_mut() {
         if let HugeSlimeState::Growl = huge_slime.state {
             if counter.count == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
@@ -220,16 +209,11 @@ fn update_huge_slime_growl(
 
 fn update_huge_slime_approach(
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
-    mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter), Without<Player>>,
-    mut huge_slime_sprite_query: Query<
-        (&Parent, &mut Falling),
-        (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>),
-    >,
+    mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter, &mut Falling), Without<Player>>,
 ) {
     const JUMP_POWER: f32 = 3.0;
 
-    for (parent, mut falling) in huge_slime_sprite_query.iter_mut() {
-        let (mut huge_slime, mut counter) = huge_slime_query.get_mut(parent.get()).unwrap();
+    for (mut huge_slime, mut counter, mut falling) in huge_slime_query.iter_mut() {
         let timespan = if huge_slime.promoted { 35 } else { 60 };
         if let HugeSlimeState::Approach = huge_slime.state.clone() {
             // プレイヤーがいる場合はジャンプしながら接近
@@ -255,14 +239,10 @@ fn update_huge_slime_summon(
         (Entity, &mut HugeSlime, &Transform, &mut Counter),
         Without<Player>,
     >,
-    mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEntity>,
 ) {
-    for parent in sprite_query.iter_mut() {
-        let (huge_slime_entity, mut huge_slime, transform, mut counter) =
-            huge_slime_query.get_mut(parent.get()).unwrap();
-
+    for (huge_slime_entity, mut huge_slime, transform, mut counter) in huge_slime_query.iter_mut() {
         if let HugeSlimeState::Summon = huge_slime.state {
             if let Ok(player) = player_query.get_single() {
                 if counter.count == 60 {
@@ -300,14 +280,11 @@ fn update_huge_slime_summon(
 
 fn update_huge_slime_promote(
     mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut Counter), Without<Player>>,
-    mut sprite_query: Query<&Parent, (With<HugeSlimeSprite>, Without<HugeSlime>, Without<Player>)>,
     mut se_writer: EventWriter<SEEvent>,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
 ) {
-    for parent in sprite_query.iter_mut() {
-        let (mut huge_slime, transform, mut counter) =
-            huge_slime_query.get_mut(parent.get()).unwrap();
+    for (mut huge_slime, transform, mut counter) in huge_slime_query.iter_mut() {
         if let HugeSlimeState::Promote = huge_slime.state {
             if counter.count == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));

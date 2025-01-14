@@ -198,17 +198,11 @@ fn update_witch_animation(
     witch_query: Query<&Actor, With<Witch>>,
     witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut witch_animation_query: Query<
-        (
-            &Parent,
-            &mut Sprite,
-            &mut AseSpriteAnimation,
-            &mut AnimationState,
-        ),
+        (&Parent, &mut Sprite, &mut AseSpriteAnimation),
         With<ActorAnimationSprite>,
     >,
 ) {
-    for (parent, mut sprite, mut animation, mut animation_state) in witch_animation_query.iter_mut()
-    {
+    for (parent, mut sprite, mut animation) in witch_animation_query.iter_mut() {
         // 魔女エンティティは３階層になっていることに注意
         // 魔女スプライトから Actor を辿るのには２回 get が必要です
         let sprite_group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
@@ -217,7 +211,6 @@ fn update_witch_animation(
         if 0 < actor.drowning {
             if animation.animation.tag != Some("drown".to_string()) {
                 animation.animation.tag = Some("drown".to_string());
-                animation_state.current_frame = 37;
             }
             continue;
         }
@@ -230,25 +223,21 @@ fn update_witch_animation(
                     sprite.flip_x = true;
                     if animation.animation.tag != Some("idle_r".to_string()) {
                         animation.animation.tag = Some("idle_r".to_string());
-                        animation_state.current_frame = 0;
                     }
                 } else if pi * 0.25 < angle && angle < pi * 0.75 {
                     sprite.flip_x = false;
                     if animation.animation.tag != Some("idle_u".to_string()) {
                         animation.animation.tag = Some("idle_u".to_string());
-                        animation_state.current_frame = 6;
                     }
                 } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
                     sprite.flip_x = false;
                     if animation.animation.tag != Some("idle_d".to_string()) {
                         animation.animation.tag = Some("idle_d".to_string());
-                        animation_state.current_frame = 3;
                     }
                 } else {
                     sprite.flip_x = false;
                     if animation.animation.tag != Some("idle_r".to_string()) {
                         animation.animation.tag = Some("idle_r".to_string());
-                        animation_state.current_frame = 0;
                     }
                 };
             }
@@ -257,25 +246,21 @@ fn update_witch_animation(
                     sprite.flip_x = true;
                     if animation.animation.tag != Some("run_r".to_string()) {
                         animation.animation.tag = Some("run_r".to_string());
-                        animation_state.current_frame = 9;
                     }
                 } else if pi * 0.25 < angle && angle < pi * 0.75 {
                     sprite.flip_x = false;
                     if animation.animation.tag != Some("run_u".to_string()) {
                         animation.animation.tag = Some("run_u".to_string());
-                        animation_state.current_frame = 13;
                     }
                 } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
                     sprite.flip_x = false;
                     if animation.animation.tag != Some("run_d".to_string()) {
                         animation.animation.tag = Some("run_d".to_string());
-                        animation_state.current_frame = 17;
                     }
                 } else {
                     sprite.flip_x = false;
                     if animation.animation.tag != Some("run_r".to_string()) {
                         animation.animation.tag = Some("run_r".to_string());
-                        animation_state.current_frame = 9;
                     }
                 };
             }
@@ -283,7 +268,6 @@ fn update_witch_animation(
                 sprite.flip_x = false;
                 if animation.animation.tag != Some("get_up".to_string()) {
                     animation.animation.tag = Some("get_up".to_string());
-                    animation_state.current_frame = 26;
                 }
             }
         };

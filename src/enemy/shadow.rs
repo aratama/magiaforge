@@ -198,33 +198,26 @@ fn pointer(
 
 fn animate(
     query: Query<&Shadow>,
-    mut sprite_query: Query<
-        (&Parent, &mut AseSpriteAnimation, &mut AnimationState),
-        With<ChildSprite>,
-    >,
+    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
 ) {
-    for (parent, mut animation, mut animation_state) in sprite_query.iter_mut() {
+    for (parent, mut animation) in sprite_query.iter_mut() {
         let shadow = query.get(parent.get()).unwrap();
         match shadow.state {
             State::Wait(count) if count == 0 => {
                 animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
-                animation_state.current_frame = 0;
             }
             State::Hide(count) if count == 0 => {
                 animation.animation.tag = Some("hide".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
-                animation_state.current_frame = 2;
             }
             State::Appear(count) if count == 0 => {
                 animation.animation.tag = Some("appear".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
-                animation_state.current_frame = 7;
             }
             State::Attack(count) if count == 0 => {
                 animation.animation.tag = Some("attack".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
-                animation_state.current_frame = 11;
             }
             _ => {}
         }

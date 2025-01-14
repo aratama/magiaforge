@@ -7,7 +7,6 @@ use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AnimationState;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
@@ -59,7 +58,7 @@ fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbug)>) {
 
 fn frown_on_damage(
     mut actor_event: EventReader<ActorEvent>,
-    mut sprite_query: Query<(&mut AseSpriteAnimation, &mut AnimationState), With<LifeBeingSprite>>,
+    mut sprite_query: Query<&mut AseSpriteAnimation, With<LifeBeingSprite>>,
     mut sandbag_query: Query<(&mut Sandbug, &Children)>,
 ) {
     for event in actor_event.read() {
@@ -67,9 +66,8 @@ fn frown_on_damage(
 
         if let Ok((mut sandbag, children)) = sandbag_query.get_mut(*actor) {
             for child in children {
-                if let Ok((mut aseprite, mut animation_state)) = sprite_query.get_mut(*child) {
+                if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
                     aseprite.animation.tag = Some("frown".to_string());
-                    animation_state.current_frame = 2;
                     sandbag.animation = 0;
                 }
             }
@@ -78,16 +76,15 @@ fn frown_on_damage(
 }
 
 fn idle(
-    mut sprite_query: Query<(&mut AseSpriteAnimation, &mut AnimationState), With<LifeBeingSprite>>,
+    mut sprite_query: Query<&mut AseSpriteAnimation, With<LifeBeingSprite>>,
     mut sandbag_query: Query<(&mut Sandbug, &Children)>,
 ) {
     for (mut sandbag, children) in sandbag_query.iter_mut() {
         sandbag.animation += 1;
         if sandbag.animation == 60 {
             for child in children {
-                if let Ok((mut aseprite, mut animation_state)) = sprite_query.get_mut(*child) {
+                if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
                     aseprite.animation.tag = Some("idle".to_string());
-                    animation_state.current_frame = 0;
                 }
             }
         }

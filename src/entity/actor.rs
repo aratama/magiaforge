@@ -69,6 +69,8 @@ pub enum ActorState {
 }
 
 /// 自発的に移動し、攻撃の対象になる、プレイヤーキャラクターや敵モンスターを表します
+/// Actorは外観の構造を規定しません。外観は各エンティティで具体的に実装するか、
+/// BasicEnemyのような抽象化されたエンティティで実装しています
 ///
 /// 移動
 /// アクターの移動は、stateとmove_directionを設定することで行います
@@ -76,6 +78,7 @@ pub enum ActorState {
 /// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
 ///
 #[derive(Component, Reflect, Debug)]
+#[require(Falling)]
 pub struct Actor {
     pub uuid: Uuid,
 
@@ -183,14 +186,7 @@ pub struct ActorLevitationEffect;
 /// この ActorSpriteGroup の子、ルートのエンティティ孫としてアタッチされます
 /// これは、打撃アニメーションや浮遊アニメーションにおいて、本体の位置をそのままにスプタイトの位置だけ揺動させて表現するためです
 #[derive(Default, Component, Reflect)]
-#[require(
-    Visibility,
-    Counter,
-    Falling,
-    Transform,
-    LifeBeingSprite,
-    ChildEntityDepth
-)]
+#[require(Visibility, Counter, Transform, LifeBeingSprite, ChildEntityDepth)]
 pub struct ActorSpriteGroup;
 
 impl Actor {
@@ -584,7 +580,7 @@ fn apply_external_force(
         }
 
         let ratio = if 0 < actor.drowning {
-            0.1
+            0.2
         } else if actor.fire_state == ActorFireState::Fire
             || actor.fire_state_secondary == ActorFireState::Fire
         {
@@ -642,26 +638,6 @@ fn decrement_levitation(mut actor_query: Query<&mut Actor>) {
     }
 }
 
-fn update_y_by_levitation(
-    actor_query: Query<&Actor>,
-    mut group_query: Query<
-        (&Parent, &mut Transform, &Counter, &mut Falling),
-        With<ActorSpriteGroup>,
-    >,
-) {
-    for (parent, mut transform, counter, mut falling) in group_query.iter_mut() {
-        let actor = actor_query.get(parent.get()).unwrap();
-        if 0 < actor.levitation {
-            // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
-            transform.translation.y =
-                6.0 + (std::f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
-            falling.gravity = 0.0;
-        } else {
-            falling.gravity = -0.1;
-        }
-    }
-}
-
 fn levitation_effect(
     actor_query: Query<&Actor>,
     mut group_query: Query<(&Parent, &mut Counter), With<ActorSpriteGroup>>,
@@ -702,6 +678,26 @@ fn add_levitation_effect(
     }
 }
 
+fn apply_v(
+    mut actor_query: Query<(&Actor, &mut Falling)>,
+    mut group_query: Query<(&Parent, &mut Transform, &Counter), With<ActorSpriteGroup>>,
+) {
+    for (parent, mut transform, counter) in group_query.iter_mut() {
+        let (actor, mut falling) = actor_query.get_mut(parent.get()).unwrap();
+
+        if 0 < actor.levitation {
+            // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
+            let v = 6.0 + (std::f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
+            transform.translation.y = v;
+            falling.v = v;
+            falling.gravity = 0.0;
+        } else {
+            falling.gravity = -0.2;
+            transform.translation.y = falling.v;
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -718,9 +714,9 @@ impl Plugin for ActorPlugin {
                 defreeze,
                 collision_group_by_actor,
                 decrement_levitation,
-                update_y_by_levitation,
                 levitation_effect,
                 add_levitation_effect,
+                apply_v,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

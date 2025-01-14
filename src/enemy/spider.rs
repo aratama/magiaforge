@@ -188,28 +188,22 @@ fn pointer(
 
 fn animate(
     query: Query<&Spider>,
-    mut sprite_query: Query<
-        (&Parent, &mut AseSpriteAnimation, &mut AnimationState),
-        With<ChildSprite>,
-    >,
+    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
 ) {
-    for (parent, mut animation, mut animation_state) in sprite_query.iter_mut() {
+    for (parent, mut animation) in sprite_query.iter_mut() {
         let shadow = query.get(parent.get()).unwrap();
         match shadow.state {
             State::Wait(_) if animation.animation.tag != Some("idle".to_string()) => {
                 animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
-                animation_state.current_frame = 0;
             }
             State::Approarch(_) if animation.animation.tag != Some("run".to_string()) => {
                 animation.animation.tag = Some("run".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
-                animation_state.current_frame = 2;
             }
             State::Attack(_) if animation.animation.tag != Some("idle".to_string()) => {
                 animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
-                animation_state.current_frame = 0;
             }
             _ => {}
         }
