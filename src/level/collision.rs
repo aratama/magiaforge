@@ -117,7 +117,7 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
         ));
     }
 
-    for rect in get_wall_collisions(&chunk, vec![Tile::Water]) {
+    for rect in get_wall_collisions(&chunk, vec![Tile::Water, Tile::Lava, Tile::Crack]) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;

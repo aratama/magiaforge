@@ -167,6 +167,26 @@ pub fn spawn_world_tile(
                 ),
             ));
         }
+        Tile::Lava => {
+            // 水辺の岸の壁
+            spawn_water_wall(&mut commands, &assets, &chunk, x, y);
+
+            commands.spawn((
+                TileSprite((x, y)),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: format!("lava_mesh_{}", rand::random::<u32>() % 2).to_string(),
+                },
+                Transform::from_xyz(
+                    x as f32 * TILE_SIZE,
+                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                    WATER_MESH_DARKER_LAYER_Z,
+                ),
+            ));
+        }
+        Tile::Crack => {
+            spawn_water_wall(&mut commands, &assets, &chunk, x, y);
+        }
         Tile::Ice => {
             spawn_water_wall(&mut commands, &assets, &chunk, x, y);
 

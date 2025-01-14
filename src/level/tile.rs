@@ -8,6 +8,8 @@ pub enum Tile {
     Grassland,
     Water,
     Ice,
+    Lava,
+    Crack,
 }
 
 impl Tile {

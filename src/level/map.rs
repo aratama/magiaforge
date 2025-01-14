@@ -336,6 +336,18 @@ pub fn image_to_tilemap(
                         zone: Zone::SafeZone,
                     });
                 }
+                (205, 121, 54, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Lava,
+                        zone: Zone::SafeZone,
+                    });
+                }
+                (30, 30, 30, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::Crack,
+                        zone: Zone::SafeZone,
+                    });
+                }
                 (222, 233, 255, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Ice,

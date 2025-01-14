@@ -155,6 +155,8 @@ fn update_servant_seed(
                     }
                     Tile::Water => false,
                     Tile::Ice => false,
+                    Tile::Lava => false,
+                    Tile::Crack => false,
                 };
                 if spawn {
                     spawn_writer.send(SpawnEvent {

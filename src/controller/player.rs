@@ -372,7 +372,7 @@ fn drown(
             if actor.levitation == 0 && falling.v == 0.0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
-                if tile == Tile::Water {
+                if tile == Tile::Water || tile == Tile::Lava {
                     if actor.drowning == 0 {
                         se.send(SEEvent::pos(SE::Basha2, position));
                     }
@@ -391,17 +391,40 @@ fn drown(
 fn drown_damage(
     mut player_query: Query<(Entity, &mut Actor, &Transform), With<Player>>,
     mut damage: EventWriter<ActorEvent>,
+    level: Res<LevelSetup>,
 ) {
-    for (entity, mut actor, transform) in player_query.iter_mut() {
-        if 60 < actor.drowning {
-            damage.send(ActorEvent::Damaged {
-                actor: entity,
-                position: transform.translation.truncate(),
-                damage: 1,
-                fire: false,
-                impulse: Vec2::ZERO,
-            });
-            actor.drowning = 1;
+    if let Some(ref chunk) = level.chunk {
+        for (entity, mut actor, transform) in player_query.iter_mut() {
+            let position = transform.translation.truncate();
+            let tile = chunk.get_tile_by_coords(position);
+
+            match tile {
+                Tile::Water => {
+                    if 60 < actor.drowning {
+                        damage.send(ActorEvent::Damaged {
+                            actor: entity,
+                            position: transform.translation.truncate(),
+                            damage: 1,
+                            fire: false,
+                            impulse: Vec2::ZERO,
+                        });
+                        actor.drowning = 1;
+                    }
+                }
+                Tile::Lava => {
+                    if 20 < actor.drowning {
+                        damage.send(ActorEvent::Damaged {
+                            actor: entity,
+                            position: transform.translation.truncate(),
+                            damage: 10,
+                            fire: false,
+                            impulse: Vec2::ZERO,
+                        });
+                        actor.drowning = 1;
+                    }
+                }
+                _ => {}
+            }
         }
     }
 }
