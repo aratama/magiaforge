@@ -380,13 +380,13 @@ pub enum ActorGroup {
 }
 
 impl ActorGroup {
-    pub fn to_groups(&self, levitation: u32, drowning: u32) -> CollisionGroups {
+    pub fn to_groups(&self, v: f32, drowning: u32) -> CollisionGroups {
         match self {
-            ActorGroup::Player if 0 < levitation || 0 < drowning => *FLYING_PLAYER_GROUPS,
+            ActorGroup::Player if 0 < drowning || 0.0 < v => *FLYING_PLAYER_GROUPS,
             ActorGroup::Player => *PLAYER_GROUPS,
-            ActorGroup::Enemy if 0 < levitation || 0 < drowning => *FLYING_ENEMY_GROUPS,
+            ActorGroup::Enemy if 0 < drowning || 0.0 < v => *FLYING_ENEMY_GROUPS,
             ActorGroup::Enemy => *ENEMY_GROUPS,
-            ActorGroup::Neutral if 0 < levitation || 0 < drowning => *FLYING_NEUTRAL_GROUPS,
+            ActorGroup::Neutral if 0 < drowning || 0.0 < v => *FLYING_NEUTRAL_GROUPS,
             ActorGroup::Neutral => *NEUTRAL_GROUPS,
         }
     }
@@ -494,6 +494,7 @@ fn fire_bullet(
             &mut Life,
             &mut Transform,
             &mut ExternalImpulse,
+            &mut Falling,
             Option<&Player>,
         ),
         Without<Camera2d>,
@@ -506,8 +507,15 @@ fn fire_bullet(
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
-    for (actor_entity, mut actor, mut actor_life, actor_transform, mut actor_impulse, player) in
-        actor_query.iter_mut()
+    for (
+        actor_entity,
+        mut actor,
+        mut actor_life,
+        actor_transform,
+        mut actor_impulse,
+        mut actor_falling,
+        player,
+    ) in actor_query.iter_mut()
     {
         // 凍結時は攻撃不可
         if 0 < actor.frozen {
@@ -529,6 +537,7 @@ fn fire_bullet(
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
+                &mut actor_falling,
                 online,
                 &mut remote_writer,
                 &mut se_writer,
@@ -549,6 +558,7 @@ fn fire_bullet(
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
+                &mut actor_falling,
                 online,
                 &mut remote_writer,
                 &mut se_writer,
@@ -622,11 +632,9 @@ fn defreeze(mut query: Query<&mut Actor>) {
     }
 }
 
-pub fn collision_group_by_actor(mut query: Query<(&Actor, &mut CollisionGroups)>) {
-    for (actor, mut groups) in query.iter_mut() {
-        *groups = actor
-            .actor_group
-            .to_groups(actor.levitation, actor.drowning);
+pub fn collision_group_by_actor(mut query: Query<(&Actor, &Falling, &mut CollisionGroups)>) {
+    for (actor, falling, mut groups) in query.iter_mut() {
+        *groups = actor.actor_group.to_groups(falling.v, actor.drowning);
     }
 }
 

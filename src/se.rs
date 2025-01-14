@@ -59,6 +59,8 @@ pub enum SE {
     Taoreru,
     Freeze,
     Basha2,
+    Suna,
+    Chakuchi,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -129,6 +131,8 @@ fn se_events(
             SE::Taoreru => &assets.taoreru,
             SE::Freeze => &assets.freeze_se,
             SE::Basha2 => &assets.basha2,
+            SE::Suna => &assets.suna,
+            SE::Chakuchi => &assets.chakuchi,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

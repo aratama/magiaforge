@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::remote::send_remote_message;
@@ -99,6 +100,7 @@ pub enum SpellCast {
     LightSword,
     Web,
     Levitation,
+    Jump,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -112,6 +114,7 @@ pub fn cast_spell(
     actor_life: &mut Life,
     actor_transform: &Transform,
     actor_impulse: &mut ExternalImpulse,
+    actor_falling: &mut Falling,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
@@ -381,6 +384,13 @@ pub fn cast_spell(
                     actor.levitation += 300;
                     let position = actor_transform.translation.truncate();
                     se.send(SEEvent::pos(SE::Status2, position));
+                }
+                SpellCast::Jump => {
+                    if actor_falling.v == 0.0 {
+                        actor_falling.velocity = 3.0;
+                        let position = actor_transform.translation.truncate();
+                        se.send(SEEvent::pos(SE::Suna, position));
+                    }
                 }
             }
         } else {

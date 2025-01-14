@@ -95,7 +95,7 @@ pub fn spawn_shadow(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(0, 0),
+            actor_group.to_groups(0.0, 0),
         ),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),
@@ -303,26 +303,20 @@ fn attack(
     }
 }
 
-fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &mut CollisionGroups)>) {
-    for (shadow, actor, mut group) in query.iter_mut() {
+fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &Falling, &mut CollisionGroups)>) {
+    for (shadow, actor, falling, mut group) in query.iter_mut() {
         match shadow.state {
             State::Wait(count) if count == 0 => {
-                *group = actor
-                    .actor_group
-                    .to_groups(actor.levitation, actor.drowning);
+                *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
             State::Hide(count) if count == 0 => {
                 *group = *SHADOW_GROUPS;
             }
             State::Appear(count) if count == 0 => {
-                *group = actor
-                    .actor_group
-                    .to_groups(actor.levitation, actor.drowning);
+                *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
             State::Attack(count) if count == 0 => {
-                *group = actor
-                    .actor_group
-                    .to_groups(actor.levitation, actor.drowning);
+                *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
             _ => {}
         }

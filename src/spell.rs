@@ -42,6 +42,7 @@ pub enum SpellType {
     SummonEnemyEyeball,
     Servant,
     Web,
+    Jump,
     // ランク3
     SummonChiken,
     HeavyShot,
@@ -356,7 +357,7 @@ impl SpellType {
                 cast: SpellCast::None
             },
             SpellType::Magnifier => SpellProps {
-                rank: 0,
+                rank: 1,
                 name: Dict {
                     ja: "拡大鏡",
                     en: "Magnifier",
@@ -385,6 +386,37 @@ impl SpellType {
                 price: 300,
                 cast_delay: 0,
                 cast: SpellCast::None
+            },
+            SpellType::Jump => SpellProps {
+                rank: 2,
+                name: Dict {
+                    ja: "跳躍",
+                    en: "Jump",
+                    zh_cn: "跳跃",
+                    zh_tw: "跳躍",
+                    es: "Saltar",
+                    fr: "Sauter",
+                    pt: "Pular",
+                    de: "Springen",
+                    ko: "점프",
+                    ru: "Прыжок"
+                },
+                description: Dict {
+                    ja: "魔法の力で大きく跳躍します。体力に自信のない魔法使いでも上手に飛ぶことができます。",
+                    en: "Leaps high into the air with the power of magic. Even wizards who are not confident in their physical strength can jump skillfully.",
+                    zh_cn: "用魔法的力量高高跃起。即使是对自己体力没有信心的巫师也能熟练地跳跃。",
+                    zh_tw: "用魔法的力量高高躍起。即使是對自己體力沒有信心的巫師也能熟練地跳躍。",
+                    es: "Salta alto en el aire con el poder de la magia. Incluso los magos que no confían en su fuerza física pueden saltar hábilmente.",
+                    fr: "Saute haut dans les airs avec la puissance de la magie. Même les sorciers qui ne sont pas confiants en leur force physique peuvent sauter habilement.",
+                    pt: "Salta alto no ar com o poder da magia. Mesmo os magos que não confiam em sua força física podem pular habilmente.",
+                    de: "Springt mit der Kraft der Magie hoch in die Luft. Selbst Zauberer, die nicht von ihrer körperlichen Stärke überzeugt sind, können geschickt springen.",
+                    ko: "마법의 힘으로 높이 도약합니다. 체력에 자신이 없는 마법사도 능숙하게 점프할 수 있습니다.",
+                    ru: "Высоко прыгает в воздух с помощью магии. Даже волшебники, не уверенные в своей физической силе, могут умело прыгать."
+                },
+                icon: "jump_icon",
+                price: 300,
+                cast_delay: 60,
+                cast: SpellCast::Jump
             },
             SpellType::WaterBall =>  SpellProps {
                 rank: 2,

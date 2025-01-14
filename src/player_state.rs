@@ -86,12 +86,13 @@ impl Default for PlayerState {
             inventory.insert_free(InventoryItemType::Spell(SpellType::Freeze));
             inventory.insert_free(InventoryItemType::Spell(SpellType::Levitation));
             inventory.insert_free(InventoryItemType::Spell(SpellType::ApplyLevitation));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Jump));
             inventory.sort();
 
             let wands = [
                 Wand::with_slots([
                     Some(WandSpell {
-                        spell_type: SpellType::Levitation,
+                        spell_type: SpellType::Jump,
                         price: 0,
                     }),
                     None,

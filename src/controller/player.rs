@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
@@ -362,13 +363,13 @@ fn die_player(
 }
 
 fn drown(
-    mut player_query: Query<(&mut Actor, &Transform), With<Player>>,
+    mut player_query: Query<(&mut Actor, &Falling, &Transform), With<Player>>,
     level: Res<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        if let Ok((mut actor, transform)) = player_query.get_single_mut() {
-            if actor.levitation == 0 {
+        if let Ok((mut actor, falling, transform)) = player_query.get_single_mut() {
+            if actor.levitation == 0 && falling.v == 0.0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::Water {

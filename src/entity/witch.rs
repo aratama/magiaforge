@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::training_dummy::TraningDummyController;
@@ -13,6 +14,8 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::player_state::PlayerState;
+use crate::se::SEEvent;
+use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use crate::wand::Wand;
@@ -106,7 +109,7 @@ pub fn spawn_witch<T: Component>(
             },
             ExternalForce::default(),
             ExternalImpulse::default(),
-            actor_group.to_groups(0, 0),
+            actor_group.to_groups(0.0, 0),
         ),
     ));
 
@@ -308,13 +311,29 @@ fn update_wand(
     }
 }
 
+fn land_se(witch_query: Query<(&Falling, &Transform), With<Witch>>, mut se: EventWriter<SEEvent>) {
+    for (falling, transform) in witch_query.iter() {
+        if falling.just_landed {
+            let position = transform.translation.truncate();
+            se.send(SEEvent::pos(SE::Chakuchi, position));
+        }
+    }
+}
+
+fn update_dumping(mut witch_query: Query<(&Falling, &mut Damping), With<Witch>>) {
+    for (falling, mut damping) in witch_query.iter_mut() {
+        damping.linear_damping = if 0.0 < falling.v { 2.0 } else { 6.0 };
+    }
+}
+
 pub struct WitchPlugin;
 
 impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (update_witch_animation, update_wand).in_set(FixedUpdateGameActiveSet),
+            (update_witch_animation, update_wand, land_se, update_dumping)
+                .in_set(FixedUpdateGameActiveSet),
         );
     }
 }
