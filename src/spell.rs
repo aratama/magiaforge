@@ -1163,7 +1163,7 @@ impl SpellType {
                     ko: "몸을 약간 떠오르게 합니다. 너무 높이 날 수는 없습니다.",
                     ru: "Немного поднимите свое тело. Вы не можете летать очень высоко.",
                 },
-                icon: "boots",
+                icon: "levitation_icon",
                 price: 1000,
                 cast_delay: 120,
                 cast: SpellCast::Levitation,
