@@ -45,6 +45,7 @@ pub struct Bullet {
     freeze: u32,
     actor_group: ActorGroup,
     pub holder: Option<(Entity, Trigger)>,
+    levitation: u32,
 }
 
 #[derive(Bundle)]
@@ -89,6 +90,7 @@ pub struct SpawnBullet {
 
     /// 発射したアクターのグループ
     pub actor_group: ActorGroup,
+    pub groups: CollisionGroups,
 
     pub uuid: Uuid,
     pub position: Vec2,
@@ -103,7 +105,7 @@ pub struct SpawnBullet {
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
     pub freeze: u32,
-    pub groups: CollisionGroups,
+    pub levitation: u32,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -135,6 +137,7 @@ pub fn spawn_bullet(
             freeze: spawn.freeze,
             actor_group: spawn.actor_group,
             holder: spawn.holder,
+            levitation: spawn.levitation,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -357,7 +360,11 @@ fn process_bullet_event(
                         se.send(SEEvent::pos(SE::Freeze, bullet_position));
                     }
                     actor.frozen += bullet.freeze;
-                    info!("actor frozen: {:?}", actor.frozen);
+
+                    if actor.levitation == 0 && 0 < bullet.levitation {
+                        se.send(SEEvent::pos(SE::Status2, bullet_position));
+                    }
+                    actor.levitation += bullet.levitation;
 
                     actor_event.send(ActorEvent::Damaged {
                         actor: *b,

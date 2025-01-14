@@ -3,12 +3,22 @@ use bevy::prelude::*;
 
 /// 子エンティティのスプライトに付与し
 /// y座標を変化させて落下させるコンポーネントです
-#[derive(Default, Component, Reflect)]
+#[derive(Component, Reflect)]
 #[require(Transform)]
 pub struct Falling {
     pub velocity: f32,
     pub gravity: f32,
     pub just_landed: bool,
+}
+
+impl Default for Falling {
+    fn default() -> Self {
+        Self {
+            velocity: 0.0,
+            gravity: 0.0,
+            just_landed: false,
+        }
+    }
 }
 
 impl Falling {

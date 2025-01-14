@@ -7,12 +7,12 @@ use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
+use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::Bullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
-use crate::hud::overlay::OverlayEvent;
 use crate::input::get_direction;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
@@ -362,23 +362,45 @@ fn die_player(
 }
 
 fn drown(
-    mut commands: Commands,
-    player_query: Query<(Entity, &Actor, &Transform), With<Player>>,
+    mut player_query: Query<(&mut Actor, &Transform), With<Player>>,
     level: Res<LevelSetup>,
-    mut overlay_writer: EventWriter<OverlayEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        if let Ok((entity, actor, transform)) = player_query.get_single() {
+        if let Ok((mut actor, transform)) = player_query.get_single_mut() {
             if actor.levitation == 0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::Water {
-                    commands.entity(entity).despawn_recursive();
-                    se.send(SEEvent::pos(SE::Basha2, position));
-                    overlay_writer.send(OverlayEvent::Close(GameState::InGame));
+                    if actor.drowning == 0 {
+                        se.send(SEEvent::pos(SE::Basha2, position));
+                    }
+
+                    actor.drowning += 1;
+                } else {
+                    actor.drowning = 0;
                 }
+            } else {
+                actor.drowning = 0;
             }
+        }
+    }
+}
+
+fn drown_damage(
+    mut player_query: Query<(Entity, &mut Actor, &Transform), With<Player>>,
+    mut damage: EventWriter<ActorEvent>,
+) {
+    for (entity, mut actor, transform) in player_query.iter_mut() {
+        if 60 < actor.drowning {
+            damage.send(ActorEvent::Damaged {
+                actor: entity,
+                position: transform.translation.truncate(),
+                damage: 1,
+                fire: false,
+                impulse: Vec2::ZERO,
+            });
+            actor.drowning = 1;
         }
     }
 }
@@ -452,6 +474,7 @@ impl Plugin for PlayerPlugin {
                 insert_discovered_spells,
                 move_player,
                 drown,
+                drown_damage,
             )
                 .in_set(FixedUpdateInGameSet),
         );

@@ -85,6 +85,7 @@ impl Default for PlayerState {
             inventory.insert_free(InventoryItemType::Spell(SpellType::Web));
             inventory.insert_free(InventoryItemType::Spell(SpellType::Freeze));
             inventory.insert_free(InventoryItemType::Spell(SpellType::Levitation));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::ApplyLevitation));
             inventory.sort();
 
             let wands = [

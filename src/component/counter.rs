@@ -7,16 +7,22 @@ use bevy_aseprite_ultra::prelude::AseUiAnimation;
 /// ゲーム内の時間の流れをカウントする汎用のカウンターです
 /// 1フレームに1ずつカウントアップされます
 /// ただし、ポーズメニューが開いているなどのときはカウントアップされません
-#[derive(Default, Component, Reflect)]
+#[derive(Component, Reflect)]
 pub struct Counter {
     pub count: i32,
     pub delta: i32,
 }
 
+/// カウントアップが有効の場合にのみアニメーションを再生します
 /// AseSpriteAnimation や AseUiAnimation と同時に使います
-/// カウントアップが友好の場合にのみアニメーションを再生します
 #[derive(Default, Component, Reflect)]
 pub struct CounterAnimated;
+
+impl Default for Counter {
+    fn default() -> Self {
+        Self { count: 0, delta: 1 }
+    }
+}
 
 impl Counter {
     pub fn up(count: i32) -> Self {

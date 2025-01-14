@@ -8,6 +8,7 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
+use crate::entity::actor::collision_group_by_actor;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
@@ -94,7 +95,7 @@ pub fn spawn_shadow(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(),
+            actor_group.to_groups(0, 0),
         ),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),
@@ -309,20 +310,26 @@ fn attack(
     }
 }
 
-fn group(mut query: Query<(&Shadow, &Actor, &mut CollisionGroups)>) {
+fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &mut CollisionGroups)>) {
     for (shadow, actor, mut group) in query.iter_mut() {
         match shadow.state {
             State::Wait(count) if count == 0 => {
-                *group = actor.actor_group.to_groups();
+                *group = actor
+                    .actor_group
+                    .to_groups(actor.levitation, actor.drowning);
             }
             State::Hide(count) if count == 0 => {
                 *group = *SHADOW_GROUPS;
             }
             State::Appear(count) if count == 0 => {
-                *group = actor.actor_group.to_groups();
+                *group = actor
+                    .actor_group
+                    .to_groups(actor.levitation, actor.drowning);
             }
             State::Attack(count) if count == 0 => {
-                *group = actor.actor_group.to_groups();
+                *group = actor
+                    .actor_group
+                    .to_groups(actor.levitation, actor.drowning);
             }
             _ => {}
         }
@@ -335,7 +342,16 @@ impl Plugin for ShadowPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (transition, animate, approach, attack, pointer, group)
+            (
+                transition,
+                animate,
+                approach,
+                attack,
+                pointer,
+                // Actor は　collision_group_by_actor　で CollisionGroups を毎フレーム選択しますが、
+                // update_group_by_shadow はそれを上書きするため、は　collision_group_by_actor のあとに実行します
+                update_group_by_shadow.after(collision_group_by_actor),
+            )
                 .chain()
                 .in_set(FixedUpdateGameActiveSet),
         );

@@ -1,16 +1,14 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::component::flip::Flip;
 use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorProps;
+use crate::entity::actor::ActorSpriteGroup;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
@@ -65,11 +63,9 @@ pub fn spawn_basic_enemy<T: Component>(
             wands: Wand::single(spell),
             fire_resistance: false,
         }),
-        EntityDepth::new(),
         Life::new(max_life),
         HomingTarget,
-        Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
-        GlobalTransform::default(),
+        Transform::from_translation(position.extend(0.0)),
         Visibility::default(),
         (
             RigidBody::Dynamic,
@@ -83,25 +79,28 @@ pub fn spawn_basic_enemy<T: Component>(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(),
+            actor_group.to_groups(0, 0),
         ),
-        AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
-            name: "chicken_shadow".into(),
-        },
     ));
 
     builder.with_children(|mut parent| {
         parent.spawn((
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "chicken_shadow".into(),
+            },
+            Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
+        ));
+
+        parent.spawn(ActorSpriteGroup).with_child((
             BasicEnemySprite,
-            Falling::new(0.0, -0.1),
             Flip,
-            LifeBeingSprite,
             CounterAnimated,
             AseSpriteAnimation {
                 aseprite,
                 animation: Animation::default().with_tag("idle"),
             },
+            Transform::from_xyz(0.0, 0.0, 0.0),
         ));
 
         spawn_life_bar(&mut parent, &life_bar_locals);
@@ -140,6 +139,6 @@ pub struct BasicEnemyPlugin;
 
 impl Plugin for BasicEnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, animate.in_set(FixedUpdateGameActiveSet));
+        app.add_systems(FixedUpdate, (animate).in_set(FixedUpdateGameActiveSet));
     }
 }

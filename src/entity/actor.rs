@@ -2,10 +2,15 @@ use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::ENEMY_GROUPS;
+use crate::collision::FLYING_ENEMY_GROUPS;
+use crate::collision::FLYING_NEUTRAL_GROUPS;
 use crate::collision::FLYING_PLAYER_GROUPS;
 use crate::collision::NEUTRAL_GROUPS;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::collision::PLAYER_GROUPS;
+use crate::component::counter::Counter;
+use crate::component::entity_depth::ChildEntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::MAX_WANDS;
@@ -25,6 +30,7 @@ use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalForce;
@@ -62,7 +68,7 @@ pub enum ActorState {
     GettingUp,
 }
 
-/// ライフを持ち、弾丸のダメージの対象となるエンティティを表します
+/// 自発的に移動し、攻撃の対象になる、プレイヤーキャラクターや敵モンスターを表します
 ///
 /// 移動
 /// アクターの移動は、stateとmove_directionを設定することで行います
@@ -146,6 +152,8 @@ pub struct Actor {
     pub defreeze: u32,
 
     pub levitation: u32,
+
+    pub drowning: u32,
 }
 
 pub struct ActorProps {
@@ -161,6 +169,29 @@ pub struct ActorProps {
     pub move_force: f32,
     pub fire_resistance: bool,
 }
+
+#[derive(Default, Component, Reflect)]
+#[require(Visibility(||Visibility::Hidden), Transform)]
+pub struct ActorLevitationEffect;
+
+/// Actor のスプライトをまとめる子エンティティのマーカーです
+/// ボスキャラクターなどの一部のActorはこのマーカーを使いませんが、
+/// 通常のキャラクターはこのマーカーでスプライトをまとめます
+/// このマーカーを使うと、その子には浮遊エフェクトの子が追加され、浮遊魔法での浮遊アニメーションが描画されるようになります
+///
+/// 通常、キャラクターのスプライトはルートのエンティティに直接アタッチされず、
+/// この ActorSpriteGroup の子、ルートのエンティティ孫としてアタッチされます
+/// これは、打撃アニメーションや浮遊アニメーションにおいて、本体の位置をそのままにスプタイトの位置だけ揺動させて表現するためです
+#[derive(Default, Component, Reflect)]
+#[require(
+    Visibility,
+    Counter,
+    Falling,
+    Transform,
+    LifeBeingSprite,
+    ChildEntityDepth
+)]
+pub struct ActorSpriteGroup;
 
 impl Actor {
     pub fn new(
@@ -203,6 +234,7 @@ impl Actor {
             frozen: 0,
             defreeze: 1,
             levitation: 0,
+            drowning: 0,
         }
     }
 
@@ -352,10 +384,13 @@ pub enum ActorGroup {
 }
 
 impl ActorGroup {
-    pub fn to_groups(&self) -> CollisionGroups {
+    pub fn to_groups(&self, levitation: u32, drowning: u32) -> CollisionGroups {
         match self {
+            ActorGroup::Player if 0 < levitation || 0 < drowning => *FLYING_PLAYER_GROUPS,
             ActorGroup::Player => *PLAYER_GROUPS,
+            ActorGroup::Enemy if 0 < levitation || 0 < drowning => *FLYING_ENEMY_GROUPS,
             ActorGroup::Enemy => *ENEMY_GROUPS,
+            ActorGroup::Neutral if 0 < levitation || 0 < drowning => *FLYING_NEUTRAL_GROUPS,
             ActorGroup::Neutral => *NEUTRAL_GROUPS,
         }
     }
@@ -548,15 +583,17 @@ fn apply_external_force(
             continue;
         }
 
-        let force = actor.move_direction
-            * actor.get_total_move_force()
-            * if actor.fire_state == ActorFireState::Fire
-                || actor.fire_state_secondary == ActorFireState::Fire
-            {
-                0.5
-            } else {
-                1.0
-            };
+        let ratio = if 0 < actor.drowning {
+            0.1
+        } else if actor.fire_state == ActorFireState::Fire
+            || actor.fire_state_secondary == ActorFireState::Fire
+        {
+            0.5
+        } else {
+            1.0
+        };
+
+        let force = actor.move_direction * actor.get_total_move_force() * ratio;
 
         if 0.0 < force.length() {
             if 0 < actor.trapped {
@@ -589,23 +626,79 @@ fn defreeze(mut query: Query<&mut Actor>) {
     }
 }
 
-fn collision_group(mut query: Query<(&Actor, &mut CollisionGroups)>) {
+pub fn collision_group_by_actor(mut query: Query<(&Actor, &mut CollisionGroups)>) {
     for (actor, mut groups) in query.iter_mut() {
-        *groups = match actor.actor_group {
-            // todo
-            ActorGroup::Player if 0 < actor.levitation => *FLYING_PLAYER_GROUPS,
-            ActorGroup::Player => *PLAYER_GROUPS,
-            ActorGroup::Enemy => *ENEMY_GROUPS,
-            ActorGroup::Neutral => *NEUTRAL_GROUPS,
-        }
+        *groups = actor
+            .actor_group
+            .to_groups(actor.levitation, actor.drowning);
     }
 }
 
-fn levitation(mut actor_query: Query<&mut Actor>) {
+fn decrement_levitation(mut actor_query: Query<&mut Actor>) {
     for mut actor in actor_query.iter_mut() {
         if 0 < actor.levitation {
             actor.levitation -= 1;
         }
+    }
+}
+
+fn update_y_by_levitation(
+    actor_query: Query<&Actor>,
+    mut group_query: Query<
+        (&Parent, &mut Transform, &Counter, &mut Falling),
+        With<ActorSpriteGroup>,
+    >,
+) {
+    for (parent, mut transform, counter, mut falling) in group_query.iter_mut() {
+        let actor = actor_query.get(parent.get()).unwrap();
+        if 0 < actor.levitation {
+            // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
+            transform.translation.y =
+                6.0 + (std::f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
+            falling.gravity = 0.0;
+        } else {
+            falling.gravity = -0.1;
+        }
+    }
+}
+
+fn levitation_effect(
+    actor_query: Query<&Actor>,
+    mut group_query: Query<(&Parent, &mut Counter), With<ActorSpriteGroup>>,
+    mut effect_query: Query<(&Parent, &mut Visibility), With<ActorLevitationEffect>>,
+) {
+    for (parent, mut visibility) in effect_query.iter_mut() {
+        let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
+        let actor = actor_query.get(group.get()).unwrap();
+        if 120 < actor.levitation {
+            *visibility = Visibility::Inherited;
+        } else if 0 < actor.levitation {
+            *visibility = if (counter.count / 4) % 2 == 0 {
+                Visibility::Inherited
+            } else {
+                Visibility::Hidden
+            };
+        } else {
+            *visibility = Visibility::Hidden;
+            counter.count = 0;
+        }
+    }
+}
+
+fn add_levitation_effect(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    query: Query<Entity, Added<ActorSpriteGroup>>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).with_child((
+            ActorLevitationEffect,
+            AseSpriteSlice {
+                aseprite: assets.atlas.clone(),
+                name: "levitation".into(),
+            },
+            Transform::from_xyz(0.0, -4.0, -0.0002),
+        ));
     }
 }
 
@@ -623,8 +716,11 @@ impl Plugin for ActorPlugin {
                 apply_external_force,
                 fire_bullet,
                 defreeze,
-                collision_group,
-                levitation,
+                collision_group_by_actor,
+                decrement_levitation,
+                update_y_by_levitation,
+                levitation_effect,
+                add_levitation_effect,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

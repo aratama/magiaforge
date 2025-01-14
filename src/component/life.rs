@@ -83,7 +83,7 @@ fn fire_damage(
                 0.0,
                 &Collider::ball(12.0),
                 QueryFilter {
-                    groups: Some(actor.actor_group.to_groups()),
+                    groups: Some(actor.actor_group.to_groups(0, 0)),
                     ..default()
                 },
                 |entity| {

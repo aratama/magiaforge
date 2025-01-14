@@ -1,17 +1,12 @@
-use core::f32;
-
 use crate::asset::GameAssets;
-use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::ChildEntityDepth;
-use crate::component::falling::Falling;
 use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::constant::*;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorProps;
+use crate::entity::actor::ActorSpriteGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
@@ -25,6 +20,7 @@ use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+use core::f32;
 use uuid::Uuid;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
@@ -32,16 +28,10 @@ pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 pub const PLAYER_MOVE_FORCE: f32 = 40000.0;
 
 #[derive(Default, Component, Reflect)]
+pub struct ActorAnimationSprite;
+
+#[derive(Default, Component, Reflect)]
 pub struct WitchWandSprite;
-
-#[derive(Default, Component, Reflect)]
-pub struct WitchAnimationSprite;
-
-#[derive(Default, Component, Reflect)]
-pub struct WitchLevitationEffect;
-
-#[derive(Default, Component, Reflect)]
-pub struct WitchSpriteGroup;
 
 #[derive(Component)]
 pub struct Witch;
@@ -116,7 +106,7 @@ pub fn spawn_witch<T: Component>(
             },
             ExternalForce::default(),
             ExternalImpulse::default(),
-            actor_group.to_groups(),
+            actor_group.to_groups(0, 0),
         ),
     ));
 
@@ -130,27 +120,13 @@ pub fn spawn_witch<T: Component>(
         ));
 
         spawn_children
-            .spawn((
-                WitchSpriteGroup,
-                Falling::new(0.0, 0.0),
-                Transform::from_xyz(0.0, 0.0, 0.0),
-                ChildEntityDepth { offset: 0.0 },
-                Counter::up(0),
-                Visibility::default(),
-            ))
+            .spawn(ActorSpriteGroup)
             .with_child((
-                WitchAnimationSprite,
-                LifeBeingSprite,
-                Sprite {
-                    // flip_x: true,
-                    // ここもanchorは効かないことに注意。Aseprite側のpivotで設定
-                    // anchor: bevy::sprite::Anchor::Custom(Vec2::new(0.0, 1.0)),
-                    ..default()
-                },
+                ActorAnimationSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
                     aseprite: assets.witch.clone(),
-                    animation: Animation::default().with_tag("idle_r"),
+                    animation: "idle_r".into(),
                 },
             ))
             .with_child((
@@ -160,15 +136,6 @@ pub fn spawn_witch<T: Component>(
                     name: "wand_cypress".into(),
                 },
                 Transform::from_xyz(0.0, 4.0, -0.0001),
-            ))
-            .with_child((
-                WitchLevitationEffect,
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "levitation".into(),
-                },
-                Transform::from_xyz(0.0, -4.0, -0.0002),
-                Visibility::Hidden,
             ));
 
         // リモートプレイヤーの名前
@@ -229,7 +196,7 @@ pub fn spawn_enemy_witch(
 
 fn update_witch_animation(
     witch_query: Query<&Actor, With<Witch>>,
-    witch_sprite_group_query: Query<&Parent, With<WitchSpriteGroup>>,
+    witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut witch_animation_query: Query<
         (
             &Parent,
@@ -237,7 +204,7 @@ fn update_witch_animation(
             &mut AseSpriteAnimation,
             &mut AnimationState,
         ),
-        With<WitchAnimationSprite>,
+        With<ActorAnimationSprite>,
     >,
 ) {
     for (parent, mut sprite, mut animation, mut animation_state) in witch_animation_query.iter_mut()
@@ -246,6 +213,14 @@ fn update_witch_animation(
         // 魔女スプライトから Actor を辿るのには２回 get が必要です
         let sprite_group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
         let actor = witch_query.get(sprite_group_parent.get()).unwrap();
+
+        if 0 < actor.drowning {
+            if animation.animation.tag != Some("drown".to_string()) {
+                animation.animation.tag = Some("drown".to_string());
+                animation_state.current_frame = 37;
+            }
+            continue;
+        }
 
         let angle = actor.pointer.to_angle();
         let pi = std::f32::consts::PI;
@@ -317,7 +292,7 @@ fn update_witch_animation(
 
 fn update_wand(
     actor_query: Query<&Actor>,
-    witch_sprite_group_query: Query<&Parent, With<WitchSpriteGroup>>,
+    witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut query: Query<
         (&Parent, &mut Transform, &mut Visibility),
         (With<WitchWandSprite>, Without<Actor>),
@@ -338,53 +313,14 @@ fn update_wand(
             0.0
         };
 
-        *visibility = match actor.state {
-            ActorState::GettingUp => Visibility::Hidden,
-            _ => Visibility::Visible,
-        }
-    }
-}
-
-fn levitation(
-    actor_query: Query<&Actor, With<Witch>>,
-    mut group_query: Query<
-        (&Parent, &mut Transform, &Counter, &mut Falling),
-        With<WitchSpriteGroup>,
-    >,
-) {
-    for (parent, mut transform, counter, mut falling) in group_query.iter_mut() {
-        let actor = actor_query.get(parent.get()).unwrap();
-        if 0 < actor.levitation {
-            // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
-            transform.translation.y =
-                6.0 + (f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
-            falling.gravity = 0.0;
+        *visibility = if 0 < actor.drowning {
+            Visibility::Hidden
         } else {
-            falling.gravity = -0.1;
-        }
-    }
-}
-
-fn levitation_effect(
-    actor_query: Query<&Actor, With<Witch>>,
-    mut group_query: Query<(&Parent, &mut Counter), With<WitchSpriteGroup>>,
-    mut effect_query: Query<(&Parent, &mut Visibility), With<WitchLevitationEffect>>,
-) {
-    for (parent, mut visibility) in effect_query.iter_mut() {
-        let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
-        let actor = actor_query.get(group.get()).unwrap();
-        if 120 < actor.levitation {
-            *visibility = Visibility::Inherited;
-        } else if 0 < actor.levitation {
-            *visibility = if (counter.count / 4) % 2 == 0 {
-                Visibility::Inherited
-            } else {
-                Visibility::Hidden
-            };
-        } else {
-            *visibility = Visibility::Hidden;
-            counter.count = 0;
-        }
+            match actor.state {
+                ActorState::GettingUp => Visibility::Hidden,
+                _ => Visibility::Visible,
+            }
+        };
     }
 }
 
@@ -394,13 +330,7 @@ impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (
-                update_witch_animation,
-                update_wand,
-                levitation,
-                levitation_effect,
-            )
-                .in_set(FixedUpdateGameActiveSet),
+            (update_witch_animation, update_wand).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

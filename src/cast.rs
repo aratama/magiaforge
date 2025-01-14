@@ -62,7 +62,9 @@ pub struct SpellCastBullet {
     pub light_radius: f32,
     pub light_color_hlsa: [f32; 4],
 
+    ///// 当たった対象への特殊効果の付与 /////////
     pub freeze: u32,
+    pub levitation: u32,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -173,6 +175,7 @@ pub fn cast_spell(
                         light_color_hlsa: cast.light_color_hlsa,
                         homing: actor.effects.homing,
                         freeze: cast.freeze,
+                        levitation: cast.levitation,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -362,6 +365,7 @@ pub fn cast_spell(
                         light_color_hlsa: [0.0, 1.0, 0.5, 1.0],
                         homing: actor.effects.homing,
                         freeze: 0,
+                        levitation: 0,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 

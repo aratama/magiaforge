@@ -63,6 +63,7 @@ pub enum SpellType {
     QuickCast,
     SpikeBoots,
     Levitation,
+    ApplyLevitation,
     // ランク 6
     LightSword,
     Freeze,
@@ -125,6 +126,7 @@ impl SpellType {
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
                     freeze: 0,
+                    levitation: 0
                 }),
             },
             SpellType::LightBall =>  SpellProps {
@@ -168,6 +170,7 @@ impl SpellType {
                     light_radius: TILE_SIZE * 10.0,
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
                     freeze: 0,
+                    levitation: 0
                 }),
             },
             SpellType::Lantern => SpellProps {
@@ -274,6 +277,7 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     freeze: 0,
+                    levitation: 0
                 }),
             },
             SpellType::SlimeCharge => SpellProps {
@@ -317,6 +321,7 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     freeze: 0,
+                    levitation: 0
                 }),
             },
             SpellType::Telescope => SpellProps {
@@ -422,6 +427,7 @@ impl SpellType {
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
                     freeze: 0,
+                    levitation: 0
                 }),
             },
             SpellType::BulletSpeedDoown =>  SpellProps {
@@ -1168,6 +1174,50 @@ impl SpellType {
                 cast_delay: 120,
                 cast: SpellCast::Levitation,
             },
+            SpellType::ApplyLevitation => SpellProps {
+                rank: 5,
+                name: Dict {
+                    ja: "浮遊付与",
+                    en: "Apply Levitation",
+                    zh_cn: "施加漂浮",
+                    zh_tw: "施加漂浮",
+                    es: "Aplicar Levitación",
+                    fr: "Appliquer Lévitation",
+                    pt: "Aplicar Levitação",
+                    de: "Levitation Anwenden",
+                    ko: "부유 적용",
+                    ru: "Применить Левитацию",
+                },
+                description: Dict {
+                    ja: "対象をわずかに浮遊させます。あまり高くは飛ばせません。",
+                    en: "Slightly levitates the target. It can't fly very high.",
+                    zh_cn: "稍微漂浮目标。它不能飞得很高。",
+                    zh_tw: "稍微漂浮目標。它不能飛得很高。",
+                    es: "Levita ligeramente el objetivo. No puede volar muy alto.",
+                    fr: "Lévite légèrement la cible. Elle ne peut pas voler très haut.",
+                    pt: "Levita ligeiramente o alvo. Não pode voar muito alto.",
+                    de: "Schwebt das Ziel leicht. Es kann nicht sehr hoch fliegen.",
+                    ko: "대상을 약간 떠오르게 합니다. 너무 높이 날 수 없습니다.",
+                    ru: "Немного поднимает цель. Она не может летать очень высоко.",
+                },
+                icon: "apply_levitation_icon",
+                price: 1000,
+                cast_delay: 120,
+                cast: SpellCast::Bullet(SpellCastBullet {
+                    slices: BulletImage::Slice(vec!["light_ball".to_string()]),
+                    collier_radius: 5.0,
+                    speed: 64.0,
+                    lifetime: 180,
+                    damage: 0,
+                    impulse: 0.0,
+                    scattering: 0.4,
+                    light_intensity: 0.0,
+                    light_radius: 0.0,
+                    light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
+                    freeze: 0,
+                    levitation: 180
+                }),
+            },
             SpellType::LightSword =>  SpellProps {
                 rank: 6,
                 name: Dict {
@@ -1241,6 +1291,7 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
                     freeze: 120,
+                    levitation: 0
                 }),
             },
             SpellType::SummonHugeSlime =>  SpellProps {
@@ -1383,6 +1434,7 @@ pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
             light_radius: _,
             light_color_hlsa: _,
             freeze: _,
+            levitation: _,
         }) => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();

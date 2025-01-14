@@ -14,6 +14,8 @@ const WALL_MEMBERSHIPS: Group = Group::GROUP_3;
 /// ニワトリなどの中立キャラクターのグループ
 const NEUTRAL_MEMBERSHIPS: Group = Group::GROUP_4;
 
+const FLYING_NEUTRAL_MEMBERSHIPS: Group = Group::GROUP_18;
+
 /// プレイヤーキャラクターのグループ
 const PLAYER_MEMBERSHIPS: Group = Group::GROUP_5;
 
@@ -22,6 +24,8 @@ const FLYING_PLAYER_MEMBERSHIPS: Group = Group::GROUP_16;
 const PLAYER_BULLET_MEMBERSHIPS: Group = Group::GROUP_6;
 
 const ENEMY_MEMBERSHIPS: Group = Group::GROUP_7;
+
+const FLYING_ENEMY_MEMBERSHIPS: Group = Group::GROUP_17;
 
 const ENEMY_BULLET_MEMBESHIPS: Group = Group::GROUP_8;
 
@@ -54,10 +58,12 @@ pub const ENTITY_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
         PIECE_MEMBERSHIPS
             | ENTITY_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
+            | FLYING_NEUTRAL_MEMBERSHIPS
             | PLAYER_MEMBERSHIPS
             | FLYING_PLAYER_MEMBERSHIPS
             | PLAYER_BULLET_MEMBERSHIPS
             | ENEMY_MEMBERSHIPS
+            | FLYING_ENEMY_MEMBERSHIPS
             | ENEMY_BULLET_MEMBESHIPS
             | WALL_MEMBERSHIPS
             | RABBIT_MEMBERSHIPS
@@ -81,10 +87,12 @@ pub const WALL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
         PIECE_MEMBERSHIPS
             | ENTITY_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
+            | FLYING_NEUTRAL_MEMBERSHIPS
             | PLAYER_MEMBERSHIPS
             | FLYING_PLAYER_MEMBERSHIPS
             | PLAYER_BULLET_MEMBERSHIPS
             | ENEMY_MEMBERSHIPS
+            | FLYING_ENEMY_MEMBERSHIPS
             | ENEMY_BULLET_MEMBESHIPS
             | RABBIT_MEMBERSHIPS
             | DROPPED_ITEM_MEMBERSHIPS
@@ -96,10 +104,12 @@ pub const WALL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
 const ACTOR_FILTER_BASE: LazyCell<Group> = LazyCell::new(|| {
     ENTITY_MEMBERSHIPS
         | NEUTRAL_MEMBERSHIPS
+        | FLYING_NEUTRAL_MEMBERSHIPS
         | WALL_MEMBERSHIPS
         | PLAYER_MEMBERSHIPS
         | FLYING_PLAYER_MEMBERSHIPS
         | ENEMY_MEMBERSHIPS
+        | FLYING_ENEMY_MEMBERSHIPS
         | RABBIT_MEMBERSHIPS
         | SENSOR_MEMBERSHIPS
         | SHADOW_MEMBERSHIPS
@@ -112,6 +122,13 @@ pub const NEUTRAL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | ENEMY_BULLET_MEMBESHIPS
             | WATER_MEMBERSHIPS
             | *ACTOR_FILTER_BASE,
+    )
+});
+
+pub const FLYING_NEUTRAL_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
+    CollisionGroups::new(
+        FLYING_NEUTRAL_MEMBERSHIPS,
+        PLAYER_BULLET_MEMBERSHIPS | ENEMY_BULLET_MEMBESHIPS | *ACTOR_FILTER_BASE,
     )
 });
 
@@ -136,6 +153,13 @@ pub const ENEMY_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     )
 });
 
+pub const FLYING_ENEMY_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
+    CollisionGroups::new(
+        FLYING_ENEMY_MEMBERSHIPS,
+        PLAYER_BULLET_MEMBERSHIPS | *ACTOR_FILTER_BASE,
+    )
+});
+
 const BULLET_FILTER_BASE: LazyCell<Group> =
     LazyCell::new(|| ENTITY_MEMBERSHIPS | WALL_MEMBERSHIPS | NEUTRAL_MEMBERSHIPS);
 
@@ -143,7 +167,12 @@ pub const PLAYER_BULLET_GROUP: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         PLAYER_BULLET_MEMBERSHIPS,
         // アイテムを押して動かせるように、プレイヤーの弾丸は DROPPED_ITEM_MEMBERSHIPS に衝突します
-        ENEMY_MEMBERSHIPS | NEUTRAL_MEMBERSHIPS | DROPPED_ITEM_MEMBERSHIPS | *BULLET_FILTER_BASE,
+        ENEMY_MEMBERSHIPS
+            | FLYING_ENEMY_MEMBERSHIPS
+            | NEUTRAL_MEMBERSHIPS
+            | FLYING_NEUTRAL_MEMBERSHIPS
+            | DROPPED_ITEM_MEMBERSHIPS
+            | *BULLET_FILTER_BASE,
     )
 });
 
@@ -151,7 +180,11 @@ pub const ENEMY_BULLET_GROUP: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         ENEMY_BULLET_MEMBESHIPS,
         // 敵がアイテムを盾に接近するのを避けるために、敵の弾丸は DROPPED_ITEM_MEMBERSHIPS に衝突しません
-        PLAYER_MEMBERSHIPS | FLYING_PLAYER_MEMBERSHIPS | NEUTRAL_MEMBERSHIPS | *BULLET_FILTER_BASE,
+        PLAYER_MEMBERSHIPS
+            | FLYING_PLAYER_MEMBERSHIPS
+            | NEUTRAL_MEMBERSHIPS
+            | FLYING_NEUTRAL_MEMBERSHIPS
+            | *BULLET_FILTER_BASE,
     )
 });
 
@@ -170,6 +203,7 @@ pub const SENSOR_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | ENTITY_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
             | ENEMY_MEMBERSHIPS
+            | FLYING_ENEMY_MEMBERSHIPS
             | SHADOW_MEMBERSHIPS
             | SENSOR_MEMBERSHIPS, // 爆弾で蜘蛛の巣を破壊するため、センサーはセンサーと衝突します
     )
@@ -191,6 +225,7 @@ pub const RABBIT_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | PLAYER_MEMBERSHIPS
             | FLYING_PLAYER_MEMBERSHIPS
             | ENEMY_MEMBERSHIPS
+            | FLYING_ENEMY_MEMBERSHIPS
             | SHADOW_MEMBERSHIPS
             | HIDDEN_WALL_MEMBERSHIPS
             | DROPPED_ITEM_MEMBERSHIPS
@@ -225,6 +260,7 @@ pub const WATER_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | PLAYER_MEMBERSHIPS
             // | FLYING_PLAYER_MEMBERSHIPS // 水は飛行中のプレイヤーと衝突しないことに注意
             | ENEMY_MEMBERSHIPS
+            // | FLYING_ENEMY_MEMBERSHIPS // 水は飛行中の敵と衝突しないことに注意
             | RABBIT_MEMBERSHIPS
             | DROPPED_ITEM_MEMBERSHIPS
             | GOLD_MEMBERSHIPS

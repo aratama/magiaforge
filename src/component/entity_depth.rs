@@ -20,7 +20,7 @@ impl EntityDepth {
 
 /// 親のy座標に応じて子のz座標を自動で設定します
 /// ルートのエンティティではなく子のエンティティになっているスプライトにはEntityChildrenAutoDepthを使います
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct ChildEntityDepth {
     pub offset: f32,
 }

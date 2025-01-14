@@ -93,7 +93,7 @@ pub fn spawn_salamander(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(),
+            actor_group.to_groups(0, 0),
         ),
         AseSpriteSlice {
             aseprite: assets.atlas.clone(),
