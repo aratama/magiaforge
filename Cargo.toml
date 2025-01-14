@@ -30,6 +30,7 @@ debug = []
 debug_command = []
 save = []
 ingame = []
+item = []
 opening = []
 default = ["debug_command"]
 

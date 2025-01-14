@@ -3,6 +3,7 @@ use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory::Inventory;
+use crate::inventory_item::InventoryItemType;
 use crate::spell::SpellType;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
@@ -25,45 +26,175 @@ pub struct PlayerState {
 
 impl Default for PlayerState {
     fn default() -> Self {
-        let inventory = Inventory::new();
+        let mut inventory = Inventory::new();
 
-        let wands = [
-            Wand::with_slots([
-                Some(WandSpell::new(SpellType::MagicBolt)),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ]),
-            Wand::empty(),
-            Wand::empty(),
-            Wand::with_slots([
-                Some(WandSpell::new(SpellType::LightBall)),
-                Some(WandSpell::new(SpellType::Lantern)),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ]),
-        ];
+        if cfg!(feature = "item") {
+            inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::MagicBolt));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::WaterBall));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SlimeCharge));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Heal));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedDoown));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedDoown));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::BulletSpeedDoown));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::PurpleBolt));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::DualCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::TripleCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Lantern));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Lantern));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SpikeBoots));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SpikeBoots));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SpikeBoots));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Telescope));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Magnifier));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Homing));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::HeavyShot));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendSlime));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemySlime));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SummonFriendEyeball));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SummonEnemyEyeball));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Dash));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::QuickCast));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Impact));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::PrecisionUp));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Bomb));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::LightSword));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SpawnBookshelf));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SpawnJar));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::RockFall));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Fireball));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SummonHugeSlime));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::SummonChiken));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Servant));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Web));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Freeze));
+            inventory.insert_free(InventoryItemType::Spell(SpellType::Levitation));
+            inventory.sort();
 
-        let mut instance = PlayerState {
-            name: "".to_string(),
-            life: 60,
-            max_life: 60,
-            inventory,
-            wands,
-            golds: 1000,
-            current_wand: 0,
-            discovered_spells: HashSet::new(),
-        };
-        instance.update_discovered_spell();
-        instance
+            let wands = [
+                Wand::with_slots([
+                    Some(WandSpell {
+                        spell_type: SpellType::Levitation,
+                        price: 0,
+                    }),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]),
+                Wand::with_slots([
+                    Some(WandSpell::new(SpellType::QuickCast)),
+                    Some(WandSpell::new(SpellType::QuickCast)),
+                    Some(WandSpell::new(SpellType::HeavyShot)),
+                    Some(WandSpell::new(SpellType::HeavyShot)),
+                    Some(WandSpell::new(SpellType::TripleCast)),
+                    Some(WandSpell::new(SpellType::MagicBolt)),
+                    Some(WandSpell::new(SpellType::MagicBolt)),
+                    Some(WandSpell::new(SpellType::MagicBolt)),
+                ]),
+                Wand::with_slots([
+                    Some(WandSpell {
+                        spell_type: SpellType::Bomb,
+                        price: 0,
+                    }),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]),
+                Wand::with_slots([
+                    Some(WandSpell {
+                        spell_type: SpellType::Dash,
+                        price: 0,
+                    }),
+                    Some(WandSpell {
+                        spell_type: SpellType::Lantern,
+                        price: 0,
+                    }),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]),
+            ];
+
+            let mut instance = PlayerState {
+                name: "".to_string(),
+                life: 60,
+                max_life: 60,
+                inventory,
+                wands,
+                golds: 1000,
+                current_wand: 0,
+                discovered_spells: HashSet::new(),
+            };
+            instance.update_discovered_spell();
+
+            instance
+        } else {
+            let wands = [
+                Wand::with_slots([
+                    Some(WandSpell::new(SpellType::MagicBolt)),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]),
+                Wand::empty(),
+                Wand::empty(),
+                Wand::with_slots([
+                    Some(WandSpell::new(SpellType::LightBall)),
+                    Some(WandSpell::new(SpellType::Lantern)),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]),
+            ];
+
+            let mut instance = PlayerState {
+                name: "".to_string(),
+                life: 60,
+                max_life: 60,
+                inventory,
+                wands,
+                golds: 1000,
+                current_wand: 0,
+                discovered_spells: HashSet::new(),
+            };
+            instance.update_discovered_spell();
+
+            instance
+        }
     }
 }
 

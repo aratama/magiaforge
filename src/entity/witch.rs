@@ -1,3 +1,5 @@
+use core::f32;
+
 use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
@@ -134,6 +136,7 @@ pub fn spawn_witch<T: Component>(
                 Transform::from_xyz(0.0, 0.0, 0.0),
                 ChildEntityDepth { offset: 0.0 },
                 Counter::up(0),
+                Visibility::default(),
             ))
             .with_child((
                 WitchAnimationSprite,
@@ -166,7 +169,6 @@ pub fn spawn_witch<T: Component>(
                 },
                 Transform::from_xyz(0.0, -4.0, -0.0002),
                 Visibility::Hidden,
-                Counter::up(0),
             ));
 
         // リモートプレイヤーの名前
@@ -353,7 +355,9 @@ fn levitation(
     for (parent, mut transform, counter, mut falling) in group_query.iter_mut() {
         let actor = actor_query.get(parent.get()).unwrap();
         if 0 < actor.levitation {
-            transform.translation.y = 6.0 + (counter.count as f32 * 0.08).sin() * 4.0;
+            // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
+            transform.translation.y =
+                6.0 + (f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
             falling.gravity = 0.0;
         } else {
             falling.gravity = -0.1;
@@ -363,11 +367,11 @@ fn levitation(
 
 fn levitation_effect(
     actor_query: Query<&Actor, With<Witch>>,
-    group_query: Query<&Parent, With<WitchSpriteGroup>>,
-    mut effect_query: Query<(&Parent, &mut Visibility, &Counter), With<WitchLevitationEffect>>,
+    mut group_query: Query<(&Parent, &mut Counter), With<WitchSpriteGroup>>,
+    mut effect_query: Query<(&Parent, &mut Visibility), With<WitchLevitationEffect>>,
 ) {
-    for (parent, mut visibility, counter) in effect_query.iter_mut() {
-        let group = group_query.get(parent.get()).unwrap();
+    for (parent, mut visibility) in effect_query.iter_mut() {
+        let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
         let actor = actor_query.get(group.get()).unwrap();
         if 120 < actor.levitation {
             *visibility = Visibility::Inherited;
@@ -379,6 +383,7 @@ fn levitation_effect(
             };
         } else {
             *visibility = Visibility::Hidden;
+            counter.count = 0;
         }
     }
 }
