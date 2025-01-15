@@ -62,15 +62,18 @@ fn frown_on_damage(
     mut sandbag_query: Query<(&mut Sandbug, &Children)>,
 ) {
     for event in actor_event.read() {
-        let ActorEvent::Damaged { actor, .. } = event;
-
-        if let Ok((mut sandbag, children)) = sandbag_query.get_mut(*actor) {
-            for child in children {
-                if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
-                    aseprite.animation.tag = Some("frown".to_string());
-                    sandbag.animation = 0;
+        match *event {
+            ActorEvent::Damaged { actor, .. } => {
+                if let Ok((mut sandbag, children)) = sandbag_query.get_mut(actor) {
+                    for child in children {
+                        if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
+                            aseprite.animation.tag = Some("frown".to_string());
+                            sandbag.animation = 0;
+                        }
+                    }
                 }
             }
+            ActorEvent::FatalFall { .. } => {}
         }
     }
 }

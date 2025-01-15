@@ -118,9 +118,10 @@ fn fire_damage(
 }
 
 fn damage(
+    mut commands: Commands,
     mut query: Query<(&mut Life, Option<&mut ExternalImpulse>)>,
     mut reader: EventReader<ActorEvent>,
-    mut se_writer: EventWriter<SEEvent>,
+    mut se: EventWriter<SEEvent>,
 ) {
     for event in reader.read() {
         match event {
@@ -135,7 +136,7 @@ fn damage(
                     if let Ok((mut life, life_impulse)) = query.get_mut(*actor) {
                         life.life = (life.life - *damage as i32).max(0);
                         life.amplitude = 6.0;
-                        se_writer.send(SEEvent::pos(SE::Damage, *position));
+                        se.send(SEEvent::pos(SE::Damage, *position));
                         if *fire {
                             life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
                         }
@@ -144,6 +145,10 @@ fn damage(
                         }
                     }
                 }
+            }
+            ActorEvent::FatalFall { actor, position } => {
+                commands.entity(*actor).despawn_recursive();
+                se.send(SEEvent::pos(SE::Scene2, *position));
             }
         }
     }

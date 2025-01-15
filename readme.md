@@ -61,6 +61,7 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - バスのドアが開く 2 https://soundeffect-lab.info/sound/machine/machine2.html
 - ゾンビの食事 https://soundeffect-lab.info/sound/battle/battle2.html
 - 構えを取る https://soundeffect-lab.info/sound/battle/
+- シーン切り替え 2 https://soundeffect-lab.info/sound/anime/
 
 #### BGMs
 

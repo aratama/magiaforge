@@ -409,6 +409,10 @@ pub enum ActorEvent {
         fire: bool,
         impulse: Vec2,
     },
+    FatalFall {
+        actor: Entity,
+        position: Vec2,
+    },
 }
 
 fn update_sprite_flip(

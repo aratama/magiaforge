@@ -423,6 +423,12 @@ fn drown_damage(
                         actor.drowning = 1;
                     }
                 }
+                Tile::Crack => {
+                    damage.send(ActorEvent::FatalFall {
+                        actor: entity,
+                        position: transform.translation.truncate(),
+                    });
+                }
                 _ => {}
             }
         }
