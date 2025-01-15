@@ -21,6 +21,7 @@ use crate::entity::bomb::spawn_bomb;
 use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::chest::spawn_chest;
+use crate::entity::chest::ChestItem;
 use crate::entity::chest::ChestType;
 use crate::entity::chest::CHEST_OR_BARREL;
 use crate::entity::chest::JARS;
@@ -126,6 +127,7 @@ pub enum SpawnEntity {
     // 魔法で生成されるもの
     Chest {
         position: Vec2,
+        item: ChestItem,
     },
     Crate {
         position: Vec2,
@@ -218,12 +220,13 @@ pub fn spawn_entity(
             SpawnEntity::BookShelf { position } => {
                 spawn_book_shelf(&mut commands, assets.atlas.clone(), *position);
             }
-            SpawnEntity::Chest { position } => {
+            SpawnEntity::Chest { position, item } => {
                 spawn_chest(
                     &mut commands,
                     assets.atlas.clone(),
                     *position,
                     ChestType::Chest,
+                    *item,
                 );
             }
             SpawnEntity::Crate { position } => {
@@ -232,27 +235,48 @@ pub fn spawn_entity(
                     assets.atlas.clone(),
                     *position,
                     ChestType::Crate,
+                    ChestItem::Gold(1),
                 );
             }
             SpawnEntity::CrateOrBarrel { position } => {
                 if rand::random::<u32>() % 4 != 0 {
+                    let chest_type = *CHEST_OR_BARREL
+                        .iter()
+                        .choose(&mut rand::thread_rng())
+                        .unwrap();
+
+                    let item = ChestItem::Gold(match chest_type {
+                        ChestType::Chest => 10,
+                        ChestType::Crate => 1,
+                        ChestType::Barrel => 1,
+                        ChestType::BarrelBomb => 3,
+                        ChestType::Jar(_) => 1,
+                    });
+
                     spawn_chest(
                         &mut commands,
                         assets.atlas.clone(),
                         *position,
-                        *CHEST_OR_BARREL
-                            .iter()
-                            .choose(&mut rand::thread_rng())
-                            .unwrap(),
+                        chest_type,
+                        item,
                     );
                 }
             }
             SpawnEntity::Jar { position } => {
+                let chest_type = *JARS.iter().choose(&mut rand::thread_rng()).unwrap();
+                let golds = match chest_type {
+                    ChestType::Chest => 10,
+                    ChestType::Crate => 1,
+                    ChestType::Barrel => 1,
+                    ChestType::BarrelBomb => 3,
+                    ChestType::Jar(_) => 1,
+                };
                 spawn_chest(
                     &mut commands,
                     assets.atlas.clone(),
                     *position,
-                    *JARS.iter().choose(&mut rand::thread_rng()).unwrap(),
+                    chest_type,
+                    ChestItem::Gold(golds),
                 );
             }
             SpawnEntity::MagicCircle { position } => {

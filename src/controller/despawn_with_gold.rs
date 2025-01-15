@@ -23,16 +23,11 @@ fn dead_enemy(
 ) {
     for (entity, enemy, enemy_life, transform) in query.iter_mut() {
         if enemy_life.life <= 0 {
+            let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            writer.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
-
+            writer.send(SEEvent::pos(SE::Cry, position));
             for _ in 0..enemy.golds {
-                spawn_gold(
-                    &mut commands,
-                    &assets,
-                    transform.translation.x,
-                    transform.translation.y,
-                );
+                spawn_gold(&mut commands, &assets, position);
             }
         }
     }

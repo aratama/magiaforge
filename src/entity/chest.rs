@@ -7,6 +7,7 @@ use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::gold::spawn_gold;
 use crate::entity::piece::spawn_broken_piece;
+use crate::inventory::InventoryItem;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -16,11 +17,13 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 
+use super::dropped_item::spawn_dropped_item;
+
 const ENTITY_WIDTH: f32 = 8.0;
 
 const ENTITY_HEIGHT: f32 = 8.0;
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, Debug)]
 pub enum JarColor {
     #[default]
     Red,
@@ -28,7 +31,7 @@ pub enum JarColor {
     Green,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, strum::EnumIter)]
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, strum::EnumIter, Debug)]
 pub enum ChestType {
     #[default]
     Chest,
@@ -59,10 +62,16 @@ pub const JARS: [ChestType; 3] = [
     ChestType::Jar(JarColor::Green),
 ];
 
-#[derive(Default, Component, Reflect)]
+#[derive(Component, Reflect, Debug)]
 struct Chest {
     pub chest_type: ChestType,
-    pub golds: i32,
+    pub golds: ChestItem,
+}
+
+#[derive(Reflect, Clone, Debug, Copy)]
+pub enum ChestItem {
+    Gold(u32),
+    Item(InventoryItem),
 }
 
 /// チェストを生成します
@@ -72,6 +81,7 @@ pub fn spawn_chest(
     aseprite: Handle<Aseprite>,
     position: Vec2,
     chest_type: ChestType,
+    item: ChestItem,
 ) {
     let life = match chest_type {
         ChestType::Chest => 30,
@@ -87,13 +97,7 @@ pub fn spawn_chest(
             Life::new(life),
             Chest {
                 chest_type,
-                golds: match chest_type {
-                    ChestType::Chest => 10,
-                    ChestType::Crate => 1,
-                    ChestType::Barrel => 1,
-                    ChestType::BarrelBomb => 3,
-                    ChestType::Jar(_) => 1,
-                },
+                golds: item,
             },
             Burnable {
                 life: 60 * 20 + rand::random::<u32>() % 30,
@@ -158,13 +162,16 @@ fn break_chest(
                 },
                 position,
             ));
-            for _ in 0..chest.golds {
-                spawn_gold(
-                    &mut commands,
-                    &assets,
-                    transform.translation.x,
-                    transform.translation.y,
-                );
+
+            match chest.golds {
+                ChestItem::Gold(gold) => {
+                    for _ in 0..gold {
+                        spawn_gold(&mut commands, &assets, position);
+                    }
+                }
+                ChestItem::Item(item) => {
+                    spawn_dropped_item(&mut commands, &assets, position, item);
+                }
             }
 
             match chest.chest_type {

@@ -66,10 +66,10 @@ pub enum SpellType {
     Levitation,
     ApplyLevitation,
     // ランク 6
-    LightSword,
     Freeze,
     // ランク7
     SummonHugeSlime,
+    LightSword,
 }
 
 /// 呪文の基礎情報
@@ -1251,7 +1251,7 @@ impl SpellType {
                 }),
             },
             SpellType::LightSword =>  SpellProps {
-                rank: 6,
+                rank: 7,
                 name: Dict {
                     ja: "光の剣",
                     en: "Light Sword",

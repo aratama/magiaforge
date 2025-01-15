@@ -1,7 +1,11 @@
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
+use crate::entity::chest::ChestItem;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
+use crate::spell::SpellType;
 use bevy::prelude::*;
 
 #[derive(Clone, Copy, Debug)]
@@ -166,7 +170,16 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::Chest { position });
+                    entities.push(SpawnEntity::Chest {
+                        position,
+                        item: if (x, y) == (100, 66) {
+                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                                SpellType::LightSword,
+                            )))
+                        } else {
+                            ChestItem::Gold(4)
+                        },
+                    });
                 }
                 (255, 155, 87, 255) => {
                     tiles.push(LevelTileMapile {

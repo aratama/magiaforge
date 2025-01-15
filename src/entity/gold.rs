@@ -19,17 +19,15 @@ pub struct Gold {
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 /// 大量に生成したときに重なりが減るように、この関数内でランダムな位置にずらしています
-pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, x: f32, y: f32) {
-    let tx = x;
-    let ty = y;
+pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands.spawn((
         Name::new("gold"),
         StateScoped(GameState::InGame),
         Gold { magnet: false },
         EntityDepth::new(),
         Transform::from_translation(Vec3::new(
-            tx + (random::<f32>() - 0.5) * 16.0,
-            ty + (random::<f32>() - 0.5) * 16.0,
+            position.x + (random::<f32>() - 0.5) * 16.0,
+            position.y + (random::<f32>() - 0.5) * 16.0,
             0.0,
         )),
         CounterAnimated,

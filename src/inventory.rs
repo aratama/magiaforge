@@ -10,6 +10,15 @@ pub struct InventoryItem {
     pub price: u32,
 }
 
+impl InventoryItem {
+    pub fn new(item_type: InventoryItemType) -> InventoryItem {
+        InventoryItem {
+            item_type,
+            price: 0,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
 pub struct Inventory(pub Vec<Option<InventoryItem>>);
 

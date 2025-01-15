@@ -312,19 +312,12 @@ fn receive_events(
                                 .find(|(_, _, actor, _, _, _)| actor.uuid == uuid);
 
                             if let Some((entity, _, _, _, transform, _)) = target {
-                                writer
-                                    .send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
-
+                                let position = transform.translation.truncate();
+                                writer.send(SEEvent::pos(SE::Cry, position));
                                 commands.entity(entity).despawn_recursive();
-
                                 let player_defeat_bonus = 100;
                                 for _ in 0..player_defeat_bonus {
-                                    spawn_gold(
-                                        &mut commands,
-                                        &assets,
-                                        transform.translation.x,
-                                        transform.translation.y,
-                                    );
+                                    spawn_gold(&mut commands, &assets, position);
                                 }
                             }
                         }
