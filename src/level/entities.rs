@@ -82,6 +82,9 @@ pub enum SpawnEntity {
     MultiPlayArenaMagicCircle {
         position: Vec2,
     },
+    MagicCircleDemoEnding {
+        position: Vec2,
+    },
     BrokenMagicCircle {
         position: Vec2,
     },
@@ -301,6 +304,14 @@ pub fn spawn_entity(
                     &assets,
                     *position,
                     MagicCircleDestination::MultiplayArena,
+                );
+            }
+            SpawnEntity::MagicCircleDemoEnding { position } => {
+                spawn_magic_circle(
+                    &mut commands,
+                    &assets,
+                    *position,
+                    MagicCircleDestination::Ending,
                 );
             }
             SpawnEntity::BrokenMagicCircle { position } => {

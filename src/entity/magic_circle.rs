@@ -32,6 +32,7 @@ pub enum MagicCircleDestination {
     NextLevel,
     Home,
     MultiplayArena,
+    Ending,
 }
 
 #[derive(Component)]
@@ -176,6 +177,9 @@ fn warp(
                     MagicCircleDestination::MultiplayArena => {
                         next.next_level = GameLevel::MultiPlayArena;
                         next.next_state = Some(player_state);
+                    }
+                    MagicCircleDestination::Ending => {
+                        overlay_event_writer.send(OverlayEvent::Close(GameState::Ending));
                     }
                 }
             }

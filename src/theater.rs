@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::GameCamera;
+use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
@@ -15,6 +16,8 @@ use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::language::Languages;
+use crate::level::tile::Tile;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameMenuState;
@@ -23,6 +26,7 @@ use crate::states::TimeState;
 use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_light_2d::light::PointLight2d;
 
 const DELAY: usize = 4;
@@ -73,7 +77,20 @@ pub enum Act {
     },
 
     /// エンディングを再生します
+    #[allow(dead_code)]
     Ending,
+
+    SetTile(i32, i32, u32, u32, Tile),
+
+    SpawnRaven {
+        name: String,
+        position: Vec2,
+    },
+
+    DespawnRaven,
+
+    // todo ravenに合うような仮実装
+    SetCameraTarget(Option<String>),
 }
 
 #[derive(Event)]
@@ -99,6 +116,9 @@ impl Theater {
         self.senario.get(self.act_index)
     }
 }
+
+#[derive(Component)]
+struct EventRavenSprite;
 
 fn read_speech_events(
     mut events: EventReader<TheaterEvent>,
@@ -139,6 +159,8 @@ fn countup(
     mut theater: ResMut<Theater>,
     mut writer: EventWriter<OverlayEvent>,
     mut se_writer: EventWriter<SEEvent>,
+    mut level: ResMut<LevelSetup>,
+    raven_query: Query<Entity, With<EventRavenSprite>>,
 ) {
     let (mut visibility, mut speech) = speech_query.single_mut();
 
@@ -274,6 +296,50 @@ fn countup(
         }
         Act::Ending => {
             writer.send(OverlayEvent::Close(GameState::Ending));
+            theater.act_index += 1;
+        }
+        Act::SetTile(x, y, w, h, tile) => {
+            if let Some(ref mut chunk) = level.chunk {
+                for i in x..x + w as i32 {
+                    for j in y..y + h as i32 {
+                        chunk.set_tile(i, j, tile);
+                    }
+                }
+            }
+            theater.act_index += 1;
+        }
+        Act::SpawnRaven { name, position } => {
+            commands.spawn((
+                EventRavenSprite,
+                Name::new(name),
+                AseSpriteAnimation {
+                    aseprite: assets.raven.clone(),
+                    animation: "idle".into(),
+                },
+                EntityDepth::new(),
+                Transform::from_translation(position.extend(0.0)),
+            ));
+            theater.act_index += 1;
+        }
+
+        Act::DespawnRaven => {
+            if let Ok(entity) = raven_query.get_single() {
+                commands.entity(entity).despawn_recursive();
+            }
+            theater.act_index += 1;
+        }
+
+        Act::SetCameraTarget(name) => {
+            match name {
+                Some(_) => {
+                    if let Ok(entity) = raven_query.get_single() {
+                        camera.target = Some(entity);
+                    }
+                }
+                None => {
+                    camera.target = None;
+                }
+            };
             theater.act_index += 1;
         }
     }

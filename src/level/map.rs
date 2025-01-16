@@ -221,6 +221,13 @@ pub fn image_to_tilemap(
                     });
                     entities.push(SpawnEntity::MagicCircleHome { position });
                 }
+                (46, 96, 130, 255) => {
+                    tiles.push(LevelTileMapile {
+                        tile: Tile::StoneTile,
+                        zone: Zone::SafeZone,
+                    });
+                    entities.push(SpawnEntity::MagicCircleDemoEnding { position });
+                }
                 (255, 0, 0, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,

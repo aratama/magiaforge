@@ -18,6 +18,7 @@ use crate::entity::servant_seed::ServantType;
 use crate::inventory::Inventory;
 use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
+use crate::level::tile::Tile;
 use crate::message::HUGE_SLIME;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -373,8 +374,21 @@ fn despown(
                         },
                         Act::Despown(entity),
                         Act::ShakeStart(None),
-                        // Act::Wait(240),
-                        // Act::Ending,
+                        Act::Wait(240),
+                        Act::SetTile(23, 153, 3, 5, Tile::StoneTile),
+                        Act::SE(SE::Break),
+                        Act::SpawnRaven {
+                            name: "raven".to_string(),
+                            position: Vec2::new(
+                                TILE_SIZE * 24.0 + TILE_HALF,
+                                TILE_SIZE * -157.0 + TILE_HALF,
+                            ),
+                        },
+                        Act::Wait(60 * 2),
+                        Act::SetCameraTarget(Some("raven".to_string())),
+                        Act::Wait(60 * 2),
+                        Act::SetCameraTarget(None),
+                        Act::DespawnRaven,
                     ],
                 });
             }
