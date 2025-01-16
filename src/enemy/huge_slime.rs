@@ -100,12 +100,7 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 name: HUGE_SLIME.to_string(),
             },
             DespawnHugeSlime,
-            Life {
-                life: 1200,
-                max_life: 1200,
-                amplitude: 0.0,
-                fire_damage_wait: 0,
-            },
+            Life::new(4000),
             HomingTarget,
             HugeSlime {
                 state: HugeSlimeState::Growl,
@@ -253,7 +248,7 @@ fn update_huge_slime_summon(
                             let t = std::f32::consts::PI * 2.0 / slimes as f32; // 等間隔に配置した場合の角度
                             let a = rand::random::<f32>() * 3.0; // 起点は適当にばらけさせる
                             let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
-                            let offset = Vec2::from_angle(angle) * 100.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
+                            let offset = Vec2::from_angle(angle) * 30.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
                             let to = player.translation.truncate() + offset;
                             spawn.send(SpawnEntity::Seed {
                                 from: transform.translation.truncate(),
@@ -299,7 +294,7 @@ fn update_huge_slime_promote(
 
 fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life, &mut Counter)>) {
     for (mut huge_slime, life, mut counter) in huge_slime_query.iter_mut() {
-        if !huge_slime.promoted && life.life < 600 {
+        if !huge_slime.promoted && life.life < 2000 {
             huge_slime.state = HugeSlimeState::Promote;
             counter.count = 0;
             huge_slime.promoted = true;
@@ -378,8 +373,8 @@ fn despown(
                         },
                         Act::Despown(entity),
                         Act::ShakeStart(None),
-                        Act::Wait(240),
-                        Act::Ending,
+                        // Act::Wait(240),
+                        // Act::Ending,
                     ],
                 });
             }

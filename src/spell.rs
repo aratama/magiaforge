@@ -46,7 +46,6 @@ pub enum SpellType {
     // ランク3
     SummonChiken,
     HeavyShot,
-    Bomb,
     TripleCast,
     Homing,
     SummonFriendSlime,
@@ -63,13 +62,14 @@ pub enum SpellType {
     Heal,
     QuickCast,
     SpikeBoots,
-    Levitation,
     ApplyLevitation,
     // ランク 6
     Freeze,
     // ランク7
     SummonHugeSlime,
     LightSword,
+    Bomb,
+    Levitation,
 }
 
 /// 呪文の基礎情報
@@ -710,37 +710,7 @@ impl SpellType {
                 price: 30,
                 cast: SpellCast::HeavyShot,
             },
-            SpellType::Bomb => SpellProps {
-                rank: 3,
-                name: Dict {
-                    ja: "爆弾",
-                    en: "Bomb",
-                    zh_cn: "炸弹",
-                    zh_tw: "炸彈",
-                    es: "Bomba",
-                    fr: "Bombe",
-                    pt: "Bomba",
-                    de: "Bombe",
-                    ko: "폭탄",
-                    ru: "Бомба"
-                },
-                description: Dict {
-                    ja: "黒色火薬が詰まった爆弾です。時間が経つと爆発します。",
-                    en: "A bomb filled with black powder. It explodes after a while.",
-                    zh_cn: "装满黑火药的炸弹。过一会儿就会爆炸。",
-                    zh_tw: "裝滿黑色火藥的炸彈。隨著時間的推移它會爆炸。",
-                    es: "Una bomba llena de pólvora negra. Explota después de un tiempo.",
-                    fr: "Une bombe remplie de poudre noire. Elle explose après un certain temps.",
-                    pt: "Uma bomba cheia de pólvora negra. Ela explode depois de um tempo.",
-                    de: "Eine mit Schwarzpulver gefüllte Bombe. Sie explodiert nach einer Weile.",
-                    ko: "흑색 화약이 가득한 폭탄입니다. 시간이 지나면 폭발합니다.",
-                    ru: "Бомба, наполненная черным порохом. Она взрывается через некоторое время."
-                },
-                cast_delay: 120,
-                icon: "bomb_icon",
-                price: 300,
-                cast: SpellCast::Bomb,
-            },
+
             SpellType::TripleCast =>  SpellProps {
                 rank: 3,
                 name: Dict {
@@ -1175,37 +1145,7 @@ impl SpellType {
                 cast_delay: 0,
                 cast: SpellCast::None,
             },
-            SpellType::Levitation => SpellProps {
-                rank: 5,
-                name: Dict {
-                    ja: "浮遊",
-                    en: "Levitation",
-                    zh_cn: "漂浮",
-                    zh_tw: "漂浮",
-                    es: "Levitación",
-                    fr: "Lévitation",
-                    pt: "Levitação",
-                    de: "Schweben",
-                    ko: "부유",
-                    ru: "Левитация",
-                },
-                description: Dict {
-                    ja: "身体をわずかに浮遊させます。あまり高くは飛べません。",
-                    en: "Levitate your body slightly. You can't fly very high.",
-                    zh_cn: "稍微漂浮你的身体。你不能飞得很高。",
-                    zh_tw: "稍微漂浮你的身體。你不能飛得很高。",
-                    es: "Levita tu cuerpo ligeramente. No puedes volar muy alto.",
-                    fr: "Lévitez légèrement votre corps. Vous ne pouvez pas voler très haut.",
-                    pt: "Levite seu corpo ligeiramente. Você não pode voar muito alto.",
-                    de: "Schwebe deinen Körper leicht. Du kannst nicht sehr hoch fliegen.",
-                    ko: "몸을 약간 떠오르게 합니다. 너무 높이 날 수는 없습니다.",
-                    ru: "Немного поднимите свое тело. Вы не можете летать очень высоко.",
-                },
-                icon: "levitation_icon",
-                price: 1000,
-                cast_delay: 120,
-                cast: SpellCast::Levitation,
-            },
+            
             SpellType::ApplyLevitation => SpellProps {
                 rank: 5,
                 name: Dict {
@@ -1356,6 +1296,68 @@ impl SpellType {
                 icon: "summon_huge_slime_icon",
                 price: 10000,
                 cast: SpellCast::SpawnEntity(SpellCastEntityType::HugeSlime)
+            },
+            SpellType::Bomb => SpellProps {
+                rank: 7,
+                name: Dict {
+                    ja: "爆弾",
+                    en: "Bomb",
+                    zh_cn: "炸弹",
+                    zh_tw: "炸彈",
+                    es: "Bomba",
+                    fr: "Bombe",
+                    pt: "Bomba",
+                    de: "Bombe",
+                    ko: "폭탄",
+                    ru: "Бомба"
+                },
+                description: Dict {
+                    ja: "黒色火薬が詰まった爆弾です。時間が経つと爆発します。",
+                    en: "A bomb filled with black powder. It explodes after a while.",
+                    zh_cn: "装满黑火药的炸弹。过一会儿就会爆炸。",
+                    zh_tw: "裝滿黑色火藥的炸彈。隨著時間的推移它會爆炸。",
+                    es: "Una bomba llena de pólvora negra. Explota después de un tiempo.",
+                    fr: "Une bombe remplie de poudre noire. Elle explose après un certain temps.",
+                    pt: "Uma bomba cheia de pólvora negra. Ela explode depois de um tempo.",
+                    de: "Eine mit Schwarzpulver gefüllte Bombe. Sie explodiert nach einer Weile.",
+                    ko: "흑색 화약이 가득한 폭탄입니다. 시간이 지나면 폭발합니다.",
+                    ru: "Бомба, наполненная черным порохом. Она взрывается через некоторое время."
+                },
+                cast_delay: 120,
+                icon: "bomb_icon",
+                price: 300,
+                cast: SpellCast::Bomb,
+            },
+            SpellType::Levitation => SpellProps {
+                rank: 7,
+                name: Dict {
+                    ja: "浮遊",
+                    en: "Levitation",
+                    zh_cn: "漂浮",
+                    zh_tw: "漂浮",
+                    es: "Levitación",
+                    fr: "Lévitation",
+                    pt: "Levitação",
+                    de: "Schweben",
+                    ko: "부유",
+                    ru: "Левитация",
+                },
+                description: Dict {
+                    ja: "身体をわずかに浮遊させます。あまり高くは飛べません。",
+                    en: "Levitate your body slightly. You can't fly very high.",
+                    zh_cn: "稍微漂浮你的身体。你不能飞得很高。",
+                    zh_tw: "稍微漂浮你的身體。你不能飛得很高。",
+                    es: "Levita tu cuerpo ligeramente. No puedes volar muy alto.",
+                    fr: "Lévitez légèrement votre corps. Vous ne pouvez pas voler très haut.",
+                    pt: "Levite seu corpo ligeiramente. Você não pode voar muito alto.",
+                    de: "Schwebe deinen Körper leicht. Du kannst nicht sehr hoch fliegen.",
+                    ko: "몸을 약간 떠오르게 합니다. 너무 높이 날 수는 없습니다.",
+                    ru: "Немного поднимите свое тело. Вы не можете летать очень высоко.",
+                },
+                icon: "levitation_icon",
+                price: 1000,
+                cast_delay: 120,
+                cast: SpellCast::Levitation,
             },
         }
     }

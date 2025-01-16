@@ -172,7 +172,19 @@ pub fn image_to_tilemap(
                     });
                     entities.push(SpawnEntity::Chest {
                         position,
-                        item: if (x, y) == (100, 66) {
+                        item: if (x, y) == (81, 28) {
+                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                                SpellType::Dash,
+                            )))
+                        } else if (x, y) == (30, 69) {
+                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                                SpellType::Levitation,
+                            )))
+                        } else if (x, y) == (53, 24) {
+                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                                SpellType::Bomb,
+                            )))
+                        } else if (x, y) == (100, 66) {
                             ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
                                 SpellType::LightSword,
                             )))
@@ -355,7 +367,7 @@ pub fn image_to_tilemap(
                         zone: Zone::SafeZone,
                     });
                 }
-                (30, 30, 30, 255) => {
+                (43, 43, 43, 255) => {
                     tiles.push(LevelTileMapile {
                         tile: Tile::Crack,
                         zone: Zone::SafeZone,

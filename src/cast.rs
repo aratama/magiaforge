@@ -350,7 +350,7 @@ pub fn cast_spell(
                         velocity: normalized * 0.01,
                         bullet_lifetime: 240,
                         sender: Some(actor.uuid),
-                        damage: 5 + actor.effects.bullet_damage_buff_amount,
+                        damage: 30 + actor.effects.bullet_damage_buff_amount,
                         impulse: 0.0,
                         slices: BulletImage::Slice(vec![
                             "light_sword".to_string(),

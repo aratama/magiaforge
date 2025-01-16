@@ -389,12 +389,12 @@ fn drown(
 }
 
 fn drown_damage(
-    mut player_query: Query<(Entity, &mut Actor, &Transform), With<Player>>,
+    mut player_query: Query<(Entity, &mut Actor, &Transform, &Falling), With<Player>>,
     mut damage: EventWriter<ActorEvent>,
     level: Res<LevelSetup>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        for (entity, mut actor, transform) in player_query.iter_mut() {
+        for (entity, mut actor, transform, falling) in player_query.iter_mut() {
             let position = transform.translation.truncate();
             let tile = chunk.get_tile_by_coords(position);
 
@@ -423,7 +423,7 @@ fn drown_damage(
                         actor.drowning = 1;
                     }
                 }
-                Tile::Crack => {
+                Tile::Crack if falling.v <= 0.0 => {
                     damage.send(ActorEvent::FatalFall {
                         actor: entity,
                         position: transform.translation.truncate(),
