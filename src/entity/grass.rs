@@ -1,22 +1,31 @@
 use crate::asset::GameAssets;
 use crate::collision::*;
+use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::constant::{TILE_HALF, Z_ORDER_SCALE};
+use crate::controller::player::Player;
 use crate::entity::fire::Burnable;
+use crate::physics::{identify, IdentifiedCollisionEvent};
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+use core::f32;
+
+use super::actor::Actor;
 
 #[derive(Default, Component, Reflect)]
-struct Grasses;
+struct Grasses {
+    sway: f32,
+}
 
 pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
         .spawn((
             Name::new("grasses"),
-            Grasses,
+            Grasses { sway: 0.0 },
+            Counter::default(),
             StateScoped(GameState::InGame),
             EntityDepth::new(),
             Burnable {
@@ -68,11 +77,43 @@ fn burnout(mut commands: Commands, query: Query<(Entity, &Burnable), With<Grasse
     }
 }
 
+fn collision_outer_sensor(
+    mut collision_events: EventReader<CollisionEvent>,
+    mut sensor_query: Query<&mut Grasses>,
+    player_query: Query<&Actor, With<Player>>,
+) {
+    for collision_event in collision_events.read() {
+        match identify(&collision_event, &sensor_query, &player_query) {
+            IdentifiedCollisionEvent::Started(sensor, _) => {
+                let mut grasses = sensor_query.get_mut(sensor).unwrap();
+                grasses.sway = 0.5;
+            }
+            IdentifiedCollisionEvent::Stopped(sensor, _) => {
+                let mut grasses = sensor_query.get_mut(sensor).unwrap();
+                grasses.sway = 0.5;
+            }
+            _ => {}
+        }
+    }
+}
+
+fn sway(mut query: Query<(&mut Transform, &Counter, &mut Grasses)>) {
+    for (mut transform, counter, mut grasses) in query.iter_mut() {
+        transform.rotation =
+            Quat::from_rotation_z((counter.count as f32 * 0.1).sin() * grasses.sway);
+
+        grasses.sway *= 0.95;
+    }
+}
+
 pub struct GrassPlugin;
 
 impl Plugin for GrassPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, burnout.in_set(FixedUpdateGameActiveSet));
+        app.add_systems(
+            FixedUpdate,
+            (burnout, collision_outer_sensor, sway).in_set(FixedUpdateGameActiveSet),
+        );
         app.register_type::<Grasses>();
     }
 }

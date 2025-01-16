@@ -203,19 +203,19 @@ fn animate(
     for (parent, mut animation) in sprite_query.iter_mut() {
         let shadow = query.get(parent.get()).unwrap();
         match shadow.state {
-            State::Wait(count) if count == 0 => {
+            State::Wait(_) => {
                 animation.animation.tag = Some("idle".to_string());
                 animation.animation.repeat = AnimationRepeat::Loop;
             }
-            State::Hide(count) if count == 0 => {
+            State::Hide(_) => {
                 animation.animation.tag = Some("hide".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
             }
-            State::Appear(count) if count == 0 => {
+            State::Appear(_) => {
                 animation.animation.tag = Some("appear".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
             }
-            State::Attack(count) if count == 0 => {
+            State::Attack(_) => {
                 animation.animation.tag = Some("attack".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
             }
@@ -306,16 +306,16 @@ fn attack(
 fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &Falling, &mut CollisionGroups)>) {
     for (shadow, actor, falling, mut group) in query.iter_mut() {
         match shadow.state {
-            State::Wait(count) if count == 0 => {
+            State::Wait(_) => {
                 *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
-            State::Hide(count) if count == 0 => {
+            State::Hide(_) => {
                 *group = *SHADOW_GROUPS;
             }
-            State::Appear(count) if count == 0 => {
+            State::Appear(_) => {
                 *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
-            State::Attack(count) if count == 0 => {
+            State::Attack(_) => {
                 *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
             _ => {}

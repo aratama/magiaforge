@@ -233,8 +233,9 @@ pub const RABBIT_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     )
 });
 
-pub const SHADOW_GROUPS: LazyCell<CollisionGroups> =
-    LazyCell::new(|| CollisionGroups::new(SHADOW_MEMBERSHIPS, *ACTOR_FILTER_BASE));
+pub const SHADOW_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
+    CollisionGroups::new(SHADOW_MEMBERSHIPS, WATER_MEMBERSHIPS | *ACTOR_FILTER_BASE)
+});
 
 pub const DROPPED_ITEM_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(

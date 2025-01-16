@@ -9,6 +9,7 @@ use crate::collision::NEUTRAL_GROUPS;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
+use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
@@ -696,7 +697,6 @@ fn apply_v(
 ) {
     for (parent, mut transform, counter) in group_query.iter_mut() {
         let (actor, mut falling) = actor_query.get_mut(parent.get()).unwrap();
-
         if 0 < actor.levitation {
             // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
             let v = 6.0 + (std::f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
@@ -707,6 +707,16 @@ fn apply_v(
             falling.gravity = -0.2;
             transform.translation.y = falling.v;
         }
+    }
+}
+
+fn apply_z(
+    actor_query: Query<&Transform, With<Actor>>,
+    mut group_query: Query<(&Parent, &mut Transform), (With<ActorSpriteGroup>, Without<Actor>)>,
+) {
+    for (parent, mut group_transform) in group_query.iter_mut() {
+        let actor_transform = actor_query.get(parent.get()).unwrap();
+        group_transform.translation.z = get_entity_z(actor_transform.translation.y);
     }
 }
 
@@ -729,6 +739,7 @@ impl Plugin for ActorPlugin {
                 levitation_effect,
                 add_levitation_effect,
                 apply_v,
+                apply_z,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

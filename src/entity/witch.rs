@@ -95,7 +95,6 @@ pub fn spawn_witch<T: Component>(
         // キャラクター画像とシャドウでz座標の計算が異なるため、
         // 親のzは常に0にします
         Transform::from_translation(position.extend(0.0)),
-        GlobalTransform::default(),
         Visibility::default(),
         (
             RigidBody::Dynamic,
