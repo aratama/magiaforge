@@ -12,6 +12,7 @@ use crate::page::in_game::GameLevel;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_light_2d::light::PointLight2d;
 use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 
@@ -89,26 +90,26 @@ pub fn spawn_world_tile(
     match chunk.get_tile(x, y) {
         Tile::Biome => match biome {
             Biome::StoneTile => {
-                spawn_stone_tile(commands, assets, x, y);
+                spawn_stone_tile(&mut commands, assets, x, y);
             }
             Biome::Grassland => {
-                spawn_grassland(commands, &assets, x, y);
+                spawn_grassland(&mut commands, &assets, x, y);
             }
         },
         Tile::StoneTile => {
-            spawn_stone_tile(commands, assets, x, y);
+            spawn_stone_tile(&mut commands, assets, x, y);
         }
         Tile::Wall => {
-            spawn_ceil_for_blank(commands, assets, chunk, x, y);
+            spawn_ceil_for_blank(&mut commands, assets, chunk, x, y);
         }
         Tile::PermanentWall => {
-            spawn_ceil_for_blank(commands, assets, chunk, x, y);
+            spawn_ceil_for_blank(&mut commands, assets, chunk, x, y);
         }
         Tile::Grassland => {
-            spawn_grassland(commands, &assets, x, y);
+            spawn_grassland(&mut commands, &assets, x, y);
         }
         Tile::Blank => {
-            spawn_ceil_for_blank(commands, assets, chunk, x, y);
+            spawn_ceil_for_blank(&mut commands, assets, chunk, x, y);
         }
         Tile::Water => {
             // 水辺の岸の壁
@@ -117,7 +118,7 @@ pub fn spawn_world_tile(
             // 岸にできる泡
             spawn_autotiles(
                 &vec!["water_form_0".to_string(), "water_form_1".to_string()],
-                commands,
+                &mut commands,
                 assets,
                 &chunk,
                 &vec![Tile::Water],
@@ -171,7 +172,7 @@ pub fn spawn_world_tile(
             // 水辺の岸の壁
             spawn_water_wall(&mut commands, &assets, &chunk, x, y);
 
-            commands.spawn((
+            let mut builder = commands.spawn((
                 TileSprite((x, y)),
                 AseSpriteSlice {
                     aseprite: assets.atlas.clone(),
@@ -183,6 +184,15 @@ pub fn spawn_world_tile(
                     WATER_MESH_DARKER_LAYER_Z,
                 ),
             ));
+
+            if rand::random::<u32>() % 6 == 0 {
+                builder.insert(PointLight2d {
+                    intensity: 0.4,
+                    color: Color::hsl(22.0, 0.5, 0.5),
+                    radius: TILE_SIZE * 4.0,
+                    ..default()
+                });
+            }
         }
         Tile::Soil => {
             commands.spawn((
