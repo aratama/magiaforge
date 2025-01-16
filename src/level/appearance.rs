@@ -184,6 +184,16 @@ pub fn spawn_world_tile(
                 ),
             ));
         }
+        Tile::Soil => {
+            commands.spawn((
+                TileSprite((x, y)),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: "soil_tile".to_string(),
+                },
+                Transform::from_xyz(x as f32 * TILE_SIZE, -y as f32 * TILE_SIZE, FLOOR_LAYER_Z),
+            ));
+        }
         Tile::Crack => {
             spawn_water_wall(&mut commands, &assets, &chunk, x, y);
         }

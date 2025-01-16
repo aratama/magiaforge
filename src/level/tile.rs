@@ -10,6 +10,7 @@ pub enum Tile {
     Ice,
     Lava,
     Crack,
+    Soil,
 }
 
 impl Tile {

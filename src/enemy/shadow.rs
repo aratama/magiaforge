@@ -219,7 +219,6 @@ fn animate(
                 animation.animation.tag = Some("attack".to_string());
                 animation.animation.repeat = AnimationRepeat::Count(1);
             }
-            _ => {}
         }
     }
 }
@@ -318,7 +317,6 @@ fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &Falling, &mut Coll
             State::Attack(_) => {
                 *group = actor.actor_group.to_groups(falling.v, actor.drowning);
             }
-            _ => {}
         }
     }
 }
