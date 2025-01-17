@@ -1,4 +1,6 @@
+use super::witch::Witch;
 use crate::asset::GameAssets;
+use crate::collision::PLAYER_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::constant::*;
@@ -7,8 +9,6 @@ use crate::entity::actor::Actor;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
-use crate::physics::identify;
-use crate::physics::IdentifiedCollisionEvent;
 use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -17,9 +17,11 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
-use bevy_rapier2d::prelude::CollisionEvent;
+use bevy_rapier2d::prelude::QueryFilter;
 use bevy_rapier2d::prelude::Sensor;
 
 const MAX_POWER: i32 = 360;
@@ -37,7 +39,7 @@ pub enum MagicCircleDestination {
 
 #[derive(Component)]
 pub struct MagicCircle {
-    players: i32,
+    active: bool,
     step: i32,
     light: Entity,
     destination: MagicCircleDestination,
@@ -62,7 +64,7 @@ pub fn spawn_magic_circle(
             Name::new("magic_circle"),
             StateScoped(GameState::InGame),
             MagicCircle {
-                players: 0,
+                active: false,
                 step: 0,
                 light: light_entity,
                 destination,
@@ -114,49 +116,51 @@ pub fn spawn_magic_circle(
 }
 
 fn power_on_circle(
-    player_query: Query<&Player>,
-    mut circle_query: Query<&mut MagicCircle>,
-    mut events: EventReader<CollisionEvent>,
+    player_query: Query<&Transform, (With<Player>, With<Witch>)>,
+    mut circle_query: Query<(Entity, &mut MagicCircle)>,
     mut writer: EventWriter<SEEvent>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    for event in events.read() {
-        match identify(&event, &circle_query, &player_query) {
-            IdentifiedCollisionEvent::Started(circle_entity, _) => {
-                let mut circle = circle_query.get_mut(circle_entity).unwrap();
-                circle.players += 1;
+    let mut entity = None;
+    if let Ok(player_transform) = player_query.get_single() {
+        let context = rapier_context.single();
+        let position = player_transform.translation.truncate();
+        entity = context.intersection_with_shape(
+            position,
+            0.0,
+            &Collider::ball(16.0),
+            QueryFilter::default().groups(*PLAYER_GROUPS),
+        );
+    }
+    for (circle_entity, mut circle) in circle_query.iter_mut() {
+        if Some(circle_entity) == entity {
+            if !circle.active {
                 writer.send(SEEvent::new(SE::TurnOn));
             }
-            IdentifiedCollisionEvent::Stopped(circle_entity, _) => {
-                let mut circle = circle_query.get_mut(circle_entity).unwrap();
-                circle.players -= 1;
-            }
-            _ => {}
+            circle.active = true;
+            circle.step = (circle.step + 1).min(MAX_POWER);
+        } else {
+            circle.active = false;
+            circle.step = (circle.step - 4).max(0);
         }
     }
 }
 
 fn warp(
     mut commands: Commands,
-    mut player_query: Query<(Entity, &Player, &Actor, &Life)>,
+    mut player_query: Query<(Entity, &Player, &Actor, &Life), With<Witch>>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut next: ResMut<LevelSetup>,
     mut writer: EventWriter<SEEvent>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
-        if circle.step < MAX_POWER {
-            if 0 < circle.players {
-                circle.step = (circle.step + 1).min(MAX_POWER);
-            } else {
-                circle.step = (circle.step - 1).max(0);
-            }
-        } else if circle.step == MAX_POWER {
+        if circle.step == MAX_POWER {
             if let Ok((entity, player, actor, player_life)) = player_query.get_single_mut() {
                 writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
-
+                circle.step = 0;
                 let player_state = PlayerState::from_player(&player, &actor, &player_life);
-
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {
                         match next.next_level {
@@ -183,12 +187,8 @@ fn warp(
                     }
                 }
             }
-            circle.step += 1;
         } else if circle.step == MAX_POWER + 120 {
             overlay_event_writer.send(OverlayEvent::Close(GameState::Warp));
-            circle.step += 1;
-        } else {
-            circle.step += 1;
         }
     }
 }
@@ -223,7 +223,7 @@ fn change_star_slice(
 ) {
     for (parent, mut slice) in star_query.iter_mut() {
         if let Ok(circle) = circle_query.get(parent.get()) {
-            slice.name = (if 0 < circle.players {
+            slice.name = (if circle.active {
                 "magic_star1"
             } else {
                 "magic_star0"

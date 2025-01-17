@@ -1,6 +1,7 @@
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::witch::Witch;
 use crate::physics::identify;
 use crate::physics::identify_item;
 use crate::physics::IdentifiedCollisionEvent;
@@ -31,7 +32,7 @@ fn collision_inner_sensor(
     rabbit_query: Query<&MessageRabbit>,
     sensor_query: Query<&Parent, With<MessageRabbitInnerSensor>>,
     mut camera_query: Query<&mut GameCamera>,
-    player_query: Query<&Actor, With<Player>>,
+    player_query: Query<&Actor, (With<Player>, With<Witch>)>,
     mut speech_writer: EventWriter<TheaterEvent>,
 ) {
     for collision_event in collision_events.read() {
