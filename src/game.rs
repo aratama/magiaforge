@@ -95,6 +95,8 @@ use crate::ui::spell_list::SpellListPlugin;
 use crate::ui::wand_editor::WandEditorPlugin;
 use crate::ui::wand_list::WandListPlugin;
 use bevy::asset::AssetMetaCheck;
+// use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+// use bevy::diagnostic::LogDiagnosticsPlugin;
 // use bevy::audio::AudioPlugin;
 // use bevy::audio::SpatialScale;
 use bevy::log::*;
@@ -313,6 +315,11 @@ pub fn run_game() {
     // 無くてもゲーム自体は動作します
     #[cfg(feature = "debug")]
     app.add_plugins(DebugPlugin);
+
+    // app.add_plugins((
+    //     FrameTimeDiagnosticsPlugin::default(),
+    //     LogDiagnosticsPlugin::default(),
+    // ));
 
     app.run();
 }
