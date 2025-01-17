@@ -39,7 +39,7 @@ pub fn spawn_basic_enemy(
     golds: u32,
     actor_group: ActorGroup,
     master: Option<Entity>,
-    max_life: i32,
+    max_life: u32,
     radius: f32,
 ) -> Entity {
     let mut builder = commands.spawn((

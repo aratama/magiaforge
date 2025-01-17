@@ -4,7 +4,7 @@ use crate::collision::ENEMY_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
+use crate::component::vertical::Vertical;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -150,13 +150,13 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
 // 空中にいる場合は移動の外力が働く
 fn control(
     player_query: Query<&Transform, With<Player>>,
-    mut slime_query: Query<(&Transform, &mut Actor, &Falling), (With<HugeSlime>, Without<Player>)>,
+    mut slime_query: Query<(&Transform, &mut Actor, &Vertical), (With<HugeSlime>, Without<Player>)>,
 ) {
-    for (transform, mut actor, falling) in slime_query.iter_mut() {
+    for (transform, mut actor, vertical) in slime_query.iter_mut() {
         actor.move_force = 0.0;
 
         if let Ok(player_transform) = player_query.get_single() {
-            if 0.0 < falling.v {
+            if 0.0 < vertical.v {
                 let direction = (player_transform.translation.truncate()
                     - transform.translation.truncate())
                 .normalize_or_zero();
@@ -172,11 +172,11 @@ fn control(
 }
 
 fn impact(
-    slime_query: Query<(Entity, &Transform, &Falling), With<HugeSlime>>,
+    slime_query: Query<(Entity, &Transform, &Vertical), With<HugeSlime>>,
     mut impact_writer: EventWriter<SpawnImpact>,
 ) {
-    for (entity, transform, falling) in slime_query.iter() {
-        if falling.just_landed {
+    for (entity, transform, vertical) in slime_query.iter() {
+        if vertical.just_landed {
             impact_writer.send(SpawnImpact {
                 owner: Some(entity),
                 position: transform.translation.truncate(),
@@ -205,18 +205,18 @@ fn update_huge_slime_growl(
 
 fn update_huge_slime_approach(
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
-    mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter, &mut Falling), Without<Player>>,
+    mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter, &mut Vertical), Without<Player>>,
 ) {
     const JUMP_POWER: f32 = 3.0;
 
-    for (mut huge_slime, mut counter, mut falling) in huge_slime_query.iter_mut() {
+    for (mut huge_slime, mut counter, mut vertical) in huge_slime_query.iter_mut() {
         let timespan = if huge_slime.promoted { 35 } else { 60 };
         if let HugeSlimeState::Approach = huge_slime.state.clone() {
             // プレイヤーがいる場合はジャンプしながら接近
             if let Ok(_) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
                 if counter.count % timespan == 0 {
-                    falling.velocity = JUMP_POWER;
+                    vertical.velocity = JUMP_POWER;
                 }
             }
 

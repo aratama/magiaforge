@@ -261,6 +261,9 @@ pub fn setup_level(
             witch_type: SpawnWitchType::Player,
             getting_up: level == GameLevel::Level(0),
             name: player_state.name,
+            life: player_state.life,
+            max_life: player_state.max_life,
+            golds: player_state.golds,
         },
     });
 

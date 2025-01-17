@@ -5,14 +5,14 @@ use bevy::prelude::*;
 /// y座標を変化させて落下させるコンポーネントです
 #[derive(Component, Reflect)]
 #[require(Transform)]
-pub struct Falling {
+pub struct Vertical {
     pub velocity: f32,
     pub gravity: f32,
     pub just_landed: bool,
     pub v: f32,
 }
 
-impl Default for Falling {
+impl Default for Vertical {
     fn default() -> Self {
         Self {
             velocity: 0.0,
@@ -23,7 +23,7 @@ impl Default for Falling {
     }
 }
 
-impl Falling {
+impl Vertical {
     pub fn new(velocity: f32, gravity: f32) -> Self {
         Self {
             velocity,
@@ -34,17 +34,17 @@ impl Falling {
     }
 }
 
-fn fall(mut child_query: Query<&mut Falling>) {
-    for mut falling in child_query.iter_mut() {
-        let next = falling.v + falling.velocity;
+fn fall(mut child_query: Query<&mut Vertical>) {
+    for mut vertical in child_query.iter_mut() {
+        let next = vertical.v + vertical.velocity;
         if next <= 0.0 {
-            falling.just_landed = 0.0 < falling.v;
-            falling.v = 0.0;
-            falling.velocity = 0.0;
+            vertical.just_landed = 0.0 < vertical.v;
+            vertical.v = 0.0;
+            vertical.velocity = 0.0;
         } else {
-            falling.just_landed = false;
-            falling.v = next;
-            falling.velocity += falling.gravity;
+            vertical.just_landed = false;
+            vertical.v = next;
+            vertical.velocity += vertical.gravity;
         }
     }
 }
@@ -55,9 +55,11 @@ fn fall(mut child_query: Query<&mut Falling>) {
 #[require(Transform)]
 pub struct ApplyFalling;
 
-fn apply_falling_transform(mut child_query: Query<(&mut Transform, &Falling), With<ApplyFalling>>) {
-    for (mut child_transform, falling) in child_query.iter_mut() {
-        child_transform.translation.y = falling.v;
+fn apply_falling_transform(
+    mut child_query: Query<(&mut Transform, &Vertical), With<ApplyFalling>>,
+) {
+    for (mut child_transform, vertical) in child_query.iter_mut() {
+        child_transform.translation.y = vertical.v;
     }
 }
 

@@ -4,7 +4,7 @@ use crate::camera::*;
 use crate::component::animated_slice::AnimatedSlicePlugin;
 use crate::component::counter::CounterPlugin;
 use crate::component::entity_depth::EntityDepthPlugin;
-use crate::component::falling::FallingPlugin;
+use crate::component::vertical::FallingPlugin;
 use crate::component::flip::FlipPlugin;
 use crate::component::life::LifePlugin;
 use crate::component::metamorphosis::MetamorphosisPlugin;

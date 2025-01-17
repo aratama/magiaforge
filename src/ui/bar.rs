@@ -6,8 +6,8 @@ const BAR_HEIGHT: f32 = 19.0;
 
 #[derive(Component)]
 pub struct StatusBar {
-    pub value: i32,
-    pub max_value: i32,
+    pub value: u32,
+    pub max_value: u32,
 }
 
 #[derive(Component)]
@@ -26,8 +26,8 @@ pub fn spawn_status_bar<T: Component>(
     parent: &mut ChildBuilder,
     assets: &Res<GameAssets>,
     marker: T,
-    value: i32,
-    max_value: i32,
+    value: u32,
+    max_value: u32,
     color: Color,
 ) {
     parent

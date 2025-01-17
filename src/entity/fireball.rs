@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
+use crate::component::vertical::Vertical;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::entity::fire::spawn_fire;
@@ -57,7 +57,7 @@ pub fn spawn_fireball(
         ))
         .with_children(|parent| {
             parent.spawn((
-                Falling::new(2.0, -0.1),
+                Vertical::new(2.0, -0.1),
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
@@ -73,12 +73,12 @@ pub fn spawn_fireball(
 fn fall(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    child_query: Query<(&Parent, &Falling)>,
+    child_query: Query<(&Parent, &Vertical)>,
     parent_query: Query<(Entity, &Transform), With<Fireball>>,
     interlevel: Res<LevelSetup>,
 ) {
-    for (parent, falling) in child_query.iter() {
-        if falling.just_landed {
+    for (parent, vertical) in child_query.iter() {
+        if vertical.just_landed {
             if let Ok((entity, parent_transform)) = parent_query.get(parent.get()) {
                 commands.entity(entity).despawn_recursive();
                 if let Some(ref level) = interlevel.chunk {

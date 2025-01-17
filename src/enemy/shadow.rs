@@ -2,10 +2,10 @@ use crate::asset::GameAssets;
 use crate::collision::SHADOW_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::component::flip::Flip;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::entity::actor::collision_group_by_actor;
@@ -111,7 +111,7 @@ pub fn spawn_shadow(
     builder.with_children(|mut parent| {
         parent.spawn((
             ChildSprite,
-            Falling::new(0.0, -0.1),
+            Vertical::new(0.0, -0.1),
             Flip,
             LifeBeingSprite,
             CounterAnimated,
@@ -308,20 +308,20 @@ fn attack(
     }
 }
 
-fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &Falling, &mut CollisionGroups)>) {
-    for (shadow, actor, falling, mut group) in query.iter_mut() {
+fn update_group_by_shadow(mut query: Query<(&Shadow, &Actor, &Vertical, &mut CollisionGroups)>) {
+    for (shadow, actor, vertical, mut group) in query.iter_mut() {
         match shadow.state {
             State::Wait(_) => {
-                *group = actor.actor_group.to_groups(falling.v, actor.drowning);
+                *group = actor.actor_group.to_groups(vertical.v, actor.drowning);
             }
             State::Hide(_) => {
                 *group = *SHADOW_GROUPS;
             }
             State::Appear(_) => {
-                *group = actor.actor_group.to_groups(falling.v, actor.drowning);
+                *group = actor.actor_group.to_groups(vertical.v, actor.drowning);
             }
             State::Attack(_) => {
-                *group = actor.actor_group.to_groups(falling.v, actor.drowning);
+                *group = actor.actor_group.to_groups(vertical.v, actor.drowning);
             }
         }
     }

@@ -19,9 +19,9 @@ use bevy_rapier2d::prelude::QueryFilter;
 #[derive(Default, Component, Reflect)]
 pub struct Life {
     /// 破壊可能なオブジェクトのライフ
-    pub life: i32,
+    pub life: u32,
 
-    pub max_life: i32,
+    pub max_life: u32,
 
     /// ダメージを受けた時の振動の幅
     pub amplitude: f32,
@@ -31,7 +31,7 @@ pub struct Life {
 }
 
 impl Life {
-    pub fn new(life: i32) -> Self {
+    pub fn new(life: u32) -> Self {
         Self {
             life,
             max_life: life,
@@ -134,7 +134,7 @@ fn damage(
             } => {
                 if 0 < *damage {
                     if let Ok((mut life, life_impulse)) = query.get_mut(*actor) {
-                        life.life = (life.life - *damage as i32).max(0);
+                        life.life = (life.life as i32 - *damage as i32).max(0) as u32;
                         life.amplitude = 6.0;
                         se.send(SEEvent::pos(SE::Damage, *position));
                         if *fire {

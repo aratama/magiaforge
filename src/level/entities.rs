@@ -211,6 +211,9 @@ pub struct SpawnWitch {
     pub witch_type: SpawnWitchType,
     pub getting_up: bool,
     pub name: String,
+    pub life: u32,
+    pub max_life: u32,
+    pub golds: u32,
 }
 
 #[derive(Clone, Debug)]
@@ -595,6 +598,9 @@ pub fn spawn_entity(
                         witch_type,
                         getting_up,
                         name,
+                        life,
+                        max_life,
+                        golds,
                     },
             } => {
                 let entity = spawn_witch(
@@ -604,12 +610,12 @@ pub fn spawn_entity(
                     0.0,
                     Uuid::new_v4(),
                     None,
-                    200,
-                    200,
+                    *life,
+                    *max_life,
                     &life_bar_resource,
                     false,
                     3.0,
-                    10,
+                    *golds,
                     wands.clone(),
                     inventory.clone(),
                     match *witch_type {

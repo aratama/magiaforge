@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
-use crate::component::falling::Falling;
 use crate::component::life::Life;
+use crate::component::vertical::Vertical;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
@@ -48,8 +48,8 @@ pub struct Player {
     pub last_ilde_y: f32,
     pub last_idle_vx: f32,
     pub last_idle_vy: f32,
-    pub last_idle_life: i32,
-    pub last_idle_max_life: i32,
+    pub last_idle_life: u32,
+    pub last_idle_max_life: u32,
 
     /// 起き上がりアニメーションのフレーム数
     pub getting_up: u32,
@@ -363,13 +363,13 @@ fn die_player(
 }
 
 fn drown(
-    mut player_query: Query<(&mut Actor, &Falling, &Transform), With<Player>>,
+    mut player_query: Query<(&mut Actor, &Vertical, &Transform), With<Player>>,
     level: Res<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        if let Ok((mut actor, falling, transform)) = player_query.get_single_mut() {
-            if actor.levitation == 0 && falling.v == 0.0 {
+        if let Ok((mut actor, vertical, transform)) = player_query.get_single_mut() {
+            if actor.levitation == 0 && vertical.v == 0.0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::Water || tile == Tile::Lava {
@@ -389,12 +389,12 @@ fn drown(
 }
 
 fn drown_damage(
-    mut player_query: Query<(Entity, &mut Actor, &Transform, &Falling), With<Player>>,
+    mut player_query: Query<(Entity, &mut Actor, &Transform, &Vertical), With<Player>>,
     mut damage: EventWriter<ActorEvent>,
     level: Res<LevelSetup>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        for (entity, mut actor, transform, falling) in player_query.iter_mut() {
+        for (entity, mut actor, transform, vertical) in player_query.iter_mut() {
             let position = transform.translation.truncate();
             let tile = chunk.get_tile_by_coords(position);
 
@@ -423,7 +423,7 @@ fn drown_damage(
                         actor.drowning = 1;
                     }
                 }
-                Tile::Crack if falling.v <= 0.0 => {
+                Tile::Crack if vertical.v <= 0.0 => {
                     damage.send(ActorEvent::FatalFall {
                         actor: entity,
                         position: transform.translation.truncate(),

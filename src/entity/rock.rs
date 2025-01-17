@@ -2,9 +2,9 @@ use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::component::vertical::Vertical;
 use crate::entity::impact::SpawnImpact;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -25,7 +25,7 @@ struct FallenRock;
 pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
         .spawn((
-            Name::new("falling rock"),
+            Name::new("vertical rock"),
             StateScoped(GameState::InGame),
             FallingRock,
             EntityDepth::new(),
@@ -39,7 +39,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, pos
         ))
         .with_children(|parent| {
             parent.spawn((
-                Falling::new(0.0, -0.1),
+                Vertical::new(0.0, -0.1),
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteSlice {
@@ -56,7 +56,7 @@ fn fall(
     mut commands: Commands,
     assets: Res<GameAssets>,
     child_query: Query<(&Parent, &Transform)>,
-    parent_query: Query<(Entity, &Transform), (With<FallingRock>, Without<Falling>)>,
+    parent_query: Query<(Entity, &Transform), (With<FallingRock>, Without<Vertical>)>,
     interlevel: Res<LevelSetup>,
     mut impact: EventWriter<SpawnImpact>,
 ) {

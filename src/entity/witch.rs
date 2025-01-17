@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
-use crate::component::falling::Falling;
 use crate::component::life::Life;
+use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
@@ -44,8 +44,8 @@ pub fn spawn_witch(
     angle: f32,
     uuid: Uuid,
     name_plate: Option<String>,
-    life: i32,
-    max_life: i32,
+    life: u32,
+    max_life: u32,
     res: &Res<LifeBarResource>,
     life_bar: bool,
     point_light_radius: f32,
@@ -273,18 +273,18 @@ fn update_wand(
     }
 }
 
-fn land_se(witch_query: Query<(&Falling, &Transform), With<Witch>>, mut se: EventWriter<SEEvent>) {
-    for (falling, transform) in witch_query.iter() {
-        if falling.just_landed {
+fn land_se(witch_query: Query<(&Vertical, &Transform), With<Witch>>, mut se: EventWriter<SEEvent>) {
+    for (vertical, transform) in witch_query.iter() {
+        if vertical.just_landed {
             let position = transform.translation.truncate();
             se.send(SEEvent::pos(SE::Chakuchi, position));
         }
     }
 }
 
-fn update_dumping(mut witch_query: Query<(&Falling, &mut Damping), With<Witch>>) {
-    for (falling, mut damping) in witch_query.iter_mut() {
-        damping.linear_damping = if 0.0 < falling.v { 2.0 } else { 6.0 };
+fn update_dumping(mut witch_query: Query<(&Vertical, &mut Damping), With<Witch>>) {
+    for (vertical, mut damping) in witch_query.iter_mut() {
+        damping.linear_damping = if 0.0 < vertical.v { 2.0 } else { 6.0 };
     }
 }
 

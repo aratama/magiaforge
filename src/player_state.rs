@@ -15,8 +15,8 @@ use std::collections::HashSet;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerState {
     pub name: String,
-    pub life: i32,
-    pub max_life: i32,
+    pub life: u32,
+    pub max_life: u32,
     pub inventory: Inventory,
     pub wands: [Wand; MAX_WANDS],
     pub golds: u32,

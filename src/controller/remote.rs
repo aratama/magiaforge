@@ -73,8 +73,8 @@ pub enum RemoteMessage {
         y: f32,
         vx: f32,
         vy: f32,
-        life: i32,
-        max_life: i32,
+        life: u32,
+        max_life: u32,
         angle: f32,
         point_light_radius: f32,
     },
@@ -299,7 +299,7 @@ fn receive_events(
                                 .find(|(_, _, actor, _, _, _)| actor.uuid == uuid);
 
                             if let Some((_, mut remote, _, mut actor_life, _, _)) = target {
-                                actor_life.life -= damage;
+                                actor_life.life = (actor_life.life as i32 - damage).max(0) as u32;
                                 remote.last_update = *frame_count;
                             }
                         }

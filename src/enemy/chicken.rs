@@ -1,5 +1,5 @@
 use crate::asset::GameAssets;
-use crate::component::falling::Falling;
+use crate::component::vertical::Vertical;
 use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
@@ -92,7 +92,7 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
 
 fn hopping(
     chiken_query: Query<(&Chicken, &Actor)>,
-    mut fall_query: Query<(&Parent, &mut Falling)>,
+    mut fall_query: Query<(&Parent, &mut Vertical)>,
 ) {
     for (parent, mut fall) in fall_query.iter_mut() {
         if let Ok((chicken, actor)) = chiken_query.get(parent.get()) {

@@ -11,7 +11,7 @@ use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
-use crate::component::falling::Falling;
+use crate::component::vertical::Vertical;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::constant::MAX_WANDS;
@@ -80,7 +80,7 @@ pub enum ActorState {
 /// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
 ///
 #[derive(Component, Reflect, Debug)]
-#[require(Falling)]
+#[require(Vertical)]
 pub struct Actor {
     pub uuid: Uuid,
 
@@ -501,7 +501,7 @@ fn fire_bullet(
             &mut Life,
             &mut Transform,
             &mut ExternalImpulse,
-            &mut Falling,
+            &mut Vertical,
             Option<&Player>,
         ),
         Without<Camera2d>,
@@ -641,9 +641,9 @@ fn defreeze(mut query: Query<&mut Actor>) {
     }
 }
 
-pub fn collision_group_by_actor(mut query: Query<(&Actor, &Falling, &mut CollisionGroups)>) {
-    for (actor, falling, mut groups) in query.iter_mut() {
-        *groups = actor.actor_group.to_groups(falling.v, actor.drowning);
+pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut CollisionGroups)>) {
+    for (actor, vertical, mut groups) in query.iter_mut() {
+        *groups = actor.actor_group.to_groups(vertical.v, actor.drowning);
     }
 }
 
@@ -696,20 +696,20 @@ fn add_levitation_effect(
 }
 
 fn apply_v(
-    mut actor_query: Query<(&Actor, &mut Falling)>,
+    mut actor_query: Query<(&Actor, &mut Vertical)>,
     mut group_query: Query<(&Parent, &mut Transform, &Counter), With<ActorSpriteGroup>>,
 ) {
     for (parent, mut transform, counter) in group_query.iter_mut() {
-        let (actor, mut falling) = actor_query.get_mut(parent.get()).unwrap();
+        let (actor, mut vertical) = actor_query.get_mut(parent.get()).unwrap();
         if 0 < actor.levitation {
             // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
             let v = 6.0 + (std::f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
             transform.translation.y = v;
-            falling.v = v;
-            falling.gravity = 0.0;
+            vertical.v = v;
+            vertical.gravity = 0.0;
         } else {
-            falling.gravity = -0.2;
-            transform.translation.y = falling.v;
+            vertical.gravity = -0.2;
+            transform.translation.y = vertical.v;
         }
     }
 }

@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
+use crate::component::vertical::Vertical;
 use crate::component::flip::Flip;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
@@ -109,7 +109,7 @@ pub fn spawn_salamander(
     builder.with_children(|mut parent| {
         parent.spawn((
             ChildSprite,
-            Falling::new(0.0, -0.1),
+            Vertical::new(0.0, -0.1),
             Flip,
             LifeBeingSprite,
             CounterAnimated,

@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
-use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::metamorphosis::Metamorphosis;
+use crate::component::vertical::Vertical;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
@@ -128,7 +128,7 @@ pub fn cast_spell(
     actor_life: &mut Life,
     actor_transform: &Transform,
     actor_impulse: &mut ExternalImpulse,
-    actor_falling: &mut Falling,
+    actor_falling: &mut Vertical,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
@@ -472,6 +472,9 @@ pub fn cast_spell(
                             witch_type: SpawnWitchType::Player,
                             getting_up: false,
                             name: "".to_string(),
+                            life: actor_life.life,
+                            max_life: actor_life.max_life,
+                            golds: actor.golds,
                         },
                     });
 
