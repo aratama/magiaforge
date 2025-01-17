@@ -19,6 +19,7 @@ use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::entity::bullet::Trigger;
 use crate::entity::impact::SpawnImpact;
+use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
@@ -492,6 +493,7 @@ fn update_actor_light(
 fn fire_bullet(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    life_bar_resource: Res<LifeBarResource>,
     mut actor_query: Query<
         (
             Entity,
@@ -537,6 +539,7 @@ fn fire_bullet(
             cast_spell(
                 &mut commands,
                 &assets,
+                &life_bar_resource,
                 actor_entity,
                 &mut actor,
                 &mut actor_life,
@@ -558,6 +561,7 @@ fn fire_bullet(
             cast_spell(
                 &mut commands,
                 &assets,
+                &life_bar_resource,
                 actor_entity,
                 &mut actor,
                 &mut actor_life,

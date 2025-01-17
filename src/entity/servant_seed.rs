@@ -6,6 +6,7 @@ use crate::curve::jump_curve;
 use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::slime::spawn_slime;
+use crate::enemy::slime::SlimeControl;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::tile::Tile;
@@ -126,7 +127,7 @@ fn update_servant_seed(
     mut query: Query<(Entity, &mut ServantSeed, &mut Transform)>,
     mut se_writer: EventWriter<SEEvent>,
     current: Res<LevelSetup>,
-    mut spawn_writer: EventWriter<SpawnEvent>,
+    mut spawn_writer: EventWriter<SpawnServantEvent>,
 ) {
     for (entity, mut seed, mut transform) in query.iter_mut() {
         seed.animation += 1;
@@ -160,7 +161,7 @@ fn update_servant_seed(
                     Tile::Soil => false,
                 };
                 if spawn {
-                    spawn_writer.send(SpawnEvent {
+                    spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type,
                         position: seed.to,
                         actor_group: seed.actor_group,
@@ -175,7 +176,7 @@ fn update_servant_seed(
 }
 
 #[derive(Event, Debug)]
-struct SpawnEvent {
+struct SpawnServantEvent {
     servant_type: ServantType,
     position: Vec2,
     actor_group: ActorGroup,
@@ -187,21 +188,23 @@ fn spawn_servant(
     mut commands: Commands,
     assets: Res<GameAssets>,
     life_bar_locals: Res<LifeBarResource>,
-    mut reader: EventReader<SpawnEvent>,
+    mut reader: EventReader<SpawnServantEvent>,
 ) {
     for event in reader.read() {
         match event.servant_type {
             ServantType::Slime => {
-                spawn_slime(
+                let entity = spawn_slime(
                     &mut commands,
                     &assets,
                     event.position,
                     &life_bar_locals,
-                    30 + rand::random::<u32>() % 30,
                     0,
                     event.actor_group,
                     event.master,
                 );
+                commands.entity(entity).insert(SlimeControl {
+                    wait: 30 + rand::random::<u32>() % 30,
+                });
             }
             ServantType::Eyeball => {
                 spawn_eyeball(
@@ -241,7 +244,7 @@ pub struct ServantSeedPlugin;
 
 impl Plugin for ServantSeedPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEvent>();
+        app.add_event::<SpawnServantEvent>();
         app.add_systems(
             FixedUpdate,
             (update_servant_seed, update_slime_seed_sprite, spawn_servant)

@@ -44,6 +44,14 @@ pub struct Shadow {
     state: State,
 }
 
+impl Default for Shadow {
+    fn default() -> Self {
+        Self {
+            state: State::Wait(0),
+        }
+    }
+}
+
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
@@ -51,19 +59,16 @@ pub fn spawn_shadow(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
+    actor_group: ActorGroup,
     position: Vec2,
 ) -> Entity {
     let radius = 8.0;
     let golds = 10;
-    let spell = Some(SpellType::Fireball);
-    let actor_group = ActorGroup::Enemy;
+    let spell = Some(SpellType::PurpleBolt);
     let mut builder = commands.spawn((
         Name::new("shadow"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Shadow {
-            state: State::Wait(60),
-        },
         Actor::new(ActorProps {
             uuid: Uuid::new_v4(),
             angle: 0.0,
@@ -201,23 +206,24 @@ fn animate(
     mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
-        let shadow = query.get(parent.get()).unwrap();
-        match shadow.state {
-            State::Wait(_) => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
-            }
-            State::Hide(_) => {
-                animation.animation.tag = Some("hide".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
-            }
-            State::Appear(_) => {
-                animation.animation.tag = Some("appear".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
-            }
-            State::Attack(_) => {
-                animation.animation.tag = Some("attack".to_string());
-                animation.animation.repeat = AnimationRepeat::Count(1);
+        if let Ok(shadow) = query.get(parent.get()) {
+            match shadow.state {
+                State::Wait(_) => {
+                    animation.animation.tag = Some("idle".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                State::Hide(_) => {
+                    animation.animation.tag = Some("hide".to_string());
+                    animation.animation.repeat = AnimationRepeat::Count(1);
+                }
+                State::Appear(_) => {
+                    animation.animation.tag = Some("appear".to_string());
+                    animation.animation.repeat = AnimationRepeat::Count(1);
+                }
+                State::Attack(_) => {
+                    animation.animation.tag = Some("attack".to_string());
+                    animation.animation.repeat = AnimationRepeat::Count(1);
+                }
             }
         }
     }

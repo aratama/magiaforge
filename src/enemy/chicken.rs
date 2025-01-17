@@ -35,9 +35,6 @@ pub fn spawn_chiken(
         assets.chicken.clone(),
         position,
         life_bar_locals,
-        Chicken {
-            state: ChickenState::Wait(60),
-        },
         "chicken",
         None,
         CHIKEN_MOVE_FORCE,
@@ -47,6 +44,9 @@ pub fn spawn_chiken(
         2,
         4.0,
     );
+    commands.entity(entity).insert(Chicken {
+        state: ChickenState::Wait(60),
+    });
 
     if servant {
         commands.entity(entity).insert(PlayerServant);

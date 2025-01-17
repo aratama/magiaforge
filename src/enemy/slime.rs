@@ -13,7 +13,13 @@ use bevy_rapier2d::prelude::*;
 
 #[derive(Component, Debug)]
 pub struct SlimeControl {
-    wait: u32,
+    pub wait: u32,
+}
+
+impl Default for SlimeControl {
+    fn default() -> Self {
+        Self { wait: 5 }
+    }
 }
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
@@ -27,11 +33,10 @@ pub fn spawn_slime(
     assets: &Res<GameAssets>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
-    initial_wait: u32,
     gold: u32,
     group: ActorGroup,
     owner: Option<Entity>,
-) {
+) -> Entity {
     spawn_basic_enemy(
         &mut commands,
         &assets,
@@ -42,7 +47,6 @@ pub fn spawn_slime(
         },
         position,
         life_bar_locals,
-        SlimeControl { wait: initial_wait },
         "slime",
         Some(SpellType::SlimeCharge),
         ENEMY_MOVE_FORCE,
@@ -51,7 +55,7 @@ pub fn spawn_slime(
         owner,
         15,
         8.0,
-    );
+    )
 }
 
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます

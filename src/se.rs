@@ -62,6 +62,7 @@ pub enum SE {
     Suna,
     Chakuchi,
     Scene2,
+    Kyushu2Short,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -135,6 +136,7 @@ fn se_events(
             SE::Suna => &assets.suna,
             SE::Chakuchi => &assets.chakuchi,
             SE::Scene2 => &assets.scene2,
+            SE::Kyushu2Short => &assets.kyushu2_short,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

@@ -3,7 +3,6 @@ use crate::component::counter::CounterAnimated;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::*;
-use crate::controller::training_dummy::TraningDummyController;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorProps;
@@ -13,7 +12,6 @@ use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
-use crate::player_state::PlayerState;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -39,7 +37,7 @@ pub struct WitchWandSprite;
 #[derive(Component)]
 pub struct Witch;
 
-pub fn spawn_witch<T: Component>(
+pub fn spawn_witch(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     position: Vec2,
@@ -54,7 +52,6 @@ pub fn spawn_witch<T: Component>(
     golds: u32,
     wands: [Wand; 4],
     inventory: Inventory,
-    controller: T,
     actor_group: ActorGroup,
     current_wand: usize,
 ) -> Entity {
@@ -75,7 +72,6 @@ pub fn spawn_witch<T: Component>(
             fire_resistance: false,
         }),
         Witch,
-        controller,
         Life {
             life,
             max_life,
@@ -161,39 +157,6 @@ pub fn spawn_witch<T: Component>(
     });
 
     return entity.id();
-}
-
-#[allow(dead_code)]
-pub fn spawn_enemy_witch(
-    commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    life_bar_res: &Res<LifeBarResource>,
-    position: Vec2,
-) {
-    let player = PlayerState::default();
-
-    spawn_witch(
-        commands,
-        &assets,
-        position,
-        0.0,
-        Uuid::new_v4(),
-        None,
-        200,
-        200,
-        &life_bar_res,
-        false,
-        3.0,
-        10,
-        player.wands,
-        player.inventory,
-        TraningDummyController {
-            home: position,
-            fire: false,
-        },
-        ActorGroup::Enemy,
-        0,
-    );
 }
 
 fn update_witch_animation(

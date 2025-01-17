@@ -23,17 +23,13 @@ pub fn spawn_sandbag(
     assets: &Res<GameAssets>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
-) {
-    spawn_basic_enemy(
+) -> Entity {
+    let entity = spawn_basic_enemy(
         &mut commands,
         &assets,
         assets.sandbug.clone(),
         position,
         life_bar_locals,
-        Sandbug {
-            home: position,
-            animation: 0,
-        },
         "sandbag",
         None,
         ENEMY_MOVE_FORCE,
@@ -43,6 +39,11 @@ pub fn spawn_sandbag(
         10000000,
         8.0,
     );
+    commands.entity(entity).insert(Sandbug {
+        home: position,
+        animation: 0,
+    });
+    entity
 }
 
 fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbug)>) {

@@ -27,13 +27,12 @@ pub struct BasicEnemy;
 #[derive(Component, Debug)]
 pub struct BasicEnemySprite;
 
-pub fn spawn_basic_enemy<T: Component>(
+pub fn spawn_basic_enemy(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     aseprite: Handle<Aseprite>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
-    marker: T,
     name: &str,
     spell: Option<SpellType>,
     move_force: f32,
@@ -48,7 +47,6 @@ pub fn spawn_basic_enemy<T: Component>(
         Name::new(name.to_string()),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        marker,
         Actor::new(ActorProps {
             uuid: Uuid::new_v4(),
             angle: 0.0,

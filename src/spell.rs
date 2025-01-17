@@ -58,6 +58,8 @@ pub enum SpellType {
     Impact,
     BulletSpeedUp,
     RockFall,
+    Metamorphosis,
+
     // ランク5
     Heal,
     QuickCast,
@@ -1051,6 +1053,37 @@ impl SpellType {
                 icon: "rockfall_icon",
                 price: 500,
                 cast: SpellCast::RockFall,
+            },
+            SpellType::Metamorphosis =>  SpellProps {
+                rank: 4,
+                name: Dict {
+                    ja: "変化",
+                    en: "Metamorphosis",
+                    zh_cn: "变形",
+                    zh_tw: "變形",
+                    es: "Metamorfosis",
+                    fr: "Métamorphose",
+                    pt: "Metamorfose",
+                    de: "Verwandlung",
+                    ko: "변신",
+                    ru: "Метаморфоза"
+                },
+                description: Dict {
+                    ja: "一時的にモンスターの姿に変化します。",
+                    en: "Temporarily transforms into a monster.",
+                    zh_cn: "暂时变成怪物。",
+                    zh_tw: "暫時變成怪物。",
+                    es: "Se transforma temporalmente en un monstruo.",
+                    fr: "Se transforme temporairement en monstre.",
+                    pt: "Transforma-se temporariamente em um monstro.",
+                    de: "Verwandelt sich vorübergehend in ein Monster.",
+                    ko: "일시적으로 몬스터로 변신합니다.",
+                    ru: "Временно превращается в монстра."
+                },
+                cast_delay: 120,
+                icon: "metamorphosis_icon",
+                price: 2400,
+                cast: SpellCast::Metamorphosis,
             },
             SpellType::Heal =>  SpellProps {
                 rank: 5,

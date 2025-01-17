@@ -3,11 +3,8 @@ use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
 use crate::constant::*;
-use crate::controller::player::Player;
 use crate::entity::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::entity::witch::spawn_witch;
-use crate::hud::life_bar::LifeBarResource;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -22,6 +19,8 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnWitch;
+use crate::level::entities::SpawnWitchType;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::LevelChunk;
 use crate::level::tile::Tile;
@@ -46,7 +45,6 @@ use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use strum::IntoEnumIterator;
-use uuid::Uuid;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum GameLevel {
@@ -111,7 +109,6 @@ pub fn setup_level(
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
-    life_bar_res: Res<LifeBarResource>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntity>,
@@ -256,25 +253,16 @@ pub fn setup_level(
     setup_camera(&mut commands, Vec2::new(player_x, player_y));
 
     // プレイヤーキャラクターの魔法使いを生成
-    spawn_witch(
-        &mut commands,
-        &assets,
-        Vec2::new(player_x, player_y),
-        0.0,
-        Uuid::new_v4(),
-        None,
-        player_state.life,
-        player_state.max_life,
-        &life_bar_res,
-        false,
-        3.0,
-        player_state.golds,
-        player_state.wands,
-        player_state.inventory,
-        Player::new(player_state.name, level == GameLevel::Level(0)),
-        ActorGroup::Player,
-        player_state.current_wand as usize,
-    );
+    spawn.send(SpawnEntity::SpawnWitch {
+        position: Vec2::new(player_x, player_y),
+        witch: SpawnWitch {
+            wands: player_state.wands,
+            inventory: player_state.inventory,
+            witch_type: SpawnWitchType::Player,
+            getting_up: level == GameLevel::Level(0),
+            name: player_state.name,
+        },
+    });
 
     current.chunk = Some(chunk);
 }
@@ -352,6 +340,7 @@ fn spawn_random_enemies(
             Some(enemy_type) => {
                 spawn.send(SpawnEntity::Enemy {
                     enemy_type: *enemy_type,
+                    actor_group: ActorGroup::Enemy,
                     position,
                 });
             }

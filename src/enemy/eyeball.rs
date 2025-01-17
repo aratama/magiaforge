@@ -14,6 +14,12 @@ use bevy_rapier2d::prelude::*;
 #[derive(Component)]
 pub struct EyeballControl;
 
+impl Default for EyeballControl {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
 const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
@@ -27,7 +33,7 @@ pub fn spawn_eyeball(
     life_bar_locals: &Res<LifeBarResource>,
     actor_group: ActorGroup,
     golds: u32,
-) {
+) -> Entity {
     spawn_basic_enemy(
         &mut commands,
         &assets,
@@ -38,7 +44,6 @@ pub fn spawn_eyeball(
         },
         position,
         life_bar_locals,
-        EyeballControl,
         "eyeball",
         Some(SpellType::PurpleBolt),
         ENEMY_MOVE_FORCE,
@@ -47,7 +52,7 @@ pub fn spawn_eyeball(
         None,
         25,
         8.0,
-    );
+    )
 }
 
 fn control_eyeball(
@@ -92,6 +97,9 @@ pub struct EyeballControlPlugin;
 
 impl Plugin for EyeballControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, control_eyeball.in_set(FixedUpdateGameActiveSet));
+        app.add_systems(
+            FixedUpdate,
+            control_eyeball.in_set(FixedUpdateGameActiveSet),
+        );
     }
 }

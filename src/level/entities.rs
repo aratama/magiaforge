@@ -4,17 +4,24 @@ use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::message_rabbit::SpellListRabbit;
+use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
+use crate::controller::training_dummy::TraningDummyController;
 use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::eyeball::spawn_eyeball;
+use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::salamander::spawn_salamander;
+use crate::enemy::salamander::Salamander;
 use crate::enemy::sandbug::spawn_sandbag;
 use crate::enemy::shadow::spawn_shadow;
+use crate::enemy::shadow::Shadow;
 use crate::enemy::slime::spawn_slime;
+use crate::enemy::slime::SlimeControl;
 use crate::enemy::spider::spawn_spider;
+use crate::enemy::spider::Spider;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
@@ -35,7 +42,9 @@ use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::web::spawn_web;
+use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
+use crate::inventory::Inventory;
 use crate::message::HELLO_RABBIT_0;
 use crate::message::HELLO_RABBIT_1;
 use crate::message::HELLO_RABBIT_2;
@@ -64,11 +73,13 @@ use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::theater::Act;
+use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
 use rand::seq::IteratorRandom;
+use uuid::Uuid;
 
 #[derive(Event, Clone, Debug)]
 pub enum SpawnEntity {
@@ -177,13 +188,37 @@ pub enum SpawnEntity {
 
     Enemy {
         enemy_type: SpawnEnemyType,
+        actor_group: ActorGroup,
         position: Vec2,
+    },
+
+    /// 変化の復帰のときなどに使います
+    SpawnWitch {
+        position: Vec2,
+        witch: SpawnWitch,
     },
 
     Web {
         position: Vec2,
         owner_actor_group: ActorGroup,
     },
+}
+
+#[derive(Clone, Debug)]
+pub struct SpawnWitch {
+    pub wands: [Wand; MAX_WANDS],
+    pub inventory: Inventory,
+    pub witch_type: SpawnWitchType,
+    pub getting_up: bool,
+    pub name: String,
+}
+
+#[derive(Clone, Debug)]
+pub enum SpawnWitchType {
+    Player,
+
+    #[allow(dead_code)]
+    Dummy,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -518,39 +553,17 @@ pub fn spawn_entity(
             SpawnEntity::Enemy {
                 enemy_type,
                 position,
-            } => match enemy_type {
-                SpawnEnemyType::Slime => {
-                    spawn_slime(
-                        &mut commands,
-                        &assets,
-                        *position,
-                        &life_bar_resource,
-                        0,
-                        5,
-                        ActorGroup::Enemy,
-                        None,
-                    );
-                }
-                SpawnEnemyType::Eyeball => {
-                    spawn_eyeball(
-                        &mut commands,
-                        &assets,
-                        *position,
-                        &life_bar_resource,
-                        ActorGroup::Enemy,
-                        8,
-                    );
-                }
-                SpawnEnemyType::Shadow => {
-                    spawn_shadow(&mut commands, &assets, &life_bar_resource, *position);
-                }
-                SpawnEnemyType::Spider => {
-                    spawn_spider(&mut commands, &assets, &life_bar_resource, *position);
-                }
-                SpawnEnemyType::Salamander => {
-                    spawn_salamander(&mut commands, &assets, &life_bar_resource, *position);
-                }
-            },
+                actor_group,
+            } => {
+                spawn_actor_with_default_behavior(
+                    &mut commands,
+                    &assets,
+                    *enemy_type,
+                    &life_bar_resource,
+                    *actor_group,
+                    *position,
+                );
+            }
 
             SpawnEntity::Web {
                 position,
@@ -572,6 +585,123 @@ pub fn spawn_entity(
             } => {
                 spawn_fireball(&mut commands, &assets, *position, *velocity, *actor_group);
             }
+
+            SpawnEntity::SpawnWitch {
+                position,
+                witch:
+                    SpawnWitch {
+                        wands,
+                        inventory,
+                        witch_type,
+                        getting_up,
+                        name,
+                    },
+            } => {
+                let entity = spawn_witch(
+                    &mut commands,
+                    &assets,
+                    *position,
+                    0.0,
+                    Uuid::new_v4(),
+                    None,
+                    200,
+                    200,
+                    &life_bar_resource,
+                    false,
+                    3.0,
+                    10,
+                    wands.clone(),
+                    inventory.clone(),
+                    match *witch_type {
+                        SpawnWitchType::Player => ActorGroup::Player,
+                        SpawnWitchType::Dummy => ActorGroup::Enemy,
+                    },
+                    0,
+                );
+                match *witch_type {
+                    SpawnWitchType::Player => {
+                        commands
+                            .entity(entity)
+                            .insert(Player::new(name.clone(), *getting_up));
+                    }
+                    SpawnWitchType::Dummy => {
+                        commands.entity(entity).insert(TraningDummyController {
+                            home: *position,
+                            fire: false,
+                        });
+                    }
+                };
+            }
+        }
+    }
+}
+
+pub fn spawn_actor_with_default_behavior(
+    mut commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    enemy_type: SpawnEnemyType,
+    life_bar_resource: &Res<LifeBarResource>,
+    actor_group: ActorGroup,
+    position: Vec2,
+) -> Entity {
+    match enemy_type {
+        SpawnEnemyType::Slime => {
+            let entity = spawn_slime(
+                &mut commands,
+                &assets,
+                position,
+                &life_bar_resource,
+                0,
+                actor_group,
+                None,
+            );
+            commands.entity(entity).insert(SlimeControl::default());
+            entity
+        }
+        SpawnEnemyType::Eyeball => {
+            let entity = spawn_eyeball(
+                &mut commands,
+                &assets,
+                position,
+                &life_bar_resource,
+                actor_group,
+                8,
+            );
+            commands.entity(entity).insert(EyeballControl::default());
+            entity
+        }
+        SpawnEnemyType::Shadow => {
+            let entity = spawn_shadow(
+                &mut commands,
+                &assets,
+                &life_bar_resource,
+                actor_group,
+                position,
+            );
+            commands.entity(entity).insert(Shadow::default());
+            entity
+        }
+        SpawnEnemyType::Spider => {
+            let entity = spawn_spider(
+                &mut commands,
+                &assets,
+                &life_bar_resource,
+                actor_group,
+                position,
+            );
+            commands.entity(entity).insert(Spider::default());
+            entity
+        }
+        SpawnEnemyType::Salamander => {
+            let entity = spawn_salamander(
+                &mut commands,
+                &assets,
+                &life_bar_resource,
+                actor_group,
+                position,
+            );
+            commands.entity(entity).insert(Salamander::default());
+            entity
         }
     }
 }

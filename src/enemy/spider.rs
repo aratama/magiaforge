@@ -42,6 +42,14 @@ pub struct Spider {
     state: State,
 }
 
+impl Default for Spider {
+    fn default() -> Self {
+        Self {
+            state: State::Wait(60),
+        }
+    }
+}
+
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
@@ -49,19 +57,16 @@ pub fn spawn_spider(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
+    actor_group: ActorGroup,
     position: Vec2,
 ) -> Entity {
     let radius = 8.0;
     let golds = 10;
-    let spell = Some(SpellType::Fireball);
-    let actor_group = ActorGroup::Enemy;
+    let spell = Some(SpellType::PurpleBolt);
     let mut builder = commands.spawn((
         Name::new("spider"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Spider {
-            state: State::Wait(60),
-        },
         Actor::new(ActorProps {
             uuid: Uuid::new_v4(),
             angle: 0.0,
@@ -191,21 +196,22 @@ fn animate(
     mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
-        let shadow = query.get(parent.get()).unwrap();
-        match shadow.state {
-            State::Wait(_) if animation.animation.tag != Some("idle".to_string()) => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
+        if let Ok(spider) = query.get(parent.get()) {
+            match spider.state {
+                State::Wait(_) if animation.animation.tag != Some("idle".to_string()) => {
+                    animation.animation.tag = Some("idle".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                State::Approarch(_) if animation.animation.tag != Some("run".to_string()) => {
+                    animation.animation.tag = Some("run".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                State::Attack(_) if animation.animation.tag != Some("idle".to_string()) => {
+                    animation.animation.tag = Some("idle".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                _ => {}
             }
-            State::Approarch(_) if animation.animation.tag != Some("run".to_string()) => {
-                animation.animation.tag = Some("run".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
-            }
-            State::Attack(_) if animation.animation.tag != Some("idle".to_string()) => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
-            }
-            _ => {}
         }
     }
 }

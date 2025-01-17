@@ -42,6 +42,14 @@ pub struct Salamander {
     state: State,
 }
 
+impl Default for Salamander {
+    fn default() -> Self {
+        Self {
+            state: State::Wait(60),
+        }
+    }
+}
+
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
@@ -49,19 +57,16 @@ pub fn spawn_salamander(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
+    actor_group: ActorGroup,
     position: Vec2,
 ) -> Entity {
     let radius = 8.0;
     let golds = 10;
     let spell = Some(SpellType::Fireball);
-    let actor_group = ActorGroup::Enemy;
     let mut builder = commands.spawn((
         Name::new("salamander"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Salamander {
-            state: State::Wait(60),
-        },
         Actor::new(ActorProps {
             uuid: Uuid::new_v4(),
             angle: 0.0,
@@ -186,21 +191,22 @@ fn animate(
     mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
-        let shadow = query.get(parent.get()).unwrap();
-        match shadow.state {
-            State::Wait(count) if count == 0 => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
+        if let Ok(shadow) = query.get(parent.get()) {
+            match shadow.state {
+                State::Wait(count) if count == 0 => {
+                    animation.animation.tag = Some("idle".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                State::Approarch(count) if count == 0 => {
+                    animation.animation.tag = Some("run".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                State::Attack(count) if count == 0 => {
+                    animation.animation.tag = Some("idle".to_string());
+                    animation.animation.repeat = AnimationRepeat::Loop;
+                }
+                _ => {}
             }
-            State::Approarch(count) if count == 0 => {
-                animation.animation.tag = Some("run".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
-            }
-            State::Attack(count) if count == 0 => {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
-            }
-            _ => {}
         }
     }
 }
@@ -271,7 +277,6 @@ fn attack(
                             let actor_position = transform.translation.truncate();
                             let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                             let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                            info!("velocity: {:?}", velocity);
                             spawn.send(SpawnEntity::Fireball {
                                 position,
                                 velocity,

@@ -7,6 +7,7 @@ use crate::component::entity_depth::EntityDepthPlugin;
 use crate::component::falling::FallingPlugin;
 use crate::component::flip::FlipPlugin;
 use crate::component::life::LifePlugin;
+use crate::component::metamorphosis::MetamorphosisPlugin;
 use crate::component::point_light::EntityPointLightPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
@@ -239,6 +240,7 @@ pub fn run_game() {
         .add_plugins(MainMenuPlugin)
         .add_plugins(MenuButtonPlugin)
         .add_plugins(MenuLeftPlugin)
+        .add_plugins(MetamorphosisPlugin)
         .add_plugins(NameInputPagePlugin)
         .add_plugins(OnPressPlugin)
         .add_plugins(OverlayPlugin)

@@ -260,7 +260,7 @@ fn receive_events(
                                 actor.point_light_radius = intensity;
                             } else if !spawned_players.contains(&uuid) {
                                 spawned_players.insert(uuid);
-                                spawn_witch(
+                                let entity = spawn_witch(
                                     &mut commands,
                                     &assets,
                                     Vec2::new(x, y),
@@ -275,14 +275,14 @@ fn receive_events(
                                     0,
                                     [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
                                     Inventory::new(),
-                                    RemotePlayer {
-                                        name,
-                                        golds,
-                                        last_update: *frame_count,
-                                    },
                                     ActorGroup::Enemy,
                                     0,
                                 );
+                                commands.entity(entity).insert(RemotePlayer {
+                                    name,
+                                    golds,
+                                    last_update: *frame_count,
+                                });
                                 info!("Remote player spawned: {}", uuid);
                             }
                         }
