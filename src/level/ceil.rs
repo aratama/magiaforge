@@ -2,13 +2,12 @@ use crate::asset::GameAssets;
 use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
+use crate::level::appearance::TileSprite;
 use crate::level::map::LevelChunk;
+use crate::level::tile::Tile;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
-
-use super::appearance::TileSprite;
-use super::tile::Tile;
 
 pub const WALL_HEIGHT_IN_TILES: u32 = 2;
 

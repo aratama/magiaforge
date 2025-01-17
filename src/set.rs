@@ -1,8 +1,9 @@
 // https://bevy-cheatbook.github.io/programming/system-sets.html
+use crate::states::GameMenuState;
+use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_rapier2d::plugin::PhysicsSet;
-
-use crate::states::{GameMenuState, GameState, TimeState};
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct FixedUpdateInGameSet;

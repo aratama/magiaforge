@@ -1,7 +1,8 @@
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::enemy::huge_slime::Boss;
-use crate::language::{Dict, M18NTtext};
+use crate::language::Dict;
+use crate::language::M18NTtext;
 use crate::states::GameState;
 use bevy::prelude::*;
 

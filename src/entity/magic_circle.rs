@@ -1,4 +1,3 @@
-use super::witch::Witch;
 use crate::asset::GameAssets;
 use crate::collision::PLAYER_GROUPS;
 use crate::collision::SENSOR_GROUPS;
@@ -6,6 +5,7 @@ use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::witch::Witch;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;

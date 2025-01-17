@@ -4,6 +4,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::component::vertical::Vertical;
+use crate::entity::actor::ActorGroup;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -12,8 +13,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::actor::ActorGroup;
 
 #[derive(Default, Component, Reflect)]
 struct Fireball;

@@ -2,18 +2,19 @@ use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
-use crate::constant::{TILE_HALF, Z_ORDER_SCALE};
+use crate::constant::TILE_HALF;
+use crate::constant::Z_ORDER_SCALE;
 use crate::controller::player::Player;
+use crate::entity::actor::Actor;
 use crate::entity::fire::Burnable;
-use crate::physics::{identify, IdentifiedCollisionEvent};
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
-
-use super::actor::Actor;
 
 #[derive(Default, Component, Reflect)]
 struct Grasses {

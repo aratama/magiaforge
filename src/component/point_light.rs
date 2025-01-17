@@ -1,4 +1,5 @@
-use crate::set::{FixedUpdateGameActiveSet, FixedUpdateInGameSet};
+use crate::set::FixedUpdateGameActiveSet;
+use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
 use bevy::core::FrameCount;
 use bevy::prelude::*;

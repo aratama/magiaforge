@@ -4,6 +4,7 @@ use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::ActorEvent;
+use crate::entity::fire::Fire;
 use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -15,8 +16,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::*;
-
-use super::fire::Fire;
 
 pub const EXPLOSION_COUNT: u32 = 10;
 

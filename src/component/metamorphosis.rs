@@ -1,20 +1,25 @@
-use super::{counter::Counter, life::Life};
-use crate::{
-    asset::GameAssets,
-    controller::player::Player,
-    enemy::{
-        chicken::spawn_chiken, eyeball::spawn_eyeball, salamander::spawn_salamander,
-        sandbug::spawn_sandbag, shadow::spawn_shadow, slime::spawn_slime, spider::spawn_spider,
-    },
-    entity::{
-        actor::{Actor, ActorGroup},
-        bullet_particle::SpawnParticle,
-    },
-    hud::life_bar::LifeBarResource,
-    level::entities::{SpawnEnemyType, SpawnEntity, SpawnWitch, SpawnWitchType},
-    se::{SEEvent, SE},
-    set::FixedUpdateGameActiveSet,
-};
+use crate::asset::GameAssets;
+use crate::component::counter::Counter;
+use crate::component::life::Life;
+use crate::controller::player::Player;
+use crate::enemy::chicken::spawn_chiken;
+use crate::enemy::eyeball::spawn_eyeball;
+use crate::enemy::salamander::spawn_salamander;
+use crate::enemy::sandbug::spawn_sandbag;
+use crate::enemy::shadow::spawn_shadow;
+use crate::enemy::slime::spawn_slime;
+use crate::enemy::spider::spawn_spider;
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorGroup;
+use crate::entity::bullet_particle::SpawnParticle;
+use crate::hud::life_bar::LifeBarResource;
+use crate::level::entities::SpawnEnemyType;
+use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnWitch;
+use crate::level::entities::SpawnWitchType;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;

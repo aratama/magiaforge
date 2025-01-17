@@ -1,13 +1,17 @@
-use core::f32;
-
+use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::hud::overlay::OverlayEvent;
+use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
-use crate::{asset::GameAssets, se::SEEvent};
-use bevy::animation::{animated_field, AnimationTarget, AnimationTargetId};
+use bevy::animation::animated_field;
+use bevy::animation::AnimationTarget;
+use bevy::animation::AnimationTargetId;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AnimationState, AseSpriteAnimation, Aseprite};
+use bevy_aseprite_ultra::prelude::AnimationState;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use bevy_aseprite_ultra::prelude::Aseprite;
+use core::f32;
 
 const FADE_IN: f32 = 3.0;
 const CRY: f32 = FADE_IN + 5.0;

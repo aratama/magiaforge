@@ -3,6 +3,7 @@ use crate::collision::*;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::gold::spawn_gold;
@@ -16,8 +17,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
-
-use super::dropped_item::spawn_dropped_item;
 
 const ENTITY_WIDTH: f32 = 8.0;
 

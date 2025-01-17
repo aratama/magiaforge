@@ -4,12 +4,11 @@ use crate::entity::actor::ActorGroup;
 use crate::entity::chest::ChestItem;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
+use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
 use crate::spell::SpellType;
 use bevy::prelude::*;
-
-use super::entities::SpawnEnemyType;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Zone {

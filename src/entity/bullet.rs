@@ -7,6 +7,7 @@ use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
+use crate::entity::bullet_particle::SpawnParticle;
 use crate::level::collision::WallCollider;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
@@ -25,8 +26,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
 use uuid::Uuid;
-
-use super::bullet_particle::SpawnParticle;
 
 static BULLET_Z: f32 = 10.0;
 

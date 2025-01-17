@@ -1,5 +1,7 @@
-use crate::states::{GameState, TimeState};
-use bevy::{core::FrameCount, prelude::*};
+use crate::states::GameState;
+use crate::states::TimeState;
+use bevy::core::FrameCount;
+use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 
 #[derive(Debug, Clone, Component)]

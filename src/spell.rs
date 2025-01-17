@@ -1178,7 +1178,6 @@ impl SpellType {
                 cast_delay: 0,
                 cast: SpellCast::None,
             },
-            
             SpellType::ApplyLevitation => SpellProps {
                 rank: 5,
                 name: Dict {
