@@ -1,5 +1,6 @@
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::inventory_item::InventoryItemType;
+use crate::spell::SpellType;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
@@ -78,9 +79,9 @@ impl Inventory {
         return false;
     }
 
-    pub fn insert_free(&mut self, item_type: InventoryItemType) -> bool {
+    pub fn insert_spell(&mut self, item_type: SpellType) -> bool {
         self.insert(InventoryItem {
-            item_type,
+            item_type: InventoryItemType::Spell(item_type),
             price: 0,
         })
     }
