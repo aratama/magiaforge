@@ -42,6 +42,7 @@ pub fn cast_metamorphosis(
     actor_life: &Life,
     actor_entity: &Entity,
     actor_transform: &Transform,
+    player: &Option<&Player>,
     mut rng: &mut ThreadRng,
 ) {
     commands.entity(*actor_entity).despawn_recursive();
@@ -106,18 +107,27 @@ pub fn cast_metamorphosis(
         }
     };
 
+    let discovered_spells = player
+        .map(|p| p.discovered_spells.clone())
+        .unwrap_or_default();
     let mut builder = commands.entity(entity);
-    builder.insert(Player::new("".to_string(), false));
+    builder.insert(Player::new(
+        player.map(|p| p.name.clone()).unwrap_or_default(),
+        false,
+        &discovered_spells,
+    ));
     builder.insert(Metamorphosis {
         witch: SpawnWitch {
             wands: actor.wands.clone(),
             inventory: actor.inventory.clone(),
             witch_type: SpawnWitchType::Player,
+            wand: actor.current_wand,
             getting_up: false,
             name: "".to_string(),
             life: actor_life.life,
             max_life: actor_life.max_life,
             golds: actor.golds,
+            discovered_spells,
         },
     });
     se.send(SEEvent::pos(SE::Kyushu2Short, position));

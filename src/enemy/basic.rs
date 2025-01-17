@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
@@ -66,6 +67,7 @@ pub fn spawn_basic_enemy(
         Transform::from_translation(position.extend(0.0)),
         Vertical::default(),
         Visibility::default(),
+        Counter::default(),
         (
             RigidBody::Dynamic,
             Collider::ball(radius),

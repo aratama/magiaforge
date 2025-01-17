@@ -1,14 +1,17 @@
 use crate::asset::GameAssets;
-use crate::component::life::LifeBeingSprite;
+use crate::component::counter::Counter;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
+use crate::entity::actor::ActorSpriteGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+
+use super::basic::BasicEnemySprite;
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
@@ -16,12 +19,11 @@ const ENEMY_MOVE_FORCE: f32 = 100000.0;
 #[derive(Component)]
 pub struct Sandbag {
     home: Vec2,
-    animation: u32,
 }
 
 impl Sandbag {
     pub fn new(home: Vec2) -> Self {
-        Self { home, animation: 0 }
+        Self { home }
     }
 }
 
@@ -62,35 +64,40 @@ fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbag)>) {
 
 fn frown_on_damage(
     mut actor_event: EventReader<ActorEvent>,
-    mut sprite_query: Query<&mut AseSpriteAnimation, With<LifeBeingSprite>>,
-    mut sandbag_query: Query<(&mut Sandbag, &Children)>,
+    mut sprite_query: Query<&mut AseSpriteAnimation, With<BasicEnemySprite>>,
+    group_query: Query<&Children, With<ActorSpriteGroup>>,
+    mut sandbag_query: Query<(&Children, &mut Counter), With<Sandbag>>,
 ) {
     for event in actor_event.read() {
         match *event {
             ActorEvent::Damaged { actor, .. } => {
-                if let Ok((mut sandbag, children)) = sandbag_query.get_mut(actor) {
+                if let Ok((children, mut counter)) = sandbag_query.get_mut(actor) {
                     for child in children {
-                        if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
-                            aseprite.animation.tag = Some("frown".to_string());
-                            sandbag.animation = 0;
+                        if let Ok(children) = group_query.get(*child) {
+                            for child in children {
+                                if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
+                                    aseprite.animation.tag = Some("frown".to_string());
+                                    counter.count = 0;
+                                }
+                            }
                         }
                     }
                 }
             }
-            ActorEvent::FatalFall { .. } => {}
+            _ => {}
         }
     }
 }
 
 fn idle(
-    mut sprite_query: Query<&mut AseSpriteAnimation, With<LifeBeingSprite>>,
-    mut sandbag_query: Query<(&mut Sandbag, &Children)>,
+    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
+    mut sandbag_query: Query<&Counter, With<Sandbag>>,
 ) {
-    for (mut sandbag, children) in sandbag_query.iter_mut() {
-        sandbag.animation += 1;
-        if sandbag.animation == 60 {
-            for child in children {
-                if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
+    for (parent, mut aseprite) in sprite_query.iter_mut() {
+        if let Ok(group) = group_query.get(parent.get()) {
+            if let Ok(counter) = sandbag_query.get_mut(group.get()) {
+                if 60 <= counter.count {
                     aseprite.animation.tag = Some("idle".to_string());
                 }
             }

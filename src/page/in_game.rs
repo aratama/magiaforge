@@ -262,11 +262,13 @@ pub fn setup_level(
             wands: player_state.wands,
             inventory: player_state.inventory,
             witch_type: SpawnWitchType::Player,
+            wand: player_state.current_wand,
             getting_up: level == GameLevel::Level(0),
             name: player_state.name,
             life: player_state.life,
             max_life: player_state.max_life,
             golds: player_state.golds,
+            discovered_spells: player_state.discovered_spells,
         },
     });
 

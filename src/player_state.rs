@@ -1,4 +1,5 @@
 use crate::component::life::Life;
+use crate::component::metamorphosis::Metamorphosis;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
@@ -19,7 +20,7 @@ pub struct PlayerState {
     pub inventory: Inventory,
     pub wands: [Wand; MAX_WANDS],
     pub golds: u32,
-    pub current_wand: u32,
+    pub current_wand: u8,
     pub discovered_spells: HashSet<SpellType>,
 }
 
@@ -210,7 +211,7 @@ impl PlayerState {
             inventory: actor.inventory.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
-            current_wand: actor.current_wand as u32,
+            current_wand: actor.current_wand,
             discovered_spells: player.discovered_spells.clone(),
         }
     }
@@ -235,8 +236,23 @@ impl PlayerState {
             inventory: actor.inventory.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
-            current_wand: actor.current_wand as u32,
+            current_wand: actor.current_wand,
             discovered_spells: HashSet::new(),
+        };
+        instance.update_discovered_spell();
+        instance
+    }
+
+    pub fn from_morph(morph: &Metamorphosis) -> Self {
+        let mut instance = PlayerState {
+            name: morph.witch.name.clone(),
+            life: morph.witch.life,
+            max_life: morph.witch.max_life,
+            inventory: morph.witch.inventory.clone(),
+            wands: morph.witch.wands.clone(),
+            golds: morph.witch.golds,
+            current_wand: morph.witch.wand,
+            discovered_spells: morph.witch.discovered_spells.clone(),
         };
         instance.update_discovered_spell();
         instance

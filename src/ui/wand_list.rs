@@ -3,6 +3,7 @@ use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::witch::Witch;
 use crate::states::GameState;
 use crate::ui::spell_in_wand::spawn_wand_spell_slot;
 use bevy::prelude::*;
@@ -72,7 +73,7 @@ fn spawn_wand_and_spell_slot(
 }
 
 fn update_trigger_sprite(
-    player_query: Query<&Actor, With<Player>>,
+    player_query: Query<&Actor, (With<Player>, With<Witch>)>,
     mut slot_query: Query<(&WandTriggerSprite, &mut AseUiSlice)>,
 ) {
     if let Ok(actor) = player_query.get_single() {

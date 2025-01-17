@@ -53,7 +53,7 @@ pub fn spawn_witch(
     wands: [Wand; 4],
     inventory: Inventory,
     actor_group: ActorGroup,
-    current_wand: usize,
+    current_wand: u8,
 ) -> Entity {
     let mut entity = commands.spawn((
         Name::new("witch"),

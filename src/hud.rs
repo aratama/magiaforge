@@ -10,6 +10,7 @@ use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerDown;
 use crate::entity::actor::Actor;
+use crate::entity::witch::Witch;
 use crate::page::in_game::level_to_name;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
@@ -236,22 +237,31 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
         });
 }
 
-fn update_hud(
-    player_query: Query<(&Actor, &Life), (With<Player>, Without<Camera2d>)>,
+fn update_life_in_hud(
+    // ライフバーのみ、変身中も現在の姿のライフを表示します
+    // なお、そのほかのゴールドやスペルは変身前の状態を表示しています
+    player_query: Query<&Life, (With<Player>, Without<Camera2d>)>,
     mut player_life_query: Query<&mut StatusBar, With<PlayerLifeBar>>,
-    mut player_gold_query: Query<&mut Text, (With<PlayerGold>,)>,
     player_down_query: Query<&PlayerDown>,
 ) {
     let mut player_life = player_life_query.single_mut();
-    let mut player_gold = player_gold_query.single_mut();
-    if let Ok((actor, actor_life)) = player_query.get_single() {
+    if let Ok(actor_life) = player_query.get_single() {
         player_life.value = actor_life.life;
         player_life.max_value = actor_life.max_life;
-        player_gold.0 = format!("{}", actor.golds);
     } else if player_down_query.is_empty() {
         // ワープでプレイヤーがいない
     } else {
         player_life.value = 0;
+    }
+}
+
+fn update_golds_in_hud(
+    player_query: Query<&Actor, (With<Player>, With<Witch>, Without<Camera2d>)>,
+    mut player_gold_query: Query<&mut Text, With<PlayerGold>>,
+) {
+    let mut player_gold = player_gold_query.single_mut();
+    if let Ok(actor) = player_query.get_single() {
+        player_gold.0 = format!("{}", actor.golds);
     }
 }
 
@@ -262,7 +272,12 @@ impl Plugin for HudPlugin {
         app.add_systems(OnEnter(GameState::InGame), setup_hud);
         app.add_systems(
             Update,
-            (update_hud, drop_area_interaction, drop_area_visibility)
+            (
+                update_life_in_hud,
+                update_golds_in_hud,
+                drop_area_interaction,
+                drop_area_visibility,
+            )
                 .run_if(in_state(GameState::InGame)),
         );
     }

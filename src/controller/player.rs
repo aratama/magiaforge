@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
+use crate::component::metamorphosis::Metamorphosis;
 use crate::component::vertical::Vertical;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
@@ -58,7 +59,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(name: String, getting_up: bool) -> Self {
+    pub fn new(name: String, getting_up: bool, discovered_spells: &HashSet<SpellType>) -> Self {
         Self {
             name,
             last_idle_frame_count: FrameCount(0),
@@ -69,7 +70,7 @@ impl Player {
             last_idle_life: 0,
             last_idle_max_life: 0,
             getting_up: if getting_up { 240 } else { 0 },
-            discovered_spells: HashSet::new(),
+            discovered_spells: discovered_spells.clone(),
         }
     }
 
@@ -180,7 +181,7 @@ pub fn actor_cast(
                 };
 
                 // 杖が空の場合の失敗音
-                if actor.wands[actor.current_wand].is_empty()
+                if actor.wands[actor.current_wand as usize].is_empty()
                     && buttons.just_pressed(MouseButton::Left)
                 {
                     se.send(SEEvent::new(SE::Sen));
@@ -255,7 +256,7 @@ pub fn release_holded_bullets(
 }
 
 fn switch_wand(
-    mut witch_query: Query<&mut Actor, With<Player>>,
+    mut witch_query: Query<&mut Actor, (With<Player>, With<Witch>)>,
     mut wheel: EventReader<MouseWheel>,
     mut writer: EventWriter<SEEvent>,
     state: Res<State<GameMenuState>>,
@@ -267,7 +268,7 @@ fn switch_wand(
         if let Ok(mut actor) = witch_query.get_single_mut() {
             let next = (actor.current_wand as i32 - event.y.signum() as i32)
                 .max(0)
-                .min(MAX_WANDS as i32 - 2) as usize;
+                .min(MAX_WANDS as i32 - 2) as u8;
             if next != actor.current_wand {
                 actor.current_wand = next;
                 writer.send(SEEvent::new(SE::Switch));
@@ -309,13 +310,20 @@ fn pick_gold(
 fn die_player(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    player_query: Query<(Entity, &Actor, &Life, &Transform, &Player)>,
+    player_query: Query<(
+        Entity,
+        &Actor,
+        &Life,
+        &Transform,
+        &Player,
+        Option<&Metamorphosis>,
+    )>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
     mut next: ResMut<LevelSetup>,
 ) {
-    if let Ok((entity, actor, player_life, transform, player)) = player_query.get_single() {
+    if let Ok((entity, actor, player_life, transform, player, morph)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
@@ -325,7 +333,11 @@ fn die_player(
             next.next_level = GameLevel::Level(0);
 
             // 次のシーンのためにプレイヤーの状態を保存
-            let mut player_state = PlayerState::from_player(&player, &actor, &player_life);
+            let mut player_state = if let Some(morph) = morph {
+                PlayerState::from_morph(morph)
+            } else {
+                PlayerState::from_player(&player, &actor, &player_life)
+            };
             // 全回復させてから戻る
             player_state.life = player_state.max_life;
             next.next_state = Some(player_state);

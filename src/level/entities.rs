@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::asset::GameAssets;
 use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
@@ -77,6 +79,7 @@ use crate::message::TRAINING_RABBIT_5;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
+use crate::spell::SpellType;
 use crate::theater::Act;
 use crate::wand::Wand;
 use bevy::prelude::*;
@@ -212,12 +215,14 @@ pub enum SpawnEntity {
 pub struct SpawnWitch {
     pub wands: [Wand; MAX_WANDS],
     pub inventory: Inventory,
+    pub wand: u8,
     pub witch_type: SpawnWitchType,
     pub getting_up: bool,
     pub name: String,
     pub life: u32,
     pub max_life: u32,
     pub golds: u32,
+    pub discovered_spells: HashSet<SpellType>,
 }
 
 #[derive(Clone, Debug)]
@@ -597,11 +602,13 @@ pub fn spawn_entity(
                         wands,
                         inventory,
                         witch_type,
+                        wand,
                         getting_up,
                         name,
                         life,
                         max_life,
                         golds,
+                        discovered_spells,
                     },
             } => {
                 let entity = spawn_witch(
@@ -623,13 +630,15 @@ pub fn spawn_entity(
                         SpawnWitchType::Player => ActorGroup::Player,
                         SpawnWitchType::Dummy => ActorGroup::Enemy,
                     },
-                    0,
+                    *wand,
                 );
                 match *witch_type {
                     SpawnWitchType::Player => {
-                        commands
-                            .entity(entity)
-                            .insert(Player::new(name.clone(), *getting_up));
+                        commands.entity(entity).insert(Player::new(
+                            name.clone(),
+                            *getting_up,
+                            discovered_spells,
+                        ));
                     }
                     SpawnWitchType::Dummy => {
                         commands.entity(entity).insert(TraningDummyController {

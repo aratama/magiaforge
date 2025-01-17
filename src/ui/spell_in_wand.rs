@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::witch::Witch;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::states::GameMenuState;
@@ -40,7 +41,7 @@ pub fn spawn_wand_spell_slot(
 }
 
 fn update_panel_item(
-    player_query: Query<&Actor, With<Player>>,
+    player_query: Query<&Actor, (With<Player>, With<Witch>)>,
     mut sprite_query: Query<(&WandSpellSprite, &mut ItemPanel)>,
     floating_query: Query<&Floating>,
 ) {

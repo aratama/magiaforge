@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::entity::witch::Witch;
 use crate::message::SORT;
 use crate::states::GameMenuState;
 use crate::states::GameState;
@@ -107,10 +108,11 @@ fn toggle_inventory(
     keys: Res<ButtonInput<KeyCode>>,
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
+    query: Query<&Player, With<Witch>>,
 ) {
     match state.get() {
         GameMenuState::Closed => {
-            if keys.just_pressed(KeyCode::Tab) {
+            if keys.just_pressed(KeyCode::Tab) && !query.is_empty() {
                 next.set(GameMenuState::WandEditOpen);
             }
         }

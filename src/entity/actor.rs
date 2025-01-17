@@ -13,6 +13,7 @@ use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::component::metamorphosis::Metamorphosis;
 use crate::component::vertical::Vertical;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
@@ -106,7 +107,7 @@ pub struct Actor {
 
     pub fire_state_secondary: ActorFireState,
 
-    pub current_wand: usize,
+    pub current_wand: u8,
 
     /// アクターが所持している杖のリスト
     /// モンスターの呪文詠唱の仕組みもプレイヤーキャラクターと同一であるため、
@@ -165,7 +166,7 @@ pub struct ActorProps {
     pub uuid: Uuid,
     pub angle: f32,
     pub point_light_radius: f32,
-    pub current_wand: usize,
+    pub current_wand: u8,
     pub actor_group: ActorGroup,
     pub golds: u32,
     pub wands: [Wand; MAX_WANDS],
@@ -503,6 +504,7 @@ fn fire_bullet(
             &mut ExternalImpulse,
             &mut Vertical,
             Option<&Player>,
+            Option<&Metamorphosis>,
         ),
         Without<Camera2d>,
     >,
@@ -522,20 +524,25 @@ fn fire_bullet(
         mut actor_impulse,
         mut actor_falling,
         player,
+        morph,
     ) in actor_query.iter_mut()
     {
+        if 0 < actor.wait {
+            actor.wait -= 1;
+            continue;
+        }
+
         // 凍結時は攻撃不可
         if 0 < actor.frozen {
             continue;
         }
 
         if actor.fire_state == ActorFireState::Fire {
-            if 0 < actor.wait {
-                actor.wait -= 1;
-                continue;
-            }
-
-            let current_wand = actor.current_wand;
+            let wand = if morph.is_none() {
+                actor.current_wand
+            } else {
+                0
+            };
             cast_spell(
                 &mut commands,
                 &assets,
@@ -546,13 +553,13 @@ fn fire_bullet(
                 &actor_transform,
                 &mut actor_impulse,
                 &mut actor_falling,
+                player,
                 online,
                 &mut remote_writer,
                 &mut se_writer,
                 &mut impact_writer,
                 &mut spawn,
-                current_wand,
-                player.is_some(),
+                wand,
                 Trigger::Primary,
             );
         }
@@ -568,13 +575,13 @@ fn fire_bullet(
                 &actor_transform,
                 &mut actor_impulse,
                 &mut actor_falling,
+                player,
                 online,
                 &mut remote_writer,
                 &mut se_writer,
                 &mut impact_writer,
                 &mut spawn,
-                MAX_WANDS - 1,
-                player.is_some(),
+                MAX_WANDS as u8 - 1,
                 Trigger::Secondary,
             );
         }

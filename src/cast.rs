@@ -5,6 +5,7 @@ use crate::component::life::Life;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::vertical::Vertical;
 use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
@@ -119,13 +120,13 @@ pub fn cast_spell(
     actor_transform: &Transform,
     actor_impulse: &mut ExternalImpulse,
     actor_falling: &mut Vertical,
+    player: Option<&Player>,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
     impact: &mut EventWriter<SpawnImpact>,
     mut spawn: &mut EventWriter<SpawnEntity>,
-    wand_index: usize,
-    is_player: bool,
+    wand_index: u8,
     trigger: Trigger,
 ) {
     let mut rng = rand::thread_rng();
@@ -134,18 +135,18 @@ pub fn cast_spell(
     // MultipleCast で増加することがあります
     let mut multicast = 1;
 
-    if 0 < actor.wands[wand_index].delay {
+    if 0 < actor.wands[wand_index as usize].delay {
         return;
     }
 
     let mut wand_delay = 0;
 
-    let mut spell_index: usize = actor.wands[wand_index].index;
+    let mut spell_index: usize = actor.wands[wand_index as usize].index;
 
     let mut clear_effect = false;
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
-        if let Some(spell) = actor.wands[wand_index].slots[spell_index] {
+        if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index] {
             let props = spell.spell_type.to_props();
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
@@ -203,7 +204,7 @@ pub fn cast_spell(
                     // たとえば、味方モンスターが敵プレイヤーを攻撃しているはずなのに、敵プレイヤーにダメージが入らないなどです
                     // これは、ホーム世界では味方モンスターが生き残っているのに、リモート世界ではその味方モンスターは既に倒されているということです
                     // 逆に、味方モンスターはいないはずなのに、敵プレイヤーが攻撃を受けているように見える、という状況もありえます
-                    if is_player {
+                    if player.is_some() {
                         // リモートの詠唱イベントを送信します
                         // ここでは、受信で生成される弾丸のプロパティは送信側で設定しています
                         let mut remove_bullet_props = spawn.clone();
@@ -409,6 +410,7 @@ pub fn cast_spell(
                         &actor_life,
                         &actor_entity,
                         &actor_transform,
+                        &player,
                         &mut rng,
                     );
                 }
@@ -424,6 +426,6 @@ pub fn cast_spell(
         actor.effects = default();
     }
 
-    actor.wands[wand_index].delay = wand_delay;
-    actor.wands[wand_index].index = spell_index % MAX_SPELLS_IN_WAND;
+    actor.wands[wand_index as usize].delay = wand_delay;
+    actor.wands[wand_index as usize].index = spell_index % MAX_SPELLS_IN_WAND;
 }

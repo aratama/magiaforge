@@ -1,5 +1,5 @@
 use crate::constant::PARTICLE_LAYER_Z;
-use crate::states::GameState;
+use crate::states::{GameState, TimeState};
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
@@ -76,13 +76,16 @@ pub fn spawn_particle_system(
 fn update_particles(
     mut commands: Commands,
     mut query: Query<(Entity, &mut BulletParticle, &mut Transform)>,
+    time: Res<State<TimeState>>,
 ) {
-    for (entity, mut particle, mut transform) in query.iter_mut() {
-        particle.lifetime -= 1;
-        if particle.lifetime == 0 {
-            commands.entity(entity).despawn();
-        } else {
-            transform.translation += particle.velocity.extend(0.0);
+    if *time == TimeState::Active {
+        for (entity, mut particle, mut transform) in query.iter_mut() {
+            particle.lifetime -= 1;
+            if particle.lifetime == 0 {
+                commands.entity(entity).despawn();
+            } else {
+                transform.translation += particle.velocity.extend(0.0);
+            }
         }
     }
 }
