@@ -6,6 +6,7 @@ use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
+use crate::spell::SpellType;
 use bevy::prelude::*;
 use core::f32;
 
@@ -16,8 +17,16 @@ enum ChickenState {
 }
 
 #[derive(Component, Debug)]
-struct Chicken {
+pub struct Chicken {
     state: ChickenState,
+}
+
+impl Default for Chicken {
+    fn default() -> Self {
+        Chicken {
+            state: ChickenState::Wait(60),
+        }
+    }
 }
 
 const CHIKEN_MOVE_FORCE: f32 = 10000.0;
@@ -27,8 +36,7 @@ pub fn spawn_chiken(
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
-    servant: bool,
-) {
+) -> Entity {
     let entity = spawn_basic_enemy(
         &mut commands,
         &assets,
@@ -36,7 +44,7 @@ pub fn spawn_chiken(
         position,
         life_bar_locals,
         "chicken",
-        None,
+        Some(SpellType::Jump),
         CHIKEN_MOVE_FORCE,
         0,
         ActorGroup::Neutral,
@@ -44,13 +52,7 @@ pub fn spawn_chiken(
         2,
         4.0,
     );
-    commands.entity(entity).insert(Chicken {
-        state: ChickenState::Wait(60),
-    });
-
-    if servant {
-        commands.entity(entity).insert(PlayerServant);
-    }
+    entity
 }
 
 fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&PlayerServant>)>) {
@@ -90,21 +92,16 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
     }
 }
 
-fn hopping(
-    chiken_query: Query<(&Chicken, &Actor)>,
-    mut fall_query: Query<(&Parent, &mut Vertical)>,
-) {
-    for (parent, mut fall) in fall_query.iter_mut() {
-        if let Ok((chicken, actor)) = chiken_query.get(parent.get()) {
-            if 0 < actor.frozen {
-                continue;
-            }
-            match chicken.state {
-                ChickenState::Wait(..) => {}
-                ChickenState::Walk { .. } => {
-                    if fall.just_landed || fall.velocity == 0.0 {
-                        fall.velocity = 0.5;
-                    }
+fn hopping(mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>) {
+    for (chicken, actor, mut vertical) in chicken_query.iter_mut() {
+        if 0 < actor.frozen {
+            continue;
+        }
+        match chicken.state {
+            ChickenState::Wait(..) => {}
+            ChickenState::Walk { .. } => {
+                if vertical.just_landed || vertical.velocity == 0.0 {
+                    vertical.velocity = 1.5;
                 }
             }
         }

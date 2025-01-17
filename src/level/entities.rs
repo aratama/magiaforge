@@ -10,12 +10,14 @@ use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::enemy::chicken::spawn_chiken;
+use crate::enemy::chicken::Chicken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::salamander::spawn_salamander;
 use crate::enemy::salamander::Salamander;
 use crate::enemy::sandbug::spawn_sandbag;
+use crate::enemy::sandbug::Sandbag;
 use crate::enemy::shadow::spawn_shadow;
 use crate::enemy::shadow::Shadow;
 use crate::enemy::slime::spawn_slime;
@@ -27,6 +29,9 @@ use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
 use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
+use crate::entity::bullet_particle::spawn_particle_system;
+use crate::entity::bullet_particle::BulletParticleResource;
+use crate::entity::bullet_particle::SpawnParticle;
 use crate::entity::chest::spawn_chest;
 use crate::entity::chest::ChestItem;
 use crate::entity::chest::ChestType;
@@ -161,13 +166,7 @@ pub enum SpawnEntity {
     HugeSlime {
         position: Vec2,
     },
-    Sandbug {
-        position: Vec2,
-    },
     Bomb {
-        position: Vec2,
-    },
-    Chiken {
         position: Vec2,
     },
     Fireball {
@@ -202,6 +201,11 @@ pub enum SpawnEntity {
         position: Vec2,
         owner_actor_group: ActorGroup,
     },
+
+    Particle {
+        position: Vec2,
+        spawn: SpawnParticle,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -231,6 +235,8 @@ pub enum SpawnEnemyType {
     Shadow,
     Spider,
     Salamander,
+    Chiken,
+    Sandbag,
 }
 
 pub fn spawn_entity(
@@ -242,6 +248,7 @@ pub fn spawn_entity(
     mut reader: EventReader<SpawnEntity>,
     mut client_message_writer: EventWriter<ClientMessage>,
     websocket: Res<WebSocketState>,
+    resource: Res<BulletParticleResource>,
 ) {
     for event in reader.read() {
         if setup.shop_items.is_empty() {
@@ -514,9 +521,6 @@ pub fn spawn_entity(
 
                 commands.entity(entity).insert(SpellListRabbit);
             }
-            SpawnEntity::Sandbug { position } => {
-                spawn_sandbag(&mut commands, &assets, *position, &life_bar_resource);
-            }
             SpawnEntity::ShopDoor { position } => {
                 spawn_shop_door(&mut commands, &assets, *position);
             }
@@ -525,9 +529,6 @@ pub fn spawn_entity(
             }
             SpawnEntity::Bomb { position } => {
                 spawn_bomb(&mut commands, &assets, *position);
-            }
-            SpawnEntity::Chiken { position } => {
-                spawn_chiken(&mut commands, &assets, &life_bar_resource, *position, false);
             }
             SpawnEntity::Seed {
                 from,
@@ -638,6 +639,10 @@ pub fn spawn_entity(
                     }
                 };
             }
+
+            SpawnEntity::Particle { position, spawn } => {
+                spawn_particle_system(&mut commands, *position, &resource, &spawn);
+            }
         }
     }
 }
@@ -707,6 +712,16 @@ pub fn spawn_actor_with_default_behavior(
                 position,
             );
             commands.entity(entity).insert(Salamander::default());
+            entity
+        }
+        SpawnEnemyType::Chiken => {
+            let entity = spawn_chiken(&mut commands, &assets, &life_bar_resource, position);
+            commands.entity(entity).insert(Chicken::default());
+            entity
+        }
+        SpawnEnemyType::Sandbag => {
+            let entity = spawn_sandbag(&mut commands, &assets, &life_bar_resource, position);
+            commands.entity(entity).insert(Sandbag::new(position));
             entity
         }
     }

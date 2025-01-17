@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::vertical::Vertical;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
+use crate::component::vertical::Vertical;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -17,6 +17,9 @@ use super::actor::ActorGroup;
 
 #[derive(Default, Component, Reflect)]
 struct Fireball;
+
+#[derive(Default, Component, Reflect)]
+struct FireballSprite;
 
 pub fn spawn_fireball(
     commands: &mut Commands,
@@ -33,6 +36,7 @@ pub fn spawn_fireball(
             EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
+            Vertical::new(2.0, -0.1),
             WithPointLight {
                 radius: 64.0,
                 intensity: 1.0,
@@ -57,7 +61,7 @@ pub fn spawn_fireball(
         ))
         .with_children(|parent| {
             parent.spawn((
-                Vertical::new(2.0, -0.1),
+                FireballSprite,
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
@@ -70,30 +74,37 @@ pub fn spawn_fireball(
         });
 }
 
-fn fall(
+fn spawn_fire_on_landed(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    child_query: Query<(&Parent, &Vertical)>,
-    parent_query: Query<(Entity, &Transform), With<Fireball>>,
+    parent_query: Query<(Entity, &Vertical, &Transform), With<Fireball>>,
     interlevel: Res<LevelSetup>,
 ) {
-    for (parent, vertical) in child_query.iter() {
+    for (entity, vertical, transform) in parent_query.iter() {
         if vertical.just_landed {
-            if let Ok((entity, parent_transform)) = parent_query.get(parent.get()) {
-                commands.entity(entity).despawn_recursive();
-                if let Some(ref level) = interlevel.chunk {
-                    let position = parent_transform.translation.truncate();
-                    let tile = level.get_tile_by_coords(position);
-                    if tile != Tile::Wall
-                        && tile != Tile::Blank
-                        && tile != Tile::Water
-                        && tile != Tile::PermanentWall
-                    {
-                        spawn_fire(&mut commands, &assets, position, None);
-                    }
+            commands.entity(entity).despawn_recursive();
+            if let Some(ref level) = interlevel.chunk {
+                let position = transform.translation.truncate();
+                let tile = level.get_tile_by_coords(position);
+                if tile != Tile::Wall
+                    && tile != Tile::Blank
+                    && tile != Tile::Water
+                    && tile != Tile::PermanentWall
+                {
+                    spawn_fire(&mut commands, &assets, position, None);
                 }
             }
         }
+    }
+}
+
+fn apply_v(
+    mut query: Query<(&Parent, &mut Transform), With<FireballSprite>>,
+    parent_query: Query<&Vertical, With<Fireball>>,
+) {
+    for (parent, mut transform) in query.iter_mut() {
+        let vertical = parent_query.get(parent.get()).unwrap();
+        transform.translation.y = vertical.v;
     }
 }
 
@@ -101,7 +112,10 @@ pub struct FireballPlugin;
 
 impl Plugin for FireballPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, fall.in_set(FixedUpdateGameActiveSet));
+        app.add_systems(
+            FixedUpdate,
+            (spawn_fire_on_landed, apply_v).in_set(FixedUpdateGameActiveSet),
+        );
         app.register_type::<Fireball>();
     }
 }

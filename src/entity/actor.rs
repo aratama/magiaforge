@@ -11,9 +11,9 @@ use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
-use crate::component::vertical::Vertical;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::component::vertical::Vertical;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
@@ -130,8 +130,8 @@ pub struct Actor {
     pub state: ActorState,
 
     /// 再び詠唱操作をできるようになるまでの待ち時間
-    /// フキダシを閉じたあとなど、一定時間詠唱不能にしておかないと、
-    /// フキダシを閉じると同時に詠唱をしてしまう
+    /// フキダシを閉じたあとや変身直後など、一定時間詠唱不能にしておかないと、
+    /// 他の操作と同時に詠唱をしてしまう
     pub wait: u32,
 
     /// 蜘蛛の巣などの罠に引っかかって動けなくなっている場合は正の数
@@ -225,7 +225,7 @@ impl Actor {
             fire_state_secondary: ActorFireState::Idle,
             effects: default(),
             state: ActorState::default(),
-            wait: 0,
+            wait: 30,
             trapped: 0,
             trap_moratorium: 0,
             floundering: 1,

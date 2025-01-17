@@ -14,6 +14,7 @@ use crate::entity::actor::ActorState;
 use crate::entity::bullet::Bullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
+use crate::entity::witch::Witch;
 use crate::input::get_direction;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
@@ -278,7 +279,7 @@ fn switch_wand(
 fn pick_gold(
     mut commands: Commands,
     mut gold_query: Query<(Entity, &mut Gold, &Transform)>,
-    mut player_query: Query<(&mut Actor, &Transform), With<Player>>,
+    mut player_query: Query<(&mut Actor, &Transform), (With<Player>, With<Witch>)>,
     mut writer: EventWriter<SEEvent>,
 ) {
     if let Ok((mut actor, player_transform)) = player_query.get_single_mut() {

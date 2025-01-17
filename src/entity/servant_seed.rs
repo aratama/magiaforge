@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::constant::*;
+use crate::controller::player::PlayerServant;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
 use crate::enemy::chicken::spawn_chiken;
@@ -217,13 +218,10 @@ fn spawn_servant(
                 );
             }
             ServantType::Chiken => {
-                spawn_chiken(
-                    &mut commands,
-                    &assets,
-                    &life_bar_locals,
-                    event.position,
-                    event.servant,
-                );
+                let entity = spawn_chiken(&mut commands, &assets, &life_bar_locals, event.position);
+                if event.servant {
+                    commands.entity(entity).insert(PlayerServant);
+                }
             }
         }
     }

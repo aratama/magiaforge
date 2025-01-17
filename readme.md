@@ -38,35 +38,10 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 
 ### Asset credits
 
-#### Sound Effects
+This game depends on the following assets:
 
-- 芝生の上を歩く https://soundeffect-lab.info/sound/various/
-- ひよこの鳴き声 https://soundeffect-lab.info/sound/animal/
-- 打撃 1 https://soundeffect-lab.info/sound/battle/
-- パンチ素振り https://soundeffect-lab.info/sound/battle/
-- 革靴で歩く https://soundeffect-lab.info/sound/various/
-- アスファルトの上を歩く 2 https://soundeffect-lab.info/sound/various/
-- 決定ボタンを押す 48 https://soundeffect-lab.info/sound/button/
-- 建物が少し崩れる 1 https://soundeffect-lab.info/sound/battle/
-- メニューを開く 2 https://soundeffect-lab.info/sound/battle/
-- ワープ https://soundeffect-lab.info/sound/battle/
-- 体育館で走る https://soundeffect-lab.info/sound/various/
-- 回復魔法 1 https://soundeffect-lab.info/sound/battle/
-- カーソル移動 2 https://soundeffect-lab.info/sound/button/
-- 爆発 3 https://soundeffect-lab.info/sound/battle/battle2.html
-- イノシシの鳴き声 https://soundeffect-lab.info/sound/animal/
-- ぷよん https://soundeffect-lab.info/sound/anime/
-- お風呂 https://soundeffect-lab.info/sound/environment/
-- 手裏剣を投げる https://soundeffect-lab.info/sound/battle/battle2.html
-- バスのドアが開く 2 https://soundeffect-lab.info/sound/machine/machine2.html
-- ゾンビの食事 https://soundeffect-lab.info/sound/battle/battle2.html
-- 構えを取る https://soundeffect-lab.info/sound/battle/
-- シーン切り替え 2 https://soundeffect-lab.info/sound/anime/
-
-#### BGMs
-
-- God's realm https://dova-s.jp/bgm/play20967.html
 - 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
+- 最果てのルージュ https://dova-s.jp/bgm/play19795.html
 - 荒れ地の先へ https://dova-s.jp/bgm/play17195.html
 - 悪魔との戦闘 https://dova-s.jp/bgm/play11175.html
 - Tides of Adventure https://dova-s.jp/bgm/play21129.html
@@ -80,5 +55,5 @@ In browsers, save data is stored in local storage under the key `magiaforge.magi
 - Sacred Sacrifice https://dova-s.jp/bgm/play6142.html
 - FINAL BATTLE (TRAILER MUSIC) https://pixabay.com/music/electronic-final-battle-trailer-music-217488/
 - Human vs Machine (dark orchestral cinematic epic action) https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/
-- Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/
-- 最果てのルージュ https://dova-s.jp/bgm/play19795.html
+- Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/\
+- (All Sound Effects) https://soundeffect-lab.info/

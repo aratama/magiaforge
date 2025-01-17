@@ -1,5 +1,6 @@
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
+use crate::entity::actor::ActorGroup;
 use crate::entity::chest::ChestItem;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
@@ -7,6 +8,8 @@ use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
 use crate::spell::SpellType;
 use bevy::prelude::*;
+
+use super::entities::SpawnEnemyType;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Zone {
@@ -102,6 +105,10 @@ impl LevelChunk {
 }
 
 pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
+    xy_to_position(tx, ty)
+}
+
+pub fn xy_to_position(tx: i32, ty: i32) -> Vec2 {
     Vec2::new(tx as f32 * TILE_SIZE, ty as f32 * -TILE_SIZE) + Vec2::new(TILE_HALF, TILE_HALF)
 }
 
@@ -334,7 +341,11 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::Sandbug { position });
+                    entities.push(SpawnEntity::Enemy {
+                        enemy_type: SpawnEnemyType::Sandbag,
+                        actor_group: ActorGroup::Neutral,
+                        position,
+                    });
                 }
                 (197, 255, 142, 255) => {
                     tiles.push(LevelTileMapile {

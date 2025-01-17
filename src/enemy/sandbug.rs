@@ -6,6 +6,7 @@ use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
+use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 
@@ -13,16 +14,22 @@ const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
 /// Sandbugは敵のアクターグループですが攻撃を行いません
 #[derive(Component)]
-struct Sandbug {
+pub struct Sandbag {
     home: Vec2,
     animation: u32,
+}
+
+impl Sandbag {
+    pub fn new(home: Vec2) -> Self {
+        Self { home, animation: 0 }
+    }
 }
 
 pub fn spawn_sandbag(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
-    position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
+    position: Vec2,
 ) -> Entity {
     let entity = spawn_basic_enemy(
         &mut commands,
@@ -31,7 +38,7 @@ pub fn spawn_sandbag(
         position,
         life_bar_locals,
         "sandbag",
-        None,
+        Some(SpellType::Jump),
         ENEMY_MOVE_FORCE,
         0,
         ActorGroup::Enemy,
@@ -39,14 +46,10 @@ pub fn spawn_sandbag(
         10000000,
         8.0,
     );
-    commands.entity(entity).insert(Sandbug {
-        home: position,
-        animation: 0,
-    });
     entity
 }
 
-fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbug)>) {
+fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbag)>) {
     for (mut actor, witch_transform, dummy) in query.iter_mut() {
         let diff = dummy.home - witch_transform.translation.truncate();
         actor.move_direction = if 8.0 < diff.length() {
@@ -60,7 +63,7 @@ fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbug)>) {
 fn frown_on_damage(
     mut actor_event: EventReader<ActorEvent>,
     mut sprite_query: Query<&mut AseSpriteAnimation, With<LifeBeingSprite>>,
-    mut sandbag_query: Query<(&mut Sandbug, &Children)>,
+    mut sandbag_query: Query<(&mut Sandbag, &Children)>,
 ) {
     for event in actor_event.read() {
         match *event {
@@ -81,7 +84,7 @@ fn frown_on_damage(
 
 fn idle(
     mut sprite_query: Query<&mut AseSpriteAnimation, With<LifeBeingSprite>>,
-    mut sandbag_query: Query<(&mut Sandbug, &Children)>,
+    mut sandbag_query: Query<(&mut Sandbag, &Children)>,
 ) {
     for (mut sandbag, children) in sandbag_query.iter_mut() {
         sandbag.animation += 1;

@@ -12,7 +12,7 @@ pub struct BulletParticleResource {
 #[derive(Component)]
 struct BulletParticle {
     velocity: Vec2,
-    lifetime: usize,
+    lifetime: u16,
 }
 
 fn setup_bullet(
@@ -25,21 +25,50 @@ fn setup_bullet(
     commands.insert_resource(BulletParticleResource { shape, material });
 }
 
+#[derive(Debug, Clone)]
+pub struct SpawnParticle {
+    pub scale: f32,
+    pub count: u16,
+    pub velocity_base: f32,
+    pub velocity_random: f32,
+    pub lifetime_base: u16,
+    pub lifetime_random: u16,
+}
+
+impl Default for SpawnParticle {
+    fn default() -> Self {
+        Self {
+            scale: 1.0,
+            count: 10,
+            velocity_base: 0.4,
+            velocity_random: 0.2,
+            lifetime_base: 15,
+            lifetime_random: 10,
+        }
+    }
+}
+
 pub fn spawn_particle_system(
     commands: &mut Commands,
     position: Vec2,
     resource: &Res<BulletParticleResource>,
+    spawn: &SpawnParticle,
 ) {
-    for _ in 0..10 {
+    for _ in 0..spawn.count {
         let angle = rand::random::<f32>() * PI * 2.0;
-        let velocity = Vec2::from_angle(angle) * (0.4 + rand::random::<f32>() * 0.2);
-        let lifetime = 15 + rand::random::<usize>() % 10;
+        let velocity = Vec2::from_angle(angle)
+            * (spawn.velocity_base + rand::random::<f32>() * spawn.velocity_random);
+        let lifetime = spawn.lifetime_base + rand::random::<u16>() % spawn.lifetime_random;
         commands.spawn((
             Name::new("bullet_particle"),
             BulletParticle { velocity, lifetime },
             Mesh2d(resource.shape.clone()),
             MeshMaterial2d(resource.material.clone()),
-            Transform::from_translation(position.extend(PARTICLE_LAYER_Z)),
+            Transform::from_translation(position.extend(PARTICLE_LAYER_Z)).with_scale(Vec3::new(
+                spawn.scale,
+                spawn.scale,
+                1.0,
+            )),
         ));
     }
 }

@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
+use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
@@ -63,6 +64,7 @@ pub fn spawn_basic_enemy(
         Life::new(max_life),
         HomingTarget,
         Transform::from_translation(position.extend(0.0)),
+        Vertical::default(),
         Visibility::default(),
         (
             RigidBody::Dynamic,

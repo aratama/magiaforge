@@ -2,17 +2,11 @@ use crate::asset::GameAssets;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::life::Life;
-use crate::component::metamorphosis::Metamorphosis;
+use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::vertical::Vertical;
 use crate::constant::MAX_SPELLS_IN_WAND;
-use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
-use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::salamander::spawn_salamander;
-use crate::enemy::shadow::spawn_shadow;
-use crate::enemy::slime::spawn_slime;
-use crate::enemy::spider::spawn_spider;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
@@ -26,10 +20,7 @@ use crate::entity::servant_seed::ServantType;
 use crate::entity::web::spawn_web;
 use crate::entity::witch::WITCH_COLLIDER_RADIUS;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnWitch;
-use crate::level::entities::SpawnWitchType;
 use crate::random::randomize_velocity;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -41,7 +32,6 @@ use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use core::f32;
 use rand::random;
-use rand::seq::SliceRandom;
 use uuid::Uuid;
 
 /// SpawnEntityによって生成されるエンティティの種別を表します
@@ -133,7 +123,7 @@ pub fn cast_spell(
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
     impact: &mut EventWriter<SpawnImpact>,
-    spawn: &mut EventWriter<SpawnEntity>,
+    mut spawn: &mut EventWriter<SpawnEntity>,
     wand_index: usize,
     is_player: bool,
     trigger: Trigger,
@@ -409,76 +399,18 @@ pub fn cast_spell(
                     }
                 }
                 SpellCast::Metamorphosis => {
-                    commands.entity(actor_entity).despawn_recursive();
-                    let position = actor_transform.translation.truncate();
-                    let actor_group = ActorGroup::Player;
-                    let enemy_type = *[
-                        SpawnEnemyType::Slime,
-                        SpawnEnemyType::Eyeball,
-                        SpawnEnemyType::Shadow,
-                        SpawnEnemyType::Spider,
-                        SpawnEnemyType::Salamander,
-                    ]
-                    .choose(&mut rng)
-                    .unwrap();
-
-                    let entity = match enemy_type {
-                        SpawnEnemyType::Slime => spawn_slime(
-                            &mut commands,
-                            &assets,
-                            position,
-                            &life_bar_resource,
-                            0,
-                            actor_group,
-                            None,
-                        ),
-                        SpawnEnemyType::Eyeball => spawn_eyeball(
-                            &mut commands,
-                            &assets,
-                            position,
-                            &life_bar_resource,
-                            actor_group,
-                            8,
-                        ),
-                        SpawnEnemyType::Shadow => spawn_shadow(
-                            &mut commands,
-                            &assets,
-                            &life_bar_resource,
-                            actor_group,
-                            position,
-                        ),
-                        SpawnEnemyType::Spider => spawn_spider(
-                            &mut commands,
-                            &assets,
-                            &life_bar_resource,
-                            actor_group,
-                            position,
-                        ),
-                        SpawnEnemyType::Salamander => spawn_salamander(
-                            &mut commands,
-                            &assets,
-                            &life_bar_resource,
-                            actor_group,
-                            position,
-                        ),
-                    };
-
-                    let mut builder = commands.entity(entity);
-                    builder.insert(Player::new("".to_string(), false));
-                    builder.insert(Metamorphosis {
-                        witch: SpawnWitch {
-                            wands: actor.wands.clone(),
-                            inventory: actor.inventory.clone(),
-                            witch_type: SpawnWitchType::Player,
-                            getting_up: false,
-                            name: "".to_string(),
-                            life: actor_life.life,
-                            max_life: actor_life.max_life,
-                            golds: actor.golds,
-                        },
-                    });
-
-                    se.send(SEEvent::pos(SE::Kyushu2Short, position));
+                    cast_metamorphosis(
+                        &mut commands,
+                        &assets,
+                        &life_bar_resource,
+                        &mut se,
+                        &mut spawn,
+                        &actor,
+                        &actor_life,
+                        &actor_entity,
+                        &actor_transform,
+                        &mut rng,
+                    );
                 }
             }
         } else {

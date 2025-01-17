@@ -22,6 +22,7 @@ use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnWitch;
 use crate::level::entities::SpawnWitchType;
 use crate::level::map::image_to_spawn_tiles;
+use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
 use crate::level::tile::Tile;
 use crate::message::LEVEL0;
@@ -234,8 +235,10 @@ pub fn setup_level(
     if level == GameLevel::Level(0) {
         for _ in 0..4 {
             if let Some((x, y)) = empties.choose(&mut rng) {
-                spawn.send(SpawnEntity::Chiken {
-                    position: Vec2::new(TILE_SIZE * *x as f32, TILE_SIZE * -*y as f32),
+                spawn.send(SpawnEntity::Enemy {
+                    enemy_type: SpawnEnemyType::Chiken,
+                    actor_group: ActorGroup::Neutral,
+                    position: index_to_position((*x, *y)),
                 });
             }
         }
