@@ -59,6 +59,7 @@ pub enum SpellType {
     BulletSpeedUp,
     RockFall,
     Metamorphosis,
+    Slash,
 
     // ランク5
     Heal,
@@ -1084,6 +1085,37 @@ impl SpellType {
                 icon: "metamorphosis_icon",
                 price: 2400,
                 cast: SpellCast::Metamorphosis,
+            },
+            SpellType::Slash =>  SpellProps {
+                rank: 4,
+                name: Dict {
+                    ja: "斬撃",
+                    en: "Slash",
+                    zh_cn: "斩击",
+                    zh_tw: "斬擊",
+                    es: "Corte",
+                    fr: "Entaille",
+                    pt: "Corte",
+                    de: "Schlag",
+                    ko: "베기",
+                    ru: "Удар"
+                },
+                description: Dict {
+                    ja: "魔法の刃を生成し、鋭い斬撃を繰り出します。",
+                    en: "Generates a magical blade and unleashes a sharp slash.",
+                    zh_cn: "生成一把魔法之刃并释放出锋利的斩击。",
+                    zh_tw: "生成一把魔法之刃並釋放出鋒利的斬擊。",
+                    es: "Genera una hoja mágica y desata un corte afilado.",
+                    fr: "Génère une lame magique et déclenche une entaille tranchante.",
+                    pt: "Gera uma lâmina mágica e desferra um corte afiado.",
+                    de: "Erzeugt eine magische Klinge und entfesselt einen scharfen Schlag.",
+                    ko: "마법의 칼날을 생성하고 날카로운 베기를 발사합니다.",
+                    ru: "Создает магический клинок и наносит острый удар."
+                },
+                cast_delay: 30,
+                icon: "slash_icon",
+                price: 2400,
+                cast: SpellCast::Slash,
             },
             SpellType::Heal =>  SpellProps {
                 rank: 5,

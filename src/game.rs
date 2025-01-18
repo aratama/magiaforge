@@ -52,6 +52,7 @@ use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::rock::RockPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
+use crate::entity::slash::SlashPlugin;
 use crate::entity::stone_lantern::StoneLanternPlugin;
 use crate::entity::web::WebPlugin;
 use crate::entity::witch::WitchPlugin;
@@ -260,6 +261,7 @@ pub fn run_game() {
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
         .add_plugins(ShadowPlugin)
+        .add_plugins(SlashPlugin)
         .add_plugins(SlimeControlPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)

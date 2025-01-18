@@ -89,12 +89,13 @@ impl Default for PlayerState {
             inventory.insert_spell(SpellType::ApplyLevitation);
             inventory.insert_spell(SpellType::Jump);
             inventory.insert_spell(SpellType::Metamorphosis);
+            inventory.insert_spell(SpellType::Slash);
             inventory.sort();
 
             let wands = [
                 Wand::with_slots([
                     Some(WandSpell {
-                        spell_type: SpellType::Metamorphosis,
+                        spell_type: SpellType::Slash,
                         price: 0,
                     }),
                     None,

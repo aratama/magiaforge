@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
@@ -26,6 +27,7 @@ use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
 use crate::enemy::spider::spawn_spider;
 use crate::enemy::spider::Spider;
+use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
@@ -47,6 +49,7 @@ use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
+use crate::entity::slash::spawn_slash;
 use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::web::spawn_web;
 use crate::entity::witch::spawn_witch;
@@ -84,6 +87,8 @@ use crate::theater::Act;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
 use rand::seq::IteratorRandom;
@@ -209,6 +214,13 @@ pub enum SpawnEntity {
         position: Vec2,
         spawn: SpawnParticle,
     },
+
+    Slash {
+        parent: Entity,
+        position: Vec2,
+        actor_group: ActorGroup,
+        angle: f32,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -249,11 +261,14 @@ pub fn spawn_entity(
     assets: Res<GameAssets>,
     life_bar_resource: Res<LifeBarResource>,
     mut setup: ResMut<LevelSetup>,
+    mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
     mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnEntity>,
     mut client_message_writer: EventWriter<ClientMessage>,
+    mut actor_event: EventWriter<ActorEvent>,
     websocket: Res<WebSocketState>,
     resource: Res<BulletParticleResource>,
+    life_query: Query<&Transform, With<Life>>,
 ) {
     for event in reader.read() {
         if setup.shop_items.is_empty() {
@@ -651,6 +666,26 @@ pub fn spawn_entity(
 
             SpawnEntity::Particle { position, spawn } => {
                 spawn_particle_system(&mut commands, *position, &resource, &spawn);
+            }
+
+            SpawnEntity::Slash {
+                parent,
+                actor_group,
+                position,
+                angle,
+            } => {
+                spawn_slash(
+                    &mut commands,
+                    &assets,
+                    &mut se,
+                    *parent,
+                    *position,
+                    *angle,
+                    &mut context,
+                    *actor_group,
+                    &mut actor_event,
+                    &life_query,
+                );
             }
         }
     }

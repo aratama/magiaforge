@@ -50,6 +50,9 @@ pub struct GameAssets {
     #[asset(path = "entity/freeze.aseprite")]
     pub freeze: Handle<Aseprite>,
 
+    #[asset(path = "entity/slash.aseprite")]
+    pub slash: Handle<Aseprite>,
+
     // モンスター //////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/slime.aseprite")]
     pub slime: Handle<Aseprite>,
@@ -251,6 +254,9 @@ pub struct GameAssets {
 
     #[asset(path = "audio/HP吸収魔法2_short.ogg")]
     pub kyushu2_short: Handle<AudioSource>,
+
+    #[asset(path = "audio/剣の素振り2.ogg")]
+    pub ken2: Handle<AudioSource>,
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BGM //////////////////////////////////////////////////////////////////////////////////////////////////////////

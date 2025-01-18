@@ -105,6 +105,7 @@ pub enum SpellCast {
     Levitation,
     Jump,
     Metamorphosis,
+    Slash,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -413,6 +414,14 @@ pub fn cast_spell(
                         &player,
                         &mut rng,
                     );
+                }
+                SpellCast::Slash => {
+                    spawn.send(SpawnEntity::Slash {
+                        parent: actor_entity.clone(),
+                        position: actor_transform.translation.truncate(),
+                        actor_group: actor.actor_group,
+                        angle: actor.pointer.to_angle(),
+                    });
                 }
             }
         } else {
