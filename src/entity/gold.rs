@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::controller::player::Player;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
@@ -30,6 +31,7 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, position: V
             position.y + (random::<f32>() - 0.5) * 16.0,
             0.0,
         )),
+        Falling,
         CounterAnimated,
         AseSpriteAnimation {
             aseprite: assets.gold.clone(),
@@ -39,20 +41,22 @@ pub fn spawn_gold(commands: &mut Commands, assets: &Res<GameAssets>, position: V
             current_frame: rand::random::<u16>() % 4,
             ..default()
         },
-        LockedAxes::ROTATION_LOCKED,
-        Velocity::linear(Vec2::from_angle(2.0 * PI * random::<f32>()) * 20.0),
-        RigidBody::Dynamic,
-        // Restitution::coefficient(0.2),
-        // Friction::coefficient(0.2),
-        Damping {
-            linear_damping: 5.0,
-            angular_damping: 0.8,
-        },
-        Collider::cuboid(1.5, 2.5),
-        *GOLD_GROUPS,
-        // ActiveCollisionTypes::default(),
-        // ActiveEvents::COLLISION_EVENTS,
-        ExternalForce::default(),
+        (
+            LockedAxes::ROTATION_LOCKED,
+            Velocity::linear(Vec2::from_angle(2.0 * PI * random::<f32>()) * 20.0),
+            RigidBody::Dynamic,
+            // Restitution::coefficient(0.2),
+            // Friction::coefficient(0.2),
+            Damping {
+                linear_damping: 5.0,
+                angular_damping: 0.8,
+            },
+            Collider::cuboid(1.5, 2.5),
+            *GOLD_GROUPS,
+            // ActiveCollisionTypes::default(),
+            // ActiveEvents::COLLISION_EVENTS,
+            ExternalForce::default(),
+        ),
     ));
 }
 

@@ -3,6 +3,7 @@ use crate::collision::RABBIT_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::Actor;
@@ -46,6 +47,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),
         Visibility::default(),
+        Falling,
         // 以下はRapier2Dのコンポーネント
         (
             RigidBody::Dynamic,

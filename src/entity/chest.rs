@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::entity::dropped_item::spawn_dropped_item;
@@ -105,6 +106,7 @@ pub fn spawn_chest(
             Transform::from_translation(position.extend(0.0)),
             GlobalTransform::default(),
             Visibility::default(),
+            Falling,
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,

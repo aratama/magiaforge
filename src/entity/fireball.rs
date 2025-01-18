@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::component::vertical::Vertical;
@@ -36,6 +37,7 @@ pub fn spawn_fireball(
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             Vertical::new(2.0, -0.1),
+            Falling,
             WithPointLight {
                 radius: 64.0,
                 intensity: 1.0,

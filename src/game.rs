@@ -4,11 +4,12 @@ use crate::camera::*;
 use crate::component::animated_slice::AnimatedSlicePlugin;
 use crate::component::counter::CounterPlugin;
 use crate::component::entity_depth::EntityDepthPlugin;
+use crate::component::falling::FallingPlugin;
 use crate::component::flip::FlipPlugin;
 use crate::component::life::LifePlugin;
 use crate::component::metamorphosis::MetamorphosisPlugin;
 use crate::component::point_light::EntityPointLightPlugin;
-use crate::component::vertical::FallingPlugin;
+use crate::component::vertical::VerticalPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
@@ -219,6 +220,7 @@ pub fn run_game() {
         .add_plugins(GameoverPlugin)
         .add_plugins(GrassPlugin)
         .add_plugins(SECommandPlugin)
+        .add_plugins(VerticalPlugin)
         .add_plugins(FlipPlugin)
         .add_plugins(GameConfigPlugin)
         .add_plugins(GameMenuPlugin)

@@ -63,8 +63,7 @@ impl LevelChunk {
     }
 
     pub fn is_wall(&self, x: i32, y: i32) -> bool {
-        let tile = self.get_tile(x, y);
-        tile == Tile::Wall || tile == Tile::PermanentWall || tile == Tile::Blank
+        self.get_tile(x, y).is_wall()
     }
 
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {

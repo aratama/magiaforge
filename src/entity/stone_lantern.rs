@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
@@ -30,25 +31,28 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, po
             EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
-            RigidBody::Dynamic,
-            Damping {
-                linear_damping: 80.0,
-                angular_damping: 0.0,
-            },
-            LockedAxes::ROTATION_LOCKED,
-            Collider::cuboid(8.0, 8.0),
-            ColliderMassProperties::Density(10.0),
-            *ENTITY_GROUPS,
-            ExternalImpulse::default(),
-            WithPointLight {
-                radius: 64.0,
-                intensity: 1.0,
-                falloff: 10.0,
-                color: Color::hsl(42.0, 1.0, 0.71),
-                animation_offset: rand::random::<u32>() % 1000,
-                speed: 0.43,
-                amplitude: 0.1,
-            },
+            Falling,
+            (
+                RigidBody::Dynamic,
+                Damping {
+                    linear_damping: 80.0,
+                    angular_damping: 0.0,
+                },
+                LockedAxes::ROTATION_LOCKED,
+                Collider::cuboid(8.0, 8.0),
+                ColliderMassProperties::Density(10.0),
+                *ENTITY_GROUPS,
+                ExternalImpulse::default(),
+                WithPointLight {
+                    radius: 64.0,
+                    intensity: 1.0,
+                    falloff: 10.0,
+                    color: Color::hsl(42.0, 1.0, 0.71),
+                    animation_offset: rand::random::<u32>() % 1000,
+                    speed: 0.43,
+                    amplitude: 0.1,
+                },
+            ),
         ))
         .with_children(|parent| {
             parent.spawn((

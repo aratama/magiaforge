@@ -69,15 +69,14 @@ pub const ENTITY_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | RABBIT_MEMBERSHIPS
             | DROPPED_ITEM_MEMBERSHIPS
             | GOLD_MEMBERSHIPS
-            | SENSOR_MEMBERSHIPS
-            | WATER_MEMBERSHIPS,
+            | SENSOR_MEMBERSHIPS,
     )
 });
 
 pub const PIECE_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         PIECE_MEMBERSHIPS,
-        PIECE_MEMBERSHIPS | WALL_MEMBERSHIPS | WATER_MEMBERSHIPS | WATER_MEMBERSHIPS,
+        PIECE_MEMBERSHIPS | WALL_MEMBERSHIPS | WATER_MEMBERSHIPS,
     )
 });
 
@@ -256,7 +255,6 @@ pub const WATER_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         WATER_MEMBERSHIPS,
         PIECE_MEMBERSHIPS
-            | ENTITY_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
             | PLAYER_MEMBERSHIPS
             // | FLYING_PLAYER_MEMBERSHIPS // 水は飛行中のプレイヤーと衝突しないことに注意

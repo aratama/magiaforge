@@ -63,9 +63,9 @@ fn apply_falling_transform(
     }
 }
 
-pub struct FallingPlugin;
+pub struct VerticalPlugin;
 
-impl Plugin for FallingPlugin {
+impl Plugin for VerticalPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,

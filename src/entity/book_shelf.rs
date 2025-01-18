@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::entity::fire::Burnable;
@@ -36,6 +37,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
         EntityDepth::new(),
         Visibility::default(),
         Transform::from_translation(position.extend(0.0)),
+        Falling,
         (
             RigidBody::Dynamic,
             Damping {

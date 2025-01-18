@@ -22,4 +22,16 @@ impl Tile {
             _ => false,
         }
     }
+
+    /// 上にアクターやエンティティが乗ることができるタイルを表します
+    pub fn is_floor(&self) -> bool {
+        match self {
+            Tile::StoneTile => true,
+            Tile::Biome => true,
+            Tile::Ice => true,
+            Tile::Grassland => true,
+            Tile::Soil => true,
+            _ => false,
+        }
+    }
 }

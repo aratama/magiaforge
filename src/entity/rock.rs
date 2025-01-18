@@ -2,6 +2,7 @@ use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::vertical::Vertical;
@@ -92,6 +93,7 @@ fn spawn_fallen_rock(commands: &mut Commands, assets: &Res<GameAssets>, position
             EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
+            Falling,
             RigidBody::Dynamic,
             Damping {
                 linear_damping: 60.0,

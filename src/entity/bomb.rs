@@ -3,6 +3,7 @@ use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
+use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::entity::explosion::SpawnExplosion;
@@ -30,6 +31,7 @@ pub fn spawn_bomb(commands: &mut Commands, assets: &Res<GameAssets>, position: V
             Transform::from_translation(position.extend(0.0)),
             GlobalTransform::default(),
             Visibility::default(),
+            Falling,
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,
