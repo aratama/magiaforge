@@ -43,6 +43,7 @@ pub fn spawn_basic_enemy(
     master: Option<Entity>,
     max_life: u32,
     radius: f32,
+    auto_levitation: bool,
 ) -> Entity {
     let mut builder = commands.spawn((
         BasicEnemy,
@@ -61,6 +62,7 @@ pub fn spawn_basic_enemy(
             inventory: Inventory::new(),
             wands: Wand::single(spell),
             fire_resistance: false,
+            auto_levitation,
         }),
         Life::new(max_life),
         HomingTarget,

@@ -14,7 +14,6 @@ use crate::entity::bullet::HomingTarget;
 use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::Inventory;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
 use crate::set::FixedUpdateGameActiveSet;
@@ -24,7 +23,6 @@ use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use uuid::*;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 6.0;
 
@@ -68,17 +66,13 @@ pub fn spawn_salamander(
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
         Actor::new(ActorProps {
-            uuid: Uuid::new_v4(),
-            angle: 0.0,
-            point_light_radius: 0.0,
             radius,
             move_force: 100000.0,
-            current_wand: 0,
             actor_group,
             golds,
-            inventory: Inventory::new(),
             wands: Wand::single(spell),
             fire_resistance: true,
+            ..default()
         }),
         EntityDepth::new(),
         Life::new(100),

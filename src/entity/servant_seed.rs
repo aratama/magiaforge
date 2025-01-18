@@ -5,7 +5,9 @@ use crate::controller::player::PlayerServant;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
 use crate::enemy::chicken::spawn_chiken;
+use crate::enemy::chicken::Chicken;
 use crate::enemy::eyeball::spawn_eyeball;
+use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
 use crate::entity::actor::ActorGroup;
@@ -203,12 +205,16 @@ fn spawn_servant(
                     event.actor_group,
                     event.master,
                 );
-                commands.entity(entity).insert(SlimeControl {
-                    wait: 30 + rand::random::<u32>() % 30,
-                });
+                if event.servant {
+                    commands.entity(entity).insert(PlayerServant);
+                } else {
+                    commands.entity(entity).insert(SlimeControl {
+                        wait: 30 + rand::random::<u32>() % 30,
+                    });
+                }
             }
             ServantType::Eyeball => {
-                spawn_eyeball(
+                let entity = spawn_eyeball(
                     &mut commands,
                     &assets,
                     event.position,
@@ -216,11 +222,18 @@ fn spawn_servant(
                     event.actor_group,
                     0,
                 );
+                if event.servant {
+                    commands.entity(entity).insert(PlayerServant);
+                } else {
+                    commands.entity(entity).insert(EyeballControl::default());
+                }
             }
             ServantType::Chiken => {
                 let entity = spawn_chiken(&mut commands, &assets, &life_bar_locals, event.position);
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
+                } else {
+                    commands.entity(entity).insert(Chicken::default());
                 }
             }
         }

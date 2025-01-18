@@ -52,6 +52,7 @@ pub fn spawn_eyeball(
         None,
         25,
         8.0,
+        true,
     )
 }
 

@@ -47,6 +47,7 @@ pub fn spawn_sandbag(
         None,
         10000000,
         8.0,
+        false,
     );
     entity
 }

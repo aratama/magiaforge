@@ -51,6 +51,7 @@ pub fn spawn_chiken(
         None,
         2,
         4.0,
+        false,
     );
     entity
 }

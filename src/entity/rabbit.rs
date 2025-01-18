@@ -8,9 +8,7 @@ use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorProps;
-use crate::inventory::Inventory;
 use crate::states::GameState;
-use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -33,17 +31,11 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         marker,
         StateScoped(GameState::InGame),
         Actor::new(ActorProps {
-            uuid: uuid::Uuid::new_v4(),
-            angle: 0.0,
-            point_light_radius: 0.0,
             radius: RABBIT_RADIUS,
             move_force: 0.0,
-            current_wand: 0,
             actor_group: ActorGroup::Player,
-            golds: 0,
-            inventory: Inventory::new(),
-            wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
             fire_resistance: true,
+            ..default()
         }),
         Life {
             life: 100000,

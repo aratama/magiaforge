@@ -160,6 +160,8 @@ pub struct Actor {
     pub levitation: u32,
 
     pub drowning: u32,
+
+    pub auto_levitation: bool,
 }
 
 pub struct ActorProps {
@@ -174,6 +176,26 @@ pub struct ActorProps {
     pub radius: f32,
     pub move_force: f32,
     pub fire_resistance: bool,
+    pub auto_levitation: bool,
+}
+
+impl Default for ActorProps {
+    fn default() -> Self {
+        ActorProps {
+            uuid: Uuid::new_v4(),
+            angle: 0.0,
+            point_light_radius: 0.0,
+            current_wand: 0,
+            actor_group: ActorGroup::Neutral,
+            golds: 0,
+            wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
+            inventory: Inventory::new(),
+            radius: 8.0,
+            move_force: 100000.0,
+            fire_resistance: false,
+            auto_levitation: false,
+        }
+    }
 }
 
 #[derive(Default, Component, Reflect)]
@@ -206,6 +228,7 @@ impl Actor {
             radius,
             move_force,
             fire_resistance,
+            auto_levitation,
         }: ActorProps,
     ) -> Self {
         Actor {
@@ -233,6 +256,7 @@ impl Actor {
             frozen: 0,
             defreeze: 1,
             levitation: 0,
+            auto_levitation,
             drowning: 0,
         }
     }
@@ -659,6 +683,9 @@ fn decrement_levitation(mut actor_query: Query<&mut Actor>) {
         if 0 < actor.levitation {
             actor.levitation -= 1;
         }
+        if actor.levitation <= 240 && actor.auto_levitation {
+            actor.levitation = 240;
+        }
     }
 }
 
@@ -670,7 +697,9 @@ fn levitation_effect(
     for (parent, mut visibility) in effect_query.iter_mut() {
         let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
         let actor = actor_query.get(group.get()).unwrap();
-        if 120 < actor.levitation {
+        if actor.auto_levitation {
+            *visibility = Visibility::Hidden;
+        } else if 120 < actor.levitation {
             *visibility = Visibility::Inherited;
         } else if 0 < actor.levitation {
             *visibility = if (counter.count / 4) % 2 == 0 {
@@ -746,9 +775,12 @@ impl Plugin for ActorPlugin {
                 fire_bullet,
                 defreeze,
                 collision_group_by_actor,
-                decrement_levitation,
-                levitation_effect,
-                add_levitation_effect,
+                (
+                    add_levitation_effect,
+                    decrement_levitation,
+                    levitation_effect,
+                )
+                    .chain(),
                 apply_v,
                 apply_z,
             )

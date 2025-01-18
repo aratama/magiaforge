@@ -55,6 +55,7 @@ pub fn spawn_slime(
         owner,
         15,
         8.0,
+        false,
     )
 }
 

@@ -69,7 +69,7 @@ pub fn spawn_witch(
             inventory,
             move_force: PLAYER_MOVE_FORCE,
             angle,
-            fire_resistance: false,
+            ..default()
         }),
         Witch,
         Life {
