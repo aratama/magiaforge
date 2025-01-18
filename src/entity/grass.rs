@@ -17,7 +17,7 @@ use bevy_rapier2d::prelude::*;
 use core::f32;
 
 #[derive(Default, Component, Reflect)]
-struct Grasses {
+pub struct Grasses {
     sway: f32,
 }
 

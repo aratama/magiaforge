@@ -44,6 +44,7 @@ use crate::entity::chest::CHEST_OR_BARREL;
 use crate::entity::chest::JARS;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::fireball::spawn_fireball;
+use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::rabbit::spawn_rabbit;
@@ -273,6 +274,7 @@ pub fn spawn_entity(
     websocket: Res<WebSocketState>,
     resource: Res<BulletParticleResource>,
     life_query: Query<&Transform, With<Life>>,
+    grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
 ) {
     for event in reader.read() {
         if setup.shop_items.is_empty() {
@@ -695,6 +697,7 @@ pub fn spawn_entity(
                     *actor_group,
                     &mut actor_event,
                     &life_query,
+                    &grass_query,
                 );
             }
         }
