@@ -19,7 +19,6 @@ use crate::inventory::Inventory;
 use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
-use crate::message::HUGE_SLIME;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -60,7 +59,11 @@ pub enum HugeSlimeState {
 #[derive(Component)]
 pub struct HugeSlimeSprite;
 
-pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_huge_slime(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    position: Vec2,
+) -> Entity {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(WandSpell {
         spell_type: SpellType::MagicBolt,
@@ -94,13 +97,10 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
     // スライムの王は凍結無効
     actor.defreeze = 10000;
 
-    commands
+    let entity = commands
         .spawn((
             Name::new("huge slime"),
             StateScoped(GameState::InGame),
-            Boss {
-                name: HUGE_SLIME.to_string(),
-            },
             DespawnHugeSlime,
             Life::new(4000),
             HomingTarget,
@@ -144,7 +144,10 @@ pub fn spawn_huge_slime(commands: &mut Commands, assets: &Res<GameAssets>, posit
                 },
                 Transform::from_xyz(0.0, 0.0, ENTITY_LAYER_Z),
             ));
-        });
+        })
+        .id();
+
+    entity
 }
 
 // プレイヤーがいる場合はジャンプしながら接近

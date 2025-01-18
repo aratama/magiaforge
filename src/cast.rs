@@ -314,7 +314,10 @@ pub fn cast_spell(
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::HugeSlime => {
-                            spawn.send(SpawnEntity::HugeSlime { position });
+                            spawn.send(SpawnEntity::HugeSlime {
+                                position,
+                                boss: None,
+                            });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::Jar => {

@@ -31,6 +31,8 @@ impl Tile {
             Tile::Ice => true,
             Tile::Grassland => true,
             Tile::Soil => true,
+            Tile::Water => true,
+            Tile::Lava => true,
             _ => false,
         }
     }

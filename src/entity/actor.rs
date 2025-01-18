@@ -24,6 +24,8 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
+use crate::level::tile::Tile;
+use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -760,6 +762,78 @@ fn apply_z(
     }
 }
 
+fn drown(
+    mut actor_query: Query<(&mut Actor, &Vertical, &Transform)>,
+    level: Res<LevelSetup>,
+    mut se: EventWriter<SEEvent>,
+) {
+    if let Some(ref chunk) = level.chunk {
+        for (mut actor, vertical, transform) in actor_query.iter_mut() {
+            if actor.levitation == 0 && vertical.v == 0.0 {
+                let position = transform.translation.truncate();
+                let tile = chunk.get_tile_by_coords(position);
+                if tile == Tile::Water || tile == Tile::Lava {
+                    if actor.drowning == 0 {
+                        se.send(SEEvent::pos(SE::Basha2, position));
+                    }
+                    actor.drowning += 1;
+                } else {
+                    actor.drowning = 0;
+                }
+            } else {
+                actor.drowning = 0;
+            }
+        }
+    }
+}
+
+fn drown_damage(
+    mut actor_query: Query<(Entity, &mut Actor, &Transform, &Vertical)>,
+    mut damage: EventWriter<ActorEvent>,
+    level: Res<LevelSetup>,
+) {
+    if let Some(ref chunk) = level.chunk {
+        for (entity, mut actor, transform, vertical) in actor_query.iter_mut() {
+            let position = transform.translation.truncate();
+            let tile = chunk.get_tile_by_coords(position);
+
+            match tile {
+                Tile::Water => {
+                    if 60 < actor.drowning {
+                        damage.send(ActorEvent::Damaged {
+                            actor: entity,
+                            position: transform.translation.truncate(),
+                            damage: 1,
+                            fire: false,
+                            impulse: Vec2::ZERO,
+                        });
+                        actor.drowning = 1;
+                    }
+                }
+                Tile::Lava => {
+                    if 20 < actor.drowning {
+                        damage.send(ActorEvent::Damaged {
+                            actor: entity,
+                            position: transform.translation.truncate(),
+                            damage: 10,
+                            fire: false,
+                            impulse: Vec2::ZERO,
+                        });
+                        actor.drowning = 1;
+                    }
+                }
+                Tile::Crack if vertical.v <= 0.0 => {
+                    damage.send(ActorEvent::FatalFall {
+                        actor: entity,
+                        position: transform.translation.truncate(),
+                    });
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -783,6 +857,8 @@ impl Plugin for ActorPlugin {
                     .chain(),
                 apply_v,
                 apply_z,
+                drown,
+                drown_damage,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

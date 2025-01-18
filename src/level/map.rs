@@ -7,6 +7,7 @@ use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
+use crate::message::HUGE_SLIME;
 use crate::spell::SpellType;
 use bevy::prelude::*;
 
@@ -283,7 +284,10 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::HugeSlime { position });
+                    entities.push(SpawnEntity::HugeSlime {
+                        position,
+                        boss: Some(HUGE_SLIME.to_string()),
+                    });
                 }
                 (255, 243, 0, 255) => {
                     tiles.push(LevelTileMapile {

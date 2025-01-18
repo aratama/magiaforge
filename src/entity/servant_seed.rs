@@ -12,7 +12,6 @@ use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
 use crate::entity::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -141,29 +140,7 @@ fn update_servant_seed(
         if seed.animation == seed.speed {
             commands.entity(entity).despawn_recursive();
             if let Some(ref chunk) = current.chunk {
-                let spawn = match chunk.get_tile_by_coords(seed.to) {
-                    Tile::Grassland => true,
-                    Tile::StoneTile => true,
-                    Tile::Biome => true,
-                    Tile::Wall => {
-                        warn!("ServantSeed: Hit non-stone tile: Wall");
-                        false
-                    }
-                    Tile::PermanentWall => {
-                        warn!("ServantSeed: Hit non-stone tile: PermanentWall");
-                        false
-                    }
-                    Tile::Blank => {
-                        warn!("ServantSeed: Hit non-stone tile: Blank");
-                        false
-                    }
-                    Tile::Water => false,
-                    Tile::Ice => false,
-                    Tile::Lava => false,
-                    Tile::Crack => false,
-                    Tile::Soil => false,
-                };
-                if spawn {
+                if chunk.get_tile_by_coords(seed.to).is_floor() {
                     spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type,
                         position: seed.to,

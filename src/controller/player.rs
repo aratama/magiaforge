@@ -3,13 +3,11 @@ use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::component::metamorphosis::Metamorphosis;
-use crate::component::vertical::Vertical;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
 use crate::entity::actor::Actor;
-use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::Bullet;
@@ -17,7 +15,6 @@ use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
 use crate::entity::witch::Witch;
 use crate::input::get_direction;
-use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
@@ -375,79 +372,6 @@ fn die_player(
     }
 }
 
-fn drown(
-    mut player_query: Query<(&mut Actor, &Vertical, &Transform), With<Player>>,
-    level: Res<LevelSetup>,
-    mut se: EventWriter<SEEvent>,
-) {
-    if let Some(ref chunk) = level.chunk {
-        if let Ok((mut actor, vertical, transform)) = player_query.get_single_mut() {
-            if actor.levitation == 0 && vertical.v == 0.0 {
-                let position = transform.translation.truncate();
-                let tile = chunk.get_tile_by_coords(position);
-                if tile == Tile::Water || tile == Tile::Lava {
-                    if actor.drowning == 0 {
-                        se.send(SEEvent::pos(SE::Basha2, position));
-                    }
-
-                    actor.drowning += 1;
-                } else {
-                    actor.drowning = 0;
-                }
-            } else {
-                actor.drowning = 0;
-            }
-        }
-    }
-}
-
-fn drown_damage(
-    mut player_query: Query<(Entity, &mut Actor, &Transform, &Vertical), With<Player>>,
-    mut damage: EventWriter<ActorEvent>,
-    level: Res<LevelSetup>,
-) {
-    if let Some(ref chunk) = level.chunk {
-        for (entity, mut actor, transform, vertical) in player_query.iter_mut() {
-            let position = transform.translation.truncate();
-            let tile = chunk.get_tile_by_coords(position);
-
-            match tile {
-                Tile::Water => {
-                    if 60 < actor.drowning {
-                        damage.send(ActorEvent::Damaged {
-                            actor: entity,
-                            position: transform.translation.truncate(),
-                            damage: 1,
-                            fire: false,
-                            impulse: Vec2::ZERO,
-                        });
-                        actor.drowning = 1;
-                    }
-                }
-                Tile::Lava => {
-                    if 20 < actor.drowning {
-                        damage.send(ActorEvent::Damaged {
-                            actor: entity,
-                            position: transform.translation.truncate(),
-                            damage: 10,
-                            fire: false,
-                            impulse: Vec2::ZERO,
-                        });
-                        actor.drowning = 1;
-                    }
-                }
-                Tile::Crack if vertical.v <= 0.0 => {
-                    damage.send(ActorEvent::FatalFall {
-                        actor: entity,
-                        position: transform.translation.truncate(),
-                    });
-                }
-                _ => {}
-            }
-        }
-    }
-}
-
 fn getting_up(
     mut player_query: Query<(&mut Actor, &mut Player)>,
     mut next: ResMut<NextState<GameMenuState>>,
@@ -516,8 +440,6 @@ impl Plugin for PlayerPlugin {
                 apply_intensity_by_lantern,
                 insert_discovered_spells,
                 move_player,
-                drown,
-                drown_damage,
             )
                 .in_set(FixedUpdateInGameSet),
         );

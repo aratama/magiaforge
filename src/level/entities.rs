@@ -17,6 +17,7 @@ use crate::enemy::chicken::Chicken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::huge_slime::spawn_huge_slime;
+use crate::enemy::huge_slime::Boss;
 use crate::enemy::salamander::spawn_salamander;
 use crate::enemy::salamander::Salamander;
 use crate::enemy::sandbug::spawn_sandbag;
@@ -55,6 +56,7 @@ use crate::entity::web::spawn_web;
 use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
+use crate::language::Dict;
 use crate::message::HELLO_RABBIT_0;
 use crate::message::HELLO_RABBIT_1;
 use crate::message::HELLO_RABBIT_2;
@@ -173,6 +175,7 @@ pub enum SpawnEntity {
     },
     HugeSlime {
         position: Vec2,
+        boss: Option<Dict<String>>,
     },
     Bomb {
         position: Vec2,
@@ -418,8 +421,13 @@ pub fn spawn_entity(
                     spawn_dropped_item(&mut commands, &assets, *position, item);
                 }
             }
-            SpawnEntity::HugeSlime { position } => {
-                spawn_huge_slime(&mut commands, &assets, *position);
+            SpawnEntity::HugeSlime { position, boss } => {
+                let entity = spawn_huge_slime(&mut commands, &assets, *position);
+                if let Some(boss_name) = boss {
+                    commands.entity(entity).insert(Boss {
+                        name: boss_name.clone(),
+                    });
+                }
             }
             SpawnEntity::ShopRabbit { position } => {
                 spawn_rabbit(
