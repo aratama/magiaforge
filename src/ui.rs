@@ -8,6 +8,7 @@ pub mod item_panel;
 pub mod label;
 pub mod menu_button;
 pub mod menu_left;
+pub mod new_spell;
 pub mod on_press;
 pub mod pause_menu;
 pub mod player_list;

@@ -88,6 +88,7 @@ use crate::ui::item_panel::ItemPanelPlugin;
 use crate::ui::label::LabelPlugin;
 use crate::ui::menu_button::MenuButtonPlugin;
 use crate::ui::menu_left::MenuLeftPlugin;
+use crate::ui::new_spell::NewSpellPlugin;
 use crate::ui::on_press::OnPressPlugin;
 use crate::ui::pause_menu::GameMenuPlugin;
 use crate::ui::player_list::PlayerListPlugin;
@@ -245,6 +246,7 @@ pub fn run_game() {
         .add_plugins(MenuLeftPlugin)
         .add_plugins(MetamorphosisPlugin)
         .add_plugins(NameInputPagePlugin)
+        .add_plugins(NewSpellPlugin)
         .add_plugins(OnPressPlugin)
         .add_plugins(OverlayPlugin)
         .add_plugins(OpeningPlugin)

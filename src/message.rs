@@ -380,7 +380,7 @@ pub const MULTIPLAY: Dict<&'static str> = Dict {
     ru: "Это многопользовательский уровень. Играйте на здоровье. Не знаю, есть ли здесь кто-нибудь, правда.",
 };
 
-pub const TRAINING_RABBIT: Dict<&'static str> = Dict {
+pub const TRAINING_RABBIT_1: Dict<&'static str> = Dict {
     ja: "キミも強くなりたいのかい？ここで練習していくといい。サンドバッグくんたちが相手になってくれる。",
     en: "Do you want to become stronger too? You can practice here. The sandbags will be your opponents.",
     zh_cn: "你也想变得更强吗？你可以在这里练习。沙袋会成为你的对手。",
@@ -394,7 +394,20 @@ pub const TRAINING_RABBIT: Dict<&'static str> = Dict {
 
 };
 
-pub const TRAINING_RABBIT_1: Dict<&'static str> = Dict {
+pub const TRAINING_RABBIT_2: Dict<&'static str> = Dict {
+    ja: "魔法使いはジャンプするのにも魔法を使うそうだね。よかったら左手の訓練所でジャンプの練習をするといい。",
+    en: "I heard that witches use magic even to jump. You should practice jumping at the training ground on the left.",
+    zh_cn: "我听说女巫甚至用魔法跳跃。你应该在左边的训练场练习跳跃。",
+    zh_tw: "我聽說女巫甚至用魔法跳躍。你應該在左邊的訓練場練習跳躍。",
+    es: "Escuché que las brujas usan magia incluso para saltar. Deberías practicar saltar en el campo de entrenamiento a la izquierda.",
+    fr: "J'ai entendu dire que les sorcières utilisent même la magie pour sauter. Vous devriez pratiquer le saut au terrain d'entraînement à gauche.",
+    pt: "Ouvi dizer que as bruxas usam magia até mesmo para pular. Você deve praticar pular no campo de treinamento à esquerda.",
+    de: "Ich habe gehört, dass Hexen sogar Magie zum Springen verwenden. Du solltest das Springen auf dem Trainingsgelände links üben.",
+    ko: "마녀들은 점프할 때도 마법을 사용한다고 들었어. 왼쪽 훈련장에서 점프 연습을 해보는 게 좋을 거야.",
+    ru: "Я слышал, что ведьмы используют магию даже для прыжков. Тебе стоит попрактиковаться в прыжках на тренировочной площадке слева.",
+};
+
+pub const TRAINING_RABBIT_3: Dict<&'static str> = Dict {
     ja: "ところで最近、地下迷宮にとても大きなスライムが現れてね。大暴れして困っているんだ。",
     en: "Lately, a huge slime has appeared in the labyrinth. It's causing a lot of trouble.",
     zh_cn: "最近，一个巨大的史莱姆出现在迷宫里。它造成了很多麻烦。",
@@ -407,7 +420,7 @@ pub const TRAINING_RABBIT_1: Dict<&'static str> = Dict {
     ru: "В последнее время в лабиринте появился огромный слизень. Он вызывает много проблем.",
 };
 
-pub const TRAINING_RABBIT_2: Dict<&'static str> = Dict {
+pub const TRAINING_RABBIT_4: Dict<&'static str> = Dict {
     ja: "なにしろぼくらは地下迷宮で遺物を拾って生計を立てているからね。あんなのがうろついていたら落ち着いて探索もできやしない。",
     en: "After all, we make a living by picking up relics in the labyrinth. If such a thing is wandering around, we can't explore calmly.",
     zh_cn: "毕竟，我们是靠在迷宫里捡遗物谋生的。如果这样的东西四处游荡，我们就无法平静地探索。",
@@ -420,7 +433,7 @@ pub const TRAINING_RABBIT_2: Dict<&'static str> = Dict {
     ru: "В конце концов, мы зарабатываем на жизнь, собирая реликвии в лабиринте. Если такое существо будет бродить вокруг, мы не сможем спокойно исследовать.",
 };
 
-pub const TRAINING_RABBIT_3: Dict<&'static str> = Dict {
+pub const TRAINING_RABBIT_5: Dict<&'static str> = Dict {
     ja: "あなたがあのスライムを討伐してくれたら、とても助かるんだけど。",
     en: "If you could defeat that slime, I would be very grateful.",
     zh_cn: "如果你能打败那个史莱姆，我会非常感激。",
@@ -433,7 +446,7 @@ pub const TRAINING_RABBIT_3: Dict<&'static str> = Dict {
     ru: "Если бы ты мог победить этого слизня, я был бы очень благодарен.",
 };
 
-pub const TRAINING_RABBIT_4: Dict<&'static str> = Dict {
+pub const TRAINING_RABBIT_6: Dict<&'static str> = Dict {
     ja: "その大きなスライムは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
     en: "The huge slime attacks with a body blow, but if you have fast legs, it's not hard to escape.",
     zh_cn: "巨大的史莱姆会用身体冲击攻击，但如果你的腿很快",
@@ -446,7 +459,7 @@ pub const TRAINING_RABBIT_4: Dict<&'static str> = Dict {
     ru: "Огромный слизень атакует телесным ударом, но если у тебя быстрые ноги, убежать несложно.",
 };
 
-pub const TRAINING_RABBIT_5: Dict<&'static str> = Dict {
+pub const TRAINING_RABBIT_7: Dict<&'static str> = Dict {
     ja: "それと、あいつは仲間の小さなスライムを呼び寄せるんだ。囲まれると逃げ道を失う。周囲のスライムは素早く倒したほうがいい。",
     en: "And it calls small slimes to its side. If you are surrounded, you will lose your escape route. It's better to defeat the surrounding slimes quickly.",
     zh_cn: "它会召唤小史莱姆来帮忙。如果你被包围，你就会失去逃跑的路线。最好快速击败周围的史莱姆。",
@@ -558,6 +571,19 @@ pub const PAY_FIRST: Dict<&'static str> = Dict {
     de: "Hey Hey, zuerst bezahlen, bevor du gehst",
     ko: "이봐 이봐, 가기 전에 먼저 지불해",
     ru: "Эй, эй, сначала заплати, прежде чем уйти",
+};
+
+pub const NEW_SPELL: Dict<&'static str> = Dict {
+    ja: "新しい呪文を発見！",
+    en: "New Spell Discovered!",
+    zh_cn: "发现新咒语！",
+    zh_tw: "發現新咒語！",
+    es: "¡Nuevo Hechizo Descubierto!",
+    fr: "Nouveau Sort Découvert !",
+    pt: "Novo Feitiço Descoberto!",
+    de: "Neuer Zauber Entdeckt!",
+    ko: "새로운 주문 발견!",
+    ru: "Новое заклинание обнаружено!",
 };
 
 // ボス　//////////////////////////////////////////////////////////////////////////////////////////////////////////////

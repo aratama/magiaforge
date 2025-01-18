@@ -91,10 +91,10 @@ impl Default for LevelSetup {
 pub fn new_shop_item_queue(discovered_spells: Vec<SpellType>) -> Vec<InventoryItem> {
     let mut rng = rand::thread_rng();
 
-    let mut shop_items: Vec<InventoryItem> = discovered_spells
-        .iter()
+    let mut shop_items: Vec<InventoryItem> = SpellType::iter()
+        .filter(|s| discovered_spells.contains(&s) || s.to_props().rank <= 1)
         .map(|s| InventoryItem {
-            item_type: InventoryItemType::Spell(*s),
+            item_type: InventoryItemType::Spell(s),
             price: s.to_props().price,
         })
         .collect();

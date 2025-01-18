@@ -75,12 +75,13 @@ use crate::message::SINGLEPLAY_RABBIT_2;
 use crate::message::SPELL_LIST1;
 use crate::message::SPELL_LIST2;
 use crate::message::SPELL_LIST3;
-use crate::message::TRAINING_RABBIT;
 use crate::message::TRAINING_RABBIT_1;
 use crate::message::TRAINING_RABBIT_2;
 use crate::message::TRAINING_RABBIT_3;
 use crate::message::TRAINING_RABBIT_4;
 use crate::message::TRAINING_RABBIT_5;
+use crate::message::TRAINING_RABBIT_6;
+use crate::message::TRAINING_RABBIT_7;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
@@ -448,12 +449,13 @@ pub fn spawn_entity(
                     *position,
                     MessageRabbit {
                         messages: vec![
-                            Act::Speech(TRAINING_RABBIT.to_string()),
                             Act::Speech(TRAINING_RABBIT_1.to_string()),
                             Act::Speech(TRAINING_RABBIT_2.to_string()),
                             Act::Speech(TRAINING_RABBIT_3.to_string()),
                             Act::Speech(TRAINING_RABBIT_4.to_string()),
                             Act::Speech(TRAINING_RABBIT_5.to_string()),
+                            Act::Speech(TRAINING_RABBIT_6.to_string()),
+                            Act::Speech(TRAINING_RABBIT_7.to_string()),
                         ],
                     },
                     MessageRabbitInnerSensor,

@@ -13,6 +13,8 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
+use crate::states::TimeState;
+use crate::ui::new_spell::spawn_new_spell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -131,19 +133,30 @@ fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
 
 fn pickup_dropped_item(
     mut commands: Commands,
+    assets: Res<GameAssets>,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
-    mut player_query: Query<&mut Actor, With<Player>>,
+    mut player_query: Query<(&mut Actor, &Player)>,
     mut global: EventWriter<SEEvent>,
+    mut time: ResMut<NextState<TimeState>>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
                 let item = item_query.get(item_entity).unwrap();
-                let mut actor = player_query.get_mut(player_entity).unwrap();
+                let (mut actor, player) = player_query.get_mut(player_entity).unwrap();
                 if actor.inventory.insert(item.item) {
                     commands.entity(item_entity).despawn_recursive();
                     global.send(SEEvent::new(SE::PickUp));
+                    match item.item {
+                        InventoryItem {
+                            item_type: InventoryItemType::Spell(spell),
+                            price: _,
+                        } if !player.discovered_spells.contains(&spell) => {
+                            spawn_new_spell(&mut commands, &assets, &mut time, spell);
+                        }
+                        _ => {}
+                    }
                 }
             }
             _ => {}
