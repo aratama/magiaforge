@@ -125,11 +125,19 @@ fn power_on_circle(
     if let Ok(player_transform) = player_query.get_single() {
         let context = rapier_context.single();
         let position = player_transform.translation.truncate();
-        entity = context.intersection_with_shape(
+        context.intersections_with_shape(
             position,
             0.0,
             &Collider::ball(16.0),
             QueryFilter::default().groups(*PLAYER_GROUPS),
+            |e| {
+                // PLAYER_GROUPS でクエリを送っているので、プレイヤー自身もクエリに引っかかることに注意
+                if circle_query.contains(e) {
+                    entity = Some(e);
+                    return false;
+                }
+                true
+            },
         );
     }
     for (circle_entity, mut circle) in circle_query.iter_mut() {
