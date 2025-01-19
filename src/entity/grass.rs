@@ -21,6 +21,9 @@ pub struct Grasses {
     sway: f32,
 }
 
+#[derive(Default, Component, Reflect)]
+pub struct SpriteGroup;
+
 pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
     commands
         .spawn((
@@ -43,30 +46,34 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
             ),
         ))
         .with_children(|builder| {
-            builder.spawn((
-                Name::new("grass2"),
-                Transform::from_xyz(0.0, 12.0, Z_ORDER_SCALE * 12.0),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: format!("grass_{}", rand::random::<u32>() % 3).into(),
-                },
-            ));
-            builder.spawn((
-                Name::new("grass1"),
-                Transform::from_xyz(0.0, 8.0, Z_ORDER_SCALE * 8.0),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: format!("grass_{}", rand::random::<u32>() % 3).into(),
-                },
-            ));
-            builder.spawn((
-                Name::new("grass0"),
-                Transform::from_xyz(0.0, 4.0, Z_ORDER_SCALE * 4.0),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: format!("grass_{}", rand::random::<u32>() % 3).into(),
-                },
-            ));
+            builder
+                .spawn((SpriteGroup, Transform::from_xyz(0.0, -8.0, 0.0)))
+                .with_children(|builder| {
+                    builder.spawn((
+                        Name::new("grass2"),
+                        Transform::from_xyz(0.0, 12.0, Z_ORDER_SCALE * 12.0),
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: format!("grass_{}", rand::random::<u32>() % 3).into(),
+                        },
+                    ));
+                    builder.spawn((
+                        Name::new("grass1"),
+                        Transform::from_xyz(0.0, 8.0, Z_ORDER_SCALE * 8.0),
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: format!("grass_{}", rand::random::<u32>() % 3).into(),
+                        },
+                    ));
+                    builder.spawn((
+                        Name::new("grass0"),
+                        Transform::from_xyz(0.0, 4.0, Z_ORDER_SCALE * 4.0),
+                        AseSpriteSlice {
+                            aseprite: assets.atlas.clone(),
+                            name: format!("grass_{}", rand::random::<u32>() % 3).into(),
+                        },
+                    ));
+                });
         });
 }
 
@@ -98,12 +105,16 @@ fn collision_outer_sensor(
     }
 }
 
-fn sway(mut query: Query<(&mut Transform, &Counter, &mut Grasses)>) {
-    for (mut transform, counter, mut grasses) in query.iter_mut() {
-        transform.rotation =
-            Quat::from_rotation_z((counter.count as f32 * 0.1).sin() * grasses.sway);
-
-        grasses.sway *= 0.95;
+fn sway(
+    mut query: Query<(&Counter, &mut Grasses)>,
+    mut group_query: Query<(&Parent, &mut Transform), With<SpriteGroup>>,
+) {
+    for (parent, mut transform) in group_query.iter_mut() {
+        if let Ok((counter, mut grasses)) = query.get_mut(parent.get()) {
+            transform.rotation =
+                Quat::from_rotation_z((counter.count as f32 * 0.1).sin() * grasses.sway);
+            grasses.sway *= 0.95;
+        }
     }
 }
 

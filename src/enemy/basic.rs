@@ -119,16 +119,23 @@ pub fn spawn_basic_enemy(
 
 fn animate(
     query: Query<&Actor, With<BasicEnemy>>,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
-        if let Ok(slime) = query.get(parent.get()) {
-            if 0 < slime.frozen {
-                animation.animation.tag = Some("frozen".to_string());
+        if let Ok(group) = group_query.get(parent.get()) {
+            if let Ok(actor) = query.get(group.get()) {
                 animation.animation.repeat = AnimationRepeat::Loop;
-            } else {
-                animation.animation.tag = Some("idle".to_string());
-                animation.animation.repeat = AnimationRepeat::Loop;
+                animation.animation.tag = Some(
+                    if 0 < actor.frozen {
+                        "frozen"
+                    } else if 0 < actor.staggered {
+                        "staggered"
+                    } else {
+                        "idle"
+                    }
+                    .to_string(),
+                );
             }
         }
     }
