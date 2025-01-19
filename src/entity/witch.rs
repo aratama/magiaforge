@@ -69,6 +69,7 @@ pub fn spawn_witch(
             inventory,
             move_force: PLAYER_MOVE_FORCE,
             angle,
+            invincibility_on_staggered: true,
             ..default()
         }),
         Witch,
@@ -180,6 +181,13 @@ fn update_witch_animation(
             continue;
         }
 
+        if 0 < actor.staggered {
+            if animation.animation.tag != Some("staggered".to_string()) {
+                animation.animation.tag = Some("staggered".to_string());
+            }
+            continue;
+        }
+
         let angle = actor.pointer.to_angle();
         let pi = std::f32::consts::PI;
         match actor.state {
@@ -262,7 +270,7 @@ fn update_wand(
             0.0
         };
 
-        *visibility = if 0 < actor.drowning {
+        *visibility = if 0 < actor.drowning || 0 < actor.staggered {
             Visibility::Hidden
         } else {
             match actor.state {

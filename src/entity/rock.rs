@@ -119,7 +119,7 @@ fn spawn_fallen_rock(commands: &mut Commands, assets: &Res<GameAssets>, position
         });
 }
 
-fn despown(
+fn despawn(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform), With<FallenRock>>,
     mut writer: EventWriter<SEEvent>,
@@ -139,7 +139,7 @@ impl Plugin for RockPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (fall, despown).in_set(FixedUpdateGameActiveSet),
+            (fall, despawn).in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<FallingRock>();
     }

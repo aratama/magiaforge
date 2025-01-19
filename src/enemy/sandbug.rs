@@ -1,8 +1,7 @@
+use super::basic::BasicEnemySprite;
 use crate::asset::GameAssets;
-use crate::component::counter::Counter;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
-use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorSpriteGroup;
 use crate::hud::life_bar::LifeBarResource;
@@ -10,8 +9,6 @@ use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
-
-use super::basic::BasicEnemySprite;
 
 const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
@@ -63,42 +60,17 @@ fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbag)>) {
     }
 }
 
-fn frown_on_damage(
-    mut actor_event: EventReader<ActorEvent>,
-    mut sprite_query: Query<&mut AseSpriteAnimation, With<BasicEnemySprite>>,
-    group_query: Query<&Children, With<ActorSpriteGroup>>,
-    mut sandbag_query: Query<(&Children, &mut Counter), With<Sandbag>>,
-) {
-    for event in actor_event.read() {
-        match *event {
-            ActorEvent::Damaged { actor, .. } => {
-                if let Ok((children, mut counter)) = sandbag_query.get_mut(actor) {
-                    for child in children {
-                        if let Ok(children) = group_query.get(*child) {
-                            for child in children {
-                                if let Ok(mut aseprite) = sprite_query.get_mut(*child) {
-                                    aseprite.animation.tag = Some("frown".to_string());
-                                    counter.count = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-}
-
-fn idle(
+fn animate(
     mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    mut sandbag_query: Query<&Counter, With<Sandbag>>,
+    sandbag_query: Query<&Actor, With<Sandbag>>,
 ) {
     for (parent, mut aseprite) in sprite_query.iter_mut() {
         if let Ok(group) = group_query.get(parent.get()) {
-            if let Ok(counter) = sandbag_query.get_mut(group.get()) {
-                if 60 <= counter.count {
+            if let Ok(actor) = sandbag_query.get(group.get()) {
+                if 0 < actor.staggered {
+                    aseprite.animation.tag = Some("frown".to_string());
+                } else {
                     aseprite.animation.tag = Some("idle".to_string());
                 }
             }
@@ -112,7 +84,7 @@ impl Plugin for SandbagPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (frown_on_damage, idle, go_back).in_set(FixedUpdateGameActiveSet),
+            (animate, go_back).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

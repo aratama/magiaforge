@@ -273,6 +273,7 @@ fn attack(
                                 damage: 4,
                                 fire: false,
                                 impulse: Vec2::ZERO,
+                                stagger: 30,
                             });
                         }
                     }

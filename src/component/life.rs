@@ -15,7 +15,7 @@ use bevy_rapier2d::prelude::QueryFilter;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
-/// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespownしません
+/// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespawnしません
 #[derive(Default, Component, Reflect)]
 pub struct Life {
     /// 破壊可能なオブジェクトのライフ
@@ -107,6 +107,7 @@ fn fire_damage(
                     position: actor_transform.translation.truncate(),
                     fire: true,
                     impulse: Vec2::ZERO,
+                    stagger: 0,
                 });
             }
         }
@@ -119,7 +120,7 @@ fn fire_damage(
 
 fn damage(
     mut commands: Commands,
-    mut query: Query<(&mut Life, Option<&mut ExternalImpulse>)>,
+    mut query: Query<(&mut Life, Option<&mut ExternalImpulse>, Option<&mut Actor>)>,
     mut reader: EventReader<ActorEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
@@ -131,10 +132,19 @@ fn damage(
                 position,
                 fire,
                 impulse,
+                stagger,
             } => {
                 if 0 < *damage {
-                    if let Ok((mut life, life_impulse)) = query.get_mut(*actor) {
-                        life.life = (life.life as i32 - *damage as i32).max(0) as u32;
+                    if let Ok((mut life, life_impulse, mut actor_optional)) = query.get_mut(*actor)
+                    {
+                        if let Some(ref mut actor) = actor_optional {
+                            if actor.staggered == 0 || !actor.invincibility_on_staggered {
+                                life.life = (life.life as i32 - *damage as i32).max(0) as u32;
+                                actor.staggered = (actor.staggered + stagger).min(120);
+                            }
+                        } else {
+                            life.life = (life.life as i32 - *damage as i32).max(0) as u32;
+                        }
                         life.amplitude = 6.0;
                         se.send(SEEvent::pos(SE::Damage, *position));
                         if *fire {

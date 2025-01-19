@@ -132,6 +132,16 @@ pub struct Actor {
 
     pub state: ActorState,
 
+    // アクター特性 ///////////////////////////////////////////////////////////////////////////////////////
+
+    // 凍結から復帰する速度です
+    // 通常は 1 ですが、ボスなどの特定のモンスターはより大きい値になることがあります
+    pub defreeze: u32,
+
+    // 常時浮遊のモンスターであることを表します
+    // 通常は false ですが、アイボールなどの一部のモンスターは true になります
+    pub auto_levitation: bool,
+
     /// 再び詠唱操作をできるようになるまでの待ち時間
     /// フキダシを閉じたあとや変身直後など、一定時間詠唱不能にしておかないと、
     /// 他の操作と同時に詠唱をしてしまう
@@ -153,17 +163,27 @@ pub struct Actor {
 
     pub fire_resistance: bool,
 
-    /// 0 より大きい場合は凍結状態
-    /// 1フレームごとに減少します
+    /// 1フレームあたりの stagger の回復速度です
+    pub poise: u32,
+
+    pub invincibility_on_staggered: bool,
+
+    // アクター状態異常 ////////////////////////////////////////////////////////////////////////////////////////////
+    /// 0 より大きい場合は凍結状態で、移動や詠唱ができません
+    /// 1フレームごとに defreeze だけ減少します
     pub frozen: u32,
 
-    pub defreeze: u32,
+    // 0 より大きい場合はよろめき状態で、移動や詠唱ができません
+    // 1フレームごとに 1 ずつ減少します
+    pub staggered: u32,
 
+    // 0 より大きい場合は浮遊状態で、コリジョングループが変更されて水面などに足を踏み入れることができます
+    // 1フレームごとに 1 ずつ減少します
     pub levitation: u32,
 
+    // 0 より大きい場合は溺れている状態で、詠唱ができません。また移動速度が低下します
+    // 水中にいる間は 1フレームに1 づつ増加し、60を超えるとダメージを受け、0に戻ります
     pub drowning: u32,
-
-    pub auto_levitation: bool,
 }
 
 pub struct ActorProps {
@@ -179,6 +199,8 @@ pub struct ActorProps {
     pub move_force: f32,
     pub fire_resistance: bool,
     pub auto_levitation: bool,
+    pub poise: u32,
+    pub invincibility_on_staggered: bool,
 }
 
 impl Default for ActorProps {
@@ -196,6 +218,8 @@ impl Default for ActorProps {
             move_force: 100000.0,
             fire_resistance: false,
             auto_levitation: false,
+            poise: 1,
+            invincibility_on_staggered: false,
         }
     }
 }
@@ -231,6 +255,8 @@ impl Actor {
             move_force,
             fire_resistance,
             auto_levitation,
+            poise,
+            invincibility_on_staggered,
         }: ActorProps,
     ) -> Self {
         Actor {
@@ -260,6 +286,9 @@ impl Actor {
             levitation: 0,
             auto_levitation,
             drowning: 0,
+            staggered: 0,
+            poise,
+            invincibility_on_staggered,
         }
     }
 
@@ -437,6 +466,7 @@ pub enum ActorEvent {
         damage: u32,
         fire: bool,
         impulse: Vec2,
+        stagger: u32,
     },
     FatalFall {
         actor: Entity,
@@ -563,6 +593,10 @@ fn fire_bullet(
             continue;
         }
 
+        if 0 < actor.staggered {
+            continue;
+        }
+
         if actor.fire_state == ActorFireState::Fire {
             let wand = if morph.is_none() {
                 actor.current_wand
@@ -627,6 +661,11 @@ fn apply_external_force(
     for (mut actor, mut external_force, transform) in query.iter_mut() {
         // 凍結時は移動不能
         if 0 < actor.frozen {
+            external_force.force = Vec2::ZERO;
+            continue;
+        }
+
+        if 0 < actor.staggered {
             external_force.force = Vec2::ZERO;
             continue;
         }
@@ -806,6 +845,7 @@ fn drown_damage(
                             damage: 1,
                             fire: false,
                             impulse: Vec2::ZERO,
+                            stagger: 0,
                         });
                         actor.drowning = 1;
                     }
@@ -818,6 +858,7 @@ fn drown_damage(
                             damage: 10,
                             fire: false,
                             impulse: Vec2::ZERO,
+                            stagger: 0,
                         });
                         actor.drowning = 1;
                     }
@@ -830,6 +871,16 @@ fn drown_damage(
                 }
                 _ => {}
             }
+        }
+    }
+}
+
+fn stagger(mut actor_query: Query<&mut Actor>) {
+    for mut actor in actor_query.iter_mut() {
+        if actor.poise < actor.staggered {
+            actor.staggered -= actor.poise;
+        } else {
+            actor.staggered = 0;
         }
     }
 }
@@ -859,6 +910,7 @@ impl Plugin for ActorPlugin {
                 apply_z,
                 drown,
                 drown_damage,
+                stagger,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

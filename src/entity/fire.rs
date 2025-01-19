@@ -132,7 +132,7 @@ fn translate(
     }
 }
 
-fn despown(mut commands: Commands, query: Query<(Entity, &Counter), With<Fire>>) {
+fn despawn(mut commands: Commands, query: Query<(Entity, &Counter), With<Fire>>) {
     for (entity, counter) in query.iter() {
         if counter.count <= 0 {
             commands.entity(entity).despawn_recursive();
@@ -238,7 +238,7 @@ impl Plugin for FirePlugin {
         app.add_systems(
             FixedUpdate,
             (
-                despown,
+                despawn,
                 translate,
                 ignite,
                 update_se_volume,

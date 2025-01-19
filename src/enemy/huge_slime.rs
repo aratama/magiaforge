@@ -87,6 +87,7 @@ pub fn spawn_huge_slime(
             Wand::empty(),
         ],
         fire_resistance: false,
+        poise: 60,
         ..default()
     });
 
@@ -310,7 +311,7 @@ fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life, &mut Counter)>) {
 #[derive(Component)]
 pub struct DespawnHugeSlime;
 
-fn despown(
+fn despawn(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform), With<DespawnHugeSlime>>,
     assets: Res<GameAssets>,
@@ -376,7 +377,7 @@ fn despown(
                             duration: 240,
                             reverse: false,
                         },
-                        Act::Despown(entity),
+                        Act::Despawn(entity),
                         Act::ShakeStart(None),
                         Act::Wait(240),
                         Act::SetTile(23, 153, 3, 5, Tile::StoneTile),
@@ -414,7 +415,7 @@ impl Plugin for HugeSlimePlugin {
                 update_huge_slime_summon,
                 update_huge_slime_promote,
                 promote,
-                despown,
+                despawn,
             )
                 .chain(),)
                 .in_set(FixedUpdateGameActiveSet),
