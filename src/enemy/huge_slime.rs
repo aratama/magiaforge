@@ -10,12 +10,10 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorProps;
 use crate::entity::actor::ActorSpriteGroup;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
-use crate::inventory::Inventory;
 use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
@@ -31,7 +29,6 @@ use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use uuid::*;
 
 const HUGE_SLIME_COLLIDER_RADIUS: f32 = 24.0;
 
@@ -70,26 +67,20 @@ pub fn spawn_huge_slime(
         price: 0,
     });
 
-    let mut actor = Actor::new(ActorProps {
-        uuid: Uuid::new_v4(),
-        angle: 0.0,
-        point_light_radius: 0.0,
+    let mut actor = Actor {
         radius: HUGE_SLIME_COLLIDER_RADIUS,
-        move_force: 0.0,
-        current_wand: 0,
         actor_group: ActorGroup::Enemy,
-        golds: 0,
-        inventory: Inventory::new(),
+
         wands: [
             Wand::with_slots(slots),
             Wand::empty(),
             Wand::empty(),
             Wand::empty(),
         ],
-        fire_resistance: false,
+        fire_resistance: true,
         poise: 60,
         ..default()
-    });
+    };
 
     // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
     // 通常1秒しか拘束

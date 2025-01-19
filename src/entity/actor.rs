@@ -186,44 +186,6 @@ pub struct Actor {
     pub drowning: u32,
 }
 
-pub struct ActorProps {
-    pub uuid: Uuid,
-    pub angle: f32,
-    pub point_light_radius: f32,
-    pub current_wand: u8,
-    pub actor_group: ActorGroup,
-    pub golds: u32,
-    pub wands: [Wand; MAX_WANDS],
-    pub inventory: Inventory,
-    pub radius: f32,
-    pub move_force: f32,
-    pub fire_resistance: bool,
-    pub auto_levitation: bool,
-    pub poise: u32,
-    pub invincibility_on_staggered: bool,
-}
-
-impl Default for ActorProps {
-    fn default() -> Self {
-        ActorProps {
-            uuid: Uuid::new_v4(),
-            angle: 0.0,
-            point_light_radius: 0.0,
-            current_wand: 0,
-            actor_group: ActorGroup::Neutral,
-            golds: 0,
-            wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
-            inventory: Inventory::new(),
-            radius: 8.0,
-            move_force: 100000.0,
-            fire_resistance: false,
-            auto_levitation: false,
-            poise: 1,
-            invincibility_on_staggered: false,
-        }
-    }
-}
-
 #[derive(Default, Component, Reflect)]
 #[require(Visibility(||Visibility::Hidden), Transform)]
 pub struct ActorLevitationEffect;
@@ -241,57 +203,6 @@ pub struct ActorLevitationEffect;
 pub struct ActorSpriteGroup;
 
 impl Actor {
-    pub fn new(
-        ActorProps {
-            uuid,
-            angle,
-            point_light_radius,
-            current_wand,
-            actor_group,
-            golds,
-            wands,
-            inventory,
-            radius,
-            move_force,
-            fire_resistance,
-            auto_levitation,
-            poise,
-            invincibility_on_staggered,
-        }: ActorProps,
-    ) -> Self {
-        Actor {
-            uuid,
-            pointer: Vec2::from_angle(angle),
-            point_light_radius,
-            radius,
-            current_wand,
-            actor_group,
-            golds,
-            wands,
-            inventory,
-            move_force,
-            fire_resistance,
-
-            move_direction: Vec2::ZERO,
-            fire_state: ActorFireState::Idle,
-            fire_state_secondary: ActorFireState::Idle,
-            effects: default(),
-            state: ActorState::default(),
-            wait: 30,
-            trapped: 0,
-            trap_moratorium: 0,
-            floundering: 1,
-            frozen: 0,
-            defreeze: 1,
-            levitation: 0,
-            auto_levitation,
-            drowning: 0,
-            staggered: 0,
-            poise,
-            invincibility_on_staggered,
-        }
-    }
-
     #[allow(dead_code)]
     pub fn get_item_icon(&self, index: FloatingContent) -> Option<&str> {
         match index {
@@ -417,6 +328,41 @@ impl Actor {
             }
         }
         discovered_spells
+    }
+}
+
+impl Default for Actor {
+    fn default() -> Self {
+        Actor {
+            uuid: Uuid::new_v4(),
+            pointer: Vec2::ZERO,
+            point_light_radius: 0.0,
+            radius: 8.0,
+            current_wand: 0,
+            actor_group: ActorGroup::Neutral,
+            golds: 0,
+            wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
+            inventory: Inventory::new(),
+            move_force: 100000.0,
+            fire_resistance: false,
+            move_direction: Vec2::ZERO,
+            fire_state: ActorFireState::Idle,
+            fire_state_secondary: ActorFireState::Idle,
+            effects: default(),
+            state: ActorState::default(),
+            wait: 30,
+            trapped: 0,
+            trap_moratorium: 0,
+            floundering: 1,
+            frozen: 0,
+            defreeze: 1,
+            levitation: 0,
+            auto_levitation: false,
+            drowning: 0,
+            staggered: 0,
+            poise: 1,
+            invincibility_on_staggered: false,
+        }
     }
 }
 

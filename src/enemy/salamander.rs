@@ -9,7 +9,6 @@ use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorProps;
 use crate::entity::bullet::HomingTarget;
 use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
@@ -65,7 +64,7 @@ pub fn spawn_salamander(
         Name::new("salamander"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Actor::new(ActorProps {
+        Actor {
             radius,
             move_force: 100000.0,
             actor_group,
@@ -73,7 +72,7 @@ pub fn spawn_salamander(
             wands: Wand::single(spell),
             fire_resistance: true,
             ..default()
-        }),
+        },
         EntityDepth::new(),
         Life::new(100),
         HomingTarget,

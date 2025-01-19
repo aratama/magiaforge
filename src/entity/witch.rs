@@ -5,7 +5,6 @@ use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorProps;
 use crate::entity::actor::ActorSpriteGroup;
 use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
@@ -58,7 +57,7 @@ pub fn spawn_witch(
     let mut entity = commands.spawn((
         Name::new("witch"),
         StateScoped(GameState::InGame),
-        Actor::new(ActorProps {
+        Actor {
             uuid,
             point_light_radius,
             radius: WITCH_COLLIDER_RADIUS,
@@ -68,10 +67,10 @@ pub fn spawn_witch(
             wands,
             inventory,
             move_force: PLAYER_MOVE_FORCE,
-            angle,
+            pointer: Vec2::from_angle(angle),
             invincibility_on_staggered: true,
             ..default()
-        }),
+        },
         Witch,
         Life {
             life,
@@ -290,20 +289,13 @@ fn land_se(witch_query: Query<(&Vertical, &Transform), With<Witch>>, mut se: Eve
     }
 }
 
-fn update_dumping(mut witch_query: Query<(&Vertical, &mut Damping), With<Witch>>) {
-    for (vertical, mut damping) in witch_query.iter_mut() {
-        damping.linear_damping = if 0.0 < vertical.v { 2.0 } else { 6.0 };
-    }
-}
-
 pub struct WitchPlugin;
 
 impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (update_witch_animation, update_wand, land_se, update_dumping)
-                .in_set(FixedUpdateGameActiveSet),
+            (update_witch_animation, update_wand, land_se).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

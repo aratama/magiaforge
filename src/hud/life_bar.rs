@@ -58,7 +58,6 @@ pub fn update_life_bar(
     mut query: Query<(&Parent, &mut Transform, &mut Visibility), With<LifeBar>>,
     mut background_query: Query<
         (&Parent, &mut Visibility),
-        // TODO: ここでなぜ Withoutが必要なのかよく理解できていない
         (With<LifeBarBackground>, Without<LifeBar>),
     >,
     enemy_query: Query<&Life>,

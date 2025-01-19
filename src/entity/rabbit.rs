@@ -8,7 +8,6 @@ use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorProps;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
@@ -31,13 +30,12 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         Name::new("rabbit"),
         marker,
         StateScoped(GameState::InGame),
-        Actor::new(ActorProps {
+        Actor {
             radius: RABBIT_RADIUS,
-            move_force: 0.0,
             actor_group: ActorGroup::Player,
             fire_resistance: true,
             ..default()
-        }),
+        },
         Life {
             life: 100000,
             max_life: 100000,

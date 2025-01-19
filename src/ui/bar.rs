@@ -4,6 +4,8 @@ use bevy::prelude::*;
 
 const BAR_HEIGHT: f32 = 19.0;
 
+const BAR_SCALE: f32 = 2.0;
+
 #[derive(Component)]
 pub struct StatusBar {
     pub value: u32,
@@ -21,6 +23,9 @@ pub struct StatusBarBorder;
 
 #[derive(Component)]
 pub struct StatusBarText;
+
+#[derive(Component)]
+pub struct StatusBarTextOutline;
 
 pub fn spawn_status_bar<T: Component>(
     parent: &mut ChildBuilder,
@@ -82,6 +87,28 @@ pub fn spawn_status_bar<T: Component>(
                 },
             ));
 
+            for dy in -1..2 {
+                for dx in -1..2 {
+                    parent.spawn((
+                        StatusBarTextOutline,
+                        Text::new(""),
+                        TextColor(Color::BLACK),
+                        TextFont {
+                            font: assets.noto_sans_jp.clone(),
+                            font_size: 15.0,
+                            ..default()
+                        },
+                        ZIndex(3),
+                        Node {
+                            position_type: PositionType::Absolute,
+                            left: Val::Px(8.0 + dx as f32),
+                            top: Val::Px(0.0 + dy as f32),
+                            ..default()
+                        },
+                    ));
+                }
+            }
+
             parent.spawn((
                 StatusBarText,
                 Text::new(""),
@@ -91,7 +118,7 @@ pub fn spawn_status_bar<T: Component>(
                     font_size: 15.0,
                     ..default()
                 },
-                ZIndex(3),
+                ZIndex(4),
                 Node {
                     position_type: PositionType::Absolute,
                     left: Val::Px(8.0),
@@ -102,13 +129,31 @@ pub fn spawn_status_bar<T: Component>(
         });
 }
 
-fn update_status_bar(
+fn update_status_bar_background(
     status_bar_query: Query<&StatusBar>,
     mut background_query: Query<(&Parent, &mut Node), With<StatusBarBackground>>,
+) {
+    for (parent, mut rect) in background_query.iter_mut() {
+        let bar = status_bar_query.get(parent.get()).unwrap();
+        rect.width = Val::Px(bar.max_value as f32 * BAR_SCALE);
+    }
+}
+
+fn update_status_bar_rect(
+    status_bar_query: Query<&StatusBar>,
     mut rect_query: Query<
         (&Parent, &mut Node),
         (With<StatusBarRect>, Without<StatusBarBackground>),
     >,
+) {
+    for (parent, mut rect) in rect_query.iter_mut() {
+        let bar = status_bar_query.get(parent.get()).unwrap();
+        rect.width = Val::Px(bar.value as f32 * BAR_SCALE);
+    }
+}
+
+fn update_status_bar_border(
+    status_bar_query: Query<&StatusBar>,
     mut border_query: Query<
         (&Parent, &mut Node),
         (
@@ -117,20 +162,27 @@ fn update_status_bar(
             Without<StatusBarBackground>,
         ),
     >,
-    mut text_query: Query<(&Parent, &mut Text), With<StatusBarText>>,
 ) {
-    for (parent, mut rect) in background_query.iter_mut() {
-        let bar = status_bar_query.get(parent.get()).unwrap();
-        rect.width = Val::Px(bar.max_value as f32);
-    }
-    for (parent, mut rect) in rect_query.iter_mut() {
-        let bar = status_bar_query.get(parent.get()).unwrap();
-        rect.width = Val::Px(bar.value as f32);
-    }
     for (parent, mut border) in border_query.iter_mut() {
         let bar = status_bar_query.get(parent.get()).unwrap();
-        border.width = Val::Px(bar.max_value as f32);
+        border.width = Val::Px(bar.max_value as f32 * BAR_SCALE);
     }
+}
+
+fn update_status_bar_text(
+    status_bar_query: Query<&StatusBar>,
+    mut text_query: Query<(&Parent, &mut Text), With<StatusBarText>>,
+) {
+    for (parent, mut text) in text_query.iter_mut() {
+        let bar = status_bar_query.get(parent.get()).unwrap();
+        text.0 = format!("{}", bar.value);
+    }
+}
+
+fn update_status_bar_outline(
+    status_bar_query: Query<&StatusBar>,
+    mut text_query: Query<(&Parent, &mut Text), With<StatusBarTextOutline>>,
+) {
     for (parent, mut text) in text_query.iter_mut() {
         let bar = status_bar_query.get(parent.get()).unwrap();
         text.0 = format!("{}", bar.value);
@@ -143,7 +195,14 @@ impl Plugin for StatusBarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            update_status_bar.run_if(in_state(GameState::InGame)),
+            (
+                update_status_bar_background,
+                update_status_bar_rect,
+                update_status_bar_border,
+                update_status_bar_text,
+                update_status_bar_outline,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }

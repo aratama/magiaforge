@@ -12,7 +12,6 @@ use crate::entity::actor::collision_group_by_actor;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorProps;
 use crate::entity::bullet::HomingTarget;
 use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
@@ -67,14 +66,14 @@ pub fn spawn_shadow(
         Name::new("shadow"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Actor::new(ActorProps {
+        Actor {
             radius,
             move_force: 100000.0,
             actor_group,
             golds,
             wands: Wand::single(spell),
             ..default()
-        }),
+        },
         EntityDepth::new(),
         Life::new(40),
         HomingTarget,

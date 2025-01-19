@@ -8,7 +8,6 @@ use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorProps;
 use crate::entity::actor::ActorSpriteGroup;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
@@ -50,9 +49,8 @@ pub fn spawn_basic_enemy(
         Name::new(name.to_string()),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Actor::new(ActorProps {
+        Actor {
             uuid: Uuid::new_v4(),
-            angle: 0.0,
             point_light_radius: 0.0,
             radius,
             move_force: move_force,
@@ -65,7 +63,8 @@ pub fn spawn_basic_enemy(
             auto_levitation,
             poise: 1,
             invincibility_on_staggered: false,
-        }),
+            ..default()
+        },
         Life::new(max_life),
         HomingTarget,
         Transform::from_translation(position.extend(0.0)),
