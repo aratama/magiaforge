@@ -2,12 +2,11 @@ use crate::asset::GameAssets;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
+use crate::entity::actor::ActorTypes;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use bevy::prelude::*;
-
-const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
 /// Sandbugは敵のアクターグループですが攻撃を行いません
 #[derive(Component)]
@@ -33,9 +32,9 @@ pub fn spawn_sandbag(
         assets.sandbug.clone(),
         position,
         life_bar_locals,
+        ActorTypes::Sandbag,
         "sandbag",
         Some(SpellType::Jump),
-        ENEMY_MOVE_FORCE,
         0,
         ActorGroup::Enemy,
         None,

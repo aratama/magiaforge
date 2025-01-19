@@ -3,6 +3,7 @@ use crate::audio::NextBGM;
 use crate::camera::GameCamera;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
+use crate::constant::SenarioType;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
@@ -31,7 +32,53 @@ use bevy_light_2d::light::PointLight2d;
 
 const DELAY: usize = 4;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Deserialize)]
+pub enum BGMType {
+    Boubaku,
+    Dokutsu,
+    Saihate,
+    Arechi,
+    EndingBgm,
+    Touha,
+    Mori,
+    Meikyu,
+    Shiden,
+    MidnightForest,
+    Deamon,
+    Action,
+    Decisive,
+    Enjin,
+    Sacred,
+    FinalBattle,
+    HumanVsMachine,
+}
+
+impl BGMType {
+    pub fn to_source(&self, assets: &Res<GameAssets>) -> Handle<AudioSource> {
+        match self {
+            BGMType::Boubaku => assets.boubaku.clone(),
+            BGMType::Dokutsu => assets.dokutsu.clone(),
+            BGMType::Saihate => assets.saihate.clone(),
+            BGMType::Arechi => assets.arechi.clone(),
+            BGMType::EndingBgm => assets.ending_bgm.clone(),
+            BGMType::Touha => assets.touha.clone(),
+            BGMType::Mori => assets.mori.clone(),
+            BGMType::Meikyu => assets.meikyu.clone(),
+            BGMType::Shiden => assets.shiden.clone(),
+            BGMType::MidnightForest => assets.midnight_forest.clone(),
+            BGMType::Deamon => assets.deamon.clone(),
+            BGMType::Action => assets.action.clone(),
+            BGMType::Decisive => assets.decisive.clone(),
+            BGMType::Enjin => assets.enjin.clone(),
+            BGMType::Sacred => assets.sacred.clone(),
+            BGMType::FinalBattle => assets.final_battle.clone(),
+            BGMType::HumanVsMachine => assets.human_vs_machine.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(tag = "type")]
 pub enum Act {
     /// フキダシを表示するキャラクターを指定します
     Focus(Entity),
@@ -40,9 +87,13 @@ pub enum Act {
     Speech(Dict<String>),
 
     /// BGMを変更します
-    BGM(Option<Handle<AudioSource>>),
+    BGM {
+        bgm: Option<BGMType>,
+    },
 
-    SE(SE),
+    SE {
+        se: SE,
+    },
 
     /// フキダシを非表示にします
     Close,
@@ -80,7 +131,13 @@ pub enum Act {
     #[allow(dead_code)]
     Ending,
 
-    SetTile(i32, i32, u32, u32, Tile),
+    SetTile {
+        x: i32,
+        y: i32,
+        w: u32,
+        h: u32,
+        tile: Tile,
+    },
 
     SpawnRaven {
         name: String,
@@ -201,11 +258,11 @@ fn countup(
                 theater.speech_count += step;
             }
         }
-        Act::BGM(bgm) => {
-            next_bgm.0 = bgm.clone();
+        Act::BGM { bgm } => {
+            next_bgm.0 = bgm.map(|b| b.to_source(&assets)).clone();
             theater.act_index += 1;
         }
-        Act::SE(se) => {
+        Act::SE { se } => {
             se_writer.send(SEEvent::new(se));
             theater.act_index += 1;
         }
@@ -276,17 +333,14 @@ fn countup(
             }
         }
         Act::SpawnRabbit { position } => {
+            // テスト用、使っていない
             spawn_rabbit(
                 &mut commands,
                 &assets,
                 &assets.rabbit_blue,
                 position,
                 MessageRabbit {
-                    messages: vec![
-                        // Act::BGM(Some(assets.saihate.clone())),
-                        // Act::Speech(HELLO.to_string()),
-                        // Act::Speech(HELLO_RABBITS.to_string()),
-                    ],
+                    senario: SenarioType::HelloRabbit,
                 },
                 MessageRabbitInnerSensor,
                 MessageRabbitOuterSensor,
@@ -298,7 +352,7 @@ fn countup(
             writer.send(OverlayEvent::Close(GameState::Ending));
             theater.act_index += 1;
         }
-        Act::SetTile(x, y, w, h, tile) => {
+        Act::SetTile { x, y, w, h, tile } => {
             if let Some(ref mut chunk) = level.chunk {
                 for i in x..x + w as i32 {
                     for j in y..y + h as i32 {

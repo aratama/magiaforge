@@ -1,4 +1,6 @@
+use crate::constant::GameActors;
 use crate::constant::GameConstants;
+use crate::constant::GameSenarios;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -6,8 +8,14 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
-    #[asset(path = "constants.config.ron")]
-    pub config: Handle<GameConstants>,
+    #[asset(path = "config.spells.ron")]
+    pub spells: Handle<GameConstants>,
+
+    #[asset(path = "config.actors.ron")]
+    pub actors: Handle<GameActors>,
+
+    #[asset(path = "config.senario.ron")]
+    pub senario: Handle<GameSenarios>,
 
     #[asset(path = "font/NotoSansJP-Medium.ttf")]
     pub noto_sans_jp: Handle<Font>,

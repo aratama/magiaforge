@@ -120,7 +120,7 @@ pub fn setup_level(
     mut next: ResMut<NextState<GameMenuState>>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     overlay.send(OverlayEvent::SetOpen(true));
 

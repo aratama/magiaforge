@@ -58,36 +58,10 @@ use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::language::Dict;
-use crate::message::HELLO_RABBIT_0;
-use crate::message::HELLO_RABBIT_1;
-use crate::message::HELLO_RABBIT_2;
-use crate::message::HELLO_RABBIT_3;
-use crate::message::HELLO_RABBIT_4;
-use crate::message::HELLO_RABBIT_5;
-use crate::message::MULTIPLAY;
-use crate::message::RESERCH_RABBIT_0;
-use crate::message::RESERCH_RABBIT_1;
-use crate::message::RESERCH_RABBIT_2;
-use crate::message::RESERCH_RABBIT_3;
-use crate::message::RESERCH_RABBIT_4;
-use crate::message::RESERCH_RABBIT_5;
-use crate::message::SINGLEPLAY_RABBIT_1;
-use crate::message::SINGLEPLAY_RABBIT_2;
-use crate::message::SPELL_LIST1;
-use crate::message::SPELL_LIST2;
-use crate::message::SPELL_LIST3;
-use crate::message::TRAINING_RABBIT_1;
-use crate::message::TRAINING_RABBIT_2;
-use crate::message::TRAINING_RABBIT_3;
-use crate::message::TRAINING_RABBIT_4;
-use crate::message::TRAINING_RABBIT_5;
-use crate::message::TRAINING_RABBIT_6;
-use crate::message::TRAINING_RABBIT_7;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::spell::SpellType;
-use crate::theater::Act;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -277,7 +251,7 @@ pub fn spawn_entity(
     life_query: Query<&Transform, With<Life>>,
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     for event in reader.read() {
         if setup.shop_items.is_empty() {
@@ -454,15 +428,7 @@ pub fn spawn_entity(
                     &assets.rabbit_red,
                     *position,
                     MessageRabbit {
-                        messages: vec![
-                            Act::Speech(TRAINING_RABBIT_1.to_string()),
-                            Act::Speech(TRAINING_RABBIT_2.to_string()),
-                            Act::Speech(TRAINING_RABBIT_3.to_string()),
-                            Act::Speech(TRAINING_RABBIT_4.to_string()),
-                            Act::Speech(TRAINING_RABBIT_5.to_string()),
-                            Act::Speech(TRAINING_RABBIT_6.to_string()),
-                            Act::Speech(TRAINING_RABBIT_7.to_string()),
-                        ],
+                        senario: SenarioType::TrainingRabbit,
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -475,10 +441,7 @@ pub fn spawn_entity(
                     &assets.rabbit_white,
                     *position,
                     MessageRabbit {
-                        messages: vec![
-                            Act::Speech(SINGLEPLAY_RABBIT_1.to_string()),
-                            Act::Speech(SINGLEPLAY_RABBIT_2.to_string()),
-                        ],
+                        senario: SenarioType::SingleplayRabbit,
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -491,15 +454,7 @@ pub fn spawn_entity(
                     &assets.rabbit_blue,
                     *position,
                     MessageRabbit {
-                        messages: vec![
-                            Act::BGM(Some(assets.saihate.clone())),
-                            Act::Speech(HELLO_RABBIT_0.to_string()),
-                            Act::Speech(HELLO_RABBIT_1.to_string()),
-                            Act::Speech(HELLO_RABBIT_2.to_string()),
-                            Act::Speech(HELLO_RABBIT_3.to_string()),
-                            Act::Speech(HELLO_RABBIT_4.to_string()),
-                            Act::Speech(HELLO_RABBIT_5.to_string()),
-                        ],
+                        senario: SenarioType::HelloRabbit,
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -512,7 +467,7 @@ pub fn spawn_entity(
                     &assets.rabbit_black,
                     *position,
                     MessageRabbit {
-                        messages: vec![Act::Speech(MULTIPLAY.to_string())],
+                        senario: SenarioType::MultiplayerRabbit,
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -525,14 +480,7 @@ pub fn spawn_entity(
                     &assets.rabbit_green,
                     *position,
                     MessageRabbit {
-                        messages: vec![
-                            Act::Speech(RESERCH_RABBIT_0.to_string()),
-                            Act::Speech(RESERCH_RABBIT_1.to_string()),
-                            Act::Speech(RESERCH_RABBIT_2.to_string()),
-                            Act::Speech(RESERCH_RABBIT_3.to_string()),
-                            Act::Speech(RESERCH_RABBIT_4.to_string()),
-                            Act::Speech(RESERCH_RABBIT_5.to_string()),
-                        ],
+                        senario: SenarioType::ReserchRabbit,
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,
@@ -545,11 +493,7 @@ pub fn spawn_entity(
                     &assets.rabbit_blue,
                     *position,
                     MessageRabbit {
-                        messages: vec![
-                            Act::Speech(SPELL_LIST1.to_string()),
-                            Act::Speech(SPELL_LIST2.to_string()),
-                            Act::Speech(SPELL_LIST3.to_string()),
-                        ],
+                        senario: SenarioType::SpellListRabbit,
                     },
                     MessageRabbitInnerSensor,
                     MessageRabbitOuterSensor,

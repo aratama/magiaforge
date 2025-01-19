@@ -11,6 +11,7 @@ use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorSpriteGroup;
+use crate::entity::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
@@ -68,6 +69,7 @@ pub fn spawn_huge_slime(
     });
 
     let mut actor = Actor {
+        actor_type: ActorTypes::HugeSlime,
         radius: HUGE_SLIME_COLLIDER_RADIUS,
         actor_group: ActorGroup::Enemy,
 
@@ -149,7 +151,7 @@ fn control(
     mut slime_query: Query<(&Transform, &mut Actor, &Vertical), (With<HugeSlime>, Without<Player>)>,
 ) {
     for (transform, mut actor, vertical) in slime_query.iter_mut() {
-        actor.move_force = 0.0;
+        actor.move_direction = Vec2::ZERO;
 
         if let Ok(player_transform) = player_query.get_single() {
             if 0.0 < vertical.v {
@@ -161,7 +163,6 @@ fn control(
                 // 直接操作すると、実行順序の関係で移動したりしなかったりという不安定なバグになります
                 // ExternalForce は Actor の apply_external_force を通じて設定します
                 actor.move_direction = direction;
-                actor.move_force = 4000000.0;
             };
         }
     }
@@ -202,8 +203,11 @@ fn update_huge_slime_growl(
 fn update_huge_slime_approach(
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
     mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter, &mut Vertical), Without<Player>>,
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
 ) {
-    const JUMP_POWER: f32 = 3.0;
+    let constants = constants.get(assets.actors.id()).unwrap();
+    let props = ActorTypes::HugeSlime.to_props(&constants);
 
     for (mut huge_slime, mut counter, mut vertical) in huge_slime_query.iter_mut() {
         let timespan = if huge_slime.promoted { 35 } else { 60 };
@@ -212,7 +216,7 @@ fn update_huge_slime_approach(
             if let Ok(_) = player_query.get_single() {
                 // 60フレームに一度ジャンプ
                 if counter.count % timespan == 0 {
-                    vertical.velocity = JUMP_POWER;
+                    vertical.velocity = props.jump;
                 }
             }
 
@@ -329,9 +333,9 @@ fn despawn(
 
                 theater_writer.send(TheaterEvent::Play {
                     acts: vec![
-                        Act::BGM(None),
+                        Act::BGM { bgm: None },
                         Act::Shake(6.0),
-                        Act::SE(SE::Kaminari),
+                        Act::SE { se: SE::Kaminari },
                         Act::Flash {
                             position: boss_transform.translation.truncate(),
                             intensity: 10.0,
@@ -341,7 +345,7 @@ fn despawn(
                         },
                         Act::Wait(60),
                         Act::Shake(6.0),
-                        Act::SE(SE::Kaminari),
+                        Act::SE { se: SE::Kaminari },
                         Act::Flash {
                             position: boss_transform.translation.truncate(),
                             intensity: 10.0,
@@ -351,7 +355,7 @@ fn despawn(
                         },
                         Act::Wait(180),
                         Act::ShakeStart(Some(6.0)),
-                        Act::SE(SE::Jishin),
+                        Act::SE { se: SE::Jishin },
                         Act::Flash {
                             position: boss_transform.translation.truncate(),
                             intensity: 10.0,
@@ -360,7 +364,7 @@ fn despawn(
                             reverse: true,
                         },
                         Act::Wait(240),
-                        Act::SE(SE::Kaminari),
+                        Act::SE { se: SE::Kaminari },
                         Act::Flash {
                             position: boss_transform.translation.truncate(),
                             intensity: 10.0,
@@ -371,8 +375,14 @@ fn despawn(
                         Act::Despawn(entity),
                         Act::ShakeStart(None),
                         Act::Wait(240),
-                        Act::SetTile(23, 153, 3, 5, Tile::StoneTile),
-                        Act::SE(SE::Break),
+                        Act::SetTile {
+                            x: 23,
+                            y: 153,
+                            w: 3,
+                            h: 5,
+                            tile: Tile::StoneTile,
+                        },
+                        Act::SE { se: SE::Break },
                         Act::SpawnRaven {
                             name: "raven".to_string(),
                             position: Vec2::new(

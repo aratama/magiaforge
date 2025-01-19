@@ -40,7 +40,7 @@ struct SpellListItem {
 struct DicoveredSpellCount;
 
 fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameConstants>>) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
     spells.sort_by(|a, b| match (a, b) {
@@ -109,7 +109,9 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameCo
                         let x = i % COLUMNS;
                         let y = i / COLUMNS;
                         let props = spell_type.map(|s| s.to_props(&constants));
-                        let icon = props.map(|s| s.icon).unwrap_or("unknown");
+                        let icon = props
+                            .map(|s| s.icon.clone())
+                            .unwrap_or("unknown".to_string());
                         builder.spawn((
                             SpellListItem {
                                 spell_type: *spell_type,
@@ -160,13 +162,18 @@ fn update_icons(
     mut query: Query<(&mut SpellListItem, &mut AseUiSlice)>,
     player_query: Query<&Player>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
     if let Ok(player) = player_query.get_single() {
         for (item, mut aseprite) in query.iter_mut() {
             if let Some(spell_type) = item.spell_type {
                 let props = spell_type.to_props(&constants);
                 let discovered = player.discovered_spells.contains(&spell_type);
-                aseprite.name = (if discovered { props.icon } else { "unknown" }).into()
+                aseprite.name = (if discovered {
+                    props.icon.clone()
+                } else {
+                    "unknown".to_string()
+                })
+                .into()
             } else {
                 aseprite.name = "empty".into();
             }

@@ -1,0 +1,41 @@
+
+GameActors(
+    actors: {
+        "Witch": (
+            move_force: 40000.0,
+            jump: 0.0
+        ),
+        "Chicken": (
+            move_force: 10000.0,
+            jump: 1.5
+        ),
+        "EyeBall": (
+            move_force: 100000.0,
+            jump: 0.0
+        ),
+        "Sandbag": (
+            move_force: 100000.0,
+            jump: 0.0
+        ),
+        "Slime": (
+            move_force: 100000.0,
+            jump: 0.0
+        ),
+        "Salamander": (
+            move_force: 100000.0,
+            jump: 0.0
+        ),
+        "Shadow": (
+            move_force: 100000.0,
+            jump: 0.0
+        ),
+        "Spider": (
+            move_force: 150000.0,
+            jump: 0.0
+        ),
+        "HugeSlime": (
+            move_force: 4000000.0,
+            jump: 3.0
+        )
+    }
+)

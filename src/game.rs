@@ -178,7 +178,9 @@ pub fn run_game() {
                 }),
             //
         )
-        .add_plugins(RonAssetPlugin::<GameConstants>::new(&["config.ron"]))
+        .add_plugins(RonAssetPlugin::<GameConstants>::new(&["spells.ron"]))
+        .add_plugins(RonAssetPlugin::<GameActors>::new(&["actors.ron"]))
+        .add_plugins(RonAssetPlugin::<GameSenarios>::new(&["senario.ron"]))
         .add_plugins(AsepriteUltraPlugin)
         .insert_resource(TimestepMode::Fixed {
             dt: 1.0 / 60.0,

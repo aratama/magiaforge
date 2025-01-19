@@ -132,7 +132,7 @@ fn update_spell_icon(
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     let floating = floating_query.single();
     if floating.content.is_some() {
@@ -153,7 +153,7 @@ fn update_spell_icon(
                 },
                 PopupContent::DiscoveredSpell(spell) => {
                     let props = spell.to_props(&constants);
-                    slice.name = props.icon.into();
+                    slice.name = props.icon.clone().into();
                 }
             }
         }
@@ -168,7 +168,7 @@ fn update_spell_name(
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     let floating = floating_query.single();
     if floating.content.is_some() {
@@ -182,12 +182,12 @@ fn update_spell_name(
         match first {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(first) = content.get_item(actor) {
-                    text.0 = first.item_type.to_props(&constants).name.to_string();
+                    text.0 = first.item_type.to_props(&constants).name;
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
                 let props = spell.to_props(&constants);
-                text.0 = props.name.to_string();
+                text.0 = props.name.clone();
             }
             _ => {}
         }
@@ -202,7 +202,7 @@ fn update_item_description(
     actor_query: Query<&Actor, With<Player>>,
     popup_query: Query<&PopUp>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     let floating = floating_query.single();
     let popup = popup_query.single();
@@ -214,11 +214,11 @@ fn update_item_description(
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(first) = content.get_item(actor) {
-                    let mut dict = first.item_type.to_props(&constants).description.to_string();
+                    let mut dict = first.item_type.to_props(&constants).description;
 
                     let InventoryItemType::Spell(spell) = first.item_type;
                     let props = spell.to_props(&constants);
-                    let appendix = get_spell_appendix(props.cast);
+                    let appendix = get_spell_appendix(&props.cast);
                     // dict += format!("\n{}", appendix).as_str();
 
                     // dict += format!(
@@ -244,9 +244,9 @@ fn update_item_description(
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props = spell.to_props(&constants);
-                let mut dict = props.description.to_string();
-                dict += get_spell_appendix(props.cast);
+                let props: &crate::spell::SpellProps = spell.to_props(&constants);
+                let mut dict = props.description.clone();
+                dict += get_spell_appendix(&props.cast);
                 // dict += format!(
                 //     "\n{}: {}",
                 //     (Dict {

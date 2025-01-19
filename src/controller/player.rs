@@ -110,7 +110,6 @@ fn move_player(
                     actor.move_direction = Vec2::ZERO;
                     actor.state = ActorState::Idle;
                     servant.move_direction = direction;
-                    servant.move_force = 50000.0;
                     servant.state = state;
                 } else {
                     actor.move_direction = direction;

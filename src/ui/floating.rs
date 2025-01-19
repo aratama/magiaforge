@@ -128,7 +128,7 @@ fn drop(
     map: Res<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     let mut floating = floating_query.single_mut();
     if mouse.just_released(MouseButton::Left) {

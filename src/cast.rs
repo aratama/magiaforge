@@ -39,14 +39,15 @@ use uuid::Uuid;
 /// SpawnEntityによって生成されるエンティティの種別を表します
 /// SpawnEntityは呪文の種別によって静的に決定し、動的なパラメータを取らないので、
 /// この型もそれぞれフィールドは持ちません
-#[derive(Debug)]
+#[derive(Debug, serde::Deserialize, Clone)]
+#[serde(tag = "type")]
 pub enum SpellCastEntityType {
     BookShelf,
     HugeSlime,
     Jar,
 }
 
-#[derive(Debug)]
+#[derive(Debug, serde::Deserialize, Clone)]
 pub struct SpellCastBullet {
     pub slices: BulletImage,
 
@@ -76,7 +77,8 @@ pub struct SpellCastBullet {
 /// 呪文を詠唱したときの動作を表します
 /// 弾丸系魔法は Bullet にまとめられており、
 /// そのほかの魔法も動作の種別によって分類されています
-#[derive(Debug)]
+#[derive(Debug, serde::Deserialize, Clone)]
+#[serde(tag = "type")]
 pub enum SpellCast {
     None,
     Bullet(SpellCastBullet),
@@ -101,7 +103,9 @@ pub enum SpellCast {
     Bomb,
     RockFall,
     Fireball,
-    SpawnEntity(SpellCastEntityType),
+    SpawnEntity {
+        entity: SpellCastEntityType,
+    },
     LightSword,
     Web,
     Levitation,
@@ -160,7 +164,7 @@ pub fn cast_spell(
 
             match props.cast {
                 SpellCast::None => {}
-                SpellCast::Bullet(cast) => {
+                SpellCast::Bullet(ref cast) => {
                     let normalized = actor.pointer.normalize();
                     let angle = actor.pointer.to_angle();
                     let updated_scattering = (cast.scattering - actor.effects.precision).max(0.0);
@@ -182,7 +186,7 @@ pub fn cast_spell(
                         sender: Some(actor.uuid),
                         damage: cast.damage + actor.effects.bullet_damage_buff_amount,
                         impulse: cast.impulse,
-                        slices: cast.slices,
+                        slices: cast.slices.clone(),
                         collier_radius: cast.collier_radius,
                         light_intensity: cast.light_intensity,
                         light_radius: cast.light_radius,
@@ -229,7 +233,7 @@ pub fn cast_spell(
                         );
                     }
                 }
-                SpellCast::BulletSpeedUpDown { delta } => {
+                SpellCast::BulletSpeedUpDown { ref delta } => {
                     actor.effects.bullet_speed_buff_factor =
                         (actor.effects.bullet_speed_buff_factor + delta)
                             .max(-0.9)
@@ -247,7 +251,7 @@ pub fn cast_spell(
                         ));
                     }
                 }
-                SpellCast::MultipleCast { amount } => {
+                SpellCast::MultipleCast { ref amount } => {
                     multicast += amount;
                 }
                 SpellCast::Homing => {
@@ -308,11 +312,11 @@ pub fn cast_spell(
                     let position = actor_transform.translation.truncate() + direction;
                     spawn.send(SpawnEntity::Bomb { position });
                 }
-                SpellCast::SpawnEntity(entity_type) => {
+                SpellCast::SpawnEntity { ref entity } => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 32.0;
                     let position = actor_transform.translation.truncate() + direction;
-                    match entity_type {
+                    match entity {
                         SpellCastEntityType::BookShelf => {
                             spawn.send(SpawnEntity::BookShelf { position });
                             se.send(SEEvent::pos(SE::Status2, position));
@@ -367,16 +371,18 @@ pub fn cast_spell(
                         sender: Some(actor.uuid),
                         damage: 330 + actor.effects.bullet_damage_buff_amount,
                         impulse: 0.0,
-                        slices: BulletImage::Slice(vec![
-                            "light_sword".to_string(),
-                            "light_catlass".to_string(),
-                            "light_knife".to_string(),
-                            "light_spear".to_string(),
-                            "light_axe".to_string(),
-                            "light_trident".to_string(),
-                            "light_rapier".to_string(),
-                            "light_flamberge".to_string(),
-                        ]),
+                        slices: BulletImage::Slice {
+                            names: vec![
+                                "light_sword".to_string(),
+                                "light_catlass".to_string(),
+                                "light_knife".to_string(),
+                                "light_spear".to_string(),
+                                "light_axe".to_string(),
+                                "light_trident".to_string(),
+                                "light_rapier".to_string(),
+                                "light_flamberge".to_string(),
+                            ],
+                        },
                         collier_radius: 5.0,
                         light_intensity: 1.0,
                         light_radius: 50.0,

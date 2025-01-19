@@ -114,7 +114,7 @@ fn update_inventory_slot(
     ron: Res<Assets<GameConstants>>,
     mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
     for (slot, mut aseprite) in slot_query.iter_mut() {
         if let Some(item) = slot.0 {
             aseprite.name = item.item_type.get_icon(&constants).into();

@@ -73,8 +73,9 @@ pub enum Trigger {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum BulletImage {
-    Slice(Vec<String>),
+    Slice { names: Vec<String> },
     Freeze,
 }
 
@@ -176,9 +177,9 @@ pub fn spawn_bullet(
     ));
 
     match spawn.slices {
-        BulletImage::Slice(ref slices) => entity.insert(AseSpriteSlice {
+        BulletImage::Slice { ref names } => entity.insert(AseSpriteSlice {
             aseprite: assets.atlas.clone(),
-            name: slices.choose(&mut rng).unwrap().clone().into(),
+            name: names.choose(&mut rng).unwrap().clone().into(),
         }),
         BulletImage::Freeze => entity.insert(AseSpriteAnimation {
             aseprite: assets.freeze.clone(),

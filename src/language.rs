@@ -38,7 +38,7 @@ pub enum Languages {
     Ko,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, serde::Deserialize)]
 pub struct Dict<T: ToString> {
     pub ja: T,
     pub en: T,
@@ -170,6 +170,10 @@ impl Dict<String> {
 pub struct M18NTtext(pub Dict<String>);
 
 impl M18NTtext {
+    pub fn new(text: &Dict<String>) -> Self {
+        Self(text.clone())
+    }
+
     pub fn empty() -> Self {
         Self(Dict::empty())
     }

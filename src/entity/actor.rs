@@ -15,6 +15,8 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::metamorphosis::Metamorphosis;
 use crate::component::vertical::Vertical;
+use crate::constant::ActorProps;
+use crate::constant::GameActors;
 use crate::constant::GameConstants;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
@@ -51,6 +53,25 @@ use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
 
+#[derive(Reflect, Clone, Copy, Debug)]
+pub enum ActorTypes {
+    Witch,
+    Chicken,
+    EyeBall,
+    Sandbag,
+    Slime,
+    HugeSlime,
+    Salamander,
+    Shadow,
+    Spider,
+}
+
+impl ActorTypes {
+    pub fn to_props<'a>(&self, constants: &'a GameActors) -> &'a ActorProps {
+        &constants.actors.get(&format!("{:?}", self)).unwrap()
+    }
+}
+
 #[derive(Reflect, Clone, Copy, Default, Debug)]
 pub struct CastEffects {
     // pub queue: Vec,
@@ -86,6 +107,8 @@ pub enum ActorState {
 #[derive(Component, Reflect, Debug)]
 #[require(Vertical)]
 pub struct Actor {
+    pub actor_type: ActorTypes,
+
     pub uuid: Uuid,
 
     /// プレイヤーの位置からの相対的なポインターの位置
@@ -102,10 +125,6 @@ pub struct Actor {
     pub move_direction: Vec2,
 
     /// 種族や装備によって決まる移動速度係数です
-    /// 歩行と停止の切り替えは state を切り替えることで行うため、
-    /// move_force を操作中に変更はしません
-    pub move_force: f32,
-
     pub fire_state: ActorFireState,
 
     pub fire_state_secondary: ActorFireState,
@@ -205,15 +224,18 @@ pub struct ActorSpriteGroup;
 
 impl Actor {
     #[allow(dead_code)]
-    pub fn get_item_icon(&self, constants: &GameConstants, index: FloatingContent) -> Option<&str> {
+    pub fn get_item_icon(
+        &self,
+        constants: &GameConstants,
+        index: FloatingContent,
+    ) -> Option<String> {
         match index {
             FloatingContent::Inventory(index) => self
                 .inventory
                 .get(index)
                 .map(|i| i.item_type.get_icon(&constants)),
-            FloatingContent::WandSpell(w, s) => {
-                self.wands[w].slots[s].map(|spell| spell.spell_type.to_props(&constants).icon)
-            }
+            FloatingContent::WandSpell(w, s) => self.wands[w].slots[s]
+                .map(|spell| spell.spell_type.to_props(&constants).icon.clone()),
         }
     }
 
@@ -265,8 +287,8 @@ impl Actor {
 
     /// 装備を含めた移動力の合計を返します
     /// ただし魔法発射中のペナルティは含まれません
-    fn get_total_move_force(&self) -> f32 {
-        let mut force = self.move_force;
+    fn get_total_move_force(&self, constants: &GameActors) -> f32 {
+        let mut force = self.actor_type.to_props(&constants).move_force;
 
         //todo
 
@@ -336,6 +358,7 @@ impl Actor {
 impl Default for Actor {
     fn default() -> Self {
         Actor {
+            actor_type: ActorTypes::Chicken,
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
             point_light_radius: 0.0,
@@ -345,7 +368,6 @@ impl Default for Actor {
             golds: 0,
             wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
             inventory: Inventory::new(),
-            move_force: 100000.0,
             fire_resistance: false,
             move_direction: Vec2::ZERO,
             fire_state: ActorFireState::Idle,
@@ -521,7 +543,7 @@ fn fire_bullet(
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     for (
         actor_entity,
@@ -608,9 +630,13 @@ fn fire_bullet(
 /// actor.move_direction の値に従って、アクターに外力を適用します
 /// 魔法の発射中は移動速度が低下します
 fn apply_external_force(
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
     mut query: Query<(&mut Actor, &mut ExternalForce, &Transform)>,
     mut se: EventWriter<SEEvent>,
 ) {
+    let constants = constants.get(assets.actors.id()).unwrap();
+
     for (mut actor, mut external_force, transform) in query.iter_mut() {
         // 凍結時は移動不能
         if 0 < actor.frozen {
@@ -633,7 +659,7 @@ fn apply_external_force(
             1.0
         };
 
-        let force = actor.move_direction * actor.get_total_move_force() * ratio;
+        let force = actor.move_direction * actor.get_total_move_force(&constants) * ratio;
 
         if 0.0 < force.length() {
             if 0 < actor.trapped {

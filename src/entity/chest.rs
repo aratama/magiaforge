@@ -151,7 +151,7 @@ fn break_chest(
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
 
     for (entity, breakabke, transform, chest, burnable) in query.iter() {
         if breakabke.life <= 0 || burnable.life <= 0 {

@@ -23,9 +23,9 @@ use bevy_rapier2d::prelude::*;
 use core::f32;
 use uuid::Uuid;
 
-pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
+use super::actor::ActorTypes;
 
-pub const PLAYER_MOVE_FORCE: f32 = 40000.0;
+pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
 #[derive(Default, Component, Reflect)]
 pub struct ActorAnimationSprite;
@@ -58,6 +58,7 @@ pub fn spawn_witch(
         Name::new("witch"),
         StateScoped(GameState::InGame),
         Actor {
+            actor_type: ActorTypes::Witch,
             uuid,
             point_light_radius,
             radius: WITCH_COLLIDER_RADIUS,
@@ -66,7 +67,6 @@ pub fn spawn_witch(
             golds,
             wands,
             inventory,
-            move_force: PLAYER_MOVE_FORCE,
             pointer: Vec2::from_angle(angle),
             invincibility_on_staggered: true,
             ..default()

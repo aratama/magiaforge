@@ -1,9 +1,11 @@
 use crate::asset::GameAssets;
 use crate::component::vertical::Vertical;
+use crate::constant::GameActors;
 use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
+use crate::entity::actor::ActorTypes;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
@@ -29,8 +31,6 @@ impl Default for Chicken {
     }
 }
 
-const CHIKEN_MOVE_FORCE: f32 = 10000.0;
-
 pub fn spawn_chiken(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
@@ -43,9 +43,9 @@ pub fn spawn_chiken(
         assets.chicken.clone(),
         position,
         life_bar_locals,
+        ActorTypes::Chicken,
         "chicken",
         Some(SpellType::Jump),
-        CHIKEN_MOVE_FORCE,
         0,
         ActorGroup::Neutral,
         None,
@@ -65,7 +65,7 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
         if servant.is_none() {
             match chilken.state {
                 ChickenState::Wait(ref mut count) => {
-                    actor.move_force = 0.0;
+                    actor.move_direction = Vec2::ZERO;
                     if *count <= 0 {
                         chilken.state = ChickenState::Walk {
                             angle: f32::consts::PI * 2.0 * rand::random::<f32>(),
@@ -79,7 +79,6 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
                     ref mut angle,
                     ref mut count,
                 } => {
-                    actor.move_force = CHIKEN_MOVE_FORCE;
                     actor.move_direction = Vec2::from_angle(*angle);
                     actor.pointer = actor.move_direction.normalize_or_zero();
                     if *count <= 0 {
@@ -93,7 +92,14 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
     }
 }
 
-fn hopping(mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>) {
+fn hopping(
+    mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>,
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
+) {
+    let constants = constants.get(assets.actors.id()).unwrap();
+    let props = ActorTypes::Chicken.to_props(&constants);
+
     for (chicken, actor, mut vertical) in chicken_query.iter_mut() {
         if 0 < actor.frozen {
             continue;
@@ -102,7 +108,7 @@ fn hopping(mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>) {
             ChickenState::Wait(..) => {}
             ChickenState::Walk { .. } => {
                 if vertical.just_landed || vertical.velocity == 0.0 {
-                    vertical.velocity = 1.5;
+                    vertical.velocity = props.jump;
                 }
             }
         }

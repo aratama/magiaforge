@@ -9,6 +9,7 @@ use crate::controller::servant::Servant;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorSpriteGroup;
+use crate::entity::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
@@ -34,9 +35,9 @@ pub fn spawn_basic_enemy(
     aseprite: Handle<Aseprite>,
     position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
+    actor_type: ActorTypes,
     name: &str,
     spell: Option<SpellType>,
-    move_force: f32,
     golds: u32,
     actor_group: ActorGroup,
     master: Option<Entity>,
@@ -50,10 +51,10 @@ pub fn spawn_basic_enemy(
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
         Actor {
+            actor_type,
             uuid: Uuid::new_v4(),
             point_light_radius: 0.0,
             radius,
-            move_force: move_force,
             current_wand: 0,
             actor_group,
             golds,

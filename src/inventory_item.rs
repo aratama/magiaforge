@@ -17,9 +17,9 @@ impl InventoryItemType {
         }
     }
 
-    pub fn get_icon(&self, constants: &GameConstants) -> &'static str {
+    pub fn get_icon(&self, constants: &GameConstants) -> String {
         match self {
-            InventoryItemType::Spell(spell) => spell.to_props(&constants).icon,
+            InventoryItemType::Spell(spell) => spell.to_props(&constants).icon.clone(),
         }
     }
 
@@ -31,9 +31,9 @@ impl InventoryItemType {
 }
 
 pub struct InventoryItemProps {
-    pub icon: &'static str,
-    pub name: Dict<&'static str>,
-    pub description: Dict<&'static str>,
+    pub icon: String,
+    pub name: Dict<String>,
+    pub description: Dict<String>,
 }
 
 impl InventoryItemType {
@@ -42,9 +42,9 @@ impl InventoryItemType {
             InventoryItemType::Spell(spell) => {
                 let props = spell.to_props(&constants);
                 InventoryItemProps {
-                    icon: props.icon,
-                    name: props.name,
-                    description: props.description,
+                    icon: props.icon.clone(),
+                    name: props.name.clone(),
+                    description: props.description.clone(),
                 }
             }
         }

@@ -4,6 +4,7 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorFireState;
 use crate::entity::actor::ActorGroup;
+use crate::entity::actor::ActorTypes;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
@@ -21,8 +22,6 @@ impl Default for SlimeControl {
         Self { wait: 5 }
     }
 }
-
-const ENEMY_MOVE_FORCE: f32 = 100000.0;
 
 const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
@@ -47,9 +46,9 @@ pub fn spawn_slime(
         },
         position,
         life_bar_locals,
+        ActorTypes::Slime,
         "slime",
         Some(SpellType::SlimeCharge),
-        ENEMY_MOVE_FORCE,
         gold,
         group,
         owner,

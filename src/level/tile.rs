@@ -1,4 +1,4 @@
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, serde::Deserialize)]
 pub enum Tile {
     Blank,
     Wall,

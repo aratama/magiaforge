@@ -96,7 +96,7 @@ pub fn spawn_new_spell(
                                             padding: UiRect::vertical(Val::Px(10.0)),
                                             ..default()
                                         },
-                                        M18NTtext(props.name.to_string()),
+                                        M18NTtext::new(&props.name),
                                         TextColor::BLACK,
                                         TextFont {
                                             font_size: 32.0,
@@ -110,7 +110,7 @@ pub fn spawn_new_spell(
                                             width: Val::Px(300.0),
                                             ..default()
                                         },
-                                        M18NTtext(props.description.to_string()),
+                                        M18NTtext::new(&props.description),
                                         TextColor::BLACK,
                                     ));
                                 });

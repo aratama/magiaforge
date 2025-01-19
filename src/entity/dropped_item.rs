@@ -40,10 +40,10 @@ pub fn spawn_dropped_item(
 ) {
     let item_type = item.item_type;
     let icon = match item_type {
-        InventoryItemType::Spell(spell) => spell.to_props(&constants).icon,
+        InventoryItemType::Spell(spell) => spell.to_props(&constants).icon.clone(),
     };
     let name = match item_type {
-        InventoryItemType::Spell(spell) => spell.to_props(&constants).name.en,
+        InventoryItemType::Spell(spell) => spell.to_props(&constants).name.en.clone(),
     };
     let frame_slice = match item_type {
         InventoryItemType::Spell(_) if 0 < item.price => "spell_frame",
@@ -143,7 +143,7 @@ fn pickup_dropped_item(
     mut global: EventWriter<SEEvent>,
     mut time: ResMut<NextState<TimeState>>,
 ) {
-    let constants = ron.get(assets.config.id()).unwrap();
+    let constants = ron.get(assets.spells.id()).unwrap();
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {

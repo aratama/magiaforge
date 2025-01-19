@@ -24,7 +24,7 @@ impl SEEvent {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, serde::Deserialize)]
 pub enum SE {
     Damage,
     NoDamage,

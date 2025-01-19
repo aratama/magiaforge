@@ -1,4 +1,8 @@
+use std::collections::HashMap;
+
 use bevy::color::Color;
+
+use crate::{spell::SpellProps, theater::Act};
 
 pub const CRATE_NAME: &str = "magiaforge";
 
@@ -117,5 +121,38 @@ pub const UI_SECONDARY: Color = Color::hsla(57.0, 0.11, 0.37, 1.0);
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameConstants {
-    pub magic_bolt_damage: i32,
+    pub spells: HashMap<String, SpellProps>,
+}
+
+#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
+pub struct GameActors {
+    pub actors: HashMap<String, ActorProps>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct ActorProps {
+    pub move_force: f32,
+    pub jump: f32,
+}
+
+#[derive(Debug)]
+pub enum SenarioType {
+    HelloRabbit,
+    SingleplayRabbit,
+    MultiplayerRabbit,
+    ReserchRabbit,
+    TrainingRabbit,
+    SpellListRabbit,
+    // HugeSlime,
+}
+
+impl SenarioType {
+    pub fn to_acts<'a>(&self, senarios: &'a GameSenarios) -> &'a Vec<Act> {
+        senarios.senarios.get(&format!("{:?}", self)).unwrap()
+    }
+}
+
+#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
+pub struct GameSenarios {
+    pub senarios: HashMap<String, Vec<Act>>,
 }
