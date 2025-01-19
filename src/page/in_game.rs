@@ -124,7 +124,8 @@ pub fn setup_level(
     current.level = Some(current.next_level);
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    if level == GameLevel::Level(0) {
+    let getting_up_animation = level == GameLevel::Level(0) && cfg!(not(feature = "ingame"));
+    if getting_up_animation {
         next.set(GameMenuState::PlayerInActive);
     }
 
@@ -263,7 +264,7 @@ pub fn setup_level(
             inventory: player_state.inventory,
             witch_type: SpawnWitchType::Player,
             wand: player_state.current_wand,
-            getting_up: level == GameLevel::Level(0),
+            getting_up: getting_up_animation,
             name: player_state.name,
             life: player_state.life,
             max_life: player_state.max_life,
