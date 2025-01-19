@@ -63,6 +63,8 @@ pub fn spawn_basic_enemy(
             wands: Wand::single(spell),
             fire_resistance: false,
             auto_levitation,
+            poise: 1,
+            invincibility_on_staggered: false,
         }),
         Life::new(max_life),
         HomingTarget,

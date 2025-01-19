@@ -89,6 +89,7 @@ fn read_impact_event(
                     position: p,
                     fire: false,
                     impulse: (p - position).normalize_or_zero() * impulse,
+                    stagger: 60,
                 });
             }
         }

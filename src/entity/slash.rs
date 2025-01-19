@@ -65,6 +65,7 @@ pub fn spawn_slash(
                         damage: 10,
                         fire: false,
                         impulse: Vec2::ZERO,
+                        stagger: 30,
                     });
                 }
             }

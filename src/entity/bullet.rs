@@ -45,6 +45,7 @@ pub struct Bullet {
     owner: Option<Uuid>,
     homing: f32,
     freeze: u32,
+    stagger: u32,
     actor_group: ActorGroup,
     pub holder: Option<(Entity, Trigger)>,
     levitation: u32,
@@ -107,6 +108,7 @@ pub struct SpawnBullet {
     pub light_color_hlsa: [f32; 4],
     pub homing: f32,
     pub freeze: u32,
+    pub stagger: u32,
     pub levitation: u32,
 }
 
@@ -137,6 +139,7 @@ pub fn spawn_bullet(
             owner: spawn.sender,
             homing: spawn.homing,
             freeze: spawn.freeze,
+            stagger: spawn.stagger,
             actor_group: spawn.actor_group,
             holder: spawn.holder,
             levitation: spawn.levitation,
@@ -383,6 +386,7 @@ fn process_bullet_event(
                         position: bullet_position,
                         fire: false,
                         impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
+                        stagger: bullet.stagger,
                     });
                 }
             } else if let Ok(_) = breakabke_query.get(*b) {
@@ -400,6 +404,7 @@ fn process_bullet_event(
                     position: bullet_position,
                     fire: false,
                     impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
+                    stagger: bullet.stagger,
                 });
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);

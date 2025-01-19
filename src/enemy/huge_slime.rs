@@ -87,6 +87,7 @@ pub fn spawn_huge_slime(
             Wand::empty(),
         ],
         fire_resistance: false,
+        poise: 60,
         ..default()
     });
 

@@ -130,7 +130,8 @@ impl SpellType {
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
                     freeze: 0,
-                    levitation: 0
+                    levitation: 0,
+                    stagger: 60
                 }),
             },
             SpellType::LightBall =>  SpellProps {
@@ -174,7 +175,8 @@ impl SpellType {
                     light_radius: TILE_SIZE * 10.0,
                     light_color_hlsa: [0.0, 0.0, 1.0, 1.0],
                     freeze: 0,
-                    levitation: 0
+                    levitation: 0,
+                    stagger: 0
                 }),
             },
             SpellType::Lantern => SpellProps {
@@ -281,7 +283,8 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     freeze: 0,
-                    levitation: 0
+                    levitation: 0,
+                    stagger: 30
                 }),
             },
             SpellType::SlimeCharge => SpellProps {
@@ -310,7 +313,7 @@ impl SpellType {
                     ko: "부드럽고 말랑말랑한 덩어리로 때립니다. 많이 아프지는 않지만 상대를 뒤로 밀어냅니다.",
                     ru: "Удар мягким, скользким комком. Это не сильно больно, но отталкивает противника назад."
                 },
-                cast_delay: 30,
+                cast_delay: 50,
                 icon: "bullet_slime_charge",
                 price: 15,
                 cast: SpellCast::Bullet(SpellCastBullet {
@@ -325,7 +328,8 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 1.0],
                     freeze: 0,
-                    levitation: 0
+                    levitation: 0,
+                    stagger: 20
                 }),
             },
             SpellType::Telescope => SpellProps {
@@ -462,7 +466,8 @@ impl SpellType {
                     light_radius: 50.0,
                     light_color_hlsa: [245.0, 1.0, 0.6, 1.0],
                     freeze: 0,
-                    levitation: 0
+                    levitation: 0,
+                    stagger: 10
                 }),
             },
             SpellType::BulletSpeedDoown =>  SpellProps {
@@ -1251,7 +1256,8 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
                     freeze: 0,
-                    levitation: 180
+                    levitation: 180,
+                    stagger: 0
                 }),
             },
             SpellType::LightSword =>  SpellProps {
@@ -1327,7 +1333,8 @@ impl SpellType {
                     light_radius: 0.0,
                     light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
                     freeze: 120,
-                    levitation: 0
+                    levitation: 0,
+                    stagger: 0
                 }),
             },
             SpellType::SummonHugeSlime =>  SpellProps {
@@ -1533,6 +1540,7 @@ pub fn get_spell_appendix(cast: SpellCast) -> Dict<String> {
             light_color_hlsa: _,
             freeze: _,
             levitation: _,
+            stagger: _,
         }) => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();
