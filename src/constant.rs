@@ -114,3 +114,8 @@ pub const UI_PRIMARY_DARKER: Color = Color::hsla(56.0, 0.06, 0.56, 1.0);
 pub const UI_SECONDARY: Color = Color::hsla(57.0, 0.11, 0.37, 1.0);
 
 // レベル
+
+#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
+pub struct GameConstants {
+    pub magic_bolt_damage: i32,
+}

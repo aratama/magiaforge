@@ -15,6 +15,7 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::metamorphosis::Metamorphosis;
 use crate::component::vertical::Vertical;
+use crate::constant::GameConstants;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
@@ -204,13 +205,14 @@ pub struct ActorSpriteGroup;
 
 impl Actor {
     #[allow(dead_code)]
-    pub fn get_item_icon(&self, index: FloatingContent) -> Option<&str> {
+    pub fn get_item_icon(&self, constants: &GameConstants, index: FloatingContent) -> Option<&str> {
         match index {
-            FloatingContent::Inventory(index) => {
-                self.inventory.get(index).map(|i| i.item_type.get_icon())
-            }
+            FloatingContent::Inventory(index) => self
+                .inventory
+                .get(index)
+                .map(|i| i.item_type.get_icon(&constants)),
             FloatingContent::WandSpell(w, s) => {
-                self.wands[w].slots[s].map(|spell| spell.spell_type.to_props().icon)
+                self.wands[w].slots[s].map(|spell| spell.spell_type.to_props(&constants).icon)
             }
         }
     }
@@ -496,6 +498,7 @@ fn update_actor_light(
 fn fire_bullet(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     life_bar_resource: Res<LifeBarResource>,
     mut actor_query: Query<
         (
@@ -517,6 +520,8 @@ fn fire_bullet(
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
+
+    let constants = ron.get(assets.config.id()).unwrap();
 
     for (
         actor_entity,
@@ -552,6 +557,7 @@ fn fire_bullet(
             cast_spell(
                 &mut commands,
                 &assets,
+                &constants,
                 &life_bar_resource,
                 actor_entity,
                 &mut actor,
@@ -574,6 +580,7 @@ fn fire_bullet(
             cast_spell(
                 &mut commands,
                 &assets,
+                &constants,
                 &life_bar_resource,
                 actor_entity,
                 &mut actor,

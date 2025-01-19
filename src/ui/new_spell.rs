@@ -1,6 +1,6 @@
 use crate::{
     asset::GameAssets,
-    constant::{UI_PRIMARY, UI_PRIMARY_DARKER},
+    constant::{GameConstants, UI_PRIMARY, UI_PRIMARY_DARKER},
     language::M18NTtext,
     message::NEW_SPELL,
     set::FixedUpdateInGameSet,
@@ -16,12 +16,13 @@ pub struct NewSpell;
 pub fn spawn_new_spell(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
+    constants: &GameConstants,
     time: &mut ResMut<NextState<TimeState>>,
     spell: SpellType,
 ) {
     time.set(TimeState::Inactive);
 
-    let props = spell.to_props();
+    let props = spell.to_props(&constants);
     commands
         // 背景
         .spawn((

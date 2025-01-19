@@ -1,6 +1,7 @@
 use crate::cast::SpellCast;
 use crate::cast::SpellCastBullet;
 use crate::cast::SpellCastEntityType;
+use crate::constant::GameConstants;
 use crate::constant::TILE_SIZE;
 use crate::entity::bullet::BulletImage;
 use crate::entity::servant_seed::ServantType;
@@ -87,7 +88,7 @@ pub struct SpellProps {
 }
 
 impl SpellType {
-    pub fn to_props(&self) -> SpellProps {
+    pub fn to_props(&self, constants: &GameConstants) -> SpellProps {
         match self {
             SpellType::MagicBolt =>  SpellProps {
                 rank: 0,
@@ -123,7 +124,7 @@ impl SpellType {
                     collier_radius: 5.0,
                     speed: 100.0,
                     lifetime: 240,
-                    damage: 8,
+                    damage: constants.magic_bolt_damage,
                     impulse: 0.0,
                     scattering: 0.4,
                     light_intensity: 1.0,

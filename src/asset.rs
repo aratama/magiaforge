@@ -1,3 +1,4 @@
+use crate::constant::GameConstants;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -5,6 +6,9 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
+    #[asset(path = "constants.config.ron")]
+    pub config: Handle<GameConstants>,
+
     #[asset(path = "font/NotoSansJP-Medium.ttf")]
     pub noto_sans_jp: Handle<Font>,
 

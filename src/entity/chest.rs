@@ -4,6 +4,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
+use crate::constant::GameConstants;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
@@ -146,9 +147,12 @@ fn break_chest(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform, &Chest, &Burnable)>,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     for (entity, breakabke, transform, chest, burnable) in query.iter() {
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
@@ -171,7 +175,7 @@ fn break_chest(
                     }
                 }
                 ChestItem::Item(item) => {
-                    spawn_dropped_item(&mut commands, &assets, position, item);
+                    spawn_dropped_item(&mut commands, &assets, &constants, position, item);
                 }
             }
 

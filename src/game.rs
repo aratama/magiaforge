@@ -110,6 +110,7 @@ use bevy::window::EnabledButtons;
 use bevy::window::WindowMode;
 use bevy_aseprite_ultra::AsepriteUltraPlugin;
 use bevy_asset_loader::prelude::*;
+use bevy_common_assets::ron::RonAssetPlugin;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
@@ -147,6 +148,8 @@ pub fn run_game() {
                 .set(AssetPlugin {
                     // https://github.com/bevyengine/bevy/issues/10157
                     meta_check: AssetMetaCheck::Never,
+
+                    watch_for_changes_override: Some(cfg!(debug_assertions)),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
@@ -175,6 +178,7 @@ pub fn run_game() {
                 }),
             //
         )
+        .add_plugins(RonAssetPlugin::<GameConstants>::new(&["config.ron"]))
         .add_plugins(AsepriteUltraPlugin)
         .insert_resource(TimestepMode::Fixed {
             dt: 1.0 / 60.0,

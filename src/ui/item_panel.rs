@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::constant::GameConstants;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::spell::SpellType;
@@ -108,10 +109,15 @@ pub fn spawn_item_panel<T: Component>(
     });
 }
 
-fn update_inventory_slot(mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>) {
+fn update_inventory_slot(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
+    mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>,
+) {
+    let constants = ron.get(assets.config.id()).unwrap();
     for (slot, mut aseprite) in slot_query.iter_mut() {
         if let Some(item) = slot.0 {
-            aseprite.name = item.item_type.get_icon().into();
+            aseprite.name = item.item_type.get_icon(&constants).into();
         } else {
             aseprite.name = "empty".into();
         }

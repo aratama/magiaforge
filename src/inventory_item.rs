@@ -1,3 +1,4 @@
+use crate::constant::GameConstants;
 use crate::language::Dict;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
@@ -16,9 +17,9 @@ impl InventoryItemType {
         }
     }
 
-    pub fn get_icon(&self) -> &'static str {
+    pub fn get_icon(&self, constants: &GameConstants) -> &'static str {
         match self {
-            InventoryItemType::Spell(spell) => spell.to_props().icon,
+            InventoryItemType::Spell(spell) => spell.to_props(&constants).icon,
         }
     }
 
@@ -36,10 +37,10 @@ pub struct InventoryItemProps {
 }
 
 impl InventoryItemType {
-    pub fn to_props(&self) -> InventoryItemProps {
+    pub fn to_props(&self, constants: &GameConstants) -> InventoryItemProps {
         match self {
             InventoryItemType::Spell(spell) => {
-                let props = spell.to_props();
+                let props = spell.to_props(&constants);
                 InventoryItemProps {
                     icon: props.icon,
                     name: props.name,

@@ -1,5 +1,6 @@
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
+use crate::constant::GameConstants;
 use crate::constant::UI_PRIMARY;
 use crate::constant::UI_PRIMARY_DARKER;
 use crate::constant::UI_SECONDARY;
@@ -38,10 +39,15 @@ struct SpellListItem {
 #[derive(Component)]
 struct DicoveredSpellCount;
 
-fn setup(mut commands: Commands, assets: Res<GameAssets>) {
+fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameConstants>>) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
     spells.sort_by(|a, b| match (a, b) {
-        (Some(a), Some(b)) => a.to_props().rank.cmp(&b.to_props().rank),
+        (Some(a), Some(b)) => a
+            .to_props(&constants)
+            .rank
+            .cmp(&b.to_props(&constants).rank),
         (Some(_), None) => std::cmp::Ordering::Less,
         (None, Some(_)) => std::cmp::Ordering::Greater,
         (None, None) => std::cmp::Ordering::Equal,
@@ -102,7 +108,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>) {
                     for (i, spell_type) in spells.iter().enumerate() {
                         let x = i % COLUMNS;
                         let y = i / COLUMNS;
-                        let props = spell_type.map(|s| s.to_props());
+                        let props = spell_type.map(|s| s.to_props(&constants));
                         let icon = props.map(|s| s.icon).unwrap_or("unknown");
                         builder.spawn((
                             SpellListItem {
@@ -149,13 +155,16 @@ fn update_right(
 }
 
 fn update_icons(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut query: Query<(&mut SpellListItem, &mut AseUiSlice)>,
     player_query: Query<&Player>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
     if let Ok(player) = player_query.get_single() {
         for (item, mut aseprite) in query.iter_mut() {
             if let Some(spell_type) = item.spell_type {
-                let props = spell_type.to_props();
+                let props = spell_type.to_props(&constants);
                 let discovered = player.discovered_spells.contains(&spell_type);
                 aseprite.name = (if discovered { props.icon } else { "unknown" }).into()
             } else {

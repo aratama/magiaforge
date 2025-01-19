@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::constant::GameConstants;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
@@ -124,11 +125,15 @@ fn update_information_position(
 }
 
 fn update_spell_icon(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut query: Query<&mut AseUiSlice, With<PopUpItemIcon>>,
     popup_query: Query<&PopUp>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     let floating = floating_query.single();
     if floating.content.is_some() {
         return;
@@ -141,13 +146,13 @@ fn update_spell_icon(
             match first {
                 PopupContent::FloatingContent(content) => match content.get_item(actor) {
                     Some(item) => {
-                        let props = item.item_type.to_props();
+                        let props = item.item_type.to_props(&constants);
                         slice.name = props.icon.into();
                     }
                     None => {}
                 },
                 PopupContent::DiscoveredSpell(spell) => {
-                    let props = spell.to_props();
+                    let props = spell.to_props(&constants);
                     slice.name = props.icon.into();
                 }
             }
@@ -156,11 +161,15 @@ fn update_spell_icon(
 }
 
 fn update_spell_name(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut query: Query<&mut M18NTtext, With<PopUpItemName>>,
     popup_query: Query<&PopUp>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     let floating = floating_query.single();
     if floating.content.is_some() {
         return;
@@ -173,11 +182,11 @@ fn update_spell_name(
         match first {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(first) = content.get_item(actor) {
-                    text.0 = first.item_type.to_props().name.to_string();
+                    text.0 = first.item_type.to_props(&constants).name.to_string();
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props = spell.to_props();
+                let props = spell.to_props(&constants);
                 text.0 = props.name.to_string();
             }
             _ => {}
@@ -186,11 +195,15 @@ fn update_spell_name(
 }
 
 fn update_item_description(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut query: Query<&mut M18NTtext, With<PopUpItemDescription>>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
     popup_query: Query<&PopUp>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     let floating = floating_query.single();
     let popup = popup_query.single();
     if floating.content.is_some() {
@@ -201,10 +214,10 @@ fn update_item_description(
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(first) = content.get_item(actor) {
-                    let mut dict = first.item_type.to_props().description.to_string();
+                    let mut dict = first.item_type.to_props(&constants).description.to_string();
 
                     let InventoryItemType::Spell(spell) = first.item_type;
-                    let props = spell.to_props();
+                    let props = spell.to_props(&constants);
                     let appendix = get_spell_appendix(props.cast);
                     // dict += format!("\n{}", appendix).as_str();
 
@@ -231,7 +244,7 @@ fn update_item_description(
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props = spell.to_props();
+                let props = spell.to_props(&constants);
                 let mut dict = props.description.to_string();
                 dict += get_spell_appendix(props.cast);
                 // dict += format!(

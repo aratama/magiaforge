@@ -4,6 +4,7 @@ use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::life::Life;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::vertical::Vertical;
+use crate::constant::GameConstants;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
@@ -115,6 +116,7 @@ pub enum SpellCast {
 pub fn cast_spell(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
+    constants: &GameConstants,
     life_bar_resource: &Res<LifeBarResource>,
     actor_entity: Entity,
     actor: &mut Actor,
@@ -149,7 +151,7 @@ pub fn cast_spell(
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index] {
-            let props = spell.spell_type.to_props();
+            let props = spell.spell_type.to_props(&constants);
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;

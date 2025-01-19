@@ -88,14 +88,17 @@ impl Default for LevelSetup {
     }
 }
 
-pub fn new_shop_item_queue(discovered_spells: Vec<SpellType>) -> Vec<InventoryItem> {
+pub fn new_shop_item_queue(
+    constants: &GameConstants,
+    discovered_spells: Vec<SpellType>,
+) -> Vec<InventoryItem> {
     let mut rng = rand::thread_rng();
 
     let mut shop_items: Vec<InventoryItem> = SpellType::iter()
-        .filter(|s| discovered_spells.contains(&s) || s.to_props().rank <= 1)
+        .filter(|s| discovered_spells.contains(&s) || s.to_props(&constants).rank <= 1)
         .map(|s| InventoryItem {
             item_type: InventoryItemType::Spell(s),
-            price: s.to_props().price,
+            price: s.to_props(&constants).price,
         })
         .collect();
 
@@ -110,12 +113,15 @@ pub fn setup_level(
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntity>,
     mut next: ResMut<NextState<GameMenuState>>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     overlay.send(OverlayEvent::SetOpen(true));
 
     let mut rng = StdRng::from_entropy();
@@ -211,6 +217,7 @@ pub fn setup_level(
     spawn_dropped_items(
         &mut commands,
         &assets,
+        &constants,
         &empties,
         &mut rng,
         entry_point.clone(),
@@ -365,6 +372,7 @@ fn spawn_random_enemies(
 fn spawn_dropped_items(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
+    constants: &GameConstants,
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
@@ -395,7 +403,7 @@ fn spawn_dropped_items(
 
         if let Some(spell) = SpellType::iter()
             .filter(|i| {
-                let props = i.to_props();
+                let props = i.to_props(&constants);
                 ranks.contains(&props.rank)
             })
             .choose(&mut rng)
@@ -403,6 +411,7 @@ fn spawn_dropped_items(
             spawn_dropped_item(
                 &mut commands,
                 &assets,
+                &constants,
                 position,
                 InventoryItem {
                     item_type: InventoryItemType::Spell(spell),

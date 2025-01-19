@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::constant::GameConstants;
 use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
@@ -121,11 +122,14 @@ fn drop(
     drop_query: Query<&DropArea>,
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
     map: Res<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     let mut floating = floating_query.single_mut();
     if mouse.just_released(MouseButton::Left) {
         let content_optional = floating.content;
@@ -156,6 +160,7 @@ fn drop(
                                             spawn_dropped_item(
                                                 &mut commands,
                                                 &assets,
+                                                &constants,
                                                 pointer_in_world,
                                                 item,
                                             );

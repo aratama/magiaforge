@@ -264,6 +264,7 @@ pub enum SpawnEnemyType {
 pub fn spawn_entity(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     life_bar_resource: Res<LifeBarResource>,
     mut setup: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
@@ -276,9 +277,12 @@ pub fn spawn_entity(
     life_query: Query<&Transform, With<Life>>,
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
+
     for event in reader.read() {
         if setup.shop_items.is_empty() {
             setup.shop_items = new_shop_item_queue(
+                &constants,
                 setup
                     .next_state
                     .clone()
@@ -421,7 +425,7 @@ pub fn spawn_entity(
             }
             SpawnEntity::ShopSpell { position } => {
                 if let Some(item) = setup.shop_items.pop() {
-                    spawn_dropped_item(&mut commands, &assets, *position, item);
+                    spawn_dropped_item(&mut commands, &assets, &constants, *position, item);
                 }
             }
             SpawnEntity::HugeSlime { position, boss } => {

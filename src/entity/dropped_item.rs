@@ -3,6 +3,7 @@ use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
+use crate::constant::GameConstants;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::inventory::InventoryItem;
@@ -33,15 +34,16 @@ struct SpellSprites {
 pub fn spawn_dropped_item(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
+    constants: &GameConstants,
     position: Vec2,
     item: InventoryItem,
 ) {
     let item_type = item.item_type;
     let icon = match item_type {
-        InventoryItemType::Spell(spell) => spell.to_props().icon,
+        InventoryItemType::Spell(spell) => spell.to_props(&constants).icon,
     };
     let name = match item_type {
-        InventoryItemType::Spell(spell) => spell.to_props().name.en,
+        InventoryItemType::Spell(spell) => spell.to_props(&constants).name.en,
     };
     let frame_slice = match item_type {
         InventoryItemType::Spell(_) if 0 < item.price => "spell_frame",
@@ -134,12 +136,14 @@ fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
 fn pickup_dropped_item(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
     mut player_query: Query<(&mut Actor, &Player)>,
     mut global: EventWriter<SEEvent>,
     mut time: ResMut<NextState<TimeState>>,
 ) {
+    let constants = ron.get(assets.config.id()).unwrap();
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
@@ -153,7 +157,7 @@ fn pickup_dropped_item(
                             item_type: InventoryItemType::Spell(spell),
                             price: _,
                         } if !player.discovered_spells.contains(&spell) => {
-                            spawn_new_spell(&mut commands, &assets, &mut time, spell);
+                            spawn_new_spell(&mut commands, &assets, &constants, &mut time, spell);
                         }
                         _ => {}
                     }
