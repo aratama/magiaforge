@@ -15,7 +15,7 @@ use bevy_rapier2d::prelude::QueryFilter;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
-/// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespownしません
+/// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespawnしません
 #[derive(Default, Component, Reflect)]
 pub struct Life {
     /// 破壊可能なオブジェクトのライフ

@@ -69,7 +69,7 @@ pub enum Act {
         reverse: bool,
     },
 
-    Despown(Entity),
+    Despawn(Entity),
 
     #[allow(dead_code)]
     SpawnRabbit {
@@ -261,7 +261,7 @@ fn countup(
 
             theater.act_index += 1;
         }
-        Act::Despown(entity) => {
+        Act::Despawn(entity) => {
             commands.entity(entity).despawn_recursive();
             theater.act_index += 1;
         }

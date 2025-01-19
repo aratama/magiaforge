@@ -331,7 +331,7 @@ fn process_bullet_event(
     query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
     actors: &mut Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
     breakabke_query: &Query<&Life, Without<Actor>>,
-    despownings: &mut HashSet<Entity>,
+    despawnings: &mut HashSet<Entity>,
     a: &Entity,
     b: &Entity,
     wall_collider_query: &Query<Entity, With<WallCollider>>,
@@ -348,7 +348,7 @@ fn process_bullet_event(
             bullet.damage
         };
 
-        if !despownings.contains(&bullet_entity) {
+        if !despawnings.contains(&bullet_entity) {
             if let Ok(mut actor) = actors.get_mut(*b) {
                 trace!("bullet hit actor: {:?}", actor.uuid);
 
@@ -357,7 +357,7 @@ fn process_bullet_event(
                 // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
                 // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
-                    despownings.insert(bullet_entity.clone());
+                    despawnings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
                     resource.send(SpawnEntity::Particle {
                         position: bullet_position,
@@ -388,7 +388,7 @@ fn process_bullet_event(
             } else if let Ok(_) = breakabke_query.get(*b) {
                 trace!("bullet hit: {:?}", b);
 
-                despownings.insert(bullet_entity.clone());
+                despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 resource.send(SpawnEntity::Particle {
                     position: bullet_position,
@@ -403,7 +403,7 @@ fn process_bullet_event(
                 });
             } else if let Ok(_) = wall_collider_query.get(*b) {
                 trace!("bullet hit wall: {:?}", b);
-                despownings.insert(bullet_entity.clone());
+                despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 resource.send(SpawnEntity::Particle {
                     position: bullet_position,
@@ -414,7 +414,7 @@ fn process_bullet_event(
                 // リモートプレイヤーに命中した場合もここ
                 // ヒット判定やダメージなどはリモート側で処理します
                 trace!("bullet hit unknown entity: {:?}", b);
-                despownings.insert(bullet_entity.clone());
+                despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 resource.send(SpawnEntity::Particle {
                     position: bullet_position,
@@ -431,7 +431,7 @@ fn process_bullet_event(
     }
 }
 
-fn despown_bullet_residual(
+fn despawn_bullet_residual(
     mut commands: Commands,
     mut query: Query<(Entity, &mut BulletResidual, &Transform)>,
     resource: Res<BulletParticleResource>,
@@ -461,7 +461,7 @@ impl Plugin for BulletPlugin {
                 bullet_collision,
                 bullet_homing,
                 bullet_freeze_water,
-                despown_bullet_residual,
+                despawn_bullet_residual,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

@@ -9,7 +9,7 @@ pub struct Servant {
     pub master: Entity,
 }
 
-fn despown_if_no_master(
+fn despawn_if_no_master(
     mut servant_query: Query<(&mut Life, &Servant)>,
     master_query: Query<Entity, Without<Servant>>,
 ) {
@@ -26,7 +26,7 @@ impl Plugin for ServantPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            despown_if_no_master.in_set(FixedUpdateInGameSet),
+            despawn_if_no_master.in_set(FixedUpdateInGameSet),
         );
     }
 }

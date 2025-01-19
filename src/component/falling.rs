@@ -4,7 +4,10 @@ use crate::se::{SEEvent, SE};
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 
+/// 水面、亀裂などの床に落ちた場合にdespawnするコンポーネントを表します
+/// Verticalと併用します
 #[derive(Component, Debug)]
+#[require(Vertical)]
 pub struct Falling;
 
 fn despawn(
