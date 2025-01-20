@@ -96,7 +96,7 @@ features = [
     # "x11",
 ]
 
-[target.'cfg(debug_assertions)'.dependencies.bevy]
+[target.'cfg(target_arch = "x86_64")'.dependencies.bevy]
 version = "0.15.0"
 default-features = false
 features = ["file_watcher"]
