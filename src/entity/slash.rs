@@ -29,6 +29,7 @@ pub fn spawn_slash(
     actor_event: &mut EventWriter<ActorEvent>,
     life_query: &Query<&Transform, With<Life>>,
     grass_query: &Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
+    damage: u32,
 ) {
     let rotation = Quat::from_rotation_z(angle);
     let entity = commands
@@ -62,7 +63,7 @@ pub fn spawn_slash(
                     actor_event.send(ActorEvent::Damaged {
                         actor: e,
                         position: target,
-                        damage: 10,
+                        damage,
                         fire: false,
                         impulse: Vec2::ZERO,
                         stagger: 30,

@@ -5,6 +5,7 @@
 mod asset;
 mod asset_credit;
 mod audio;
+mod bgm;
 mod camera;
 mod cast;
 mod collision;
@@ -36,7 +37,7 @@ mod se;
 mod set;
 mod spell;
 mod states;
-mod theater;
+mod interpreter;
 mod ui;
 mod wand;
 

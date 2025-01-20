@@ -1,6 +1,8 @@
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
+use crate::interpreter::Cmd;
+use crate::interpreter::InterpreterEvent;
 use crate::message::shop_rabbit;
 use crate::message::too_few_golds;
 use crate::message::SHOP_RABBIT;
@@ -9,10 +11,9 @@ use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::theater::Act;
-use crate::theater::TheaterEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use std::collections::HashMap;
 
 #[derive(Component)]
 pub struct ShopRabbit;
@@ -28,7 +29,7 @@ fn collision_inner_sensor(
     sensor_query: Query<&ShopRabbitSensor>,
     mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
-    mut speech_writer: EventWriter<TheaterEvent>,
+    mut speech_writer: EventWriter<InterpreterEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -41,30 +42,33 @@ fn collision_inner_sensor(
                     if actor.liquidate() {
                         camera.target = Some(sensor_entity);
                         se.send(SEEvent::new(SE::Register));
-                        speech_writer.send(TheaterEvent::Play {
-                            acts: vec![Act::Focus(sensor_entity), Act::Speech(shop_rabbit(dept))],
+                        speech_writer.send(InterpreterEvent::Play {
+                            commands: vec![Cmd::Focus(sensor_entity), Cmd::Speech(shop_rabbit(dept))],
+                            environment: HashMap::new(),
                         });
                     } else {
                         camera.target = Some(sensor_entity);
-                        speech_writer.send(TheaterEvent::Play {
-                            acts: vec![
-                                Act::Focus(sensor_entity),
-                                Act::Speech(too_few_golds(dept - actor.golds)),
+                        speech_writer.send(InterpreterEvent::Play {
+                            commands: vec![
+                                Cmd::Focus(sensor_entity),
+                                Cmd::Speech(too_few_golds(dept - actor.golds)),
                             ],
+                            environment: HashMap::new(),
                         });
                     }
                 } else {
                     camera.target = Some(sensor_entity);
-                    speech_writer.send(TheaterEvent::Play {
-                        acts: vec![
-                            Act::Focus(sensor_entity),
-                            Act::Speech(SHOP_RABBIT.to_string()),
+                    speech_writer.send(InterpreterEvent::Play {
+                        commands: vec![
+                            Cmd::Focus(sensor_entity),
+                            Cmd::Speech(SHOP_RABBIT.to_string()),
                         ],
+                        environment: HashMap::new(),
                     });
                 }
             }
             IdentifiedCollisionEvent::Stopped(..) => {
-                speech_writer.send(TheaterEvent::Quit);
+                speech_writer.send(InterpreterEvent::Quit);
             }
             _ => {}
         }
@@ -76,14 +80,14 @@ fn collision_outer_sensor(
     mut camera_query: Query<&mut GameCamera>,
     sensor_query: Query<&ShopRabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
-    mut speech_writer: EventWriter<TheaterEvent>,
+    mut speech_writer: EventWriter<InterpreterEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionEvent::Stopped(..) => {
                 let mut camera = camera_query.single_mut();
                 camera.target = None;
-                speech_writer.send(TheaterEvent::Quit);
+                speech_writer.send(InterpreterEvent::Quit);
             }
             _ => {}
         }

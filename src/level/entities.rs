@@ -199,6 +199,7 @@ pub enum SpawnEntity {
         position: Vec2,
         actor_group: ActorGroup,
         angle: f32,
+        damage: u32,
     },
 }
 
@@ -633,6 +634,7 @@ pub fn spawn_entity(
                 actor_group,
                 position,
                 angle,
+                damage,
             } => {
                 spawn_slash(
                     &mut commands,
@@ -646,6 +648,7 @@ pub fn spawn_entity(
                     &mut actor_event,
                     &life_query,
                     &grass_query,
+                    *damage,
                 );
             }
         }

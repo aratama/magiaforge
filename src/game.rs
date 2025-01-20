@@ -47,6 +47,7 @@ use crate::entity::fireball::FireballPlugin;
 use crate::entity::gold::GoldPlugin;
 use crate::entity::grass::GrassPlugin;
 use crate::entity::impact::ImpactPlugin;
+use crate::entity::light::FlashLightPlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
 use crate::entity::rabbit::RabbitPlugin;
 use crate::entity::rock::RockPlugin;
@@ -62,6 +63,7 @@ use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
+use crate::interpreter::InterpreterPlugin;
 use crate::language::LanguagePlugin;
 use crate::page::ending::EndingPlugin;
 use crate::page::in_game::WorldPlugin;
@@ -77,7 +79,6 @@ use crate::save::SavePlugin;
 use crate::se::SECommandPlugin;
 use crate::set::GameSetPlugin;
 use crate::states::*;
-use crate::theater::SenarioPlugin;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
 use crate::ui::command_button::CommandButtonPlugin;
@@ -223,6 +224,7 @@ pub fn run_game() {
         .add_plugins(FallingPlugin)
         .add_plugins(FirePlugin)
         .add_plugins(FireballPlugin)
+        .add_plugins(FlashLightPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GameoverPlugin)
@@ -274,7 +276,7 @@ pub fn run_game() {
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
         .add_plugins(SandbagPlugin)
-        .add_plugins(SenarioPlugin)
+        .add_plugins(InterpreterPlugin)
         .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::GameSenarios;
@@ -5,13 +7,13 @@ use crate::constant::SenarioType;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::witch::Witch;
+use crate::interpreter::Cmd;
+use crate::interpreter::InterpreterEvent;
 use crate::physics::identify;
 use crate::physics::identify_item;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::physics::IdentifiedCollisionItem;
 use crate::set::FixedUpdateInGameSet;
-use crate::theater::Act;
-use crate::theater::TheaterEvent;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -36,7 +38,7 @@ fn collision_inner_sensor(
     sensor_query: Query<&Parent, With<MessageRabbitInnerSensor>>,
     mut camera_query: Query<&mut GameCamera>,
     player_query: Query<&Actor, (With<Player>, With<Witch>)>,
-    mut speech_writer: EventWriter<TheaterEvent>,
+    mut speech_writer: EventWriter<InterpreterEvent>,
 
     assets: Res<GameAssets>,
     ron: Res<Assets<GameSenarios>>,
@@ -58,9 +60,12 @@ fn collision_inner_sensor(
 
                 let event = rabbit.senario.to_acts(&senarios);
                 let mut messages = event.clone();
-                messages.insert(0, Act::Focus(rabbit_entity));
-                messages.push(Act::Close);
-                speech_writer.send(TheaterEvent::Play { acts: messages });
+                messages.insert(0, Cmd::Focus(rabbit_entity));
+                messages.push(Cmd::Close);
+                speech_writer.send(InterpreterEvent::Play {
+                    commands: messages,
+                    environment: HashMap::new(),
+                });
             }
             _ => {}
         }
@@ -72,14 +77,14 @@ fn collision_outer_sensor(
     mut camera_query: Query<&mut GameCamera>,
     sensor_query: Query<&MessageRabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
-    mut speech_writer: EventWriter<TheaterEvent>,
+    mut speech_writer: EventWriter<InterpreterEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionEvent::Stopped(..) => {
                 let mut camera = camera_query.single_mut();
                 camera.target = None;
-                speech_writer.send(TheaterEvent::Quit);
+                speech_writer.send(InterpreterEvent::Quit);
             }
             _ => {}
         }

@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::config::GameConfig;
+use crate::interpreter::Cmd;
+use crate::interpreter::Interpreter;
 use crate::language::language_to_font;
 use crate::states::GameState;
-use crate::theater::Act;
-use crate::theater::Theater;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
@@ -107,11 +107,11 @@ pub fn update_speech_bubble_position(
 fn next_page_visibility(
     mut query: Query<&mut Visibility, With<NextPage>>,
     config: Res<GameConfig>,
-    theater: Res<Theater>,
+    theater: Res<Interpreter>,
 ) {
     let mut visibility = query.single_mut();
     match theater.current_act() {
-        Some(Act::Speech(dict)) => {
+        Some(Cmd::Speech(dict)) => {
             let page_string = dict.get(config.language);
             let chars = page_string.char_indices();
             let count = chars.count();
@@ -129,11 +129,11 @@ fn next_page_visibility(
 pub fn update_text_on_change_config(
     config: Res<GameConfig>,
     mut speech_text_query: Query<(&mut Text, &mut TextFont), With<SpeechBubbleText>>,
-    theater: Res<Theater>,
+    theater: Res<Interpreter>,
     assets: Res<GameAssets>,
 ) {
-    match theater.senario.get(theater.act_index) {
-        Some(Act::Speech(dict)) => {
+    match theater.commands.get(theater.index) {
+        Some(Cmd::Speech(dict)) => {
             let text_end_position = theater.speech_count / DELAY;
             let (mut speech_text, mut font) = speech_text_query.single_mut();
             let page_string = dict.get(config.language);

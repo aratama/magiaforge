@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::color::Color;
 
-use crate::{spell::SpellProps, theater::Act};
+use crate::{interpreter::Cmd, spell::SpellProps};
 
 pub const CRATE_NAME: &str = "magiaforge";
 
@@ -143,16 +143,16 @@ pub enum SenarioType {
     ReserchRabbit,
     TrainingRabbit,
     SpellListRabbit,
-    // HugeSlime,
+    HugeSlime,
 }
 
 impl SenarioType {
-    pub fn to_acts<'a>(&self, senarios: &'a GameSenarios) -> &'a Vec<Act> {
+    pub fn to_acts<'a>(&self, senarios: &'a GameSenarios) -> &'a Vec<Cmd> {
         senarios.senarios.get(&format!("{:?}", self)).unwrap()
     }
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameSenarios {
-    pub senarios: HashMap<String, Vec<Act>>,
+    pub senarios: HashMap<String, Vec<Cmd>>,
 }

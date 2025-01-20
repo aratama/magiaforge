@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::asset::GameAssets;
 use crate::collision::ENTITY_GROUPS;
 use crate::collision::HIDDEN_WALL_GROUPS;
@@ -8,6 +10,8 @@ use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::entity::actor::Actor;
+use crate::interpreter::Cmd;
+use crate::interpreter::InterpreterEvent;
 use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
@@ -15,8 +19,6 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::theater::Act;
-use crate::theater::TheaterEvent;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
@@ -99,7 +101,7 @@ fn sensor(
     shop_rabbit_query: Query<Entity, With<ShopRabbit>>,
     mut sensor_query: Query<(&mut ShopDoorSensor, &Transform), Without<ShopRabbit>>,
     player_query: Query<&Actor, (With<Player>, Without<ShopRabbit>)>,
-    mut speech_writer: EventWriter<TheaterEvent>,
+    mut speech_writer: EventWriter<InterpreterEvent>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
@@ -110,11 +112,12 @@ fn sensor(
                 if 0 < actor.dept() {
                     if let Ok(shop_rabbit_entity) = shop_rabbit_query.get_single() {
                         sensor.open = false;
-                        speech_writer.send(TheaterEvent::Play {
-                            acts: vec![
-                                Act::Focus(shop_rabbit_entity),
-                                Act::Speech(PAY_FIRST.to_string()),
+                        speech_writer.send(InterpreterEvent::Play {
+                            commands: vec![
+                                Cmd::Focus(shop_rabbit_entity),
+                                Cmd::Speech(PAY_FIRST.to_string()),
                             ],
+                            environment: HashMap::new(),
                         });
                     }
                 } else {

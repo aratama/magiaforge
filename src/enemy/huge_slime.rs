@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::collision::ENEMY_GROUPS;
@@ -15,16 +17,15 @@ use crate::entity::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
+use crate::interpreter::InterpreterEvent;
+use crate::interpreter::Value;
 use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
-use crate::level::tile::Tile;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::theater::Act;
-use crate::theater::TheaterEvent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::prelude::*;
@@ -310,15 +311,19 @@ fn despawn(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform), With<DespawnHugeSlime>>,
     assets: Res<GameAssets>,
-    mut theater_writer: EventWriter<TheaterEvent>,
+    mut theater_writer: EventWriter<InterpreterEvent>,
     player_query: Query<&Transform, With<Player>>,
+    senarios: Res<Assets<GameSenarios>>,
 ) {
+    let senarios = senarios.get(assets.senario.id()).unwrap();
+
     if let Ok(_player_transform) = player_query.get_single() {
         for (entity, life, boss_transform) in query.iter() {
             if life.life <= 0 {
                 // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
                 commands.entity(entity).despawn_recursive();
-                let e = commands.spawn((
+                commands.spawn((
+                    Name::new("huge slime"),
                     CounterAnimated,
                     AseSpriteAnimation {
                         aseprite: assets.huge_slime.clone(),
@@ -328,74 +333,15 @@ fn despawn(
                     Transform::from_translation(boss_transform.translation),
                     EntityDepth::new(),
                 ));
-
-                let entity = e.id();
-
-                theater_writer.send(TheaterEvent::Play {
-                    acts: vec![
-                        Act::BGM { bgm: None },
-                        Act::Shake(6.0),
-                        Act::SE { se: SE::Kaminari },
-                        Act::Flash {
-                            position: boss_transform.translation.truncate(),
-                            intensity: 10.0,
-                            radius: TILE_SIZE * 30.0,
-                            duration: 10,
-                            reverse: false,
+                theater_writer.send(InterpreterEvent::Play {
+                    commands: SenarioType::HugeSlime.to_acts(&senarios).clone(),
+                    environment: HashMap::from_iter([(
+                        "position".to_string(),
+                        Value::Vec2 {
+                            x: boss_transform.translation.x,
+                            y: boss_transform.translation.y,
                         },
-                        Act::Wait(60),
-                        Act::Shake(6.0),
-                        Act::SE { se: SE::Kaminari },
-                        Act::Flash {
-                            position: boss_transform.translation.truncate(),
-                            intensity: 10.0,
-                            radius: TILE_SIZE * 30.0,
-                            duration: 10,
-                            reverse: false,
-                        },
-                        Act::Wait(180),
-                        Act::ShakeStart(Some(6.0)),
-                        Act::SE { se: SE::Jishin },
-                        Act::Flash {
-                            position: boss_transform.translation.truncate(),
-                            intensity: 10.0,
-                            radius: TILE_SIZE * 15.0,
-                            duration: 240,
-                            reverse: true,
-                        },
-                        Act::Wait(240),
-                        Act::SE { se: SE::Kaminari },
-                        Act::Flash {
-                            position: boss_transform.translation.truncate(),
-                            intensity: 10.0,
-                            radius: TILE_SIZE * 15.0,
-                            duration: 240,
-                            reverse: false,
-                        },
-                        Act::Despawn(entity),
-                        Act::ShakeStart(None),
-                        Act::Wait(240),
-                        Act::SetTile {
-                            x: 23,
-                            y: 153,
-                            w: 3,
-                            h: 5,
-                            tile: Tile::StoneTile,
-                        },
-                        Act::SE { se: SE::Break },
-                        Act::SpawnRaven {
-                            name: "raven".to_string(),
-                            position: Vec2::new(
-                                TILE_SIZE * 24.0 + TILE_HALF,
-                                TILE_SIZE * -157.0 + TILE_HALF,
-                            ),
-                        },
-                        Act::Wait(60 * 2),
-                        Act::SetCameraTarget(Some("raven".to_string())),
-                        Act::Wait(60 * 2),
-                        Act::SetCameraTarget(None),
-                        Act::DespawnRaven,
-                    ],
+                    )]),
                 });
             }
         }

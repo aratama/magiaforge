@@ -14,6 +14,7 @@ pub mod fireball;
 pub mod gold;
 pub mod grass;
 pub mod impact;
+pub mod light;
 pub mod magic_circle;
 pub mod piece;
 pub mod rabbit;
