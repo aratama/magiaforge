@@ -94,10 +94,12 @@ features = [
     "webgpu",
 
     # "x11",
-
-    "file_watcher",
 ]
 
+[target.'cfg(debug_assertions)'.dependencies.bevy]
+version = "0.15.0"
+default-features = false
+features = ["file_watcher"]
 
 [dependencies.bevy_rapier2d]
 version = "0.27.0"
