@@ -13,7 +13,6 @@ use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use std::collections::HashMap;
 
 #[derive(Component)]
 pub struct ShopRabbit;
@@ -43,8 +42,10 @@ fn collision_inner_sensor(
                         camera.target = Some(sensor_entity);
                         se.send(SEEvent::new(SE::Register));
                         speech_writer.send(InterpreterEvent::Play {
-                            commands: vec![Cmd::Focus(sensor_entity), Cmd::Speech(shop_rabbit(dept))],
-                            environment: HashMap::new(),
+                            commands: vec![
+                                Cmd::Focus(sensor_entity),
+                                Cmd::Speech(shop_rabbit(dept)),
+                            ],
                         });
                     } else {
                         camera.target = Some(sensor_entity);
@@ -53,7 +54,6 @@ fn collision_inner_sensor(
                                 Cmd::Focus(sensor_entity),
                                 Cmd::Speech(too_few_golds(dept - actor.golds)),
                             ],
-                            environment: HashMap::new(),
                         });
                     }
                 } else {
@@ -63,7 +63,6 @@ fn collision_inner_sensor(
                             Cmd::Focus(sensor_entity),
                             Cmd::Speech(SHOP_RABBIT.to_string()),
                         ],
-                        environment: HashMap::new(),
                     });
                 }
             }

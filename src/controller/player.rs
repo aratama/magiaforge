@@ -15,6 +15,8 @@ use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
 use crate::entity::witch::Witch;
 use crate::input::get_direction;
+use crate::interpreter::Cmd;
+use crate::interpreter::InterpreterEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
@@ -318,6 +320,7 @@ fn die_player(
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
+    mut interpreter: EventWriter<InterpreterEvent>,
     mut next: ResMut<LevelSetup>,
 ) {
     if let Ok((entity, actor, player_life, transform, player, morph)) = player_query.get_single() {
@@ -369,6 +372,11 @@ fn die_player(
                     uuid: actor.uuid,
                 },
             );
+
+            // 数秒後にキャンプに戻る
+            interpreter.send(InterpreterEvent::Play {
+                commands: vec![Cmd::Wait { count: 300 }, Cmd::Home],
+            });
         }
     }
 }

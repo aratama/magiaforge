@@ -295,6 +295,27 @@ GameSenarios (
                 de: "Und es ruft kleine Schleime zu sich. Wenn du umzingelt bist, verlierst du deinen Fluchtweg. Es ist besser, die umliegenden Schleime schnell zu besiegen.",
                 ko: "그리고 작은 슬라임들을 불러들여. 둘러싸이면 도망갈 길을 잃게 돼. 주변의 슬라임들을 빨리 물리치는 것이 좋아.",
                 ru: "И он зовет к себе маленьких слизней. Если ты окажешься окружен, ты потеряешь путь к бегству. Лучше быстро победить окружающих слизней.",
+            ),
+            (
+                type: "OnNewSpell",
+                spell: "Jump",
+                commands: [
+                    (
+                        type: "Speech", 
+                        ja: "そうそう、魔法使いはみんな体術が苦手だよね。この呪文を君にあげるよ。",
+                        en: "All witches are bad at physical techniques. Here, take this spell.",
+                        zh_cn: "所有女巫都不擅长体术。给你这个咒语。",
+                        zh_tw: "所有女巫都不擅長體術。給你這個咒語。",
+                        es: "Todas las brujas son malas en técnicas físicas. Aquí, toma este hechizo.",
+                        fr: "Toutes les sorcières sont mauvaises en techniques physiques. Tiens, prends ce sort.",
+                        pt: "Todas as bruxas são ruins em técnicas físicas. Aqui, pegue este feitiço.",
+                        de: "Alle Hexen sind schlecht in körperlichen Techniken. Hier, nimm diesen Zauber.",
+                        ko: "모든 마녀들은 신체 기술에 서툴러. 여기, 이 주문을 받아.",
+                        ru: "Все ведьмы плохо владеют физическими техниками. Вот, возьми это заклинание.",
+                    ),
+                    ( type: "Close" ),
+                    ( type: "GetSpell", spell: "Jump" ),
+                ]
             )
         ],
         "SpellListRabbit": [

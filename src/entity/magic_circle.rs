@@ -6,7 +6,8 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::witch::Witch;
-use crate::hud::overlay::OverlayEvent;
+use crate::interpreter::Cmd;
+use crate::interpreter::InterpreterEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
@@ -158,9 +159,9 @@ fn warp(
     mut commands: Commands,
     mut player_query: Query<(Entity, &Player, &Actor, &Life), With<Witch>>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
-    mut next: ResMut<LevelSetup>,
+    mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<SEEvent>,
-    mut overlay_event_writer: EventWriter<OverlayEvent>,
+    mut interpreter: EventWriter<InterpreterEvent>,
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step == MAX_POWER {
@@ -170,34 +171,38 @@ fn warp(
                 // info!("despawn {} {}", file!(), line!());
                 circle.step = 0;
                 let player_state = PlayerState::from_player(&player, &actor, &player_life);
+                level.next_state = Some(player_state);
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {
-                        match next.next_level {
-                            GameLevel::Level(level) => {
-                                next.next_level = GameLevel::Level((level + 1) % LEVELS);
-                                next.next_state = Some(player_state);
-                            }
-                            GameLevel::MultiPlayArena => {
-                                next.next_level = GameLevel::Level(1);
-                                next.next_state = Some(player_state);
-                            }
+                        let next_level = match level.level {
+                            Some(GameLevel::Level(l)) => (l + 1) % LEVELS,
+                            Some(GameLevel::MultiPlayArena) => 1,
+                            _ => 0,
                         };
+                        interpreter.send(InterpreterEvent::Play {
+                            commands: vec![
+                                Cmd::Wait { count: 60 },
+                                Cmd::Warp { level: next_level },
+                            ],
+                        });
                     }
                     MagicCircleDestination::Home => {
-                        next.next_level = GameLevel::Level(0);
-                        next.next_state = Some(player_state);
+                        interpreter.send(InterpreterEvent::Play {
+                            commands: vec![Cmd::Wait { count: 60 }, Cmd::Home],
+                        });
                     }
                     MagicCircleDestination::MultiplayArena => {
-                        next.next_level = GameLevel::MultiPlayArena;
-                        next.next_state = Some(player_state);
+                        interpreter.send(InterpreterEvent::Play {
+                            commands: vec![Cmd::Wait { count: 60 }, Cmd::Arena],
+                        });
                     }
                     MagicCircleDestination::Ending => {
-                        overlay_event_writer.send(OverlayEvent::Close(GameState::Ending));
+                        interpreter.send(InterpreterEvent::Play {
+                            commands: vec![Cmd::Wait { count: 60 }, Cmd::Ending],
+                        });
                     }
                 }
             }
-        } else if circle.step == MAX_POWER + 120 {
-            overlay_event_writer.send(OverlayEvent::Close(GameState::Warp));
         }
     }
 }

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::asset::GameAssets;
 use crate::collision::ENTITY_GROUPS;
 use crate::collision::HIDDEN_WALL_GROUPS;
@@ -117,7 +115,6 @@ fn sensor(
                                 Cmd::Focus(shop_rabbit_entity),
                                 Cmd::Speech(PAY_FIRST.to_string()),
                             ],
-                            environment: HashMap::new(),
                         });
                     }
                 } else {

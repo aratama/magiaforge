@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::collision::ENEMY_GROUPS;
@@ -17,6 +15,7 @@ use crate::entity::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
+use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::language::Dict;
@@ -334,16 +333,18 @@ fn despawn(
                     Transform::from_translation(boss_transform.translation),
                     EntityDepth::new(),
                 ));
-                theater_writer.send(InterpreterEvent::Play {
-                    commands: SenarioType::HugeSlime.to_acts(&senarios).clone(),
-                    environment: HashMap::from_iter([(
-                        "position".to_string(),
-                        Value::Vec2 {
-                            x: boss_transform.translation.x,
-                            y: boss_transform.translation.y,
-                        },
-                    )]),
-                });
+
+                let mut commands = vec![Cmd::Set {
+                    name: "position".to_string(),
+                    value: Value::Vec2 {
+                        x: boss_transform.translation.x,
+                        y: boss_transform.translation.y,
+                    },
+                }];
+
+                commands.extend(SenarioType::HugeSlime.to_acts(&senarios).clone());
+
+                theater_writer.send(InterpreterEvent::Play { commands: commands });
             }
         }
     }

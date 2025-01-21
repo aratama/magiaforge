@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 const SPEED: f32 = 0.02;
 
-#[derive(Event)]
+#[derive(Event, Debug)]
 pub enum OverlayEvent {
     Close(GameState),
     SetOpen(bool),
@@ -45,6 +45,7 @@ fn read_overlay_event(mut query: Query<&mut Overlay>, mut reader: EventReader<Ov
     let mut overlay = query.single_mut();
 
     for event in reader.read() {
+        info!("{:?}", event);
         match event {
             OverlayEvent::Close(next) => {
                 overlay.open = false;

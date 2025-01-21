@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::GameSenarios;
@@ -62,10 +60,7 @@ fn collision_inner_sensor(
                 let mut messages = event.clone();
                 messages.insert(0, Cmd::Focus(rabbit_entity));
                 messages.push(Cmd::Close);
-                speech_writer.send(InterpreterEvent::Play {
-                    commands: messages,
-                    environment: HashMap::new(),
-                });
+                speech_writer.send(InterpreterEvent::Play { commands: messages });
             }
             _ => {}
         }

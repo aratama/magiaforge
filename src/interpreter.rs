@@ -6,6 +6,7 @@ use crate::bgm::BGMType;
 use crate::camera::GameCamera;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
+use crate::constant::GameConstants;
 use crate::constant::SenarioType;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
@@ -22,12 +23,15 @@ use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::language::Languages;
 use crate::level::tile::Tile;
+use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
 use crate::se::SE;
+use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::states::TimeState;
+use crate::ui::new_spell::spawn_new_spell;
 use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
@@ -38,6 +42,11 @@ const DELAY: usize = 4;
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(tag = "type")]
 pub enum Cmd {
+    Set {
+        name: String,
+        value: Value,
+    },
+
     /// フキダシを表示するキャラクターを指定します
     Focus(Entity),
 
@@ -77,7 +86,7 @@ pub enum Cmd {
     },
 
     Flash {
-        position: Value,
+        position: Expr,
         intensity: f32,
         radius: f32,
         duration: u32,
@@ -92,6 +101,14 @@ pub enum Cmd {
     /// エンディングを再生します
     #[allow(dead_code)]
     Ending,
+
+    Home,
+
+    Arena,
+
+    Warp {
+        level: i32,
+    },
 
     SetTile {
         x: i32,
@@ -114,6 +131,23 @@ pub enum Cmd {
     SetCameraTarget {
         name: Option<String>,
     },
+
+    GetSpell {
+        spell: SpellType,
+    },
+
+    OnNewSpell {
+        spell: SpellType,
+        commands: Vec<Cmd>,
+    },
+}
+
+#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
+#[serde(tag = "type")]
+pub enum Expr {
+    Vec2 { x: f32, y: f32 },
+    String { value: String },
+    Var { value: String },
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
@@ -121,14 +155,16 @@ pub enum Cmd {
 pub enum Value {
     Vec2 { x: f32, y: f32 },
     String { value: String },
-    Var { value: String },
 }
 
-impl Value {
+impl Expr {
     pub fn to_vec2(&self, environment: &HashMap<String, Value>) -> Vec2 {
         match self {
-            Value::Vec2 { x, y } => Vec2::new(*x, *y),
-            Value::Var { value } => environment.get(value).unwrap().to_vec2(&environment),
+            Expr::Vec2 { x, y } => Vec2::new(*x, *y),
+            Expr::Var { value } => match environment.get(value) {
+                Some(Value::Vec2 { x, y }) => Vec2::new(*x, *y),
+                _ => panic!("Value is not Vec2: {:?}", self),
+            },
             _ => panic!("Value is not Vec2: {:?}", self),
         }
     }
@@ -137,10 +173,7 @@ impl Value {
 #[derive(Event)]
 pub enum InterpreterEvent {
     /// シナリオを再生します
-    Play {
-        commands: Vec<Cmd>,
-        environment: HashMap<String, Value>,
-    },
+    Play { commands: Vec<Cmd> },
 
     /// 現在実行中のシナリオをすべて中止します
     Quit,
@@ -165,23 +198,16 @@ impl Interpreter {
 fn read_interpreter_events(
     mut events: EventReader<InterpreterEvent>,
     mut speech_query: Query<(&mut SpeechBubble, &mut Visibility)>,
-    mut player_query: Query<&mut Actor>,
     mut theater: ResMut<Interpreter>,
 ) {
     for event in events.read() {
         let (mut speech, mut visibility) = speech_query.single_mut();
         match event {
-            InterpreterEvent::Play {
-                commands,
-                environment,
-            } => {
+            InterpreterEvent::Play { commands } => {
                 theater.speech_count = 0;
                 theater.commands = commands.clone();
-                theater.environment = environment.clone();
+                theater.environment = HashMap::new();
                 theater.index = 0;
-                if let Ok(mut player) = player_query.get_single_mut() {
-                    player.state = ActorState::Idle;
-                }
             }
             InterpreterEvent::Quit => {
                 speech.entity = None;
@@ -200,13 +226,16 @@ fn interpret(
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
-    mut player_query: Query<&mut Actor, With<Player>>,
+    mut player_query: Query<(&mut Actor, &Player)>,
     mut camera: Query<&mut GameCamera>,
     mut interpreter: ResMut<Interpreter>,
     mut writer: EventWriter<OverlayEvent>,
     mut se_writer: EventWriter<SEEvent>,
     mut level: ResMut<LevelSetup>,
+    mut time: ResMut<NextState<TimeState>>,
+    ron: Res<Assets<GameConstants>>,
     named_entity_query: Query<(&Name, Entity)>,
+    mut interpreter_events: EventWriter<InterpreterEvent>,
 ) {
     let (mut visibility, mut speech) = speech_query.single_mut();
 
@@ -216,12 +245,24 @@ fn interpret(
         return;
     }
 
+    if 0 < interpreter.wait {
+        interpreter.wait -= 1;
+        return;
+    }
+
+    let constants = ron.get(assets.spells.id()).unwrap();
+
     let entities: HashMap<String, Entity> = named_entity_query
         .iter()
         .map(|(n, e)| (n.as_str().to_string(), e.clone()))
         .collect();
 
     match interpreter.commands[interpreter.index].clone() {
+        Cmd::Set { name, value } => {
+            interpreter.environment.insert(name, value);
+            interpreter.index += 1;
+        }
+
         Cmd::Focus(speaker) => {
             speech.entity = Some(speaker);
             interpreter.index += 1;
@@ -229,7 +270,7 @@ fn interpret(
         Cmd::Speech(dict) => {
             *visibility = Visibility::Inherited;
 
-            if let Ok(mut actor) = player_query.get_single_mut() {
+            if let Ok((mut actor, _)) = player_query.get_single_mut() {
                 actor.state = ActorState::Idle;
                 actor.fire_state = ActorFireState::Idle;
             }
@@ -260,7 +301,7 @@ fn interpret(
             interpreter.index += 1;
         }
         Cmd::GetItem(item) => {
-            if let Ok(mut actor) = player_query.get_single_mut() {
+            if let Ok((mut actor, _)) = player_query.get_single_mut() {
                 actor.inventory.insert(InventoryItem {
                     item_type: item,
                     price: 0,
@@ -273,7 +314,7 @@ fn interpret(
             interpreter.index += 1;
 
             camera.target = None;
-            if let Ok(mut actor) = player_query.get_single_mut() {
+            if let Ok((mut actor, _)) = player_query.get_single_mut() {
                 actor.state = ActorState::Idle;
                 actor.wait = 30;
             }
@@ -312,14 +353,8 @@ fn interpret(
             interpreter.index += 1;
         }
         Cmd::Wait { count } => {
-            if interpreter.wait <= 0 {
-                interpreter.wait = count;
-            } else {
-                interpreter.wait -= 1;
-                if interpreter.wait == 0 {
-                    interpreter.index += 1;
-                }
-            }
+            interpreter.wait = count;
+            interpreter.index += 1;
         }
         Cmd::SpawnRabbit { position } => {
             // テスト用、使っていない
@@ -339,6 +374,21 @@ fn interpret(
         }
         Cmd::Ending => {
             writer.send(OverlayEvent::Close(GameState::Ending));
+            interpreter.index += 1;
+        }
+        Cmd::Home => {
+            level.next_level = GameLevel::Level(0);
+            writer.send(OverlayEvent::Close(GameState::Warp));
+            interpreter.index += 1;
+        }
+        Cmd::Arena => {
+            level.next_level = GameLevel::MultiPlayArena;
+            writer.send(OverlayEvent::Close(GameState::Warp));
+            interpreter.index += 1;
+        }
+        Cmd::Warp { level: l } => {
+            level.next_level = GameLevel::Level(l);
+            writer.send(OverlayEvent::Close(GameState::Warp));
             interpreter.index += 1;
         }
         Cmd::SetTile { x, y, w, h, tile } => {
@@ -375,6 +425,35 @@ fn interpret(
                     camera.target = None;
                 }
             };
+            interpreter.index += 1;
+        }
+
+        Cmd::GetSpell { spell } => {
+            if let Ok((mut actor, player)) = player_query.get_single_mut() {
+                actor.inventory.insert(InventoryItem {
+                    item_type: InventoryItemType::Spell(spell),
+                    price: 0,
+                });
+                if !player.discovered_spells.contains(&spell) {
+                    spawn_new_spell(
+                        &mut commands,
+                        &assets,
+                        &constants,
+                        &mut time,
+                        spell,
+                        &mut se_writer,
+                    );
+                }
+            }
+            interpreter.index += 1;
+        }
+
+        Cmd::OnNewSpell { spell, commands } => {
+            if let Ok((_, player)) = player_query.get_single_mut() {
+                if !player.discovered_spells.contains(&spell) {
+                    interpreter_events.send(InterpreterEvent::Play { commands });
+                }
+            }
             interpreter.index += 1;
         }
     }

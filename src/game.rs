@@ -120,7 +120,6 @@ use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
-use gameover::GameoverPlugin;
 
 // const AUDIO_SCALE: f32 = 1. / 1000.0;
 
@@ -227,7 +226,6 @@ pub fn run_game() {
         .add_plugins(FlashLightPlugin)
         .add_plugins(FootStepsPlugin)
         .add_plugins(GameAudioPlugin)
-        .add_plugins(GameoverPlugin)
         .add_plugins(GrassPlugin)
         .add_plugins(SECommandPlugin)
         .add_plugins(VerticalPlugin)
