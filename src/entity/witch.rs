@@ -98,10 +98,7 @@ pub fn spawn_witch(
             Collider::ball(WITCH_COLLIDER_RADIUS),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
-            Damping {
-                linear_damping: 6.0,
-                angular_damping: 1.0,
-            },
+            Damping::default(),
             ExternalForce::default(),
             ExternalImpulse::default(),
             actor_group.to_groups(0.0, 0),

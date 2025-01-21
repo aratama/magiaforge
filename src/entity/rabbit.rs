@@ -53,10 +53,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             Collider::ball(RABBIT_RADIUS),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
-            Damping {
-                linear_damping: 1.0,
-                angular_damping: 1.0,
-            },
+            Damping::default(),
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveCollisionTypes::DYNAMIC_KINEMATIC,

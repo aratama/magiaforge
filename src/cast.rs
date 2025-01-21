@@ -9,6 +9,7 @@ use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
+use crate::entity::actor::jump_actor;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
@@ -128,12 +129,12 @@ pub fn cast_spell(
     constants: &GameConstants,
     life_bar_resource: &Res<LifeBarResource>,
     actor_entity: Entity,
-    actor: &mut Actor,
+    mut actor: &mut Actor,
     actor_life: &mut Life,
     actor_transform: &Transform,
-    actor_impulse: &mut ExternalImpulse,
-    actor_falling: &mut Vertical,
-    collision_groups: &mut CollisionGroups,
+    mut actor_impulse: &mut ExternalImpulse,
+    mut actor_vertical: &mut Vertical,
+    mut collision_groups: &mut CollisionGroups,
     player: Option<&Player>,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
@@ -414,15 +415,16 @@ pub fn cast_spell(
                     se.send(SEEvent::pos(SE::Status2, position));
                 }
                 SpellCast::Jump { velocity, impulse } => {
-                    if actor_falling.v == 0.0 {
-                        actor_falling.v = actor_falling.v.max(0.01);
-                        actor_falling.velocity = velocity;
-                        actor_impulse.impulse += actor.move_direction.normalize_or_zero() * impulse;
-                        *collision_groups =
-                            actor.actor_group.to_groups(actor_falling.v, actor.drowning);
-                        let position = actor_transform.translation.truncate();
-                        se.send(SEEvent::pos(SE::Suna, position));
-                    }
+                    jump_actor(
+                        &mut se,
+                        &mut actor,
+                        &mut actor_vertical,
+                        &mut actor_impulse,
+                        &mut collision_groups,
+                        &actor_transform,
+                        velocity,
+                        impulse,
+                    );
                 }
                 SpellCast::Metamorphosis => {
                     cast_metamorphosis(

@@ -3,39 +3,49 @@ GameActors(
     actors: {
         "Witch": (
             move_force: 40000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 6.0
         ),
         "Chicken": (
             move_force: 10000.0,
-            jump: 1.5
+            jump: 1.5,
+            linear_damping: 10.0,
         ),
         "EyeBall": (
             move_force: 100000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 10.0,
         ),
         "Sandbag": (
             move_force: 100000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 10.0,
         ),
         "Slime": (
             move_force: 100000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 10.0,
         ),
         "Salamander": (
             move_force: 100000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 10.0,
         ),
         "Shadow": (
             move_force: 100000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 10.0,
         ),
         "Spider": (
             move_force: 150000.0,
-            jump: 0.0
+            jump: 0.0,
+            linear_damping: 10.0,
         ),
         "HugeSlime": (
-            move_force: 4000000.0,
-            jump: 3.0
+            // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
+            move_force: 200000.0,
+            jump: 3.0,
+            linear_damping: 20.0,
         )
     }
 )

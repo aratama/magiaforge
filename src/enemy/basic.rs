@@ -77,10 +77,7 @@ pub fn spawn_basic_enemy(
             Collider::ball(radius),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
-            Damping {
-                linear_damping: 10.0,
-                angular_damping: 1.0,
-            },
+            Damping::default(),
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,

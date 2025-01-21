@@ -8,6 +8,7 @@ use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::player::Player;
+use crate::entity::actor::jump_actor;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::actor::ActorSpriteGroup;
@@ -117,11 +118,7 @@ pub fn spawn_huge_slime(
                 Collider::ball(HUGE_SLIME_COLLIDER_RADIUS),
                 GravityScale(0.0),
                 LockedAxes::ROTATION_LOCKED,
-                Damping {
-                    // linear_damping: 40.0,
-                    linear_damping: 20.0,
-                    angular_damping: 1.0,
-                },
+                Damping::default(),
                 ExternalForce::default(),
                 ExternalImpulse::default(),
                 ActiveEvents::COLLISION_EVENTS,
@@ -142,30 +139,6 @@ pub fn spawn_huge_slime(
         .id();
 
     entity
-}
-
-// プレイヤーがいる場合はジャンプしながら接近
-// 空中にいる場合は移動の外力が働く
-fn control(
-    player_query: Query<&Transform, With<Player>>,
-    mut slime_query: Query<(&Transform, &mut Actor, &Vertical), (With<HugeSlime>, Without<Player>)>,
-) {
-    for (transform, mut actor, vertical) in slime_query.iter_mut() {
-        actor.move_direction = Vec2::ZERO;
-
-        if let Ok(player_transform) = player_query.get_single() {
-            if 0.0 < vertical.v {
-                let direction = (player_transform.translation.truncate()
-                    - transform.translation.truncate())
-                .normalize_or_zero();
-
-                // スライムを移動するのに、ExternalForceを直接操作しないこと
-                // 直接操作すると、実行順序の関係で移動したりしなかったりという不安定なバグになります
-                // ExternalForce は Actor の apply_external_force を通じて設定します
-                actor.move_direction = direction;
-            };
-        }
-    }
 }
 
 fn impact(
@@ -202,22 +175,62 @@ fn update_huge_slime_growl(
 
 fn update_huge_slime_approach(
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
-    mut huge_slime_query: Query<(&mut HugeSlime, &mut Counter, &mut Vertical), Without<Player>>,
+    mut huge_slime_query: Query<
+        (
+            &mut HugeSlime,
+            &mut Counter,
+            &mut Vertical,
+            &mut Actor,
+            &mut ExternalImpulse,
+            &mut CollisionGroups,
+            &Transform,
+        ),
+        Without<Player>,
+    >,
     assets: Res<GameAssets>,
     constants: Res<Assets<GameActors>>,
+    mut se: EventWriter<SEEvent>,
 ) {
     let constants = constants.get(assets.actors.id()).unwrap();
     let props = ActorTypes::HugeSlime.to_props(&constants);
 
-    for (mut huge_slime, mut counter, mut vertical) in huge_slime_query.iter_mut() {
+    for (
+        mut huge_slime,
+        mut counter,
+        mut vertical,
+        mut actor,
+        mut impulse,
+        mut collision_groups,
+        transform,
+    ) in huge_slime_query.iter_mut()
+    {
         let timespan = if huge_slime.promoted { 35 } else { 60 };
         if let HugeSlimeState::Approach = huge_slime.state.clone() {
             // プレイヤーがいる場合はジャンプしながら接近
-            if let Ok(_) = player_query.get_single() {
-                // 60フレームに一度ジャンプ
-                if counter.count % timespan == 0 {
-                    vertical.velocity = props.jump;
-                }
+            // 60フレームに一度ジャンプ
+            // スライムを移動するのに、ExternalForceを直接操作しないこと
+            // 直接操作すると、実行順序の関係で移動したりしなかったりという不安定なバグになります
+            // ExternalForce は Actor の apply_external_force を通じて設定します
+            if counter.count % timespan == 0 {
+                actor.move_direction =
+                    if let Ok((_, player_transform, _)) = player_query.get_single() {
+                        (player_transform.translation.truncate() - transform.translation.truncate())
+                            .normalize_or_zero()
+                    } else {
+                        Vec2::ZERO
+                    };
+                jump_actor(
+                    &mut se,
+                    &mut actor,
+                    &mut vertical,
+                    &mut impulse,
+                    &mut collision_groups,
+                    &transform,
+                    props.jump,
+                    props.move_force,
+                );
+            } else {
+                actor.move_direction = Vec2::ZERO;
             }
 
             // 6秒ごとに召喚フェイズに移行
@@ -232,13 +245,16 @@ fn update_huge_slime_approach(
 fn update_huge_slime_summon(
     player_query: Query<&Transform, With<Player>>,
     mut huge_slime_query: Query<
-        (Entity, &mut HugeSlime, &Transform, &mut Counter),
+        (Entity, &mut HugeSlime, &Transform, &mut Counter, &mut Actor),
         Without<Player>,
     >,
     mut se_writer: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEntity>,
 ) {
-    for (huge_slime_entity, mut huge_slime, transform, mut counter) in huge_slime_query.iter_mut() {
+    for (huge_slime_entity, mut huge_slime, transform, mut counter, mut actor) in
+        huge_slime_query.iter_mut()
+    {
+        actor.move_direction = Vec2::ZERO;
         if let HugeSlimeState::Summon = huge_slime.state {
             if let Ok(player) = player_query.get_single() {
                 if counter.count == 60 {
@@ -275,12 +291,16 @@ fn update_huge_slime_summon(
 }
 
 fn update_huge_slime_promote(
-    mut huge_slime_query: Query<(&mut HugeSlime, &Transform, &mut Counter), Without<Player>>,
+    mut huge_slime_query: Query<
+        (&mut HugeSlime, &Transform, &mut Counter, &mut Actor),
+        Without<Player>,
+    >,
     mut se_writer: EventWriter<SEEvent>,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
 ) {
-    for (mut huge_slime, transform, mut counter) in huge_slime_query.iter_mut() {
+    for (mut huge_slime, transform, mut counter, mut actor) in huge_slime_query.iter_mut() {
+        actor.move_direction = Vec2::ZERO;
         if let HugeSlimeState::Promote = huge_slime.state {
             if counter.count == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
@@ -357,7 +377,6 @@ impl Plugin for HugeSlimePlugin {
         app.add_systems(
             FixedUpdate,
             ((
-                control,
                 impact,
                 update_huge_slime_growl,
                 update_huge_slime_approach,

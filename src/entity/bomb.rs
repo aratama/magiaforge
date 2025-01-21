@@ -35,10 +35,7 @@ pub fn spawn_bomb(commands: &mut Commands, assets: &Res<GameAssets>, position: V
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,
-                Damping {
-                    linear_damping: 1.0,
-                    angular_damping: 0.0,
-                },
+                Damping::default(),
                 Collider::ball(6.0),
                 *ENTITY_GROUPS,
                 ExternalImpulse::default(),

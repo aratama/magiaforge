@@ -43,6 +43,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::prelude::CollisionGroups;
+use bevy_rapier2d::prelude::Damping;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
@@ -635,24 +636,15 @@ fn fire_bullet(
 fn apply_external_force(
     assets: Res<GameAssets>,
     constants: Res<Assets<GameActors>>,
-    mut query: Query<(&mut Actor, &mut ExternalForce, &Transform)>,
+    mut query: Query<(&mut Actor, &mut ExternalForce, &Transform, &Vertical)>,
     mut se: EventWriter<SEEvent>,
 ) {
     let constants = constants.get(assets.actors.id()).unwrap();
 
-    for (mut actor, mut external_force, transform) in query.iter_mut() {
-        // 凍結時は移動不能
-        if 0 < actor.frozen {
-            external_force.force = Vec2::ZERO;
-            continue;
-        }
-
-        if 0 < actor.staggered {
-            external_force.force = Vec2::ZERO;
-            continue;
-        }
-
-        let ratio = if 0 < actor.drowning {
+    for (mut actor, mut external_force, transform, vertical) in query.iter_mut() {
+        let ratio = if 0 < actor.frozen {
+            0.0
+        } else if 0 < actor.drowning || 0 < actor.staggered || 0.0 < vertical.v {
             0.2
         } else if actor.fire_state == ActorFireState::Fire
             || actor.fire_state_secondary == ActorFireState::Fire
@@ -783,6 +775,22 @@ fn apply_z(
     }
 }
 
+fn apply_damping(
+    mut query: Query<(&Vertical, &mut Damping, &Actor)>,
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
+) {
+    for (vertical, mut damping, actor) in query.iter_mut() {
+        let constants = constants.get(assets.actors.id()).unwrap();
+        let props = actor.actor_type.to_props(&constants);
+        damping.linear_damping = if 0.0 < vertical.v {
+            1.0
+        } else {
+            props.linear_damping
+        };
+    }
+}
+
 fn drown(
     mut actor_query: Query<(&mut Actor, &Vertical, &Transform)>,
     level: Res<LevelSetup>,
@@ -815,7 +823,6 @@ fn drown_damage(
         &Transform,
         &Vertical,
         &mut Life,
-        Option<&mut ExternalImpulse>,
         Option<&Player>,
         Option<&Metamorphosis>,
     )>,
@@ -825,9 +832,7 @@ fn drown_damage(
     mut se: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
-    for (entity, mut actor, transform, vertical, life, mut impulse, player, morph) in
-        actor_query.iter_mut()
-    {
+    for (entity, mut actor, transform, vertical, life, player, morph) in actor_query.iter_mut() {
         let position = transform.translation.truncate();
         let tile = if let Some(ref chunk) = level.chunk {
             chunk.get_tile_by_coords(position)
@@ -885,6 +890,31 @@ fn stagger(mut actor_query: Query<&mut Actor>) {
     }
 }
 
+pub fn jump_actor(
+    se: &mut EventWriter<SEEvent>,
+
+    actor: &mut Actor,
+    actor_falling: &mut Vertical,
+    actor_impulse: &mut ExternalImpulse,
+    collision_groups: &mut CollisionGroups,
+    actor_transform: &Transform,
+
+    velocity: f32,
+    impulse: f32,
+) -> bool {
+    if actor_falling.v == 0.0 {
+        actor_falling.v = actor_falling.v.max(0.01);
+        actor_falling.velocity = velocity;
+        actor_impulse.impulse += actor.move_direction.normalize_or_zero() * impulse;
+        *collision_groups = actor.actor_group.to_groups(actor_falling.v, actor.drowning);
+        let position = actor_transform.translation.truncate();
+        se.send(SEEvent::pos(SE::Suna, position));
+        true
+    } else {
+        false
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -908,6 +938,7 @@ impl Plugin for ActorPlugin {
                     .chain(),
                 apply_v,
                 apply_z,
+                apply_damping,
                 drown,
                 drown_damage,
                 stagger,

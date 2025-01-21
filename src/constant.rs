@@ -135,6 +135,7 @@ pub struct GameActors {
 pub struct ActorProps {
     pub move_force: f32,
     pub jump: f32,
+    pub linear_damping: f32,
 }
 
 #[derive(Debug)]
