@@ -1,11 +1,11 @@
-use crate::asset::GameAssets;
-use crate::component::life::Life;
-use crate::constant::*;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::actor::ActorTypes;
+use crate::asset::GameAssets;
+use crate::component::life::Life;
+use crate::constant::*;
+use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
@@ -46,6 +46,7 @@ pub fn spawn_slime(
             ActorGroup::Player => assets.friend_slime.clone(),
             ActorGroup::Enemy => assets.slime.clone(),
             ActorGroup::Neutral => assets.friend_slime.clone(),
+            ActorGroup::Entity => assets.friend_slime.clone(),
         },
         position,
         life_bar_locals,
@@ -90,7 +91,7 @@ fn control_slime(
             let origin = slime_transform.translation.truncate();
 
             if let Some(nearest) =
-                finder.nearest(&rapier_context, slime_entity, ENEMY_DETECTION_RANGE)
+                finder.nearest_opponent(&rapier_context, slime_entity, ENEMY_DETECTION_RANGE)
             {
                 let diff = nearest.position - origin;
                 if diff.length() < slime_actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {

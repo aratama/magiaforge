@@ -41,7 +41,7 @@ pub fn spawn_book_shelf(
         Actor {
             actor_type: ActorTypes::BookShelf,
             radius: 8.0,
-            actor_group: ActorGroup::Neutral,
+            actor_group: ActorGroup::Entity,
             ..default()
         },
         Life::new(25),

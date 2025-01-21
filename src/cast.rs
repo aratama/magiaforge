@@ -232,6 +232,7 @@ pub fn cast_spell(
                             ActorGroup::Player => *ENEMY_BULLET_GROUP,
                             ActorGroup::Enemy => *PLAYER_BULLET_GROUP,
                             ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
+                            ActorGroup::Entity => CollisionGroups::new(Group::NONE, Group::NONE), // エンティティは弾丸を発射しません
                         };
                         send_remote_message(
                             writer,
@@ -283,6 +284,7 @@ pub fn cast_spell(
                             (ActorGroup::Enemy, true) => ActorGroup::Enemy,
                             (ActorGroup::Enemy, false) => ActorGroup::Player,
                             (ActorGroup::Neutral, _) => ActorGroup::Neutral,
+                            (ActorGroup::Entity, _) => ActorGroup::Neutral,
                         },
                         remote: true,
                         servant,

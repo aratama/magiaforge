@@ -125,7 +125,7 @@ fn transition(
     for (entity, spider, actor, transform) in query.iter_mut() {
         if let Some(mut shadow) = spider {
             let origin = transform.translation.truncate();
-            let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
+            let nearest = finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             match shadow.state {
                 State::Wait(count) if 0 < count => {
                     shadow.state = State::Wait(count - 1);
@@ -172,7 +172,7 @@ fn pointer(
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(_) = shadow {
             let origin = transform.translation.truncate();
-            let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
+            let nearest = finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             if let Some(nearest) = nearest {
                 let diff = nearest.position - origin;
                 actor.pointer = diff.normalize_or_zero();
@@ -219,7 +219,7 @@ fn approach(
                 State::Approarch(..) => {
                     let origin = transform.translation.truncate();
                     if let Some(nearest) =
-                        finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE)
+                        finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE)
                     {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
@@ -260,7 +260,7 @@ fn attack(
                 State::Attack(count) if count == 20 => {
                     let origin = transform.translation.truncate();
                     if let Some(nearest) =
-                        finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE)
+                        finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE)
                     {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {

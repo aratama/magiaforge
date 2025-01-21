@@ -101,7 +101,7 @@ pub fn spawn_chest(
             Actor {
                 actor_type: ActorTypes::Chest,
                 radius: 8.0,
-                actor_group: ActorGroup::Neutral,
+                actor_group: ActorGroup::Entity,
                 ..default()
             },
             Life::new(life),

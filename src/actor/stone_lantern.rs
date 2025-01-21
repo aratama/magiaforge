@@ -36,7 +36,7 @@ pub fn spawn_stone_lantern(
             Actor {
                 actor_type: ActorTypes::Lantern,
                 radius: 8.0,
-                actor_group: ActorGroup::Neutral,
+                actor_group: ActorGroup::Entity,
                 ..default()
             },
             Life::new(50),

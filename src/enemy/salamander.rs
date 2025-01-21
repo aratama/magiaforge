@@ -1,3 +1,6 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
@@ -7,9 +10,6 @@ use crate::component::life::LifeBeingSprite;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
-use crate::actor::Actor;
-use crate::actor::ActorGroup;
-use crate::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
@@ -125,7 +125,7 @@ fn transition(
     for (entity, shadow, actor, transform) in query.iter_mut() {
         if let Some(mut shadow) = shadow {
             let origin = transform.translation.truncate();
-            let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
+            let nearest = finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             match shadow.state {
                 State::Wait(count) if count < 30 => {
                     shadow.state = State::Wait(count + 1);
@@ -168,7 +168,7 @@ fn pointer(
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(_) = shadow {
             let origin = transform.translation.truncate();
-            let nearest = finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE);
+            let nearest = finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE);
             if let Some(nearest) = nearest {
                 let diff = nearest.position - origin;
                 actor.pointer = diff; // 火球を当てるためにここでは正規化しない
@@ -215,7 +215,7 @@ fn approach(
                 State::Approarch(count) if 60 < count => {
                     let origin = transform.translation.truncate();
                     if let Some(nearest) =
-                        finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE)
+                        finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE)
                     {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
@@ -257,7 +257,7 @@ fn attack(
                 State::Attack(count) if count == 20 => {
                     let origin = transform.translation.truncate();
                     if let Some(nearest) =
-                        finder.nearest(&rapier_context, entity, ENEMY_DETECTION_RANGE)
+                        finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE)
                     {
                         let diff = nearest.position - origin;
                         if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {

@@ -30,7 +30,7 @@ impl Finder {
         }
     }
 
-    pub fn nearest(
+    pub fn nearest_opponent(
         &self,
         rapier_context: &Query<&RapierContext, With<DefaultRapierContext>>,
         entity: Entity,
@@ -49,7 +49,7 @@ impl Finder {
                 |e| {
                     if e != entity {
                         if let Some((e_g, e_t, e_r)) = self.map.get(&e) {
-                            if *e_g != *self_actor_group {
+                            if *e_g != *self_actor_group && *e_g != ActorGroup::Entity {
                                 enemies.push(FindResult {
                                     entity: e,
                                     position: *e_t,

@@ -1,3 +1,4 @@
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::constant::*;
@@ -10,7 +11,6 @@ use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
-use crate::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
@@ -50,9 +50,11 @@ impl ServantType {
             (ServantType::Slime, ActorGroup::Player) => assets.friend_slime.clone(),
             (ServantType::Slime, ActorGroup::Neutral) => assets.friend_slime.clone(),
             (ServantType::Slime, ActorGroup::Enemy) => assets.slime.clone(),
+            (ServantType::Slime, ActorGroup::Entity) => assets.friend_slime.clone(),
             (ServantType::Eyeball, ActorGroup::Player) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Neutral) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Enemy) => assets.eyeball.clone(),
+            (ServantType::Eyeball, ActorGroup::Entity) => assets.eyeball_friend.clone(),
             (ServantType::Chiken, _) => assets.chicken.clone(),
         }
     }
@@ -116,6 +118,7 @@ pub fn spawn_servant_seed(
                 ActorGroup::Player => ActorGroup::Enemy,
                 ActorGroup::Enemy => ActorGroup::Player,
                 ActorGroup::Neutral => ActorGroup::Neutral,
+                ActorGroup::Entity => ActorGroup::Entity,
             },
             servant_type: servant_type,
         };

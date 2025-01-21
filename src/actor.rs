@@ -422,8 +422,13 @@ pub enum ActorGroup {
     Player,
     Enemy,
 
-    /// 中立のアクターは敵と味方の両方の攻撃を受けます
+    /// 中立のアクターです
+    /// 敵と味方の両方の攻撃を受け、敵から攻撃対象として狙われます
     Neutral,
+
+    /// 本棚などの設備のアクターです
+    /// 敵と味方の両方の攻撃を受けますが、敵から攻撃の対象として狙われません
+    Entity,
 }
 
 impl ActorGroup {
@@ -435,6 +440,7 @@ impl ActorGroup {
             ActorGroup::Enemy => *ENEMY_GROUPS,
             ActorGroup::Neutral if 0 < drowning || 0.0 < v => *FLYING_NEUTRAL_GROUPS,
             ActorGroup::Neutral => *NEUTRAL_GROUPS,
+            ActorGroup::Entity => *NEUTRAL_GROUPS,
         }
     }
 
@@ -443,6 +449,7 @@ impl ActorGroup {
             ActorGroup::Player => *PLAYER_BULLET_GROUP,
             ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
             ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
+            ActorGroup::Entity => CollisionGroups::new(Group::NONE, Group::NONE), // 設備は弾丸を発射しません
         }
     }
 }

@@ -1,3 +1,5 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::collision::RABBIT_GROUPS;
 use crate::collision::SENSOR_GROUPS;
@@ -6,8 +8,6 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::*;
-use crate::actor::Actor;
-use crate::actor::ActorGroup;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
@@ -32,7 +32,7 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         StateScoped(GameState::InGame),
         Actor {
             radius: RABBIT_RADIUS,
-            actor_group: ActorGroup::Player,
+            actor_group: ActorGroup::Entity,
             fire_resistance: true,
             ..default()
         },

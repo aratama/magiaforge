@@ -1,10 +1,10 @@
-use crate::asset::GameAssets;
-use crate::constant::*;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::actor::ActorTypes;
+use crate::asset::GameAssets;
+use crate::constant::*;
+use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
@@ -40,6 +40,7 @@ pub fn spawn_eyeball(
             ActorGroup::Player => assets.eyeball_friend.clone(),
             ActorGroup::Enemy => assets.eyeball.clone(),
             ActorGroup::Neutral => assets.eyeball_friend.clone(),
+            ActorGroup::Entity => assets.eyeball_friend.clone(),
         },
         position,
         life_bar_locals,
@@ -77,7 +78,7 @@ fn control_eyeball(
             // 最も近くにいる、別グループのアクターに対して接近または攻撃
             let origin = eyeball_transform.translation.truncate();
             if let Some(nearest) =
-                finder.nearest(&rapier_context, eyeball_entity, ENEMY_DETECTION_RANGE)
+                finder.nearest_opponent(&rapier_context, eyeball_entity, ENEMY_DETECTION_RANGE)
             {
                 let diff = nearest.position - origin;
                 if diff.length() < ENEMY_ATTACK_RANGE {
