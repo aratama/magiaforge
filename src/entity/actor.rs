@@ -20,10 +20,12 @@ use crate::constant::GameActors;
 use crate::constant::GameConstants;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
+use crate::controller::player::recovery;
 use crate::controller::player::Player;
 use crate::entity::bullet::Trigger;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::LifeBarResource;
+use crate::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
@@ -438,10 +440,6 @@ pub enum ActorEvent {
         impulse: Vec2,
         stagger: u32,
     },
-    FatalFall {
-        actor: Entity,
-        position: Vec2,
-    },
 }
 
 fn update_sprite_flip(
@@ -531,6 +529,7 @@ fn fire_bullet(
             &mut Transform,
             &mut ExternalImpulse,
             &mut Vertical,
+            &mut CollisionGroups,
             Option<&Player>,
             Option<&Metamorphosis>,
         ),
@@ -553,6 +552,7 @@ fn fire_bullet(
         actor_transform,
         mut actor_impulse,
         mut actor_falling,
+        mut collision_groups,
         player,
         morph,
     ) in actor_query.iter_mut()
@@ -588,6 +588,7 @@ fn fire_bullet(
                 &actor_transform,
                 &mut actor_impulse,
                 &mut actor_falling,
+                &mut collision_groups,
                 player,
                 online,
                 &mut remote_writer,
@@ -611,6 +612,7 @@ fn fire_bullet(
                 &actor_transform,
                 &mut actor_impulse,
                 &mut actor_falling,
+                &mut collision_groups,
                 player,
                 online,
                 &mut remote_writer,
@@ -807,52 +809,68 @@ fn drown(
 }
 
 fn drown_damage(
-    mut actor_query: Query<(Entity, &mut Actor, &Transform, &Vertical)>,
+    mut actor_query: Query<(
+        Entity,
+        &mut Actor,
+        &Transform,
+        &Vertical,
+        &mut Life,
+        Option<&mut ExternalImpulse>,
+        Option<&Player>,
+        Option<&Metamorphosis>,
+    )>,
     mut damage: EventWriter<ActorEvent>,
-    level: Res<LevelSetup>,
+    mut level: ResMut<LevelSetup>,
+    mut commands: Commands,
+    mut se: EventWriter<SEEvent>,
+    mut interpreter: EventWriter<InterpreterEvent>,
 ) {
-    if let Some(ref chunk) = level.chunk {
-        for (entity, mut actor, transform, vertical) in actor_query.iter_mut() {
-            let position = transform.translation.truncate();
-            let tile = chunk.get_tile_by_coords(position);
-
-            match tile {
-                Tile::Water => {
-                    if 60 < actor.drowning {
-                        damage.send(ActorEvent::Damaged {
-                            actor: entity,
-                            position: transform.translation.truncate(),
-                            damage: 1,
-                            fire: false,
-                            impulse: Vec2::ZERO,
-                            stagger: 0,
-                        });
-                        actor.drowning = 1;
-                    }
-                }
-                Tile::Lava => {
-                    if 20 < actor.drowning {
-                        damage.send(ActorEvent::Damaged {
-                            actor: entity,
-                            position: transform.translation.truncate(),
-                            damage: 10,
-                            fire: false,
-                            impulse: Vec2::ZERO,
-                            stagger: 0,
-                        });
-                        actor.drowning = 1;
-                    }
-                }
-                Tile::Crack if vertical.v <= 0.0 => {
-                    info!("crack {:?}", position);
-
-                    damage.send(ActorEvent::FatalFall {
+    for (entity, mut actor, transform, vertical, life, mut impulse, player, morph) in
+        actor_query.iter_mut()
+    {
+        let position = transform.translation.truncate();
+        let tile = if let Some(ref chunk) = level.chunk {
+            chunk.get_tile_by_coords(position)
+        } else {
+            Tile::Blank
+        };
+        match tile {
+            Tile::Water => {
+                if 60 < actor.drowning {
+                    damage.send(ActorEvent::Damaged {
                         actor: entity,
                         position: transform.translation.truncate(),
+                        damage: 1,
+                        fire: false,
+                        impulse: Vec2::ZERO,
+                        stagger: 0,
                     });
+                    actor.drowning = 1;
                 }
-                _ => {}
             }
+            Tile::Lava => {
+                if 20 < actor.drowning {
+                    damage.send(ActorEvent::Damaged {
+                        actor: entity,
+                        position: transform.translation.truncate(),
+                        damage: 10,
+                        fire: false,
+                        impulse: Vec2::ZERO,
+                        stagger: 0,
+                    });
+                    actor.drowning = 1;
+                }
+            }
+            Tile::Crack if vertical.v <= 0.0 => {
+                let position = transform.translation.truncate();
+                commands.entity(entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
+                se.send(SEEvent::pos(SE::Scene2, position));
+                if let Some(player) = player {
+                    recovery(&mut level, &mut interpreter, &morph, &player, &life, &actor);
+                }
+            }
+            _ => {}
         }
     }
 }

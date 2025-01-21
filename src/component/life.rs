@@ -1,3 +1,4 @@
+use crate::controller::player::Player;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorEvent;
 use crate::entity::fire::Burnable;
@@ -12,6 +13,8 @@ use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::QueryFilter;
+
+use super::metamorphosis::Metamorphosis;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
@@ -119,8 +122,13 @@ fn fire_damage(
 }
 
 fn damage(
-    mut commands: Commands,
-    mut query: Query<(&mut Life, Option<&mut ExternalImpulse>, Option<&mut Actor>)>,
+    mut query: Query<(
+        &mut Life,
+        Option<&mut ExternalImpulse>,
+        Option<&mut Actor>,
+        Option<&Player>,
+        Option<&Metamorphosis>,
+    )>,
     mut reader: EventReader<ActorEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
@@ -135,7 +143,8 @@ fn damage(
                 stagger,
             } => {
                 if 0 < *damage {
-                    if let Ok((mut life, life_impulse, mut actor_optional)) = query.get_mut(*actor)
+                    if let Ok((mut life, life_impulse, mut actor_optional, _, _)) =
+                        query.get_mut(*actor)
                     {
                         if let Some(ref mut actor) = actor_optional {
                             if actor.staggered == 0 || !actor.invincibility_on_staggered {
@@ -155,11 +164,6 @@ fn damage(
                         }
                     }
                 }
-            }
-            ActorEvent::FatalFall { actor, position } => {
-                commands.entity(*actor).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
-                se.send(SEEvent::pos(SE::Scene2, *position));
             }
         }
     }

@@ -62,7 +62,6 @@ fn spawn_damage_number(
                         });
                 }
             }
-            ActorEvent::FatalFall { .. } => {}
         }
     }
 }

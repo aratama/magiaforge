@@ -338,7 +338,7 @@ GameConstants(
             icon: "jump_icon",
             price: 300,
             cast_delay: 60,
-            cast: (type: "Jump")
+            cast: (type: "Jump", velocity: 3.0, impulse: 5000.0 )
         ),
         "WaterBall": (
             rank: 2,

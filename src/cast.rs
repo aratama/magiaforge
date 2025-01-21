@@ -109,7 +109,10 @@ pub enum SpellCast {
     LightSword,
     Web,
     Levitation,
-    Jump,
+    Jump {
+        velocity: f32,
+        impulse: f32,
+    },
     Metamorphosis,
     Slash {
         damage: u32,
@@ -130,6 +133,7 @@ pub fn cast_spell(
     actor_transform: &Transform,
     actor_impulse: &mut ExternalImpulse,
     actor_falling: &mut Vertical,
+    collision_groups: &mut CollisionGroups,
     player: Option<&Player>,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
@@ -409,9 +413,13 @@ pub fn cast_spell(
                     let position = actor_transform.translation.truncate();
                     se.send(SEEvent::pos(SE::Status2, position));
                 }
-                SpellCast::Jump => {
+                SpellCast::Jump { velocity, impulse } => {
                     if actor_falling.v == 0.0 {
-                        actor_falling.velocity = 3.0;
+                        actor_falling.v = actor_falling.v.max(0.01);
+                        actor_falling.velocity = velocity;
+                        actor_impulse.impulse += actor.move_direction.normalize_or_zero() * impulse;
+                        *collision_groups =
+                            actor.actor_group.to_groups(actor_falling.v, actor.drowning);
                         let position = actor_transform.translation.truncate();
                         se.send(SEEvent::pos(SE::Suna, position));
                     }

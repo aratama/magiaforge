@@ -330,19 +330,6 @@ fn die_player(
 
             game.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
 
-            // ダウン後はキャンプに戻る
-            next.next_level = GameLevel::Level(0);
-
-            // 次のシーンのためにプレイヤーの状態を保存
-            let mut player_state = if let Some(morph) = morph {
-                PlayerState::from_morph(morph)
-            } else {
-                PlayerState::from_player(&player, &actor, &player_life)
-            };
-            // 全回復させてから戻る
-            player_state.life = player_state.max_life;
-            next.next_state = Some(player_state);
-
             // 倒れるアニメーションを残す
             commands.spawn((
                 PlayerDown,
@@ -373,12 +360,43 @@ fn die_player(
                 },
             );
 
-            // 数秒後にキャンプに戻る
-            interpreter.send(InterpreterEvent::Play {
-                commands: vec![Cmd::Wait { count: 300 }, Cmd::Home],
-            });
+            recovery(
+                &mut next,
+                &mut interpreter,
+                &morph,
+                player,
+                player_life,
+                actor,
+            );
         }
     }
+}
+
+pub fn recovery(
+    level: &mut LevelSetup,
+    interpreter: &mut EventWriter<InterpreterEvent>,
+    morph: &Option<&Metamorphosis>,
+    player: &Player,
+    player_life: &Life,
+    actor: &Actor,
+) {
+    // ダウン後はキャンプに戻る
+    level.next_level = GameLevel::Level(0);
+
+    // 次のシーンのためにプレイヤーの状態を保存
+    let mut player_state = if let Some(morph) = morph {
+        PlayerState::from_morph(morph)
+    } else {
+        PlayerState::from_player(&player, &actor, &player_life)
+    };
+    // 全回復させてから戻る
+    player_state.life = player_state.max_life;
+    level.next_state = Some(player_state);
+
+    // 数秒後にキャンプに戻る
+    interpreter.send(InterpreterEvent::Play {
+        commands: vec![Cmd::Wait { count: 300 }, Cmd::Home],
+    });
 }
 
 fn getting_up(

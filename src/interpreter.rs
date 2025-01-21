@@ -138,7 +138,8 @@ pub enum Cmd {
 
     OnNewSpell {
         spell: SpellType,
-        commands: Vec<Cmd>,
+        commands_then: Vec<Cmd>,
+        commands_else: Vec<Cmd>,
     },
 }
 
@@ -448,11 +449,19 @@ fn interpret(
             interpreter.index += 1;
         }
 
-        Cmd::OnNewSpell { spell, commands } => {
+        Cmd::OnNewSpell {
+            spell,
+            commands_then,
+            commands_else,
+        } => {
             if let Ok((_, player)) = player_query.get_single_mut() {
-                if !player.discovered_spells.contains(&spell) {
-                    interpreter_events.send(InterpreterEvent::Play { commands });
-                }
+                interpreter_events.send(InterpreterEvent::Play {
+                    commands: if player.discovered_spells.contains(&spell) {
+                        commands_else
+                    } else {
+                        commands_then
+                    },
+                });
             }
             interpreter.index += 1;
         }
