@@ -1036,7 +1036,7 @@ GameConstants(
             cast_delay: 30,
             icon: "slash_icon",
             price: 2400,
-            cast: (type: "Slash"),
+            cast: (type: "Slash", damage: 762),
         ),
         "Heal": (
             rank: 5,
