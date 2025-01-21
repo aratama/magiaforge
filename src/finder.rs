@@ -1,6 +1,6 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorGroup;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use bevy_rapier2d::plugin::DefaultRapierContext;

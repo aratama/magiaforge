@@ -1,8 +1,8 @@
+use crate::actor::witch::Witch;
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::witch::Witch;
 use crate::message::SORT;
 use crate::states::GameMenuState;
 use crate::states::GameState;

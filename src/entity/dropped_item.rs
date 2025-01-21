@@ -5,7 +5,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::constant::GameConstants;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::inventory::InventoryItem;

@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::GameConstants;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::inventory_item::InventoryItemType;
 use crate::language::M18NTtext;
 use crate::message::UNPAID;

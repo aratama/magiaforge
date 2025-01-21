@@ -7,7 +7,7 @@ use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::message::PAY_FIRST;

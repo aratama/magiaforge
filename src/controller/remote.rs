@@ -1,14 +1,14 @@
+use crate::actor::witch::spawn_witch;
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorGroup;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
 use crate::entity::servant_seed::ServantType;
-use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::level::entities::SpawnEntity;

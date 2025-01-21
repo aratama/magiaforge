@@ -10,7 +10,7 @@ use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
-use crate::entity::actor::ActorGroup;
+use crate::actor::ActorGroup;
 use crate::hud::life_bar::LifeBarResource;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;

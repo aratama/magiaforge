@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
 use crate::enemy::basic::spawn_basic_enemy;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorTypes;
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::actor::ActorTypes;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;

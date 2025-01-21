@@ -1,6 +1,6 @@
 use crate::asset::GameAssets;
 use crate::constant::DAMAGE_NUMBER_LAYER_Z;
-use crate::entity::actor::ActorEvent;
+use crate::actor::ActorEvent;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;

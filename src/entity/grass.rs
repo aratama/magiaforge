@@ -5,7 +5,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::constant::TILE_HALF;
 use crate::constant::Z_ORDER_SCALE;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;

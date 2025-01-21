@@ -1,6 +1,6 @@
+use crate::actor::Actor;
+use crate::actor::ActorState;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorState;
 use crate::states::GameState;
 use bevy::prelude::*;
 

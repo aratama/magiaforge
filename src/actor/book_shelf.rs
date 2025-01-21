@@ -14,6 +14,11 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::Actor;
+use super::ActorGroup;
+use super::ActorSpriteGroup;
+use super::ActorTypes;
+
 const ENTITY_WIDTH: f32 = 16.0;
 
 const ENTITY_HEIGHT: f32 = 8.0;
@@ -23,12 +28,22 @@ pub struct Bookshelf;
 
 /// 指定した位置に本棚を生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, position: Vec2) {
+pub fn spawn_book_shelf(
+    commands: &mut Commands,
+    aseprite: Handle<Aseprite>,
+    position: Vec2,
+) -> Entity {
     let aseprite_clone = aseprite.clone();
 
     let mut parent = commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
+        Actor {
+            actor_type: ActorTypes::BookShelf,
+            radius: 8.0,
+            actor_group: ActorGroup::Neutral,
+            ..default()
+        },
         Life::new(25),
         Bookshelf,
         Burnable {
@@ -53,7 +68,7 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
     ));
 
     parent.with_children(move |parent| {
-        parent.spawn((
+        parent.spawn(ActorSpriteGroup).with_child((
             LifeBeingSprite,
             AseSpriteSlice {
                 name: "book_shelf".to_string(),
@@ -61,6 +76,8 @@ pub fn spawn_book_shelf(commands: &mut Commands, aseprite: Handle<Aseprite>, pos
             },
         ));
     });
+
+    parent.id()
 }
 
 fn break_book_shelf(

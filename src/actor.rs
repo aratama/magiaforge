@@ -1,3 +1,9 @@
+pub mod book_shelf;
+pub mod chest;
+pub mod rabbit;
+pub mod stone_lantern;
+pub mod witch;
+
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::collision::ENEMY_BULLET_GROUP;
@@ -69,6 +75,7 @@ pub enum ActorTypes {
     Spider,
     Lantern,
     Chest,
+    BookShelf,
 }
 
 impl ActorTypes {

@@ -1,7 +1,7 @@
+use crate::actor::witch::Witch;
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::witch::Witch;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::states::GameMenuState;

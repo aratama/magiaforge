@@ -3,7 +3,7 @@ use crate::camera::GameCamera;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::constant::*;
-use crate::entity::actor::ActorEvent;
+use crate::actor::ActorEvent;
 use crate::entity::fire::Fire;
 use crate::level::map::index_to_position;
 use crate::level::tile::Tile;

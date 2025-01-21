@@ -1,12 +1,13 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::actor::ActorSpriteGroup;
+use crate::actor::ActorState;
+use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorSpriteGroup;
-use crate::entity::actor::ActorState;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
@@ -22,8 +23,6 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 use uuid::Uuid;
-
-use super::actor::ActorTypes;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 

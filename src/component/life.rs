@@ -1,6 +1,6 @@
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorEvent;
+use crate::actor::Actor;
+use crate::actor::ActorEvent;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
 use crate::se::SEEvent;

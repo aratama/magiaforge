@@ -5,7 +5,7 @@ use crate::component::falling::Falling;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::component::vertical::Vertical;
-use crate::entity::actor::ActorGroup;
+use crate::actor::ActorGroup;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;

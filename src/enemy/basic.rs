@@ -1,3 +1,7 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::actor::ActorSpriteGroup;
+use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
@@ -6,10 +10,6 @@ use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorGroup;
-use crate::entity::actor::ActorSpriteGroup;
-use crate::entity::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;

@@ -1,5 +1,9 @@
 use std::collections::HashMap;
 
+use crate::actor::rabbit::spawn_rabbit;
+use crate::actor::Actor;
+use crate::actor::ActorFireState;
+use crate::actor::ActorState;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::bgm::BGMType;
@@ -12,11 +16,7 @@ use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorFireState;
-use crate::entity::actor::ActorState;
 use crate::entity::light::spawn_flash_light;
-use crate::entity::rabbit::spawn_rabbit;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;

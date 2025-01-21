@@ -1,8 +1,8 @@
+use crate::actor::Actor;
 use crate::component::life::Life;
 use crate::component::metamorphosis::Metamorphosis;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
 use crate::inventory::Inventory;
 use crate::spell::SpellType;
 use crate::wand::Wand;

@@ -2,14 +2,14 @@ pub mod life_bar;
 pub mod overlay;
 pub mod pointer;
 
+use crate::actor::witch::Witch;
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerDown;
-use crate::entity::actor::Actor;
-use crate::entity::witch::Witch;
 use crate::page::in_game::level_to_name;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;

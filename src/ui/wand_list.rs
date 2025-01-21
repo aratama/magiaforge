@@ -1,9 +1,9 @@
+use crate::actor::witch::Witch;
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::witch::Witch;
 use crate::states::GameState;
 use crate::ui::spell_in_wand::spawn_wand_spell_slot;
 use bevy::prelude::*;

@@ -1,8 +1,8 @@
+use crate::actor::Actor;
 use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::CRATE_NAME;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
 use crate::page::in_game::setup_level;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;

@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;

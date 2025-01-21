@@ -1,6 +1,9 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::actor::ActorSpriteGroup;
+use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::collision::*;
-use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
@@ -19,11 +22,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
-
-use super::actor::Actor;
-use super::actor::ActorGroup;
-use super::actor::ActorSpriteGroup;
-use super::actor::ActorTypes;
 
 const ENTITY_WIDTH: f32 = 8.0;
 

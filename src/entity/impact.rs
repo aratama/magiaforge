@@ -5,7 +5,7 @@ use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::TILE_SIZE;
-use crate::entity::actor::ActorEvent;
+use crate::actor::ActorEvent;
 use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;

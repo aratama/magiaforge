@@ -1,9 +1,9 @@
+use crate::actor::{ActorEvent, ActorGroup};
 use crate::asset::GameAssets;
 use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::life::Life;
 use crate::constant::PARTICLE_LAYER_Z;
-use crate::entity::actor::{ActorEvent, ActorGroup};
 use crate::se::{SEEvent, SE};
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;

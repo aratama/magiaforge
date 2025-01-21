@@ -1,10 +1,10 @@
+use crate::actor::witch::Witch;
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::constant::GameSenarios;
 use crate::constant::SenarioType;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::witch::Witch;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::physics::identify;

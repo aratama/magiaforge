@@ -1,11 +1,11 @@
+use crate::actor::witch::Witch;
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::collision::PLAYER_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::witch::Witch;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::page::in_game::GameLevel;

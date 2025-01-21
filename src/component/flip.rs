@@ -1,4 +1,4 @@
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::states::GameState;
 use crate::states::TimeState;
 use bevy::prelude::*;

@@ -1,7 +1,7 @@
+use crate::actor::chest::ChestItem;
+use crate::actor::ActorGroup;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
-use crate::entity::actor::ActorGroup;
-use crate::entity::chest::ChestItem;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEnemyType;

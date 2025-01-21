@@ -3,7 +3,7 @@ use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
 use crate::constant::*;
-use crate::entity::actor::ActorGroup;
+use crate::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;

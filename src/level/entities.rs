@@ -1,5 +1,16 @@
 use std::collections::HashSet;
 
+use crate::actor::book_shelf::spawn_book_shelf;
+use crate::actor::chest::spawn_chest;
+use crate::actor::chest::ChestItem;
+use crate::actor::chest::ChestType;
+use crate::actor::chest::CHEST_OR_BARREL;
+use crate::actor::chest::JARS;
+use crate::actor::rabbit::spawn_rabbit;
+use crate::actor::stone_lantern::spawn_stone_lantern;
+use crate::actor::witch::spawn_witch;
+use crate::actor::ActorEvent;
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
@@ -28,33 +39,22 @@ use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
 use crate::enemy::spider::spawn_spider;
 use crate::enemy::spider::Spider;
-use crate::entity::actor::ActorEvent;
-use crate::entity::actor::ActorGroup;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::bomb::spawn_bomb;
-use crate::entity::book_shelf::spawn_book_shelf;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
-use crate::entity::chest::spawn_chest;
-use crate::entity::chest::ChestItem;
-use crate::entity::chest::ChestType;
-use crate::entity::chest::CHEST_OR_BARREL;
-use crate::entity::chest::JARS;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::fireball::spawn_fireball;
 use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
-use crate::entity::rabbit::spawn_rabbit;
 use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
-use crate::entity::stone_lantern::spawn_stone_lantern;
 use crate::entity::web::spawn_web;
-use crate::entity::witch::spawn_witch;
 use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::Inventory;
 use crate::language::Dict;
@@ -236,6 +236,7 @@ pub enum SpawnEnemyType {
     Sandbag,
     Lantern,
     Chest,
+    BookShelf,
 }
 
 pub fn spawn_entity(
@@ -719,6 +720,9 @@ pub fn spawn_actor(
             ChestType::Chest,
             ChestItem::Gold(1),
         ),
+        SpawnEnemyType::BookShelf => {
+            spawn_book_shelf(&mut commands, assets.atlas.clone(), position)
+        }
     }
 }
 
@@ -752,5 +756,6 @@ pub fn add_default_behavior(
         }
         SpawnEnemyType::Lantern => {}
         SpawnEnemyType::Chest => {}
+        SpawnEnemyType::BookShelf => {}
     }
 }

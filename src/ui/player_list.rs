@@ -1,7 +1,7 @@
 use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::controller::remote::RemotePlayer;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::states::GameState;

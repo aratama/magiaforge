@@ -2,6 +2,7 @@
 // https://qiita.com/LNSEAB/items/6f60da458460274e768d
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod actor;
 mod asset;
 mod asset_credit;
 mod audio;
@@ -23,6 +24,7 @@ mod footsteps;
 mod game;
 mod hud;
 mod input;
+mod interpreter;
 mod inventory;
 mod inventory_item;
 mod language;
@@ -37,7 +39,6 @@ mod se;
 mod set;
 mod spell;
 mod states;
-mod interpreter;
 mod ui;
 mod wand;
 

@@ -1,9 +1,9 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::life::Life;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
-use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::spawn_actor;
@@ -53,6 +53,13 @@ pub fn cast_metamorphosis(
         SpawnEnemyType::Sandbag,
         SpawnEnemyType::Lantern,
         SpawnEnemyType::Chest,
+        SpawnEnemyType::BookShelf,
+        SpawnEnemyType::BookShelf,
+        SpawnEnemyType::BookShelf,
+        SpawnEnemyType::BookShelf,
+        SpawnEnemyType::BookShelf,
+        SpawnEnemyType::BookShelf,
+        SpawnEnemyType::BookShelf,
     ]
     .choose(&mut rng)
     .unwrap();

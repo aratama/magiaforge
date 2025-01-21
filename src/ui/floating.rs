@@ -2,7 +2,7 @@ use crate::asset::GameAssets;
 use crate::constant::GameConstants;
 use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
 use crate::controller::player::Player;
-use crate::entity::actor::Actor;
+use crate::actor::Actor;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::DropArea;
 use crate::inventory::InventoryItem;
