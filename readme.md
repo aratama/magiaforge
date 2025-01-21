@@ -55,5 +55,6 @@ This game depends on the following assets:
 - Sacred Sacrifice https://dova-s.jp/bgm/play6142.html
 - FINAL BATTLE (TRAILER MUSIC) https://pixabay.com/music/electronic-final-battle-trailer-music-217488/
 - Human vs Machine (dark orchestral cinematic epic action) https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/
-- Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/\
+- Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/
+- 発見 https://dova-s.jp/bgm/play20256.html
 - (All Sound Effects) https://soundeffect-lab.info/

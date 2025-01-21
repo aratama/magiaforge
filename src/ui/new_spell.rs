@@ -3,6 +3,7 @@ use crate::{
     constant::{GameConstants, UI_PRIMARY, UI_PRIMARY_DARKER},
     language::M18NTtext,
     message::NEW_SPELL,
+    se::{SEEvent, SE},
     set::FixedUpdateInGameSet,
     spell::SpellType,
     states::{GameMenuState, TimeState},
@@ -19,7 +20,10 @@ pub fn spawn_new_spell(
     constants: &GameConstants,
     time: &mut ResMut<NextState<TimeState>>,
     spell: SpellType,
+    se: &mut EventWriter<SEEvent>,
 ) {
+    se.send(SEEvent::new(SE::Hakken));
+
     time.set(TimeState::Inactive);
 
     let props = spell.to_props(&constants);

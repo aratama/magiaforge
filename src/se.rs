@@ -64,6 +64,7 @@ pub enum SE {
     Scene2,
     Kyushu2Short,
     Ken2,
+    Hakken,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -139,6 +140,7 @@ fn se_events(
             SE::Scene2 => &assets.scene2,
             SE::Kyushu2Short => &assets.kyushu2_short,
             SE::Ken2 => &assets.ken2,
+            SE::Hakken => &assets.hakken,
         };
 
         play_se(&mut commands, &config, handle, position, camera_position);

@@ -276,6 +276,9 @@ pub struct GameAssets {
     #[asset(path = "bgm/茫漠たる庭.ogg")]
     pub boubaku: Handle<AudioSource>,
 
+    #[asset(path = "bgm/発見.ogg")]
+    pub hakken: Handle<AudioSource>,
+
     // 拠点 //////////////////////////////////////////////////////////////////////
     #[asset(path = "bgm/水のしたたる洞窟.ogg")]
     pub dokutsu: Handle<AudioSource>,

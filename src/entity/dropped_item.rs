@@ -140,7 +140,7 @@ fn pickup_dropped_item(
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
     mut player_query: Query<(&mut Actor, &Player)>,
-    mut global: EventWriter<SEEvent>,
+    mut se: EventWriter<SEEvent>,
     mut time: ResMut<NextState<TimeState>>,
 ) {
     let constants = ron.get(assets.spells.id()).unwrap();
@@ -152,13 +152,20 @@ fn pickup_dropped_item(
                 if actor.inventory.insert(item.item) {
                     commands.entity(item_entity).despawn_recursive();
                     // info!("despawn {} {}", file!(), line!());
-                    global.send(SEEvent::new(SE::PickUp));
+                    se.send(SEEvent::new(SE::PickUp));
                     match item.item {
                         InventoryItem {
                             item_type: InventoryItemType::Spell(spell),
                             price: _,
                         } if !player.discovered_spells.contains(&spell) => {
-                            spawn_new_spell(&mut commands, &assets, &constants, &mut time, spell);
+                            spawn_new_spell(
+                                &mut commands,
+                                &assets,
+                                &constants,
+                                &mut time,
+                                spell,
+                                &mut se,
+                            );
                         }
                         _ => {}
                     }
