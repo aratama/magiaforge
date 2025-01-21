@@ -52,6 +52,24 @@ where
     }
 }
 
+fn identify_single_item<D, F>(
+    first_query: &Query<D, F>,
+    a: Entity,
+    b: Entity,
+) -> Option<(Entity, Entity)>
+where
+    D: QueryData,
+    F: QueryFilter,
+{
+    if first_query.contains(a) {
+        Some((a, b))
+    } else if first_query.contains(b) {
+        Some((b, a))
+    } else {
+        None
+    }
+}
+
 pub enum IdentifiedCollisionEvent {
     Started(Entity, Entity),
     #[allow(dead_code)]
@@ -60,7 +78,7 @@ pub enum IdentifiedCollisionEvent {
 }
 
 pub fn identify<D, F, G, H>(
-    collistion_event: &CollisionEvent,
+    collision_event: &CollisionEvent,
     first_query: &Query<D, F>,
     second_query: &Query<G, H>,
 ) -> IdentifiedCollisionEvent
@@ -70,7 +88,7 @@ where
     G: QueryData,
     H: QueryFilter,
 {
-    match collistion_event {
+    match collision_event {
         CollisionEvent::Started(a, b, _) => {
             if let Some((first_entity, second_entity)) =
                 identify_items(first_query, second_query, *a, *b)
@@ -84,6 +102,32 @@ where
             if let Some((first_entity, second_entity)) =
                 identify_items(first_query, second_query, *a, *b)
             {
+                IdentifiedCollisionEvent::Stopped(first_entity, second_entity)
+            } else {
+                IdentifiedCollisionEvent::Unidentified
+            }
+        }
+    }
+}
+
+pub fn identify_single<D, F>(
+    collistion_event: &CollisionEvent,
+    first_query: &Query<D, F>,
+) -> IdentifiedCollisionEvent
+where
+    D: QueryData,
+    F: QueryFilter,
+{
+    match collistion_event {
+        CollisionEvent::Started(a, b, _) => {
+            if let Some((first_entity, second_entity)) = identify_single_item(first_query, *a, *b) {
+                IdentifiedCollisionEvent::Started(first_entity, second_entity)
+            } else {
+                IdentifiedCollisionEvent::Unidentified
+            }
+        }
+        CollisionEvent::Stopped(a, b, _) => {
+            if let Some((first_entity, second_entity)) = identify_single_item(first_query, *a, *b) {
                 IdentifiedCollisionEvent::Stopped(first_entity, second_entity)
             } else {
                 IdentifiedCollisionEvent::Unidentified

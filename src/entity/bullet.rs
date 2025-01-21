@@ -1,10 +1,10 @@
+use crate::actor::Actor;
+use crate::actor::ActorEvent;
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::controller::remote::RemotePlayer;
-use crate::actor::Actor;
-use crate::actor::ActorEvent;
-use crate::actor::ActorGroup;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
@@ -12,6 +12,8 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::physics::identify_single;
+use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -280,71 +282,30 @@ fn bullet_freeze_water(
 
 fn bullet_collision(
     mut commands: Commands,
-    mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    mut actor_query: Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
-    mut lifebeing_query: Query<&Life, Without<Actor>>,
     mut collision_events: EventReader<CollisionEvent>,
-    wall_collider_query: Query<Entity, With<WallCollider>>,
     mut actor_event: EventWriter<ActorEvent>,
     mut spawn: EventWriter<SpawnEntity>,
     mut se: EventWriter<SEEvent>,
+    mut actor_query: Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
+    bullet_query: Query<(&Bullet, &Transform, &Velocity)>,
+    life_query: Query<&Life, Without<Actor>>,
+    wall_collider_query: Query<Entity, With<WallCollider>>,
 ) {
-    // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生するため、
-    // すでにdespawnしたentityに対して再びdespawnしてしまうことがあり、
-    // 警告が出るのを避けるため、処理済みのentityを識別するセットを使っています
+    // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生することがあります
+    // すでにdespawnしたentityに対して再びdespawnしてしまい警告が出るのを避けるため、
+    // 処理済みのentityを識別するセットを使っています
     // https://github.com/bevyengine/bevy/issues/5617
     let mut despawnings: HashSet<Entity> = HashSet::new();
 
     for collision_event in collision_events.read() {
-        match collision_event {
-            CollisionEvent::Started(a, b, _) => {
-                if !process_bullet_event(
-                    &mut commands,
-                    &mut bullet_query,
-                    &mut actor_query,
-                    &mut lifebeing_query,
-                    &mut despawnings,
-                    &a,
-                    &b,
-                    &wall_collider_query,
-                    &mut se,
-                    &mut actor_event,
-                    &mut spawn,
-                ) {
-                    process_bullet_event(
-                        &mut commands,
-                        &mut bullet_query,
-                        &mut actor_query,
-                        &mut lifebeing_query,
-                        &mut despawnings,
-                        &b,
-                        &a,
-                        &wall_collider_query,
-                        &mut se,
-                        &mut actor_event,
-                        &mut spawn,
-                    );
-                }
-            }
-            _ => {}
-        }
-    }
-}
+        let IdentifiedCollisionEvent::Started(bullet_entity, other_entity) =
+            identify_single(&collision_event, &bullet_query)
+        else {
+            continue;
+        };
 
-fn process_bullet_event(
-    commands: &mut Commands,
-    query: &Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
-    actors: &mut Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
-    breakabke_query: &Query<&Life, Without<Actor>>,
-    despawnings: &mut HashSet<Entity>,
-    a: &Entity,
-    b: &Entity,
-    wall_collider_query: &Query<Entity, With<WallCollider>>,
-    se: &mut EventWriter<SEEvent>,
-    actor_event: &mut EventWriter<ActorEvent>,
-    resource: &mut EventWriter<SpawnEntity>,
-) -> bool {
-    if let Ok((bullet_entity, bullet, bullet_transform, bullet_velocity)) = query.get(*a) {
+        let (bullet, bullet_transform, bullet_velocity) = bullet_query.get(bullet_entity).unwrap();
+
         let bullet_position = bullet_transform.translation.truncate();
 
         let bullet_damage = if bullet.holder.is_some() {
@@ -353,92 +314,81 @@ fn process_bullet_event(
             bullet.damage
         };
 
-        if !despawnings.contains(&bullet_entity) {
-            if let Ok(mut actor) = actors.get_mut(*b) {
-                trace!("bullet hit actor: {:?}", actor.uuid);
+        if despawnings.contains(&bullet_entity) {
+            continue;
+        }
 
-                // 弾丸がアクターに衝突したとき
-                // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
-                // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
-                // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
-                if bullet.owner == None || Some(actor.uuid) != bullet.owner {
-                    despawnings.insert(bullet_entity.clone());
-                    commands.entity(bullet_entity).despawn_recursive();
-                    // info!("despawn {} {}", file!(), line!());
-                    resource.send(SpawnEntity::Particle {
-                        position: bullet_position,
-                        spawn: SpawnParticle::default(),
-                    });
-
-                    // TODO
-                    // Life と Actor は分離されているので、Damagedイベントでは扱わない
-                    // 一貫性がない？
-                    if actor.frozen == 0 && 0 < bullet.freeze {
-                        se.send(SEEvent::pos(SE::Freeze, bullet_position));
-                    }
-                    actor.frozen += bullet.freeze;
-
-                    if actor.levitation == 0 && 0 < bullet.levitation {
-                        se.send(SEEvent::pos(SE::Status2, bullet_position));
-                    }
-                    actor.levitation += bullet.levitation;
-
-                    actor_event.send(ActorEvent::Damaged {
-                        actor: *b,
-                        damage: bullet_damage as u32,
-                        position: bullet_position,
-                        fire: false,
-                        impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
-                        stagger: bullet.stagger,
-                    });
-                }
-            } else if let Ok(_) = breakabke_query.get(*b) {
-                trace!("bullet hit: {:?}", b);
-
+        if let Ok(mut actor) = actor_query.get_mut(other_entity) {
+            // 弾丸がアクターに衝突したとき
+            // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
+            // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
+            // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
+            if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
                 // info!("despawn {} {}", file!(), line!());
-                resource.send(SpawnEntity::Particle {
+                spawn.send(SpawnEntity::Particle {
                     position: bullet_position,
                     spawn: SpawnParticle::default(),
                 });
+
+                // TODO
+                // Life と Actor は分離されているので、Damagedイベントでは扱わない
+                // 一貫性がない？
+                if actor.frozen == 0 && 0 < bullet.freeze {
+                    se.send(SEEvent::pos(SE::Freeze, bullet_position));
+                }
+                actor.frozen += bullet.freeze;
+
+                if actor.levitation == 0 && 0 < bullet.levitation {
+                    se.send(SEEvent::pos(SE::Status2, bullet_position));
+                }
+                actor.levitation += bullet.levitation;
+
                 actor_event.send(ActorEvent::Damaged {
-                    actor: *b,
+                    actor: other_entity,
                     damage: bullet_damage as u32,
                     position: bullet_position,
                     fire: false,
                     impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
                     stagger: bullet.stagger,
                 });
-            } else if let Ok(_) = wall_collider_query.get(*b) {
-                trace!("bullet hit wall: {:?}", b);
-                despawnings.insert(bullet_entity.clone());
-                commands.entity(bullet_entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
-                resource.send(SpawnEntity::Particle {
-                    position: bullet_position,
-                    spawn: SpawnParticle::default(),
-                });
-                se.send(SEEvent::pos(SE::Steps, bullet_position));
-            } else {
-                // リモートプレイヤーに命中した場合もここ
-                // ヒット判定やダメージなどはリモート側で処理します
-                trace!("bullet hit unknown entity: {:?}", b);
-                despawnings.insert(bullet_entity.clone());
-                commands.entity(bullet_entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
-                resource.send(SpawnEntity::Particle {
-                    position: bullet_position,
-                    spawn: SpawnParticle::default(),
-                });
-                se.send(SEEvent::pos(SE::NoDamage, bullet_position));
             }
-            true
+        } else if life_query.contains(other_entity) {
+            despawnings.insert(bullet_entity.clone());
+            commands.entity(bullet_entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
+            spawn.send(SpawnEntity::Particle {
+                position: bullet_position,
+                spawn: SpawnParticle::default(),
+            });
+            actor_event.send(ActorEvent::Damaged {
+                actor: other_entity,
+                damage: bullet_damage as u32,
+                position: bullet_position,
+                fire: false,
+                impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
+                stagger: bullet.stagger,
+            });
         } else {
-            false
+            // リモートプレイヤーに命中した場合もここ
+            // ヒット判定やダメージなどはリモート側で処理します
+            despawnings.insert(bullet_entity.clone());
+            commands.entity(bullet_entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
+            spawn.send(SpawnEntity::Particle {
+                position: bullet_position,
+                spawn: SpawnParticle::default(),
+            });
+            se.send(SEEvent::pos(
+                if wall_collider_query.contains(other_entity) {
+                    SE::Steps
+                } else {
+                    SE::NoDamage
+                },
+                bullet_position,
+            ));
         }
-    } else {
-        false
     }
 }
 
