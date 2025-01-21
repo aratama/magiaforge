@@ -461,12 +461,14 @@ fn update_tile_sprites(
                     && chunk.get_tile(x, y + 1).is_wall()
                     && !chunk.get_tile(x, y + 2).is_wall()
                 {
+                    warn!("filling gap at {} {}", x, y);
                     chunk.set_tile(x, y + 1, Tile::StoneTile);
                 } else if !chunk.get_tile(x, y + 0).is_wall()
                     && chunk.get_tile(x, y + 1).is_wall()
                     && chunk.get_tile(x, y + 2).is_wall()
                     && !chunk.get_tile(x, y + 3).is_wall()
                 {
+                    warn!("filling gap at {} {}", x, y);
                     chunk.set_tile(x, y + 1, Tile::StoneTile);
                     chunk.set_tile(x, y + 2, Tile::StoneTile);
                 }
@@ -475,6 +477,8 @@ fn update_tile_sprites(
 
         // 範囲内を更新
         if let Some((left, top, right, bottom)) = chunk.dirty {
+            info!("updating chunk {:?}", chunk.dirty);
+
             let min_x = (left - 1).max(chunk.min_x);
             let max_x = (right + 1).min(chunk.max_x);
             let min_y = (top - 1).max(chunk.min_y);
@@ -484,6 +488,7 @@ fn update_tile_sprites(
             for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
                 if min_x <= *tx && *tx <= max_x && min_y <= *ty && *ty <= max_y {
                     commands.entity(entity).despawn_recursive();
+                    // info!("despawn_recursive {} {}", file!(), line!());
                 }
             }
 
@@ -497,6 +502,7 @@ fn update_tile_sprites(
             // コリジョンはすべて再生成
             for entity in collider_query.iter() {
                 commands.entity(entity).despawn_recursive();
+                // info!("despawn_recursive {} {}", file!(), line!());
             }
             spawn_wall_collisions(&mut commands, chunk);
 
