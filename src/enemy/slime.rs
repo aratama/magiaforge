@@ -1,4 +1,5 @@
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::entity::actor::Actor;
@@ -9,7 +10,9 @@ use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
+use crate::states::GameState;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component, Debug)]
@@ -103,10 +106,33 @@ fn control_slime(
     }
 }
 
+fn blood(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    query: Query<(&Life, &Transform), With<SlimeControl>>,
+) {
+    for (life, transform) in query.iter() {
+        if life.life <= 0 {
+            let position = transform.translation.truncate();
+            commands.spawn((
+                StateScoped(GameState::InGame),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: format!("slime_blood_{}", rand::random::<u8>() % 3),
+                },
+                Transform::from_translation(position.extend(BLOOD_LAYER_Z)),
+            ));
+        }
+    }
+}
+
 pub struct SlimeControlPlugin;
 
 impl Plugin for SlimeControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, control_slime.in_set(FixedUpdateGameActiveSet));
+        app.add_systems(
+            FixedUpdate,
+            (control_slime, blood).in_set(FixedUpdateGameActiveSet),
+        );
     }
 }

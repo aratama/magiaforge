@@ -66,7 +66,9 @@ pub const SHADOW_LAYER_Z: f32 = 11.0;
 pub const PIECE_LAYER_Z: f32 = 10.5;
 
 /// 爆発の煤のレイヤー
-pub const SCORCH_MARK_LAYER_Z: f32 = 10.1;
+pub const SCORCH_MARK_LAYER_Z: f32 = 10.2;
+
+pub const BLOOD_LAYER_Z: f32 = 10.1;
 
 /// 魔法陣などのレイヤー
 /// 床タイルよりは常に上だが、キャラクターなどのエンティティよりは下
