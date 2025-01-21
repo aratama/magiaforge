@@ -13,7 +13,6 @@ use crate::entity::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::Inventory;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -21,7 +20,6 @@ use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use uuid::*;
 
 #[derive(Component, Debug)]
 pub struct BasicEnemy;
@@ -52,18 +50,11 @@ pub fn spawn_basic_enemy(
         DespawnWithGold { golds },
         Actor {
             actor_type,
-            uuid: Uuid::new_v4(),
-            point_light_radius: 0.0,
             radius,
-            current_wand: 0,
             actor_group,
             golds,
-            inventory: Inventory::new(),
             wands: Wand::single(spell),
-            fire_resistance: false,
             auto_levitation,
-            poise: 1,
-            invincibility_on_staggered: false,
             ..default()
         },
         Life::new(max_life),

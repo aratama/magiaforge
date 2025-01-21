@@ -20,6 +20,11 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 
+use super::actor::Actor;
+use super::actor::ActorGroup;
+use super::actor::ActorSpriteGroup;
+use super::actor::ActorTypes;
+
 const ENTITY_WIDTH: f32 = 8.0;
 
 const ENTITY_HEIGHT: f32 = 8.0;
@@ -83,7 +88,7 @@ pub fn spawn_chest(
     position: Vec2,
     chest_type: ChestType,
     item: ChestItem,
-) {
+) -> Entity {
     let life = match chest_type {
         ChestType::Chest => 30,
         ChestType::Crate => 30,
@@ -95,6 +100,12 @@ pub fn spawn_chest(
         .spawn((
             Name::new("chest"),
             StateScoped(GameState::InGame),
+            Actor {
+                actor_type: ActorTypes::Chest,
+                radius: 8.0,
+                actor_group: ActorGroup::Neutral,
+                ..default()
+            },
             Life::new(life),
             Chest {
                 chest_type,
@@ -103,7 +114,6 @@ pub fn spawn_chest(
             Burnable {
                 life: 60 * 20 + rand::random::<u32>() % 30,
             },
-            EntityDepth::new(),
             Transform::from_translation(position.extend(0.0)),
             GlobalTransform::default(),
             Visibility::default(),
@@ -111,10 +121,7 @@ pub fn spawn_chest(
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,
-                Damping {
-                    linear_damping: 10.0,
-                    angular_damping: 0.0,
-                },
+                Damping::default(),
                 match chest_type {
                     ChestType::Jar(_) => Collider::ball(6.0),
                     _ => Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
@@ -124,7 +131,7 @@ pub fn spawn_chest(
             ),
         ))
         .with_children(move |parent| {
-            parent.spawn((
+            parent.spawn(ActorSpriteGroup).with_child((
                 LifeBeingSprite,
                 AseSpriteSlice {
                     aseprite: aseprite,
@@ -140,7 +147,8 @@ pub fn spawn_chest(
                     .into(),
                 },
             ));
-        });
+        })
+        .id()
 }
 
 fn break_chest(

@@ -6,6 +6,10 @@ use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
+use crate::entity::actor::Actor;
+use crate::entity::actor::ActorGroup;
+use crate::entity::actor::ActorSpriteGroup;
+use crate::entity::actor::ActorTypes;
 use crate::entity::piece::spawn_broken_piece;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -21,23 +25,29 @@ struct StoneLantern;
 
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_stone_lantern(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    position: Vec2,
+) -> Entity {
     commands
         .spawn((
             Name::new("stone_lantern"),
             StateScoped(GameState::InGame),
+            Actor {
+                actor_type: ActorTypes::Lantern,
+                radius: 8.0,
+                actor_group: ActorGroup::Neutral,
+                ..default()
+            },
             Life::new(50),
             StoneLantern,
-            EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             Falling,
             (
                 RigidBody::Dynamic,
-                Damping {
-                    linear_damping: 80.0,
-                    angular_damping: 0.0,
-                },
+                Damping::default(),
                 LockedAxes::ROTATION_LOCKED,
                 Collider::cuboid(8.0, 8.0),
                 ColliderMassProperties::Density(10.0),
@@ -55,7 +65,7 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, po
             ),
         ))
         .with_children(|parent| {
-            parent.spawn((
+            parent.spawn(ActorSpriteGroup).with_child((
                 LifeBeingSprite,
                 Sprite {
                     anchor: Anchor::Custom(Vec2::new(0.0, -0.25)),
@@ -71,7 +81,8 @@ pub fn spawn_stone_lantern(commands: &mut Commands, assets: &Res<GameAssets>, po
                     ..default()
                 },
             ));
-        });
+        })
+        .id()
 }
 
 fn break_stone_lantern(

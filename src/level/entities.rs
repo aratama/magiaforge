@@ -234,6 +234,8 @@ pub enum SpawnEnemyType {
     Salamander,
     Chiken,
     Sandbag,
+    Lantern,
+    Chest,
 }
 
 pub fn spawn_entity(
@@ -540,14 +542,15 @@ pub fn spawn_entity(
                 position,
                 actor_group,
             } => {
-                spawn_actor_with_default_behavior(
+                let entity = spawn_actor(
                     &mut commands,
                     &assets,
-                    *enemy_type,
                     &life_bar_resource,
-                    *actor_group,
+                    *enemy_type,
                     *position,
+                    *actor_group,
                 );
+                add_default_behavior(&mut commands, *enemy_type, *position, entity);
             }
 
             SpawnEntity::Web {
@@ -655,82 +658,99 @@ pub fn spawn_entity(
     }
 }
 
-pub fn spawn_actor_with_default_behavior(
+pub fn spawn_actor(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
-    enemy_type: SpawnEnemyType,
     life_bar_resource: &Res<LifeBarResource>,
-    actor_group: ActorGroup,
+    enemy_type: SpawnEnemyType,
     position: Vec2,
+    actor_group: ActorGroup,
 ) -> Entity {
     match enemy_type {
-        SpawnEnemyType::Slime => {
-            let entity = spawn_slime(
-                &mut commands,
-                &assets,
-                position,
-                &life_bar_resource,
-                0,
-                actor_group,
-                None,
-            );
-            commands.entity(entity).insert(SlimeControl::default());
-            entity
-        }
-        SpawnEnemyType::Eyeball => {
-            let entity = spawn_eyeball(
-                &mut commands,
-                &assets,
-                position,
-                &life_bar_resource,
-                actor_group,
-                8,
-            );
-            commands.entity(entity).insert(EyeballControl::default());
-            entity
-        }
-        SpawnEnemyType::Shadow => {
-            let entity = spawn_shadow(
-                &mut commands,
-                &assets,
-                &life_bar_resource,
-                actor_group,
-                position,
-            );
-            commands.entity(entity).insert(Shadow::default());
-            entity
-        }
-        SpawnEnemyType::Spider => {
-            let entity = spawn_spider(
-                &mut commands,
-                &assets,
-                &life_bar_resource,
-                actor_group,
-                position,
-            );
-            commands.entity(entity).insert(Spider::default());
-            entity
-        }
-        SpawnEnemyType::Salamander => {
-            let entity = spawn_salamander(
-                &mut commands,
-                &assets,
-                &life_bar_resource,
-                actor_group,
-                position,
-            );
-            commands.entity(entity).insert(Salamander::default());
-            entity
-        }
+        SpawnEnemyType::Slime => spawn_slime(
+            &mut commands,
+            &assets,
+            position,
+            &life_bar_resource,
+            0,
+            actor_group,
+            None,
+        ),
+        SpawnEnemyType::Eyeball => spawn_eyeball(
+            &mut commands,
+            &assets,
+            position,
+            &life_bar_resource,
+            actor_group,
+            8,
+        ),
+        SpawnEnemyType::Shadow => spawn_shadow(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            actor_group,
+            position,
+        ),
+        SpawnEnemyType::Spider => spawn_spider(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            actor_group,
+            position,
+        ),
+        SpawnEnemyType::Salamander => spawn_salamander(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            actor_group,
+            position,
+        ),
         SpawnEnemyType::Chiken => {
-            let entity = spawn_chiken(&mut commands, &assets, &life_bar_resource, position);
-            commands.entity(entity).insert(Chicken::default());
-            entity
+            spawn_chiken(&mut commands, &assets, &life_bar_resource, position)
         }
         SpawnEnemyType::Sandbag => {
-            let entity = spawn_sandbag(&mut commands, &assets, &life_bar_resource, position);
-            commands.entity(entity).insert(Sandbag::new(position));
-            entity
+            spawn_sandbag(&mut commands, &assets, &life_bar_resource, position)
         }
+        SpawnEnemyType::Lantern => spawn_stone_lantern(&mut commands, &assets, position),
+        SpawnEnemyType::Chest => spawn_chest(
+            &mut commands,
+            assets.atlas.clone(),
+            position,
+            ChestType::Chest,
+            ChestItem::Gold(1),
+        ),
+    }
+}
+
+pub fn add_default_behavior(
+    commands: &mut Commands,
+    enemy_type: SpawnEnemyType,
+    position: Vec2,
+    entity: Entity,
+) {
+    match enemy_type {
+        SpawnEnemyType::Slime => {
+            commands.entity(entity).insert(SlimeControl::default());
+        }
+        SpawnEnemyType::Eyeball => {
+            commands.entity(entity).insert(EyeballControl::default());
+        }
+        SpawnEnemyType::Shadow => {
+            commands.entity(entity).insert(Shadow::default());
+        }
+        SpawnEnemyType::Spider => {
+            commands.entity(entity).insert(Spider::default());
+        }
+        SpawnEnemyType::Salamander => {
+            commands.entity(entity).insert(Salamander::default());
+        }
+        SpawnEnemyType::Chiken => {
+            commands.entity(entity).insert(Chicken::default());
+        }
+        SpawnEnemyType::Sandbag => {
+            commands.entity(entity).insert(Sandbag::new(position));
+        }
+        SpawnEnemyType::Lantern => {}
+        SpawnEnemyType::Chest => {}
     }
 }

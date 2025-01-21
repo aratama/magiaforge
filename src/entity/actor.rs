@@ -67,6 +67,8 @@ pub enum ActorTypes {
     Salamander,
     Shadow,
     Spider,
+    Lantern,
+    Chest,
 }
 
 impl ActorTypes {
@@ -222,7 +224,14 @@ pub struct ActorLevitationEffect;
 /// この ActorSpriteGroup の子、ルートのエンティティ孫としてアタッチされます
 /// これは、打撃アニメーションや浮遊アニメーションにおいて、本体の位置をそのままにスプタイトの位置だけ揺動させて表現するためです
 #[derive(Default, Component, Reflect)]
-#[require(Visibility, Counter, Transform, LifeBeingSprite, ChildEntityDepth)]
+#[require(
+    Visibility,
+    Counter,
+    Transform,
+    LifeBeingSprite,
+    ChildEntityDepth,
+    Vertical
+)]
 pub struct ActorSpriteGroup;
 
 impl Actor {

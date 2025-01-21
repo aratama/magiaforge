@@ -2,17 +2,11 @@ use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::life::Life;
 use crate::controller::player::Player;
-use crate::enemy::chicken::spawn_chiken;
-use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::salamander::spawn_salamander;
-use crate::enemy::sandbug::spawn_sandbag;
-use crate::enemy::shadow::spawn_shadow;
-use crate::enemy::slime::spawn_slime;
-use crate::enemy::spider::spawn_spider;
 use crate::entity::actor::Actor;
 use crate::entity::actor::ActorGroup;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::hud::life_bar::LifeBarResource;
+use crate::level::entities::spawn_actor;
 use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnWitch;
@@ -57,56 +51,20 @@ pub fn cast_metamorphosis(
         SpawnEnemyType::Salamander,
         SpawnEnemyType::Chiken,
         SpawnEnemyType::Sandbag,
+        SpawnEnemyType::Lantern,
+        SpawnEnemyType::Chest,
     ]
     .choose(&mut rng)
     .unwrap();
 
-    let entity = match enemy_type {
-        SpawnEnemyType::Slime => spawn_slime(
-            &mut commands,
-            &assets,
-            position,
-            &life_bar_resource,
-            0,
-            actor_group,
-            None,
-        ),
-        SpawnEnemyType::Eyeball => spawn_eyeball(
-            &mut commands,
-            &assets,
-            position,
-            &life_bar_resource,
-            actor_group,
-            8,
-        ),
-        SpawnEnemyType::Shadow => spawn_shadow(
-            &mut commands,
-            &assets,
-            &life_bar_resource,
-            actor_group,
-            position,
-        ),
-        SpawnEnemyType::Spider => spawn_spider(
-            &mut commands,
-            &assets,
-            &life_bar_resource,
-            actor_group,
-            position,
-        ),
-        SpawnEnemyType::Salamander => spawn_salamander(
-            &mut commands,
-            &assets,
-            &life_bar_resource,
-            actor_group,
-            position,
-        ),
-        SpawnEnemyType::Chiken => {
-            spawn_chiken(&mut commands, &assets, &life_bar_resource, position)
-        }
-        SpawnEnemyType::Sandbag => {
-            spawn_sandbag(&mut commands, &assets, &life_bar_resource, position)
-        }
-    };
+    let entity = spawn_actor(
+        &mut commands,
+        &assets,
+        &life_bar_resource,
+        enemy_type,
+        position,
+        actor_group,
+    );
 
     let discovered_spells = player
         .map(|p| p.discovered_spells.clone())
