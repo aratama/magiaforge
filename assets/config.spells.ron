@@ -338,7 +338,7 @@ GameConstants(
             icon: "jump_icon",
             price: 300,
             cast_delay: 60,
-            cast: (type: "Jump")
+            cast: (type: "Jump", velocity: 3.0, impulse: 5000.0 )
         ),
         "WaterBall": (
             rank: 2,
@@ -1036,7 +1036,7 @@ GameConstants(
             cast_delay: 30,
             icon: "slash_icon",
             price: 2400,
-            cast: (type: "Slash", damage: 762),
+            cast: (type: "Slash", damage: 12345),
         ),
         "Heal": (
             rank: 5,
