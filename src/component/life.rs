@@ -158,6 +158,7 @@ fn damage(
             }
             ActorEvent::FatalFall { actor, position } => {
                 commands.entity(*actor).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
                 se.send(SEEvent::pos(SE::Scene2, *position));
             }
         }

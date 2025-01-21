@@ -151,6 +151,7 @@ fn pickup_dropped_item(
                 let (mut actor, player) = player_query.get_mut(player_entity).unwrap();
                 if actor.inventory.insert(item.item) {
                     commands.entity(item_entity).despawn_recursive();
+                    // info!("despawn {} {}", file!(), line!());
                     global.send(SEEvent::new(SE::PickUp));
                     match item.item {
                         InventoryItem {

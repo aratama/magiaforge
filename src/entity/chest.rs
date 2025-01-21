@@ -157,6 +157,7 @@ fn break_chest(
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
             writer.send(SEEvent::pos(
                 match chest.chest_type {
                     ChestType::Chest => SE::Break,

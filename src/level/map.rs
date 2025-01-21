@@ -108,7 +108,10 @@ pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
 }
 
 pub fn xy_to_position(tx: i32, ty: i32) -> Vec2 {
-    Vec2::new(tx as f32 * TILE_SIZE, ty as f32 * -TILE_SIZE) + Vec2::new(TILE_HALF, TILE_HALF)
+    Vec2::new(
+        tx as f32 * TILE_SIZE + TILE_HALF,
+        ty as f32 * -TILE_SIZE - TILE_HALF,
+    )
 }
 
 /// レベルマップでのタイルの整数での位置を、ワールド座標に変換します

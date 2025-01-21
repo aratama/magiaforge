@@ -143,6 +143,7 @@ fn update_player_list(
         for i in players.len()..remote_player_items_query.iter().len() {
             if let Some((item_entity, _, _, _)) = remote_player_items_query.iter().nth(i) {
                 commands.entity(item_entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
             }
         }
     } else {

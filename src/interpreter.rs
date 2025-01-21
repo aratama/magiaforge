@@ -307,6 +307,7 @@ fn interpret(
         Cmd::Despawn { name } => {
             if let Some(entity) = entities.get(&name) {
                 commands.entity(*entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
             }
             interpreter.index += 1;
         }

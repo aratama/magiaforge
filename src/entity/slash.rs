@@ -86,6 +86,7 @@ pub fn spawn_slash(
                 let t = (target - position).angle_to(Vec2::from_angle(angle));
                 if t.abs() < f32::consts::PI * 0.5 {
                     commands.entity(grass).despawn_recursive();
+                    // info!("despawn {} {}", file!(), line!());
                 }
             }
             true
@@ -97,6 +98,7 @@ fn update_impact(mut commands: Commands, mut query: Query<(Entity, &Counter), Wi
     for (entity, counter) in query.iter_mut() {
         if 30 <= counter.count {
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
         }
     }
 }

@@ -131,6 +131,7 @@ fn close(
     {
         if let Ok(entity) = query.get_single() {
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
             time.set(TimeState::Active);
         }
     }

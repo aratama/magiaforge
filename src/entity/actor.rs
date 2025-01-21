@@ -512,6 +512,7 @@ fn update_actor_light(
             light_transform.translation.y = actor_transform.translation.y;
         } else {
             commands.entity(light_entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
         }
     }
 }
@@ -843,6 +844,8 @@ fn drown_damage(
                     }
                 }
                 Tile::Crack if vertical.v <= 0.0 => {
+                    info!("crack {:?}", position);
+
                     damage.send(ActorEvent::FatalFall {
                         actor: entity,
                         position: transform.translation.truncate(),

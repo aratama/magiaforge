@@ -212,6 +212,7 @@ fn despawn_bullet_by_lifetime(
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
         }
     }
 }
@@ -363,6 +364,7 @@ fn process_bullet_event(
                 if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                     despawnings.insert(bullet_entity.clone());
                     commands.entity(bullet_entity).despawn_recursive();
+                    // info!("despawn {} {}", file!(), line!());
                     resource.send(SpawnEntity::Particle {
                         position: bullet_position,
                         spawn: SpawnParticle::default(),
@@ -395,6 +397,7 @@ fn process_bullet_event(
 
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
                 resource.send(SpawnEntity::Particle {
                     position: bullet_position,
                     spawn: SpawnParticle::default(),
@@ -411,6 +414,7 @@ fn process_bullet_event(
                 trace!("bullet hit wall: {:?}", b);
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
                 resource.send(SpawnEntity::Particle {
                     position: bullet_position,
                     spawn: SpawnParticle::default(),
@@ -422,6 +426,7 @@ fn process_bullet_event(
                 trace!("bullet hit unknown entity: {:?}", b);
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
                 resource.send(SpawnEntity::Particle {
                     position: bullet_position,
                     spawn: SpawnParticle::default(),
@@ -446,6 +451,7 @@ fn despawn_bullet_residual(
         residual.count -= 1;
         if residual.count <= 0 {
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
             spawn_particle_system(
                 &mut commands,
                 transform.translation.truncate(),

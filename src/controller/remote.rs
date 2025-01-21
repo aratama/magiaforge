@@ -315,6 +315,7 @@ fn receive_events(
                                 let position = transform.translation.truncate();
                                 writer.send(SEEvent::pos(SE::Cry, position));
                                 commands.entity(entity).despawn_recursive();
+                                // info!("despawn {} {}", file!(), line!());
                                 let player_defeat_bonus = 100;
                                 for _ in 0..player_defeat_bonus {
                                     spawn_gold(&mut commands, &assets, position);
@@ -355,6 +356,7 @@ fn despawn_no_contact_remotes(
         if 120 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
             info!("Remote player {} despawned", actor.uuid);
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
         }
     }
 }

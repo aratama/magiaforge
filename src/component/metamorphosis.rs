@@ -46,6 +46,7 @@ pub fn cast_metamorphosis(
     mut rng: &mut ThreadRng,
 ) {
     commands.entity(*actor_entity).despawn_recursive();
+    // info!("despawn {} {}", file!(), line!());
     let position = actor_transform.translation.truncate();
     let actor_group = ActorGroup::Player;
     let enemy_type = *[
@@ -147,6 +148,7 @@ fn revert(
         if 60 * 10 <= counter.count {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
             spawn.send(SpawnEntity::SpawnWitch {
                 position,
                 witch: metamorphosis.witch.clone(),

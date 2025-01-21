@@ -73,6 +73,7 @@ fn break_book_shelf(
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
             writer.send(SEEvent::pos(SE::Break, position));
             for i in 0..6 {
                 spawn_broken_piece(

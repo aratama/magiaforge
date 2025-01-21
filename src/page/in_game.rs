@@ -241,7 +241,7 @@ pub fn setup_level(
 
     // 拠点のみ、数羽のニワトリを生成します
     if level == GameLevel::Level(0) {
-        for _ in 0..4 {
+        for _ in 0..5 {
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEntity::Enemy {
                     enemy_type: SpawnEnemyType::Chiken,
@@ -488,7 +488,7 @@ fn update_tile_sprites(
             for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
                 if min_x <= *tx && *tx <= max_x && min_y <= *ty && *ty <= max_y {
                     commands.entity(entity).despawn_recursive();
-                    // info!("despawn_recursive {} {}", file!(), line!());
+                    // info!("despawn {} {}", file!(), line!());
                 }
             }
 
@@ -502,7 +502,7 @@ fn update_tile_sprites(
             // コリジョンはすべて再生成
             for entity in collider_query.iter() {
                 commands.entity(entity).despawn_recursive();
-                // info!("despawn_recursive {} {}", file!(), line!());
+                // info!("despawn {} {}", file!(), line!());
             }
             spawn_wall_collisions(&mut commands, chunk);
 

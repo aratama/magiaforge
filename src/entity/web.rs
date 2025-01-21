@@ -89,6 +89,7 @@ fn despawn(mut commands: Commands, mut web_query: Query<(Entity, &mut Web, &Burn
         web.lifetime -= 1;
         if web.lifetime <= 0 || burnable.life <= 0 || life.life <= 0 {
             commands.entity(entity).despawn_recursive();
+            // info!("despawn {} {}", file!(), line!());
         }
     }
 }

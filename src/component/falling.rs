@@ -22,6 +22,7 @@ fn despawn(
             let tile = chunk.get_tile_by_coords(position);
             if !tile.is_floor() && vertical.map(|v| v.v == 0.0).unwrap_or(true) {
                 commands.entity(entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
                 se.send(SEEvent::pos(SE::Scene2, position));
                 info!(
                     "[falling] {:?} falled into {:?}",

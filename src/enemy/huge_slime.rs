@@ -322,6 +322,7 @@ fn despawn(
             if life.life <= 0 {
                 // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
                 commands.entity(entity).despawn_recursive();
+                // info!("despawn {} {}", file!(), line!());
                 commands.spawn((
                     Name::new("huge slime"),
                     CounterAnimated,
