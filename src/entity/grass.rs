@@ -1,3 +1,4 @@
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::Counter;
@@ -5,7 +6,6 @@ use crate::component::entity_depth::EntityDepth;
 use crate::constant::TILE_HALF;
 use crate::constant::Z_ORDER_SCALE;
 use crate::controller::player::Player;
-use crate::actor::Actor;
 use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
@@ -47,7 +47,11 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
         ))
         .with_children(|builder| {
             builder
-                .spawn((SpriteGroup, Transform::from_xyz(0.0, -8.0, 0.0)))
+                .spawn((
+                    SpriteGroup,
+                    Visibility::default(),
+                    Transform::from_xyz(0.0, -8.0, 0.0),
+                ))
                 .with_children(|builder| {
                     builder.spawn((
                         Name::new("grass2"),

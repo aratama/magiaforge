@@ -1,4 +1,5 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::component::life::Life;
 use crate::component::metamorphosis::Metamorphosis;
 use crate::constant::MAX_WANDS;
@@ -11,6 +12,7 @@ use bevy::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
+use std::panic;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerState {
@@ -90,14 +92,12 @@ impl Default for PlayerState {
             inventory.insert_spell(SpellType::Jump);
             inventory.insert_spell(SpellType::Metamorphosis);
             inventory.insert_spell(SpellType::Slash);
+            inventory.insert_spell(SpellType::MetamorphicCurse);
             inventory.sort();
 
             let wands = [
                 Wand::with_slots([
-                    Some(WandSpell {
-                        spell_type: SpellType::Slash,
-                        price: 0,
-                    }),
+                    Some(WandSpell::new(SpellType::MetamorphicCurse)),
                     None,
                     None,
                     None,
@@ -130,14 +130,8 @@ impl Default for PlayerState {
                     None,
                 ]),
                 Wand::with_slots([
-                    Some(WandSpell {
-                        spell_type: SpellType::Dash,
-                        price: 0,
-                    }),
-                    Some(WandSpell {
-                        spell_type: SpellType::Lantern,
-                        price: 0,
-                    }),
+                    Some(WandSpell::new(SpellType::Dash)),
+                    Some(WandSpell::new(SpellType::Lantern)),
                     None,
                     None,
                     None,
@@ -244,16 +238,25 @@ impl PlayerState {
         instance
     }
 
-    pub fn from_morph(morph: &Metamorphosis) -> Self {
+    pub fn from_morph(morph: &Metamorphosis, actor: &Actor, life: &Life) -> Self {
+        let ActorExtra::Witch {
+            name,
+            discovered_spells,
+            ..
+        } = &morph.original_actor.extra
+        else {
+            panic!("Not a witch");
+        };
+
         let mut instance = PlayerState {
-            name: morph.witch.name.clone(),
-            life: morph.witch.life,
-            max_life: morph.witch.max_life,
-            inventory: morph.witch.inventory.clone(),
-            wands: morph.witch.wands.clone(),
-            golds: morph.witch.golds,
-            current_wand: morph.witch.wand,
-            discovered_spells: morph.witch.discovered_spells.clone(),
+            name: name.clone(),
+            life: life.life,
+            max_life: life.max_life,
+            inventory: actor.inventory.clone(),
+            wands: actor.wands.clone(),
+            golds: actor.golds,
+            current_wand: actor.current_wand,
+            discovered_spells: discovered_spells.clone(),
         };
         instance.update_discovered_spell();
         instance

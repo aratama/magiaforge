@@ -1,9 +1,9 @@
+use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::constant::*;
-use crate::actor::ActorEvent;
 use crate::entity::fire::Fire;
 use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
@@ -76,6 +76,7 @@ fn spawn_explosion(
                         fire: false,
                         impulse: (p - position).normalize_or_zero() * impulse,
                         stagger: 120,
+                        metamorphose: false,
                     });
                 }
 

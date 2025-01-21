@@ -1,8 +1,12 @@
-use crate::controller::player::Player;
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
+use crate::asset::GameAssets;
+use crate::controller::player::Player;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
+use crate::hud::life_bar::LifeBarResource;
+use crate::level::entities::add_default_behavior;
+use crate::level::entities::SpawnEntity;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameState;
@@ -14,12 +18,14 @@ use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::QueryFilter;
 
+use super::metamorphosis::cast_metamorphosis;
+use super::metamorphosis::random_actor_type;
 use super::metamorphosis::Metamorphosis;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
 /// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespawnしません
-#[derive(Default, Component, Reflect)]
+#[derive(Default, Component, Reflect, Clone, Debug)]
 pub struct Life {
     /// 破壊可能なオブジェクトのライフ
     pub life: u32,
@@ -111,6 +117,7 @@ fn fire_damage(
                     fire: true,
                     impulse: Vec2::ZERO,
                     stagger: 0,
+                    metamorphose: false,
                 });
             }
         }
@@ -122,8 +129,13 @@ fn fire_damage(
 }
 
 fn damage(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    life_bar_resource: Res<LifeBarResource>,
+    mut spawn: EventWriter<SpawnEntity>,
     mut query: Query<(
         &mut Life,
+        &Transform,
         Option<&mut ExternalImpulse>,
         Option<&mut Actor>,
         Option<&Player>,
@@ -132,37 +144,73 @@ fn damage(
     mut reader: EventReader<ActorEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
+    let mut rng = rand::thread_rng();
+
     for event in reader.read() {
         match event {
             ActorEvent::Damaged {
-                actor,
+                actor: actor_entity,
                 damage,
                 position,
                 fire,
                 impulse,
                 stagger,
+                metamorphose,
             } => {
-                if 0 < *damage {
-                    if let Ok((mut life, life_impulse, mut actor_optional, _, _)) =
-                        query.get_mut(*actor)
-                    {
-                        if let Some(ref mut actor) = actor_optional {
-                            if actor.staggered == 0 || !actor.invincibility_on_staggered {
-                                life.life = (life.life as i32 - *damage as i32).max(0) as u32;
-                                actor.staggered = (actor.staggered + stagger).min(120);
-                            }
-                        } else {
-                            life.life = (life.life as i32 - *damage as i32).max(0) as u32;
-                        }
-                        life.amplitude = 6.0;
-                        se.send(SEEvent::pos(SE::Damage, *position));
-                        if *fire {
-                            life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
-                        }
-                        if let Some(mut life_impulse) = life_impulse {
-                            life_impulse.impulse += *impulse;
-                        }
+                let Ok((
+                    mut life,
+                    life_transform,
+                    life_impulse,
+                    mut actor_optional,
+                    _,
+                    metamorphosis,
+                )) = query.get_mut(*actor_entity)
+                else {
+                    continue;
+                };
+
+                if let Some(ref mut actor) = actor_optional {
+                    if actor.staggered == 0 || !actor.invincibility_on_staggered {
+                        life.life = (life.life as i32 - *damage as i32).max(0) as u32;
+                        actor.staggered = (actor.staggered + stagger).min(120);
                     }
+                } else {
+                    life.life = (life.life as i32 - *damage as i32).max(0) as u32;
+                }
+
+                life.amplitude = 6.0;
+
+                se.send(SEEvent::pos(SE::Damage, *position));
+
+                if *fire {
+                    life.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
+                }
+
+                if let Some(mut life_impulse) = life_impulse {
+                    life_impulse.impulse += *impulse;
+                }
+
+                let Some(ref mut actor) = actor_optional else {
+                    continue;
+                };
+
+                if *metamorphose && 0 < life.life {
+                    let position = life_transform.translation.truncate();
+                    let morphing_to = random_actor_type(&mut rng, actor.to_type());
+                    let entity = cast_metamorphosis(
+                        &mut commands,
+                        &assets,
+                        &life_bar_resource,
+                        &mut se,
+                        &mut spawn,
+                        actor_entity,
+                        actor.clone(),
+                        life.clone(),
+                        &metamorphosis,
+                        position,
+                        morphing_to,
+                    );
+                    add_default_behavior(&mut commands, morphing_to, position, entity);
                 }
             }
         }

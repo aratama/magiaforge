@@ -1,14 +1,16 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
+use crate::component::life::Life;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
+use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -25,17 +27,31 @@ const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
 const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 8.0;
 
+pub fn default_eyeball() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Eyeball,
+            actor_group: ActorGroup::Enemy,
+            wands: Wand::single(Some(SpellType::PurpleBolt)),
+            ..default()
+        },
+        Life::new(25),
+    )
+}
+
 pub fn spawn_eyeball(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
-    position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
-    actor_group: ActorGroup,
-    golds: u32,
+    position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
+    let actor_group = actor.actor_group;
     spawn_basic_enemy(
         &mut commands,
         &assets,
+        life_bar_locals,
         match actor_group {
             ActorGroup::Player => assets.eyeball_friend.clone(),
             ActorGroup::Enemy => assets.eyeball.clone(),
@@ -43,16 +59,10 @@ pub fn spawn_eyeball(
             ActorGroup::Entity => assets.eyeball_friend.clone(),
         },
         position,
-        life_bar_locals,
-        ActorTypes::EyeBall,
         "eyeball",
-        Some(SpellType::PurpleBolt),
-        golds,
-        actor_group,
         None,
-        25,
-        8.0,
-        true,
+        actor,
+        life,
     )
 }
 

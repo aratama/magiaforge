@@ -1,11 +1,13 @@
-use crate::asset::GameAssets;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::ActorTypes;
+use crate::asset::GameAssets;
+use crate::component::life::Life;
+use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
+use crate::wand::Wand;
 use bevy::prelude::*;
 
 /// Sandbugは敵のアクターグループですが攻撃を行いません
@@ -20,27 +22,36 @@ impl Sandbag {
     }
 }
 
+pub fn default_sandbag() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Sandbag,
+            actor_group: ActorGroup::Neutral,
+            wands: Wand::single(Some(SpellType::Jump)),
+            ..default()
+        },
+        Life::new(10000000),
+    )
+}
+
 pub fn spawn_sandbag(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
     let entity = spawn_basic_enemy(
         &mut commands,
         &assets,
+        life_bar_locals,
         assets.sandbug.clone(),
         position,
-        life_bar_locals,
-        ActorTypes::Sandbag,
         "sandbag",
-        Some(SpellType::Jump),
-        0,
-        ActorGroup::Enemy,
         None,
-        10000000,
-        8.0,
-        false,
+        actor,
+        life,
     );
     entity
 }

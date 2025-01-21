@@ -1,9 +1,13 @@
+use crate::actor::Actor;
+use crate::actor::ActorExtra;
+use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
+use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::*;
-use crate::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
@@ -17,9 +21,7 @@ use crate::level::biome::Biome;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
-use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnWitch;
 use crate::level::entities::SpawnWitchType;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::index_to_position;
@@ -191,15 +193,15 @@ pub fn setup_level(
     };
     let spaw_enemy_types = match level {
         GameLevel::Level(0) => vec![],
-        GameLevel::Level(1) => vec![SpawnEnemyType::Slime],
-        GameLevel::Level(2) => vec![SpawnEnemyType::Slime, SpawnEnemyType::Spider],
-        GameLevel::Level(3) => vec![SpawnEnemyType::Spider, SpawnEnemyType::Eyeball],
-        GameLevel::Level(4) => vec![SpawnEnemyType::Eyeball, SpawnEnemyType::Shadow],
+        GameLevel::Level(1) => vec![ActorType::Slime],
+        GameLevel::Level(2) => vec![ActorType::Slime, ActorType::Spider],
+        GameLevel::Level(3) => vec![ActorType::Spider, ActorType::EyeBall],
+        GameLevel::Level(4) => vec![ActorType::EyeBall, ActorType::Shadow],
         GameLevel::Level(5) => vec![
-            SpawnEnemyType::Spider,
-            SpawnEnemyType::Eyeball,
-            SpawnEnemyType::Shadow,
-            SpawnEnemyType::Salamander,
+            ActorType::Spider,
+            ActorType::EyeBall,
+            ActorType::Shadow,
+            ActorType::Salamander,
         ],
         GameLevel::Level(6) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
@@ -243,8 +245,8 @@ pub fn setup_level(
     if level == GameLevel::Level(0) {
         for _ in 0..5 {
             if let Some((x, y)) = empties.choose(&mut rng) {
-                spawn.send(SpawnEntity::Enemy {
-                    enemy_type: SpawnEnemyType::Chiken,
+                spawn.send(SpawnEntity::DefaultActor {
+                    actor_type: ActorType::Chicken,
                     actor_group: ActorGroup::Neutral,
                     position: index_to_position((*x, *y)),
                 });
@@ -254,7 +256,7 @@ pub fn setup_level(
 
     // テスト用モンスター
     // spawn.send(SpawnEntity::Enemy {
-    //     enemy_type: SpawnEnemyType::Spider,
+    //     enemy_type: ActorTypes::Spider,
     //     position: Vec2::new(TILE_SIZE * 24 as f32, TILE_SIZE * -34 as f32),
     // });
 
@@ -264,19 +266,27 @@ pub fn setup_level(
     setup_camera(&mut commands, Vec2::new(player_x, player_y));
 
     // プレイヤーキャラクターの魔法使いを生成
-    spawn.send(SpawnEntity::SpawnWitch {
+    spawn.send(SpawnEntity::Actor {
         position: Vec2::new(player_x, player_y),
-        witch: SpawnWitch {
-            wands: player_state.wands,
-            inventory: player_state.inventory,
-            witch_type: SpawnWitchType::Player,
-            wand: player_state.current_wand,
-            getting_up: getting_up_animation,
-            name: player_state.name,
+        life: Life {
             life: player_state.life,
             max_life: player_state.max_life,
+            amplitude: 0.0,
+            fire_damage_wait: 0,
+        },
+        actor: Actor {
+            actor_group: ActorGroup::Player,
+            wands: player_state.wands,
+            inventory: player_state.inventory,
+            current_wand: player_state.current_wand,
             golds: player_state.golds,
-            discovered_spells: player_state.discovered_spells,
+            extra: ActorExtra::Witch {
+                witch_type: SpawnWitchType::Player,
+                getting_up: getting_up_animation,
+                name: player_state.name,
+                discovered_spells: player_state.discovered_spells,
+            },
+            ..default()
         },
     });
 
@@ -327,7 +337,7 @@ fn spawn_random_enemies(
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
     spaw_enemy_count: u32,
-    enemy_types: &Vec<SpawnEnemyType>,
+    enemy_types: &Vec<ActorType>,
     spawn: &mut EventWriter<SpawnEntity>,
 ) {
     let mut empties = empties.clone();
@@ -354,8 +364,8 @@ fn spawn_random_enemies(
 
         match enemy_types.choose(&mut rng) {
             Some(enemy_type) => {
-                spawn.send(SpawnEntity::Enemy {
-                    enemy_type: *enemy_type,
+                spawn.send(SpawnEntity::DefaultActor {
+                    actor_type: *enemy_type,
                     actor_group: ActorGroup::Enemy,
                     position,
                 });

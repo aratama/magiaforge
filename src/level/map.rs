@@ -1,10 +1,13 @@
+use crate::actor::chest::chest_actor;
+use crate::actor::chest::default_random_chest;
 use crate::actor::chest::ChestItem;
+use crate::actor::chest::ChestType;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
-use crate::level::entities::SpawnEnemyType;
 use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
 use crate::message::HUGE_SLIME;
@@ -169,7 +172,9 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::BookShelf {
+                    entities.push(SpawnEntity::DefaultActor {
+                        actor_type: ActorType::BookShelf,
+                        actor_group: ActorGroup::Entity,
                         // 本棚は横2タイルの幅があるため、エンティティの中央はタイルの中央より半タイル分だけ右になります
                         position: position + Vec2::new(TILE_HALF, 0.0),
                     });
@@ -179,35 +184,46 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::Chest {
+                    let chest_item = if (x, y) == (81, 28) {
+                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                            SpellType::Dash,
+                        )))
+                    } else if (x, y) == (30, 69) {
+                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                            SpellType::Levitation,
+                        )))
+                    } else if (x, y) == (53, 24) {
+                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                            SpellType::Bomb,
+                        )))
+                    } else if (x, y) == (100, 66) {
+                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
+                            SpellType::LightSword,
+                        )))
+                    } else {
+                        ChestItem::Gold(4)
+                    };
+                    let (actor, life) = chest_actor(ChestType::Chest, chest_item);
+                    entities.push(SpawnEntity::Actor {
                         position,
-                        item: if (x, y) == (81, 28) {
-                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                                SpellType::Dash,
-                            )))
-                        } else if (x, y) == (30, 69) {
-                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                                SpellType::Levitation,
-                            )))
-                        } else if (x, y) == (53, 24) {
-                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                                SpellType::Bomb,
-                            )))
-                        } else if (x, y) == (100, 66) {
-                            ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                                SpellType::LightSword,
-                            )))
-                        } else {
-                            ChestItem::Gold(4)
-                        },
+                        life,
+                        actor,
                     });
                 }
                 (255, 155, 87, 255) => {
+                    // CrateOrBarrel
                     tiles.push(LevelTileMapile {
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::CrateOrBarrel { position });
+
+                    // todo
+                    let (actor, life) = default_random_chest();
+                    entities.push(SpawnEntity::Actor {
+                        position,
+                        actor,
+                        life,
+                    });
                 }
                 (48, 96, 130, 255) => {
                     tiles.push(LevelTileMapile {
@@ -276,11 +292,18 @@ pub fn image_to_tilemap(
                     entities.push(SpawnEntity::ShopSpell { position });
                 }
                 (102, 57, 49, 255) => {
+                    // Crate
                     tiles.push(LevelTileMapile {
                         tile: Tile::StoneTile,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::Crate { position });
+                    // TODO
+                    let (actor, life) = default_random_chest();
+                    entities.push(SpawnEntity::Actor {
+                        position,
+                        life,
+                        actor,
+                    });
                 }
                 (184, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
@@ -346,8 +369,8 @@ pub fn image_to_tilemap(
                         tile: Tile::Biome,
                         zone: Zone::SafeZone,
                     });
-                    entities.push(SpawnEntity::Enemy {
-                        enemy_type: SpawnEnemyType::Sandbag,
+                    entities.push(SpawnEntity::DefaultActor {
+                        actor_type: ActorType::Sandbag,
                         actor_group: ActorGroup::Neutral,
                         position,
                     });

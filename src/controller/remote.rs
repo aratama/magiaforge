@@ -1,3 +1,4 @@
+use crate::actor::witch::default_witch;
 use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
@@ -10,7 +11,6 @@ use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
 use crate::entity::servant_seed::ServantType;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::Inventory;
 use crate::level::entities::SpawnEntity;
 use crate::page::in_game::setup_level;
 use crate::page::in_game::GameLevel;
@@ -19,7 +19,6 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
-use crate::wand::Wand;
 use bevy::core::FrameCount;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
@@ -259,24 +258,17 @@ fn receive_events(
                                 actor.pointer = Vec2::from_angle(angle);
                                 actor.point_light_radius = intensity;
                             } else if !spawned_players.contains(&uuid) {
+                                let (actor, life) = default_witch();
                                 spawned_players.insert(uuid);
                                 let entity = spawn_witch(
                                     &mut commands,
                                     &assets,
                                     Vec2::new(x, y),
-                                    angle,
-                                    uuid,
                                     Some(name.clone()),
-                                    life,
-                                    max_life,
                                     &life_bar_res,
                                     true,
-                                    3.0,
-                                    0,
-                                    [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
-                                    Inventory::new(),
-                                    ActorGroup::Enemy,
-                                    0,
+                                    actor,
+                                    life,
                                 );
                                 commands.entity(entity).insert(RemotePlayer {
                                     name,

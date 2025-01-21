@@ -6,8 +6,13 @@ GameActors(
             jump: 0.0,
             linear_damping: 6.0
         ),
+        "Rabbit": (
+            move_force: 40000.0,
+            jump: 1.5,
+            linear_damping: 10.0,
+        ),
         "Chicken": (
-            move_force: 10000.0,
+            move_force: 60000.0,
             jump: 1.5,
             linear_damping: 10.0,
         ),

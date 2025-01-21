@@ -1,10 +1,9 @@
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::EntityDepth;
 use crate::component::flip::Flip;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
@@ -17,9 +16,7 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -51,30 +48,34 @@ impl Default for Spider {
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
+pub fn default_spider() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Spider,
+            actor_group: ActorGroup::Enemy,
+            ..default()
+        },
+        Life::new(40),
+    )
+}
+
 pub fn spawn_spider(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
-    actor_group: ActorGroup,
     position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
     let radius = 8.0;
     let golds = 10;
-    let spell = Some(SpellType::Web);
+    let actor_group = actor.actor_group;
     let mut builder = commands.spawn((
         Name::new("spider"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Actor {
-            actor_type: ActorTypes::Spider,
-            radius,
-            actor_group,
-            golds,
-            wands: Wand::single(spell),
-            ..default()
-        },
-        EntityDepth::new(),
-        Life::new(40),
+        actor,
+        life,
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),
@@ -271,6 +272,7 @@ fn attack(
                                 fire: false,
                                 impulse: Vec2::ZERO,
                                 stagger: 30,
+                                metamorphose: false,
                             });
                         }
                     }

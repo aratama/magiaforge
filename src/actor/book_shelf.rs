@@ -1,6 +1,8 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::actor::ActorSpriteGroup;
 use crate::asset::GameAssets;
 use crate::collision::*;
-use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
@@ -14,10 +16,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use super::Actor;
-use super::ActorGroup;
-use super::ActorSpriteGroup;
-use super::ActorTypes;
+use super::ActorExtra;
 
 const ENTITY_WIDTH: f32 = 16.0;
 
@@ -26,30 +25,37 @@ const ENTITY_HEIGHT: f32 = 8.0;
 #[derive(Default, Component, Reflect)]
 pub struct Bookshelf;
 
+pub fn default_bookshelf() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::BookShelf,
+            actor_group: ActorGroup::Entity,
+            ..default()
+        },
+        Life::new(25),
+    )
+}
+
 /// 指定した位置に本棚を生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 pub fn spawn_book_shelf(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
     position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
     let aseprite_clone = aseprite.clone();
 
     let mut parent = commands.spawn((
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
-        Actor {
-            actor_type: ActorTypes::BookShelf,
-            radius: 8.0,
-            actor_group: ActorGroup::Entity,
-            ..default()
-        },
-        Life::new(25),
+        actor,
+        life,
         Bookshelf,
         Burnable {
             life: 60 * 20 + rand::random::<u32>() % 30,
         },
-        EntityDepth::new(),
         Visibility::default(),
         Transform::from_translation(position.extend(0.0)),
         Falling,

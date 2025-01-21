@@ -1,7 +1,6 @@
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
@@ -19,8 +18,22 @@ use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::ActorExtra;
+
 #[derive(Default, Component, Reflect)]
 struct StoneLantern;
+
+pub fn default_lantern() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Lantern,
+            actor_group: ActorGroup::Entity,
+            radius: 8.0,
+            ..default()
+        },
+        Life::new(50),
+    )
+}
 
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
@@ -28,18 +41,15 @@ pub fn spawn_stone_lantern(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
     commands
         .spawn((
             Name::new("stone_lantern"),
             StateScoped(GameState::InGame),
-            Actor {
-                actor_type: ActorTypes::Lantern,
-                radius: 8.0,
-                actor_group: ActorGroup::Entity,
-                ..default()
-            },
-            Life::new(50),
+            actor,
+            life,
             StoneLantern,
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),

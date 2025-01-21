@@ -1,7 +1,7 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
@@ -11,6 +11,7 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
+use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
@@ -30,35 +31,43 @@ const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
+pub fn default_slime() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Slime,
+            actor_group: ActorGroup::Enemy,
+            wands: Wand::single(Some(SpellType::SlimeCharge)),
+            ..default()
+        },
+        Life::new(15),
+    )
+}
+
 pub fn spawn_slime(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
-    position: Vec2,
     life_bar_locals: &Res<LifeBarResource>,
-    gold: u32,
-    group: ActorGroup,
+    actor: Actor,
+    life: Life,
+    position: Vec2,
     owner: Option<Entity>,
 ) -> Entity {
+    let actor_group = actor.actor_group;
     spawn_basic_enemy(
         &mut commands,
         &assets,
-        match group {
+        life_bar_locals,
+        match actor_group {
             ActorGroup::Player => assets.friend_slime.clone(),
             ActorGroup::Enemy => assets.slime.clone(),
             ActorGroup::Neutral => assets.friend_slime.clone(),
             ActorGroup::Entity => assets.friend_slime.clone(),
         },
         position,
-        life_bar_locals,
-        ActorTypes::Slime,
         "slime",
-        Some(SpellType::SlimeCharge),
-        gold,
-        group,
         owner,
-        15,
-        8.0,
-        false,
+        actor,
+        life,
     )
 }
 

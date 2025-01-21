@@ -1,8 +1,6 @@
 use crate::actor::Actor;
-use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
@@ -11,18 +9,19 @@ use crate::constant::*;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::Inventory;
+use crate::level::entities::SpawnWitchType;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
-use crate::wand::Wand;
 use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
-use uuid::Uuid;
+use std::collections::HashSet;
+
+use super::ActorExtra;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 
@@ -35,48 +34,38 @@ pub struct WitchWandSprite;
 #[derive(Component)]
 pub struct Witch;
 
+pub fn default_witch() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Witch {
+                witch_type: SpawnWitchType::Dummy,
+                getting_up: false,
+                name: "default".to_string(),
+                discovered_spells: HashSet::new(),
+            },
+            ..default()
+        },
+        Life::new(60),
+    )
+}
+
 pub fn spawn_witch(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     position: Vec2,
-    angle: f32,
-    uuid: Uuid,
     name_plate: Option<String>,
-    life: u32,
-    max_life: u32,
     res: &Res<LifeBarResource>,
     life_bar: bool,
-    point_light_radius: f32,
-    golds: u32,
-    wands: [Wand; 4],
-    inventory: Inventory,
-    actor_group: ActorGroup,
-    current_wand: u8,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
+    let actor_group = actor.actor_group;
     let mut entity = commands.spawn((
         Name::new("witch"),
         StateScoped(GameState::InGame),
-        Actor {
-            actor_type: ActorTypes::Witch,
-            uuid,
-            point_light_radius,
-            radius: WITCH_COLLIDER_RADIUS,
-            current_wand,
-            actor_group,
-            golds,
-            wands,
-            inventory,
-            pointer: Vec2::from_angle(angle),
-            invincibility_on_staggered: true,
-            ..default()
-        },
+        actor,
         Witch,
-        Life {
-            life,
-            max_life,
-            amplitude: 0.0,
-            fire_damage_wait: 0,
-        },
+        life,
         HomingTarget,
         // 足音
         // footsteps.rsで音量を調整

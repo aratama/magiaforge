@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use crate::actor::rabbit::spawn_rabbit;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
@@ -11,10 +8,6 @@ use crate::camera::GameCamera;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
 use crate::constant::GameConstants;
-use crate::constant::SenarioType;
-use crate::controller::message_rabbit::MessageRabbit;
-use crate::controller::message_rabbit::MessageRabbitInnerSensor;
-use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::player::Player;
 use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
@@ -36,6 +29,7 @@ use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use std::collections::HashMap;
 
 const DELAY: usize = 4;
 
@@ -91,11 +85,6 @@ pub enum Cmd {
         radius: f32,
         duration: u32,
         reverse: bool,
-    },
-
-    #[allow(dead_code)]
-    SpawnRabbit {
-        position: Vec2,
     },
 
     /// エンディングを再生します
@@ -357,22 +346,7 @@ fn interpret(
             interpreter.wait = count;
             interpreter.index += 1;
         }
-        Cmd::SpawnRabbit { position } => {
-            // テスト用、使っていない
-            spawn_rabbit(
-                &mut commands,
-                &assets,
-                &assets.rabbit_blue,
-                position,
-                MessageRabbit {
-                    senario: SenarioType::HelloRabbit,
-                },
-                MessageRabbitInnerSensor,
-                MessageRabbitOuterSensor,
-            );
 
-            interpreter.index += 1;
-        }
         Cmd::Ending => {
             writer.send(OverlayEvent::Close(GameState::Ending));
             interpreter.index += 1;

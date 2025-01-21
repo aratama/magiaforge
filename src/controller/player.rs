@@ -385,7 +385,7 @@ pub fn recovery(
 
     // 次のシーンのためにプレイヤーの状態を保存
     let mut player_state = if let Some(morph) = morph {
-        PlayerState::from_morph(morph)
+        PlayerState::from_morph(morph, &actor, &player_life)
     } else {
         PlayerState::from_player(&player, &actor, &player_life)
     };

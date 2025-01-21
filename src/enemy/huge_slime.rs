@@ -1,7 +1,9 @@
 use crate::actor::jump_actor;
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
+use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::collision::ENEMY_GROUPS;
@@ -12,7 +14,6 @@ use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::actor::ActorTypes;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
@@ -58,10 +59,42 @@ pub enum HugeSlimeState {
 #[derive(Component)]
 pub struct HugeSlimeSprite;
 
+pub fn default_huge_slime() -> (Actor, Life) {
+    let mut slots = [None; MAX_SPELLS_IN_WAND];
+    slots[0] = Some(WandSpell {
+        spell_type: SpellType::MagicBolt,
+        price: 0,
+    });
+    (
+        Actor {
+            extra: ActorExtra::HugeSlime,
+            radius: HUGE_SLIME_COLLIDER_RADIUS,
+            actor_group: ActorGroup::Enemy,
+            wands: [
+                Wand::with_slots(slots),
+                Wand::empty(),
+                Wand::empty(),
+                Wand::empty(),
+            ],
+            fire_resistance: true,
+            poise: 60,
+            // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
+            // 通常1秒しか拘束
+            floundering: 8,
+            // スライムの王は凍結無効
+            defreeze: 10000,
+            ..default()
+        },
+        Life::new(4000),
+    )
+}
+
 pub fn spawn_huge_slime(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(WandSpell {
@@ -69,35 +102,11 @@ pub fn spawn_huge_slime(
         price: 0,
     });
 
-    let mut actor = Actor {
-        actor_type: ActorTypes::HugeSlime,
-        radius: HUGE_SLIME_COLLIDER_RADIUS,
-        actor_group: ActorGroup::Enemy,
-
-        wands: [
-            Wand::with_slots(slots),
-            Wand::empty(),
-            Wand::empty(),
-            Wand::empty(),
-        ],
-        fire_resistance: true,
-        poise: 60,
-        ..default()
-    };
-
-    // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
-    // 通常1秒しか拘束
-    actor.floundering = 8;
-
-    // スライムの王は凍結無効
-    actor.defreeze = 10000;
-
     let entity = commands
         .spawn((
             Name::new("huge slime"),
             StateScoped(GameState::InGame),
             DespawnHugeSlime,
-            Life::new(4000),
             HomingTarget,
             HugeSlime {
                 state: HugeSlimeState::Growl,
@@ -105,8 +114,7 @@ pub fn spawn_huge_slime(
             },
             Counter::up(0),
             actor,
-            EntityDepth::new(),
-            CounterAnimated,
+            life,
             AseSpriteAnimation {
                 aseprite: assets.huge_slime_shadow.clone(),
                 animation: Animation::default().with_tag("idle"),
@@ -192,7 +200,7 @@ fn update_huge_slime_approach(
     mut se: EventWriter<SEEvent>,
 ) {
     let constants = constants.get(assets.actors.id()).unwrap();
-    let props = ActorTypes::HugeSlime.to_props(&constants);
+    let props = ActorType::HugeSlime.to_props(&constants);
 
     for (
         mut huge_slime,

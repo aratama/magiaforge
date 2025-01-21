@@ -1,32 +1,28 @@
-use std::collections::HashSet;
-
 use crate::actor::book_shelf::spawn_book_shelf;
 use crate::actor::chest::spawn_chest;
-use crate::actor::chest::ChestItem;
-use crate::actor::chest::ChestType;
-use crate::actor::chest::CHEST_OR_BARREL;
-use crate::actor::chest::JARS;
+use crate::actor::get_default_actor;
+use crate::actor::rabbit::default_rabbit;
 use crate::actor::rabbit::spawn_rabbit;
+use crate::actor::rabbit::RabbitType;
+use crate::actor::stone_lantern::default_lantern;
 use crate::actor::stone_lantern::spawn_stone_lantern;
 use crate::actor::witch::spawn_witch;
+use crate::actor::Actor;
 use crate::actor::ActorEvent;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
-use crate::controller::message_rabbit::MessageRabbit;
-use crate::controller::message_rabbit::MessageRabbitInnerSensor;
-use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::Player;
-use crate::controller::shop_rabbit::ShopRabbit;
-use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
-use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::chicken::Chicken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
+use crate::enemy::huge_slime::default_huge_slime;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::huge_slime::Boss;
 use crate::enemy::salamander::spawn_salamander;
@@ -56,21 +52,16 @@ use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
-use crate::inventory::Inventory;
 use crate::language::Dict;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-use crate::spell::SpellType;
-use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
-use rand::seq::IteratorRandom;
-use uuid::Uuid;
 
 #[derive(Event, Clone, Debug)]
 pub enum SpawnEntity {
@@ -130,22 +121,6 @@ pub enum SpawnEntity {
     },
 
     // 魔法で生成されるもの
-    Chest {
-        position: Vec2,
-        item: ChestItem,
-    },
-    Crate {
-        position: Vec2,
-    },
-    CrateOrBarrel {
-        position: Vec2,
-    },
-    Jar {
-        position: Vec2,
-    },
-    BookShelf {
-        position: Vec2,
-    },
     StoneLantern {
         position: Vec2,
     },
@@ -172,16 +147,17 @@ pub enum SpawnEntity {
         servant: bool,
     },
 
-    Enemy {
-        enemy_type: SpawnEnemyType,
+    DefaultActor {
+        actor_type: ActorType,
         actor_group: ActorGroup,
         position: Vec2,
     },
 
     /// 変化の復帰のときなどに使います
-    SpawnWitch {
+    Actor {
         position: Vec2,
-        witch: SpawnWitch,
+        life: Life,
+        actor: Actor,
     },
 
     Web {
@@ -203,40 +179,12 @@ pub enum SpawnEntity {
     },
 }
 
-#[derive(Clone, Debug)]
-pub struct SpawnWitch {
-    pub wands: [Wand; MAX_WANDS],
-    pub inventory: Inventory,
-    pub wand: u8,
-    pub witch_type: SpawnWitchType,
-    pub getting_up: bool,
-    pub name: String,
-    pub life: u32,
-    pub max_life: u32,
-    pub golds: u32,
-    pub discovered_spells: HashSet<SpellType>,
-}
-
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Reflect)]
 pub enum SpawnWitchType {
     Player,
 
     #[allow(dead_code)]
     Dummy,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SpawnEnemyType {
-    Slime,
-    Eyeball,
-    Shadow,
-    Spider,
-    Salamander,
-    Chiken,
-    Sandbag,
-    Lantern,
-    Chest,
-    BookShelf,
 }
 
 pub fn spawn_entity(
@@ -273,68 +221,6 @@ pub fn spawn_entity(
         }
 
         match event {
-            SpawnEntity::BookShelf { position } => {
-                spawn_book_shelf(&mut commands, assets.atlas.clone(), *position);
-            }
-            SpawnEntity::Chest { position, item } => {
-                spawn_chest(
-                    &mut commands,
-                    assets.atlas.clone(),
-                    *position,
-                    ChestType::Chest,
-                    *item,
-                );
-            }
-            SpawnEntity::Crate { position } => {
-                spawn_chest(
-                    &mut commands,
-                    assets.atlas.clone(),
-                    *position,
-                    ChestType::Crate,
-                    ChestItem::Gold(1),
-                );
-            }
-            SpawnEntity::CrateOrBarrel { position } => {
-                if rand::random::<u32>() % 4 != 0 {
-                    let chest_type = *CHEST_OR_BARREL
-                        .iter()
-                        .choose(&mut rand::thread_rng())
-                        .unwrap();
-
-                    let item = ChestItem::Gold(match chest_type {
-                        ChestType::Chest => 10,
-                        ChestType::Crate => 1,
-                        ChestType::Barrel => 1,
-                        ChestType::BarrelBomb => 3,
-                        ChestType::Jar(_) => 1,
-                    });
-
-                    spawn_chest(
-                        &mut commands,
-                        assets.atlas.clone(),
-                        *position,
-                        chest_type,
-                        item,
-                    );
-                }
-            }
-            SpawnEntity::Jar { position } => {
-                let chest_type = *JARS.iter().choose(&mut rand::thread_rng()).unwrap();
-                let golds = match chest_type {
-                    ChestType::Chest => 10,
-                    ChestType::Crate => 1,
-                    ChestType::Barrel => 1,
-                    ChestType::BarrelBomb => 3,
-                    ChestType::Jar(_) => 1,
-                };
-                spawn_chest(
-                    &mut commands,
-                    assets.atlas.clone(),
-                    *position,
-                    chest_type,
-                    ChestItem::Gold(golds),
-                );
-            }
             SpawnEntity::MagicCircle { position } => {
                 spawn_magic_circle(
                     &mut commands,
@@ -371,7 +257,8 @@ pub fn spawn_entity(
                 spawn_broken_magic_circle(&mut commands, assets.atlas.clone(), *position);
             }
             SpawnEntity::StoneLantern { position } => {
-                spawn_stone_lantern(&mut commands, &assets, *position);
+                let (actor, life) = default_lantern();
+                spawn_stone_lantern(&mut commands, &assets, *position, actor, life);
             }
             SpawnEntity::Usage { position } => {
                 commands.spawn((
@@ -407,7 +294,8 @@ pub fn spawn_entity(
                 }
             }
             SpawnEntity::HugeSlime { position, boss } => {
-                let entity = spawn_huge_slime(&mut commands, &assets, *position);
+                let (actor, life) = default_huge_slime();
+                let entity = spawn_huge_slime(&mut commands, &assets, *position, actor, life);
                 if let Some(boss_name) = boss {
                     commands.entity(entity).insert(Boss {
                         name: boss_name.clone(),
@@ -415,92 +303,80 @@ pub fn spawn_entity(
                 }
             }
             SpawnEntity::ShopRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::Shop);
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_yellow,
                     *position,
-                    ShopRabbit,
-                    ShopRabbitSensor,
-                    ShopRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::Shop,
                 );
             }
             SpawnEntity::TrainingRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::Training);
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_red,
                     *position,
-                    MessageRabbit {
-                        senario: SenarioType::TrainingRabbit,
-                    },
-                    MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::Training,
                 );
             }
             SpawnEntity::SinglePlayRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::Singleplay);
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_white,
                     *position,
-                    MessageRabbit {
-                        senario: SenarioType::SingleplayRabbit,
-                    },
-                    MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::Singleplay,
                 );
             }
             SpawnEntity::GuideRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::Guide);
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_blue,
                     *position,
-                    MessageRabbit {
-                        senario: SenarioType::HelloRabbit,
-                    },
-                    MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::Guide,
                 );
             }
             SpawnEntity::MultiplayerRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::MultiPlay);
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_black,
                     *position,
-                    MessageRabbit {
-                        senario: SenarioType::MultiplayerRabbit,
-                    },
-                    MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::MultiPlay,
                 );
             }
             SpawnEntity::ReadingRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::Reading);
                 spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_green,
                     *position,
-                    MessageRabbit {
-                        senario: SenarioType::ReserchRabbit,
-                    },
-                    MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::Reading,
                 );
             }
             SpawnEntity::SpellListRabbit { position } => {
+                let (actor, life) = default_rabbit(RabbitType::SpellList);
                 let entity = spawn_rabbit(
                     &mut commands,
                     &assets,
-                    &assets.rabbit_blue,
                     *position,
-                    MessageRabbit {
-                        senario: SenarioType::SpellListRabbit,
-                    },
-                    MessageRabbitInnerSensor,
-                    MessageRabbitOuterSensor,
+                    actor,
+                    life,
+                    RabbitType::SpellList,
                 );
 
                 commands.entity(entity).insert(SpellListRabbit);
@@ -538,20 +414,22 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Enemy {
-                enemy_type,
-                position,
+            SpawnEntity::DefaultActor {
+                actor_type,
                 actor_group,
+                position,
             } => {
+                let (mut actor, life) = get_default_actor(*actor_type);
+                actor.actor_group = *actor_group;
                 let entity = spawn_actor(
                     &mut commands,
                     &assets,
                     &life_bar_resource,
-                    *enemy_type,
                     *position,
-                    *actor_group,
+                    actor,
+                    life,
                 );
-                add_default_behavior(&mut commands, *enemy_type, *position, entity);
+                add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
 
             SpawnEntity::Web {
@@ -575,58 +453,43 @@ pub fn spawn_entity(
                 spawn_fireball(&mut commands, &assets, *position, *velocity, *actor_group);
             }
 
-            SpawnEntity::SpawnWitch {
+            SpawnEntity::Actor {
                 position,
-                witch:
-                    SpawnWitch {
-                        wands,
-                        inventory,
-                        witch_type,
-                        wand,
-                        getting_up,
-                        name,
-                        life,
-                        max_life,
-                        golds,
-                        discovered_spells,
-                    },
+                life,
+                actor,
             } => {
-                let entity = spawn_witch(
+                let entity = spawn_actor(
                     &mut commands,
                     &assets,
-                    *position,
-                    0.0,
-                    Uuid::new_v4(),
-                    None,
-                    *life,
-                    *max_life,
                     &life_bar_resource,
-                    false,
-                    3.0,
-                    *golds,
-                    wands.clone(),
-                    inventory.clone(),
-                    match *witch_type {
-                        SpawnWitchType::Player => ActorGroup::Player,
-                        SpawnWitchType::Dummy => ActorGroup::Enemy,
-                    },
-                    *wand,
+                    *position,
+                    actor.clone(),
+                    life.clone(),
                 );
-                match *witch_type {
-                    SpawnWitchType::Player => {
-                        commands.entity(entity).insert(Player::new(
-                            name.clone(),
-                            *getting_up,
-                            discovered_spells,
-                        ));
-                    }
-                    SpawnWitchType::Dummy => {
-                        commands.entity(entity).insert(TraningDummyController {
-                            home: *position,
-                            fire: false,
-                        });
-                    }
-                };
+                if let ActorExtra::Witch {
+                    witch_type,
+                    getting_up,
+                    name,
+                    discovered_spells,
+                    ..
+                } = actor.extra.clone()
+                {
+                    match witch_type {
+                        SpawnWitchType::Player => {
+                            commands.entity(entity).insert(Player::new(
+                                name.clone(),
+                                getting_up,
+                                &discovered_spells,
+                            ));
+                        }
+                        SpawnWitchType::Dummy => {
+                            commands.entity(entity).insert(TraningDummyController {
+                                home: *position,
+                                fire: false,
+                            });
+                        }
+                    };
+                }
             }
 
             SpawnEntity::Particle { position, spawn } => {
@@ -663,99 +526,131 @@ pub fn spawn_actor(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_resource: &Res<LifeBarResource>,
-    enemy_type: SpawnEnemyType,
     position: Vec2,
-    actor_group: ActorGroup,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
-    match enemy_type {
-        SpawnEnemyType::Slime => spawn_slime(
+    match actor.extra.clone() {
+        ActorExtra::Witch { .. } => spawn_witch(
             &mut commands,
             &assets,
             position,
+            None,
             &life_bar_resource,
-            0,
-            actor_group,
+            false,
+            actor,
+            life,
+        ),
+        ActorExtra::Slime => spawn_slime(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            actor,
+            life,
+            position,
             None,
         ),
-        SpawnEnemyType::Eyeball => spawn_eyeball(
-            &mut commands,
-            &assets,
-            position,
-            &life_bar_resource,
-            actor_group,
-            8,
-        ),
-        SpawnEnemyType::Shadow => spawn_shadow(
+        ActorExtra::Eyeball => spawn_eyeball(
             &mut commands,
             &assets,
             &life_bar_resource,
-            actor_group,
             position,
+            actor,
+            life,
         ),
-        SpawnEnemyType::Spider => spawn_spider(
+        ActorExtra::Shadow => spawn_shadow(
             &mut commands,
             &assets,
             &life_bar_resource,
-            actor_group,
             position,
+            actor,
+            life,
         ),
-        SpawnEnemyType::Salamander => spawn_salamander(
+        ActorExtra::Spider => spawn_spider(
             &mut commands,
             &assets,
             &life_bar_resource,
-            actor_group,
+            position,
+            actor,
+            life,
+        ),
+        ActorExtra::Salamander => spawn_salamander(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            position,
+            actor,
+            life,
+        ),
+        ActorExtra::Chicken => spawn_chiken(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            actor,
+            life,
             position,
         ),
-        SpawnEnemyType::Chiken => {
-            spawn_chiken(&mut commands, &assets, &life_bar_resource, position)
-        }
-        SpawnEnemyType::Sandbag => {
-            spawn_sandbag(&mut commands, &assets, &life_bar_resource, position)
-        }
-        SpawnEnemyType::Lantern => spawn_stone_lantern(&mut commands, &assets, position),
-        SpawnEnemyType::Chest => spawn_chest(
+        ActorExtra::Sandbag => spawn_sandbag(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            position,
+            actor,
+            life,
+        ),
+        ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &assets, position, actor, life),
+        ActorExtra::Chest { chest_type, .. } => spawn_chest(
             &mut commands,
             assets.atlas.clone(),
             position,
-            ChestType::Chest,
-            ChestItem::Gold(1),
+            actor,
+            life,
+            chest_type,
         ),
-        SpawnEnemyType::BookShelf => {
-            spawn_book_shelf(&mut commands, assets.atlas.clone(), position)
+        ActorExtra::BookShelf => {
+            spawn_book_shelf(&mut commands, assets.atlas.clone(), position, actor, life)
+        }
+        ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &assets, position, actor, life),
+        ActorExtra::Rabbit { rabbit_type } => {
+            let (actor, life) = default_rabbit(rabbit_type);
+            spawn_rabbit(commands, assets, position, actor, life, rabbit_type)
         }
     }
 }
 
 pub fn add_default_behavior(
     commands: &mut Commands,
-    enemy_type: SpawnEnemyType,
+    enemy_type: ActorType,
     position: Vec2,
     entity: Entity,
 ) {
     match enemy_type {
-        SpawnEnemyType::Slime => {
+        ActorType::HugeSlime => {}
+        ActorType::Witch => {}
+        ActorType::Slime => {
             commands.entity(entity).insert(SlimeControl::default());
         }
-        SpawnEnemyType::Eyeball => {
+        ActorType::EyeBall => {
             commands.entity(entity).insert(EyeballControl::default());
         }
-        SpawnEnemyType::Shadow => {
+        ActorType::Shadow => {
             commands.entity(entity).insert(Shadow::default());
         }
-        SpawnEnemyType::Spider => {
+        ActorType::Spider => {
             commands.entity(entity).insert(Spider::default());
         }
-        SpawnEnemyType::Salamander => {
+        ActorType::Salamander => {
             commands.entity(entity).insert(Salamander::default());
         }
-        SpawnEnemyType::Chiken => {
+        ActorType::Chicken => {
             commands.entity(entity).insert(Chicken::default());
         }
-        SpawnEnemyType::Sandbag => {
+        ActorType::Sandbag => {
             commands.entity(entity).insert(Sandbag::new(position));
         }
-        SpawnEnemyType::Lantern => {}
-        SpawnEnemyType::Chest => {}
-        SpawnEnemyType::BookShelf => {}
+        ActorType::Lantern => {}
+        ActorType::Chest => {}
+        ActorType::BookShelf => {}
+        ActorType::Rabbit { .. } => {}
     }
 }

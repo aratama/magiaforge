@@ -1,7 +1,5 @@
 use crate::actor::Actor;
-use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
@@ -14,9 +12,7 @@ use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
 use crate::states::GameState;
-use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -30,34 +26,24 @@ pub struct BasicEnemySprite;
 pub fn spawn_basic_enemy(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
+    life_bar_locals: &Res<LifeBarResource>,
     aseprite: Handle<Aseprite>,
     position: Vec2,
-    life_bar_locals: &Res<LifeBarResource>,
-    actor_type: ActorTypes,
     name: &str,
-    spell: Option<SpellType>,
-    golds: u32,
-    actor_group: ActorGroup,
     master: Option<Entity>,
-    max_life: u32,
-    radius: f32,
-    auto_levitation: bool,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
+    let radius = actor.radius;
+    let golds = actor.golds;
+    let actor_group = actor.actor_group;
     let mut builder = commands.spawn((
         BasicEnemy,
         Name::new(name.to_string()),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Actor {
-            actor_type,
-            radius,
-            actor_group,
-            golds,
-            wands: Wand::single(spell),
-            auto_levitation,
-            ..default()
-        },
-        Life::new(max_life),
+        actor,
+        life,
         HomingTarget,
         Transform::from_translation(position.extend(0.0)),
         Vertical::default(),

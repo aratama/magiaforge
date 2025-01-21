@@ -1,7 +1,5 @@
 use crate::actor::Actor;
-use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::falling::Falling;
@@ -22,6 +20,10 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
+use rand::seq::IteratorRandom;
+
+use super::ActorExtra;
+use super::ActorGroup;
 
 const ENTITY_WIDTH: f32 = 8.0;
 
@@ -60,22 +62,50 @@ pub const CHEST_OR_BARREL: [ChestType; 12] = [
     ChestType::Jar(JarColor::Green),
 ];
 
-pub const JARS: [ChestType; 3] = [
-    ChestType::Jar(JarColor::Red),
-    ChestType::Jar(JarColor::Blue),
-    ChestType::Jar(JarColor::Green),
-];
+// pub const JARS: [ChestType; 3] = [
+//     ChestType::Jar(JarColor::Red),
+//     ChestType::Jar(JarColor::Blue),
+//     ChestType::Jar(JarColor::Green),
+// ];
 
 #[derive(Component, Reflect, Debug)]
-struct Chest {
-    pub chest_type: ChestType,
-    pub golds: ChestItem,
-}
+struct Chest;
 
 #[derive(Reflect, Clone, Debug, Copy)]
 pub enum ChestItem {
     Gold(u32),
     Item(InventoryItem),
+}
+
+pub fn default_random_chest() -> (Actor, Life) {
+    let chest_type = *CHEST_OR_BARREL
+        .iter()
+        .choose(&mut rand::thread_rng())
+        .unwrap();
+
+    let item = ChestItem::Gold(match chest_type {
+        ChestType::Chest => 10,
+        ChestType::Crate => 1,
+        ChestType::Barrel => 1,
+        ChestType::BarrelBomb => 3,
+        ChestType::Jar(_) => 1,
+    });
+
+    chest_actor(chest_type, item)
+}
+
+pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem) -> (Actor, Life) {
+    (
+        Actor {
+            actor_group: ActorGroup::Entity,
+            extra: ActorExtra::Chest {
+                chest_type,
+                chest_item,
+            },
+            ..default()
+        },
+        Life::new(30),
+    )
 }
 
 /// チェストを生成します
@@ -84,31 +114,17 @@ pub fn spawn_chest(
     commands: &mut Commands,
     aseprite: Handle<Aseprite>,
     position: Vec2,
+    actor: Actor,
+    life: Life,
     chest_type: ChestType,
-    item: ChestItem,
 ) -> Entity {
-    let life = match chest_type {
-        ChestType::Chest => 30,
-        ChestType::Crate => 30,
-        ChestType::Barrel => 20,
-        ChestType::BarrelBomb => 20,
-        ChestType::Jar(_) => 1,
-    };
     commands
         .spawn((
             Name::new("chest"),
             StateScoped(GameState::InGame),
-            Actor {
-                actor_type: ActorTypes::Chest,
-                radius: 8.0,
-                actor_group: ActorGroup::Entity,
-                ..default()
-            },
-            Life::new(life),
-            Chest {
-                chest_type,
-                golds: item,
-            },
+            actor,
+            life,
+            Chest,
             Burnable {
                 life: 60 * 20 + rand::random::<u32>() % 30,
             },
@@ -151,7 +167,7 @@ pub fn spawn_chest(
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(Entity, &Life, &Transform, &Chest, &Burnable)>,
+    query: Query<(Entity, &Life, &Transform, &Actor, &Burnable), With<Chest>>,
     assets: Res<GameAssets>,
     ron: Res<Assets<GameConstants>>,
     mut writer: EventWriter<SEEvent>,
@@ -159,13 +175,21 @@ fn break_chest(
 ) {
     let constants = ron.get(assets.spells.id()).unwrap();
 
-    for (entity, breakabke, transform, chest, burnable) in query.iter() {
+    for (entity, breakabke, transform, actor, burnable) in query.iter() {
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
+            let ActorExtra::Chest {
+                chest_type,
+                chest_item,
+            } = actor.extra
+            else {
+                panic!("ActorExtra::Chest is expected");
+            };
+
             commands.entity(entity).despawn_recursive();
             // info!("despawn {} {}", file!(), line!());
             writer.send(SEEvent::pos(
-                match chest.chest_type {
+                match chest_type {
                     ChestType::Chest => SE::Break,
                     ChestType::Crate => SE::Break,
                     ChestType::Barrel => SE::Break,
@@ -175,7 +199,7 @@ fn break_chest(
                 position,
             ));
 
-            match chest.golds {
+            match chest_item {
                 ChestItem::Gold(gold) => {
                     for _ in 0..gold {
                         spawn_gold(&mut commands, &assets, position);
@@ -186,7 +210,7 @@ fn break_chest(
                 }
             }
 
-            match chest.chest_type {
+            match chest_type {
                 ChestType::Crate => {
                     for i in 0..4 {
                         spawn_jar_piece(
@@ -260,7 +284,7 @@ pub struct ChestPlugin;
 
 impl Plugin for ChestPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, break_chest.in_set(FixedUpdateGameActiveSet));
+        app.add_systems(FixedUpdate, (break_chest).in_set(FixedUpdateGameActiveSet));
         app.register_type::<Chest>();
     }
 }

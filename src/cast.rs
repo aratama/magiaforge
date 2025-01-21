@@ -2,11 +2,14 @@ use crate::actor::jump_actor;
 use crate::actor::witch::WITCH_COLLIDER_RADIUS;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::life::Life;
 use crate::component::metamorphosis::cast_metamorphosis;
+use crate::component::metamorphosis::random_actor_type;
+use crate::component::metamorphosis::Metamorphosis;
 use crate::component::vertical::Vertical;
 use crate::constant::GameConstants;
 use crate::constant::MAX_SPELLS_IN_WAND;
@@ -73,6 +76,7 @@ pub struct SpellCastBullet {
     pub freeze: u32,
     pub levitation: u32,
     pub stagger: u32,
+    pub metamorphose: bool,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -135,6 +139,7 @@ pub fn cast_spell(
     mut actor_impulse: &mut ExternalImpulse,
     mut actor_vertical: &mut Vertical,
     mut collision_groups: &mut CollisionGroups,
+    actor_metamorphosis: &Option<&Metamorphosis>,
     player: Option<&Player>,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
@@ -202,6 +207,7 @@ pub fn cast_spell(
                         freeze: cast.freeze,
                         stagger: cast.stagger,
                         levitation: cast.levitation,
+                        metamorphose: cast.metamorphose,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -327,7 +333,11 @@ pub fn cast_spell(
                     let position = actor_transform.translation.truncate() + direction;
                     match entity {
                         SpellCastEntityType::BookShelf => {
-                            spawn.send(SpawnEntity::BookShelf { position });
+                            spawn.send(SpawnEntity::DefaultActor {
+                                actor_type: ActorType::BookShelf,
+                                actor_group: ActorGroup::Entity,
+                                position,
+                            });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::HugeSlime => {
@@ -338,7 +348,11 @@ pub fn cast_spell(
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::Jar => {
-                            spawn.send(SpawnEntity::Jar { position });
+                            spawn.send(SpawnEntity::DefaultActor {
+                                actor_type: ActorType::Chest,
+                                actor_group: ActorGroup::Entity,
+                                position,
+                            });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                     }
@@ -400,6 +414,7 @@ pub fn cast_spell(
                         freeze: 0,
                         stagger: 10,
                         levitation: 0,
+                        metamorphose: false,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -429,19 +444,28 @@ pub fn cast_spell(
                     );
                 }
                 SpellCast::Metamorphosis => {
-                    cast_metamorphosis(
+                    let position = actor_transform.translation.truncate();
+                    let morphing_to = random_actor_type(&mut rng, actor.to_type());
+                    let entity = cast_metamorphosis(
                         &mut commands,
                         &assets,
                         &life_bar_resource,
                         &mut se,
                         &mut spawn,
-                        &actor,
-                        &actor_life,
                         &actor_entity,
-                        &actor_transform,
-                        &player,
-                        &mut rng,
+                        actor.clone(),
+                        actor_life.clone(),
+                        &actor_metamorphosis,
+                        position,
+                        morphing_to,
                     );
+                    commands.entity(entity).insert(Player::new(
+                        player.map(|p| p.name.clone()).unwrap_or_default(),
+                        false,
+                        &player
+                            .map(|p| p.discovered_spells.clone())
+                            .unwrap_or_default(),
+                    ));
                 }
                 SpellCast::Slash { damage } => {
                     spawn.send(SpawnEntity::Slash {

@@ -9,6 +9,7 @@ use crate::enemy::chicken::spawn_chiken;
 use crate::enemy::chicken::Chicken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
+use crate::enemy::slime::default_slime;
 use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
 use crate::hud::life_bar::LifeBarResource;
@@ -177,13 +178,15 @@ fn spawn_servant(
     for event in reader.read() {
         match event.servant_type {
             ServantType::Slime => {
+                let (mut actor, life) = default_slime();
+                actor.actor_group = event.actor_group;
                 let entity = spawn_slime(
                     &mut commands,
                     &assets,
-                    event.position,
                     &life_bar_locals,
-                    0,
-                    event.actor_group,
+                    actor,
+                    life,
+                    event.position,
                     event.master,
                 );
                 if event.servant {
@@ -195,13 +198,14 @@ fn spawn_servant(
                 }
             }
             ServantType::Eyeball => {
+                let (actor, life) = crate::enemy::eyeball::default_eyeball();
                 let entity = spawn_eyeball(
                     &mut commands,
                     &assets,
-                    event.position,
                     &life_bar_locals,
-                    event.actor_group,
-                    0,
+                    event.position,
+                    actor,
+                    life,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
@@ -210,7 +214,15 @@ fn spawn_servant(
                 }
             }
             ServantType::Chiken => {
-                let entity = spawn_chiken(&mut commands, &assets, &life_bar_locals, event.position);
+                let (actor, life) = crate::enemy::chicken::default_chiken();
+                let entity = spawn_chiken(
+                    &mut commands,
+                    &assets,
+                    &life_bar_locals,
+                    actor,
+                    life,
+                    event.position,
+                );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
                 } else {

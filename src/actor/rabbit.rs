@@ -8,29 +8,37 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::constant::*;
+use crate::controller::message_rabbit::MessageRabbit;
+use crate::controller::message_rabbit::MessageRabbitInnerSensor;
+use crate::controller::message_rabbit::MessageRabbitOuterSensor;
+use crate::controller::shop_rabbit::ShopRabbit;
+use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
+use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
-use bevy_aseprite_ultra::prelude::Aseprite;
 use bevy_rapier2d::prelude::*;
+
+use super::ActorExtra;
 
 const RABBIT_RADIUS: f32 = 5.0;
 
-pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
-    commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    sprite: &Handle<Aseprite>,
-    position: Vec2,
-    marker: T,
-    sensor_marker: S,
-    outer_sensor_marker: U,
-) -> Entity {
-    let mut entity = commands.spawn((
-        Name::new("rabbit"),
-        marker,
-        StateScoped(GameState::InGame),
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect)]
+pub enum RabbitType {
+    Guide,
+    Training,
+    Shop,
+    Singleplay,
+    MultiPlay,
+    Reading,
+    SpellList,
+}
+
+pub fn default_rabbit(rabbit_type: RabbitType) -> (Actor, Life) {
+    (
         Actor {
+            extra: ActorExtra::Rabbit { rabbit_type },
             radius: RABBIT_RADIUS,
             actor_group: ActorGroup::Entity,
             fire_resistance: true,
@@ -42,6 +50,22 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
             amplitude: 0.0,
             fire_damage_wait: 0,
         },
+    )
+}
+
+pub fn spawn_rabbit(
+    commands: &mut Commands,
+    assets: &Res<GameAssets>,
+    position: Vec2,
+    actor: Actor,
+    life: Life,
+    rabbit_type: RabbitType,
+) -> Entity {
+    let mut entity = commands.spawn((
+        Name::new("rabbit"),
+        StateScoped(GameState::InGame),
+        actor,
+        life,
         Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),
         Visibility::default(),
@@ -61,6 +85,42 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         ),
     ));
 
+    match rabbit_type {
+        RabbitType::Shop => {
+            entity.insert(ShopRabbit);
+        }
+        RabbitType::Training => {
+            entity.insert(MessageRabbit {
+                senario: SenarioType::TrainingRabbit,
+            });
+        }
+        RabbitType::Singleplay => {
+            entity.insert(MessageRabbit {
+                senario: SenarioType::SingleplayRabbit,
+            });
+        }
+        RabbitType::Guide => {
+            entity.insert(MessageRabbit {
+                senario: SenarioType::HelloRabbit,
+            });
+        }
+        RabbitType::MultiPlay => {
+            entity.insert(MessageRabbit {
+                senario: SenarioType::MultiplayerRabbit,
+            });
+        }
+        RabbitType::Reading => {
+            entity.insert(MessageRabbit {
+                senario: SenarioType::ReserchRabbit,
+            });
+        }
+        RabbitType::SpellList => {
+            entity.insert(MessageRabbit {
+                senario: SenarioType::SpellListRabbit,
+            });
+        }
+    };
+
     entity.with_children(|builder| {
         builder.spawn((
             AseSpriteSlice {
@@ -73,43 +133,68 @@ pub fn spawn_rabbit<T: Component, S: Component, U: Component>(
         builder.spawn((
             CounterAnimated,
             AseSpriteAnimation {
-                aseprite: sprite.clone(),
+                aseprite: match rabbit_type {
+                    RabbitType::Shop => assets.rabbit_yellow.clone(),
+                    RabbitType::Training => assets.rabbit_red.clone(),
+                    RabbitType::Singleplay => assets.rabbit_white.clone(),
+                    RabbitType::Guide => assets.rabbit_blue.clone(),
+                    RabbitType::MultiPlay => assets.rabbit_black.clone(),
+                    RabbitType::Reading => assets.rabbit_green.clone(),
+                    RabbitType::SpellList => assets.rabbit_blue.clone(),
+                }
+                .clone(),
                 animation: "idle_d".into(),
             },
             ChildEntityDepth { offset: 0.0 },
         ));
 
-        builder.spawn((
-            RabbitInnerSensor,
-            sensor_marker,
-            Collider::ball(16.0),
-            Sensor,
-            ActiveEvents::COLLISION_EVENTS,
-            *SENSOR_GROUPS,
-            Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
-        ));
+        match rabbit_type {
+            RabbitType::Shop => {
+                builder.spawn((
+                    ShopRabbitSensor,
+                    Collider::ball(16.0),
+                    Sensor,
+                    ActiveEvents::COLLISION_EVENTS,
+                    *SENSOR_GROUPS,
+                    Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
+                ));
+            }
+            _ => {
+                builder.spawn((
+                    MessageRabbitInnerSensor,
+                    Collider::ball(16.0),
+                    Sensor,
+                    ActiveEvents::COLLISION_EVENTS,
+                    *SENSOR_GROUPS,
+                    Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
+                ));
+            }
+        };
 
-        builder.spawn((
-            outer_sensor_marker,
-            Collider::ball(32.0),
-            Sensor,
-            ActiveEvents::COLLISION_EVENTS,
-            *SENSOR_GROUPS,
-        ));
+        match rabbit_type {
+            RabbitType::Shop => {
+                builder.spawn((
+                    ShopRabbitOuterSensor,
+                    Collider::ball(32.0),
+                    Sensor,
+                    ActiveEvents::COLLISION_EVENTS,
+                    *SENSOR_GROUPS,
+                ));
+            }
+            _ => {
+                builder.spawn((
+                    MessageRabbitOuterSensor,
+                    Collider::ball(32.0),
+                    Sensor,
+                    ActiveEvents::COLLISION_EVENTS,
+                    *SENSOR_GROUPS,
+                ));
+            }
+        };
     });
 
     entity.id()
 }
-
-#[derive(Component)]
-struct RabbitInnerSensor;
-
-// fn squat(
-
-//     inner_sensor_query: Query<&GlobalTransform, With<RabbitInnerSensor>>,
-// ){
-
-// }
 
 pub struct RabbitPlugin;
 

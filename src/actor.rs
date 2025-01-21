@@ -28,6 +28,14 @@ use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::recovery;
 use crate::controller::player::Player;
+use crate::enemy::chicken::default_chiken;
+use crate::enemy::eyeball::default_eyeball;
+use crate::enemy::huge_slime::default_huge_slime;
+use crate::enemy::salamander::default_salamander;
+use crate::enemy::sandbug::default_sandbag;
+use crate::enemy::shadow::default_shadow;
+use crate::enemy::slime::default_slime;
+use crate::enemy::spider::default_spider;
 use crate::entity::bullet::Trigger;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::LifeBarResource;
@@ -35,6 +43,7 @@ use crate::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnWitchType;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
@@ -56,14 +65,22 @@ use bevy_rapier2d::prelude::Group;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use book_shelf::default_bookshelf;
+use chest::default_random_chest;
+use chest::ChestItem;
+use chest::ChestType;
+use rabbit::default_rabbit;
+use rabbit::RabbitType;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::f32::consts::PI;
+use stone_lantern::default_lantern;
 use uuid::Uuid;
+use witch::default_witch;
 
-#[derive(Reflect, Clone, Copy, Debug)]
-pub enum ActorTypes {
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ActorType {
     Witch,
     Chicken,
     EyeBall,
@@ -76,11 +93,16 @@ pub enum ActorTypes {
     Lantern,
     Chest,
     BookShelf,
+    Rabbit,
 }
 
-impl ActorTypes {
+impl ActorType {
     pub fn to_props<'a>(&self, constants: &'a GameActors) -> &'a ActorProps {
-        &constants.actors.get(&format!("{:?}", self)).unwrap()
+        let name = format!("{:?}", self);
+        &constants
+            .actors
+            .get(&format!("{:?}", self))
+            .expect(format!("ActorType {:?} not found", name).as_str())
     }
 }
 
@@ -116,11 +138,9 @@ pub enum ActorState {
 /// stateをActorState::Runに設定すると move_direction の方向に移動します
 /// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
 ///
-#[derive(Component, Reflect, Debug)]
+#[derive(Component, Reflect, Debug, Clone)]
 #[require(Vertical)]
 pub struct Actor {
-    pub actor_type: ActorTypes,
-
     pub uuid: Uuid,
 
     /// プレイヤーの位置からの相対的なポインターの位置
@@ -216,6 +236,65 @@ pub struct Actor {
     // 0 より大きい場合は溺れている状態で、詠唱ができません。また移動速度が低下します
     // 水中にいる間は 1フレームに1 づつ増加し、60を超えるとダメージを受け、0に戻ります
     pub drowning: u32,
+
+    pub extra: ActorExtra,
+}
+
+impl Actor {
+    pub fn to_type(&self) -> ActorType {
+        self.extra.to_type()
+    }
+    pub fn to_props<'a>(&self, constants: &'a GameActors) -> &'a ActorProps {
+        self.to_type().to_props(constants)
+    }
+}
+
+/// Actorで種族固有の部分を格納します
+#[derive(Clone, Debug, Reflect)]
+pub enum ActorExtra {
+    Witch {
+        witch_type: SpawnWitchType,
+        getting_up: bool,
+        name: String,
+        discovered_spells: HashSet<SpellType>,
+    },
+    Slime,
+    HugeSlime,
+    Eyeball,
+    Shadow,
+    Spider,
+    Salamander,
+    Chicken,
+    Sandbag,
+    Lantern,
+    Chest {
+        chest_type: ChestType,
+        chest_item: ChestItem,
+    },
+    BookShelf,
+    Rabbit {
+        rabbit_type: RabbitType,
+    },
+}
+
+impl ActorExtra {
+    pub fn to_type(&self) -> ActorType {
+        match self {
+            ActorExtra::Witch { .. } => ActorType::Witch,
+            ActorExtra::Chicken => ActorType::Chicken,
+            ActorExtra::Eyeball => ActorType::EyeBall,
+            ActorExtra::Sandbag => ActorType::Sandbag,
+            ActorExtra::Slime => ActorType::Slime,
+            ActorExtra::HugeSlime => ActorType::HugeSlime,
+            ActorExtra::Shadow => ActorType::Shadow,
+            ActorExtra::Spider => ActorType::Spider,
+            ActorExtra::Salamander => ActorType::Salamander,
+            ActorExtra::Lantern => ActorType::Lantern,
+            ActorExtra::Chest { .. } => ActorType::Chest,
+            ActorExtra::BookShelf => ActorType::BookShelf,
+            ActorExtra::Rabbit { .. } => ActorType::Rabbit,
+        }
+    }
 }
 
 #[derive(Default, Component, Reflect)]
@@ -307,7 +386,7 @@ impl Actor {
     /// 装備を含めた移動力の合計を返します
     /// ただし魔法発射中のペナルティは含まれません
     fn get_total_move_force(&self, constants: &GameActors) -> f32 {
-        let mut force = self.actor_type.to_props(&constants).move_force;
+        let mut force = self.to_props(&constants).move_force;
 
         //todo
 
@@ -377,7 +456,6 @@ impl Actor {
 impl Default for Actor {
     fn default() -> Self {
         Actor {
-            actor_type: ActorTypes::Chicken,
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
             point_light_radius: 0.0,
@@ -405,6 +483,7 @@ impl Default for Actor {
             staggered: 0,
             poise: 1,
             invincibility_on_staggered: false,
+            extra: ActorExtra::Chicken,
         }
     }
 }
@@ -463,6 +542,7 @@ pub enum ActorEvent {
         fire: bool,
         impulse: Vec2,
         stagger: u32,
+        metamorphose: bool,
     },
 }
 
@@ -578,7 +658,7 @@ fn fire_bullet(
         mut actor_falling,
         mut collision_groups,
         player,
-        morph,
+        actor_metamorphosis,
     ) in actor_query.iter_mut()
     {
         if 0 < actor.wait {
@@ -596,7 +676,7 @@ fn fire_bullet(
         }
 
         if actor.fire_state == ActorFireState::Fire {
-            let wand = if morph.is_none() {
+            let wand = if actor_metamorphosis.is_none() {
                 actor.current_wand
             } else {
                 0
@@ -613,6 +693,7 @@ fn fire_bullet(
                 &mut actor_impulse,
                 &mut actor_falling,
                 &mut collision_groups,
+                &actor_metamorphosis,
                 player,
                 online,
                 &mut remote_writer,
@@ -637,6 +718,7 @@ fn fire_bullet(
                 &mut actor_impulse,
                 &mut actor_falling,
                 &mut collision_groups,
+                &actor_metamorphosis,
                 player,
                 online,
                 &mut remote_writer,
@@ -805,7 +887,7 @@ fn apply_damping(
 ) {
     for (vertical, mut damping, actor) in query.iter_mut() {
         let constants = constants.get(assets.actors.id()).unwrap();
-        let props = actor.actor_type.to_props(&constants);
+        let props = actor.to_props(&constants);
         damping.linear_damping = if 0.0 < vertical.v {
             1.0
         } else {
@@ -872,6 +954,7 @@ fn drown_damage(
                         fire: false,
                         impulse: Vec2::ZERO,
                         stagger: 0,
+                        metamorphose: false,
                     });
                     actor.drowning = 1;
                 }
@@ -885,6 +968,7 @@ fn drown_damage(
                         fire: false,
                         impulse: Vec2::ZERO,
                         stagger: 0,
+                        metamorphose: false,
                     });
                     actor.drowning = 1;
                 }
@@ -935,6 +1019,24 @@ pub fn jump_actor(
         true
     } else {
         false
+    }
+}
+
+pub fn get_default_actor(actor_type: ActorType) -> (Actor, Life) {
+    match actor_type {
+        ActorType::Witch => default_witch(),
+        ActorType::HugeSlime => default_huge_slime(),
+        ActorType::Slime => default_slime(),
+        ActorType::EyeBall => default_eyeball(),
+        ActorType::Shadow => default_shadow(),
+        ActorType::Spider => default_spider(),
+        ActorType::Salamander => default_salamander(),
+        ActorType::Chicken => default_chiken(),
+        ActorType::Sandbag => default_sandbag(),
+        ActorType::Lantern => default_lantern(),
+        ActorType::Chest => default_random_chest(),
+        ActorType::BookShelf => default_bookshelf(),
+        ActorType::Rabbit => default_rabbit(RabbitType::Guide),
     }
 }
 

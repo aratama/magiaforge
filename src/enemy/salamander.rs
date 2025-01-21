@@ -1,9 +1,8 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::ActorTypes;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::EntityDepth;
 use crate::component::flip::Flip;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
@@ -51,31 +50,35 @@ impl Default for Salamander {
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
+pub fn default_salamander() -> (Actor, Life) {
+    (
+        Actor {
+            extra: ActorExtra::Salamander,
+            actor_group: ActorGroup::Enemy,
+            wands: Wand::single(Some(SpellType::Fireball)),
+            ..default()
+        },
+        Life::new(100),
+    )
+}
+
 pub fn spawn_salamander(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     life_bar_locals: &Res<LifeBarResource>,
-    actor_group: ActorGroup,
     position: Vec2,
+    actor: Actor,
+    life: Life,
 ) -> Entity {
     let radius = 8.0;
     let golds = 10;
-    let spell = Some(SpellType::Fireball);
+    let actor_group = actor.actor_group;
     let mut builder = commands.spawn((
         Name::new("salamander"),
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
-        Actor {
-            actor_type: ActorTypes::Salamander,
-            radius,
-            actor_group,
-            golds,
-            wands: Wand::single(spell),
-            fire_resistance: true,
-            ..default()
-        },
-        EntityDepth::new(),
-        Life::new(100),
+        actor,
+        life,
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),

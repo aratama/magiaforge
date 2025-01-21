@@ -1,3 +1,4 @@
+use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::collision::SENSOR_GROUPS;
@@ -5,7 +6,6 @@ use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::TILE_SIZE;
-use crate::actor::ActorEvent;
 use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -90,6 +90,7 @@ fn read_impact_event(
                     fire: false,
                     impulse: (p - position).normalize_or_zero() * impulse,
                     stagger: 60,
+                    metamorphose: false,
                 });
             }
         }
