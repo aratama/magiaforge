@@ -437,16 +437,16 @@ GameConstants(
                 ru: "Двойное заклинание"
             ),
             description: (
-                ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。",
-                en: "Casts two projectile spells at the same time.",
-                zh_cn: "同时施放两个投射法术。施法延迟将与较大的值对齐。",
-                zh_tw: "同時施放兩個投射法術。施法延遲將與較大的值對齊。",
-                es: "Lanza dos hechizos de proyectiles al mismo tiempo.",
-                fr: "Lance deux sorts de projectiles en même temps.",
-                pt: "Lança dois feitiços de projéteis ao mesmo tempo.",
-                de: "Wirkt zwei Projektilzauber gleichzeitig.",
-                ko: "두 개의 투사체 주문을 동시에 시전합니다.",
-                ru: "Одновременно накладывает два заклинания снаряда."
+                ja: "ふたつの投射物呪文を同時に詠唱します。呪文を組み合わせによって、弾丸に効果を付与することもできます。 詠唱遅延は大きいほうに揃えられます。",
+                en: "Casts two projectile spells simultaneously. Combining spells can add effects to bullets. The casting delay is set to the higher value.",
+                zh_cn: "同时施放两个投射法术。组合法术可以为子弹添加效果。施法延迟设置为较高值。",
+                zh_tw: "同時施放兩個投射法術。組合法術可以為子彈添加效果。施法延遲設置為較高值。",
+                es: "Lanza dos hechizos de proyectiles simultáneamente. La combinación de hechizos puede agregar efectos a las balas. El retraso de lanzamiento se establece en el valor más alto.",
+                fr: "Lance deux sorts de projectiles simultanément. La combinaison de sorts peut ajouter des effets aux balles. Le délai d'incantation est réglé sur la valeur la plus élevée.",
+                pt: "Lança dois feitiços de projéteis simultaneamente. Combinar feitiços pode adicionar efeitos às balas. O atraso de lançamento é definido para o valor mais alto.",
+                de: "Wirkt gleichzeitig zwei Projektilzauber. Das Kombinieren von Zaubern kann Kugeln Effekte hinzufügen. Die Zauberverzögerung wird auf den höheren Wert eingestellt.",
+                ko: "두 개의 투사체 주문을 동시에 시전합니다. 주문을 결합하면 탄환에 효과를 추가할 수 있습니다. 시전 지연은 더 높은 값으로 설정됩니다.",
+                ru: "Одновременно накладывает два заклинания снаряда. Комбинирование заклинаний может добавить эффекты к пулям. Задержка заклинания установлена на более высокое значение."
             ),
             cast_delay: 0,
             icon: "spell_dual_cast",
@@ -561,16 +561,16 @@ GameConstants(
                 ru: "Паутинка"
             ),
             description: (
-                ja: "蜘蛛の巣を張り巡らせます。触れるとしばらく移動できなくなります。",
-                en: "Creates a spider web. Touching it will prevent you from moving for a while.",
-                zh_cn: "制造一个蜘蛛网。触碰它会使您暂时无法移动。",
-                zh_tw: "製造一個蜘蛛網。觸碰它會使您暫時無法移動。",
-                es: "Crea una telaraña. Tocarla te impedirá moverte por un tiempo.",
-                fr: "Crée une toile d'araignée. Le toucher vous empêchera de bouger pendant un certain temps.",
-                pt: "Criar uma teia de aranha. Tocá-la impedirá você de se mover por um tempo.",
-                de: "Erzeugt ein Spinnennetz. Wenn du es berührst, kannst du dich eine Weile nicht bewegen.",
-                ko: "거미줄을 만듭니다. 만지면 잠시 동안 움직일 수 없습니다.",
-                ru: "Создает паутину. Прикосновение к ней не позволит вам двигаться некоторое время."
+                ja: "足元に蜘蛛の巣を張り巡らせます。敵が蜘蛛の巣に触れると、しばらく移動できなくなります。弾丸に付与すると、弾丸が衝突した個所に蜘蛛の巣を張ります。",
+                en: "Creates a spider web at your feet. Enemies touching the web will be unable to move for a while. When applied to bullets, the web will be created at the point of impact.",
+                zh_cn: "在你的脚下创建一个蜘蛛网。触碰到蜘蛛网的敌人将无法移动一段时间。当应用于子弹时，蜘蛛网将在撞击点创建。",
+                zh_tw: "在你的腳下創建一個蜘蛛網。觸碰到蜘蛛網的敵人將無法移動一段時間。當應用於子彈時，蜘蛛網將在撞擊點創建。",
+                es: "Crea una telaraña a tus pies. Los enemigos que toquen la telaraña no podrán moverse por un tiempo. Cuando se aplica a las balas, la telaraña se creará en el punto de impacto.",
+                fr: "Crée une toile d'araignée à vos pieds. Les ennemis touchant la toile ne pourront pas bouger pendant un certain temps. Lorsqu'elle est appliquée aux balles, la toile sera créée au point d'impact.",
+                pt: "Cria uma teia de aranha aos seus pés. Inimigos que tocarem a teia não poderão se mover por um tempo. Quando aplicada a balas, a teia será criada no ponto de impacto.",
+                de: "Erzeugt ein Spinnennetz zu deinen Füßen. Feinde, die das Netz berühren, können sich eine Weile nicht bewegen. Wenn es auf Kugeln angewendet wird, wird das Netz am Aufschlagpunkt erstellt.",
+                ko: "발밑에 거미줄을 생성합니다. 거미줄에 닿은 적은 잠시 동안 움직일 수 없습니다. 탄환에 적용하면 충돌 지점에 거미줄이 생성됩니다.",
+                ru: "Создает паутину у ваших ног. Враги, касающиеся паутины, не смогут двигаться некоторое время. При применении к пулям паутина будет создана в точке удара."
             ),
             cast_delay: 120,
             icon: "spell_web_icon",

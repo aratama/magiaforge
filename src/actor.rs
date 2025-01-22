@@ -125,6 +125,8 @@ pub struct CastEffects {
     pub metamorphse: Option<ActorType>,
 
     pub dispel: u8,
+
+    pub web: u8,
 }
 
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]

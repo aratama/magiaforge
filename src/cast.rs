@@ -210,11 +210,16 @@ pub fn cast_spell(
                         levitation: cast.levitation,
                         metamorphose: actor.effects.metamorphse,
                         dispel: 0 < actor.effects.dispel,
+                        web: 0 < actor.effects.web,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
                     if 0 < actor.effects.dispel {
                         actor.effects.dispel -= 1;
+                    }
+
+                    if 0 < actor.effects.web {
+                        actor.effects.web -= 1;
                     }
 
                     spawn_bullet(commands, &assets, se, &spawn);
@@ -415,6 +420,7 @@ pub fn cast_spell(
                         levitation: 0,
                         metamorphose: None,
                         dispel: 0 < actor.effects.dispel,
+                        web: 0 < actor.effects.web,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -422,12 +428,15 @@ pub fn cast_spell(
                         actor.effects.dispel -= 1;
                     }
 
+                    if 0 < actor.effects.web {
+                        actor.effects.web -= 1;
+                    }
+
                     spawn_bullet(commands, &assets, se, &spawn);
                     clear_effect = true;
                 }
                 SpellCast::Web => {
-                    let position = actor_position + actor.pointer;
-                    spawn_web(&mut commands, &assets, &mut se, position, actor.actor_group);
+                    actor.effects.web += 1;
                 }
                 SpellCast::Levitation => {
                     actor.levitation += 300;
@@ -474,30 +483,43 @@ pub fn cast_spell(
 
     if clear_effect {
         actor.effects = default();
-    } else if let Some(metamorphse) = actor.effects.metamorphse {
-        // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
-        let entity = cast_metamorphosis(
-            &mut commands,
-            &assets,
-            &life_bar_resource,
-            &mut se,
-            &mut spawn,
-            &actor_entity,
-            actor.clone(),
-            actor_life.clone(),
-            &actor_metamorphosis,
-            actor_position,
-            metamorphse,
-        );
-        commands.entity(entity).insert(Player::new(
-            player.map(|p| p.name.clone()).unwrap_or_default(),
-            false,
-            &player
-                .map(|p| p.discovered_spells.clone())
-                .unwrap_or_default(),
-        ));
+    } else {
+        if let Some(metamorphse) = actor.effects.metamorphse {
+            // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
+            let entity = cast_metamorphosis(
+                &mut commands,
+                &assets,
+                &life_bar_resource,
+                &mut se,
+                &mut spawn,
+                &actor_entity,
+                actor.clone(),
+                actor_life.clone(),
+                &actor_metamorphosis,
+                actor_position,
+                metamorphse,
+            );
+            commands.entity(entity).insert(Player::new(
+                player.map(|p| p.name.clone()).unwrap_or_default(),
+                false,
+                &player
+                    .map(|p| p.discovered_spells.clone())
+                    .unwrap_or_default(),
+            ));
 
-        actor.effects.metamorphse = None;
+            actor.effects.metamorphse = None;
+        }
+
+        if 0 < actor.effects.web {
+            spawn_web(
+                &mut commands,
+                &assets,
+                &mut se,
+                actor_position,
+                actor.actor_group,
+            );
+            actor.effects.web = 0;
+        }
     }
 
     actor.wands[wand_index as usize].delay = wand_delay;

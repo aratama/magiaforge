@@ -54,6 +54,7 @@ pub struct Bullet {
     levitation: u32,
     metamorphose: Option<ActorType>,
     dispel: bool,
+    web: bool,
 }
 
 #[derive(Bundle)]
@@ -118,6 +119,7 @@ pub struct SpawnBullet {
     pub levitation: u32,
     pub metamorphose: Option<ActorType>,
     pub dispel: bool,
+    pub web: bool,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -153,6 +155,7 @@ pub fn spawn_bullet(
             levitation: spawn.levitation,
             metamorphose: spawn.metamorphose,
             dispel: spawn.dispel,
+            web: spawn.web,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -362,6 +365,13 @@ fn bullet_collision(
                     metamorphose: bullet.metamorphose,
                     dispel: bullet.dispel,
                 });
+
+                if bullet.web {
+                    spawn.send(SpawnEntity::Web {
+                        position: bullet_position,
+                        owner_actor_group: bullet.actor_group,
+                    });
+                }
             }
         } else if life_query.contains(other_entity) {
             despawnings.insert(bullet_entity.clone());
@@ -381,6 +391,13 @@ fn bullet_collision(
                 metamorphose: bullet.metamorphose,
                 dispel: bullet.dispel,
             });
+
+            if bullet.web {
+                spawn.send(SpawnEntity::Web {
+                    position: bullet_position,
+                    owner_actor_group: bullet.actor_group,
+                });
+            }
         } else {
             // リモートプレイヤーに命中した場合もここ
             // ヒット判定やダメージなどはリモート側で処理します
@@ -399,6 +416,13 @@ fn bullet_collision(
                 },
                 bullet_position,
             ));
+
+            if bullet.web {
+                spawn.send(SpawnEntity::Web {
+                    position: bullet_position,
+                    owner_actor_group: bullet.actor_group,
+                });
+            }
         }
     }
 }
