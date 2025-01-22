@@ -1,4 +1,136 @@
 GameConstants(
+
+    levels: [
+        (
+            name: (
+                ja: "ウサギ族のキャンプ",
+                en: "Rabbit's Camp",
+                zh_cn: "兔子的营地",
+                zh_tw: "兔子的營地",
+                es: "Campamento de Conejos",
+                fr: "Camp des Lapins",
+                pt: "Acampamento dos Coelhos",
+                de: "Kaninchenlager",
+                ko: "토끼 캠프",
+                ru: "Лагерь кроликов",
+            ),
+            enemies: 0,
+            enemy_types: []
+        ),
+        (
+            name: (
+                ja: "図書館跡",
+                en: "Library Ruins",
+                zh_cn: "图书馆废墟",
+                zh_tw: "圖書館廢墟",
+                es: "Ruinas de la Biblioteca",
+                fr: "Ruines de la Bibliothèque",
+                pt: "Ruínas da Biblioteca",
+                de: "Bibliotheksruinen",
+                ko: "도서관 폐허",
+                ru: "Руины библиотеки",
+            ),
+            enemies: 10,
+            enemy_types: [Slime]
+        ),
+        (
+            name: (
+                ja: "地下草原",
+                en: "Underground Grassland",
+                zh_cn: "地下草原",
+                zh_tw: "地下草原",
+                es: "Pradera Subterránea",
+                fr: "Prairie Souterraine",
+                pt: "Pradaria Subterrânea",
+                de: "Unterirdisches Grasland",
+                ko: "지하 초원",
+                ru: "Подземные луга",
+            ),
+            enemies: 15,
+            enemy_types: [Slime, Spider]
+        ),
+        (
+            name: (
+                ja: "古城",
+                en: "Ancient Castle",
+                zh_cn: "古城",
+                zh_tw: "古城",
+                es: "Castillo Antiguo",
+                fr: "Château Ancien",
+                pt: "Castelo Antigo",
+                de: "Alte Burg",
+                ko: "고대 성",
+                ru: "Древний замок",
+            ),
+            enemies: 20,
+            enemy_types: [Spider, EyeBall]
+        ),
+        (
+            name: (
+                ja: "スライムの巣窟",
+                en: "Slime Nest",
+                zh_cn: "史莱姆巢穴",
+                zh_tw: "史萊姆巢穴",
+                es: "Nido de Slimes",
+                fr: "Nid de Slimes",
+                pt: "Ninho de Slimes",
+                de: "Schleimnest",
+                ko: "슬라임 둥지",
+                ru: "Гнездо слизней",
+            ),
+            enemies: 20,
+            enemy_types: [EyeBall, Shadow]
+        ),
+        (
+            name: (
+                ja: "氷の洞窟",
+                en: "Ice Cave",
+                zh_cn: "冰洞",
+                zh_tw: "冰洞",
+                es: "Cueva de Hielo",
+                fr: "Grotte de Glace",
+                pt: "Caverna de Gelo",
+                de: "Eishöhle",
+                ko: "얼음 동굴",
+                ru: "Ледяная пещера",
+            ),
+            enemies: 15,
+            enemy_types: [Shadow, Salamander]
+        ),
+        (
+            name: (
+                ja: "古の回廊",
+                en: "Ancient Corridor",
+                zh_cn: "古代走廊",
+                zh_tw: "古代走廊",
+                es: "Corredor Antiguo",
+                fr: "Couloir Ancien",
+                pt: "Corredor Antigo",
+                de: "Alter Korridor",
+                ko: "고대 회랑",
+                ru: "Древний коридор",
+            ),
+            enemies: 30,
+            enemy_types: [Slime, Spider, EyeBall, Shadow, Salamander]
+        ),
+        (
+            name: (
+                ja: "大空洞",
+                en: "Great Cavern",
+                zh_cn: "大洞穴",
+                zh_tw: "大洞穴",
+                es: "Gran Caverna",
+                fr: "Grande Caverne",
+                pt: "Grande Caverna",
+                de: "Große Höhle",
+                ko: "큰 동굴",
+                ru: "Большая пещера",
+            ),
+            enemies: 0,
+            enemy_types: []
+        ),
+    ],
+
     spells: {
         "MagicBolt": (
             rank: 0,
@@ -1041,7 +1173,7 @@ GameConstants(
             cast_delay: 30,
             icon: "slash_icon",
             price: 2400,
-            cast: (type: "Slash", damage: 12345),
+            cast: (type: "Slash", damage: 20),
         ),
         "Heal": (
             rank: 5,

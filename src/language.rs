@@ -52,6 +52,23 @@ pub struct Dict<T: ToString> {
     pub ko: T,
 }
 
+impl Default for Dict<String> {
+    fn default() -> Self {
+        Dict {
+            ja: "".to_string(),
+            en: "".to_string(),
+            zh_cn: "".to_string(),
+            zh_tw: "".to_string(),
+            es: "".to_string(),
+            fr: "".to_string(),
+            pt: "".to_string(),
+            ru: "".to_string(),
+            de: "".to_string(),
+            ko: "".to_string(),
+        }
+    }
+}
+
 impl ops::Add<Dict<String>> for Dict<String> {
     type Output = Dict<String>;
 
@@ -87,21 +104,6 @@ impl ops::AddAssign<Dict<String>> for Dict<String> {
 }
 
 impl Dict<&'static str> {
-    pub fn get(&self, lang: Languages) -> String {
-        match lang {
-            Languages::Ja => self.ja.to_string(),
-            Languages::En => self.en.to_string(),
-            Languages::ZhCn => self.zh_cn.to_string(),
-            Languages::ZhTw => self.zh_tw.to_string(),
-            Languages::Es => self.es.to_string(),
-            Languages::Fr => self.fr.to_string(),
-            Languages::Pt => self.pt.to_string(),
-            Languages::Ru => self.ru.to_string(),
-            Languages::De => self.de.to_string(),
-            Languages::Ko => self.ko.to_string(),
-        }
-    }
-
     pub fn to_string(&self) -> Dict<String> {
         Dict {
             ja: self.ja.to_string(),

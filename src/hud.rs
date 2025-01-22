@@ -7,10 +7,12 @@ use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::config::GameConfig;
+use crate::constant::GameConstants;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerDown;
-use crate::page::in_game::level_to_name;
+use crate::message::MULTIPLAY_ARENA;
+use crate::message::UNKNOWN_LEVEL;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::states::GameState;
@@ -37,9 +39,12 @@ pub struct PlayerGold;
 fn setup_hud(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameConstants>>,
     next: Res<LevelSetup>,
     config: Res<GameConfig>,
 ) {
+    let constants = ron.get(assets.spells.id()).unwrap();
+
     commands
         .spawn((
             Name::new("hud_root"),
@@ -98,11 +103,15 @@ fn setup_hud(
 
                     // 右下
 
-                    let level: GameLevel = match next.next_level {
-                        GameLevel::Level(i) => GameLevel::Level(i),
-                        GameLevel::MultiPlayArena => GameLevel::MultiPlayArena,
+                    let level_name = match next.next_level {
+                        GameLevel::Level(i) => constants
+                            .levels
+                            .get(i as usize)
+                            .map(|l| l.name.clone())
+                            .unwrap_or(UNKNOWN_LEVEL.to_string()),
+                        GameLevel::MultiPlayArena => MULTIPLAY_ARENA.to_string(),
                     };
-                    let name = level_to_name(level).get(config.language).to_string();
+                    let name = level_name.get(config.language).to_string();
 
                     parent.spawn((
                         Text(name),

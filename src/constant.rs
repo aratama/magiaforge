@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use bevy::color::Color;
 
-use crate::{interpreter::Cmd, spell::SpellProps};
+use crate::{actor::ActorType, interpreter::Cmd, language::Dict, spell::SpellProps};
 
 pub const CRATE_NAME: &str = "magiaforge";
 
@@ -124,6 +124,14 @@ pub const UI_SECONDARY: Color = Color::hsla(57.0, 0.11, 0.37, 1.0);
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameConstants {
     pub spells: HashMap<String, SpellProps>,
+    pub levels: Vec<LevelProps>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct LevelProps {
+    pub name: Dict<String>,
+    pub enemies: u8,
+    pub enemy_types: Vec<ActorType>,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
