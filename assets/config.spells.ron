@@ -1,4 +1,136 @@
 GameConstants(
+
+    levels: [
+        (
+            name: (
+                ja: "ウサギ族のキャンプ",
+                en: "Rabbit's Camp",
+                zh_cn: "兔子的营地",
+                zh_tw: "兔子的營地",
+                es: "Campamento de Conejos",
+                fr: "Camp des Lapins",
+                pt: "Acampamento dos Coelhos",
+                de: "Kaninchenlager",
+                ko: "토끼 캠프",
+                ru: "Лагерь кроликов",
+            ),
+            enemies: 0,
+            enemy_types: []
+        ),
+        (
+            name: (
+                ja: "図書館跡",
+                en: "Library Ruins",
+                zh_cn: "图书馆废墟",
+                zh_tw: "圖書館廢墟",
+                es: "Ruinas de la Biblioteca",
+                fr: "Ruines de la Bibliothèque",
+                pt: "Ruínas da Biblioteca",
+                de: "Bibliotheksruinen",
+                ko: "도서관 폐허",
+                ru: "Руины библиотеки",
+            ),
+            enemies: 10,
+            enemy_types: [Slime]
+        ),
+        (
+            name: (
+                ja: "地下草原",
+                en: "Underground Grassland",
+                zh_cn: "地下草原",
+                zh_tw: "地下草原",
+                es: "Pradera Subterránea",
+                fr: "Prairie Souterraine",
+                pt: "Pradaria Subterrânea",
+                de: "Unterirdisches Grasland",
+                ko: "지하 초원",
+                ru: "Подземные луга",
+            ),
+            enemies: 15,
+            enemy_types: [Slime, Spider]
+        ),
+        (
+            name: (
+                ja: "古城",
+                en: "Ancient Castle",
+                zh_cn: "古城",
+                zh_tw: "古城",
+                es: "Castillo Antiguo",
+                fr: "Château Ancien",
+                pt: "Castelo Antigo",
+                de: "Alte Burg",
+                ko: "고대 성",
+                ru: "Древний замок",
+            ),
+            enemies: 20,
+            enemy_types: [Spider, EyeBall]
+        ),
+        (
+            name: (
+                ja: "スライムの巣窟",
+                en: "Slime Nest",
+                zh_cn: "史莱姆巢穴",
+                zh_tw: "史萊姆巢穴",
+                es: "Nido de Slimes",
+                fr: "Nid de Slimes",
+                pt: "Ninho de Slimes",
+                de: "Schleimnest",
+                ko: "슬라임 둥지",
+                ru: "Гнездо слизней",
+            ),
+            enemies: 20,
+            enemy_types: [EyeBall, Shadow]
+        ),
+        (
+            name: (
+                ja: "氷の洞窟",
+                en: "Ice Cave",
+                zh_cn: "冰洞",
+                zh_tw: "冰洞",
+                es: "Cueva de Hielo",
+                fr: "Grotte de Glace",
+                pt: "Caverna de Gelo",
+                de: "Eishöhle",
+                ko: "얼음 동굴",
+                ru: "Ледяная пещера",
+            ),
+            enemies: 15,
+            enemy_types: [Shadow, Salamander]
+        ),
+        (
+            name: (
+                ja: "古の回廊",
+                en: "Ancient Corridor",
+                zh_cn: "古代走廊",
+                zh_tw: "古代走廊",
+                es: "Corredor Antiguo",
+                fr: "Couloir Ancien",
+                pt: "Corredor Antigo",
+                de: "Alter Korridor",
+                ko: "고대 회랑",
+                ru: "Древний коридор",
+            ),
+            enemies: 30,
+            enemy_types: [Slime, Spider, EyeBall, Shadow, Salamander]
+        ),
+        (
+            name: (
+                ja: "大空洞",
+                en: "Great Cavern",
+                zh_cn: "大洞穴",
+                zh_tw: "大洞穴",
+                es: "Gran Caverna",
+                fr: "Grande Caverne",
+                pt: "Grande Caverna",
+                de: "Große Höhle",
+                ko: "큰 동굴",
+                ru: "Большая пещера",
+            ),
+            enemies: 0,
+            enemy_types: []
+        ),
+    ],
+
     spells: {
         "MagicBolt": (
             rank: 0,
@@ -44,7 +176,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 60,
-                metamorphose: false
+
             ),
         ),
         "LightBall": (
@@ -91,7 +223,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 0,
-                metamorphose: false
+
             ),
         ),
         "Lantern": (
@@ -201,7 +333,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 30,
-                metamorphose: false
+
             ),
         ),
         "SlimeCharge": (
@@ -248,7 +380,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 20,
-                metamorphose: false
+
             ),
         ),
         "Telescope": (
@@ -388,7 +520,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 10,
-                metamorphose: false
+
             ),
         ),
         "BulletSpeedDoown": (
@@ -437,16 +569,16 @@ GameConstants(
                 ru: "Двойное заклинание"
             ),
             description: (
-                ja: "ふたつの投射物呪文を同時に詠唱します。詠唱遅延は大きいほうに揃えられます。",
-                en: "Casts two projectile spells at the same time.",
-                zh_cn: "同时施放两个投射法术。施法延迟将与较大的值对齐。",
-                zh_tw: "同時施放兩個投射法術。施法延遲將與較大的值對齊。",
-                es: "Lanza dos hechizos de proyectiles al mismo tiempo.",
-                fr: "Lance deux sorts de projectiles en même temps.",
-                pt: "Lança dois feitiços de projéteis ao mesmo tempo.",
-                de: "Wirkt zwei Projektilzauber gleichzeitig.",
-                ko: "두 개의 투사체 주문을 동시에 시전합니다.",
-                ru: "Одновременно накладывает два заклинания снаряда."
+                ja: "ふたつの投射物呪文を同時に詠唱します。呪文を組み合わせによって、弾丸に効果を付与することもできます。 詠唱遅延は大きいほうに揃えられます。",
+                en: "Casts two projectile spells simultaneously. Combining spells can add effects to bullets. The casting delay is set to the higher value.",
+                zh_cn: "同时施放两个投射法术。组合法术可以为子弹添加效果。施法延迟设置为较高值。",
+                zh_tw: "同時施放兩個投射法術。組合法術可以為子彈添加效果。施法延遲設置為較高值。",
+                es: "Lanza dos hechizos de proyectiles simultáneamente. La combinación de hechizos puede agregar efectos a las balas. El retraso de lanzamiento se establece en el valor más alto.",
+                fr: "Lance deux sorts de projectiles simultanément. La combinaison de sorts peut ajouter des effets aux balles. Le délai d'incantation est réglé sur la valeur la plus élevée.",
+                pt: "Lança dois feitiços de projéteis simultaneamente. Combinar feitiços pode adicionar efeitos às balas. O atraso de lançamento é definido para o valor mais alto.",
+                de: "Wirkt gleichzeitig zwei Projektilzauber. Das Kombinieren von Zaubern kann Kugeln Effekte hinzufügen. Die Zauberverzögerung wird auf den höheren Wert eingestellt.",
+                ko: "두 개의 투사체 주문을 동시에 시전합니다. 주문을 결합하면 탄환에 효과를 추가할 수 있습니다. 시전 지연은 더 높은 값으로 설정됩니다.",
+                ru: "Одновременно накладывает два заклинания снаряда. Комбинирование заклинаний может добавить эффекты к пулям. Задержка заклинания установлена на более высокое значение."
             ),
             cast_delay: 0,
             icon: "spell_dual_cast",
@@ -561,16 +693,16 @@ GameConstants(
                 ru: "Паутинка"
             ),
             description: (
-                ja: "蜘蛛の巣を張り巡らせます。触れるとしばらく移動できなくなります。",
-                en: "Creates a spider web. Touching it will prevent you from moving for a while.",
-                zh_cn: "制造一个蜘蛛网。触碰它会使您暂时无法移动。",
-                zh_tw: "製造一個蜘蛛網。觸碰它會使您暫時無法移動。",
-                es: "Crea una telaraña. Tocarla te impedirá moverte por un tiempo.",
-                fr: "Crée une toile d'araignée. Le toucher vous empêchera de bouger pendant un certain temps.",
-                pt: "Criar uma teia de aranha. Tocá-la impedirá você de se mover por um tempo.",
-                de: "Erzeugt ein Spinnennetz. Wenn du es berührst, kannst du dich eine Weile nicht bewegen.",
-                ko: "거미줄을 만듭니다. 만지면 잠시 동안 움직일 수 없습니다.",
-                ru: "Создает паутину. Прикосновение к ней не позволит вам двигаться некоторое время."
+                ja: "足元に蜘蛛の巣を張り巡らせます。敵が蜘蛛の巣に触れると、しばらく移動できなくなります。弾丸に付与すると、弾丸が衝突した個所に蜘蛛の巣を張ります。",
+                en: "Creates a spider web at your feet. Enemies touching the web will be unable to move for a while. When applied to bullets, the web will be created at the point of impact.",
+                zh_cn: "在你的脚下创建一个蜘蛛网。触碰到蜘蛛网的敌人将无法移动一段时间。当应用于子弹时，蜘蛛网将在撞击点创建。",
+                zh_tw: "在你的腳下創建一個蜘蛛網。觸碰到蜘蛛網的敵人將無法移動一段時間。當應用於子彈時，蜘蛛網將在撞擊點創建。",
+                es: "Crea una telaraña a tus pies. Los enemigos que toquen la telaraña no podrán moverse por un tiempo. Cuando se aplica a las balas, la telaraña se creará en el punto de impacto.",
+                fr: "Crée une toile d'araignée à vos pieds. Les ennemis touchant la toile ne pourront pas bouger pendant un certain temps. Lorsqu'elle est appliquée aux balles, la toile sera créée au point d'impact.",
+                pt: "Cria uma teia de aranha aos seus pés. Inimigos que tocarem a teia não poderão se mover por um tempo. Quando aplicada a balas, a teia será criada no ponto de impacto.",
+                de: "Erzeugt ein Spinnennetz zu deinen Füßen. Feinde, die das Netz berühren, können sich eine Weile nicht bewegen. Wenn es auf Kugeln angewendet wird, wird das Netz am Aufschlagpunkt erstellt.",
+                ko: "발밑에 거미줄을 생성합니다. 거미줄에 닿은 적은 잠시 동안 움직일 수 없습니다. 탄환에 적용하면 충돌 지점에 거미줄이 생성됩니다.",
+                ru: "Создает паутину у ваших ног. Враги, касающиеся паутины, не смогут двигаться некоторое время. При применении к пулям паутина будет создана в точке удара."
             ),
             cast_delay: 120,
             icon: "spell_web_icon",
@@ -996,16 +1128,16 @@ GameConstants(
                 ru: "Метаморфоза"
             ),
             description: (
-                ja: "一時的にモンスターの姿に変化します。",
-                en: "Temporarily transforms into a monster.",
-                zh_cn: "暂时变成怪物。",
-                zh_tw: "暫時變成怪物。",
-                es: "Se transforma temporalmente en un monstruo.",
-                fr: "Se transforme temporairement en monstre.",
-                pt: "Transforma-se temporariamente em um monstro.",
-                de: "Verwandelt sich vorübergehend in ein Monster.",
-                ko: "일시적으로 몬스터로 변신합니다.",
-                ru: "Временно превращается в монстра."
+                ja: "一時的にモンスターの姿に変化します。弾丸呪文と組み合わせると、弾丸の当たった相手を変化させます。",
+                en: "Temporarily transforms into a monster. When combined with a bullet spell, it transforms the target hit by the bullet.",
+                zh_cn: "暂时变成怪物。当与子弹法术结合时，它会将被子弹击中的目标变形。",
+                zh_tw: "暫時變成怪物。當與子彈法術結合時，它會將被子彈擊中的目標變形。",
+                es: "Se transforma temporalmente en un monstruo. Cuando se combina con un hechizo de bala, transforma el objetivo golpeado por la bala.",
+                fr: "Se transforme temporairement en monstre. Lorsqu'il est combiné avec un sort de projectile, il transforme la cible touchée par le projectile.",
+                pt: "Transforma-se temporariamente em um monstro. Quando combinado com um feitiço de projétil, transforma o alvo atingido pelo projétil.",
+                de: "Verwandelt sich vorübergehend in ein Monster. In Kombination mit einem Kugelzauber verwandelt es das von der Kugel getroffene Ziel.",
+                ko: "일시적으로 몬스터로 변신합니다. 탄환 주문과 결합하면 탄환에 맞은 대상을 변형시킵니다.",
+                ru: "Временно превращается в монстра. В сочетании с заклинанием пули превращает цель, пораженную пулей."
             ),
             cast_delay: 120,
             icon: "metamorphosis_icon",
@@ -1041,7 +1173,7 @@ GameConstants(
             cast_delay: 30,
             icon: "slash_icon",
             price: 2400,
-            cast: (type: "Slash", damage: 12345),
+            cast: (type: "Slash", damage: 20),
         ),
         "Heal": (
             rank: 5,
@@ -1180,7 +1312,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 180,
                 stagger: 0,
-                metamorphose: false
+
             ),
         ),
         "LightSword": (
@@ -1259,55 +1391,39 @@ GameConstants(
                 freeze: 120,
                 levitation: 0,
                 stagger: 0,
-                metamorphose: false
             ),
         ),
-        "MetamorphicCurse": (
+        "Dispel": (
             rank: 6,
             name: (
-                ja: "変化の呪い",
-                en: "Metamorphic Curse",
-                zh_cn: "变形诅咒",
-                zh_tw: "變形詛咒",
-                es: "Maldición Metamórfica",
-                fr: "Malédiction Métamorphique",
-                pt: "Maldição Metamórfica",
-                de: "Metamorphose Fluch",
-                ko: "변형 저주",
-                ru: "Метаморфическое проклятие"
+                ja: "解呪",
+                en: "Dispel",
+                it: "Dispel",
+                zh_cn: "驱散",
+                zh_tw: "驅散",
+                es: "Disipar",
+                fr: "Dissiper",
+                pt: "Dissipar",
+                de: "Auflösen",
+                ko: "해제",
+                ru: "Рассеивание"
             ),
             description: (
-                ja: "対象を変化させます。変化の内容はランダムです。",
-                en: "Changes the target. The content of the change is random.",
-                zh_cn: "改变目标。变化的内容是随机的。",
-                zh_tw: "改變目標。變化的內容是隨機的。",
-                es: "Cambia el objetivo. El contenido del cambio es aleatorio.",
-                fr: "Change la cible. Le contenu du changement est aléatoire.",
-                pt: "Muda o alvo. O conteúdo da mudança é aleatório.",
-                de: "Ändert das Ziel. Der Inhalt der Änderung ist zufällig.",
-                ko: "대상을 변화시킵니다. 변화의 내용은 무작위입니다.",
-                ru: "Меняет цель. Содержание изменения случайно."
+                ja: "呪文の効果を解除します。あらかじめ自分にかけておくと、呪いを受けたときに効果を打ち消します。弾丸に付与することもできます。",
+                en: "Removes the effects of spells. If pre-cast on yourself, it will negate the effects of curses when received. Can also be applied to bullets.",
+                zh_cn: "移除法术效果。如果预先施放在自己身上，当受到诅咒时会抵消其效果。也可以应用于子弹。",
+                zh_tw: "移除法術效果。如果預先施放在自己身上，當受到詛咒時會抵消其效果。也可以應用於子彈。",
+                es: "Elimina los efectos de los hechizos. Si se lanza previamente sobre ti mismo, anulará los efectos de las maldiciones cuando se reciban. También se puede aplicar a las balas.",
+                fr: "Supprime les effets des sorts. Si pré-lancé sur vous-même, il annulera les effets des malédictions lorsqu'elles sont reçues. Peut également être appliqué aux balles.",
+                pt: "Remove os efeitos dos feitiços. Se pré-lançado em si mesmo, anulará os efeitos das maldições quando recebidas. Também pode ser aplicado a balas.",
+                de: "Entfernt die Effekte von Zaubern. Wenn es vorher auf sich selbst gewirkt wird, negiert es die Effekte von Flüchen, wenn sie empfangen werden. Kann auch auf Kugeln angewendet werden.",
+                ko: "주문의 효과를 제거합니다. 자신에게 미리 시전하면 저주를 받을 때 그 효과를 무효화합니다. 탄환에도 적용할 수 있습니다.",
+                ru: "Удаляет эффекты заклинаний. Если предварительно наложить на себя, он нейтрализует эффекты проклятий при их получении. Также может быть применен к пулям."
             ),
             cast_delay: 120,
-            icon: "metamorphic_curse_icon",
-            price: 1000,
-            cast: (
-                type: "Bullet",
-                slices: (type: "Slice", names: ["light_ball"] ),
-                collier_radius: 5.0,
-                speed: 64.0,
-                lifetime: 180,
-                damage: 0,
-                impulse: 0.0,
-                scattering: 0.4,
-                light_intensity: 0.0,
-                light_radius: 0.0,
-                light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
-                freeze: 0,
-                levitation: 0,
-                stagger: 0,
-                metamorphose: true
-            ),
+            icon: "dispel_icon",
+            price: 2000,
+            cast: (type: "Dispel"),
         ),
         "SummonHugeSlime": (
             rank: 8,
