@@ -44,7 +44,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 60,
-                metamorphose: false
+
             ),
         ),
         "LightBall": (
@@ -91,7 +91,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 0,
-                metamorphose: false
+
             ),
         ),
         "Lantern": (
@@ -201,7 +201,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 30,
-                metamorphose: false
+
             ),
         ),
         "SlimeCharge": (
@@ -248,7 +248,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 20,
-                metamorphose: false
+
             ),
         ),
         "Telescope": (
@@ -388,7 +388,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 0,
                 stagger: 10,
-                metamorphose: false
+
             ),
         ),
         "BulletSpeedDoown": (
@@ -996,16 +996,16 @@ GameConstants(
                 ru: "Метаморфоза"
             ),
             description: (
-                ja: "一時的にモンスターの姿に変化します。",
-                en: "Temporarily transforms into a monster.",
-                zh_cn: "暂时变成怪物。",
-                zh_tw: "暫時變成怪物。",
-                es: "Se transforma temporalmente en un monstruo.",
-                fr: "Se transforme temporairement en monstre.",
-                pt: "Transforma-se temporariamente em um monstro.",
-                de: "Verwandelt sich vorübergehend in ein Monster.",
-                ko: "일시적으로 몬스터로 변신합니다.",
-                ru: "Временно превращается в монстра."
+                ja: "一時的にモンスターの姿に変化します。弾丸呪文と組み合わせると、弾丸の当たった相手を変化させます。",
+                en: "Temporarily transforms into a monster. When combined with a bullet spell, it transforms the target hit by the bullet.",
+                zh_cn: "暂时变成怪物。当与子弹法术结合时，它会将被子弹击中的目标变形。",
+                zh_tw: "暫時變成怪物。當與子彈法術結合時，它會將被子彈擊中的目標變形。",
+                es: "Se transforma temporalmente en un monstruo. Cuando se combina con un hechizo de bala, transforma el objetivo golpeado por la bala.",
+                fr: "Se transforme temporairement en monstre. Lorsqu'il est combiné avec un sort de projectile, il transforme la cible touchée par le projectile.",
+                pt: "Transforma-se temporariamente em um monstro. Quando combinado com um feitiço de projétil, transforma o alvo atingido pelo projétil.",
+                de: "Verwandelt sich vorübergehend in ein Monster. In Kombination mit einem Kugelzauber verwandelt es das von der Kugel getroffene Ziel.",
+                ko: "일시적으로 몬스터로 변신합니다. 탄환 주문과 결합하면 탄환에 맞은 대상을 변형시킵니다.",
+                ru: "Временно превращается в монстра. В сочетании с заклинанием пули превращает цель, пораженную пулей."
             ),
             cast_delay: 120,
             icon: "metamorphosis_icon",
@@ -1180,7 +1180,7 @@ GameConstants(
                 freeze: 0,
                 levitation: 180,
                 stagger: 0,
-                metamorphose: false
+
             ),
         ),
         "LightSword": (
@@ -1259,54 +1259,6 @@ GameConstants(
                 freeze: 120,
                 levitation: 0,
                 stagger: 0,
-                metamorphose: false
-            ),
-        ),
-        "MetamorphicCurse": (
-            rank: 6,
-            name: (
-                ja: "変化の呪い",
-                en: "Metamorphic Curse",
-                zh_cn: "变形诅咒",
-                zh_tw: "變形詛咒",
-                es: "Maldición Metamórfica",
-                fr: "Malédiction Métamorphique",
-                pt: "Maldição Metamórfica",
-                de: "Metamorphose Fluch",
-                ko: "변형 저주",
-                ru: "Метаморфическое проклятие"
-            ),
-            description: (
-                ja: "対象を変化させます。変化の内容はランダムです。",
-                en: "Changes the target. The content of the change is random.",
-                zh_cn: "改变目标。变化的内容是随机的。",
-                zh_tw: "改變目標。變化的內容是隨機的。",
-                es: "Cambia el objetivo. El contenido del cambio es aleatorio.",
-                fr: "Change la cible. Le contenu du changement est aléatoire.",
-                pt: "Muda o alvo. O conteúdo da mudança é aleatório.",
-                de: "Ändert das Ziel. Der Inhalt der Änderung ist zufällig.",
-                ko: "대상을 변화시킵니다. 변화의 내용은 무작위입니다.",
-                ru: "Меняет цель. Содержание изменения случайно."
-            ),
-            cast_delay: 120,
-            icon: "metamorphic_curse_icon",
-            price: 1000,
-            cast: (
-                type: "Bullet",
-                slices: (type: "Slice", names: ["light_ball"] ),
-                collier_radius: 5.0,
-                speed: 64.0,
-                lifetime: 180,
-                damage: 0,
-                impulse: 0.0,
-                scattering: 0.4,
-                light_intensity: 0.0,
-                light_radius: 0.0,
-                light_color_hlsa: [0.0, 0.0, 0.0, 0.0],
-                freeze: 0,
-                levitation: 0,
-                stagger: 0,
-                metamorphose: true
             ),
         ),
         "SummonHugeSlime": (

@@ -1,6 +1,8 @@
 use crate::actor::book_shelf::BookshelfPlugin;
 use crate::actor::chest::ChestPlugin;
+use crate::actor::chicken::ChikenControlPlugin;
 use crate::actor::rabbit::RabbitPlugin;
+use crate::actor::sandbug::SandbagPlugin;
 use crate::actor::stone_lantern::StoneLanternPlugin;
 use crate::actor::witch::WitchPlugin;
 use crate::actor::ActorPlugin;
@@ -30,11 +32,9 @@ use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
 use crate::enemy::basic::BasicEnemyPlugin;
-use crate::enemy::chicken::ChikenControlPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::salamander::SalamanderPlugin;
-use crate::enemy::sandbug::SandbagPlugin;
 use crate::enemy::shadow::ShadowPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::enemy::spider::SpiderPlugin;

@@ -53,7 +53,7 @@ pub fn spawn_eyeball(
         &assets,
         life_bar_locals,
         match actor_group {
-            ActorGroup::Player => assets.eyeball_friend.clone(),
+            ActorGroup::Friend => assets.eyeball_friend.clone(),
             ActorGroup::Enemy => assets.eyeball.clone(),
             ActorGroup::Neutral => assets.eyeball_friend.clone(),
             ActorGroup::Entity => assets.eyeball_friend.clone(),

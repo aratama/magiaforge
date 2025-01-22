@@ -58,7 +58,7 @@ pub fn spawn_slime(
         &assets,
         life_bar_locals,
         match actor_group {
-            ActorGroup::Player => assets.friend_slime.clone(),
+            ActorGroup::Friend => assets.friend_slime.clone(),
             ActorGroup::Enemy => assets.slime.clone(),
             ActorGroup::Neutral => assets.friend_slime.clone(),
             ActorGroup::Entity => assets.friend_slime.clone(),
@@ -130,7 +130,8 @@ fn blood(
                     aseprite: assets.atlas.clone(),
                     name: format!("slime_blood_{}", rand::random::<u8>() % 3),
                 },
-                Transform::from_translation(position.extend(BLOOD_LAYER_Z)),
+                Transform::from_translation(position.extend(BLOOD_LAYER_Z))
+                    .with_scale(Vec3::new(2.0, 2.0, 1.0)),
             ));
         }
     }

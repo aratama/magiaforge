@@ -6,7 +6,7 @@ use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
-use crate::component::metamorphosis::Metamorphosis;
+use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::controller::remote::send_remote_message;
@@ -315,7 +315,7 @@ fn die_player(
         &Life,
         &Transform,
         &Player,
-        Option<&Metamorphosis>,
+        Option<&Metamorphosed>,
     )>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
@@ -375,7 +375,7 @@ fn die_player(
 pub fn recovery(
     level: &mut LevelSetup,
     interpreter: &mut EventWriter<InterpreterEvent>,
-    morph: &Option<&Metamorphosis>,
+    morph: &Option<&Metamorphosed>,
     player: &Player,
     player_life: &Life,
     actor: &Actor,

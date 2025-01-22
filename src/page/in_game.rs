@@ -275,7 +275,7 @@ pub fn setup_level(
             fire_damage_wait: 0,
         },
         actor: Actor {
-            actor_group: ActorGroup::Player,
+            actor_group: ActorGroup::Friend,
             wands: player_state.wands,
             inventory: player_state.inventory,
             current_wand: player_state.current_wand,

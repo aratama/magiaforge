@@ -9,7 +9,7 @@ use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::life::Life;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::random_actor_type;
-use crate::component::metamorphosis::Metamorphosis;
+use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
 use crate::constant::GameConstants;
 use crate::constant::MAX_SPELLS_IN_WAND;
@@ -76,7 +76,6 @@ pub struct SpellCastBullet {
     pub freeze: u32,
     pub levitation: u32,
     pub stagger: u32,
-    pub metamorphose: bool,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -139,7 +138,7 @@ pub fn cast_spell(
     mut actor_impulse: &mut ExternalImpulse,
     mut actor_vertical: &mut Vertical,
     mut collision_groups: &mut CollisionGroups,
-    actor_metamorphosis: &Option<&Metamorphosis>,
+    actor_metamorphosis: &Option<&Metamorphosed>,
     player: Option<&Player>,
     online: bool,
     writer: &mut EventWriter<ClientMessage>,
@@ -207,7 +206,7 @@ pub fn cast_spell(
                         freeze: cast.freeze,
                         stagger: cast.stagger,
                         levitation: cast.levitation,
-                        metamorphose: cast.metamorphose,
+                        metamorphose: actor.effects.metamorphse,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -235,7 +234,7 @@ pub fn cast_spell(
                         // membershipsやfilterが逆になります
                         // ややこしいが、受信側にとってはプレイヤーキャラクター自信は WITCH_GROUP
                         remove_bullet_props.groups = match actor.actor_group {
-                            ActorGroup::Player => *ENEMY_BULLET_GROUP,
+                            ActorGroup::Friend => *ENEMY_BULLET_GROUP,
                             ActorGroup::Enemy => *PLAYER_BULLET_GROUP,
                             ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
                             ActorGroup::Entity => CollisionGroups::new(Group::NONE, Group::NONE), // エンティティは弾丸を発射しません
@@ -285,10 +284,10 @@ pub fn cast_spell(
                         owner: Some(actor_entity),
                         servant_type,
                         actor_group: match (actor.actor_group, friend) {
-                            (ActorGroup::Player, true) => ActorGroup::Player,
-                            (ActorGroup::Player, false) => ActorGroup::Enemy,
+                            (ActorGroup::Friend, true) => ActorGroup::Friend,
+                            (ActorGroup::Friend, false) => ActorGroup::Enemy,
                             (ActorGroup::Enemy, true) => ActorGroup::Enemy,
-                            (ActorGroup::Enemy, false) => ActorGroup::Player,
+                            (ActorGroup::Enemy, false) => ActorGroup::Friend,
                             (ActorGroup::Neutral, _) => ActorGroup::Neutral,
                             (ActorGroup::Entity, _) => ActorGroup::Neutral,
                         },
@@ -414,7 +413,7 @@ pub fn cast_spell(
                         freeze: 0,
                         stagger: 10,
                         levitation: 0,
-                        metamorphose: false,
+                        metamorphose: None,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -444,28 +443,8 @@ pub fn cast_spell(
                     );
                 }
                 SpellCast::Metamorphosis => {
-                    let position = actor_transform.translation.truncate();
                     let morphing_to = random_actor_type(&mut rng, actor.to_type());
-                    let entity = cast_metamorphosis(
-                        &mut commands,
-                        &assets,
-                        &life_bar_resource,
-                        &mut se,
-                        &mut spawn,
-                        &actor_entity,
-                        actor.clone(),
-                        actor_life.clone(),
-                        &actor_metamorphosis,
-                        position,
-                        morphing_to,
-                    );
-                    commands.entity(entity).insert(Player::new(
-                        player.map(|p| p.name.clone()).unwrap_or_default(),
-                        false,
-                        &player
-                            .map(|p| p.discovered_spells.clone())
-                            .unwrap_or_default(),
-                    ));
+                    actor.effects.metamorphse = Some(morphing_to);
                 }
                 SpellCast::Slash { damage } => {
                     spawn.send(SpawnEntity::Slash {
@@ -484,8 +463,35 @@ pub fn cast_spell(
         spell_index += 1;
     }
 
+    // 変身効果が消費されていない場合は自分に効果を及ぼします
+
     if clear_effect {
         actor.effects = default();
+    } else if let Some(metamorphse) = actor.effects.metamorphse {
+        // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
+        let position = actor_transform.translation.truncate();
+        let entity = cast_metamorphosis(
+            &mut commands,
+            &assets,
+            &life_bar_resource,
+            &mut se,
+            &mut spawn,
+            &actor_entity,
+            actor.clone(),
+            actor_life.clone(),
+            &actor_metamorphosis,
+            position,
+            metamorphse,
+        );
+        commands.entity(entity).insert(Player::new(
+            player.map(|p| p.name.clone()).unwrap_or_default(),
+            false,
+            &player
+                .map(|p| p.discovered_spells.clone())
+                .unwrap_or_default(),
+        ));
+
+        actor.effects.metamorphse = None;
     }
 
     actor.wands[wand_index as usize].delay = wand_delay;

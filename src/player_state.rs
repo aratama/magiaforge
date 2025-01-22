@@ -1,7 +1,7 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::component::life::Life;
-use crate::component::metamorphosis::Metamorphosis;
+use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::inventory::Inventory;
@@ -49,15 +49,10 @@ impl Default for PlayerState {
             inventory.insert_spell(SpellType::Lantern);
             inventory.insert_spell(SpellType::Lantern);
             inventory.insert_spell(SpellType::SpikeBoots);
-            inventory.insert_spell(SpellType::SpikeBoots);
-            inventory.insert_spell(SpellType::SpikeBoots);
             inventory.insert_spell(SpellType::Telescope);
             inventory.insert_spell(SpellType::Magnifier);
             inventory.insert_spell(SpellType::Homing);
             inventory.insert_spell(SpellType::Homing);
-            inventory.insert_spell(SpellType::Homing);
-            inventory.insert_spell(SpellType::Homing);
-            inventory.insert_spell(SpellType::HeavyShot);
             inventory.insert_spell(SpellType::HeavyShot);
             inventory.insert_spell(SpellType::HeavyShot);
             inventory.insert_spell(SpellType::SummonFriendSlime);
@@ -67,13 +62,7 @@ impl Default for PlayerState {
             inventory.insert_spell(SpellType::Dash);
             inventory.insert_spell(SpellType::QuickCast);
             inventory.insert_spell(SpellType::QuickCast);
-            inventory.insert_spell(SpellType::QuickCast);
-            inventory.insert_spell(SpellType::QuickCast);
-            inventory.insert_spell(SpellType::QuickCast);
-            inventory.insert_spell(SpellType::QuickCast);
             inventory.insert_spell(SpellType::Impact);
-            inventory.insert_spell(SpellType::PrecisionUp);
-            inventory.insert_spell(SpellType::PrecisionUp);
             inventory.insert_spell(SpellType::PrecisionUp);
             inventory.insert_spell(SpellType::PrecisionUp);
             inventory.insert_spell(SpellType::Bomb);
@@ -92,12 +81,11 @@ impl Default for PlayerState {
             inventory.insert_spell(SpellType::Jump);
             inventory.insert_spell(SpellType::Metamorphosis);
             inventory.insert_spell(SpellType::Slash);
-            inventory.insert_spell(SpellType::MetamorphicCurse);
             inventory.sort();
 
             let wands = [
                 Wand::with_slots([
-                    Some(WandSpell::new(SpellType::MetamorphicCurse)),
+                    Some(WandSpell::new(SpellType::Metamorphosis)),
                     None,
                     None,
                     None,
@@ -238,7 +226,7 @@ impl PlayerState {
         instance
     }
 
-    pub fn from_morph(morph: &Metamorphosis, actor: &Actor, life: &Life) -> Self {
+    pub fn from_morph(morph: &Metamorphosed, actor: &Actor, life: &Life) -> Self {
         let ActorExtra::Witch {
             name,
             discovered_spells,

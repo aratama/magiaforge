@@ -6,11 +6,16 @@ use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::GameActors;
+use crate::constant::BLOOD_LAYER_Z;
 use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
+use crate::spell::SpellType;
+use crate::states::GameState;
+use crate::wand::Wand;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use core::f32;
 
 #[derive(Debug)]
@@ -37,6 +42,7 @@ pub fn default_chiken() -> (Actor, Life) {
         Actor {
             extra: ActorExtra::Chicken,
             actor_group: ActorGroup::Neutral,
+            wands: Wand::single(Some(SpellType::Jump)),
             ..default()
         },
         Life::new(2),
@@ -124,13 +130,34 @@ fn hopping(
     }
 }
 
+fn blood(
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    query: Query<(&Life, &Transform), With<Chicken>>,
+) {
+    for (life, transform) in query.iter() {
+        if life.life <= 0 {
+            let position = transform.translation.truncate();
+            commands.spawn((
+                StateScoped(GameState::InGame),
+                AseSpriteSlice {
+                    aseprite: assets.atlas.clone(),
+                    name: format!("blood_{}", rand::random::<u8>() % 3),
+                },
+                Transform::from_translation(position.extend(BLOOD_LAYER_Z))
+                    .with_scale(Vec3::new(2.0, 2.0, 1.0)),
+            ));
+        }
+    }
+}
+
 pub struct ChikenControlPlugin;
 
 impl Plugin for ChikenControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (control_chiken, hopping).in_set(FixedUpdateGameActiveSet),
+            (control_chiken, hopping, blood).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

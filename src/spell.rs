@@ -65,7 +65,6 @@ pub enum SpellType {
     ApplyLevitation,
     // ランク 6
     Freeze,
-    MetamorphicCurse,
     // Quick 時間加速魔法
     // Stop, // 時間停止魔法
     // ランク7
@@ -200,7 +199,6 @@ pub fn get_spell_appendix(cast: &SpellCast) -> Dict<String> {
             freeze: _,
             levitation: _,
             stagger: _,
-            metamorphose: _,
         }) => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();

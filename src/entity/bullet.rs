@@ -1,6 +1,7 @@
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
@@ -51,7 +52,7 @@ pub struct Bullet {
     actor_group: ActorGroup,
     pub holder: Option<(Entity, Trigger)>,
     levitation: u32,
-    metamorphose: bool,
+    metamorphose: Option<ActorType>,
 }
 
 #[derive(Bundle)]
@@ -114,7 +115,7 @@ pub struct SpawnBullet {
     pub freeze: u32,
     pub stagger: u32,
     pub levitation: u32,
-    pub metamorphose: bool,
+    pub metamorphose: Option<ActorType>,
 }
 
 /// 指定した種類の弾丸を発射します

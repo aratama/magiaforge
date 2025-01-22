@@ -1,9 +1,13 @@
 pub mod book_shelf;
 pub mod chest;
+pub mod chicken;
 pub mod rabbit;
+pub mod sandbug;
 pub mod stone_lantern;
 pub mod witch;
 
+use crate::actor::chicken::default_chiken;
+use crate::actor::sandbug::default_sandbag;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::collision::ENEMY_BULLET_GROUP;
@@ -19,7 +23,7 @@ use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
-use crate::component::metamorphosis::Metamorphosis;
+use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
 use crate::constant::ActorProps;
 use crate::constant::GameActors;
@@ -28,11 +32,9 @@ use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::recovery;
 use crate::controller::player::Player;
-use crate::enemy::chicken::default_chiken;
 use crate::enemy::eyeball::default_eyeball;
 use crate::enemy::huge_slime::default_huge_slime;
 use crate::enemy::salamander::default_salamander;
-use crate::enemy::sandbug::default_sandbag;
 use crate::enemy::shadow::default_shadow;
 use crate::enemy::slime::default_slime;
 use crate::enemy::spider::default_spider;
@@ -79,7 +81,7 @@ use stone_lantern::default_lantern;
 use uuid::Uuid;
 use witch::default_witch;
 
-#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActorType {
     Witch,
     Chicken,
@@ -119,6 +121,8 @@ pub struct CastEffects {
     pub quick_cast: u32,
 
     pub precision: f32,
+
+    pub metamorphse: Option<ActorType>,
 }
 
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
@@ -498,7 +502,7 @@ pub enum ActorFireState {
 
 #[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActorGroup {
-    Player,
+    Friend,
     Enemy,
 
     /// 中立のアクターです
@@ -513,8 +517,8 @@ pub enum ActorGroup {
 impl ActorGroup {
     pub fn to_groups(&self, v: f32, drowning: u32) -> CollisionGroups {
         match self {
-            ActorGroup::Player if 0 < drowning || 0.0 < v => *FLYING_PLAYER_GROUPS,
-            ActorGroup::Player => *PLAYER_GROUPS,
+            ActorGroup::Friend if 0 < drowning || 0.0 < v => *FLYING_PLAYER_GROUPS,
+            ActorGroup::Friend => *PLAYER_GROUPS,
             ActorGroup::Enemy if 0 < drowning || 0.0 < v => *FLYING_ENEMY_GROUPS,
             ActorGroup::Enemy => *ENEMY_GROUPS,
             ActorGroup::Neutral if 0 < drowning || 0.0 < v => *FLYING_NEUTRAL_GROUPS,
@@ -525,7 +529,7 @@ impl ActorGroup {
 
     pub fn to_bullet_group(&self) -> CollisionGroups {
         match self {
-            ActorGroup::Player => *PLAYER_BULLET_GROUP,
+            ActorGroup::Friend => *PLAYER_BULLET_GROUP,
             ActorGroup::Enemy => *ENEMY_BULLET_GROUP,
             ActorGroup::Neutral => CollisionGroups::new(Group::NONE, Group::NONE), // 中立グループは弾丸を発射しません
             ActorGroup::Entity => CollisionGroups::new(Group::NONE, Group::NONE), // 設備は弾丸を発射しません
@@ -542,7 +546,7 @@ pub enum ActorEvent {
         fire: bool,
         impulse: Vec2,
         stagger: u32,
-        metamorphose: bool,
+        metamorphose: Option<ActorType>,
     },
 }
 
@@ -635,7 +639,7 @@ fn fire_bullet(
             &mut Vertical,
             &mut CollisionGroups,
             Option<&Player>,
-            Option<&Metamorphosis>,
+            Option<&Metamorphosed>,
         ),
         Without<Camera2d>,
     >,
@@ -929,7 +933,7 @@ fn drown_damage(
         &Vertical,
         &mut Life,
         Option<&Player>,
-        Option<&Metamorphosis>,
+        Option<&Metamorphosed>,
     )>,
     mut damage: EventWriter<ActorEvent>,
     mut level: ResMut<LevelSetup>,
@@ -954,7 +958,7 @@ fn drown_damage(
                         fire: false,
                         impulse: Vec2::ZERO,
                         stagger: 0,
-                        metamorphose: false,
+                        metamorphose: None,
                     });
                     actor.drowning = 1;
                 }
@@ -968,7 +972,7 @@ fn drown_damage(
                         fire: false,
                         impulse: Vec2::ZERO,
                         stagger: 0,
-                        metamorphose: false,
+                        metamorphose: None,
                     });
                     actor.drowning = 1;
                 }

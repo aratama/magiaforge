@@ -272,7 +272,7 @@ fn attack(
                                 fire: false,
                                 impulse: Vec2::ZERO,
                                 stagger: 30,
-                                metamorphose: false,
+                                metamorphose: None,
                             });
                         }
                     }

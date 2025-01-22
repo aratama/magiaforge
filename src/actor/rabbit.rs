@@ -40,7 +40,7 @@ pub fn default_rabbit(rabbit_type: RabbitType) -> (Actor, Life) {
         Actor {
             extra: ActorExtra::Rabbit { rabbit_type },
             radius: RABBIT_RADIUS,
-            actor_group: ActorGroup::Entity,
+            actor_group: ActorGroup::Friend,
             fire_resistance: true,
             ..default()
         },

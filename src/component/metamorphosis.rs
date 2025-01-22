@@ -20,7 +20,7 @@ use rand::seq::SliceRandom;
 /// 変化残り時間がゼロになったら、このエンティティを削除して、その位置に魔女をスポーンします
 /// このコンポーネントには Actor を含むため、 Actor 内に状態異常として含めることはできません
 #[derive(Component, Clone)]
-pub struct Metamorphosis {
+pub struct Metamorphosed {
     pub count: u32,
     pub original_actor: Actor,
     pub original_life: Life,
@@ -60,24 +60,38 @@ pub fn cast_metamorphosis(
     original_actor_entity: &Entity,
     original_actor: Actor,
     original_life: Life,
-    original_morph: &Option<&Metamorphosis>,
+    original_morph: &Option<&Metamorphosed>,
 
     position: Vec2,
     morphed_type: ActorType,
 ) -> Entity {
-    let (mut dest_actor, dest_life) = get_default_actor(morphed_type);
+    let original_actor = original_morph
+        .map(|r| r.original_actor.clone())
+        .unwrap_or(original_actor);
 
+    let original_life = original_morph
+        .map(|r| r.original_life.clone())
+        .unwrap_or(original_life);
+
+    let (mut dest_actor, mut dest_life) = get_default_actor(morphed_type);
+
+    dest_actor.fire_state = original_actor.fire_state;
+    dest_actor.fire_state_secondary = original_actor.fire_state_secondary;
+    dest_actor.move_direction = original_actor.move_direction;
     dest_actor.actor_group = match (original_actor.actor_group, dest_actor.actor_group) {
         (_, ActorGroup::Entity) => ActorGroup::Entity,
         (ActorGroup::Entity, _) => {
             if rand::random::<bool>() {
-                ActorGroup::Player
+                ActorGroup::Friend
             } else {
                 ActorGroup::Enemy
             }
         }
         _ => original_actor.actor_group,
     };
+
+    dest_life.life =
+        dest_life.life * (original_life.life as f32 / original_life.max_life as f32).ceil() as u32;
 
     commands.entity(*original_actor_entity).despawn_recursive();
     // info!("despawn {} {}", file!(), line!());
@@ -93,19 +107,11 @@ pub fn cast_metamorphosis(
 
     let mut builder = commands.entity(entity);
 
-    builder.insert(
-        original_morph
-            .map(|r| Metamorphosis {
-                count: 60 * 10,
-                original_actor: r.original_actor.clone(),
-                original_life: r.original_life.clone(),
-            })
-            .unwrap_or(Metamorphosis {
-                count: 60 * 10,
-                original_actor,
-                original_life,
-            }),
-    );
+    builder.insert(Metamorphosed {
+        count: 60 * 10,
+        original_actor,
+        original_life,
+    });
     se.send(SEEvent::pos(SE::Kyushu2Short, position));
     spawn.send(SpawnEntity::Particle {
         position,
@@ -117,7 +123,7 @@ pub fn cast_metamorphosis(
 
 fn revert(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Metamorphosis, &Transform)>,
+    mut query: Query<(Entity, &mut Metamorphosed, &Transform, &Actor, &Life)>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEntity>,
     time: Res<State<TimeState>>,
@@ -125,7 +131,7 @@ fn revert(
     if *time == TimeState::Inactive {
         return;
     }
-    for (entity, mut metamorphosis, transform) in query.iter_mut() {
+    for (entity, mut metamorphosis, transform, actor, life) in query.iter_mut() {
         if 0 < metamorphosis.count {
             metamorphosis.count -= 1;
             continue;
@@ -134,10 +140,23 @@ fn revert(
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
             // info!("despawn {} {}", file!(), line!());
+
+            // 変身を詠唱直後なので original_actor は fire_state が Fire のままになっており、
+            // このまま変身が解除されるとまた詠唱を行って変身してしまう場合があることに注意
+            // fire_state は上書きする
+            let mut original_actor = metamorphosis.original_actor.clone();
+            original_actor.fire_state = actor.fire_state;
+            original_actor.fire_state_secondary = actor.fire_state_secondary;
+            original_actor.move_direction = actor.move_direction;
+
+            let mut original_life = metamorphosis.original_life.clone();
+            original_life.life =
+                original_life.life * (life.life as f32 / life.max_life as f32).ceil() as u32;
+
             spawn.send(SpawnEntity::Actor {
                 position,
-                life: metamorphosis.original_life.clone(),
-                actor: metamorphosis.original_actor.clone(),
+                life: original_life,
+                actor: original_actor,
             });
             spawn.send(SpawnEntity::Particle {
                 position,

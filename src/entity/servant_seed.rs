@@ -1,3 +1,6 @@
+use crate::actor::chicken::default_chiken;
+use crate::actor::chicken::spawn_chiken;
+use crate::actor::chicken::Chicken;
 use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
@@ -5,8 +8,6 @@ use crate::constant::*;
 use crate::controller::player::PlayerServant;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
-use crate::enemy::chicken::spawn_chiken;
-use crate::enemy::chicken::Chicken;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::slime::default_slime;
@@ -48,11 +49,11 @@ pub enum ServantType {
 impl ServantType {
     pub fn to_asset(&self, assets: &Res<GameAssets>, actor_group: ActorGroup) -> Handle<Aseprite> {
         match (self, actor_group) {
-            (ServantType::Slime, ActorGroup::Player) => assets.friend_slime.clone(),
+            (ServantType::Slime, ActorGroup::Friend) => assets.friend_slime.clone(),
             (ServantType::Slime, ActorGroup::Neutral) => assets.friend_slime.clone(),
             (ServantType::Slime, ActorGroup::Enemy) => assets.slime.clone(),
             (ServantType::Slime, ActorGroup::Entity) => assets.friend_slime.clone(),
-            (ServantType::Eyeball, ActorGroup::Player) => assets.eyeball_friend.clone(),
+            (ServantType::Eyeball, ActorGroup::Friend) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Neutral) => assets.eyeball_friend.clone(),
             (ServantType::Eyeball, ActorGroup::Enemy) => assets.eyeball.clone(),
             (ServantType::Eyeball, ActorGroup::Entity) => assets.eyeball_friend.clone(),
@@ -116,8 +117,8 @@ pub fn spawn_servant_seed(
             from: from,
             to: to,
             actor_group: match actor_group {
-                ActorGroup::Player => ActorGroup::Enemy,
-                ActorGroup::Enemy => ActorGroup::Player,
+                ActorGroup::Friend => ActorGroup::Enemy,
+                ActorGroup::Enemy => ActorGroup::Friend,
                 ActorGroup::Neutral => ActorGroup::Neutral,
                 ActorGroup::Entity => ActorGroup::Entity,
             },
@@ -214,7 +215,7 @@ fn spawn_servant(
                 }
             }
             ServantType::Chiken => {
-                let (actor, life) = crate::enemy::chicken::default_chiken();
+                let (actor, life) = default_chiken();
                 let entity = spawn_chiken(
                     &mut commands,
                     &assets,
