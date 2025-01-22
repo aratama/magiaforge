@@ -1,4 +1,5 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
 use crate::asset::GameAssets;
@@ -20,8 +21,6 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 use std::collections::HashSet;
-
-use super::ActorExtra;
 
 pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
 

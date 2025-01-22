@@ -168,7 +168,7 @@ fn warp(
             if let Ok((entity, player, actor, player_life)) = player_query.get_single_mut() {
                 writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
+                
                 circle.step = 0;
                 let player_state = PlayerState::from_player(&player, &actor, &player_life);
                 level.next_state = Some(player_state);

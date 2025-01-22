@@ -144,7 +144,7 @@ fn update_servant_seed(
             .extend(SERVANT_SEED_LAYER_Z);
         if seed.animation == seed.speed {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             if let Some(ref chunk) = current.chunk {
                 if chunk.get_tile_by_coords(seed.to).is_floor() {
                     spawn_writer.send(SpawnServantEvent {

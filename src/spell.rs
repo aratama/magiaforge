@@ -22,57 +22,57 @@ use serde::Serialize;
 )]
 pub enum SpellType {
     // ランク0
-    MagicBolt,
-    LightBall,
     Lantern,
+    LightBall,
+    MagicBolt,
     // ランク1
-    SpawnJar,
+    Magnifier,
     PurpleBolt,
     SlimeCharge,
+    SpawnJar,
     Telescope,
-    Magnifier,
     // ランク2
-    WaterBall,
     BulletSpeedDoown,
     DualCast,
-    SummonEnemySlime,
-    SummonEnemyEyeball,
-    Servant,
-    Web,
     Jump,
+    Servant,
+    SummonEnemyEyeball,
+    SummonEnemySlime,
+    WaterBall,
+    Web,
     // ランク3
-    SummonChiken,
+    Fireball,
     HeavyShot,
-    TripleCast,
     Homing,
-    SummonFriendSlime,
     PrecisionUp,
     SpawnBookshelf,
-    Fireball,
+    SummonChiken,
+    SummonFriendSlime,
+    TripleCast,
     // ランク4
-    SummonFriendEyeball,
+    BulletSpeedUp,
     Dash,
     Impact,
-    BulletSpeedUp,
-    RockFall,
     Metamorphosis,
+    RockFall,
     Slash,
+    SummonFriendEyeball,
 
     // ランク5
+    ApplyLevitation,
     Heal,
     QuickCast,
     SpikeBoots,
-    ApplyLevitation,
     // ランク 6
-    Freeze,
     Dispel,
+    Freeze,
     // Quick 時間加速魔法
     // Stop, // 時間停止魔法
     // ランク7
-    SummonHugeSlime,
-    LightSword,
     Bomb,
     Levitation,
+    LightSword,
+    SummonHugeSlime,
 }
 
 #[derive(Debug, serde::Deserialize, Clone)]

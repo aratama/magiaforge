@@ -72,9 +72,9 @@ pub fn default_huge_slime() -> (Actor, Life) {
             actor_group: ActorGroup::Enemy,
             wands: [
                 Wand::with_slots(slots),
-                Wand::empty(),
-                Wand::empty(),
-                Wand::empty(),
+                Wand::default(),
+                Wand::default(),
+                Wand::default(),
             ],
             fire_resistance: true,
             poise: 60,
@@ -349,7 +349,7 @@ fn despawn(
             if life.life <= 0 {
                 // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
                 commands.entity(entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
+                
                 commands.spawn((
                     Name::new("huge slime"),
                     CounterAnimated,

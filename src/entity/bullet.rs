@@ -227,7 +227,7 @@ fn despawn_bullet_by_lifetime(
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
         }
     }
 }
@@ -339,7 +339,7 @@ fn bullet_collision(
             if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
+                
                 spawn.send(SpawnEntity::Particle {
                     position: bullet_position,
                     spawn: SpawnParticle::default(),
@@ -389,7 +389,7 @@ fn bullet_collision(
         } else if life_query.contains(other_entity) {
             despawnings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             spawn.send(SpawnEntity::Particle {
                 position: bullet_position,
                 spawn: SpawnParticle::default(),
@@ -416,7 +416,7 @@ fn bullet_collision(
             // ヒット判定やダメージなどはリモート側で処理します
             despawnings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             spawn.send(SpawnEntity::Particle {
                 position: bullet_position,
                 spawn: SpawnParticle::default(),
@@ -449,7 +449,7 @@ fn despawn_bullet_residual(
         residual.count -= 1;
         if residual.count <= 0 {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             spawn_particle_system(
                 &mut commands,
                 transform.translation.truncate(),

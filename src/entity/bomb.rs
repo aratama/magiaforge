@@ -62,7 +62,7 @@ fn explode_bomb(
         if life.life <= 0 || 180 <= counter.count {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             explosion_writer.send(SpawnExplosion {
                 position,
                 radius: 60.0,

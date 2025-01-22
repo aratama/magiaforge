@@ -1,7 +1,7 @@
+use crate::actor::Actor;
 use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::controller::remote::RemotePlayer;
-use crate::actor::Actor;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::states::GameState;
@@ -143,7 +143,6 @@ fn update_player_list(
         for i in players.len()..remote_player_items_query.iter().len() {
             if let Some((item_entity, _, _, _)) = remote_player_items_query.iter().nth(i) {
                 commands.entity(item_entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
             }
         }
     } else {

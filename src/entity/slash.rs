@@ -4,6 +4,7 @@ use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::life::Life;
 use crate::constant::PARTICLE_LAYER_Z;
+use crate::entity::grass::Grasses;
 use crate::se::{SEEvent, SE};
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
@@ -11,8 +12,6 @@ use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::plugin::{DefaultRapierContext, RapierContext};
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, QueryFilter, RigidBody, Velocity};
 use core::f32;
-
-use super::grass::Grasses;
 
 #[derive(Component)]
 struct Slash;
@@ -93,7 +92,7 @@ pub fn spawn_slash(
                 let t = (target - position).angle_to(Vec2::from_angle(angle));
                 if t.abs() < f32::consts::PI * 0.5 {
                     commands.entity(grass).despawn_recursive();
-                    // info!("despawn {} {}", file!(), line!());
+                    
                 }
             }
             true
@@ -105,7 +104,7 @@ fn update_impact(mut commands: Commands, mut query: Query<(Entity, &Counter), Wi
     for (entity, counter) in query.iter_mut() {
         if 30 <= counter.count {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
         }
     }
 }

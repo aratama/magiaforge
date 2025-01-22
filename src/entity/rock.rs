@@ -66,7 +66,7 @@ fn fall(
             if child_transform.translation.y <= 0.0 {
                 let position = parent_transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
+                
                 if let Some(ref level) = interlevel.chunk {
                     let tile = level.get_tile_by_coords(position);
                     if tile != Tile::Wall && tile != Tile::Blank && tile != Tile::PermanentWall {
@@ -129,7 +129,7 @@ fn despawn(
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             writer.send(SEEvent::pos(SE::Break, position));
         }
     }

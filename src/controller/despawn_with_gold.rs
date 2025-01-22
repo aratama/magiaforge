@@ -25,7 +25,7 @@ fn dead_enemy(
         if enemy_life.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             writer.send(SEEvent::pos(SE::Cry, position));
             for _ in 0..enemy.golds {
                 spawn_gold(&mut commands, &assets, position);

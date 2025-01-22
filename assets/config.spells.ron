@@ -15,7 +15,10 @@ GameConstants(
                 ru: "Лагерь кроликов",
             ),
             enemies: 0,
-            enemy_types: []
+            enemy_types: [],
+            items: 3,
+            item_ranks: [0, 1, 2],
+            biome: StoneTile
         ),
         (
             name: (
@@ -31,7 +34,10 @@ GameConstants(
                 ru: "Руины библиотеки",
             ),
             enemies: 10,
-            enemy_types: [Slime]
+            enemy_types: [Slime],
+            items: 3,
+            item_ranks: [1, 2, 3],
+            biome: StoneTile
         ),
         (
             name: (
@@ -47,7 +53,10 @@ GameConstants(
                 ru: "Подземные луга",
             ),
             enemies: 15,
-            enemy_types: [Slime, Spider]
+            enemy_types: [Slime, Spider],
+            items: 3,
+            item_ranks: [2, 3, 4],
+            biome: Grassland
         ),
         (
             name: (
@@ -63,7 +72,10 @@ GameConstants(
                 ru: "Древний замок",
             ),
             enemies: 20,
-            enemy_types: [Spider, EyeBall]
+            enemy_types: [Spider, EyeBall],
+            items: 3,
+            item_ranks: [3, 4, 5],
+            biome: StoneTile
         ),
         (
             name: (
@@ -79,7 +91,10 @@ GameConstants(
                 ru: "Гнездо слизней",
             ),
             enemies: 20,
-            enemy_types: [EyeBall, Shadow]
+            enemy_types: [EyeBall, Shadow],
+            items: 3,
+            item_ranks: [4, 5, 6],
+            biome: StoneTile
         ),
         (
             name: (
@@ -95,7 +110,10 @@ GameConstants(
                 ru: "Ледяная пещера",
             ),
             enemies: 15,
-            enemy_types: [Shadow, Salamander]
+            enemy_types: [Shadow, Salamander],
+            items: 3,
+            item_ranks: [4, 5, 6],
+            biome: Ice
         ),
         (
             name: (
@@ -111,7 +129,10 @@ GameConstants(
                 ru: "Древний коридор",
             ),
             enemies: 30,
-            enemy_types: [Slime, Spider, EyeBall, Shadow, Salamander]
+            enemy_types: [Slime, Spider, EyeBall, Shadow, Salamander],
+            items: 3,
+            item_ranks: [4, 5, 6],
+            biome: StoneTile
         ),
         (
             name: (
@@ -127,7 +148,10 @@ GameConstants(
                 ru: "Большая пещера",
             ),
             enemies: 0,
-            enemy_types: []
+            enemy_types: [],
+            items: 3,
+            item_ranks: [],
+            biome: StoneTile
         ),
     ],
 

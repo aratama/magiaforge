@@ -16,7 +16,6 @@ use crate::level::appearance::read_level_chunk_data;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
-use crate::level::biome::Biome;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
@@ -129,8 +128,24 @@ pub fn setup_level(
         next.set(GameMenuState::PlayerInActive);
     }
 
+    let biome_tile = match level {
+        GameLevel::Level(level) => constants
+            .levels
+            .get(level as usize)
+            .map(|l| l.biome)
+            .unwrap_or(Tile::StoneTile),
+        _ => Tile::StoneTile,
+    };
+
     // 画像データからレベルの情報を選択して読み取ります
-    let chunk = read_level_chunk_data(&level_aseprites, &images, &assets, level, &mut rng);
+    let chunk = read_level_chunk_data(
+        &level_aseprites,
+        &images,
+        &assets,
+        level,
+        &mut rng,
+        biome_tile,
+    );
 
     // レベルの外観を生成します
     spawn_world_tilemap(&mut commands, &assets, &chunk);
@@ -199,19 +214,19 @@ pub fn setup_level(
         &mut rng,
         entry_point.clone(),
         match level {
-            GameLevel::Level(1) => 3,
-            GameLevel::Level(2) => 3,
-            GameLevel::Level(3) => 3,
-            GameLevel::Level(4) => 3,
-            GameLevel::Level(5) => 3,
+            GameLevel::Level(level) => constants
+                .levels
+                .get(level as usize)
+                .map(|l| l.items as u32)
+                .unwrap_or(0),
             _ => 0,
         },
         match level {
-            GameLevel::Level(1) => vec![0, 1, 2],
-            GameLevel::Level(2) => vec![1, 2, 3],
-            GameLevel::Level(3) => vec![2, 3, 4],
-            GameLevel::Level(4) => vec![3, 4, 5],
-            GameLevel::Level(5) => vec![4, 5, 6],
+            GameLevel::Level(level) => constants
+                .levels
+                .get(level as usize)
+                .map(|l| l.item_ranks.iter().map(|&i| i as u32).collect())
+                .unwrap_or_default(),
             _ => vec![],
         },
     );
@@ -411,14 +426,6 @@ fn spawn_dropped_items(
     }
 }
 
-pub fn level_to_biome(level: GameLevel) -> Biome {
-    match level {
-        GameLevel::Level(2) => Biome::Grassland,
-        GameLevel::Level(5) => Biome::Iceland,
-        _ => Biome::StoneTile,
-    }
-}
-
 fn update_tile_sprites(
     mut current: ResMut<LevelSetup>,
     assets: Res<GameAssets>,
@@ -461,7 +468,6 @@ fn update_tile_sprites(
             for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
                 if min_x <= *tx && *tx <= max_x && min_y <= *ty && *ty <= max_y {
                     commands.entity(entity).despawn_recursive();
-                    // info!("despawn {} {}", file!(), line!());
                 }
             }
 
@@ -475,7 +481,6 @@ fn update_tile_sprites(
             // コリジョンはすべて再生成
             for entity in collider_query.iter() {
                 commands.entity(entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
             }
             spawn_wall_collisions(&mut commands, chunk);
 

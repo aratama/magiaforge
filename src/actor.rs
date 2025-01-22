@@ -474,7 +474,12 @@ impl Default for Actor {
             current_wand: 0,
             actor_group: ActorGroup::Neutral,
             golds: 0,
-            wands: [Wand::empty(), Wand::empty(), Wand::empty(), Wand::empty()],
+            wands: [
+                Wand::default(),
+                Wand::default(),
+                Wand::default(),
+                Wand::default(),
+            ],
             inventory: Inventory::new(),
             fire_resistance: false,
             move_direction: Vec2::ZERO,
@@ -626,7 +631,6 @@ fn update_actor_light(
             light_transform.translation.y = actor_transform.translation.y;
         } else {
             commands.entity(light_entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
         }
     }
 }
@@ -698,8 +702,12 @@ fn fire_bullet(
             cast_spell(
                 &mut commands,
                 &assets,
-                &constants,
                 &life_bar_resource,
+                &mut remote_writer,
+                &mut se_writer,
+                &mut impact_writer,
+                &mut spawn,
+                &constants,
                 actor_entity,
                 &mut actor,
                 &mut actor_life,
@@ -711,10 +719,6 @@ fn fire_bullet(
                 &actor_metamorphosis,
                 player,
                 online,
-                &mut remote_writer,
-                &mut se_writer,
-                &mut impact_writer,
-                &mut spawn,
                 wand,
                 Trigger::Primary,
             );
@@ -724,8 +728,12 @@ fn fire_bullet(
             cast_spell(
                 &mut commands,
                 &assets,
-                &constants,
                 &life_bar_resource,
+                &mut remote_writer,
+                &mut se_writer,
+                &mut impact_writer,
+                &mut spawn,
+                &constants,
                 actor_entity,
                 &mut actor,
                 &mut actor_life,
@@ -737,10 +745,6 @@ fn fire_bullet(
                 &actor_metamorphosis,
                 player,
                 online,
-                &mut remote_writer,
-                &mut se_writer,
-                &mut impact_writer,
-                &mut spawn,
                 MAX_WANDS as u8 - 1,
                 Trigger::Secondary,
             );
@@ -1020,7 +1024,7 @@ fn drown_damage(
             Tile::Crack if vertical.v <= 0.0 => {
                 let position = transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();
-                // info!("despawn {} {}", file!(), line!());
+
                 se.send(SEEvent::pos(SE::Scene2, position));
                 if let Some(player) = player {
                     recovery(&mut level, &mut interpreter, &morph, &player, &life, &actor);

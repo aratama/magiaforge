@@ -130,9 +130,17 @@ pub enum SpellCast {
 /// 返り値として詠唱で生じた詠唱遅延を返すので、呼び出し元はその値をアクターの詠唱遅延に加算する必要があります。
 pub fn cast_spell(
     mut commands: &mut Commands,
+    // resources
     assets: &Res<GameAssets>,
-    constants: &GameConstants,
     life_bar_resource: &Res<LifeBarResource>,
+    // events
+    writer: &mut EventWriter<ClientMessage>,
+    mut se: &mut EventWriter<SEEvent>,
+    impact: &mut EventWriter<SpawnImpact>,
+    mut spawn: &mut EventWriter<SpawnEntity>,
+    // constants
+    constants: &GameConstants,
+    // components
     actor_entity: Entity,
     mut actor: &mut Actor,
     actor_life: &mut Life,
@@ -143,11 +151,8 @@ pub fn cast_spell(
     mut collision_groups: &mut CollisionGroups,
     actor_metamorphosis: &Option<&Metamorphosed>,
     player: Option<&Player>,
+    // misc
     online: bool,
-    writer: &mut EventWriter<ClientMessage>,
-    mut se: &mut EventWriter<SEEvent>,
-    impact: &mut EventWriter<SpawnImpact>,
-    mut spawn: &mut EventWriter<SpawnEntity>,
     wand_index: u8,
     trigger: Trigger,
 ) {

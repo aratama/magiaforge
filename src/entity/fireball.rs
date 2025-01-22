@@ -84,7 +84,7 @@ fn spawn_fire_on_landed(
     for (entity, vertical, transform) in parent_query.iter() {
         if vertical.just_landed {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             if let Some(ref level) = interlevel.chunk {
                 let position = transform.translation.truncate();
                 let tile = level.get_tile_by_coords(position);

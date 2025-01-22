@@ -1,4 +1,5 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::asset::GameAssets;
@@ -17,8 +18,6 @@ use bevy::prelude::*;
 use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::ActorExtra;
 
 #[derive(Default, Component, Reflect)]
 struct StoneLantern;
@@ -104,7 +103,7 @@ fn break_stone_lantern(
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             writer.send(SEEvent::pos(SE::Break, position));
 
             for i in 0..4 {

@@ -1,8 +1,8 @@
-use super::metamorphosis::cast_metamorphosis;
-use super::metamorphosis::Metamorphosed;
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
+use crate::component::metamorphosis::cast_metamorphosis;
+use crate::component::metamorphosis::Metamorphosed;
 use crate::controller::player::Player;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;

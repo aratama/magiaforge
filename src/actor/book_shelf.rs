@@ -1,4 +1,5 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::asset::GameAssets;
@@ -15,8 +16,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::ActorExtra;
 
 const ENTITY_WIDTH: f32 = 16.0;
 
@@ -96,7 +95,7 @@ fn break_book_shelf(
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             writer.send(SEEvent::pos(SE::Break, position));
             for i in 0..6 {
                 spawn_broken_piece(

@@ -70,7 +70,6 @@ fn change_bgm(
                     // AudioPlayer を上書きするだけでは音声を変更できないことに注意
                     // いったん despawn する必要がある
                     commands.entity(entity).despawn_recursive();
-                    // info!("despawn {} {}", file!(), line!());
 
                     spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
                 }

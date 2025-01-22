@@ -85,7 +85,7 @@ fn burnout(mut commands: Commands, query: Query<(Entity, &Burnable), With<Grasse
     for (entity, burnable) in query.iter() {
         if burnable.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
         }
     }
 }

@@ -96,7 +96,7 @@ pub fn cast_metamorphosis(
         dest_life.life * (original_life.life as f32 / original_life.max_life as f32).ceil() as u32;
 
     commands.entity(*original_actor_entity).despawn_recursive();
-    // info!("despawn {} {}", file!(), line!());
+    
 
     let entity = spawn_actor(
         &mut commands,
@@ -141,7 +141,7 @@ fn revert(
         if metamorphosis.count == 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
 
             // 変身を詠唱直後なので original_actor は fire_state が Fire のままになっており、
             // このまま変身が解除されるとまた詠唱を行って変身してしまう場合があることに注意

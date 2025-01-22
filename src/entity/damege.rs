@@ -88,7 +88,7 @@ fn update_damage(
         particle.lifetime -= 1;
         if particle.lifetime == 0 {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
         }
     }
 }

@@ -2,13 +2,11 @@ use crate::asset::GameAssets;
 use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::*;
 use crate::entity::grass::spawn_grasses;
-use crate::level::biome::Biome;
 use crate::level::ceil::spawn_autotiles;
 use crate::level::ceil::WALL_HEIGHT_IN_TILES;
 use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
-use crate::page::in_game::level_to_biome;
 use crate::page::in_game::GameLevel;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -30,6 +28,7 @@ pub fn read_level_chunk_data(
     assets: &Res<GameAssets>,
     level: GameLevel,
     mut rng: &mut StdRng,
+    biome_tile: Tile,
 ) -> LevelChunk {
     let level_aseprite = level_aseprites.get(assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
@@ -46,14 +45,6 @@ pub fn read_level_chunk_data(
     };
 
     let slice = level_aseprite.slices.get(level_slice).unwrap();
-
-    let biome = level_to_biome(level);
-
-    let biome_tile = match biome {
-        Biome::StoneTile => Tile::StoneTile,
-        Biome::Grassland => Tile::Grassland,
-        Biome::Iceland => Tile::Ice,
-    };
 
     let chunk = image_to_tilemap(
         biome_tile,

@@ -11,6 +11,16 @@ pub struct WandSpell {
     pub price: u32,
 }
 
+impl Default for Wand {
+    fn default() -> Self {
+        Self {
+            slots: [None; MAX_SPELLS_IN_WAND],
+            index: 0,
+            delay: 0,
+        }
+    }
+}
+
 impl WandSpell {
     pub fn new(spell_type: SpellType) -> Self {
         Self {
@@ -28,24 +38,6 @@ pub struct Wand {
 }
 
 impl Wand {
-    // pub fn new(wand_type: WandType) -> Self {
-    //     Self {
-    //         wand_type,
-    //         price: 0,
-    //         slots: [None; MAX_SPELLS_IN_WAND],
-    //         index: 0,
-    //         delay: 0,
-    //     }
-    // }
-
-    pub fn empty() -> Self {
-        Self {
-            slots: [None; MAX_SPELLS_IN_WAND],
-            index: 0,
-            delay: 0,
-        }
-    }
-
     pub fn is_empty(&self) -> bool {
         self.slots.iter().all(|spell| spell.is_none())
     }
@@ -63,9 +55,9 @@ impl Wand {
         slots[0] = spell.map(|s| WandSpell::new(s));
         [
             Wand::with_slots(slots),
-            Wand::empty(),
-            Wand::empty(),
-            Wand::empty(),
+            Wand::default(),
+            Wand::default(),
+            Wand::default(),
         ]
     }
 

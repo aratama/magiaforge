@@ -1,4 +1,5 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::collision::RABBIT_GROUPS;
@@ -19,8 +20,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
-
-use super::ActorExtra;
 
 const RABBIT_RADIUS: f32 = 5.0;
 

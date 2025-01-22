@@ -155,8 +155,8 @@ impl Default for PlayerState {
                     None,
                     None,
                 ]),
-                Wand::empty(),
-                Wand::empty(),
+                Wand::default(),
+                Wand::default(),
                 Wand::with_slots([
                     Some(WandSpell::new(SpellType::LightBall)),
                     Some(WandSpell::new(SpellType::Lantern)),

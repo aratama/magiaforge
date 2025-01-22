@@ -47,7 +47,7 @@ fn flash_ligh_fade_out(
             light.intensity = flash.intensity * if flash.reverse { t } else { 1.0 - t };
         } else {
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
         }
     }
 }

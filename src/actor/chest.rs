@@ -1,4 +1,6 @@
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
+use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::asset::GameAssets;
 use crate::collision::*;
@@ -21,9 +23,6 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 use rand::seq::IteratorRandom;
-
-use super::ActorExtra;
-use super::ActorGroup;
 
 const ENTITY_WIDTH: f32 = 8.0;
 
@@ -187,7 +186,7 @@ fn break_chest(
             };
 
             commands.entity(entity).despawn_recursive();
-            // info!("despawn {} {}", file!(), line!());
+            
             writer.send(SEEvent::pos(
                 match chest_type {
                     ChestType::Chest => SE::Break,

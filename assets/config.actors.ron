@@ -54,9 +54,9 @@ GameActors(
         ),
         "HugeSlime": (
             // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
-            move_force: 200000.0,
+            move_force: 400000.0,
             jump: 3.0,
-            linear_damping: 20.0,
+            linear_damping: 10.0,
         ),
         "Lantern": (
             move_force: 0.0,
