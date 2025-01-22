@@ -65,6 +65,7 @@ pub enum SpellType {
     ApplyLevitation,
     // ランク 6
     Freeze,
+    Dispel,
     // Quick 時間加速魔法
     // Stop, // 時間停止魔法
     // ランク7

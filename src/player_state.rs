@@ -81,11 +81,12 @@ impl Default for PlayerState {
             inventory.insert_spell(SpellType::Jump);
             inventory.insert_spell(SpellType::Metamorphosis);
             inventory.insert_spell(SpellType::Slash);
+            inventory.insert_spell(SpellType::Dispel);
             inventory.sort();
 
             let wands = [
                 Wand::with_slots([
-                    Some(WandSpell::new(SpellType::Metamorphosis)),
+                    Some(WandSpell::new(SpellType::Dispel)),
                     None,
                     None,
                     None,

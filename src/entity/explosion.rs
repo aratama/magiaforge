@@ -77,6 +77,7 @@ fn spawn_explosion(
                         impulse: (p - position).normalize_or_zero() * impulse,
                         stagger: 120,
                         metamorphose: None,
+                        dispel: false,
                     });
                 }
 

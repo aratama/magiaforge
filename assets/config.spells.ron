@@ -1261,6 +1261,38 @@ GameConstants(
                 stagger: 0,
             ),
         ),
+        "Dispel": (
+            rank: 6,
+            name: (
+                ja: "解呪",
+                en: "Dispel",
+                it: "Dispel",
+                zh_cn: "驱散",
+                zh_tw: "驅散",
+                es: "Disipar",
+                fr: "Dissiper",
+                pt: "Dissipar",
+                de: "Auflösen",
+                ko: "해제",
+                ru: "Рассеивание"
+            ),
+            description: (
+                ja: "呪文の効果を解除します。あらかじめ自分にかけておくと、呪いを受けたときに効果を打ち消します。弾丸に付与することもできます。",
+                en: "Removes the effects of spells. If pre-cast on yourself, it will negate the effects of curses when received. Can also be applied to bullets.",
+                zh_cn: "移除法术效果。如果预先施放在自己身上，当受到诅咒时会抵消其效果。也可以应用于子弹。",
+                zh_tw: "移除法術效果。如果預先施放在自己身上，當受到詛咒時會抵消其效果。也可以應用於子彈。",
+                es: "Elimina los efectos de los hechizos. Si se lanza previamente sobre ti mismo, anulará los efectos de las maldiciones cuando se reciban. También se puede aplicar a las balas.",
+                fr: "Supprime les effets des sorts. Si pré-lancé sur vous-même, il annulera les effets des malédictions lorsqu'elles sont reçues. Peut également être appliqué aux balles.",
+                pt: "Remove os efeitos dos feitiços. Se pré-lançado em si mesmo, anulará os efeitos das maldições quando recebidas. Também pode ser aplicado a balas.",
+                de: "Entfernt die Effekte von Zaubern. Wenn es vorher auf sich selbst gewirkt wird, negiert es die Effekte von Flüchen, wenn sie empfangen werden. Kann auch auf Kugeln angewendet werden.",
+                ko: "주문의 효과를 제거합니다. 자신에게 미리 시전하면 저주를 받을 때 그 효과를 무효화합니다. 탄환에도 적용할 수 있습니다.",
+                ru: "Удаляет эффекты заклинаний. Если предварительно наложить на себя, он нейтрализует эффекты проклятий при их получении. Также может быть применен к пулям."
+            ),
+            cast_delay: 120,
+            icon: "dispel_icon",
+            price: 2000,
+            cast: (type: "Dispel"),
+        ),
         "SummonHugeSlime": (
             rank: 8,
             name: (

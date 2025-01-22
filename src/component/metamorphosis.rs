@@ -21,6 +21,8 @@ use rand::seq::SliceRandom;
 /// このコンポーネントには Actor を含むため、 Actor 内に状態異常として含めることはできません
 #[derive(Component, Clone)]
 pub struct Metamorphosed {
+    /// 変身の残り時間
+    /// 0 になったら変身が解除されます
     pub count: u32,
     pub original_actor: Actor,
     pub original_life: Life,

@@ -123,6 +123,8 @@ pub struct CastEffects {
     pub precision: f32,
 
     pub metamorphse: Option<ActorType>,
+
+    pub dispel: u8,
 }
 
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
@@ -547,6 +549,7 @@ pub enum ActorEvent {
         impulse: Vec2,
         stagger: u32,
         metamorphose: Option<ActorType>,
+        dispel: bool,
     },
 }
 
@@ -959,6 +962,7 @@ fn drown_damage(
                         impulse: Vec2::ZERO,
                         stagger: 0,
                         metamorphose: None,
+                        dispel: false,
                     });
                     actor.drowning = 1;
                 }
@@ -973,6 +977,7 @@ fn drown_damage(
                         impulse: Vec2::ZERO,
                         stagger: 0,
                         metamorphose: None,
+                        dispel: false,
                     });
                     actor.drowning = 1;
                 }

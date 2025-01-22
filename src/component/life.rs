@@ -116,6 +116,7 @@ fn fire_damage(
                     impulse: Vec2::ZERO,
                     stagger: 0,
                     metamorphose: None,
+                    dispel: false,
                 });
             }
         }
@@ -137,7 +138,7 @@ fn damage(
         Option<&mut ExternalImpulse>,
         Option<&mut Actor>,
         Option<&Player>,
-        Option<&Metamorphosed>,
+        Option<&mut Metamorphosed>,
     )>,
     mut reader: EventReader<ActorEvent>,
     mut se: EventWriter<SEEvent>,
@@ -152,6 +153,7 @@ fn damage(
                 impulse,
                 stagger,
                 metamorphose,
+                dispel,
             } => {
                 let Ok((
                     mut life,
@@ -159,7 +161,7 @@ fn damage(
                     life_impulse,
                     mut actor_optional,
                     _,
-                    metamorphosis,
+                    mut actor_metamorphosis,
                 )) = query.get_mut(*actor_entity)
                 else {
                     continue;
@@ -202,11 +204,15 @@ fn damage(
                             actor_entity,
                             actor.clone(),
                             life.clone(),
-                            &metamorphosis,
+                            &actor_metamorphosis.as_deref(),
                             position,
                             *morphing_to,
                         );
                         add_default_behavior(&mut commands, *morphing_to, position, entity);
+                    }
+                } else if let Some(ref mut actor_metamorphosis) = actor_metamorphosis {
+                    if *dispel {
+                        actor_metamorphosis.count = 0;
                     }
                 }
             }

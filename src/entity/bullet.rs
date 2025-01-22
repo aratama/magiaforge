@@ -53,6 +53,7 @@ pub struct Bullet {
     pub holder: Option<(Entity, Trigger)>,
     levitation: u32,
     metamorphose: Option<ActorType>,
+    dispel: bool,
 }
 
 #[derive(Bundle)]
@@ -116,6 +117,7 @@ pub struct SpawnBullet {
     pub stagger: u32,
     pub levitation: u32,
     pub metamorphose: Option<ActorType>,
+    pub dispel: bool,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -150,6 +152,7 @@ pub fn spawn_bullet(
             holder: spawn.holder,
             levitation: spawn.levitation,
             metamorphose: spawn.metamorphose,
+            dispel: spawn.dispel,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -357,6 +360,7 @@ fn bullet_collision(
                     impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
                     stagger: bullet.stagger,
                     metamorphose: bullet.metamorphose,
+                    dispel: bullet.dispel,
                 });
             }
         } else if life_query.contains(other_entity) {
@@ -375,6 +379,7 @@ fn bullet_collision(
                 impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
                 stagger: bullet.stagger,
                 metamorphose: bullet.metamorphose,
+                dispel: bullet.dispel,
             });
         } else {
             // リモートプレイヤーに命中した場合もここ

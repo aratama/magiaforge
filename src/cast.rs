@@ -121,6 +121,7 @@ pub enum SpellCast {
     Slash {
         damage: u32,
     },
+    Dispel,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -164,6 +165,8 @@ pub fn cast_spell(
 
     let mut clear_effect = false;
 
+    let actor_position = actor_transform.translation.truncate();
+
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index] {
             let props = spell.spell_type.to_props(&constants);
@@ -182,8 +185,7 @@ pub fn cast_spell(
                     let angle_with_random = angle + (random::<f32>() - 0.5) * updated_scattering;
                     let direction = Vec2::from_angle(angle_with_random);
                     let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
-                    let bullet_position =
-                        actor_transform.translation.truncate() + range * normalized;
+                    let bullet_position = actor_position + range * normalized;
 
                     let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
@@ -207,8 +209,13 @@ pub fn cast_spell(
                         stagger: cast.stagger,
                         levitation: cast.levitation,
                         metamorphose: actor.effects.metamorphse,
+                        dispel: 0 < actor.effects.dispel,
                         groups: actor.actor_group.to_bullet_group(),
                     };
+
+                    if 0 < actor.effects.dispel {
+                        actor.effects.dispel -= 1;
+                    }
 
                     spawn_bullet(commands, &assets, se, &spawn);
                     clear_effect = true;
@@ -258,10 +265,7 @@ pub fn cast_spell(
                         wand_delay = wand_delay.max(1);
                     } else {
                         actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
-                        se.send(SEEvent::pos(
-                            SE::Heal,
-                            actor_transform.translation.truncate(),
-                        ));
+                        se.send(SEEvent::pos(SE::Heal, actor_position));
                     }
                 }
                 SpellCast::MultipleCast { ref amount } => {
@@ -279,8 +283,8 @@ pub fn cast_spell(
                     servant,
                 } => {
                     spawn.send(SpawnEntity::Seed {
-                        from: actor_transform.translation.truncate(),
-                        to: actor_transform.translation.truncate() + actor.pointer,
+                        from: actor_position,
+                        to: actor_position + actor.pointer,
                         owner: Some(actor_entity),
                         servant_type,
                         actor_group: match (actor.actor_group, friend) {
@@ -301,10 +305,7 @@ pub fn cast_spell(
                     } else {
                         actor.pointer.normalize()
                     } * 50000.0;
-                    se.send(SEEvent::pos(
-                        SE::Shuriken,
-                        actor_transform.translation.truncate(),
-                    ));
+                    se.send(SEEvent::pos(SE::Shuriken, actor_position));
                 }
                 SpellCast::QuickCast => {
                     actor.effects.quick_cast += 6;
@@ -312,7 +313,7 @@ pub fn cast_spell(
                 SpellCast::Impact => {
                     impact.send(SpawnImpact {
                         owner: Some(actor_entity),
-                        position: actor_transform.translation.truncate(),
+                        position: actor_position,
                         radius: 32.0,
                         impulse: 60000.0,
                     });
@@ -323,13 +324,13 @@ pub fn cast_spell(
                 SpellCast::Bomb => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
-                    let position = actor_transform.translation.truncate() + direction;
+                    let position = actor_position + direction;
                     spawn.send(SpawnEntity::Bomb { position });
                 }
                 SpellCast::SpawnEntity { ref entity } => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 32.0;
-                    let position = actor_transform.translation.truncate() + direction;
+                    let position = actor_position + direction;
                     match entity {
                         SpellCastEntityType::BookShelf => {
                             spawn.send(SpawnEntity::DefaultActor {
@@ -357,12 +358,11 @@ pub fn cast_spell(
                     }
                 }
                 SpellCast::RockFall => {
-                    let position = actor_transform.translation.truncate() + actor.pointer;
+                    let position = actor_position + actor.pointer;
                     spawn_falling_rock(&mut commands, &assets, position);
                     se.send(SEEvent::pos(SE::Status2, position));
                 }
                 SpellCast::Fireball => {
-                    let actor_position = actor_transform.translation.truncate();
                     let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                     let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
                     spawn.send(SpawnEntity::Fireball {
@@ -379,7 +379,7 @@ pub fn cast_spell(
 
                     let bullet_offset = (rand::random::<f32>() - 0.5) * 128.0;
 
-                    let bullet_position = actor_transform.translation.truncate()
+                    let bullet_position = actor_position
                         + normalized * -64.0 // ポインタと反対方向に戻る
                         + vertical* bullet_offset; // ポインタに垂直な方向にランダムにずらす
 
@@ -414,21 +414,24 @@ pub fn cast_spell(
                         stagger: 10,
                         levitation: 0,
                         metamorphose: None,
+                        dispel: 0 < actor.effects.dispel,
                         groups: actor.actor_group.to_bullet_group(),
                     };
+
+                    if 0 < actor.effects.dispel {
+                        actor.effects.dispel -= 1;
+                    }
 
                     spawn_bullet(commands, &assets, se, &spawn);
                     clear_effect = true;
                 }
                 SpellCast::Web => {
-                    let actor_position = actor_transform.translation.truncate();
                     let position = actor_position + actor.pointer;
                     spawn_web(&mut commands, &assets, &mut se, position, actor.actor_group);
                 }
                 SpellCast::Levitation => {
                     actor.levitation += 300;
-                    let position = actor_transform.translation.truncate();
-                    se.send(SEEvent::pos(SE::Status2, position));
+                    se.send(SEEvent::pos(SE::Status2, actor_position));
                 }
                 SpellCast::Jump { velocity, impulse } => {
                     jump_actor(
@@ -449,11 +452,15 @@ pub fn cast_spell(
                 SpellCast::Slash { damage } => {
                     spawn.send(SpawnEntity::Slash {
                         parent: actor_entity.clone(),
-                        position: actor_transform.translation.truncate(),
+                        position: actor_position,
                         actor_group: actor.actor_group,
                         angle: actor.pointer.to_angle(),
                         damage,
                     });
+                }
+                SpellCast::Dispel => {
+                    actor.effects.dispel = (actor.effects.dispel + 1).min(4);
+                    se.send(SEEvent::pos(SE::Heal, actor_position));
                 }
             }
         } else {
@@ -469,7 +476,6 @@ pub fn cast_spell(
         actor.effects = default();
     } else if let Some(metamorphse) = actor.effects.metamorphse {
         // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
-        let position = actor_transform.translation.truncate();
         let entity = cast_metamorphosis(
             &mut commands,
             &assets,
@@ -480,7 +486,7 @@ pub fn cast_spell(
             actor.clone(),
             actor_life.clone(),
             &actor_metamorphosis,
-            position,
+            actor_position,
             metamorphse,
         );
         commands.entity(entity).insert(Player::new(
