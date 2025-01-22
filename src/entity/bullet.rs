@@ -55,6 +55,7 @@ pub struct Bullet {
     metamorphose: Option<ActorType>,
     dispel: bool,
     web: bool,
+    slash: Option<u32>,
 }
 
 #[derive(Bundle)]
@@ -120,6 +121,7 @@ pub struct SpawnBullet {
     pub metamorphose: Option<ActorType>,
     pub dispel: bool,
     pub web: bool,
+    pub slash: Option<u32>,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -156,6 +158,7 @@ pub fn spawn_bullet(
             metamorphose: spawn.metamorphose,
             dispel: spawn.dispel,
             web: spawn.web,
+            slash: spawn.slash,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -370,6 +373,16 @@ fn bullet_collision(
                     spawn.send(SpawnEntity::Web {
                         position: bullet_position,
                         owner_actor_group: bullet.actor_group,
+                    });
+                }
+
+                if let Some(damage) = bullet.slash {
+                    spawn.send(SpawnEntity::Slash {
+                        position: bullet_position,
+                        velocity: Vec2::ZERO,
+                        actor_group: bullet.actor_group,
+                        angle: bullet_velocity.linvel.to_angle(),
+                        damage,
                     });
                 }
             }

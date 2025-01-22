@@ -35,6 +35,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
+use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use core::f32;
 use rand::random;
@@ -137,6 +138,7 @@ pub fn cast_spell(
     actor_life: &mut Life,
     actor_transform: &Transform,
     mut actor_impulse: &mut ExternalImpulse,
+    actor_velocity: &Velocity,
     mut actor_vertical: &mut Vertical,
     mut collision_groups: &mut CollisionGroups,
     actor_metamorphosis: &Option<&Metamorphosed>,
@@ -187,6 +189,8 @@ pub fn cast_spell(
                     let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
                     let bullet_position = actor_position + range * normalized;
 
+                    let slash = actor.effects.slash.pop();
+
                     let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
                         holder: None,
@@ -211,6 +215,7 @@ pub fn cast_spell(
                         metamorphose: actor.effects.metamorphse,
                         dispel: 0 < actor.effects.dispel,
                         web: 0 < actor.effects.web,
+                        slash,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -388,6 +393,8 @@ pub fn cast_spell(
                         + normalized * -64.0 // ポインタと反対方向に戻る
                         + vertical* bullet_offset; // ポインタに垂直な方向にランダムにずらす
 
+                    let slash = actor.effects.slash.pop();
+
                     let spawn = SpawnBullet {
                         uuid: Uuid::new_v4(),
                         holder: Some((actor_entity, trigger)),
@@ -421,6 +428,7 @@ pub fn cast_spell(
                         metamorphose: None,
                         dispel: 0 < actor.effects.dispel,
                         web: 0 < actor.effects.web,
+                        slash,
                         groups: actor.actor_group.to_bullet_group(),
                     };
 
@@ -459,13 +467,7 @@ pub fn cast_spell(
                     actor.effects.metamorphse = Some(morphing_to);
                 }
                 SpellCast::Slash { damage } => {
-                    spawn.send(SpawnEntity::Slash {
-                        parent: actor_entity.clone(),
-                        position: actor_position,
-                        actor_group: actor.actor_group,
-                        angle: actor.pointer.to_angle(),
-                        damage,
-                    });
+                    actor.effects.slash.push(damage);
                 }
                 SpellCast::Dispel => {
                     actor.effects.dispel = (actor.effects.dispel + 1).min(4);
@@ -520,6 +522,18 @@ pub fn cast_spell(
             );
             actor.effects.web = 0;
         }
+
+        for damage in actor.effects.slash.iter() {
+            spawn.send(SpawnEntity::Slash {
+                position: actor_position,
+                velocity: actor_velocity.linvel,
+                actor_group: actor.actor_group,
+                angle: actor.pointer.to_angle(),
+                damage: *damage,
+            });
+        }
+
+        actor.effects.slash.clear();
     }
 
     actor.wands[wand_index as usize].delay = wand_delay;

@@ -171,8 +171,8 @@ pub enum SpawnEntity {
     },
 
     Slash {
-        parent: Entity,
         position: Vec2,
+        velocity: Vec2,
         actor_group: ActorGroup,
         angle: f32,
         damage: u32,
@@ -497,9 +497,9 @@ pub fn spawn_entity(
             }
 
             SpawnEntity::Slash {
-                parent,
                 actor_group,
                 position,
+                velocity,
                 angle,
                 damage,
             } => {
@@ -507,8 +507,8 @@ pub fn spawn_entity(
                     &mut commands,
                     &assets,
                     &mut se,
-                    *parent,
                     *position,
+                    *velocity,
                     *angle,
                     &mut context,
                     *actor_group,

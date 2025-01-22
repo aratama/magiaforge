@@ -64,6 +64,7 @@ use bevy_rapier2d::prelude::Damping;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
+use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
@@ -108,7 +109,7 @@ impl ActorType {
     }
 }
 
-#[derive(Reflect, Clone, Copy, Default, Debug)]
+#[derive(Reflect, Clone, Default, Debug)]
 pub struct CastEffects {
     // pub queue: Vec,
     pub bullet_speed_buff_factor: f32,
@@ -127,6 +128,8 @@ pub struct CastEffects {
     pub dispel: u8,
 
     pub web: u8,
+
+    pub slash: Vec<u32>,
 }
 
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
@@ -641,6 +644,7 @@ fn fire_bullet(
             &mut Life,
             &mut Transform,
             &mut ExternalImpulse,
+            &Velocity,
             &mut Vertical,
             &mut CollisionGroups,
             Option<&Player>,
@@ -664,6 +668,7 @@ fn fire_bullet(
         mut actor_life,
         actor_transform,
         mut actor_impulse,
+        actor_velocty,
         mut actor_falling,
         mut collision_groups,
         player,
@@ -700,6 +705,7 @@ fn fire_bullet(
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
+                &actor_velocty,
                 &mut actor_falling,
                 &mut collision_groups,
                 &actor_metamorphosis,
@@ -725,6 +731,7 @@ fn fire_bullet(
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
+                &actor_velocty,
                 &mut actor_falling,
                 &mut collision_groups,
                 &actor_metamorphosis,

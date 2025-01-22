@@ -9,7 +9,7 @@ use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::plugin::{DefaultRapierContext, RapierContext};
-use bevy_rapier2d::prelude::{Collider, QueryFilter};
+use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, QueryFilter, RigidBody, Velocity};
 use core::f32;
 
 use super::grass::Grasses;
@@ -21,8 +21,8 @@ pub fn spawn_slash(
     commands: &mut Commands,
     assets: &Res<GameAssets>,
     se: &mut EventWriter<SEEvent>,
-    parent: Entity,
     position: Vec2,
+    velocity: Vec2,
     angle: f32,
     context_query: &mut Query<&mut RapierContext, With<DefaultRapierContext>>,
     actor_group: ActorGroup,
@@ -32,19 +32,24 @@ pub fn spawn_slash(
     damage: u32,
 ) {
     let rotation = Quat::from_rotation_z(angle);
-    let entity = commands
-        .spawn((
-            Slash,
-            Counter::default(),
-            AseSpriteAnimation {
-                aseprite: assets.slash.clone(),
-                animation: "default".into(),
+    commands.spawn((
+        Slash,
+        Counter::default(),
+        AseSpriteAnimation {
+            aseprite: assets.slash.clone(),
+            animation: "default".into(),
+        },
+        Transform::from_translation(position.extend(PARTICLE_LAYER_Z)).with_rotation(rotation),
+        (
+            RigidBody::KinematicVelocityBased,
+            Collider::ball(1.0),
+            Velocity {
+                linvel: velocity,
+                angvel: 0.0,
             },
-            Transform::from_translation(Vec2::ZERO.extend(PARTICLE_LAYER_Z))
-                .with_rotation(rotation),
-        ))
-        .id();
-    commands.entity(parent).add_child(entity);
+            CollisionGroups::new(Group::NONE, Group::NONE),
+        ),
+    ));
     se.send(SEEvent::pos(SE::Ken2, position));
 
     let context = context_query.single_mut();

@@ -86,9 +86,9 @@ impl Default for PlayerState {
 
             let wands = [
                 Wand::with_slots([
-                    Some(WandSpell::new(SpellType::Dispel)),
-                    None,
-                    None,
+                    Some(WandSpell::new(SpellType::DualCast)),
+                    Some(WandSpell::new(SpellType::Slash)),
+                    Some(WandSpell::new(SpellType::MagicBolt)),
                     None,
                     None,
                     None,
