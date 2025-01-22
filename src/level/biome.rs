@@ -2,4 +2,5 @@
 pub enum Biome {
     StoneTile,
     Grassland,
+    Iceland,
 }

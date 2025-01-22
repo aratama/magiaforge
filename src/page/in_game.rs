@@ -32,6 +32,9 @@ use crate::message::LEVEL1;
 use crate::message::LEVEL2;
 use crate::message::LEVEL3;
 use crate::message::LEVEL4;
+use crate::message::LEVEL5;
+use crate::message::LEVEL6;
+use crate::message::LEVEL7;
 use crate::message::MULTIPLAY_ARENA;
 use crate::message::UNKNOWN_LEVEL;
 use crate::player_state::PlayerState;
@@ -141,13 +144,7 @@ pub fn setup_level(
     let chunk = read_level_chunk_data(&level_aseprites, &images, &assets, level, &mut rng);
 
     // レベルの外観を生成します
-    spawn_world_tilemap(
-        &mut commands,
-        &assets,
-        &chunk,
-        // バイオームをハードコーディングしているけどこれでいい？
-        level_to_biome(level),
-    );
+    spawn_world_tilemap(&mut commands, &assets, &chunk);
 
     // エントリーポイントを選択
     // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
@@ -186,8 +183,9 @@ pub fn setup_level(
         GameLevel::Level(2) => 15,
         GameLevel::Level(3) => 20,
         GameLevel::Level(4) => 20,
-        GameLevel::Level(5) => 30,
-        GameLevel::Level(6) => 0, // ボス部屋
+        GameLevel::Level(5) => 15,
+        GameLevel::Level(6) => 30,
+        GameLevel::Level(7) => 0, // ボス部屋
         GameLevel::MultiPlayArena => 0,
         _ => 0,
     };
@@ -197,13 +195,15 @@ pub fn setup_level(
         GameLevel::Level(2) => vec![ActorType::Slime, ActorType::Spider],
         GameLevel::Level(3) => vec![ActorType::Spider, ActorType::EyeBall],
         GameLevel::Level(4) => vec![ActorType::EyeBall, ActorType::Shadow],
-        GameLevel::Level(5) => vec![
+        GameLevel::Level(5) => vec![ActorType::Shadow, ActorType::Salamander],
+        GameLevel::Level(6) => vec![
+            ActorType::Slime,
             ActorType::Spider,
             ActorType::EyeBall,
             ActorType::Shadow,
             ActorType::Salamander,
-        ],
-        GameLevel::Level(6) => vec![], // ボス部屋
+        ], // 大回廊
+        GameLevel::Level(7) => vec![], // ボス部屋
         GameLevel::MultiPlayArena => vec![],
         _ => vec![],
     };
@@ -443,6 +443,9 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
         GameLevel::Level(2) => LEVEL2,
         GameLevel::Level(3) => LEVEL3,
         GameLevel::Level(4) => LEVEL4,
+        GameLevel::Level(5) => LEVEL5,
+        GameLevel::Level(6) => LEVEL6,
+        GameLevel::Level(7) => LEVEL7,
         GameLevel::MultiPlayArena => MULTIPLAY_ARENA,
         _ => UNKNOWN_LEVEL,
     }
@@ -451,6 +454,7 @@ pub fn level_to_name(level: GameLevel) -> Dict<&'static str> {
 pub fn level_to_biome(level: GameLevel) -> Biome {
     match level {
         GameLevel::Level(2) => Biome::Grassland,
+        GameLevel::Level(5) => Biome::Iceland,
         _ => Biome::StoneTile,
     }
 }
@@ -462,7 +466,6 @@ fn update_tile_sprites(
     tiles_query: Query<(Entity, &TileSprite)>,
     collider_query: Query<Entity, With<WallCollider>>,
 ) {
-    let biome = level_to_biome(current.level.unwrap());
     if let Some(ref mut chunk) = current.chunk {
         // 縦２タイルのみ孤立して残っているものがあれば削除
         for y in chunk.min_y..(chunk.max_y + 1) {
@@ -505,7 +508,7 @@ fn update_tile_sprites(
             // スプライトを再生成
             for y in min_y..(max_y + 1) {
                 for x in min_x..(max_x + 1) {
-                    spawn_world_tile(&mut commands, &assets, chunk, biome, x, y);
+                    spawn_world_tile(&mut commands, &assets, chunk, x, y);
                 }
             }
 

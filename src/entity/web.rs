@@ -1,9 +1,10 @@
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
+use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::actor::Actor;
-use crate::actor::ActorGroup;
 use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
@@ -64,7 +65,7 @@ pub fn spawn_web(
 }
 
 fn trap(
-    mut actor_query: Query<(&mut Actor, &Transform)>,
+    mut actor_query: Query<(&mut Actor, &Transform, &Vertical)>,
     web_query: Query<&Web>,
     mut events: EventReader<CollisionEvent>,
     mut writer: EventWriter<SEEvent>,
@@ -73,8 +74,11 @@ fn trap(
         match identify(&event, &web_query, &actor_query) {
             IdentifiedCollisionEvent::Started(web_entity, actor_entity) => {
                 let web = web_query.get(web_entity).unwrap();
-                let (mut actor, transform) = actor_query.get_mut(actor_entity).unwrap();
-                if actor.trap_moratorium <= 0 && actor.actor_group != web.owner_actor_group {
+                let (mut actor, transform, vertical) = actor_query.get_mut(actor_entity).unwrap();
+                if actor.trap_moratorium <= 0
+                    && actor.actor_group != web.owner_actor_group
+                    && vertical.v == 0.0
+                {
                     actor.trapped = web.adherence;
                     writer.send(SEEvent::pos(SE::Zombie, transform.translation.truncate()));
                 }

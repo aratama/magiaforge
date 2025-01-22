@@ -3,7 +3,6 @@ pub enum Tile {
     Blank,
     Wall,
     PermanentWall,
-    Biome,
     StoneTile,
     Grassland,
     Water,
@@ -27,7 +26,6 @@ impl Tile {
     pub fn is_floor(&self) -> bool {
         match self {
             Tile::StoneTile => true,
-            Tile::Biome => true,
             Tile::Ice => true,
             Tile::Grassland => true,
             Tile::Soil => true,

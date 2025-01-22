@@ -128,6 +128,7 @@ fn tuple_to_vec2((x, y): (i32, i32)) -> Vec2 {
 }
 
 pub fn image_to_tilemap(
+    biome_tile: Tile,
     level_image: &Image,
     min_x: i32,
     max_x: i32,
@@ -151,13 +152,13 @@ pub fn image_to_tilemap(
             match (r, g, b, a) {
                 (203, 219, 252, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::Dungeon,
                     });
                 }
                 (234, 255, 214, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                 }
@@ -169,7 +170,7 @@ pub fn image_to_tilemap(
                 }
                 (118, 66, 138, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::DefaultActor {
@@ -181,7 +182,7 @@ pub fn image_to_tilemap(
                 }
                 (251, 242, 54, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     let chest_item = if (x, y) == (81, 28) {
@@ -213,7 +214,7 @@ pub fn image_to_tilemap(
                 (255, 155, 87, 255) => {
                     // CrateOrBarrel
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
 
@@ -286,7 +287,7 @@ pub fn image_to_tilemap(
                 }
                 (0, 222, 255, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::ShopSpell { position });
@@ -307,7 +308,7 @@ pub fn image_to_tilemap(
                 }
                 (184, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::HugeSlime {
@@ -317,56 +318,56 @@ pub fn image_to_tilemap(
                 }
                 (255, 243, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::ShopRabbit { position });
                 }
                 (255, 244, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::TrainingRabbit { position });
                 }
                 (255, 245, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::GuideRabbit { position });
                 }
                 (255, 246, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::MultiplayerRabbit { position });
                 }
                 (255, 247, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::SinglePlayRabbit { position });
                 }
                 (255, 248, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::ReadingRabbit { position });
                 }
                 (255, 249, 0, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::SpellListRabbit { position });
                 }
                 (182, 0, 255, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::DefaultActor {
@@ -384,7 +385,7 @@ pub fn image_to_tilemap(
                 }
                 (68, 0, 94, 255) => {
                     tiles.push(LevelTileMapile {
-                        tile: Tile::Biome,
+                        tile: biome_tile,
                         zone: Zone::SafeZone,
                     });
                     entities.push(SpawnEntity::BGM { position });

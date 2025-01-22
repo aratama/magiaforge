@@ -342,6 +342,45 @@ pub const LEVEL4: Dict<&'static str> = Dict {
     ru: "Гнездо слизней",
 };
 
+pub const LEVEL5: Dict<&'static str> = Dict {
+    ja: "氷の洞窟",
+    en: "Ice Cave",
+    zh_cn: "冰洞",
+    zh_tw: "冰洞",
+    es: "Cueva de Hielo",
+    fr: "Grotte de Glace",
+    pt: "Caverna de Gelo",
+    de: "Eishöhle",
+    ko: "얼음 동굴",
+    ru: "Ледяная пещера",
+};
+
+pub const LEVEL6: Dict<&'static str> = Dict {
+    ja: "古の回廊",
+    en: "Ancient Corridor",
+    zh_cn: "古代走廊",
+    zh_tw: "古代走廊",
+    es: "Corredor Antiguo",
+    fr: "Couloir Ancien",
+    pt: "Corredor Antigo",
+    de: "Alter Korridor",
+    ko: "고대 회랑",
+    ru: "Древний коридор",
+};
+
+pub const LEVEL7: Dict<&'static str> = Dict {
+    ja: "大空洞",
+    en: "Great Cavern",
+    zh_cn: "大洞穴",
+    zh_tw: "大洞穴",
+    es: "Gran Caverna",
+    fr: "Grande Caverne",
+    pt: "Grande Caverna",
+    de: "Große Höhle",
+    ko: "큰 동굴",
+    ru: "Большая пещера",
+};
+
 pub const MULTIPLAY_ARENA: Dict<&'static str> = Dict {
     ja: "対決の洞窟",
     en: "Arena Cave",

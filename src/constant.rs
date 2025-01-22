@@ -27,7 +27,7 @@ pub const MAX_ITEMS_IN_INVENTORY: usize =
 
 /// 拠点を含むシングルプレイ用ステージの数
 /// level.aseprite のスライスの最大値 - 1
-pub const LEVELS: i32 = 7;
+pub const LEVELS: i32 = 8;
 
 /// このレベルにボスがいなくなったらエンディングへ移行
 pub const LAST_BOSS_LEVEL: i32 = LEVELS - 1;

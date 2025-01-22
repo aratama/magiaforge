@@ -8,6 +8,7 @@ use crate::level::ceil::WALL_HEIGHT_IN_TILES;
 use crate::level::map::image_to_tilemap;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
+use crate::page::in_game::level_to_biome;
 use crate::page::in_game::GameLevel;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -46,7 +47,16 @@ pub fn read_level_chunk_data(
 
     let slice = level_aseprite.slices.get(level_slice).unwrap();
 
+    let biome = level_to_biome(level);
+
+    let biome_tile = match biome {
+        Biome::StoneTile => Tile::StoneTile,
+        Biome::Grassland => Tile::Grassland,
+        Biome::Iceland => Tile::Ice,
+    };
+
     let chunk = image_to_tilemap(
+        biome_tile,
         &level_image,
         slice.rect.min.x as i32,
         slice.rect.max.x as i32,
@@ -64,16 +74,11 @@ struct FoamTile;
 struct CeilmTile;
 
 /// 床や壁の外観(スプライト)を生成します
-pub fn spawn_world_tilemap(
-    commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    chunk: &LevelChunk,
-    biome: Biome,
-) {
+pub fn spawn_world_tilemap(commands: &mut Commands, assets: &Res<GameAssets>, chunk: &LevelChunk) {
     // 床と壁の生成
     for y in chunk.min_y..(chunk.max_y + WALL_HEIGHT_IN_TILES as i32) {
         for x in chunk.min_x..chunk.max_x {
-            spawn_world_tile(commands, assets, chunk, biome, x, y);
+            spawn_world_tile(commands, assets, chunk, x, y);
         }
     }
 }
@@ -83,19 +88,10 @@ pub fn spawn_world_tile(
     mut commands: &mut Commands,
     assets: &Res<GameAssets>,
     chunk: &LevelChunk,
-    biome: Biome,
     x: i32,
     y: i32,
 ) {
     match chunk.get_tile(x, y) {
-        Tile::Biome => match biome {
-            Biome::StoneTile => {
-                spawn_stone_tile(&mut commands, assets, x, y);
-            }
-            Biome::Grassland => {
-                spawn_grassland(&mut commands, &assets, x, y);
-            }
-        },
         Tile::StoneTile => {
             spawn_stone_tile(&mut commands, assets, x, y);
         }
@@ -209,21 +205,24 @@ pub fn spawn_world_tile(
         }
         Tile::Ice => {
             spawn_water_wall(&mut commands, &assets, &chunk, x, y);
-
-            commands.spawn((
-                TileSprite((x, y)),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: "tile_ice".to_string(),
-                },
-                Transform::from_xyz(
-                    x as f32 * TILE_SIZE,
-                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-                    WATER_MESH_DARKER_LAYER_Z,
-                ),
-            ));
+            spawn_ice_floor(&mut commands, &assets, x, y);
         }
     };
+}
+
+fn spawn_ice_floor(commands: &mut Commands, assets: &Res<GameAssets>, x: i32, y: i32) {
+    commands.spawn((
+        TileSprite((x, y)),
+        AseSpriteSlice {
+            aseprite: assets.atlas.clone(),
+            name: "tile_ice".to_string(),
+        },
+        Transform::from_xyz(
+            x as f32 * TILE_SIZE,
+            -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+            WATER_MESH_DARKER_LAYER_Z,
+        ),
+    ));
 }
 
 // 水辺の岸の壁
@@ -238,12 +237,7 @@ fn spawn_water_wall(
         x,
         y - 1,
         1,
-        &vec![
-            Tile::StoneTile,
-            Tile::Biome,
-            Tile::Wall,
-            Tile::PermanentWall,
-        ],
+        &vec![Tile::StoneTile, Tile::Wall, Tile::PermanentWall],
     ) {
         commands.spawn((
             TileSprite((x, y)),
