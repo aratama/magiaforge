@@ -759,41 +759,57 @@ fn apply_external_force(
     constants: Res<Assets<GameActors>>,
     mut query: Query<(&mut Actor, &mut ExternalForce, &Transform, &Vertical)>,
     mut se: EventWriter<SEEvent>,
+    level: Res<LevelSetup>,
 ) {
     let constants = constants.get(assets.actors.id()).unwrap();
 
-    for (mut actor, mut external_force, transform, vertical) in query.iter_mut() {
-        let ratio = if 0 < actor.frozen {
-            0.0
-        } else if 0 < actor.drowning || 0 < actor.staggered || 0.0 < vertical.v {
-            0.2
-        } else if actor.fire_state == ActorFireState::Fire
-            || actor.fire_state_secondary == ActorFireState::Fire
-        {
-            0.5
-        } else {
-            1.0
-        };
+    if let Some(ref chunk) = level.chunk {
+        for (mut actor, mut external_force, transform, vertical) in query.iter_mut() {
+            let position = transform.translation.truncate();
 
-        let force = actor.move_direction * actor.get_total_move_force(&constants) * ratio;
+            let on_ice = match chunk.get_tile_by_coords(position) {
+                Tile::Ice => true,
+                _ => false,
+            };
 
-        if 0.0 < force.length() {
-            if 0 < actor.trapped {
-                external_force.force = Vec2::ZERO;
-                actor.trapped -= actor.floundering;
-                if actor.trapped == 0 {
-                    actor.trap_moratorium = 180;
-                    se.send(SEEvent::pos(SE::Zombie, transform.translation.truncate()));
+            let ratio = if 0 < actor.frozen {
+                0.0
+            } else if 0 < actor.staggered {
+                0.0
+            } else if 0 < actor.drowning {
+                constants.acceleration_on_drowning
+            } else if 0.0 < vertical.v {
+                constants.acceleration_on_air
+            } else if on_ice {
+                constants.acceleration_on_ice
+            } else if actor.fire_state == ActorFireState::Fire
+                || actor.fire_state_secondary == ActorFireState::Fire
+            {
+                constants.acceleration_on_firing
+            } else {
+                1.0
+            };
+
+            let force = actor.move_direction * actor.get_total_move_force(&constants) * ratio;
+
+            if 0.0 < force.length() {
+                if 0 < actor.trapped {
+                    external_force.force = Vec2::ZERO;
+                    actor.trapped -= actor.floundering;
+                    if actor.trapped == 0 {
+                        actor.trap_moratorium = 180;
+                        se.send(SEEvent::pos(SE::Zombie, position));
+                    }
+                } else {
+                    external_force.force = force;
+                }
+
+                if 0 < actor.trap_moratorium {
+                    actor.trap_moratorium -= 1;
                 }
             } else {
-                external_force.force = force;
+                external_force.force = Vec2::ZERO;
             }
-
-            if 0 < actor.trap_moratorium {
-                actor.trap_moratorium -= 1;
-            }
-        } else {
-            external_force.force = Vec2::ZERO;
         }
     }
 }
@@ -897,18 +913,28 @@ fn apply_z(
 }
 
 fn apply_damping(
-    mut query: Query<(&Vertical, &mut Damping, &Actor)>,
+    mut query: Query<(&Vertical, &mut Damping, &Actor, &Transform)>,
     assets: Res<GameAssets>,
     constants: Res<Assets<GameActors>>,
+    level: Res<LevelSetup>,
 ) {
-    for (vertical, mut damping, actor) in query.iter_mut() {
-        let constants = constants.get(assets.actors.id()).unwrap();
-        let props = actor.to_props(&constants);
-        damping.linear_damping = if 0.0 < vertical.v {
-            1.0
-        } else {
-            props.linear_damping
-        };
+    if let Some(ref chunk) = level.chunk {
+        for (vertical, mut damping, actor, transform) in query.iter_mut() {
+            let on_ice = match chunk.get_tile_by_coords(transform.translation.truncate()) {
+                Tile::Ice => true,
+                _ => false,
+            };
+            let constants = constants.get(assets.actors.id()).unwrap();
+            let props = actor.to_props(&constants);
+            damping.linear_damping = props.linear_damping
+                * if 0.0 < vertical.v {
+                    constants.dumping_on_air
+                } else if on_ice {
+                    constants.dumping_on_ice
+                } else {
+                    1.0
+                };
+        }
     }
 }
 

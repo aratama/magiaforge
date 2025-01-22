@@ -128,6 +128,12 @@ pub struct GameConstants {
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameActors {
+    pub dumping_on_ice: f32,
+    pub dumping_on_air: f32,
+    pub acceleration_on_ice: f32,
+    pub acceleration_on_air: f32,
+    pub acceleration_on_drowning: f32,
+    pub acceleration_on_firing: f32,
     pub actors: HashMap<String, ActorProps>,
 }
 

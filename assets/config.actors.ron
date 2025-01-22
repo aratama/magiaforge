@@ -1,5 +1,11 @@
 
 GameActors(
+    dumping_on_ice: 0.1,
+    dumping_on_air: 0.5,
+    acceleration_on_ice: 0.1,
+    acceleration_on_air: 0.5,
+    acceleration_on_drowning: 0.2,
+    acceleration_on_firing: 0.5,
     actors: {
         "Witch": (
             move_force: 40000.0,
