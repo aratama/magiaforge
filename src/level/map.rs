@@ -121,8 +121,8 @@ pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
 #[allow(dead_code)]
 pub fn position_to_index(position: Vec2) -> (i32, i32) {
     (
-        ((position.x - TILE_HALF) / TILE_SIZE).trunc() as i32,
-        ((position.y + TILE_HALF) / -TILE_SIZE).trunc() as i32,
+        (position.x / TILE_SIZE).floor() as i32,
+        (position.y / -TILE_SIZE).floor() as i32,
     )
 }
 

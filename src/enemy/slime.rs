@@ -15,6 +15,9 @@ use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
+use vleue_navigator::prelude::ManagedNavMesh;
+use vleue_navigator::prelude::NavMeshStatus;
+use vleue_navigator::NavMesh;
 
 #[derive(Component, Debug)]
 pub struct SlimeControl {
@@ -27,7 +30,7 @@ impl Default for SlimeControl {
     }
 }
 
-const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
+const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 20.0;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
@@ -81,6 +84,9 @@ fn control_slime(
         &mut Transform,
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+
+    navmesh: Query<(&ManagedNavMesh, Ref<NavMeshStatus>)>,
+    navmeshes: Res<Assets<NavMesh>>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&lens.query());
@@ -108,7 +114,39 @@ fn control_slime(
                     slime_actor.pointer = diff;
                     slime_actor.fire_state = ActorFireState::Fire;
                 } else if diff.length() < ENEMY_DETECTION_RANGE {
-                    slime_actor.move_direction = diff.normalize_or_zero();
+                    let (navmesh_handle, status) = navmesh.single();
+                    let navmesh = navmeshes.get(navmesh_handle);
+
+                    if *status != NavMeshStatus::Built {
+                        return;
+                    }
+                    let Some(navmesh) = navmesh else {
+                        warn!("navmesh not found");
+                        return;
+                    };
+
+                    let from = origin;
+                    let to = nearest.position;
+
+                    let Some(path) = navmesh.path(
+                        // エンティティの位置そのものを使うと、壁際に近づいたときに agent_radius のマージンに埋もれて
+                        // 到達不可能になってしまうので、タイルの中心を使います
+                        from, to,
+                    ) else {
+                        warn!("path not found");
+                        continue;
+                    };
+
+                    // for p in path.path.iter() {
+                    //     info!("{:?} {:?}", p.x / TILE_SIZE, p.y / TILE_SIZE);
+                    // }
+
+                    let Some(first) = path.path.first() else {
+                        warn!("first not found");
+                        continue;
+                    };
+
+                    slime_actor.move_direction = (*first - origin).normalize_or_zero();
                     slime_actor.fire_state = ActorFireState::Idle;
                 }
             }

@@ -16,6 +16,7 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+use vleue_navigator::prelude::PrimitiveObstacle;
 
 const ENTITY_WIDTH: f32 = 16.0;
 
@@ -70,6 +71,7 @@ pub fn spawn_book_shelf(
             *ENTITY_GROUPS,
             ExternalImpulse::default(),
         ),
+        PrimitiveObstacle::Rectangle(Rectangle::new(ENTITY_WIDTH * 2.0, ENTITY_HEIGHT * 2.0)),
     ));
 
     parent.with_children(move |parent| {
@@ -95,7 +97,7 @@ fn break_book_shelf(
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            
+
             writer.send(SEEvent::pos(SE::Break, position));
             for i in 0..6 {
                 spawn_broken_piece(

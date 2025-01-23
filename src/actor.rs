@@ -470,7 +470,7 @@ impl Default for Actor {
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
             point_light_radius: 0.0,
-            radius: 8.0,
+            radius: 5.0,
             current_wand: 0,
             actor_group: ActorGroup::Neutral,
             golds: 0,

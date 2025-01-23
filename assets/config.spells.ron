@@ -16,8 +16,8 @@ GameConstants(
             ),
             enemies: 0,
             enemy_types: [],
-            items: 3,
-            item_ranks: [0, 1, 2],
+            items: 0,
+            item_ranks: [],
             biome: StoneTile
         ),
         (
@@ -36,7 +36,7 @@ GameConstants(
             enemies: 10,
             enemy_types: [Slime],
             items: 3,
-            item_ranks: [1, 2, 3],
+            item_ranks: [0, 1, 2],
             biome: StoneTile
         ),
         (
@@ -55,7 +55,7 @@ GameConstants(
             enemies: 15,
             enemy_types: [Slime, Spider],
             items: 3,
-            item_ranks: [2, 3, 4],
+            item_ranks: [1, 2, 3],
             biome: Grassland
         ),
         (
@@ -74,7 +74,7 @@ GameConstants(
             enemies: 20,
             enemy_types: [Spider, EyeBall],
             items: 3,
-            item_ranks: [3, 4, 5],
+            item_ranks: [2, 3, 4],
             biome: StoneTile
         ),
         (
@@ -93,7 +93,7 @@ GameConstants(
             enemies: 20,
             enemy_types: [EyeBall, Shadow],
             items: 3,
-            item_ranks: [4, 5, 6],
+            item_ranks: [3, 4, 5],
             biome: StoneTile
         ),
         (

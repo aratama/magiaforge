@@ -120,6 +120,9 @@ use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
+use vleue_navigator::prelude::NavmeshUpdaterPlugin;
+use vleue_navigator::prelude::PrimitiveObstacle;
+use vleue_navigator::VleueNavigatorPlugin;
 
 // const AUDIO_SCALE: f32 = 1. / 1000.0;
 
@@ -194,6 +197,8 @@ pub fn run_game() {
         .add_systems(Startup, setup_rapier_context)
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
+        .add_plugins(VleueNavigatorPlugin)
+        .add_plugins(NavmeshUpdaterPlugin::<PrimitiveObstacle>::default())
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //

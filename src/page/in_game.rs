@@ -39,6 +39,9 @@ use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use strum::IntoEnumIterator;
+use vleue_navigator::prelude::NavMeshSettings;
+use vleue_navigator::prelude::NavMeshUpdateMode;
+use vleue_navigator::Triangulation;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum GameLevel {
@@ -147,6 +150,34 @@ pub fn setup_level(
         biome_tile,
     );
 
+    // ナビゲーションメッシュを作成します
+    // Spawn a new navmesh that will be automatically updated.
+    commands.spawn((
+        StateScoped(GameState::InGame),
+        NavMeshSettings {
+            // Define the outer borders of the navmesh.
+            fixed: Triangulation::from_outer_edges(&[
+                // ここ半タイルぶんズレてる？
+                index_to_position((chunk.min_x, chunk.min_y)),
+                index_to_position((chunk.max_x, chunk.min_y)),
+                index_to_position((chunk.max_x, chunk.max_y)),
+                index_to_position((chunk.min_x, chunk.max_y)),
+            ]),
+
+            // 小さすぎると、わずかな隙間を通り抜けようとしたり、
+            // 曲がり角で壁に近すぎて減速してしまいます
+            // 大きすぎると、対象が壁際にいるときに移動不可能な目的地になってしまうので、
+            // パスが見つけられなくなってしまいます
+            // Actorのデフォルトが5なので、それに合わせています
+            agent_radius: 5.0,
+            ..default()
+        },
+        // Mark it for update as soon as obstacles are changed.
+        // Other modes can be debounced or manually triggered.
+        NavMeshUpdateMode::Direct,
+        Transform::from_translation(Vec3::ZERO),
+    ));
+
     // レベルの外観を生成します
     spawn_world_tilemap(&mut commands, &assets, &chunk);
 
@@ -245,11 +276,11 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    // spawn.send(SpawnEntity::DefaultActor {
-    //     actor_type: ActorType::Slime,
-    //     actor_group: ActorGroup::Enemy,
-    //     position: index_to_position((31, 52)),
-    // });
+    spawn.send(SpawnEntity::DefaultActor {
+        actor_type: ActorType::Slime,
+        actor_group: ActorGroup::Enemy,
+        position: index_to_position((53, 68)),
+    });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
