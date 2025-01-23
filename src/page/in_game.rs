@@ -276,11 +276,11 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    spawn.send(SpawnEntity::DefaultActor {
-        actor_type: ActorType::Slime,
-        actor_group: ActorGroup::Enemy,
-        position: index_to_position((53, 68)),
-    });
+    // spawn.send(SpawnEntity::DefaultActor {
+    //     actor_type: ActorType::Slime,
+    //     actor_group: ActorGroup::Enemy,
+    //     position: index_to_position((53, 68)),
+    // });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
