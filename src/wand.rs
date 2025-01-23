@@ -50,6 +50,21 @@ impl Wand {
         }
     }
 
+    pub fn from_vec(slots: Vec<Vec<Option<SpellType>>>) -> [Wand; MAX_WANDS] {
+        let mut wands = [
+            Wand::default(),
+            Wand::default(),
+            Wand::default(),
+            Wand::default(),
+        ];
+        for (i, wand_slots) in slots.iter().enumerate().take(MAX_WANDS) {
+            for (j, spell_type) in wand_slots.iter().enumerate().take(MAX_SPELLS_IN_WAND) {
+                wands[i].slots[j] = spell_type.map(WandSpell::new);
+            }
+        }
+        wands
+    }
+
     pub fn single(spell: Option<SpellType>) -> [Wand; MAX_WANDS] {
         let mut slots = [None; MAX_SPELLS_IN_WAND];
         slots[0] = spell.map(|s| WandSpell::new(s));

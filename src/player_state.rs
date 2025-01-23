@@ -28,161 +28,46 @@ pub struct PlayerState {
 
 impl Default for PlayerState {
     fn default() -> Self {
-        let mut inventory = Inventory::new();
+        let inventory = Inventory::new();
 
-        if cfg!(feature = "item") {
-            inventory.insert_spell(SpellType::MagicBolt);
-            inventory.insert_spell(SpellType::MagicBolt);
-            inventory.insert_spell(SpellType::LightBall);
-            inventory.insert_spell(SpellType::WaterBall);
-            inventory.insert_spell(SpellType::SlimeCharge);
-            inventory.insert_spell(SpellType::Heal);
-            inventory.insert_spell(SpellType::BulletSpeedUp);
-            inventory.insert_spell(SpellType::BulletSpeedUp);
-            inventory.insert_spell(SpellType::BulletSpeedUp);
-            inventory.insert_spell(SpellType::BulletSpeedDoown);
-            inventory.insert_spell(SpellType::BulletSpeedDoown);
-            inventory.insert_spell(SpellType::BulletSpeedDoown);
-            inventory.insert_spell(SpellType::PurpleBolt);
-            inventory.insert_spell(SpellType::DualCast);
-            inventory.insert_spell(SpellType::TripleCast);
-            inventory.insert_spell(SpellType::Lantern);
-            inventory.insert_spell(SpellType::Lantern);
-            inventory.insert_spell(SpellType::SpikeBoots);
-            inventory.insert_spell(SpellType::Telescope);
-            inventory.insert_spell(SpellType::Magnifier);
-            inventory.insert_spell(SpellType::Homing);
-            inventory.insert_spell(SpellType::Homing);
-            inventory.insert_spell(SpellType::HeavyShot);
-            inventory.insert_spell(SpellType::HeavyShot);
-            inventory.insert_spell(SpellType::SummonFriendSlime);
-            inventory.insert_spell(SpellType::SummonEnemySlime);
-            inventory.insert_spell(SpellType::SummonFriendEyeball);
-            inventory.insert_spell(SpellType::SummonEnemyEyeball);
-            inventory.insert_spell(SpellType::Dash);
-            inventory.insert_spell(SpellType::QuickCast);
-            inventory.insert_spell(SpellType::QuickCast);
-            inventory.insert_spell(SpellType::Impact);
-            inventory.insert_spell(SpellType::PrecisionUp);
-            inventory.insert_spell(SpellType::PrecisionUp);
-            inventory.insert_spell(SpellType::Bomb);
-            inventory.insert_spell(SpellType::LightSword);
-            inventory.insert_spell(SpellType::SpawnBookshelf);
-            inventory.insert_spell(SpellType::SpawnJar);
-            inventory.insert_spell(SpellType::RockFall);
-            inventory.insert_spell(SpellType::Fireball);
-            inventory.insert_spell(SpellType::SummonHugeSlime);
-            inventory.insert_spell(SpellType::SummonChiken);
-            inventory.insert_spell(SpellType::Servant);
-            inventory.insert_spell(SpellType::Web);
-            inventory.insert_spell(SpellType::Freeze);
-            inventory.insert_spell(SpellType::Levitation);
-            inventory.insert_spell(SpellType::ApplyLevitation);
-            inventory.insert_spell(SpellType::Jump);
-            inventory.insert_spell(SpellType::Metamorphosis);
-            inventory.insert_spell(SpellType::Slash);
-            inventory.insert_spell(SpellType::Dispel);
-            inventory.sort();
+        let wands = [
+            Wand::with_slots([
+                Some(WandSpell::new(SpellType::MagicBolt)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ]),
+            Wand::default(),
+            Wand::default(),
+            Wand::with_slots([
+                Some(WandSpell::new(SpellType::LightBall)),
+                Some(WandSpell::new(SpellType::Lantern)),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ]),
+        ];
 
-            let wands = [
-                Wand::with_slots([
-                    Some(WandSpell::new(SpellType::DualCast)),
-                    Some(WandSpell::new(SpellType::Slash)),
-                    Some(WandSpell::new(SpellType::MagicBolt)),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]),
-                Wand::with_slots([
-                    Some(WandSpell::new(SpellType::QuickCast)),
-                    Some(WandSpell::new(SpellType::QuickCast)),
-                    Some(WandSpell::new(SpellType::HeavyShot)),
-                    Some(WandSpell::new(SpellType::HeavyShot)),
-                    Some(WandSpell::new(SpellType::TripleCast)),
-                    Some(WandSpell::new(SpellType::MagicBolt)),
-                    Some(WandSpell::new(SpellType::MagicBolt)),
-                    Some(WandSpell::new(SpellType::MagicBolt)),
-                ]),
-                Wand::with_slots([
-                    Some(WandSpell {
-                        spell_type: SpellType::Bomb,
-                        price: 0,
-                    }),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]),
-                Wand::with_slots([
-                    Some(WandSpell::new(SpellType::Dash)),
-                    Some(WandSpell::new(SpellType::Lantern)),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]),
-            ];
+        let mut instance = PlayerState {
+            name: "".to_string(),
+            life: 60,
+            max_life: 60,
+            inventory,
+            wands,
+            golds: 1000,
+            current_wand: 0,
+            discovered_spells: HashSet::new(),
+        };
+        instance.update_discovered_spell();
 
-            let mut instance = PlayerState {
-                name: "".to_string(),
-                life: 60,
-                max_life: 60,
-                inventory,
-                wands,
-                golds: 1000,
-                current_wand: 0,
-                discovered_spells: HashSet::new(),
-            };
-            instance.update_discovered_spell();
-
-            instance
-        } else {
-            let wands = [
-                Wand::with_slots([
-                    Some(WandSpell::new(SpellType::MagicBolt)),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]),
-                Wand::default(),
-                Wand::default(),
-                Wand::with_slots([
-                    Some(WandSpell::new(SpellType::LightBall)),
-                    Some(WandSpell::new(SpellType::Lantern)),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]),
-            ];
-
-            let mut instance = PlayerState {
-                name: "".to_string(),
-                life: 60,
-                max_life: 60,
-                inventory,
-                wands,
-                golds: 1000,
-                current_wand: 0,
-                discovered_spells: HashSet::new(),
-            };
-            instance.update_discovered_spell();
-
-            instance
-        }
+        instance
     }
 }
 

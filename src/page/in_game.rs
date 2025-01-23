@@ -10,6 +10,7 @@ use crate::config::GameConfig;
 use crate::constant::*;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::overlay::OverlayEvent;
+use crate::inventory::Inventory;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::level::appearance::read_level_chunk_data;
@@ -31,6 +32,7 @@ use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
+use crate::wand::Wand;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -188,7 +190,18 @@ pub fn setup_level(
         .choose(&mut rng)
         .expect("No entrypoint found");
 
-    let mut player_state = current.next_state.clone().unwrap_or_default();
+    let mut player_state = current
+        .next_state
+        .clone()
+        .unwrap_or(if cfg!(feature = "item") {
+            PlayerState {
+                inventory: Inventory::from_vec(constants.debug_items.clone()),
+                wands: Wand::from_vec(constants.debug_wands.clone()),
+                ..default()
+            }
+        } else {
+            PlayerState::default()
+        });
 
     player_state.name = config.player_name.clone();
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;

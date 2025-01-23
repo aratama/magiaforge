@@ -28,6 +28,16 @@ impl Inventory {
         Inventory(vec![None; MAX_ITEMS_IN_INVENTORY])
     }
 
+    pub fn from_vec(vec: Vec<SpellType>) -> Inventory {
+        let mut inventory = Inventory(vec![None; MAX_ITEMS_IN_INVENTORY]);
+        for i in 0..MAX_ITEMS_IN_INVENTORY {
+            inventory.0[i] = vec
+                .get(i)
+                .map(|s| InventoryItem::new(InventoryItemType::Spell(s.clone())));
+        }
+        inventory
+    }
+
     pub fn get(&self, index: usize) -> Option<InventoryItem> {
         let Inventory(ref inventory) = *self;
         return inventory[index];
@@ -79,6 +89,7 @@ impl Inventory {
         return false;
     }
 
+    #[allow(dead_code)]
     pub fn insert_spell(&mut self, item_type: SpellType) -> bool {
         self.insert(InventoryItem {
             item_type: InventoryItemType::Spell(item_type),
