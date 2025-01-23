@@ -21,10 +21,11 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
+use serde::Deserialize;
 
 const RABBIT_RADIUS: f32 = 5.0;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, Deserialize)]
 pub enum RabbitType {
     Guide,
     Training,

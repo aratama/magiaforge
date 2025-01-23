@@ -1,20 +1,13 @@
-use crate::actor::chest::chest_actor;
-use crate::actor::chest::default_random_chest;
-use crate::actor::chest::ChestItem;
-use crate::actor::chest::ChestType;
-use crate::actor::ActorGroup;
-use crate::actor::ActorType;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
-use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
-use crate::level::entities::SpawnEntity;
 use crate::level::tile::Tile;
-use crate::message::HUGE_SLIME;
-use crate::spell::SpellType;
+use crate::registry::Registry;
 use bevy::prelude::*;
+use serde::Deserialize;
 
-#[derive(Clone, Copy, Debug)]
+use super::entities::SpawnEntity;
+
+#[derive(Clone, Copy, Debug, Deserialize)]
 pub enum Zone {
     /// モンスターがスポーンしないエリア
     SafeZone,
@@ -23,32 +16,58 @@ pub enum Zone {
     Dungeon,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct LevelTileMapile {
-    tile: Tile,
-    zone: Zone,
+#[derive(Clone, Debug, Deserialize)]
+pub struct LevelTile {
+    pub tile: Option<Tile>,
+    pub zone: Zone,
+    pub entity: Option<SpawnEntity>,
+    pub entry_point: bool,
+}
+
+impl Default for LevelTile {
+    fn default() -> Self {
+        LevelTile {
+            tile: Some(Tile::Blank),
+            zone: Zone::SafeZone,
+            entity: None,
+            entry_point: false,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
 pub struct LevelChunk {
-    tiles: Vec<LevelTileMapile>,
+    pub biome: Tile,
+    pub tiles: Vec<LevelTile>,
     pub min_x: i32,
     pub min_y: i32,
     pub max_x: i32,
     pub max_y: i32,
-    pub entities: Vec<SpawnEntity>,
-    pub entry_points: Vec<(i32, i32)>,
     pub dirty: Option<(i32, i32, i32, i32)>,
 }
 
 impl LevelChunk {
+    pub fn get_level_tile(&self, x: i32, y: i32) -> &LevelTile {
+        if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
+            return &LevelTile {
+                tile: Some(Tile::Blank),
+                zone: Zone::SafeZone,
+                entity: None,
+                entry_point: false,
+            };
+        }
+        let w = self.max_x - self.min_x;
+        let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
+        return &self.tiles[i];
+    }
+
     pub fn get_tile(&self, x: i32, y: i32) -> Tile {
         if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
             return Tile::Blank;
         }
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
-        return self.tiles[i].tile;
+        return self.tiles[i].tile.unwrap_or(self.biome);
     }
 
     pub fn get_tile_by_coords(&self, p: Vec2) -> Tile {
@@ -81,7 +100,7 @@ impl LevelChunk {
         }
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
-        self.tiles[i].tile = tile;
+        self.tiles[i].tile = Some(tile);
         self.dirty = if let Some((min_x, min_y, max_x, max_y)) = self.dirty {
             Some((min_x.min(x), min_y.min(y), max_x.max(x), max_y.max(y)))
         } else {
@@ -109,6 +128,25 @@ impl LevelChunk {
         }
         return true;
     }
+
+    pub fn entry_points(&self) -> Vec<(i32, i32)> {
+        let mut points = Vec::new();
+        for y in self.min_y..self.max_y {
+            for x in self.min_x..self.max_x {
+                if self.get_tile(x, y) == Tile::StoneTile {
+                    if let Some(LevelTile {
+                        entry_point: true, ..
+                    }) = self.tiles.get(
+                        (y - self.min_y) as usize * (self.max_x - self.min_x) as usize
+                            + (x - self.min_x) as usize,
+                    ) {
+                        points.push((x, y));
+                    }
+                }
+            }
+        }
+        points
+    }
 }
 
 pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
@@ -126,17 +164,8 @@ pub fn position_to_index(position: Vec2) -> (i32, i32) {
     )
 }
 
-/// レベルマップでのタイルの整数での位置を、ワールド座標に変換します
-/// 変換後の座標はタイルの角ではなく、タイルの中央となります
-/// これは通常はエンティティの中心と一致します
-fn tuple_to_vec2((x, y): (i32, i32)) -> Vec2 {
-    Vec2::new(
-        x as f32 * TILE_SIZE + TILE_HALF,
-        -y as f32 * TILE_SIZE - TILE_HALF,
-    )
-}
-
 pub fn image_to_tilemap(
+    registry: &Registry,
     biome_tile: Tile,
     level_image: &Image,
     min_x: i32,
@@ -144,10 +173,9 @@ pub fn image_to_tilemap(
     min_y: i32,
     max_y: i32,
 ) -> LevelChunk {
+    let map = &registry.spell().tiles;
     let texture_width = level_image.width();
-    let mut tiles: Vec<LevelTileMapile> = Vec::new();
-    let mut entities = Vec::new();
-    let mut entry_points = Vec::<(i32, i32)>::new();
+    let mut tiles: Vec<LevelTile> = Vec::new();
     for y in min_y..max_y {
         for x in min_x..max_x {
             let i = 4 * (y * texture_width as i32 + x) as usize;
@@ -155,313 +183,23 @@ pub fn image_to_tilemap(
             let g = level_image.data[i + 1];
             let b = level_image.data[i + 2];
             let a = level_image.data[i + 3];
-
-            let position = tuple_to_vec2((x, y));
-
-            match (r, g, b, a) {
-                (203, 219, 252, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::Dungeon,
-                    });
+            let tile = match map.get(&(r, g, b, a)) {
+                Some(tile) => tile,
+                None => {
+                    warn!("Unknown tile: {:?} {:?} {:?} {:?}", r, g, b, a);
+                    &LevelTile::default()
                 }
-                (234, 255, 214, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (82, 75, 36, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Wall,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (118, 66, 138, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::DefaultActor {
-                        actor_type: ActorType::BookShelf,
-                        actor_group: ActorGroup::Entity,
-                        // 本棚は横2タイルの幅があるため、エンティティの中央はタイルの中央より半タイル分だけ右になります
-                        position: position + Vec2::new(TILE_HALF, 0.0),
-                    });
-                }
-                (251, 242, 54, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    let chest_item = if (x, y) == (81, 28) {
-                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                            SpellType::Dash,
-                        )))
-                    } else if (x, y) == (30, 69) {
-                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                            SpellType::Levitation,
-                        )))
-                    } else if (x, y) == (53, 24) {
-                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                            SpellType::Bomb,
-                        )))
-                    } else if (x, y) == (100, 66) {
-                        ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(
-                            SpellType::LightSword,
-                        )))
-                    } else {
-                        ChestItem::Gold(4)
-                    };
-                    let (actor, life) = chest_actor(ChestType::Chest, chest_item);
-                    entities.push(SpawnEntity::Actor {
-                        position,
-                        life,
-                        actor,
-                    });
-                }
-                (255, 155, 87, 255) => {
-                    // CrateOrBarrel
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-
-                    // todo
-                    let (actor, life) = default_random_chest();
-                    entities.push(SpawnEntity::Actor {
-                        position,
-                        actor,
-                        life,
-                    });
-                }
-                (48, 96, 130, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::MagicCircle { position });
-                }
-                (47, 96, 130, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::MultiPlayArenaMagicCircle { position });
-                }
-                (56, 111, 161, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::MagicCircleHome { position });
-                }
-                (46, 96, 130, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::MagicCircleDemoEnding { position });
-                }
-                (255, 0, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entry_points.push((x, y));
-                    entities.push(SpawnEntity::BrokenMagicCircle { position });
-                }
-                (255, 0, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::Usage { position });
-                }
-                (254, 0, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::Routes { position });
-                }
-                (223, 113, 38, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::StoneLantern {
-                        position: tuple_to_vec2((x, y)),
-                    });
-                }
-                (0, 222, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::ShopSpell { position });
-                }
-                (102, 57, 49, 255) => {
-                    // Crate
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    // TODO
-                    let (actor, life) = default_random_chest();
-                    entities.push(SpawnEntity::Actor {
-                        position,
-                        life,
-                        actor,
-                    });
-                }
-                (184, 0, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::HugeSlime {
-                        position,
-                        boss: Some(HUGE_SLIME.to_string()),
-                    });
-                }
-                (255, 243, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::ShopRabbit { position });
-                }
-                (255, 244, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::TrainingRabbit { position });
-                }
-                (255, 245, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::GuideRabbit { position });
-                }
-                (255, 246, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::MultiplayerRabbit { position });
-                }
-                (255, 247, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::SinglePlayRabbit { position });
-                }
-                (255, 248, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::ReadingRabbit { position });
-                }
-                (255, 249, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::SpellListRabbit { position });
-                }
-                (182, 0, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::DefaultActor {
-                        actor_type: ActorType::Sandbag,
-                        actor_group: ActorGroup::Neutral,
-                        position,
-                    });
-                }
-                (197, 255, 142, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::ShopDoor { position });
-                }
-                (68, 0, 94, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: biome_tile,
-                        zone: Zone::SafeZone,
-                    });
-                    entities.push(SpawnEntity::BGM { position });
-                }
-                (153, 229, 80, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Grassland,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (156, 156, 156, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::StoneTile,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (55, 79, 225, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Water,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (205, 121, 54, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Lava,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (43, 43, 43, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Crack,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (222, 233, 255, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Ice,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                (0, 0, 0, 255) => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::PermanentWall,
-                        zone: Zone::SafeZone,
-                    });
-                }
-                _ => {
-                    tiles.push(LevelTileMapile {
-                        tile: Tile::Blank,
-                        zone: Zone::SafeZone,
-                    });
-                    panic!(
-                        "Unknown color: ({}, {}, {}, {}) at ({}, {})",
-                        r, g, b, a, x, y
-                    );
-                }
-            }
+            };
+            tiles.push(tile.clone());
         }
     }
     return LevelChunk {
+        biome: biome_tile,
         tiles,
         min_x,
         max_x,
         min_y,
         max_y,
-        entities,
-        entry_points,
         dirty: None,
     };
 }

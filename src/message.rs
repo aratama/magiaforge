@@ -259,18 +259,3 @@ pub const NEW_SPELL: Dict<&'static str> = Dict {
     ko: "새로운 주문 발견!",
     ru: "Новое заклинание обнаружено!",
 };
-
-// ボス　//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-pub const HUGE_SLIME: Dict<&'static str> = Dict {
-    ja: "スライムの王 エミルス",
-    en: "Slime King Emils",
-    zh_cn: "史莱姆之王 艾米尔斯",
-    zh_tw: "史萊姆之王 艾米爾斯",
-    es: "Rey Slime Emils",
-    fr: "Roi Slime Emils",
-    pt: "Rei Slime Emils",
-    de: "Schleimkönig Emils",
-    ko: "슬라임 왕 에밀스",
-    ru: "Король слизней Эмильс",
-};

@@ -7,6 +7,7 @@ use crate::entity::bullet_particle::SpawnParticle;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::spawn_actor;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -57,7 +58,7 @@ pub fn cast_metamorphosis(
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     se: &mut EventWriter<SEEvent>,
-    spawn: &mut EventWriter<SpawnEntity>,
+    spawn: &mut EventWriter<SpawnEntityEvent>,
 
     original_actor_entity: &Entity,
     original_actor: Actor,
@@ -114,9 +115,11 @@ pub fn cast_metamorphosis(
         original_life,
     });
     se.send(SEEvent::pos(SE::Kyushu2Short, position));
-    spawn.send(SpawnEntity::Particle {
+    spawn.send(SpawnEntityEvent {
         position,
-        spawn: metamorphosis_effect(),
+        entity: SpawnEntity::Particle {
+            spawn: metamorphosis_effect(),
+        },
     });
 
     entity
@@ -126,7 +129,7 @@ fn revert(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Metamorphosed, &Transform, &Actor, &Life)>,
     mut se: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
     time: Res<State<TimeState>>,
 ) {
     if *time == TimeState::Inactive {
@@ -153,14 +156,18 @@ fn revert(
             original_life.life =
                 original_life.life * (life.life as f32 / life.max_life as f32).ceil() as u32;
 
-            spawn.send(SpawnEntity::Actor {
+            spawn.send(SpawnEntityEvent {
                 position,
-                life: original_life,
-                actor: original_actor,
+                entity: SpawnEntity::Actor {
+                    life: original_life,
+                    actor: original_actor,
+                },
             });
-            spawn.send(SpawnEntity::Particle {
+            spawn.send(SpawnEntityEvent {
                 position,
-                spawn: metamorphosis_effect(),
+                entity: SpawnEntity::Particle {
+                    spawn: metamorphosis_effect(),
+                },
             });
             se.send(SEEvent::pos(SE::Kyushu2Short, position));
         }

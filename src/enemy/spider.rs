@@ -15,6 +15,7 @@ use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::registry::*;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
@@ -121,7 +122,7 @@ fn transition(
     registry: Registry,
     mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&registry, &lens.query());
@@ -151,9 +152,11 @@ fn transition(
                     }
                 }
                 State::Approarch(_) => {
-                    spawn.send(SpawnEntity::Web {
+                    spawn.send(SpawnEntityEvent {
                         position: origin,
-                        owner_actor_group: actor.actor_group,
+                        entity: SpawnEntity::Web {
+                            owner_actor_group: actor.actor_group,
+                        },
                     });
                     shadow.state = State::Wait(30 + rand::random::<u32>() % 30);
                 }

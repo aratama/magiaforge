@@ -25,6 +25,7 @@ use crate::entity::servant_seed::ServantType;
 use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -44,7 +45,6 @@ use uuid::Uuid;
 /// SpawnEntityは呪文の種別によって静的に決定し、動的なパラメータを取らないので、
 /// この型もそれぞれフィールドは持ちません
 #[derive(Debug, serde::Deserialize, Clone)]
-#[serde(tag = "type")]
 pub enum SpellCastEntityType {
     BookShelf,
     HugeSlime,
@@ -82,7 +82,6 @@ pub struct SpellCastBullet {
 /// 弾丸系魔法は Bullet にまとめられており、
 /// そのほかの魔法も動作の種別によって分類されています
 #[derive(Debug, serde::Deserialize, Clone)]
-#[serde(tag = "type")]
 pub enum SpellCast {
     None,
     Bullet(SpellCastBullet),
@@ -136,7 +135,7 @@ pub fn cast_spell(
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
     impact: &mut EventWriter<SpawnImpact>,
-    mut spawn: &mut EventWriter<SpawnEntity>,
+    mut spawn: &mut EventWriter<SpawnEntityEvent>,
     // components
     actor_entity: Entity,
     mut actor: &mut Actor,
@@ -294,21 +293,23 @@ pub fn cast_spell(
                     servant_type,
                     servant,
                 } => {
-                    spawn.send(SpawnEntity::Seed {
-                        from: actor_position,
-                        to: actor_position + actor.pointer,
-                        owner: Some(actor_entity),
-                        servant_type,
-                        actor_group: match (actor.actor_group, friend) {
-                            (ActorGroup::Friend, true) => ActorGroup::Friend,
-                            (ActorGroup::Friend, false) => ActorGroup::Enemy,
-                            (ActorGroup::Enemy, true) => ActorGroup::Enemy,
-                            (ActorGroup::Enemy, false) => ActorGroup::Friend,
-                            (ActorGroup::Neutral, _) => ActorGroup::Neutral,
-                            (ActorGroup::Entity, _) => ActorGroup::Neutral,
+                    spawn.send(SpawnEntityEvent {
+                        position: actor_position,
+                        entity: SpawnEntity::Seed {
+                            to: actor_position + actor.pointer,
+                            owner: Some(actor_entity),
+                            servant_type,
+                            actor_group: match (actor.actor_group, friend) {
+                                (ActorGroup::Friend, true) => ActorGroup::Friend,
+                                (ActorGroup::Friend, false) => ActorGroup::Enemy,
+                                (ActorGroup::Enemy, true) => ActorGroup::Enemy,
+                                (ActorGroup::Enemy, false) => ActorGroup::Friend,
+                                (ActorGroup::Neutral, _) => ActorGroup::Neutral,
+                                (ActorGroup::Entity, _) => ActorGroup::Neutral,
+                            },
+                            remote: true,
+                            servant,
                         },
-                        remote: true,
-                        servant,
                     });
                 }
                 SpellCast::Dash => {
@@ -337,7 +338,10 @@ pub fn cast_spell(
                     let angle = actor.pointer.normalize_or_zero().to_angle();
                     let direction = Vec2::from_angle(angle) * 16.0;
                     let position = actor_position + direction;
-                    spawn.send(SpawnEntity::Bomb { position });
+                    spawn.send(SpawnEntityEvent {
+                        position,
+                        entity: SpawnEntity::Bomb,
+                    });
                 }
                 SpellCast::SpawnEntity { ref entity } => {
                     let angle = actor.pointer.normalize_or_zero().to_angle();
@@ -345,25 +349,29 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     match entity {
                         SpellCastEntityType::BookShelf => {
-                            spawn.send(SpawnEntity::DefaultActor {
-                                actor_type: ActorType::BookShelf,
-                                actor_group: ActorGroup::Entity,
+                            spawn.send(SpawnEntityEvent {
                                 position,
+                                entity: SpawnEntity::DefaultActor {
+                                    actor_type: ActorType::BookShelf,
+                                    actor_group: ActorGroup::Entity,
+                                },
                             });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::HugeSlime => {
-                            spawn.send(SpawnEntity::HugeSlime {
+                            spawn.send(SpawnEntityEvent {
                                 position,
-                                boss: None,
+                                entity: SpawnEntity::HugeSlime { boss: None },
                             });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::Jar => {
-                            spawn.send(SpawnEntity::DefaultActor {
-                                actor_type: ActorType::Chest,
-                                actor_group: ActorGroup::Entity,
+                            spawn.send(SpawnEntityEvent {
                                 position,
+                                entity: SpawnEntity::DefaultActor {
+                                    actor_type: ActorType::Chest,
+                                    actor_group: ActorGroup::Entity,
+                                },
                             });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
@@ -377,10 +385,12 @@ pub fn cast_spell(
                 SpellCast::Fireball => {
                     let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                     let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                    spawn.send(SpawnEntity::Fireball {
+                    spawn.send(SpawnEntityEvent {
                         position,
-                        velocity,
-                        actor_group: actor.actor_group,
+                        entity: SpawnEntity::Fireball {
+                            velocity,
+                            actor_group: actor.actor_group,
+                        },
                     });
                 }
                 SpellCast::LightSword => {
@@ -526,12 +536,14 @@ pub fn cast_spell(
         }
 
         for damage in actor.effects.slash.iter() {
-            spawn.send(SpawnEntity::Slash {
+            spawn.send(SpawnEntityEvent {
                 position: actor_position,
-                velocity: actor_velocity.linvel,
-                actor_group: actor.actor_group,
-                angle: actor.pointer.to_angle(),
-                damage: *damage,
+                entity: SpawnEntity::Slash {
+                    velocity: actor_velocity.linvel,
+                    actor_group: actor.actor_group,
+                    angle: actor.pointer.to_angle(),
+                    damage: *damage,
+                },
             });
         }
 

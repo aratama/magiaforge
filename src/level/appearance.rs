@@ -48,6 +48,7 @@ pub fn read_level_chunk_data(
     let slice = level_aseprite.slices.get(level_slice).unwrap();
 
     let chunk = image_to_tilemap(
+        &registry,
         biome_tile,
         &level_image,
         slice.rect.min.x as i32,

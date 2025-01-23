@@ -13,6 +13,7 @@ use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
@@ -255,7 +256,7 @@ fn attack(
         &mut Life,
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&registry, &lens.query());
@@ -276,10 +277,12 @@ fn attack(
                             let actor_position = transform.translation.truncate();
                             let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                             let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                            spawn.send(SpawnEntity::Fireball {
+                            spawn.send(SpawnEntityEvent {
                                 position,
-                                velocity,
-                                actor_group: actor.actor_group,
+                                entity: SpawnEntity::Fireball {
+                                    velocity,
+                                    actor_group: actor.actor_group,
+                                },
                             });
                         }
                     }

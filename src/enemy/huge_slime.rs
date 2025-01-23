@@ -22,6 +22,7 @@ use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::registry::Registry;
 use crate::registry::SenarioRegistry;
 use crate::registry::SenarioType;
@@ -255,7 +256,7 @@ fn update_huge_slime_summon(
         Without<Player>,
     >,
     mut se_writer: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
 ) {
     for (huge_slime_entity, mut huge_slime, transform, mut counter, mut actor) in
         huge_slime_query.iter_mut()
@@ -273,14 +274,16 @@ fn update_huge_slime_summon(
                             let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
                             let offset = Vec2::from_angle(angle) * 30.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
                             let to = player.translation.truncate() + offset;
-                            spawn.send(SpawnEntity::Seed {
-                                from: transform.translation.truncate(),
-                                to,
-                                actor_group: ActorGroup::Enemy,
-                                owner: Some(huge_slime_entity),
-                                servant_type: ServantType::Slime,
-                                remote: false,
-                                servant: false,
+                            spawn.send(SpawnEntityEvent {
+                                position: transform.translation.truncate(),
+                                entity: SpawnEntity::Seed {
+                                    to,
+                                    actor_group: ActorGroup::Enemy,
+                                    owner: Some(huge_slime_entity),
+                                    servant_type: ServantType::Slime,
+                                    remote: false,
+                                    servant: false,
+                                },
                             });
                         }
                     }

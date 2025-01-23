@@ -1,9 +1,8 @@
 SenarioRegistry(
     senarios: {
         "HelloRabbit": [
-            (type: "BGM", bgm: Some("Saihate")),
-            (
-                type: "Speech", 
+            BGM (bgm: Some(Saihate)),
+            Speech (Dict (
                 ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
                 en: "Oh, you are a mage. This is our merchant camp. Visitors are welcome.",
                 zh_cn: "哦，你是一个法师。这是我们的商人营地。欢迎来访。",
@@ -14,9 +13,8 @@ SenarioRegistry(
                 de: "Oh, du bist ein Magier. Dies ist unser Händlerlager. Besucher sind willkommen.",
                 ko: "오, 당신은 마법사군요. 여기는 우리의 상인 캠프입니다. 방문객을 환영합니다.",
                 ru: "О, вы маг. Это наш лагерь торговцев. Посетители приветствуются.",    
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "通りすがりに大鴉に襲われた？それは災難だったね。",
                 en: "You were attacked by a large raven on the way? That's unfortunate.",
                 zh_cn: "你在路上被一只大乌鸦袭击了？那真是不幸。",
@@ -27,9 +25,8 @@ SenarioRegistry(
                 de: "Wurden Sie auf dem Weg hierher von einem großen Raben angegriffen? Das ist bedauerlich.",
                 ko: "여기 오는 길에 큰 까마귀에게 공격당했어? 그것 참 불운하군.",
                 ru: "Тебя по пути сюда атаковал большой ворон? Это неудача.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "おそらくはこの島に住む『漆黒の魔女』の使い魔のしわざだろう。",
                 en: "It is probably the work of the 'Witch of Jet Black' who lives on this island.",
                 zh_cn: "这可能是住在这个岛上的“漆黑女巫”的杰作。",
@@ -40,9 +37,8 @@ SenarioRegistry(
                 de: "Es ist wahrscheinlich das Werk der 'Hexe von Pechschwarz', die auf dieser Insel lebt.",
                 ko: "아마도 이 섬에 사는 '칠흑의 마녀'의 짓일 거야.",
                 ru: "Вероятно, это дело рук 'Ведьмы Черного Яшмы', которая живет на этом острове.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "我々では折れた魔法の箒の修理はできないな。自分で直してもらうしかない。",
                 en: "We can't repair your broken magic broom. You'll have to fix it yourself.",
                 zh_cn: "我们无法修理你破损的魔法扫帚。你得自己修理。",
@@ -53,9 +49,8 @@ SenarioRegistry(
                 de: "Wir können deinen kaputten magischen Besen nicht reparieren. Du musst ihn selbst reparieren.",
                 ko: "우리는 당신의 부러진 마법 빗자루를 고칠 수 없습니다. 당신이 직접 고쳐야 합니다.",
                 ru: "Мы не можем починить вашу сломанную волшебную метлу. Вам придется починить ее самостоятельно."
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "この島の迷宮に行けば、修理の役に立つ呪文があるかもしれない。迷宮の入り口はこの奥だよ。",
                 en: "If you go to the labyrinth on this island, you might find a spell that can help with the repair. The entrance to the labyrinth is further in.",
                 zh_cn: "如果你去这个岛上的迷宫，你可能会找到一个可以帮助修理的咒语。迷宫的入口在里面。",
@@ -66,9 +61,8 @@ SenarioRegistry(
                 de: "Wenn du in das Labyrinth auf dieser Insel gehst, könntest du einen Zauber finden, der bei der Reparatur hilft. Der Eingang zum Labyrinth ist weiter drinnen.",
                 ko: "이 섬의 미로에 가면 수리에 도움이 될 수 있는 주문을 찾을 수 있을 거야. 미로의 입구는 더 안쪽에 있어.",
                 ru: "Если ты пойдешь в лабиринт на этом острове, возможно, найдешь заклинание, которое поможет с ремонтом. Вход в лабиринт находится дальше.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "迷宮に行く前に、ぼくらの店に立ち寄るといい。迷宮で拾った呪文を売っているんだ。",
                 en: "Before going to the labyrinth, you should stop by our shop. We sell spells that we found in the labyrinth.",
                 zh_cn: "在去迷宫之前，你应该先去我们的商店。我们出售在迷宫中找到的咒语。",
@@ -79,11 +73,10 @@ SenarioRegistry(
                 de: "Bevor du in das Labyrinth gehst, solltest du in unserem Laden vorbeischauen. Wir verkaufen Zauber, die wir im Labyrinth gefunden haben.",
                 ko: "미로에 가기 전에 우리 가게에 들르는 것이 좋아. 우리는 미로에서 발견한 주문을 팔고 있어.",
                 ru: "Перед тем как идти в лабиринт, тебе стоит заглянуть в наш магазин. Мы продаем заклинания, которые нашли в лабиринте.",
-            )
+            ))
         ],
         "SingleplayRabbit": [
-            (
-                type: "Speech", 
+            Speech (Dict (
                 ja: "その魔法陣が地下迷宮の入り口だよ。探しものが見つかるよう、幸運を祈るよ。",
                 en: "That magic circle is the entrance to the underground labyrinth. I wish you luck in finding what you're looking for.",
                 zh_cn: "那个魔法阵是地下迷宫的入口。祝你好运找到你要找的东西。",
@@ -94,9 +87,8 @@ SenarioRegistry(
                 de: "Dieser magische Kreis ist der Eingang zum unterirdischen Labyrinth. Ich wünsche dir viel Glück bei der Suche nach dem, was du suchst.",
                 ko: "그 마법진이 지하 미로의 입구야. 찾고 있는 것을 찾기를 바랄게.",
                 ru: "Этот магический круг - вход в подземный лабиринт. Желаю удачи в поисках того, что ты ищешь.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "そうそう、最近迷宮の奥に大きなスライムが現れるようになってね。気を付けたほうがいいよ。",
                 en: "By the way, a huge slime has recently appeared deep in the labyrinth. You should be careful.",
                 zh_cn: "顺便说一下，最近在迷宫深处出现了一个巨大的史莱姆。你应该小心。",
@@ -107,11 +99,10 @@ SenarioRegistry(
                 de: "Übrigens, tief im Labyrinth ist kürzlich ein riesiger Schleim aufgetaucht. Du solltest vorsichtig sein.",
                 ko: "그런데 최근에 미로 깊숙한 곳에 거대한 슬라임이 나타났어. 조심하는 게 좋아.",
                 ru: "Кстати, недавно в глубине лабиринта появился огромный слизень. Тебе следует быть осторожным.",
-            )
+            ))
         ],
         "MultiplayerRabbit": [
-            (
-                type: "Speech", 
+            Speech (Dict (
                 ja: "この先はマルチプレイ用レベルだよ。気軽に遊んでいってね。誰かいるかはわからないけど。",
                 en: "This is a multiplayer level. Feel free to play. I don't know if anyone is here though.",
                 zh_cn: "这是一个多人游戏关卡。随便玩吧。不过我不知道有没有人在这里。",
@@ -122,11 +113,10 @@ SenarioRegistry(
                 de: "Dies ist ein Mehrspieler-Level. Fühlen Sie sich frei zu spielen. Ich weiß jedoch nicht, ob jemand hier ist.",
                 ko: "이곳은 멀티플레이 레벨입니다. 마음껏 플레이하세요. 여기에 누가 있는지는 모르겠어요.",
                 ru: "Это многопользовательский уровень. Играйте на здоровье. Не знаю, есть ли здесь кто-нибудь, правда.",
-            )
+            ))
         ],
         "ReserchRabbit": [
-            (
-                type: "Speech", 
+            Speech (Dict (
                 ja: "昔はこの島にも多くのヒト族がいたらしいが、今は魔法使いが時折訪れるくらいさ。君たち魔法使いはこの地底でいったい何を探しているんだい？",
                 en: "There used to be many humans on this island but now only witches occasionally visit. What are you witches looking for in the depths?",
                 zh_cn: "这个岛上曾经有很多人类，但现在只有女巫偶尔会来访。你们女巫在深处寻找什么？",
@@ -137,9 +127,8 @@ SenarioRegistry(
                 de: "Früher gab es viele Menschen auf dieser Insel, aber jetzt besuchen nur noch gelegentlich Hexen. Was sucht ihr Hexen in den Tiefen?",
                 ko: "예전에는 이 섬에 많은 인간이 있었지만 지금은 가끔 마녀들만 방문해. 너희 마녀들은 깊은 곳에서 무엇을 찾고 있니?",
                 ru: "Раньше на этом острове было много людей, но теперь его изредка посещают только ведьмы. Что вы, ведьмы, ищете в глубинах?",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "ふうん、君は黒髪の魔女を探しているのか。たしか半年ほど前にそんな魔女がキャンプを訪れたな。それが君の探し人かはわからないが。",
                 en: "Hmm, you're looking for a witch with black hair. I remember a witch like that visited the camp about half a year ago. I don't know if that's the person you're looking for.",
                 zh_cn: "嗯，你在找一个黑发女巫。我记得大约半年前有一个这样的女巫来过营地。我不知道那是否是你要找的人。",
@@ -150,9 +139,8 @@ SenarioRegistry(
                 de: "Hmm, du suchst eine Hexe mit schwarzen Haaren. Ich erinnere mich, dass vor etwa einem halben Jahr eine solche Hexe das Lager besucht hat. Ich weiß nicht, ob das die Person ist, die du suchst.",
                 ko: "흠, 검은 머리의 마녀를 찾고 있구나. 약 반년 전에 그런 마녀가 캠프를 방문한 적이 있어. 네가 찾는 사람이 맞는지는 모르겠어.",
                 ru: "Хм, ты ищешь ведьму с черными волосами. Помню, такая ведьма посещала лагерь около полугода назад. Не знаю, та ли это, кого ты ищешь.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "その魔女は迷宮に入っていった。それからはずっと姿を見ていない。まあ迷宮の中を探してみるほかないだろうな。",
                 en: "That witch went into the labyrinth. I haven't seen her since. You'll have to search the labyrinth.",
                 zh_cn: "那个女巫进入了迷宫。从那以后我就没见过她。你得在迷宫里找找。",
@@ -163,9 +151,8 @@ SenarioRegistry(
                 de: "Diese Hexe ging in das Labyrinth. Ich habe sie seitdem nicht mehr gesehen. Du musst im Labyrinth suchen.",
                 ko: "그 마녀는 미로로 들어갔어. 그 이후로 그녀를 본 적이 없어. 미로에서 찾아봐야 할 거야.",
                 ru: "Та ведьма пошла в лабиринт. С тех пор я ее не видел. Тебе придется искать в лабиринте.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "ところで、キャンプにどこからかニワトリが入り込んでいて鬱陶しいな。鳴き声がうるさくて研究に差し支える",
                 en: "By the way, a chicken has somehow gotten into the camp. Its clucking is annoying and it's disturbing my research.",
                 zh_cn: "顺便说一下，一只鸡不知怎么进了营地。它的咯咯叫声很烦人，打扰了我的研究。",
@@ -176,9 +163,8 @@ SenarioRegistry(
                 de: "Übrigens, ein Huhn hat sich irgendwie ins Lager geschlichen. Sein Gackern ist nervig und stört meine Forschung.",
                 ko: "그런데 닭 한 마리가 캠프에 들어왔어. 그 울음소리가 짜증나고 내 연구를 방해하고 있어.",
                 ru: "Кстати, в лагерь как-то пробралась курица. Ее кудахтанье раздражает и мешает моим исследованиям.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "ぼくらがニワトリを飼っているわけじゃない。あいつらはぼくらの食料を狙って勝手に入り込んでいるんだ。",
                 en: "We don't keep chickens. They sneak in to steal our food.",
                 zh_cn: "我们不养鸡。它们偷偷进来偷我们的食物。",
@@ -189,9 +175,8 @@ SenarioRegistry(
                 de: "Wir halten keine Hühner. Sie schleichen sich ein, um unser Essen zu stehlen.",
                 ko: "우리는 닭을 키우지 않아. 그들은 우리의 음식을 훔치기 위해 몰래 들어와.",
                 ru: "Мы не держим кур. Они проникают, чтобы украсть нашу еду.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "ぼくらはニワトリなんて食べないよ。むしろニワトリがぼくらを食べようとしてるのさ。",
                 en: "We don't eat chickens. Rather, the chickens are trying to eat us.",
                 zh_cn: "我们不吃鸡。相反，鸡在试图吃我们。",
@@ -202,11 +187,10 @@ SenarioRegistry(
                 de: "Wir essen keine Hühner. Vielmehr versuchen die Hühner, uns zu essen.",
                 ko: "우리는 닭을 먹지 않아. 오히려 닭들이 우리를 먹으려고 해.",
                 ru: "Мы не едим кур. Скорее, куры пытаются съесть нас.",
-            )
+            ))
         ],
         "TrainingRabbit": [
-            (
-                type: "Speech", 
+            Speech (Dict (
                 ja: "キミも強くなりたいのかい？ここで練習していくといい。サンドバッグくんたちが相手になってくれる。",
                 en: "Do you want to become stronger too? You can practice here. The sandbags will be your opponents.",
                 zh_cn: "你也想变得更强吗？你可以在这里练习。沙袋会成为你的对手。",
@@ -217,9 +201,8 @@ SenarioRegistry(
                 de: "Willst du auch stärker werden? Du kannst hier üben. Die Sandsäcke werden deine Gegner sein.",
                 ko: "너도 강해지고 싶니? 여기서 연습할 수 있어. 샌드백이 네 상대가 될 거야.",
                 ru: "Ты тоже хочешь стать сильнее? Ты можешь тренироваться здесь. Мешки с песком будут твоими противниками.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "魔法使いはジャンプするのにも魔法を使うそうだね。よかったら左手の訓練所でジャンプの練習をするといい。",
                 en: "I heard that witches use magic even to jump. You should practice jumping at the training ground on the left.",
                 zh_cn: "我听说女巫甚至用魔法跳跃。你应该在左边的训练场练习跳跃。",
@@ -230,13 +213,11 @@ SenarioRegistry(
                 de: "Ich habe gehört, dass Hexen sogar Magie zum Springen verwenden. Du solltest das Springen auf dem Trainingsgelände links üben.",
                 ko: "마녀들은 점프할 때도 마법을 사용한다고 들었어. 왼쪽 훈련장에서 점프 연습을 해보는 게 좋을 거야.",
                 ru: "Я слышал, что ведьмы используют магию даже для прыжков. Тебе стоит попрактиковаться в прыжках на тренировочной площадке слева.",
-            ),
-            (
-                type: "OnNewSpell",
-                spell: "Jump",
+            )),
+            OnNewSpell (
+                spell: Jump,
                 commands_then: [
-                    (
-                        type: "Speech", 
+                    Speech (Dict (
                         ja: "そうそう、魔法使いはみんな体術が苦手だよね。この呪文を君にあげるよ。",
                         en: "All witches are bad at physical techniques. Here, take this spell.",
                         zh_cn: "所有女巫都不擅长体术。给你这个咒语。",
@@ -247,9 +228,8 @@ SenarioRegistry(
                         de: "Alle Hexen sind schlecht in körperlichen Techniken. Hier, nimm diesen Zauber.",
                         ko: "모든 마녀들은 신체 기술에 서툴러. 여기, 이 주문을 받아.",
                         ru: "Все ведьмы плохо владеют физическими техниками. Вот, возьми это заклинание.",
-                    ),
-                    (
-                        type: "Speech", 
+                    )),
+                    Speech (Dict (
                         ja: "この隣のジャンプ鍛錬場で試してみるといい。穴に落ちないように気を付けて。",
                         en: "Try it out at the jump training ground next door. Be careful not to fall into the holes.",
                         zh_cn: "在隔壁的跳跃训练场试试吧。小心不要掉进洞里。",
@@ -260,13 +240,12 @@ SenarioRegistry(
                         de: "Probier es auf dem Sprungtrainingsplatz nebenan aus. Pass auf, dass du nicht in die Löcher fällst.",
                         ko: "옆의 점프 훈련장에서 시도해봐. 구멍에 빠지지 않도록 조심해.",
                         ru: "Попробуй на тренировочной площадке для прыжков рядом. Будь осторожен, чтобы не упасть в ямы.",
-                    ),
-                    ( type: "Close" ),
-                    ( type: "GetSpell", spell: "Jump" ),
+                    )),
+                    Close,
+                    GetSpell (spell: Jump),
                 ],
                 commands_else: [
-                    (
-                        type: "Speech", 
+                    Speech (Dict (
                         ja: "ところで最近、地下迷宮にとても大きなスライムが現れてね。大暴れして困っているんだ。",
                         en: "Lately, a huge slime has appeared in the labyrinth. It's causing a lot of trouble.",
                         zh_cn: "最近，一个巨大的史莱姆出现在迷宫里。它造成了很多麻烦。",
@@ -277,9 +256,8 @@ SenarioRegistry(
                         de: "In letzter Zeit ist ein riesiger Schleim im Labyrinth aufgetaucht. Es verursacht viele Probleme.",
                         ko: "최근에 미로에 거대한 슬라임이 나타났어. 많은 문제를 일으키고 있어.",
                         ru: "В последнее время в лабиринте появился огромный слизень. Он вызывает много проблем.",
-                    ),
-                    (
-                        type: "Speech", 
+                    )),
+                    Speech (Dict (
                         ja: "なにしろぼくらは地下迷宮で遺物を拾って生計を立てているからね。あんなのがうろついていたら落ち着いて探索もできやしない。",
                         en: "After all, we make a living by picking up relics in the labyrinth. If such a thing is wandering around, we can't explore calmly.",
                         zh_cn: "毕竟，我们是靠在迷宫里捡遗物谋生的。如果这样的东西四处游荡，我们就无法平静地探索。",
@@ -290,9 +268,8 @@ SenarioRegistry(
                         de: "Schließlich verdienen wir unseren Lebensunterhalt, indem wir Relikte im Labyrinth aufsammeln. Wenn so etwas herumwandert, können wir nicht ruhig erkunden.",
                         ko: "결국 우리는 미로에서 유물을 주워 생계를 유지해. 그런 것이 돌아다니면 우리는 차분하게 탐험할 수 없어.",
                         ru: "В конце концов, мы зарабатываем на жизнь, собирая реликвии в лабиринте. Если такое существо будет бродить вокруг, мы не сможем спокойно исследовать.",
-                    ),
-                    (
-                        type: "Speech", 
+                    )),
+                    Speech (Dict (
                         ja: "あなたがあのスライムを討伐してくれたら、とても助かるんだけど。",
                         en: "If you could defeat that slime, I would be very grateful.",
                         zh_cn: "如果你能打败那个史莱姆，我会非常感激。",
@@ -303,9 +280,8 @@ SenarioRegistry(
                         de: "Wenn du diesen Schleim besiegen könntest, wäre ich dir sehr dankbar.",
                         ko: "네가 그 슬라임을 물리쳐 준다면 정말 고마울 거야.",
                         ru: "Если бы ты мог победить этого слизня, я был бы очень благодарен.",
-                    ),
-                    (
-                        type: "Speech", 
+                    )),
+                    Speech (Dict (
                         ja: "その大きなスライムは体当たりで攻撃してくるが、足が早ければ逃げるのは難しくない。",
                         en: "The huge slime attacks with a body blow, but if you have fast legs, it's not hard to escape.",
                         zh_cn: "巨大的史莱姆会用身体冲击攻击，但如果你的腿很快",
@@ -316,9 +292,8 @@ SenarioRegistry(
                         de: "Der riesige Schleim greift mit einem Körperstoß an, aber wenn du schnelle Beine hast, ist es nicht schwer zu entkommen.",
                         ko: "거대한 슬라임은 몸통 박치기로 공격하지만, 다리가 빠르면 도망치는 것은 어렵지 않아.",
                         ru: "Огромный слизень атакует телесным ударом, но если у тебя быстрые ноги, убежать несложно.",
-                    ),
-                    (
-                        type: "Speech", 
+                    )),
+                    Speech (Dict (
                         ja: "それと、あいつは仲間の小さなスライムを呼び寄せるんだ。囲まれると逃げ道を失う。周囲のスライムは素早く倒したほうがいい。",
                         en: "And it calls small slimes to its side. If you are surrounded, you will lose your escape route. It's better to defeat the surrounding slimes quickly.",
                         zh_cn: "它会召唤小史莱姆来帮忙。如果你被包围，你就会失去逃跑的路线。最好快速击败周围的史莱姆。",
@@ -329,13 +304,12 @@ SenarioRegistry(
                         de: "Und es ruft kleine Schleime zu sich. Wenn du umzingelt bist, verlierst du deinen Fluchtweg. Es ist besser, die umliegenden Schleime schnell zu besiegen.",
                         ko: "그리고 작은 슬라임들을 불러들여. 둘러싸이면 도망갈 길을 잃게 돼. 주변의 슬라임들을 빨리 물리치는 것이 좋아.",
                         ru: "И он зовет к себе маленьких слизней. Если ты окажешься окружен, ты потеряешь путь к бегству. Лучше быстро победить окружающих слизней.",
-                    ),
+                    )),
                 ]
             )
         ],
         "SpellListRabbit": [
-            (
-                type: "Speech", 
+            Speech (Dict (
                 ja: "私は魔法使いたちの操る呪文に興味があってね。君の知っている呪文について教えてくれないか？",
                 en: "I'm interested in the spells cast by witches. Can you tell me about the spells you know?",
                 zh_cn: "我对女巫施展的咒语很感兴趣。你能告诉我你所知道的咒语吗？",
@@ -346,9 +320,8 @@ SenarioRegistry(
                 de: "Ich interessiere mich für die Zauber, die Hexen wirken. Kannst du mir von den Zaubern erzählen, die du kennst?",
                 ko: "나는 마녀들이 사용하는 주문에 관심이 있어. 네가 알고 있는 주문에 대해 말해줄 수 있니?",
                 ru: "Меня интересуют заклинания, которые используют ведьмы. Можешь рассказать мне о заклинаниях, которые ты знаешь?",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "……ふうむ、実に興味深い。もし新たな魔法を見つけたらぜひ教えてくれ。",
                 en: "Hmmmm, very interesting. Please let me know if you find a new spell.",
                 zh_cn: "嗯嗯，非常有趣。如果您发现新咒语，请告诉我。",
@@ -359,9 +332,8 @@ SenarioRegistry(
                 de: "Hmmmm, sehr interessant. Bitte lass mich wissen, wenn du einen neuen Zauber findest.",
                 ko: "음, 매우 흥미로워. 새로운 주문을 발견하면 꼭 알려줘.",
                 ru: "Хммм, очень интересно. Пожалуйста, сообщи мне, если найдешь новое заклинание.",
-            ),
-            (
-                type: "Speech", 
+            )),
+            Speech (Dict (
                 ja: "皆にもその呪文を集めるよう伝えておこう。次からその呪文が店にも並ぶようになるはずだ。",
                 en: "I'll tell everyone to collect that spells. It should be available in the shop from now on.",
                 zh_cn: "我会告诉大家收集咒语。从现在开始，它应该可以在商店里买到。",
@@ -372,69 +344,65 @@ SenarioRegistry(
                 de: "Ich werde allen sagen, dass sie diese Zauber sammeln sollen. Sie sollten ab jetzt im Laden erhältlich sein.",
                 ko: "모두에게 그 주문을 모으라고 말할게. 이제부터 그 주문이 가게에 있을 거야.",
                 ru: "Я скажу всем собирать эти заклинания. Они должны быть доступны в магазине с этого момента.",
-            )
+            ))
         ],
         "HugeSlime": [
-            (type: "BGM", bgm: None),
-            (type: "Shake", value: 6.0),
-            (type: "SE", se: "Kaminari"),
-            (
-                type: "Flash",
-                position: (type: "Var", value: "position"),
+            BGM (bgm: None),
+            Shake (value: 6.0),
+            SE (se: Kaminari),
+            Flash (
+                position: Var (value: "position"),
                 intensity: 10.0,
                 radius: 480.0,
                 duration: 10,
                 reverse: false,
             ),
-            (type: "Wait", count: 60),
-            (type: "Shake", value: 6.0),
-            (type: "SE", se: "Kaminari" ),
-            (type: "Flash",
-                position: (type: "Var", value: "position"),
+            Wait (count: 60),
+            Shake ( value: 6.0),
+            SE (se: Kaminari),
+            Flash (
+                position: Var (value: "position"),
                 intensity: 10.0,
                 radius: 480.0,
                 duration: 10,
                 reverse: false,
             ),
-            (type: "Wait", count: 180),
-            (type: "ShakeStart", value: Some(6.0)),
-            (type: "SE", se: "Jishin"),
-            (
-                type: "Flash",
-                position: (type: "Var", value: "position"),
+            Wait (count: 180),
+            ShakeStart (value: Some(6.0)),
+            SE (se: Jishin),
+            Flash (
+                position: Var (value: "position"),
                 intensity: 10.0,
                 radius: 240.0,
                 duration: 240,
                 reverse: true,
             ),
-            (type: "Wait", count: 240),
-            (type: "SE", se: "Kaminari"),
-            (
-                type: "Flash",
-                position: (type: "Var", value: "position"),
+            Wait (count: 240),
+            SE (se: Kaminari),
+            Flash (
+                position: Var (value: "position"),
                 intensity: 10.0,
                 radius: 240.0,
                 duration: 240,
                 reverse: false,
             ),
-            (type: "Despawn", name: "huge slime"),
-            (type: "ShakeStart", count: None),
-            (type: "Wait", count: 240),
-            (
-                type: "SetTile",
+            Despawn (name: "huge slime"),
+            ShakeStart (count: None),
+            Wait (count: 240),
+            SetTile (
                 x: 23,
                 y: 153,
                 w: 3,
                 h: 5,
-                tile: "StoneTile",
+                tile: StoneTile,
             ),
-            (type: "SE", se: "Break"),
-            (type: "SpawnRaven", name: "raven", position: (392.0, -2504.0,)),
-            (type: "Wait", count: 120),
-            (type: "SetCameraTarget", name: Some("raven")),
-            (type: "Wait", count: 120),
-            (type: "SetCameraTarget", name: None),
-            (type: "Despawn", name: "raven")
+            SE (se: Break),
+            SpawnRaven (name: "raven", position: (392.0, -2504.0,)),
+            Wait (count: 120),
+            SetCameraTarget (name: Some("raven")),
+            Wait (count: 120),
+            SetCameraTarget (name: None),
+            Despawn (name: "raven")
         ]
     }
 )

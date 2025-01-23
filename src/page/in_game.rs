@@ -21,6 +21,7 @@ use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::level::entities::SpawnWitchType;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::index_to_position;
@@ -114,7 +115,7 @@ pub fn setup_level(
     images: Res<Assets<Image>>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
     mut next: ResMut<NextState<GameMenuState>>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
@@ -176,18 +177,16 @@ pub fn setup_level(
 
     // エントリーポイントを選択
     // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
-    let entry_point = chunk
-        .entry_points
-        .choose(&mut rng)
-        .expect("No entrypoint found");
+    let entry_points = chunk.entry_points();
+    let entry_point = entry_points.choose(&mut rng).expect("No entrypoint found");
 
     let mut player_state = current
         .next_state
         .clone()
         .unwrap_or(if cfg!(feature = "item") {
             PlayerState {
-                inventory: Inventory::from_vec(registry.game().debug_items.clone()),
-                wands: Wand::from_vec(registry.game().debug_wands.clone()),
+                inventory: Inventory::from_vec(registry.spell().debug_items.clone()),
+                wands: Wand::from_vec(registry.spell().debug_wands.clone()),
                 ..default()
             }
         } else {
@@ -207,8 +206,16 @@ pub fn setup_level(
     spawn_wall_collisions(&mut commands, &chunk);
 
     // 宝箱や灯篭などのエンティティを生成します
-    for entity in &chunk.entities {
-        spawn.send(entity.clone());
+    for y in chunk.min_y..chunk.max_y {
+        for x in chunk.min_x..chunk.max_x {
+            let tile = chunk.get_level_tile(x, y);
+            if let Some(ref entity) = tile.entity {
+                spawn.send(SpawnEntityEvent {
+                    position: index_to_position((x, y)),
+                    entity: entity.clone(),
+                });
+            }
+        }
     }
 
     // 空間
@@ -242,10 +249,12 @@ pub fn setup_level(
     if level == GameLevel::Level(0) {
         for _ in 0..5 {
             if let Some((x, y)) = empties.choose(&mut rng) {
-                spawn.send(SpawnEntity::DefaultActor {
-                    actor_type: ActorType::Chicken,
-                    actor_group: ActorGroup::Neutral,
+                spawn.send(SpawnEntityEvent {
                     position: index_to_position((*x, *y)),
+                    entity: SpawnEntity::DefaultActor {
+                        actor_type: ActorType::Chicken,
+                        actor_group: ActorGroup::Neutral,
+                    },
                 });
             }
         }
@@ -264,27 +273,29 @@ pub fn setup_level(
     setup_camera(&mut commands, Vec2::new(player_x, player_y));
 
     // プレイヤーキャラクターの魔法使いを生成
-    spawn.send(SpawnEntity::Actor {
+    spawn.send(SpawnEntityEvent {
         position: Vec2::new(player_x, player_y),
-        life: Life {
-            life: player_state.life,
-            max_life: player_state.max_life,
-            amplitude: 0.0,
-            fire_damage_wait: 0,
-        },
-        actor: Actor {
-            actor_group: ActorGroup::Friend,
-            wands: player_state.wands,
-            inventory: player_state.inventory,
-            current_wand: player_state.current_wand,
-            golds: player_state.golds,
-            extra: ActorExtra::Witch {
-                witch_type: SpawnWitchType::Player,
-                getting_up: getting_up_animation,
-                name: player_state.name,
-                discovered_spells: player_state.discovered_spells,
+        entity: SpawnEntity::Actor {
+            life: Life {
+                life: player_state.life,
+                max_life: player_state.max_life,
+                amplitude: 0.0,
+                fire_damage_wait: 0,
             },
-            ..default()
+            actor: Actor {
+                actor_group: ActorGroup::Friend,
+                wands: player_state.wands,
+                inventory: player_state.inventory,
+                current_wand: player_state.current_wand,
+                golds: player_state.golds,
+                extra: ActorExtra::Witch {
+                    witch_type: SpawnWitchType::Player,
+                    getting_up: getting_up_animation,
+                    name: player_state.name,
+                    discovered_spells: player_state.discovered_spells,
+                },
+                ..default()
+            },
         },
     });
 
@@ -336,7 +347,7 @@ fn spawn_random_enemies(
     safe_zone_center: (i32, i32),
     spaw_enemy_count: u8,
     enemy_types: &Vec<ActorType>,
-    spawn: &mut EventWriter<SpawnEntity>,
+    spawn: &mut EventWriter<SpawnEntityEvent>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -362,10 +373,12 @@ fn spawn_random_enemies(
 
         match enemy_types.choose(&mut rng) {
             Some(enemy_type) => {
-                spawn.send(SpawnEntity::DefaultActor {
-                    actor_type: *enemy_type,
-                    actor_group: ActorGroup::Enemy,
+                spawn.send(SpawnEntityEvent {
                     position,
+                    entity: SpawnEntity::DefaultActor {
+                        actor_type: *enemy_type,
+                        actor_group: ActorGroup::Enemy,
+                    },
                 });
             }
             None => {
@@ -500,7 +513,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEntity>();
+        app.add_event::<SpawnEntityEvent>();
         app.add_systems(FixedUpdate, spawn_entity.in_set(FixedUpdateGameActiveSet));
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);

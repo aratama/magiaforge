@@ -10,6 +10,7 @@ use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::level::collision::WallCollider;
 use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::physics::identify_single;
@@ -80,7 +81,6 @@ pub enum Trigger {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type")]
 pub enum BulletImage {
     Slice { names: Vec<String> },
     Freeze,
@@ -296,7 +296,7 @@ fn bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut actor_event: EventWriter<ActorEvent>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
     mut se: EventWriter<SEEvent>,
     mut actor_query: Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
     bullet_query: Query<(&Bullet, &Transform, &Velocity)>,
@@ -339,9 +339,11 @@ fn bullet_collision(
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
 
-                spawn.send(SpawnEntity::Particle {
+                spawn.send(SpawnEntityEvent {
                     position: bullet_position,
-                    spawn: SpawnParticle::default(),
+                    entity: SpawnEntity::Particle {
+                        spawn: SpawnParticle::default(),
+                    },
                 });
 
                 // TODO
@@ -369,19 +371,23 @@ fn bullet_collision(
                 });
 
                 if bullet.web {
-                    spawn.send(SpawnEntity::Web {
+                    spawn.send(SpawnEntityEvent {
                         position: bullet_position,
-                        owner_actor_group: bullet.actor_group,
+                        entity: SpawnEntity::Web {
+                            owner_actor_group: bullet.actor_group,
+                        },
                     });
                 }
 
                 if let Some(damage) = bullet.slash {
-                    spawn.send(SpawnEntity::Slash {
+                    spawn.send(SpawnEntityEvent {
                         position: bullet_position,
-                        velocity: Vec2::ZERO,
-                        actor_group: bullet.actor_group,
-                        angle: bullet_velocity.linvel.to_angle(),
-                        damage,
+                        entity: SpawnEntity::Slash {
+                            velocity: Vec2::ZERO,
+                            actor_group: bullet.actor_group,
+                            angle: bullet_velocity.linvel.to_angle(),
+                            damage,
+                        },
                     });
                 }
             }
@@ -389,9 +395,11 @@ fn bullet_collision(
             despawnings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
 
-            spawn.send(SpawnEntity::Particle {
+            spawn.send(SpawnEntityEvent {
                 position: bullet_position,
-                spawn: SpawnParticle::default(),
+                entity: SpawnEntity::Particle {
+                    spawn: SpawnParticle::default(),
+                },
             });
             actor_event.send(ActorEvent::Damaged {
                 actor: other_entity,
@@ -405,9 +413,11 @@ fn bullet_collision(
             });
 
             if bullet.web {
-                spawn.send(SpawnEntity::Web {
+                spawn.send(SpawnEntityEvent {
                     position: bullet_position,
-                    owner_actor_group: bullet.actor_group,
+                    entity: SpawnEntity::Web {
+                        owner_actor_group: bullet.actor_group,
+                    },
                 });
             }
         } else {
@@ -416,9 +426,11 @@ fn bullet_collision(
             despawnings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
 
-            spawn.send(SpawnEntity::Particle {
+            spawn.send(SpawnEntityEvent {
                 position: bullet_position,
-                spawn: SpawnParticle::default(),
+                entity: SpawnEntity::Particle {
+                    spawn: SpawnParticle::default(),
+                },
             });
             se.send(SEEvent::pos(
                 if wall_collider_query.contains(other_entity) {
@@ -430,9 +442,11 @@ fn bullet_collision(
             ));
 
             if bullet.web {
-                spawn.send(SpawnEntity::Web {
+                spawn.send(SpawnEntityEvent {
                     position: bullet_position,
-                    owner_actor_group: bullet.actor_group,
+                    entity: SpawnEntity::Web {
+                        owner_actor_group: bullet.actor_group,
+                    },
                 });
             }
         }

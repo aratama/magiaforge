@@ -7,7 +7,7 @@ use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::add_default_behavior;
-use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -19,11 +19,12 @@ use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::QueryFilter;
+use serde::Deserialize;
 
 /// 木箱やトーチなどの破壊可能なオブジェクトを表すコンポーネントです
 /// 弾丸は Breakable コンポーネントを持つエンティティに対してダメージを与えます
 /// ただし、ライフがゼロになってもこのコンポーネント自身は自動でdespawnしません
-#[derive(Default, Component, Reflect, Clone, Debug)]
+#[derive(Default, Component, Reflect, Clone, Debug, Deserialize)]
 pub struct Life {
     /// 破壊可能なオブジェクトのライフ
     pub life: u32,
@@ -131,7 +132,7 @@ fn damage(
     mut commands: Commands,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
     mut query: Query<(
         &mut Life,
         &Transform,

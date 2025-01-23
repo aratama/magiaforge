@@ -3,6 +3,7 @@ use crate::asset::GameAssets;
 use crate::entity::blood::Blood;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
+use crate::level::map::LevelTile;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::spell::SpellProps;
@@ -17,6 +18,7 @@ pub struct SpellRegistry {
     pub spells: HashMap<String, SpellProps>,
     pub levels: Vec<LevelProps>,
     pub arena: LevelProps,
+    pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
     pub debug_items: Vec<SpellType>,
     pub debug_wands: Vec<Vec<Option<SpellType>>>,
 }
@@ -82,17 +84,19 @@ pub struct SenarioRegistry {
 }
 
 /// アセットの config.*.ron から読み取る設定を取得するシステムパラメータです
+/// また、GameAssets も参照できます
+/// この構造体がゲーム内から変更されることはありません
 #[derive(SystemParam)]
 pub struct Registry<'w> {
     pub assets: Res<'w, GameAssets>,
-    game: Res<'w, Assets<SpellRegistry>>,
+    spell: Res<'w, Assets<SpellRegistry>>,
     actor: Res<'w, Assets<ActorRegistry>>,
     senario: Res<'w, Assets<SenarioRegistry>>,
 }
 
 impl<'w> Registry<'w> {
-    pub fn game(&self) -> &SpellRegistry {
-        self.game.get(&self.assets.spell_registry).unwrap()
+    pub fn spell(&self) -> &SpellRegistry {
+        self.spell.get(&self.assets.spell_registry).unwrap()
     }
 
     #[allow(dead_code)]
@@ -114,12 +118,12 @@ impl<'w> Registry<'w> {
     }
 
     pub fn get_spell_props(&self, spell_type: SpellType) -> &SpellProps {
-        let constants = self.game.get(&self.assets.spell_registry).unwrap();
+        let constants = self.spell.get(&self.assets.spell_registry).unwrap();
         &constants.spells.get(&format!("{:?}", spell_type)).unwrap()
     }
 
     pub fn get_level_props(&self, level: GameLevel) -> &LevelProps {
-        let constants = self.game.get(&self.assets.spell_registry).unwrap();
+        let constants = self.spell.get(&self.assets.spell_registry).unwrap();
         match level {
             GameLevel::Level(l) => constants.levels.get(l as usize).unwrap(),
             GameLevel::MultiPlayArena => &constants.arena,

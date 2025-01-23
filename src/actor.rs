@@ -42,7 +42,7 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
-use crate::level::entities::SpawnEntity;
+use crate::level::entities::SpawnEntityEvent;
 use crate::level::entities::SpawnWitchType;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -98,7 +98,7 @@ pub enum ActorType {
     Rabbit,
 }
 
-#[derive(Reflect, Clone, Default, Debug)]
+#[derive(Reflect, Clone, Default, Debug, Deserialize)]
 pub struct CastEffects {
     // pub queue: Vec,
     pub bullet_speed_buff_factor: f32,
@@ -121,7 +121,7 @@ pub struct CastEffects {
     pub slash: Vec<u32>,
 }
 
-#[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum ActorState {
     #[default]
     Idle,
@@ -138,7 +138,7 @@ pub enum ActorState {
 /// stateをActorState::Runに設定すると move_direction の方向に移動します
 /// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
 ///
-#[derive(Component, Reflect, Debug, Clone)]
+#[derive(Component, Reflect, Debug, Clone, Deserialize)]
 #[require(Vertical)]
 pub struct Actor {
     /// このアクターの種族を表すとともに、種族特有の情報を格納します
@@ -240,7 +240,7 @@ impl Actor {
 }
 
 /// Actorで種族固有の部分を格納します
-#[derive(Clone, Debug, Reflect)]
+#[derive(Clone, Debug, Reflect, Deserialize)]
 pub enum ActorExtra {
     Witch {
         witch_type: SpawnWitchType,
@@ -481,7 +481,7 @@ impl Default for Actor {
     }
 }
 
-#[derive(Reflect, Debug, PartialEq, Clone, Copy)]
+#[derive(Reflect, Debug, PartialEq, Clone, Copy, Deserialize)]
 pub enum ActorFireState {
     Idle,
 
@@ -635,7 +635,7 @@ fn fire_bullet(
     mut remote_writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SEEvent>,
     mut impact_writer: EventWriter<SpawnImpact>,
-    mut spawn: EventWriter<SpawnEntity>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;

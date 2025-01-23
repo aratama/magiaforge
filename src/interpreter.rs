@@ -33,7 +33,6 @@ use std::collections::HashMap;
 const DELAY: usize = 4;
 
 #[derive(Debug, Clone, serde::Deserialize)]
-#[serde(tag = "type")]
 pub enum Cmd {
     Set {
         name: String,
@@ -132,7 +131,6 @@ pub enum Cmd {
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
-#[serde(tag = "type")]
 pub enum Expr {
     Vec2 { x: f32, y: f32 },
     String { value: String },
@@ -140,7 +138,6 @@ pub enum Expr {
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
-#[serde(tag = "type")]
 pub enum Value {
     Vec2 { x: f32, y: f32 },
     String { value: String },

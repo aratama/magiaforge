@@ -2,6 +2,7 @@ use crate::constant::PARTICLE_LAYER_Z;
 use crate::states::GameState;
 use crate::states::TimeState;
 use bevy::prelude::*;
+use serde::Deserialize;
 use std::f32::consts::PI;
 
 #[derive(Resource)]
@@ -26,7 +27,7 @@ fn setup_bullet(
     commands.insert_resource(BulletParticleResource { shape, material });
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct SpawnParticle {
     pub scale: f32,
     pub count: u16,

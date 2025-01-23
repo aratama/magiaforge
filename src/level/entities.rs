@@ -1,5 +1,9 @@
 use crate::actor::book_shelf::spawn_book_shelf;
+use crate::actor::chest::chest_actor;
+use crate::actor::chest::default_random_chest;
 use crate::actor::chest::spawn_chest;
+use crate::actor::chest::ChestItem;
+use crate::actor::chest::ChestType;
 use crate::actor::chicken::spawn_chiken;
 use crate::actor::chicken::Chicken;
 use crate::actor::get_default_actor;
@@ -51,94 +55,67 @@ use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
+use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
+use crate::spell::SpellType;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
+use serde::Deserialize;
 
-#[derive(Event, Clone, Debug)]
+/// レベル生成時にタイルマップから生成されるエンティティです
+/// シリアライズ可能です
+#[derive(Clone, Debug, Deserialize)]
 pub enum SpawnEntity {
     // 施設
-    MagicCircle {
-        position: Vec2,
-    },
-    MagicCircleHome {
-        position: Vec2,
-    },
-    MultiPlayArenaMagicCircle {
-        position: Vec2,
-    },
-    MagicCircleDemoEnding {
-        position: Vec2,
-    },
-    BrokenMagicCircle {
-        position: Vec2,
-    },
-    Usage {
-        position: Vec2,
-    },
-    Routes {
-        position: Vec2,
-    },
-    ShopSpell {
-        position: Vec2,
-    },
-    ShopDoor {
-        position: Vec2,
-    },
-    BGM {
-        position: Vec2,
-    },
+    MagicCircle,
+    MagicCircleHome,
+    MultiPlayArenaMagicCircle,
+    MagicCircleDemoEnding,
+    BrokenMagicCircle,
+    Usage,
+    Routes,
+    ShopSpell,
+    ShopDoor,
+    BGM,
+    RandomChest,
 
     // ウサギ
-    ShopRabbit {
-        position: Vec2,
-    },
-    TrainingRabbit {
-        position: Vec2,
-    },
-    GuideRabbit {
-        position: Vec2,
-    },
-    SinglePlayRabbit {
-        position: Vec2,
-    },
-    MultiplayerRabbit {
-        position: Vec2,
-    },
-    ReadingRabbit {
-        position: Vec2,
-    },
-    SpellListRabbit {
-        position: Vec2,
-    },
+    ShopRabbit,
+    TrainingRabbit,
+    GuideRabbit,
+    SinglePlayRabbit,
+    MultiplayerRabbit,
+    ReadingRabbit,
+    SpellListRabbit,
 
     // 魔法で生成されるもの
-    StoneLantern {
-        position: Vec2,
+    StoneLantern,
+    Bomb,
+
+    SpellInChest {
+        spell: SpellType,
+    },
+    DefaultActor {
+        actor_type: ActorType,
+        actor_group: ActorGroup,
     },
     HugeSlime {
-        position: Vec2,
         boss: Option<Dict<String>>,
     },
-    Bomb {
-        position: Vec2,
-    },
     Fireball {
-        position: Vec2,
         velocity: Vec2,
         actor_group: ActorGroup,
     },
-
     Seed {
-        from: Vec2,
         to: Vec2,
         actor_group: ActorGroup,
         owner: Option<Entity>,
@@ -146,40 +123,33 @@ pub enum SpawnEntity {
         remote: bool,
         servant: bool,
     },
-
-    DefaultActor {
-        actor_type: ActorType,
-        actor_group: ActorGroup,
-        position: Vec2,
-    },
-
-    /// 変化の復帰のときなどに使います
-    Actor {
-        position: Vec2,
-        life: Life,
-        actor: Actor,
-    },
-
     Web {
-        position: Vec2,
         owner_actor_group: ActorGroup,
     },
-
     Particle {
-        position: Vec2,
         spawn: SpawnParticle,
     },
-
     Slash {
-        position: Vec2,
         velocity: Vec2,
         actor_group: ActorGroup,
         angle: f32,
         damage: u32,
     },
+    /// 変化の復帰のときなどに使います
+    /// Actorはシリアライズ不可能なので
+    Actor {
+        life: Life,
+        actor: Actor,
+    },
 }
 
-#[derive(Clone, Debug, Reflect)]
+#[derive(Event, Clone, Debug)]
+pub struct SpawnEntityEvent {
+    pub position: Vec2,
+    pub entity: SpawnEntity,
+}
+
+#[derive(Clone, Debug, Reflect, Deserialize)]
 pub enum SpawnWitchType {
     Player,
 
@@ -194,7 +164,7 @@ pub fn spawn_entity(
     mut setup: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
     mut se: EventWriter<SEEvent>,
-    mut reader: EventReader<SpawnEntity>,
+    mut reader: EventReader<SpawnEntityEvent>,
     mut client_message_writer: EventWriter<ClientMessage>,
     mut actor_event: EventWriter<ActorEvent>,
     websocket: Res<WebSocketState>,
@@ -202,7 +172,7 @@ pub fn spawn_entity(
     life_query: Query<&Transform, With<Life>>,
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
 ) {
-    for event in reader.read() {
+    for SpawnEntityEvent { position, entity } in reader.read() {
         if setup.shop_items.is_empty() {
             setup.shop_items = new_shop_item_queue(
                 &registry,
@@ -217,8 +187,8 @@ pub fn spawn_entity(
             )
         }
 
-        match event {
-            SpawnEntity::MagicCircle { position } => {
+        match entity {
+            SpawnEntity::MagicCircle => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -226,7 +196,7 @@ pub fn spawn_entity(
                     MagicCircleDestination::NextLevel,
                 );
             }
-            SpawnEntity::MagicCircleHome { position } => {
+            SpawnEntity::MagicCircleHome => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -234,7 +204,7 @@ pub fn spawn_entity(
                     MagicCircleDestination::Home,
                 );
             }
-            SpawnEntity::MultiPlayArenaMagicCircle { position } => {
+            SpawnEntity::MultiPlayArenaMagicCircle => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -242,7 +212,7 @@ pub fn spawn_entity(
                     MagicCircleDestination::MultiplayArena,
                 );
             }
-            SpawnEntity::MagicCircleDemoEnding { position } => {
+            SpawnEntity::MagicCircleDemoEnding => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -250,14 +220,14 @@ pub fn spawn_entity(
                     MagicCircleDestination::Ending,
                 );
             }
-            SpawnEntity::BrokenMagicCircle { position } => {
+            SpawnEntity::BrokenMagicCircle => {
                 spawn_broken_magic_circle(&mut commands, registry.assets.atlas.clone(), *position);
             }
-            SpawnEntity::StoneLantern { position } => {
+            SpawnEntity::StoneLantern => {
                 let (actor, life) = default_lantern();
                 spawn_stone_lantern(&mut commands, &registry, *position, actor, life);
             }
-            SpawnEntity::Usage { position } => {
+            SpawnEntity::Usage => {
                 commands.spawn((
                     Name::new("usage"),
                     Transform::from_translation(position.extend(PAINT_LAYER_Z)),
@@ -271,7 +241,7 @@ pub fn spawn_entity(
                     },
                 ));
             }
-            SpawnEntity::Routes { position } => {
+            SpawnEntity::Routes => {
                 commands.spawn((
                     Name::new("routes"),
                     Transform::from_translation(position.extend(PAINT_LAYER_Z)),
@@ -285,21 +255,12 @@ pub fn spawn_entity(
                     },
                 ));
             }
-            SpawnEntity::ShopSpell { position } => {
+            SpawnEntity::ShopSpell => {
                 if let Some(item) = setup.shop_items.pop() {
                     spawn_dropped_item(&mut commands, &registry, *position, item);
                 }
             }
-            SpawnEntity::HugeSlime { position, boss } => {
-                let (actor, life) = default_huge_slime();
-                let entity = spawn_huge_slime(&mut commands, &registry, *position, actor, life);
-                if let Some(boss_name) = boss {
-                    commands.entity(entity).insert(Boss {
-                        name: boss_name.clone(),
-                    });
-                }
-            }
-            SpawnEntity::ShopRabbit { position } => {
+            SpawnEntity::ShopRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::Shop);
                 spawn_rabbit(
                     &mut commands,
@@ -310,7 +271,7 @@ pub fn spawn_entity(
                     RabbitType::Shop,
                 );
             }
-            SpawnEntity::TrainingRabbit { position } => {
+            SpawnEntity::TrainingRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::Training);
                 spawn_rabbit(
                     &mut commands,
@@ -321,7 +282,7 @@ pub fn spawn_entity(
                     RabbitType::Training,
                 );
             }
-            SpawnEntity::SinglePlayRabbit { position } => {
+            SpawnEntity::SinglePlayRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::Singleplay);
                 spawn_rabbit(
                     &mut commands,
@@ -332,7 +293,7 @@ pub fn spawn_entity(
                     RabbitType::Singleplay,
                 );
             }
-            SpawnEntity::GuideRabbit { position } => {
+            SpawnEntity::GuideRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::Guide);
                 spawn_rabbit(
                     &mut commands,
@@ -343,7 +304,7 @@ pub fn spawn_entity(
                     RabbitType::Guide,
                 );
             }
-            SpawnEntity::MultiplayerRabbit { position } => {
+            SpawnEntity::MultiplayerRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::MultiPlay);
                 spawn_rabbit(
                     &mut commands,
@@ -354,7 +315,7 @@ pub fn spawn_entity(
                     RabbitType::MultiPlay,
                 );
             }
-            SpawnEntity::ReadingRabbit { position } => {
+            SpawnEntity::ReadingRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::Reading);
                 spawn_rabbit(
                     &mut commands,
@@ -365,7 +326,7 @@ pub fn spawn_entity(
                     RabbitType::Reading,
                 );
             }
-            SpawnEntity::SpellListRabbit { position } => {
+            SpawnEntity::SpellListRabbit => {
                 let (actor, life) = default_rabbit(RabbitType::SpellList);
                 let entity = spawn_rabbit(
                     &mut commands,
@@ -378,43 +339,42 @@ pub fn spawn_entity(
 
                 commands.entity(entity).insert(SpellListRabbit);
             }
-            SpawnEntity::ShopDoor { position } => {
+            SpawnEntity::ShopDoor => {
                 spawn_shop_door(&mut commands, &registry, *position);
             }
-            SpawnEntity::BGM { position } => {
+            SpawnEntity::BGM => {
                 spawn_bgm_switch(&mut commands, &registry, *position);
             }
-            SpawnEntity::Bomb { position } => {
+            SpawnEntity::Bomb => {
                 spawn_bomb(&mut commands, &registry, *position);
             }
-            SpawnEntity::Seed {
-                from,
-                to,
-                actor_group,
-                owner,
-                servant_type,
-                remote,
-                servant,
-            } => {
-                spawn_servant_seed(
+            SpawnEntity::RandomChest => {
+                let (actor, life) = default_random_chest();
+                spawn_actor_internal(
                     &mut commands,
                     &registry,
-                    &mut client_message_writer,
-                    &websocket,
-                    *from,
-                    *to,
-                    *actor_group,
-                    *owner,
-                    *servant_type,
-                    *remote,
-                    *servant,
+                    &life_bar_resource,
+                    *position,
+                    &actor,
+                    &life,
                 );
             }
-
+            SpawnEntity::SpellInChest { spell } => {
+                let chest_item: ChestItem =
+                    ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(*spell)));
+                let (actor, life) = chest_actor(ChestType::Chest, chest_item);
+                spawn_actor_internal(
+                    &mut commands,
+                    &registry,
+                    &life_bar_resource,
+                    *position,
+                    &actor,
+                    &life,
+                );
+            }
             SpawnEntity::DefaultActor {
                 actor_type,
                 actor_group,
-                position,
             } => {
                 let (mut actor, life) = get_default_actor(*actor_type);
                 actor.actor_group = *actor_group;
@@ -428,11 +388,45 @@ pub fn spawn_entity(
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
-
-            SpawnEntity::Web {
-                position,
-                owner_actor_group,
+            SpawnEntity::HugeSlime { boss } => {
+                let (actor, life) = default_huge_slime();
+                let entity = spawn_huge_slime(&mut commands, &registry, *position, actor, life);
+                if let Some(boss_name) = boss {
+                    commands.entity(entity).insert(Boss {
+                        name: boss_name.clone(),
+                    });
+                }
+            }
+            &SpawnEntity::Seed {
+                to,
+                actor_group,
+                owner,
+                servant_type,
+                remote,
+                servant,
             } => {
+                spawn_servant_seed(
+                    &mut commands,
+                    &registry,
+                    &mut client_message_writer,
+                    &websocket,
+                    *position,
+                    to,
+                    actor_group,
+                    owner,
+                    servant_type,
+                    remote,
+                    servant,
+                );
+            }
+            SpawnEntity::Fireball {
+                velocity,
+                actor_group,
+            } => {
+                spawn_fireball(&mut commands, &registry, *position, *velocity, *actor_group);
+            }
+
+            SpawnEntity::Web { owner_actor_group } => {
                 spawn_web(
                     &mut commands,
                     &registry,
@@ -442,60 +436,12 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Fireball {
-                position,
-                velocity,
-                actor_group,
-            } => {
-                spawn_fireball(&mut commands, &registry, *position, *velocity, *actor_group);
-            }
-
-            SpawnEntity::Actor {
-                position,
-                life,
-                actor,
-            } => {
-                let entity = spawn_actor(
-                    &mut commands,
-                    &registry,
-                    &life_bar_resource,
-                    *position,
-                    actor.clone(),
-                    life.clone(),
-                );
-                if let ActorExtra::Witch {
-                    witch_type,
-                    getting_up,
-                    name,
-                    discovered_spells,
-                    ..
-                } = actor.extra.clone()
-                {
-                    match witch_type {
-                        SpawnWitchType::Player => {
-                            commands.entity(entity).insert(Player::new(
-                                name.clone(),
-                                getting_up,
-                                &discovered_spells,
-                            ));
-                        }
-                        SpawnWitchType::Dummy => {
-                            commands.entity(entity).insert(TraningDummyController {
-                                home: *position,
-                                fire: false,
-                            });
-                        }
-                    };
-                }
-            }
-
-            SpawnEntity::Particle { position, spawn } => {
+            SpawnEntity::Particle { spawn } => {
                 spawn_particle_system(&mut commands, *position, &resource, &spawn);
             }
 
             SpawnEntity::Slash {
                 actor_group,
-                position,
                 velocity,
                 angle,
                 damage,
@@ -515,6 +461,15 @@ pub fn spawn_entity(
                     *damage,
                 );
             }
+
+            SpawnEntity::Actor { life, actor } => spawn_actor_internal(
+                &mut commands,
+                &registry,
+                &life_bar_resource,
+                *position,
+                actor,
+                life,
+            ),
         }
     }
 }
@@ -607,7 +562,8 @@ pub fn spawn_actor(
         ActorExtra::BookShelf => spawn_book_shelf(
             &mut commands,
             registry.assets.atlas.clone(),
-            position,
+            // 本棚のみ2タイルの幅があるため、例外的に半タイルずらした位置に生成します
+            position + Vec2::new(TILE_HALF, 0.0),
             actor,
             life,
         ),
@@ -617,6 +573,48 @@ pub fn spawn_actor(
             spawn_rabbit(commands, &registry, position, actor, life, rabbit_type)
         }
     }
+}
+
+fn spawn_actor_internal(
+    mut commands: &mut Commands,
+    registry: &Registry,
+    life_bar_resource: &Res<LifeBarResource>,
+    position: Vec2,
+    actor: &Actor,
+    life: &Life,
+) {
+    let entity = spawn_actor(
+        &mut commands,
+        &registry,
+        &life_bar_resource,
+        position,
+        actor.clone(),
+        life.clone(),
+    );
+    if let ActorExtra::Witch {
+        witch_type,
+        getting_up,
+        name,
+        discovered_spells,
+        ..
+    } = actor.extra.clone()
+    {
+        match witch_type {
+            SpawnWitchType::Player => {
+                commands.entity(entity).insert(Player::new(
+                    name.clone(),
+                    getting_up,
+                    &discovered_spells,
+                ));
+            }
+            SpawnWitchType::Dummy => {
+                commands.entity(entity).insert(TraningDummyController {
+                    home: position,
+                    fire: false,
+                });
+            }
+        };
+    };
 }
 
 pub fn add_default_behavior(

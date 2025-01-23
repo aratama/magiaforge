@@ -22,12 +22,13 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use core::f32;
 use rand::seq::IteratorRandom;
+use serde::Deserialize;
 
 const ENTITY_WIDTH: f32 = 8.0;
 
 const ENTITY_HEIGHT: f32 = 8.0;
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, Debug, Deserialize)]
 pub enum JarColor {
     #[default]
     Red,
@@ -35,7 +36,7 @@ pub enum JarColor {
     Green,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, strum::EnumIter, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, strum::EnumIter, Debug, Deserialize)]
 pub enum ChestType {
     #[default]
     Chest,
@@ -69,7 +70,7 @@ pub const CHEST_OR_BARREL: [ChestType; 12] = [
 #[derive(Component, Reflect, Debug)]
 struct Chest;
 
-#[derive(Reflect, Clone, Debug, Copy)]
+#[derive(Reflect, Clone, Debug, Copy, Deserialize)]
 pub enum ChestItem {
     Gold(u32),
     Item(InventoryItem),
