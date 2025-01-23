@@ -1,6 +1,7 @@
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
+use crate::constant::GameActors;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 use bevy_rapier2d::plugin::DefaultRapierContext;
@@ -21,11 +22,14 @@ pub struct FindResult {
 }
 
 impl Finder {
-    pub fn new(query: &Query<(Entity, &Actor, &Transform)>) -> Self {
+    pub fn new(constants: &GameActors, query: &Query<(Entity, &Actor, &Transform)>) -> Self {
         Self {
             map: query
                 .iter()
-                .map(|(e, a, t)| (e, (a.actor_group, t.translation.truncate(), a.radius)))
+                .map(|(e, a, t)| {
+                    let props = a.to_props(&constants);
+                    (e, (a.actor_group, t.translation.truncate(), props.radius))
+                })
                 .collect(),
         }
     }

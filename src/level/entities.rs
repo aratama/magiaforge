@@ -191,6 +191,7 @@ pub fn spawn_entity(
     mut commands: Commands,
     assets: Res<GameAssets>,
     ron: Res<Assets<GameConstants>>,
+    actors: Res<Assets<GameActors>>,
     life_bar_resource: Res<LifeBarResource>,
     mut setup: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
@@ -204,6 +205,8 @@ pub fn spawn_entity(
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
 ) {
     let constants = ron.get(assets.spells.id()).unwrap();
+
+    let actor_constants = actors.get(&assets.actors).unwrap();
 
     for event in reader.read() {
         if setup.shop_items.is_empty() {
@@ -420,6 +423,7 @@ pub fn spawn_entity(
                 position,
             } => {
                 let (mut actor, life) = get_default_actor(*actor_type);
+                let props = actor.to_props(actor_constants);
                 actor.actor_group = *actor_group;
                 let entity = spawn_actor(
                     &mut commands,
@@ -428,6 +432,7 @@ pub fn spawn_entity(
                     *position,
                     actor,
                     life,
+                    props,
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
@@ -458,6 +463,7 @@ pub fn spawn_entity(
                 life,
                 actor,
             } => {
+                let props = actor.to_props(actor_constants);
                 let entity = spawn_actor(
                     &mut commands,
                     &assets,
@@ -465,6 +471,7 @@ pub fn spawn_entity(
                     *position,
                     actor.clone(),
                     life.clone(),
+                    props,
                 );
                 if let ActorExtra::Witch {
                     witch_type,
@@ -529,6 +536,7 @@ pub fn spawn_actor(
     position: Vec2,
     actor: Actor,
     life: Life,
+    props: &ActorProps,
 ) -> Entity {
     match actor.extra.clone() {
         ActorExtra::Witch { .. } => spawn_witch(
@@ -549,6 +557,7 @@ pub fn spawn_actor(
             life,
             position,
             None,
+            props,
         ),
         ActorExtra::Eyeball => spawn_eyeball(
             &mut commands,
@@ -557,6 +566,7 @@ pub fn spawn_actor(
             position,
             actor,
             life,
+            props,
         ),
         ActorExtra::Shadow => spawn_shadow(
             &mut commands,
@@ -589,6 +599,7 @@ pub fn spawn_actor(
             actor,
             life,
             position,
+            props,
         ),
         ActorExtra::Sandbag => spawn_sandbag(
             &mut commands,
@@ -597,6 +608,7 @@ pub fn spawn_actor(
             position,
             actor,
             life,
+            props,
         ),
         ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &assets, position, actor, life),
         ActorExtra::Chest { chest_type, .. } => spawn_chest(

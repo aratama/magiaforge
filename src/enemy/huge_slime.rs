@@ -68,7 +68,6 @@ pub fn default_huge_slime() -> (Actor, Life) {
     (
         Actor {
             extra: ActorExtra::HugeSlime,
-            radius: HUGE_SLIME_COLLIDER_RADIUS,
             actor_group: ActorGroup::Enemy,
             wands: [
                 Wand::with_slots(slots),
@@ -81,8 +80,6 @@ pub fn default_huge_slime() -> (Actor, Life) {
             // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
             // 通常1秒しか拘束
             floundering: 8,
-            // スライムの王は凍結無効
-            defreeze: 10000,
             ..default()
         },
         Life::new(4000),
@@ -349,7 +346,7 @@ fn despawn(
             if life.life <= 0 {
                 // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
                 commands.entity(entity).despawn_recursive();
-                
+
                 commands.spawn((
                     Name::new("huge slime"),
                     CounterAnimated,

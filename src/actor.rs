@@ -153,12 +153,16 @@ pub enum ActorState {
 #[derive(Component, Reflect, Debug, Clone)]
 #[require(Vertical)]
 pub struct Actor {
+    /// このアクターの種族を表すとともに、種族特有の情報を格納します
+    pub extra: ActorExtra,
+
     pub uuid: Uuid,
 
+    pub actor_group: ActorGroup,
+
+    // 操作 ///////////////////////////////////////////////////////////////////////////////////////
     /// プレイヤーの位置からの相対的なポインターの位置
     pub pointer: Vec2,
-
-    pub point_light_radius: f32,
 
     /// アクターが移動しようとしている方向を表します
     /// 移動と停止を切り替えるときは move_direction を変更します
@@ -175,6 +179,7 @@ pub struct Actor {
 
     pub current_wand: u8,
 
+    // 装備とアイテム /////////////////////////////////////////////////////////////////////////////////////////
     /// アクターが所持している杖のリスト
     /// モンスターの呪文詠唱の仕組みもプレイヤーキャラクターと同一であるため、
     /// 内部的にはモンスターも杖を持っていることになっています
@@ -182,33 +187,30 @@ pub struct Actor {
     // pub queue: Vec,
     pub inventory: Inventory,
 
-    // 弾丸へのバフ効果
-    // 一回発射するごとにリセットされます
-    pub effects: CastEffects,
-
-    pub actor_group: ActorGroup,
-
     pub golds: u32,
 
-    // コリジョンの半径です
-    // 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
-    pub radius: f32,
-
+    // 外観 ///////////////////////////////////////////////////////////////////////////////////////////
     pub state: ActorState,
 
-    // 外観 ///////////////////////////////////////////////////////////////////////////////////////////
     pub blood: Option<Blood>,
 
-    // アクター特性 ///////////////////////////////////////////////////////////////////////////////////////
+    // 定数 ////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 1フレームあたりの stagger の回復速度です
+    pub poise: u32,
 
-    // 凍結から復帰する速度です
-    // 通常は 1 ですが、ボスなどの特定のモンスターはより大きい値になることがあります
-    pub defreeze: u32,
+    pub invincibility_on_staggered: bool,
 
-    // 常時浮遊のモンスターであることを表します
-    // 通常は false ですが、アイボールなどの一部のモンスターは true になります
-    pub auto_levitation: bool,
+    pub point_light_radius: f32,
 
+    /// 蜘蛛の巣から逃れる速度
+    /// 毎ターンこの値が trapped から減算され、trappedが0になるとアクターが解放されます
+    /// また、解放された瞬間に trap_moratorium が 180 に設定され、
+    /// 3秒間は再びトラップにかからないようになります
+    pub floundering: u32,
+
+    pub fire_resistance: bool,
+
+    // 効果と状態異常 ////////////////////////////////////////////////////////////////////////////////////////////
     /// 再び詠唱操作をできるようになるまでの待ち時間
     /// フキダシを閉じたあとや変身直後など、一定時間詠唱不能にしておかないと、
     /// 他の操作と同時に詠唱をしてしまう
@@ -222,20 +224,10 @@ pub struct Actor {
     /// 歩くと減少します
     pub trap_moratorium: u32,
 
-    /// 蜘蛛の巣から逃れる速度
-    /// 毎ターンこの値が trapped から減算され、trappedが0になるとアクターが解放されます
-    /// また、解放された瞬間に trap_moratorium が 180 に設定され、
-    /// 3秒間は再びトラップにかからないようになります
-    pub floundering: u32,
+    // 弾丸へのバフ効果
+    // 一回発射するごとにリセットされます
+    pub effects: CastEffects,
 
-    pub fire_resistance: bool,
-
-    /// 1フレームあたりの stagger の回復速度です
-    pub poise: u32,
-
-    pub invincibility_on_staggered: bool,
-
-    // アクター状態異常 ////////////////////////////////////////////////////////////////////////////////////////////
     /// 0 より大きい場合は凍結状態で、移動や詠唱ができません
     /// 1フレームごとに defreeze だけ減少します
     pub frozen: u32,
@@ -251,8 +243,6 @@ pub struct Actor {
     // 0 より大きい場合は溺れている状態で、詠唱ができません。また移動速度が低下します
     // 水中にいる間は 1フレームに1 づつ増加し、60を超えるとダメージを受け、0に戻ります
     pub drowning: u32,
-
-    pub extra: ActorExtra,
 }
 
 impl Actor {
@@ -474,7 +464,6 @@ impl Default for Actor {
             uuid: Uuid::new_v4(),
             pointer: Vec2::ZERO,
             point_light_radius: 0.0,
-            radius: 5.0,
             current_wand: 0,
             actor_group: ActorGroup::Neutral,
             golds: 0,
@@ -497,9 +486,7 @@ impl Default for Actor {
             trap_moratorium: 0,
             floundering: 1,
             frozen: 0,
-            defreeze: 1,
             levitation: 0,
-            auto_levitation: false,
             drowning: 0,
             staggered: 0,
             poise: 1,
@@ -645,6 +632,7 @@ fn fire_bullet(
     mut commands: Commands,
     assets: Res<GameAssets>,
     ron: Res<Assets<GameConstants>>,
+    game_actors: Res<Assets<GameActors>>,
     life_bar_resource: Res<LifeBarResource>,
     mut actor_query: Query<
         (
@@ -670,6 +658,8 @@ fn fire_bullet(
     let online = websocket.ready_state == ReadyState::OPEN;
 
     let constants = ron.get(assets.spells.id()).unwrap();
+
+    let game_actors_constants = game_actors.get(assets.actors.id()).unwrap();
 
     for (
         actor_entity,
@@ -698,6 +688,8 @@ fn fire_bullet(
             continue;
         }
 
+        let props = actor.to_props(&game_actors_constants);
+
         if actor.fire_state == ActorFireState::Fire {
             let wand = if actor_metamorphosis.is_none() {
                 actor.current_wand
@@ -715,6 +707,7 @@ fn fire_bullet(
                 &constants,
                 actor_entity,
                 &mut actor,
+                &props,
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
@@ -741,6 +734,7 @@ fn fire_bullet(
                 &constants,
                 actor_entity,
                 &mut actor,
+                &props,
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
@@ -823,10 +817,16 @@ fn apply_external_force(
     }
 }
 
-fn defreeze(mut query: Query<&mut Actor>) {
+fn defreeze(
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
+    mut query: Query<&mut Actor>,
+) {
+    let constants = constants.get(assets.actors.id()).unwrap();
     for mut actor in query.iter_mut() {
-        if actor.defreeze <= actor.frozen {
-            actor.frozen -= actor.defreeze;
+        let props = actor.to_props(&constants);
+        if props.defreeze <= actor.frozen {
+            actor.frozen -= props.defreeze;
         } else if 0 < actor.frozen {
             actor.frozen = 0;
         }
@@ -839,12 +839,18 @@ pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut Collis
     }
 }
 
-fn decrement_levitation(mut actor_query: Query<&mut Actor>) {
+fn decrement_levitation(
+    mut actor_query: Query<&mut Actor>,
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
+) {
+    let constants = constants.get(assets.actors.id()).unwrap();
     for mut actor in actor_query.iter_mut() {
+        let props = actor.to_props(&constants);
         if 0 < actor.levitation {
             actor.levitation -= 1;
         }
-        if actor.levitation <= 240 && actor.auto_levitation {
+        if actor.levitation <= 240 && props.auto_levitation {
             actor.levitation = 240;
         }
     }
@@ -854,11 +860,15 @@ fn levitation_effect(
     actor_query: Query<&Actor>,
     mut group_query: Query<(&Parent, &mut Counter), With<ActorSpriteGroup>>,
     mut effect_query: Query<(&Parent, &mut Visibility), With<ActorLevitationEffect>>,
+    assets: Res<GameAssets>,
+    constants: Res<Assets<GameActors>>,
 ) {
+    let constants = constants.get(assets.actors.id()).unwrap();
     for (parent, mut visibility) in effect_query.iter_mut() {
         let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
         let actor = actor_query.get(group.get()).unwrap();
-        if actor.auto_levitation {
+        let props = actor.to_props(&constants);
+        if props.auto_levitation {
             *visibility = Visibility::Hidden;
         } else if 120 < actor.levitation {
             *visibility = Visibility::Inherited;

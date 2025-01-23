@@ -46,6 +46,7 @@ pub fn spawn_eyeball(
     position: Vec2,
     actor: Actor,
     life: Life,
+    props: &ActorProps,
 ) -> Entity {
     let actor_group = actor.actor_group;
     spawn_basic_enemy(
@@ -63,10 +64,13 @@ pub fn spawn_eyeball(
         None,
         actor,
         life,
+        props,
     )
 }
 
 fn control_eyeball(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     mut query: Query<(
         Entity,
         Option<&mut EyeballControl>,
@@ -75,8 +79,10 @@ fn control_eyeball(
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
+
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&lens.query());
+    let finder = Finder::new(&constants, &lens.query());
 
     // 各アイボールの行動を選択します
     for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in query.iter_mut()

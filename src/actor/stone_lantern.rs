@@ -27,7 +27,6 @@ pub fn default_lantern() -> (Actor, Life) {
         Actor {
             extra: ActorExtra::Lantern,
             actor_group: ActorGroup::Entity,
-            radius: 8.0,
             ..default()
         },
         Life::new(50),
@@ -103,7 +102,7 @@ fn break_stone_lantern(
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            
+
             writer.send(SEEvent::pos(SE::Break, position));
 
             for i in 0..4 {

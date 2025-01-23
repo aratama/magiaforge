@@ -5,17 +5,15 @@ use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
+use crate::constant::ActorProps;
 use crate::constant::GameActors;
-use crate::constant::BLOOD_LAYER_Z;
 use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
-use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use core::f32;
 
 #[derive(Debug)]
@@ -56,6 +54,7 @@ pub fn spawn_chiken(
     actor: Actor,
     life: Life,
     position: Vec2,
+    props: &ActorProps,
 ) -> Entity {
     let entity = spawn_basic_enemy(
         &mut commands,
@@ -67,6 +66,7 @@ pub fn spawn_chiken(
         None,
         actor,
         life,
+        props,
     );
     entity
 }

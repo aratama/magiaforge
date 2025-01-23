@@ -3,6 +3,7 @@ use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::life::Life;
+use crate::constant::ActorProps;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
@@ -41,6 +42,7 @@ pub fn spawn_sandbag(
     position: Vec2,
     actor: Actor,
     life: Life,
+    props: &ActorProps,
 ) -> Entity {
     let entity = spawn_basic_enemy(
         &mut commands,
@@ -52,6 +54,7 @@ pub fn spawn_sandbag(
         None,
         actor,
         life,
+        props,
     );
     entity
 }

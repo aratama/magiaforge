@@ -8,83 +8,123 @@ GameActors(
     acceleration_on_firing: 0.5,
     actors: {
         "Witch": (
+            radius: 5.0,
             move_force: 40000.0,
             jump: 0.0,
             linear_damping: 6.0,
-            blood: Some(Red)
+            blood: Some(Red),
+            defreeze: 1,
+            auto_levitation: false
         ),
         "Rabbit": (
+            radius: 5.0,
             move_force: 40000.0,
             jump: 1.5,
             linear_damping: 10.0,
-            blood: Some(Red)
+            blood: Some(Red),
+            defreeze: 1,
+            auto_levitation: false
         ),
         "Chicken": (
+            radius: 5.0,
             move_force: 60000.0,
             jump: 1.5,
             linear_damping: 10.0,
-            blood: Some(Red)
+            blood: Some(Red),
+            defreeze: 1,
+            auto_levitation: false
         ),
         "EyeBall": (
+            radius: 5.0,
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: Some(Red)
+            blood: Some(Red),
+            defreeze: 1,
+            auto_levitation: true
         ),
         "Sandbag": (
+            radius: 5.0,
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
         ),
         "Slime": (
+            radius: 5.0,
             move_force: 50000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: Some(Blue)
+            blood: Some(Blue),
+            defreeze: 1,
+            auto_levitation: false
         ),
         "Salamander": (
+            radius: 5.0,
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: Some(Red)
+            blood: Some(Red),
+            defreeze: 2,
+            auto_levitation: false
         ),
         "Shadow": (
+            radius: 5.0,
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
         ),
         "Spider": (
+            radius: 5.0,
             move_force: 150000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
         ),
         "HugeSlime": (
+            radius: 5.0,
             // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
             move_force: 400000.0,
             jump: 3.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            // スライムの王は凍結無効
+            defreeze: 10000,
+            auto_levitation: false
         ),
         "Lantern": (
+            radius: 5.0,
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
         ),
         "Chest": (
+            radius: 5.0,
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
         ),
         "BookShelf": (
+            radius: 5.0,
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: None
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
         ),
     }
 )

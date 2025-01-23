@@ -10,10 +10,8 @@ use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
-use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 use vleue_navigator::prelude::ManagedNavMesh;
 use vleue_navigator::prelude::NavMeshStatus;
@@ -54,6 +52,7 @@ pub fn spawn_slime(
     life: Life,
     position: Vec2,
     owner: Option<Entity>,
+    props: &ActorProps,
 ) -> Entity {
     let actor_group = actor.actor_group;
     spawn_basic_enemy(
@@ -71,12 +70,15 @@ pub fn spawn_slime(
         owner,
         actor,
         life,
+        props,
     )
 }
 
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます
 /// また、プレイヤーを狙います
 fn control_slime(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     mut query: Query<(
         Entity,
         Option<&mut SlimeControl>,
@@ -88,11 +90,15 @@ fn control_slime(
     navmesh: Query<(&ManagedNavMesh, Ref<NavMeshStatus>)>,
     navmeshes: Res<Assets<NavMesh>>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
+
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&lens.query());
+    let finder = Finder::new(&constants, &lens.query());
 
     // 各スライムの行動を選択します
     for (slime_entity, slime_optional, mut slime_actor, slime_transform) in query.iter_mut() {
+        let props = slime_actor.to_props(&constants);
+
         if let Some(mut slime) = slime_optional {
             slime_actor.move_direction = Vec2::ZERO;
             slime_actor.fire_state = ActorFireState::Idle;
@@ -109,7 +115,7 @@ fn control_slime(
                 finder.nearest_opponent(&rapier_context, slime_entity, ENEMY_DETECTION_RANGE)
             {
                 let diff = nearest.position - origin;
-                if diff.length() < slime_actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                if diff.length() < props.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                     slime_actor.move_direction = Vec2::ZERO;
                     slime_actor.pointer = diff;
                     slime_actor.fire_state = ActorFireState::Fire;

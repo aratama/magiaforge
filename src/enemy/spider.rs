@@ -117,13 +117,19 @@ pub fn spawn_spider(
 }
 
 fn transition(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut spawn: EventWriter<SpawnEntity>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
+
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&lens.query());
+    let finder = Finder::new(&constants, &lens.query());
     for (entity, spider, actor, transform) in query.iter_mut() {
+        let props = actor.to_props(&constants);
+
         if let Some(mut shadow) = spider {
             let origin = transform.translation.truncate();
             let nearest = finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE);
@@ -137,7 +143,7 @@ fn transition(
                 State::Approarch(count) if 0 < count => {
                     if let Some(nearest) = nearest {
                         let diff = nearest.position - origin;
-                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                        if diff.length() < props.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             shadow.state = State::Attack(30 + rand::random::<u32>() % 30);
                         } else {
                             shadow.state = State::Approarch(count - 1);
@@ -165,11 +171,14 @@ fn transition(
 }
 
 fn pointer(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&lens.query());
+    let finder = Finder::new(&constants, &lens.query());
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(_) = shadow {
             let origin = transform.translation.truncate();
@@ -208,13 +217,19 @@ fn animate(
 }
 
 fn approach(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
+
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&lens.query());
+    let finder = Finder::new(&constants, &lens.query());
 
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
+        let props = actor.to_props(&constants);
+
         if let Some(shadow) = shadow {
             match shadow.state {
                 State::Approarch(..) => {
@@ -223,7 +238,7 @@ fn approach(
                         finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE)
                     {
                         let diff = nearest.position - origin;
-                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                        if diff.length() < props.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             actor.move_direction = Vec2::ZERO;
                         } else if diff.length() < ENEMY_DETECTION_RANGE {
                             actor.move_direction = diff.normalize_or_zero();
@@ -241,6 +256,8 @@ fn approach(
 }
 
 fn attack(
+    assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     mut query: Query<(
         Entity,
         Option<&mut Spider>,
@@ -251,9 +268,13 @@ fn attack(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
+
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&lens.query());
+    let finder = Finder::new(&constants, &lens.query());
     for (entity, shadow, actor, transform, _) in query.iter_mut() {
+        let props = actor.to_props(&constants);
+
         if let Some(shadow) = shadow {
             match shadow.state {
                 // 攻撃モーションを開始してから実際にダメージが発生するまで20フレームあり、
@@ -264,7 +285,7 @@ fn attack(
                         finder.nearest_opponent(&rapier_context, entity, ENEMY_DETECTION_RANGE)
                     {
                         let diff = nearest.position - origin;
-                        if diff.length() < actor.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
+                        if diff.length() < props.radius + nearest.radius + ENEMY_ATTACK_MARGIN {
                             actor_event.send(ActorEvent::Damaged {
                                 actor: nearest.entity,
                                 position: nearest.position,

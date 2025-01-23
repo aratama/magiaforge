@@ -163,6 +163,15 @@ pub struct ActorProps {
     pub jump: f32,
     pub linear_damping: f32,
     pub blood: Option<Blood>,
+    /// 凍結から復帰する速度です
+    /// 通常は 1 ですが、ボスなどの特定のモンスターはより大きい値になることがあります
+    pub defreeze: u32,
+    /// 常時浮遊のモンスターであることを表します
+    /// 通常は false ですが、アイボールなどの一部のモンスターは true になります
+    pub auto_levitation: bool,
+    /// 一部のアクターでコリジョンの半径として使われます
+    /// 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
+    pub radius: f32,
 }
 
 #[derive(Debug)]

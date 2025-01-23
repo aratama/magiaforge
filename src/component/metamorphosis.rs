@@ -4,6 +4,7 @@ use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::asset::GameAssets;
+use crate::constant::ActorProps;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::spawn_actor;
@@ -63,6 +64,7 @@ pub fn cast_metamorphosis(
     original_actor: Actor,
     original_life: Life,
     original_morph: &Option<&Metamorphosed>,
+    props: &ActorProps,
 
     position: Vec2,
     morphed_type: ActorType,
@@ -96,7 +98,6 @@ pub fn cast_metamorphosis(
         dest_life.life * (original_life.life as f32 / original_life.max_life as f32).ceil() as u32;
 
     commands.entity(*original_actor_entity).despawn_recursive();
-    
 
     let entity = spawn_actor(
         &mut commands,
@@ -105,6 +106,7 @@ pub fn cast_metamorphosis(
         position,
         dest_actor,
         dest_life,
+        props,
     );
 
     let mut builder = commands.entity(entity);
@@ -141,7 +143,6 @@ fn revert(
         if metamorphosis.count == 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            
 
             // 変身を詠唱直後なので original_actor は fire_state が Fire のままになっており、
             // このまま変身が解除されるとまた詠唱を行って変身してしまう場合があることに注意

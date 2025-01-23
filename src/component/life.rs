@@ -3,6 +3,7 @@ use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::Metamorphosed;
+use crate::constant::GameActors;
 use crate::controller::player::Player;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
@@ -130,6 +131,7 @@ fn fire_damage(
 fn damage(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     life_bar_resource: Res<LifeBarResource>,
     mut spawn: EventWriter<SpawnEntity>,
     mut query: Query<(
@@ -143,6 +145,8 @@ fn damage(
     mut reader: EventReader<ActorEvent>,
     mut se: EventWriter<SEEvent>,
 ) {
+    let constants = ron.get(assets.actors.id()).unwrap();
+
     for event in reader.read() {
         match event {
             ActorEvent::Damaged {
@@ -192,6 +196,8 @@ fn damage(
                     continue;
                 };
 
+                let props = actor.to_props(&constants);
+
                 if let Some(morphing_to) = metamorphose {
                     if 0 < life.life {
                         let position = life_transform.translation.truncate();
@@ -205,6 +211,7 @@ fn damage(
                             actor.clone(),
                             life.clone(),
                             &actor_metamorphosis.as_deref(),
+                            props,
                             position,
                             *morphing_to,
                         );

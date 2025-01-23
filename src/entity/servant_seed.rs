@@ -173,13 +173,16 @@ struct SpawnServantEvent {
 fn spawn_servant(
     mut commands: Commands,
     assets: Res<GameAssets>,
+    ron: Res<Assets<GameActors>>,
     life_bar_locals: Res<LifeBarResource>,
     mut reader: EventReader<SpawnServantEvent>,
 ) {
+    let constants = ron.get(&assets.actors).unwrap();
     for event in reader.read() {
         match event.servant_type {
             ServantType::Slime => {
                 let (mut actor, life) = default_slime();
+                let props = actor.to_props(&constants);
                 actor.actor_group = event.actor_group;
                 let entity = spawn_slime(
                     &mut commands,
@@ -189,6 +192,7 @@ fn spawn_servant(
                     life,
                     event.position,
                     event.master,
+                    props,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
@@ -200,6 +204,7 @@ fn spawn_servant(
             }
             ServantType::Eyeball => {
                 let (actor, life) = crate::enemy::eyeball::default_eyeball();
+                let props = actor.to_props(&constants);
                 let entity = spawn_eyeball(
                     &mut commands,
                     &assets,
@@ -207,6 +212,7 @@ fn spawn_servant(
                     event.position,
                     actor,
                     life,
+                    props,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
@@ -216,6 +222,7 @@ fn spawn_servant(
             }
             ServantType::Chiken => {
                 let (actor, life) = default_chiken();
+                let props = actor.to_props(&constants);
                 let entity = spawn_chiken(
                     &mut commands,
                     &assets,
@@ -223,6 +230,7 @@ fn spawn_servant(
                     actor,
                     life,
                     event.position,
+                    props,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);

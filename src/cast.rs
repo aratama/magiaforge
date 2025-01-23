@@ -11,6 +11,7 @@ use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
+use crate::constant::ActorProps;
 use crate::constant::GameConstants;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::player::Player;
@@ -143,6 +144,7 @@ pub fn cast_spell(
     // components
     actor_entity: Entity,
     mut actor: &mut Actor,
+    props: &ActorProps,
     actor_life: &mut Life,
     actor_transform: &Transform,
     mut actor_impulse: &mut ExternalImpulse,
@@ -503,6 +505,7 @@ pub fn cast_spell(
                 actor.clone(),
                 actor_life.clone(),
                 &actor_metamorphosis,
+                props,
                 actor_position,
                 metamorphse,
             );

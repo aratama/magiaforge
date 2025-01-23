@@ -33,8 +33,8 @@ pub fn spawn_basic_enemy(
     master: Option<Entity>,
     actor: Actor,
     life: Life,
+    props: &ActorProps,
 ) -> Entity {
-    let radius = actor.radius;
     let golds = actor.golds;
     let actor_group = actor.actor_group;
     let mut builder = commands.spawn((
@@ -51,7 +51,7 @@ pub fn spawn_basic_enemy(
         Counter::default(),
         (
             RigidBody::Dynamic,
-            Collider::ball(radius),
+            Collider::ball(props.radius),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
             Damping::default(),
