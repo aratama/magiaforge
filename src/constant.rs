@@ -4,6 +4,7 @@ use bevy::color::Color;
 
 use crate::{
     actor::ActorType,
+    entity::blood::Blood,
     interpreter::Cmd,
     language::Dict,
     level::tile::Tile,
@@ -161,6 +162,7 @@ pub struct ActorProps {
     pub move_force: f32,
     pub jump: f32,
     pub linear_damping: f32,
+    pub blood: Option<Blood>,
 }
 
 #[derive(Debug)]

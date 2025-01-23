@@ -39,6 +39,7 @@ use crate::enemy::shadow::ShadowPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::enemy::spider::SpiderPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
+use crate::entity::blood::BloodPlugin;
 use crate::entity::bomb::BombPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
@@ -207,6 +208,7 @@ pub fn run_game() {
         .add_plugins(AnimatedSlicePlugin)
         .add_plugins(BasicEnemyPlugin)
         .add_plugins(BGMSwitchPlugin)
+        .add_plugins(BloodPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BombPlugin)
         .add_plugins(BossHitpointBarPlugin)

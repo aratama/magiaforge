@@ -10,68 +10,81 @@ GameActors(
         "Witch": (
             move_force: 40000.0,
             jump: 0.0,
-            linear_damping: 6.0
+            linear_damping: 6.0,
+            blood: Some(Red)
         ),
         "Rabbit": (
             move_force: 40000.0,
             jump: 1.5,
             linear_damping: 10.0,
+            blood: Some(Red)
         ),
         "Chicken": (
             move_force: 60000.0,
             jump: 1.5,
             linear_damping: 10.0,
+            blood: Some(Red)
         ),
         "EyeBall": (
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: Some(Red)
         ),
         "Sandbag": (
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: None
         ),
         "Slime": (
             move_force: 50000.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: Some(Blue)
         ),
         "Salamander": (
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: Some(Red)
         ),
         "Shadow": (
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: None
         ),
         "Spider": (
             move_force: 150000.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: None
         ),
         "HugeSlime": (
             // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
             move_force: 400000.0,
             jump: 3.0,
             linear_damping: 10.0,
+            blood: None
         ),
         "Lantern": (
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: None
         ),
         "Chest": (
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: None
         ),
         "BookShelf": (
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
+            blood: None
         ),
     }
 )

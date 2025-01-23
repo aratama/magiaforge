@@ -130,34 +130,13 @@ fn hopping(
     }
 }
 
-fn blood(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    query: Query<(&Life, &Transform), With<Chicken>>,
-) {
-    for (life, transform) in query.iter() {
-        if life.life <= 0 {
-            let position = transform.translation.truncate();
-            commands.spawn((
-                StateScoped(GameState::InGame),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: format!("blood_{}", rand::random::<u8>() % 3),
-                },
-                Transform::from_translation(position.extend(BLOOD_LAYER_Z))
-                    .with_scale(Vec3::new(2.0, 2.0, 1.0)),
-            ));
-        }
-    }
-}
-
 pub struct ChikenControlPlugin;
 
 impl Plugin for ChikenControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (control_chiken, hopping, blood).in_set(FixedUpdateGameActiveSet),
+            (control_chiken, hopping).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

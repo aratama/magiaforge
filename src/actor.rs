@@ -38,6 +38,7 @@ use crate::enemy::salamander::default_salamander;
 use crate::enemy::shadow::default_shadow;
 use crate::enemy::slime::default_slime;
 use crate::enemy::spider::default_spider;
+use crate::entity::blood::Blood;
 use crate::entity::bullet::Trigger;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::LifeBarResource;
@@ -194,6 +195,9 @@ pub struct Actor {
     pub radius: f32,
 
     pub state: ActorState,
+
+    // 外観 ///////////////////////////////////////////////////////////////////////////////////////////
+    pub blood: Option<Blood>,
 
     // アクター特性 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -480,6 +484,7 @@ impl Default for Actor {
                 Wand::default(),
                 Wand::default(),
             ],
+            blood: None,
             inventory: Inventory::new(),
             fire_resistance: false,
             move_direction: Vec2::ZERO,

@@ -154,34 +154,13 @@ fn control_slime(
     }
 }
 
-fn blood(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    query: Query<(&Life, &Transform), With<SlimeControl>>,
-) {
-    for (life, transform) in query.iter() {
-        if life.life <= 0 {
-            let position = transform.translation.truncate();
-            commands.spawn((
-                StateScoped(GameState::InGame),
-                AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
-                    name: format!("slime_blood_{}", rand::random::<u8>() % 3),
-                },
-                Transform::from_translation(position.extend(BLOOD_LAYER_Z))
-                    .with_scale(Vec3::new(2.0, 2.0, 1.0)),
-            ));
-        }
-    }
-}
-
 pub struct SlimeControlPlugin;
 
 impl Plugin for SlimeControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (control_slime, blood).in_set(FixedUpdateGameActiveSet),
+            (control_slime).in_set(FixedUpdateGameActiveSet),
         );
     }
 }
