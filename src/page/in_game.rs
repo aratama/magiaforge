@@ -245,9 +245,10 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    // spawn.send(SpawnEntity::Enemy {
-    //     enemy_type: ActorTypes::Spider,
-    //     position: Vec2::new(TILE_SIZE * 24 as f32, TILE_SIZE * -34 as f32),
+    // spawn.send(SpawnEntity::DefaultActor {
+    //     actor_type: ActorType::Slime,
+    //     actor_group: ActorGroup::Enemy,
+    //     position: index_to_position((31, 52)),
     // });
 
     // プレイヤーを生成します

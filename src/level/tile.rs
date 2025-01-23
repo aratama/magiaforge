@@ -13,6 +13,7 @@ pub enum Tile {
 }
 
 impl Tile {
+    /// アクターやエンティティが乗ることができないタイルです
     pub fn is_wall(&self) -> bool {
         match self {
             Tile::Wall => true,
@@ -23,7 +24,8 @@ impl Tile {
     }
 
     /// 上にアクターやエンティティが乗ることができるタイルを表します
-    pub fn is_floor(&self) -> bool {
+    /// ただし、水面や溶岩など、通常は通行を避けるべきタイルも含まれます
+    pub fn is_plane(&self) -> bool {
         match self {
             Tile::StoneTile => true,
             Tile::Ice => true,
@@ -31,6 +33,18 @@ impl Tile {
             Tile::Soil => true,
             Tile::Water => true,
             Tile::Lava => true,
+            _ => false,
+        }
+    }
+
+    /// アクターやエンティティが通常通行できるタイルです
+    #[allow(dead_code)]
+    pub fn is_floor(&self) -> bool {
+        match self {
+            Tile::StoneTile => true,
+            Tile::Ice => true,
+            Tile::Grassland => true,
+            Tile::Soil => true,
             _ => false,
         }
     }

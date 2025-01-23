@@ -144,9 +144,9 @@ fn update_servant_seed(
             .extend(SERVANT_SEED_LAYER_Z);
         if seed.animation == seed.speed {
             commands.entity(entity).despawn_recursive();
-            
+
             if let Some(ref chunk) = current.chunk {
-                if chunk.get_tile_by_coords(seed.to).is_floor() {
+                if chunk.get_tile_by_coords(seed.to).is_plane() {
                     spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type,
                         position: seed.to,

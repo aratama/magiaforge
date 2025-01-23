@@ -58,6 +58,7 @@ pub fn spawn_basic_enemy(
             ExternalForce::default(),
             ExternalImpulse::default(),
             ActiveEvents::COLLISION_EVENTS,
+            Velocity::default(),
             actor_group.to_groups(0.0, 0),
         ),
     ));

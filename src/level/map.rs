@@ -70,6 +70,11 @@ impl LevelChunk {
         self.get_tile(x, y).is_wall()
     }
 
+    #[allow(dead_code)]
+    pub fn is_floor(&self, x: i32, y: i32) -> bool {
+        self.get_tile(x, y).is_floor()
+    }
+
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
         if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
             return;
@@ -107,13 +112,17 @@ impl LevelChunk {
 }
 
 pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
-    xy_to_position(tx, ty)
-}
-
-pub fn xy_to_position(tx: i32, ty: i32) -> Vec2 {
     Vec2::new(
         tx as f32 * TILE_SIZE + TILE_HALF,
         ty as f32 * -TILE_SIZE - TILE_HALF,
+    )
+}
+
+#[allow(dead_code)]
+pub fn position_to_index(position: Vec2) -> (i32, i32) {
+    (
+        ((position.x - TILE_HALF) / TILE_SIZE).trunc() as i32,
+        ((position.y + TILE_HALF) / -TILE_SIZE).trunc() as i32,
     )
 }
 
