@@ -3,12 +3,11 @@ use crate::actor::get_default_actor;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
-use crate::constant::ActorProps;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::spawn_actor;
 use crate::level::entities::SpawnEntity;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -55,7 +54,7 @@ pub fn random_actor_type(mut rng: &mut ThreadRng, except: ActorType) -> ActorTyp
 ///
 pub fn cast_metamorphosis(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     se: &mut EventWriter<SEEvent>,
     spawn: &mut EventWriter<SpawnEntity>,
@@ -64,7 +63,6 @@ pub fn cast_metamorphosis(
     original_actor: Actor,
     original_life: Life,
     original_morph: &Option<&Metamorphosed>,
-    props: &ActorProps,
 
     position: Vec2,
     morphed_type: ActorType,
@@ -101,12 +99,11 @@ pub fn cast_metamorphosis(
 
     let entity = spawn_actor(
         &mut commands,
-        &assets,
+        &registry,
         &life_bar_resource,
         position,
         dest_actor,
         dest_life,
-        props,
     );
 
     let mut builder = commands.entity(entity);

@@ -1,6 +1,6 @@
+use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
 use crate::constant::DAMAGE_NUMBER_LAYER_Z;
-use crate::actor::ActorEvent;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -88,7 +88,6 @@ fn update_damage(
         particle.lifetime -= 1;
         if particle.lifetime == 0 {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

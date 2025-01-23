@@ -1,8 +1,8 @@
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::enemy::huge_slime::Boss;
 use crate::language::Dict;
 use crate::language::M18NTtext;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 
@@ -27,7 +27,7 @@ pub struct StatusBarText;
 #[derive(Component)]
 pub struct BossNameText;
 
-pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, registry: &Registry) {
     parent
         .spawn((
             Name::new("boss_hitpoint_bar"),
@@ -90,7 +90,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 Text::new(""),
                 TextColor(Color::WHITE),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     font_size: 15.0,
                     ..default()
                 },
@@ -109,7 +109,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 M18NTtext(Dict::empty()),
                 TextColor(Color::hsva(0.0, 0.0, 1.0, 0.5)),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     font_size: 15.0,
                     ..default()
                 },

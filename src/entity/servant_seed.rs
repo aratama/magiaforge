@@ -15,6 +15,7 @@ use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
 use crate::hud::life_bar::LifeBarResource;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -67,7 +68,7 @@ pub struct ServantSeedSprite;
 
 pub fn spawn_servant_seed(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     writer: &mut EventWriter<ClientMessage>,
     websocket: &Res<WebSocketState>,
     from: Vec2,
@@ -98,7 +99,7 @@ pub fn spawn_servant_seed(
                 servant: servant,
             },
             AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "entity_shadow".into(),
             },
             Transform::from_translation(from.extend(SHADOW_LAYER_Z)),
@@ -107,7 +108,7 @@ pub fn spawn_servant_seed(
             ServantSeedSprite,
             CounterAnimated,
             AseSpriteAnimation {
-                aseprite: servant_type.to_asset(&assets, actor_group),
+                aseprite: servant_type.to_asset(&registry.assets, actor_group),
                 animation: "idle".into(),
             },
         ));
@@ -172,27 +173,23 @@ struct SpawnServantEvent {
 
 fn spawn_servant(
     mut commands: Commands,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     life_bar_locals: Res<LifeBarResource>,
     mut reader: EventReader<SpawnServantEvent>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
     for event in reader.read() {
         match event.servant_type {
             ServantType::Slime => {
                 let (mut actor, life) = default_slime();
-                let props = actor.to_props(&constants);
                 actor.actor_group = event.actor_group;
                 let entity = spawn_slime(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &life_bar_locals,
                     actor,
                     life,
                     event.position,
                     event.master,
-                    props,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
@@ -204,15 +201,13 @@ fn spawn_servant(
             }
             ServantType::Eyeball => {
                 let (actor, life) = crate::enemy::eyeball::default_eyeball();
-                let props = actor.to_props(&constants);
                 let entity = spawn_eyeball(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &life_bar_locals,
                     event.position,
                     actor,
                     life,
-                    props,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
@@ -222,15 +217,13 @@ fn spawn_servant(
             }
             ServantType::Chiken => {
                 let (actor, life) = default_chiken();
-                let props = actor.to_props(&constants);
                 let entity = spawn_chiken(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &life_bar_locals,
                     actor,
                     life,
                     event.position,
-                    props,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);

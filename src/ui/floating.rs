@@ -1,13 +1,12 @@
-use crate::asset::GameAssets;
-use crate::constant::GameConstants;
+use crate::actor::Actor;
 use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
 use crate::controller::player::Player;
-use crate::actor::Actor;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::DropArea;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::states::GameMenuState;
@@ -47,10 +46,10 @@ pub struct Floating {
     pub target: Option<FloatingContent>,
 }
 
-pub fn spawn_inventory_floating(mut builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_inventory_floating(mut builder: &mut ChildBuilder, registry: &Registry) {
     spawn_item_panel(
         &mut builder,
-        &assets,
+        &registry,
         Floating {
             content: Some(FloatingContent::Inventory(2)),
             target: None,
@@ -121,15 +120,12 @@ fn drop(
     mut player_query: Query<&mut Actor, With<Player>>,
     drop_query: Query<&DropArea>,
     mut commands: Commands,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
+    registry: Registry,
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
     map: Res<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
     let mut floating = floating_query.single_mut();
     if mouse.just_released(MouseButton::Left) {
         let content_optional = floating.content;
@@ -159,8 +155,7 @@ fn drop(
 
                                             spawn_dropped_item(
                                                 &mut commands,
-                                                &assets,
-                                                &constants,
+                                                &registry,
                                                 pointer_in_world,
                                                 item,
                                             );

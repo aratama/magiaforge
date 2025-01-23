@@ -1,16 +1,24 @@
-use crate::actor::{ActorEvent, ActorGroup};
-use crate::asset::GameAssets;
+use crate::actor::ActorEvent;
+use crate::actor::ActorGroup;
 use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::life::Life;
 use crate::constant::PARTICLE_LAYER_Z;
 use crate::entity::grass::Grasses;
-use crate::se::{SEEvent, SE};
+use crate::registry::Registry;
+use crate::se::SEEvent;
+use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
-use bevy_rapier2d::plugin::{DefaultRapierContext, RapierContext};
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, QueryFilter, RigidBody, Velocity};
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::CollisionGroups;
+use bevy_rapier2d::prelude::Group;
+use bevy_rapier2d::prelude::QueryFilter;
+use bevy_rapier2d::prelude::RigidBody;
+use bevy_rapier2d::prelude::Velocity;
 use core::f32;
 
 #[derive(Component)]
@@ -18,7 +26,7 @@ struct Slash;
 
 pub fn spawn_slash(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     se: &mut EventWriter<SEEvent>,
     position: Vec2,
     velocity: Vec2,
@@ -35,7 +43,7 @@ pub fn spawn_slash(
         Slash,
         Counter::default(),
         AseSpriteAnimation {
-            aseprite: assets.slash.clone(),
+            aseprite: registry.assets.slash.clone(),
             animation: "default".into(),
         },
         Transform::from_translation(position.extend(PARTICLE_LAYER_Z)).with_rotation(rotation),
@@ -92,7 +100,6 @@ pub fn spawn_slash(
                 let t = (target - position).angle_to(Vec2::from_angle(angle));
                 if t.abs() < f32::consts::PI * 0.5 {
                     commands.entity(grass).despawn_recursive();
-                    
                 }
             }
             true
@@ -104,7 +111,6 @@ fn update_impact(mut commands: Commands, mut query: Query<(Entity, &Counter), Wi
     for (entity, counter) in query.iter_mut() {
         if 30 <= counter.count {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

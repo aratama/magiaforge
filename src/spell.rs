@@ -1,6 +1,5 @@
 use crate::cast::SpellCast;
 use crate::cast::SpellCastBullet;
-use crate::constant::GameConstants;
 use crate::language::Dict;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
@@ -78,19 +77,13 @@ pub enum SpellType {
 #[derive(Debug, serde::Deserialize, Clone)]
 /// 呪文の基礎情報
 pub struct SpellProps {
-    pub rank: u32,
+    pub rank: u8,
     pub name: Dict<String>,
     pub description: Dict<String>,
     pub cast_delay: u32,
     pub icon: String,
     pub price: u32,
     pub cast: SpellCast,
-}
-
-impl SpellType {
-    pub fn to_props<'a>(&self, constants: &'a GameConstants) -> &'a SpellProps {
-        &constants.spells.get(&format!("{:?}", self)).unwrap()
-    }
 }
 
 const DAMAGE: Dict<&'static str> = Dict {

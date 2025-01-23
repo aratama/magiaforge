@@ -1,7 +1,7 @@
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
-use crate::constant::{GameActors, BLOOD_LAYER_Z};
+use crate::constant::BLOOD_LAYER_Z;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -14,22 +14,16 @@ pub enum Blood {
     Blue,
 }
 
-fn blood(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
-    query: Query<(&Life, &Transform, &Actor)>,
-) {
-    let constants = ron.get(assets.actors.id()).unwrap();
+fn blood(mut commands: Commands, registry: Registry, query: Query<(&Life, &Transform, &Actor)>) {
     for (life, transform, actor) in query.iter() {
         if life.life <= 0 {
-            let props = actor.to_props(&constants);
+            let props = registry.get_actor_props(actor.to_type());
             if let Some(ref blood) = props.blood {
                 let position = transform.translation.truncate();
                 commands.spawn((
                     StateScoped(GameState::InGame),
                     AseSpriteSlice {
-                        aseprite: assets.atlas.clone(),
+                        aseprite: registry.assets.atlas.clone(),
                         name: match blood {
                             Blood::Red => format!("blood_{}", rand::random::<u8>() % 3),
                             Blood::Blue => format!("slime_blood_{}", rand::random::<u8>() % 3),

@@ -16,7 +16,6 @@ use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::message_rabbit::SpellListRabbit;
@@ -55,6 +54,7 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::language::Dict;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -189,9 +189,7 @@ pub enum SpawnWitchType {
 
 pub fn spawn_entity(
     mut commands: Commands,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
-    actors: Res<Assets<GameActors>>,
+    registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
     mut setup: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
@@ -204,14 +202,10 @@ pub fn spawn_entity(
     life_query: Query<&Transform, With<Life>>,
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
-    let actor_constants = actors.get(&assets.actors).unwrap();
-
     for event in reader.read() {
         if setup.shop_items.is_empty() {
             setup.shop_items = new_shop_item_queue(
-                &constants,
+                &registry,
                 setup
                     .next_state
                     .clone()
@@ -227,7 +221,7 @@ pub fn spawn_entity(
             SpawnEntity::MagicCircle { position } => {
                 spawn_magic_circle(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     MagicCircleDestination::NextLevel,
                 );
@@ -235,7 +229,7 @@ pub fn spawn_entity(
             SpawnEntity::MagicCircleHome { position } => {
                 spawn_magic_circle(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     MagicCircleDestination::Home,
                 );
@@ -243,7 +237,7 @@ pub fn spawn_entity(
             SpawnEntity::MultiPlayArenaMagicCircle { position } => {
                 spawn_magic_circle(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     MagicCircleDestination::MultiplayArena,
                 );
@@ -251,17 +245,17 @@ pub fn spawn_entity(
             SpawnEntity::MagicCircleDemoEnding { position } => {
                 spawn_magic_circle(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     MagicCircleDestination::Ending,
                 );
             }
             SpawnEntity::BrokenMagicCircle { position } => {
-                spawn_broken_magic_circle(&mut commands, assets.atlas.clone(), *position);
+                spawn_broken_magic_circle(&mut commands, registry.assets.atlas.clone(), *position);
             }
             SpawnEntity::StoneLantern { position } => {
                 let (actor, life) = default_lantern();
-                spawn_stone_lantern(&mut commands, &assets, *position, actor, life);
+                spawn_stone_lantern(&mut commands, &registry, *position, actor, life);
             }
             SpawnEntity::Usage { position } => {
                 commands.spawn((
@@ -272,7 +266,7 @@ pub fn spawn_entity(
                         ..default()
                     },
                     AseSpriteSlice {
-                        aseprite: assets.atlas.clone(),
+                        aseprite: registry.assets.atlas.clone(),
                         name: "usage".into(),
                     },
                 ));
@@ -286,19 +280,19 @@ pub fn spawn_entity(
                         ..default()
                     },
                     AseSpriteSlice {
-                        aseprite: assets.atlas.clone(),
+                        aseprite: registry.assets.atlas.clone(),
                         name: "routes".into(),
                     },
                 ));
             }
             SpawnEntity::ShopSpell { position } => {
                 if let Some(item) = setup.shop_items.pop() {
-                    spawn_dropped_item(&mut commands, &assets, &constants, *position, item);
+                    spawn_dropped_item(&mut commands, &registry, *position, item);
                 }
             }
             SpawnEntity::HugeSlime { position, boss } => {
                 let (actor, life) = default_huge_slime();
-                let entity = spawn_huge_slime(&mut commands, &assets, *position, actor, life);
+                let entity = spawn_huge_slime(&mut commands, &registry, *position, actor, life);
                 if let Some(boss_name) = boss {
                     commands.entity(entity).insert(Boss {
                         name: boss_name.clone(),
@@ -309,7 +303,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::Shop);
                 spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -320,7 +314,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::Training);
                 spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -331,7 +325,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::Singleplay);
                 spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -342,7 +336,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::Guide);
                 spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -353,7 +347,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::MultiPlay);
                 spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -364,7 +358,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::Reading);
                 spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -375,7 +369,7 @@ pub fn spawn_entity(
                 let (actor, life) = default_rabbit(RabbitType::SpellList);
                 let entity = spawn_rabbit(
                     &mut commands,
-                    &assets,
+                    &registry,
                     *position,
                     actor,
                     life,
@@ -385,13 +379,13 @@ pub fn spawn_entity(
                 commands.entity(entity).insert(SpellListRabbit);
             }
             SpawnEntity::ShopDoor { position } => {
-                spawn_shop_door(&mut commands, &assets, *position);
+                spawn_shop_door(&mut commands, &registry, *position);
             }
             SpawnEntity::BGM { position } => {
-                spawn_bgm_switch(&mut commands, &assets, *position);
+                spawn_bgm_switch(&mut commands, &registry, *position);
             }
             SpawnEntity::Bomb { position } => {
-                spawn_bomb(&mut commands, &assets, *position);
+                spawn_bomb(&mut commands, &registry, *position);
             }
             SpawnEntity::Seed {
                 from,
@@ -404,7 +398,7 @@ pub fn spawn_entity(
             } => {
                 spawn_servant_seed(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &mut client_message_writer,
                     &websocket,
                     *from,
@@ -423,16 +417,14 @@ pub fn spawn_entity(
                 position,
             } => {
                 let (mut actor, life) = get_default_actor(*actor_type);
-                let props = actor.to_props(actor_constants);
                 actor.actor_group = *actor_group;
                 let entity = spawn_actor(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &life_bar_resource,
                     *position,
                     actor,
                     life,
-                    props,
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
@@ -443,7 +435,7 @@ pub fn spawn_entity(
             } => {
                 spawn_web(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &mut se,
                     *position,
                     *owner_actor_group,
@@ -455,7 +447,7 @@ pub fn spawn_entity(
                 velocity,
                 actor_group,
             } => {
-                spawn_fireball(&mut commands, &assets, *position, *velocity, *actor_group);
+                spawn_fireball(&mut commands, &registry, *position, *velocity, *actor_group);
             }
 
             SpawnEntity::Actor {
@@ -463,15 +455,13 @@ pub fn spawn_entity(
                 life,
                 actor,
             } => {
-                let props = actor.to_props(actor_constants);
                 let entity = spawn_actor(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &life_bar_resource,
                     *position,
                     actor.clone(),
                     life.clone(),
-                    props,
                 );
                 if let ActorExtra::Witch {
                     witch_type,
@@ -512,7 +502,7 @@ pub fn spawn_entity(
             } => {
                 spawn_slash(
                     &mut commands,
-                    &assets,
+                    &registry,
                     &mut se,
                     *position,
                     *velocity,
@@ -531,17 +521,16 @@ pub fn spawn_entity(
 
 pub fn spawn_actor(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
     life: Life,
-    props: &ActorProps,
 ) -> Entity {
     match actor.extra.clone() {
         ActorExtra::Witch { .. } => spawn_witch(
             &mut commands,
-            &assets,
+            registry,
             position,
             None,
             &life_bar_resource,
@@ -551,26 +540,24 @@ pub fn spawn_actor(
         ),
         ActorExtra::Slime => spawn_slime(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             actor,
             life,
             position,
             None,
-            props,
         ),
         ActorExtra::Eyeball => spawn_eyeball(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             position,
             actor,
             life,
-            props,
         ),
         ActorExtra::Shadow => spawn_shadow(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             position,
             actor,
@@ -578,7 +565,7 @@ pub fn spawn_actor(
         ),
         ActorExtra::Spider => spawn_spider(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             position,
             actor,
@@ -586,7 +573,7 @@ pub fn spawn_actor(
         ),
         ActorExtra::Salamander => spawn_salamander(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             position,
             actor,
@@ -594,38 +581,40 @@ pub fn spawn_actor(
         ),
         ActorExtra::Chicken => spawn_chiken(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             actor,
             life,
             position,
-            props,
         ),
         ActorExtra::Sandbag => spawn_sandbag(
             &mut commands,
-            &assets,
+            &registry,
             &life_bar_resource,
             position,
             actor,
             life,
-            props,
         ),
-        ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &assets, position, actor, life),
+        ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &registry, position, actor, life),
         ActorExtra::Chest { chest_type, .. } => spawn_chest(
             &mut commands,
-            assets.atlas.clone(),
+            registry.assets.atlas.clone(),
             position,
             actor,
             life,
             chest_type,
         ),
-        ActorExtra::BookShelf => {
-            spawn_book_shelf(&mut commands, assets.atlas.clone(), position, actor, life)
-        }
-        ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &assets, position, actor, life),
+        ActorExtra::BookShelf => spawn_book_shelf(
+            &mut commands,
+            registry.assets.atlas.clone(),
+            position,
+            actor,
+            life,
+        ),
+        ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &registry, position, actor, life),
         ActorExtra::Rabbit { rabbit_type } => {
             let (actor, life) = default_rabbit(rabbit_type);
-            spawn_rabbit(commands, assets, position, actor, life, rabbit_type)
+            spawn_rabbit(commands, &registry, position, actor, life, rabbit_type)
         }
     }
 }

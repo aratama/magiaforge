@@ -1,4 +1,4 @@
-GameSenarios (
+SenarioRegistry(
     senarios: {
         "HelloRabbit": [
             (type: "BGM", bgm: Some("Saihate")),

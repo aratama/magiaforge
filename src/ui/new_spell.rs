@@ -1,13 +1,14 @@
-use crate::{
-    asset::GameAssets,
-    constant::{GameConstants, UI_PRIMARY, UI_PRIMARY_DARKER},
-    language::M18NTtext,
-    message::NEW_SPELL,
-    se::{SEEvent, SE},
-    set::FixedUpdateInGameSet,
-    spell::SpellType,
-    states::{GameMenuState, TimeState},
-};
+use crate::constant::UI_PRIMARY;
+use crate::constant::UI_PRIMARY_DARKER;
+use crate::language::M18NTtext;
+use crate::message::NEW_SPELL;
+use crate::registry::Registry;
+use crate::se::SEEvent;
+use crate::se::SE;
+use crate::set::FixedUpdateInGameSet;
+use crate::spell::SpellType;
+use crate::states::GameMenuState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
 
@@ -16,8 +17,7 @@ pub struct NewSpell;
 
 pub fn spawn_new_spell(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    constants: &GameConstants,
+    registry: &Registry,
     time: &mut ResMut<NextState<TimeState>>,
     spell: SpellType,
     se: &mut EventWriter<SEEvent>,
@@ -26,7 +26,7 @@ pub fn spawn_new_spell(
 
     time.set(TimeState::Inactive);
 
-    let props = spell.to_props(&constants);
+    let props = registry.get_spell_props(spell);
     commands
         // 背景
         .spawn((
@@ -83,7 +83,7 @@ pub fn spawn_new_spell(
                                     ..default()
                                 },
                                 AseUiSlice {
-                                    aseprite: assets.atlas.clone(),
+                                    aseprite: registry.assets.atlas.clone(),
                                     name: props.icon.to_string(),
                                 },
                                 BackgroundColor::from(UI_PRIMARY_DARKER),
@@ -135,7 +135,7 @@ fn close(
     {
         if let Ok(entity) = query.get_single() {
             commands.entity(entity).despawn_recursive();
-            
+
             time.set(TimeState::Active);
         }
     }

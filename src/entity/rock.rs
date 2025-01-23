@@ -9,6 +9,7 @@ use crate::component::vertical::Vertical;
 use crate::entity::impact::SpawnImpact;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -23,7 +24,7 @@ struct FallingRock;
 #[derive(Default, Component, Reflect)]
 struct FallenRock;
 
-pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_falling_rock(commands: &mut Commands, registry: &Registry, position: Vec2) {
     commands
         .spawn((
             Name::new("vertical rock"),
@@ -33,7 +34,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, pos
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "fallen_rock_shadow".to_string(),
                 ..default()
             },
@@ -44,7 +45,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, assets: &Res<GameAssets>, pos
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "fallen_rock".to_string(),
                     ..default()
                 },
@@ -66,7 +67,7 @@ fn fall(
             if child_transform.translation.y <= 0.0 {
                 let position = parent_transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();
-                
+
                 if let Some(ref level) = interlevel.chunk {
                     let tile = level.get_tile_by_coords(position);
                     if tile != Tile::Wall && tile != Tile::Blank && tile != Tile::PermanentWall {
@@ -129,7 +130,7 @@ fn despawn(
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            
+
             writer.send(SEEvent::pos(SE::Break, position));
         }
     }

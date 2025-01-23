@@ -274,31 +274,3 @@ pub const HUGE_SLIME: Dict<&'static str> = Dict {
     ko: "슬라임 왕 에밀스",
     ru: "Король слизней Эмильс",
 };
-
-// 地名 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-pub const MULTIPLAY_ARENA: Dict<&'static str> = Dict {
-    ja: "対決の洞窟",
-    en: "Arena Cave",
-    zh_cn: "竞技场洞穴",
-    zh_tw: "競技場洞穴",
-    es: "Cueva de la Arena",
-    fr: "Grotte de l'Arène",
-    pt: "Caverna da Arena",
-    de: "Arenahöhle",
-    ko: "아레나 동굴",
-    ru: "Пещера арены",
-};
-
-pub const UNKNOWN_LEVEL: Dict<&'static str> = Dict {
-    ja: "不明",
-    en: "Unknown",
-    zh_cn: "未知",
-    zh_tw: "未知",
-    es: "Desconocido",
-    fr: "Inconnu",
-    pt: "Desconhecido",
-    de: "Unbekannt",
-    ko: "알 수 없음",
-    ru: "Неизвестно",
-};

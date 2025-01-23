@@ -1,6 +1,6 @@
-use crate::constant::GameActors;
-use crate::constant::GameConstants;
-use crate::constant::GameSenarios;
+use crate::registry::ActorRegistry;
+use crate::registry::SenarioRegistry;
+use crate::registry::SpellRegistry;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -8,15 +8,17 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
-    #[asset(path = "config.spells.ron")]
-    pub spells: Handle<GameConstants>,
+    // 設定 //////////////////////////////////////////////////////////////////////////////////////////////////////
+    #[asset(path = "registry.spell.ron")]
+    pub spell_registry: Handle<SpellRegistry>,
 
-    #[asset(path = "config.actors.ron")]
-    pub actors: Handle<GameActors>,
+    #[asset(path = "registry.actor.ron")]
+    pub actor_registry: Handle<ActorRegistry>,
 
-    #[asset(path = "config.senario.ron")]
-    pub senario: Handle<GameSenarios>,
+    #[asset(path = "registry.senario.ron")]
+    pub senario_registry: Handle<SenarioRegistry>,
 
+    // フォント //////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "font/NotoSansJP-Medium.ttf")]
     pub noto_sans_jp: Handle<Font>,
 

@@ -1,10 +1,10 @@
-use crate::asset::GameAssets;
 use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::appearance::TileSprite;
 use crate::level::map::LevelChunk;
 use crate::level::tile::Tile;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -110,7 +110,7 @@ pub fn get_tile_index_right_bottom(
 pub fn spawn_autotiles<T: Component>(
     prefixes: &Vec<String>,
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     chunk: &LevelChunk,
     targets: &Vec<Tile>,
     y_offset: f32,
@@ -125,17 +125,17 @@ pub fn spawn_autotiles<T: Component>(
 ) {
     let lt = get_tile_index_left_top(chunk, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, assets, y_offset, xi, yi, z, 0, 0, lt, left_top,
+        prefixes, commands, registry, y_offset, xi, yi, z, 0, 0, lt, left_top,
     );
     let rt = get_tile_index_right_top(chunk, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, assets, y_offset, xi, yi, z, 1, 0, rt, right_top,
+        prefixes, commands, registry, y_offset, xi, yi, z, 1, 0, rt, right_top,
     );
     let lb = get_tile_index_left_bottom(chunk, xi, yi, depth, targets);
     spawn_autotile(
         prefixes,
         commands,
-        assets,
+        registry,
         y_offset,
         xi,
         yi,
@@ -149,7 +149,7 @@ pub fn spawn_autotiles<T: Component>(
     spawn_autotile(
         prefixes,
         commands,
-        assets,
+        registry,
         y_offset,
         xi,
         yi,
@@ -164,7 +164,7 @@ pub fn spawn_autotiles<T: Component>(
 fn spawn_autotile<T: Component>(
     prefix: &Vec<String>,
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     y_offset: f32,
     xi: i32,
     yi: i32,
@@ -182,7 +182,7 @@ fn spawn_autotile<T: Component>(
         StateScoped(GameState::InGame),
         Transform::from_xyz(x, y, z),
         AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: format!("{}_{:?}", prefix[0], roof_index).to_string(),
         },
         AnimatedSlice {

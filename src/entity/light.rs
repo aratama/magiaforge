@@ -1,7 +1,7 @@
+use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-
-use crate::states::{GameState, TimeState};
 
 #[derive(Component)]
 pub struct FlashLight {
@@ -47,7 +47,6 @@ fn flash_ligh_fade_out(
             light.intensity = flash.intensity * if flash.reverse { t } else { 1.0 - t };
         } else {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

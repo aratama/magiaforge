@@ -1,9 +1,9 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
+use crate::registry::Registry;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
@@ -22,13 +22,13 @@ struct WandSpellSprite {
 
 pub fn spawn_wand_spell_slot(
     mut parent: &mut ChildBuilder,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     wand_index: usize,
     spell_index: usize,
 ) {
     spawn_item_panel(
         &mut parent,
-        &assets,
+        &registry,
         WandSpellSprite {
             wand_index,
             spell_index,

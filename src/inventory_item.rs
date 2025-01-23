@@ -1,5 +1,4 @@
-use crate::constant::GameConstants;
-use crate::language::Dict;
+use crate::registry::Registry;
 use crate::spell::SpellType;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
@@ -17,36 +16,15 @@ impl InventoryItemType {
         }
     }
 
-    pub fn get_icon(&self, constants: &GameConstants) -> String {
+    pub fn get_icon(&self, registry: &Registry) -> String {
         match self {
-            InventoryItemType::Spell(spell) => spell.to_props(&constants).icon.clone(),
+            InventoryItemType::Spell(spell) => registry.get_spell_props(*spell).icon.clone(),
         }
     }
 
     pub fn get_icon_width(&self) -> f32 {
         match self {
             InventoryItemType::Spell(..) => 32.0,
-        }
-    }
-}
-
-pub struct InventoryItemProps {
-    pub icon: String,
-    pub name: Dict<String>,
-    pub description: Dict<String>,
-}
-
-impl InventoryItemType {
-    pub fn to_props(&self, constants: &GameConstants) -> InventoryItemProps {
-        match self {
-            InventoryItemType::Spell(spell) => {
-                let props = spell.to_props(&constants);
-                InventoryItemProps {
-                    icon: props.icon.clone(),
-                    name: props.name.clone(),
-                    description: props.description.clone(),
-                }
-            }
         }
     }
 }

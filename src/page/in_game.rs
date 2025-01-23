@@ -27,6 +27,7 @@ use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
 use crate::level::tile::Tile;
 use crate::player_state::PlayerState;
+use crate::registry::Registry;
 use crate::set::FixedUpdateAfterAll;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
@@ -87,16 +88,16 @@ impl Default for LevelSetup {
 }
 
 pub fn new_shop_item_queue(
-    constants: &GameConstants,
+    registry: &Registry,
     discovered_spells: Vec<SpellType>,
 ) -> Vec<InventoryItem> {
     let mut rng = rand::thread_rng();
 
     let mut shop_items: Vec<InventoryItem> = SpellType::iter()
-        .filter(|s| discovered_spells.contains(&s) || s.to_props(&constants).rank <= 1)
+        .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
         .map(|s| InventoryItem {
             item_type: InventoryItemType::Spell(s),
-            price: s.to_props(&constants).price,
+            price: registry.get_spell_props(s).price,
         })
         .collect();
 
@@ -108,18 +109,15 @@ pub fn new_shop_item_queue(
 /// レベルとプレイヤーキャラクターを生成します
 pub fn setup_level(
     mut commands: Commands,
+    registry: Registry,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntity>,
     mut next: ResMut<NextState<GameMenuState>>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
     overlay.send(OverlayEvent::SetOpen(true));
 
     let mut rng = StdRng::from_entropy();
@@ -133,20 +131,13 @@ pub fn setup_level(
         next.set(GameMenuState::PlayerInActive);
     }
 
-    let biome_tile = match level {
-        GameLevel::Level(level) => constants
-            .levels
-            .get(level as usize)
-            .map(|l| l.biome)
-            .unwrap_or(Tile::StoneTile),
-        _ => Tile::StoneTile,
-    };
+    let biome_tile = registry.get_level_props(level).biome;
 
     // 画像データからレベルの情報を選択して読み取ります
     let chunk = read_level_chunk_data(
+        &registry,
         &level_aseprites,
         &images,
-        &assets,
         level,
         &mut rng,
         biome_tile,
@@ -181,7 +172,7 @@ pub fn setup_level(
     ));
 
     // レベルの外観を生成します
-    spawn_world_tilemap(&mut commands, &assets, &chunk);
+    spawn_world_tilemap(&mut commands, &registry, &chunk);
 
     // エントリーポイントを選択
     // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
@@ -195,8 +186,8 @@ pub fn setup_level(
         .clone()
         .unwrap_or(if cfg!(feature = "item") {
             PlayerState {
-                inventory: Inventory::from_vec(constants.debug_items.clone()),
-                wands: Wand::from_vec(constants.debug_wands.clone()),
+                inventory: Inventory::from_vec(registry.game().debug_items.clone()),
+                wands: Wand::from_vec(registry.game().debug_wands.clone()),
                 ..default()
             }
         } else {
@@ -225,22 +216,9 @@ pub fn setup_level(
     let empties = image_to_spawn_tiles(&chunk);
 
     // 空いた空間に敵モブキャラクターをランダムに生成します
-    let spaw_enemy_count = match level {
-        GameLevel::Level(level) => constants
-            .levels
-            .get(level as usize)
-            .map(|l| l.enemies)
-            .unwrap_or(0),
-        _ => 0,
-    };
-    let spaw_enemy_types = match level {
-        GameLevel::Level(level) => constants
-            .levels
-            .get(level as usize)
-            .map(|l| l.enemy_types.clone())
-            .unwrap_or_default(),
-        GameLevel::MultiPlayArena => vec![],
-    };
+    let props = registry.get_level_props(level);
+    let spaw_enemy_count = props.enemies;
+    let spaw_enemy_types = props.enemy_types.clone();
     spawn_random_enemies(
         &empties,
         &mut rng,
@@ -252,27 +230,12 @@ pub fn setup_level(
 
     spawn_dropped_items(
         &mut commands,
-        &assets,
-        &constants,
+        &registry,
         &empties,
         &mut rng,
         entry_point.clone(),
-        match level {
-            GameLevel::Level(level) => constants
-                .levels
-                .get(level as usize)
-                .map(|l| l.items as u32)
-                .unwrap_or(0),
-            _ => 0,
-        },
-        match level {
-            GameLevel::Level(level) => constants
-                .levels
-                .get(level as usize)
-                .map(|l| l.item_ranks.iter().map(|&i| i as u32).collect())
-                .unwrap_or_default(),
-            _ => vec![],
-        },
+        props.items,
+        props.item_ranks.clone(),
     );
 
     // 拠点のみ、数羽のニワトリを生成します
@@ -416,13 +379,12 @@ fn spawn_random_enemies(
 
 fn spawn_dropped_items(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    constants: &GameConstants,
+    registry: &Registry,
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
     safe_zone_center: (i32, i32),
-    spaw_item_count: u32,
-    ranks: Vec<u32>,
+    spaw_item_count: u8,
+    ranks: Vec<u8>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -448,15 +410,14 @@ fn spawn_dropped_items(
 
         if let Some(spell) = SpellType::iter()
             .filter(|i| {
-                let props = i.to_props(&constants);
+                let props = registry.get_spell_props(*i);
                 ranks.contains(&props.rank)
             })
             .choose(&mut rng)
         {
             spawn_dropped_item(
                 &mut commands,
-                &assets,
-                &constants,
+                &registry,
                 position,
                 InventoryItem {
                     item_type: InventoryItemType::Spell(spell),
@@ -473,7 +434,7 @@ fn spawn_dropped_items(
 
 fn update_tile_sprites(
     mut current: ResMut<LevelSetup>,
-    assets: Res<GameAssets>,
+    registry: Registry,
     mut commands: Commands,
     tiles_query: Query<(Entity, &TileSprite)>,
     collider_query: Query<Entity, With<WallCollider>>,
@@ -519,7 +480,7 @@ fn update_tile_sprites(
             // スプライトを再生成
             for y in min_y..(max_y + 1) {
                 for x in min_x..(max_x + 1) {
-                    spawn_world_tile(&mut commands, &assets, chunk, x, y);
+                    spawn_world_tile(&mut commands, &registry, chunk, x, y);
                 }
             }
 

@@ -2,14 +2,12 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
-use crate::constant::ActorProps;
-use crate::constant::GameActors;
 use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::wand::Wand;
@@ -49,24 +47,22 @@ pub fn default_chiken() -> (Actor, Life) {
 
 pub fn spawn_chiken(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     actor: Actor,
     life: Life,
     position: Vec2,
-    props: &ActorProps,
 ) -> Entity {
     let entity = spawn_basic_enemy(
         &mut commands,
-        &assets,
+        &registry,
         life_bar_locals,
-        assets.chicken.clone(),
+        registry.assets.chicken.clone(),
         position,
         "chicken",
         None,
         actor,
         life,
-        props,
     );
     entity
 }
@@ -107,14 +103,8 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
     }
 }
 
-fn hopping(
-    mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>,
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
-) {
-    let constants = constants.get(assets.actors.id()).unwrap();
-    let props = ActorType::Chicken.to_props(&constants);
-
+fn hopping(mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>, registry: Registry) {
+    let props = registry.get_actor_props(ActorType::Chicken);
     for (chicken, actor, mut vertical) in chicken_query.iter_mut() {
         if 0 < actor.frozen {
             continue;

@@ -1,15 +1,4 @@
-use std::collections::HashMap;
-
 use bevy::color::Color;
-
-use crate::{
-    actor::ActorType,
-    entity::blood::Blood,
-    interpreter::Cmd,
-    language::Dict,
-    level::tile::Tile,
-    spell::{SpellProps, SpellType},
-};
 
 pub const CRATE_NAME: &str = "magiaforge";
 
@@ -127,71 +116,3 @@ pub const UI_PRIMARY_DARKER: Color = Color::hsla(56.0, 0.06, 0.56, 1.0);
 pub const UI_SECONDARY: Color = Color::hsla(57.0, 0.11, 0.37, 1.0);
 
 // レベル
-
-#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
-pub struct GameConstants {
-    pub spells: HashMap<String, SpellProps>,
-    pub levels: Vec<LevelProps>,
-    pub debug_items: Vec<SpellType>,
-    pub debug_wands: Vec<Vec<Option<SpellType>>>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct LevelProps {
-    pub name: Dict<String>,
-    pub enemies: u8,
-    pub enemy_types: Vec<ActorType>,
-    pub items: u8,
-    pub item_ranks: Vec<u8>,
-    pub biome: Tile,
-}
-
-#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
-pub struct GameActors {
-    pub dumping_on_ice: f32,
-    pub dumping_on_air: f32,
-    pub acceleration_on_ice: f32,
-    pub acceleration_on_air: f32,
-    pub acceleration_on_drowning: f32,
-    pub acceleration_on_firing: f32,
-    pub actors: HashMap<String, ActorProps>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct ActorProps {
-    pub move_force: f32,
-    pub jump: f32,
-    pub linear_damping: f32,
-    pub blood: Option<Blood>,
-    /// 凍結から復帰する速度です
-    /// 通常は 1 ですが、ボスなどの特定のモンスターはより大きい値になることがあります
-    pub defreeze: u32,
-    /// 常時浮遊のモンスターであることを表します
-    /// 通常は false ですが、アイボールなどの一部のモンスターは true になります
-    pub auto_levitation: bool,
-    /// 一部のアクターでコリジョンの半径として使われます
-    /// 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
-    pub radius: f32,
-}
-
-#[derive(Debug)]
-pub enum SenarioType {
-    HelloRabbit,
-    SingleplayRabbit,
-    MultiplayerRabbit,
-    ReserchRabbit,
-    TrainingRabbit,
-    SpellListRabbit,
-    HugeSlime,
-}
-
-impl SenarioType {
-    pub fn to_acts<'a>(&self, senarios: &'a GameSenarios) -> &'a Vec<Cmd> {
-        senarios.senarios.get(&format!("{:?}", self)).unwrap()
-    }
-}
-
-#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
-pub struct GameSenarios {
-    pub senarios: HashMap<String, Vec<Cmd>>,
-}

@@ -22,6 +22,9 @@ use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::language::Dict;
 use crate::level::entities::SpawnEntity;
+use crate::registry::Registry;
+use crate::registry::SenarioRegistry;
+use crate::registry::SenarioType;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -88,7 +91,7 @@ pub fn default_huge_slime() -> (Actor, Life) {
 
 pub fn spawn_huge_slime(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     actor: Actor,
     life: Life,
@@ -113,7 +116,7 @@ pub fn spawn_huge_slime(
             actor,
             life,
             AseSpriteAnimation {
-                aseprite: assets.huge_slime_shadow.clone(),
+                aseprite: registry.assets.huge_slime_shadow.clone(),
                 animation: Animation::default().with_tag("idle"),
             },
             Transform::from_translation(position.extend(PAINT_LAYER_Z)),
@@ -135,7 +138,7 @@ pub fn spawn_huge_slime(
                 HugeSlimeSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
-                    aseprite: assets.huge_slime.clone(),
+                    aseprite: registry.assets.huge_slime.clone(),
                     animation: Animation::default().with_tag("idle"),
                 },
                 Transform::from_xyz(0.0, 0.0, ENTITY_LAYER_Z),
@@ -179,6 +182,7 @@ fn update_huge_slime_growl(
 }
 
 fn update_huge_slime_approach(
+    registry: Registry,
     player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
     mut huge_slime_query: Query<
         (
@@ -192,12 +196,9 @@ fn update_huge_slime_approach(
         ),
         Without<Player>,
     >,
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
     mut se: EventWriter<SEEvent>,
 ) {
-    let constants = constants.get(assets.actors.id()).unwrap();
-    let props = ActorType::HugeSlime.to_props(&constants);
+    let props = registry.get_actor_props(ActorType::HugeSlime);
 
     for (
         mut huge_slime,
@@ -337,9 +338,9 @@ fn despawn(
     assets: Res<GameAssets>,
     mut theater_writer: EventWriter<InterpreterEvent>,
     player_query: Query<&Transform, With<Player>>,
-    senarios: Res<Assets<GameSenarios>>,
+    senarios: Res<Assets<SenarioRegistry>>,
 ) {
-    let senarios = senarios.get(assets.senario.id()).unwrap();
+    let senarios = senarios.get(assets.senario_registry.id()).unwrap();
 
     if let Ok(_player_transform) = player_query.get_single() {
         for (entity, life, boss_transform) in query.iter() {

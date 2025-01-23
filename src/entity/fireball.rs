@@ -1,3 +1,4 @@
+use crate::actor::ActorGroup;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
@@ -5,10 +6,10 @@ use crate::component::falling::Falling;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::component::vertical::Vertical;
-use crate::actor::ActorGroup;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -23,7 +24,7 @@ struct FireballSprite;
 
 pub fn spawn_fireball(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     velocity: Vec2,
     actor_group: ActorGroup,
@@ -66,7 +67,7 @@ pub fn spawn_fireball(
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
-                    aseprite: assets.fireball.clone(),
+                    aseprite: registry.assets.fireball.clone(),
                     animation: "default".into(),
                     ..default()
                 },
@@ -84,7 +85,7 @@ fn spawn_fire_on_landed(
     for (entity, vertical, transform) in parent_query.iter() {
         if vertical.just_landed {
             commands.entity(entity).despawn_recursive();
-            
+
             if let Some(ref level) = interlevel.chunk {
                 let position = transform.translation.truncate();
                 let tile = level.get_tile_by_coords(position);

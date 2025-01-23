@@ -2,18 +2,17 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
-use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
-use crate::constant::GameConstants;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::gold::spawn_gold;
 use crate::entity::piece::spawn_broken_piece;
 use crate::inventory::InventoryItem;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -167,13 +166,10 @@ pub fn spawn_chest(
 fn break_chest(
     mut commands: Commands,
     query: Query<(Entity, &Life, &Transform, &Actor, &Burnable), With<Chest>>,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
+    registry: Registry,
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
     for (entity, breakabke, transform, actor, burnable) in query.iter() {
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
@@ -186,7 +182,7 @@ fn break_chest(
             };
 
             commands.entity(entity).despawn_recursive();
-            
+
             writer.send(SEEvent::pos(
                 match chest_type {
                     ChestType::Chest => SE::Break,
@@ -201,11 +197,11 @@ fn break_chest(
             match chest_item {
                 ChestItem::Gold(gold) => {
                     for _ in 0..gold {
-                        spawn_gold(&mut commands, &assets, position);
+                        spawn_gold(&mut commands, &registry, position);
                     }
                 }
                 ChestItem::Item(item) => {
-                    spawn_dropped_item(&mut commands, &assets, &constants, position, item);
+                    spawn_dropped_item(&mut commands, &registry, position, item);
                 }
             }
 
@@ -214,7 +210,7 @@ fn break_chest(
                     for i in 0..4 {
                         spawn_jar_piece(
                             &mut commands,
-                            &assets,
+                            &registry,
                             position,
                             "crate",
                             JarColor::Red,
@@ -226,7 +222,7 @@ fn break_chest(
                     for i in 0..4 {
                         spawn_jar_piece(
                             &mut commands,
-                            &assets,
+                            &registry,
                             position,
                             "barrel",
                             JarColor::Red,
@@ -244,7 +240,7 @@ fn break_chest(
                 }
                 ChestType::Jar(color) => {
                     for i in 0..4 {
-                        spawn_jar_piece(&mut commands, &assets, position, "jar", color, i);
+                        spawn_jar_piece(&mut commands, &registry, position, "jar", color, i);
                     }
                 }
                 _ => {}
@@ -255,7 +251,7 @@ fn break_chest(
 
 fn spawn_jar_piece(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     type_name: &str,
     color: JarColor,
@@ -263,7 +259,7 @@ fn spawn_jar_piece(
 ) {
     spawn_broken_piece(
         commands,
-        assets,
+        registry,
         position,
         format!(
             "{}_piece_{}_{}",

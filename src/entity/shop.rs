@@ -1,4 +1,4 @@
-use crate::asset::GameAssets;
+use crate::actor::Actor;
 use crate::collision::ENTITY_GROUPS;
 use crate::collision::HIDDEN_WALL_GROUPS;
 use crate::collision::SENSOR_GROUPS;
@@ -7,12 +7,12 @@ use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
-use crate::actor::Actor;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -32,7 +32,7 @@ struct ShopDoor {
     state: f32,
 }
 
-pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_shop_door(commands: &mut Commands, registry: &Registry, position: Vec2) {
     commands
         .spawn((
             // ドアを開くセンサー
@@ -69,7 +69,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 ActiveCollisionTypes::DYNAMIC_KINEMATIC,
                 *ENTITY_GROUPS,
                 AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "door_left".into(),
                 },
             ));
@@ -87,7 +87,7 @@ pub fn spawn_shop_door(commands: &mut Commands, assets: &Res<GameAssets>, positi
                 ActiveCollisionTypes::DYNAMIC_KINEMATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
                 *ENTITY_GROUPS,
                 AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "door_right".into(),
                 },
             ));

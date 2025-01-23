@@ -1,6 +1,5 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::collision::PLAYER_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
@@ -11,6 +10,7 @@ use crate::interpreter::InterpreterEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -54,7 +54,7 @@ pub struct MagicCircleLight;
 
 pub fn spawn_magic_circle(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     destination: MagicCircleDestination,
 ) {
@@ -76,7 +76,7 @@ pub fn spawn_magic_circle(
                 ..default()
             },
             AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "magic_circle0".into(),
             },
             (
@@ -91,7 +91,7 @@ pub fn spawn_magic_circle(
                 Name::new("magic_circle_star"),
                 MagicStar,
                 AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "magic_star0".into(),
                 },
                 Sprite {
@@ -168,7 +168,7 @@ fn warp(
             if let Ok((entity, player, actor, player_life)) = player_query.get_single_mut() {
                 writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
-                
+
                 circle.step = 0;
                 let player_state = PlayerState::from_player(&player, &actor, &player_life);
                 level.next_state = Some(player_state);

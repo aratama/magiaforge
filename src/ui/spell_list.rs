@@ -1,6 +1,4 @@
-use crate::asset::GameAssets;
 use crate::camera::GameCamera;
-use crate::constant::GameConstants;
 use crate::constant::UI_PRIMARY;
 use crate::constant::UI_PRIMARY_DARKER;
 use crate::constant::UI_SECONDARY;
@@ -8,6 +6,7 @@ use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::Player;
 use crate::language::M18NTtext;
 use crate::message::DISCOVERED_SPELLS;
+use crate::registry::Registry;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::ui::popup::PopUp;
@@ -39,15 +38,14 @@ struct SpellListItem {
 #[derive(Component)]
 struct DicoveredSpellCount;
 
-fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameConstants>>) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
+fn setup(mut commands: Commands, registry: Registry) {
     let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
     spells.sort_by(|a, b| match (a, b) {
-        (Some(a), Some(b)) => a
-            .to_props(&constants)
-            .rank
-            .cmp(&b.to_props(&constants).rank),
+        (Some(a), Some(b)) => {
+            let a_props = registry.get_spell_props(*a);
+            let b_props = registry.get_spell_props(*b);
+            a_props.rank.cmp(&b_props.rank)
+        }
         (Some(_), None) => std::cmp::Ordering::Less,
         (None, Some(_)) => std::cmp::Ordering::Greater,
         (None, None) => std::cmp::Ordering::Equal,
@@ -77,7 +75,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameCo
             commands.spawn((
                 M18NTtext(DISCOVERED_SPELLS.to_string()),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     font_size: 24.0,
                     ..default()
                 },
@@ -88,7 +86,7 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameCo
                 DicoveredSpellCount,
                 Text::new(""),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     font_size: 24.0,
                     ..default()
                 },
@@ -108,16 +106,16 @@ fn setup(mut commands: Commands, assets: Res<GameAssets>, ron: Res<Assets<GameCo
                     for (i, spell_type) in spells.iter().enumerate() {
                         let x = i % COLUMNS;
                         let y = i / COLUMNS;
-                        let props = spell_type.map(|s| s.to_props(&constants));
-                        let icon = props
-                            .map(|s| s.icon.clone())
+
+                        let icon = spell_type
+                            .map(|spell| registry.get_spell_props(spell).icon.clone())
                             .unwrap_or("unknown".to_string());
                         builder.spawn((
                             SpellListItem {
                                 spell_type: *spell_type,
                             },
                             AseUiSlice {
-                                aseprite: assets.atlas.clone(),
+                                aseprite: registry.assets.atlas.clone(),
                                 name: icon.into(),
                             },
                             Node {
@@ -157,16 +155,14 @@ fn update_right(
 }
 
 fn update_icons(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
+    registry: Registry,
     mut query: Query<(&mut SpellListItem, &mut AseUiSlice)>,
     player_query: Query<&Player>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
     if let Ok(player) = player_query.get_single() {
         for (item, mut aseprite) in query.iter_mut() {
             if let Some(spell_type) = item.spell_type {
-                let props = spell_type.to_props(&constants);
+                let props = registry.get_spell_props(spell_type);
                 let discovered = player.discovered_spells.contains(&spell_type);
                 aseprite.name = (if discovered {
                     props.icon.clone()

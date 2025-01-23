@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
-use crate::asset::GameAssets;
 use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::falling::Falling;
@@ -10,6 +9,7 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::entity::piece::spawn_broken_piece;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -37,7 +37,7 @@ pub fn default_lantern() -> (Actor, Life) {
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 pub fn spawn_stone_lantern(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     actor: Actor,
     life: Life,
@@ -80,7 +80,7 @@ pub fn spawn_stone_lantern(
                 },
                 CounterAnimated,
                 AseSpriteAnimation {
-                    aseprite: assets.stone_lantern.clone(),
+                    aseprite: registry.assets.stone_lantern.clone(),
                     ..default()
                 },
                 AnimationState {
@@ -94,7 +94,7 @@ pub fn spawn_stone_lantern(
 
 fn break_stone_lantern(
     mut commands: Commands,
-    assets: Res<GameAssets>,
+    registry: Registry,
     query: Query<(Entity, &Life, &Transform), With<StoneLantern>>,
     mut writer: EventWriter<SEEvent>,
 ) {
@@ -108,7 +108,7 @@ fn break_stone_lantern(
             for i in 0..4 {
                 spawn_broken_piece(
                     &mut commands,
-                    &assets,
+                    &registry,
                     position,
                     &format!("stone_lantern_piece_{}", i),
                 );

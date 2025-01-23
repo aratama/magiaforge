@@ -1,4 +1,3 @@
-use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
@@ -7,6 +6,7 @@ use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::entity::explosion::SpawnExplosion;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -18,8 +18,8 @@ struct Bomb;
 
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_bomb(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
-    let aseprite = assets.bomb.clone();
+pub fn spawn_bomb(commands: &mut Commands, registry: &Registry, position: Vec2) {
+    let aseprite = registry.assets.bomb.clone();
     commands
         .spawn((
             Name::new("bomb"),
@@ -62,7 +62,7 @@ fn explode_bomb(
         if life.life <= 0 || 180 <= counter.count {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            
+
             explosion_writer.send(SpawnExplosion {
                 position,
                 radius: 60.0,

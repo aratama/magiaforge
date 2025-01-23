@@ -1,4 +1,4 @@
-use crate::asset::GameAssets;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 
@@ -29,7 +29,7 @@ pub struct StatusBarTextOutline;
 
 pub fn spawn_status_bar<T: Component>(
     parent: &mut ChildBuilder,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     marker: T,
     value: u32,
     max_value: u32,
@@ -94,7 +94,7 @@ pub fn spawn_status_bar<T: Component>(
                         Text::new(""),
                         TextColor(Color::BLACK),
                         TextFont {
-                            font: assets.noto_sans_jp.clone(),
+                            font: registry.assets.noto_sans_jp.clone(),
                             font_size: 15.0,
                             ..default()
                         },
@@ -114,7 +114,7 @@ pub fn spawn_status_bar<T: Component>(
                 Text::new(""),
                 TextColor(Color::WHITE),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     font_size: 15.0,
                     ..default()
                 },

@@ -1,5 +1,4 @@
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
@@ -9,6 +8,7 @@ use crate::controller::player::Player;
 use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -24,7 +24,7 @@ pub struct Grasses {
 #[derive(Default, Component, Reflect)]
 pub struct SpriteGroup;
 
-pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_grasses(commands: &mut Commands, registry: &Registry, position: Vec2) {
     commands
         .spawn((
             Name::new("grasses"),
@@ -57,7 +57,7 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
                         Name::new("grass2"),
                         Transform::from_xyz(0.0, 12.0, Z_ORDER_SCALE * 12.0),
                         AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: format!("grass_{}", rand::random::<u32>() % 3).into(),
                         },
                     ));
@@ -65,7 +65,7 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
                         Name::new("grass1"),
                         Transform::from_xyz(0.0, 8.0, Z_ORDER_SCALE * 8.0),
                         AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: format!("grass_{}", rand::random::<u32>() % 3).into(),
                         },
                     ));
@@ -73,7 +73,7 @@ pub fn spawn_grasses(commands: &mut Commands, assets: &Res<GameAssets>, position
                         Name::new("grass0"),
                         Transform::from_xyz(0.0, 4.0, Z_ORDER_SCALE * 4.0),
                         AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: format!("grass_{}", rand::random::<u32>() % 3).into(),
                         },
                     ));
@@ -85,7 +85,6 @@ fn burnout(mut commands: Commands, query: Query<(Entity, &Burnable), With<Grasse
     for (entity, burnable) in query.iter() {
         if burnable.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

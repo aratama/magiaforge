@@ -1,6 +1,5 @@
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
-use crate::asset::GameAssets;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
@@ -8,6 +7,7 @@ use crate::constant::*;
 use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -34,7 +34,7 @@ pub struct Web {
 
 pub fn spawn_web(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     se: &mut EventWriter<SEEvent>,
     position: Vec2,
     owner_actor_group: ActorGroup,
@@ -52,7 +52,7 @@ pub fn spawn_web(
         Burnable { life: 30 },
         Transform::from_translation(position.extend(PAINT_LAYER_Z)),
         AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: "web".into(),
         },
         (
@@ -93,7 +93,6 @@ fn despawn(mut commands: Commands, mut web_query: Query<(Entity, &mut Web, &Burn
         web.lifetime -= 1;
         if web.lifetime <= 0 || burnable.life <= 0 || life.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

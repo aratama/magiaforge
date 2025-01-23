@@ -1,7 +1,6 @@
+use super::ActorGroup;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
-use crate::actor::ActorGroup;
-use crate::asset::GameAssets;
 use crate::collision::RABBIT_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
@@ -15,6 +14,8 @@ use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
+use crate::registry::Registry;
+use crate::registry::SenarioType;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
@@ -53,7 +54,7 @@ pub fn default_rabbit(rabbit_type: RabbitType) -> (Actor, Life) {
 
 pub fn spawn_rabbit(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     actor: Actor,
     life: Life,
@@ -122,7 +123,7 @@ pub fn spawn_rabbit(
     entity.with_children(|builder| {
         builder.spawn((
             AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "rabbit_shadow".into(),
             },
             Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
@@ -132,13 +133,13 @@ pub fn spawn_rabbit(
             CounterAnimated,
             AseSpriteAnimation {
                 aseprite: match rabbit_type {
-                    RabbitType::Shop => assets.rabbit_yellow.clone(),
-                    RabbitType::Training => assets.rabbit_red.clone(),
-                    RabbitType::Singleplay => assets.rabbit_white.clone(),
-                    RabbitType::Guide => assets.rabbit_blue.clone(),
-                    RabbitType::MultiPlay => assets.rabbit_black.clone(),
-                    RabbitType::Reading => assets.rabbit_green.clone(),
-                    RabbitType::SpellList => assets.rabbit_blue.clone(),
+                    RabbitType::Shop => registry.assets.rabbit_yellow.clone(),
+                    RabbitType::Training => registry.assets.rabbit_red.clone(),
+                    RabbitType::Singleplay => registry.assets.rabbit_white.clone(),
+                    RabbitType::Guide => registry.assets.rabbit_blue.clone(),
+                    RabbitType::MultiPlay => registry.assets.rabbit_black.clone(),
+                    RabbitType::Reading => registry.assets.rabbit_green.clone(),
+                    RabbitType::SpellList => registry.assets.rabbit_blue.clone(),
                 }
                 .clone(),
                 animation: "idle_d".into(),

@@ -92,7 +92,6 @@ fn despawn(
     for (entity, light) in query.iter() {
         if !parent_query.contains(light.parent) {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

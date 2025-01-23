@@ -1,6 +1,6 @@
-use crate::controller::player::Player;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
+use crate::controller::player::Player;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 

@@ -75,6 +75,9 @@ use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
 use crate::player_state::PlayerStatePlugin;
+use crate::registry::ActorRegistry;
+use crate::registry::SenarioRegistry;
+use crate::registry::SpellRegistry;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
 use crate::se::SECommandPlugin;
@@ -182,9 +185,9 @@ pub fn run_game() {
                 }),
             //
         )
-        .add_plugins(RonAssetPlugin::<GameConstants>::new(&["spells.ron"]))
-        .add_plugins(RonAssetPlugin::<GameActors>::new(&["actors.ron"]))
-        .add_plugins(RonAssetPlugin::<GameSenarios>::new(&["senario.ron"]))
+        .add_plugins(RonAssetPlugin::<SpellRegistry>::new(&["spell.ron"]))
+        .add_plugins(RonAssetPlugin::<ActorRegistry>::new(&["actor.ron"]))
+        .add_plugins(RonAssetPlugin::<SenarioRegistry>::new(&["senario.ron"]))
         .add_plugins(AsepriteUltraPlugin)
         .insert_resource(TimestepMode::Fixed {
             dt: 1.0 / 60.0,

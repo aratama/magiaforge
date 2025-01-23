@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use crate::asset::GameAssets;
+use bevy::prelude::*;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub enum BGMType {

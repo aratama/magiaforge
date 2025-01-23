@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
-use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
 use crate::component::vertical::Vertical;
@@ -11,6 +10,7 @@ use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnWitchType;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -50,7 +50,7 @@ pub fn default_witch() -> (Actor, Life) {
 
 pub fn spawn_witch(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     name_plate: Option<String>,
     res: &Res<LifeBarResource>,
@@ -68,7 +68,7 @@ pub fn spawn_witch(
         HomingTarget,
         // 足音
         // footsteps.rsで音量を調整
-        AudioPlayer::new(assets.taiikukan.clone()),
+        AudioPlayer::new(registry.assets.taiikukan.clone()),
         PlaybackSettings {
             volume: Volume::new(0.0),
             mode: bevy::audio::PlaybackMode::Loop,
@@ -96,7 +96,7 @@ pub fn spawn_witch(
         spawn_children.spawn((
             Transform::from_translation(Vec2::new(0.0, -4.0).extend(SHADOW_LAYER_Z)),
             AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "entity_shadow".into(),
             },
         ));
@@ -107,14 +107,14 @@ pub fn spawn_witch(
                 ActorAnimationSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
-                    aseprite: assets.witch.clone(),
+                    aseprite: registry.assets.witch.clone(),
                     animation: "idle_r".into(),
                 },
             ))
             .with_child((
                 WitchWandSprite,
                 AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "wand_cypress".into(),
                 },
                 Transform::from_xyz(0.0, 4.0, -0.0001),
@@ -128,7 +128,7 @@ pub fn spawn_witch(
                 Text2d::new(name),
                 TextColor(Color::hsla(120.0, 1.0, 0.5, 0.3)),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     font_size: 10.0,
                     ..default()
                 },

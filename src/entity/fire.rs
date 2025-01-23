@@ -136,7 +136,6 @@ fn despawn(mut commands: Commands, query: Query<(Entity, &Counter), With<Fire>>)
     for (entity, counter) in query.iter() {
         if counter.count <= 0 {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }
@@ -226,7 +225,6 @@ fn despawn_on_water(
             let tile = level.get_tile_by_coords(position);
             if tile == Tile::Water {
                 commands.entity(entity).despawn_recursive();
-                
             }
         }
     }

@@ -1,9 +1,6 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::camera::GameCamera;
-use crate::constant::GameSenarios;
-use crate::constant::SenarioType;
 use crate::controller::player::Player;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
@@ -11,6 +8,8 @@ use crate::physics::identify;
 use crate::physics::identify_item;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::physics::IdentifiedCollisionItem;
+use crate::registry::Registry;
+use crate::registry::SenarioType;
 use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -31,18 +30,14 @@ pub struct MessageRabbitInnerSensor;
 pub struct MessageRabbitOuterSensor;
 
 fn collision_inner_sensor(
+    registry: Registry,
     mut collision_events: EventReader<CollisionEvent>,
     rabbit_query: Query<&MessageRabbit>,
     sensor_query: Query<&Parent, With<MessageRabbitInnerSensor>>,
     mut camera_query: Query<&mut GameCamera>,
     player_query: Query<&Actor, (With<Player>, With<Witch>)>,
     mut speech_writer: EventWriter<InterpreterEvent>,
-
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameSenarios>>,
 ) {
-    let senarios = ron.get(assets.senario.id()).unwrap();
-
     for collision_event in collision_events.read() {
         match identify_item(collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionItem::Started(parent, _, _, _) => {
@@ -56,7 +51,7 @@ fn collision_inner_sensor(
                 let rabbit = rabbit_query.get(rabbit_entity).unwrap();
                 camera.target = Some(rabbit_entity);
 
-                let event = rabbit.senario.to_acts(&senarios);
+                let event = rabbit.senario.to_acts(registry.senario());
                 let mut messages = event.clone();
                 messages.insert(0, Cmd::Focus(rabbit_entity));
                 messages.push(Cmd::Close);

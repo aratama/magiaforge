@@ -2,13 +2,13 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
-use crate::asset::GameAssets;
 use crate::collision::*;
 use crate::component::falling::Falling;
 use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -89,7 +89,7 @@ pub fn spawn_book_shelf(
 
 fn break_book_shelf(
     mut commands: Commands,
-    assets: Res<GameAssets>,
+    registry: Registry,
     query: Query<(Entity, &Life, &Transform, &Burnable), With<Bookshelf>>,
     mut writer: EventWriter<SEEvent>,
 ) {
@@ -102,7 +102,7 @@ fn break_book_shelf(
             for i in 0..6 {
                 spawn_broken_piece(
                     &mut commands,
-                    &assets,
+                    &registry,
                     position,
                     &format!("bookshelf_piece_{}", i),
                 );

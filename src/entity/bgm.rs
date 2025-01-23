@@ -1,4 +1,3 @@
-use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::collision::SENSOR_GROUPS;
 use crate::constant::PAINT_LAYER_Z;
@@ -6,6 +5,7 @@ use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::registry::Registry;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -17,10 +17,10 @@ struct BGMSwitch {
     audio: Handle<AudioSource>,
 }
 
-pub fn spawn_bgm_switch(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn spawn_bgm_switch(commands: &mut Commands, registry: &Registry, position: Vec2) {
     commands.spawn((
         BGMSwitch {
-            audio: assets.saihate.clone(),
+            audio: registry.assets.saihate.clone(),
         },
         StateScoped(GameState::InGame),
         Sensor,
@@ -33,7 +33,7 @@ pub fn spawn_bgm_switch(commands: &mut Commands, assets: &Res<GameAssets>, posit
     commands.spawn((
         StateScoped(GameState::InGame),
         AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: "facilities".into(),
         },
         Transform::from_translation(Vec3::new(position.x, position.y, PAINT_LAYER_Z)),

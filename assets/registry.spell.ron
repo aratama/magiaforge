@@ -1,4 +1,4 @@
-GameConstants(
+SpellRegistry(
 
     levels: [
         (
@@ -154,6 +154,25 @@ GameConstants(
             biome: StoneTile
         ),
     ],
+    arena: (
+        name: (
+            ja: "対決の洞窟",
+            en: "Cave of Confrontation",
+            zh_cn: "对决洞穴",
+            zh_tw: "對決洞穴",
+            es: "Cueva de Confrontación",
+            fr: "Grotte de Confrontation",
+            pt: "Caverna de Confronto",
+            de: "Höhle der Konfrontation",
+            ko: "대결의 동굴",
+            ru: "Пещера противостояния"
+        ),
+        enemies: 0,
+        enemy_types: [],
+        items: 3,
+        item_ranks: [],
+        biome: StoneTile
+    ),
 
     spells: {
         "MagicBolt": (

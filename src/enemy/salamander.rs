@@ -1,7 +1,6 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::flip::Flip;
 use crate::component::life::Life;
@@ -15,6 +14,7 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameState;
@@ -64,7 +64,7 @@ pub fn default_salamander() -> (Actor, Life) {
 
 pub fn spawn_salamander(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
@@ -95,7 +95,7 @@ pub fn spawn_salamander(
             actor_group.to_groups(0.0, 0),
         ),
         AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: "chicken_shadow".into(),
         },
     ));
@@ -108,7 +108,7 @@ pub fn spawn_salamander(
             LifeBeingSprite,
             CounterAnimated,
             AseSpriteAnimation {
-                aseprite: assets.salamander.clone(),
+                aseprite: registry.assets.salamander.clone(),
                 animation: Animation::tag("idle"),
             },
         ));
@@ -120,16 +120,14 @@ pub fn spawn_salamander(
 }
 
 fn transition(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(Entity, Option<&mut Salamander>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&constants, &lens.query());
+    let finder = Finder::new(&registry, &lens.query());
     for (entity, shadow, actor, transform) in query.iter_mut() {
-        let props = actor.to_props(&constants);
+        let props = registry.get_actor_props(actor.to_type());
 
         if let Some(mut shadow) = shadow {
             let origin = transform.translation.truncate();
@@ -168,14 +166,12 @@ fn transition(
 }
 
 fn pointer(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(Entity, Option<&mut Salamander>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&constants, &lens.query());
+    let finder = Finder::new(&registry, &lens.query());
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
         if let Some(_) = shadow {
             let origin = transform.translation.truncate();
@@ -214,19 +210,15 @@ fn animate(
 }
 
 fn approach(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(Entity, Option<&mut Salamander>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
-
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&constants, &lens.query());
+    let finder = Finder::new(&registry, &lens.query());
 
     for (entity, shadow, mut actor, transform) in query.iter_mut() {
-        let props = actor.to_props(&constants);
-
+        let props = registry.get_actor_props(actor.to_type());
         if let Some(shadow) = shadow {
             match shadow.state {
                 State::Approarch(count) if 60 < count => {
@@ -254,8 +246,7 @@ fn approach(
 }
 
 fn attack(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(
         Entity,
         Option<&mut Salamander>,
@@ -266,12 +257,10 @@ fn attack(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut spawn: EventWriter<SpawnEntity>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
-
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&constants, &lens.query());
+    let finder = Finder::new(&registry, &lens.query());
     for (entity, shadow, actor, transform, _) in query.iter_mut() {
-        let props = actor.to_props(&constants);
+        let props = registry.get_actor_props(actor.to_type());
 
         if let Some(shadow) = shadow {
             match shadow.state {

@@ -1,11 +1,11 @@
-use crate::asset::GameAssets;
-use crate::constant::GameConstants;
+use crate::actor::Actor;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
-use crate::actor::Actor;
+use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::M18NTtext;
 use crate::message::UNPAID;
+use crate::registry::Registry;
 use crate::spell::get_spell_appendix;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
@@ -45,7 +45,7 @@ struct PopUpItemName;
 #[derive(Component)]
 struct PopUpItemDescription;
 
-pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_spell_information(parent: &mut ChildBuilder, registry: &Registry) {
     parent
         .spawn((
             PopUp {
@@ -85,7 +85,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
                             ..default()
                         },
                         AseUiSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: "empty".into(),
                         },
                     ));
@@ -94,7 +94,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
                         PopUpItemName,
                         M18NTtext::empty(),
                         TextFont {
-                            font: assets.noto_sans_jp.clone(),
+                            font: registry.assets.noto_sans_jp.clone(),
                             ..default()
                         },
                     ));
@@ -104,7 +104,7 @@ pub fn spawn_spell_information(parent: &mut ChildBuilder, assets: &Res<GameAsset
                 PopUpItemDescription,
                 M18NTtext::empty(),
                 TextFont {
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     ..default()
                 },
             ));
@@ -125,15 +125,12 @@ fn update_information_position(
 }
 
 fn update_spell_icon(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
+    registry: Registry,
     mut query: Query<&mut AseUiSlice, With<PopUpItemIcon>>,
     popup_query: Query<&PopUp>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
     let floating = floating_query.single();
     if floating.content.is_some() {
         return;
@@ -145,15 +142,18 @@ fn update_spell_icon(
         if let Some(first) = popup.set.iter().next() {
             match first {
                 PopupContent::FloatingContent(content) => match content.get_item(actor) {
-                    Some(item) => {
-                        let props = item.item_type.to_props(&constants);
-                        slice.name = props.icon.into();
+                    Some(InventoryItem {
+                        item_type: InventoryItemType::Spell(spell),
+                        ..
+                    }) => {
+                        let props = registry.get_spell_props(spell);
+                        slice.name = props.icon.clone();
                     }
                     None => {}
                 },
                 PopupContent::DiscoveredSpell(spell) => {
-                    let props = spell.to_props(&constants);
-                    slice.name = props.icon.clone().into();
+                    let props = registry.get_spell_props(*spell);
+                    slice.name = props.icon.clone();
                 }
             }
         }
@@ -161,15 +161,12 @@ fn update_spell_icon(
 }
 
 fn update_spell_name(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
+    registry: Registry,
     mut query: Query<&mut M18NTtext, With<PopUpItemName>>,
     popup_query: Query<&PopUp>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
     let floating = floating_query.single();
     if floating.content.is_some() {
         return;
@@ -181,12 +178,16 @@ fn update_spell_name(
         let first = popup.set.iter().next();
         match first {
             Some(PopupContent::FloatingContent(content)) => {
-                if let Some(first) = content.get_item(actor) {
-                    text.0 = first.item_type.to_props(&constants).name;
+                if let Some(InventoryItem {
+                    item_type: InventoryItemType::Spell(spell),
+                    ..
+                }) = content.get_item(actor)
+                {
+                    text.0 = registry.get_spell_props(spell).name.clone();
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props = spell.to_props(&constants);
+                let props = registry.get_spell_props(*spell);
                 text.0 = props.name.clone();
             }
             _ => {}
@@ -195,15 +196,12 @@ fn update_spell_name(
 }
 
 fn update_item_description(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
+    registry: Registry,
     mut query: Query<&mut M18NTtext, With<PopUpItemDescription>>,
     floating_query: Query<&Floating>,
     actor_query: Query<&Actor, With<Player>>,
     popup_query: Query<&PopUp>,
 ) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
     let floating = floating_query.single();
     let popup = popup_query.single();
     if floating.content.is_some() {
@@ -213,11 +211,13 @@ fn update_item_description(
     if let Ok(actor) = actor_query.get_single() {
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
-                if let Some(first) = content.get_item(actor) {
-                    let mut dict = first.item_type.to_props(&constants).description;
-
-                    let InventoryItemType::Spell(spell) = first.item_type;
-                    let props = spell.to_props(&constants);
+                if let Some(InventoryItem {
+                    item_type: InventoryItemType::Spell(spell),
+                    ..
+                }) = content.get_item(actor)
+                {
+                    let props = registry.get_spell_props(spell);
+                    let mut dict = props.description.clone();
                     let appendix = get_spell_appendix(&props.cast);
                     // dict += format!("\n{}", appendix).as_str();
 
@@ -234,7 +234,7 @@ fn update_item_description(
 
                     dict += appendix;
 
-                    if 0 < first.price {
+                    if 0 < props.price {
                         dict = dict + UNPAID.to_string();
 
                         //  &format!("\n未清算:{}ゴールド", first.price);
@@ -244,7 +244,7 @@ fn update_item_description(
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props: &crate::spell::SpellProps = spell.to_props(&constants);
+                let props: &crate::spell::SpellProps = registry.get_spell_props(*spell);
                 let mut dict = props.description.clone();
                 dict += get_spell_appendix(&props.cast);
                 // dict += format!(

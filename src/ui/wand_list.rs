@@ -1,9 +1,9 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
+use crate::registry::Registry;
 use crate::states::GameState;
 use crate::ui::spell_in_wand::spawn_wand_spell_slot;
 use bevy::prelude::*;
@@ -20,7 +20,7 @@ struct WandSlot;
 #[derive(Component)]
 pub struct WandTriggerSprite(usize);
 
-pub fn spawn_wand_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_wand_list(parent: &mut ChildBuilder, registry: &Registry) {
     parent
         .spawn((
             WandList,
@@ -33,16 +33,12 @@ pub fn spawn_wand_list(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
         ))
         .with_children(|parent| {
             for wand_index in 0..MAX_WANDS {
-                spawn_wand_and_spell_slot(parent, &assets, wand_index);
+                spawn_wand_and_spell_slot(parent, &registry, wand_index);
             }
         });
 }
 
-fn spawn_wand_and_spell_slot(
-    parent: &mut ChildBuilder,
-    assets: &Res<GameAssets>,
-    wand_index: usize,
-) {
+fn spawn_wand_and_spell_slot(parent: &mut ChildBuilder, registry: &Registry, wand_index: usize) {
     parent
         .spawn((
             WandSlot,
@@ -61,13 +57,13 @@ fn spawn_wand_and_spell_slot(
                     ..default()
                 },
                 AseUiSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "empty".into(),
                 },
             ));
 
             for spell_index in 0..MAX_SPELLS_IN_WAND {
-                spawn_wand_spell_slot(&mut parent, &assets, wand_index, spell_index);
+                spawn_wand_spell_slot(&mut parent, &registry, wand_index, spell_index);
             }
         });
 }

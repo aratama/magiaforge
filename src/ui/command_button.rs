@@ -1,7 +1,7 @@
-use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::language::Dict;
 use crate::language::M18NTtext;
+use crate::registry::Registry;
 use crate::states::GameState;
 use crate::ui::hover_color::HoverColor;
 use bevy::prelude::*;
@@ -20,7 +20,7 @@ const DISABLED: Color = Color::hsla(0.0, 0.0, 1.0, 0.01);
 
 pub fn command_button<'a, T: Component>(
     parent: &mut ChildBuilder,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     marker: T,
     w: f32,
     h: f32,
@@ -52,7 +52,7 @@ pub fn command_button<'a, T: Component>(
                 TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 TextFont {
                     font_size: 32.0,
-                    font: assets.noto_sans_jp.clone(),
+                    font: registry.assets.noto_sans_jp.clone(),
                     ..default()
                 },
             ));

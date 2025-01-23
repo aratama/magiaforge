@@ -4,6 +4,7 @@ use crate::config::GameConfig;
 use crate::interpreter::Cmd;
 use crate::interpreter::Interpreter;
 use crate::language::language_to_font;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
@@ -28,13 +29,13 @@ pub struct SpeechBubbleText;
 #[derive(Component)]
 struct NextPage;
 
-pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
+pub fn spawn_speech_bubble(parent: &mut Commands, registry: &Registry) {
     parent
         .spawn((
             StateScoped(GameState::InGame),
             SpeechBubble { entity: None },
             AseUiSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "speech_bubble".into(),
             },
             Node {
@@ -51,7 +52,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
             Text::new(""),
             TextColor(Color::hsva(0.0, 0.0, 0.3, 1.0)),
             TextFont {
-                font: assets.noto_sans_jp.clone(),
+                font: registry.assets.noto_sans_jp.clone(),
                 font_size: 24.0,
                 ..default()
             },
@@ -69,7 +70,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, assets: &Res<GameAssets>) {
             NextPage,
             CounterAnimated,
             AseUiAnimation {
-                aseprite: assets.next_page.clone(),
+                aseprite: registry.assets.next_page.clone(),
                 animation: "default".into(),
             },
             Node {

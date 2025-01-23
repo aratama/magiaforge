@@ -1,7 +1,7 @@
-use crate::asset::GameAssets;
+use crate::actor::Actor;
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::controller::player::Player;
-use crate::actor::Actor;
+use crate::registry::Registry;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;
@@ -21,7 +21,7 @@ struct InventoryItemSlot(usize);
 
 const SCALE: f32 = 2.0;
 
-pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_inventory(builder: &mut ChildBuilder, registry: &Registry) {
     builder
         .spawn((Node {
             width: Val::Px(151.0 * SCALE),
@@ -47,7 +47,7 @@ pub fn spawn_inventory(builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
                     for i in 0..MAX_ITEMS_IN_INVENTORY {
                         spawn_item_panel(
                             &mut builder,
-                            &assets,
+                            &registry,
                             InventoryItemSlot(i),
                             (i % 8) as f32 * 32.0,
                             (i / 8) as f32 * 32.0,

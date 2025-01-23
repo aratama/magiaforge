@@ -134,7 +134,6 @@ fn update_impact(mut commands: Commands, mut query: Query<(Entity, &mut Impact)>
         impact.lifetime -= 1;
         if impact.lifetime <= 0 {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

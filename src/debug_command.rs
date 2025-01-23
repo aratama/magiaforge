@@ -1,8 +1,8 @@
+use crate::actor::Actor;
 use crate::component::life::Life;
 use crate::constant::LAST_BOSS_LEVEL;
 use crate::constant::LEVELS;
 use crate::controller::player::Player;
-use crate::actor::Actor;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;

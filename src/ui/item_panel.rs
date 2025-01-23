@@ -1,7 +1,6 @@
-use crate::asset::GameAssets;
-use crate::constant::GameConstants;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
+use crate::registry::Registry;
 use crate::spell::SpellType;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -21,7 +20,7 @@ struct FriendMarker;
 
 pub fn spawn_item_panel<T: Component>(
     builder: &mut ChildBuilder,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     marker: T,
     x: f32,
     y: f32,
@@ -44,7 +43,7 @@ pub fn spawn_item_panel<T: Component>(
             ..default()
         },
         AseUiSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: "empty".into(),
         },
     ));
@@ -61,7 +60,7 @@ pub fn spawn_item_panel<T: Component>(
         builder.spawn((
             FriendMarker,
             AseUiSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "friend".into(),
             },
             ZIndex(-10),
@@ -77,7 +76,7 @@ pub fn spawn_item_panel<T: Component>(
         builder.spawn((
             ItemFrame,
             AseUiSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "spell_frame".into(),
             },
             ZIndex(1),
@@ -93,7 +92,7 @@ pub fn spawn_item_panel<T: Component>(
         builder.spawn((
             ChargeAlert,
             AseUiSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "charge_alert".into(),
             },
             ZIndex(-1),
@@ -109,15 +108,14 @@ pub fn spawn_item_panel<T: Component>(
     });
 }
 
-fn update_inventory_slot(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
-    mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>,
-) {
-    let constants = ron.get(assets.spells.id()).unwrap();
+fn update_inventory_slot(registry: Registry, mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>) {
     for (slot, mut aseprite) in slot_query.iter_mut() {
-        if let Some(item) = slot.0 {
-            aseprite.name = item.item_type.get_icon(&constants).into();
+        if let Some(InventoryItem {
+            item_type: InventoryItemType::Spell(spell),
+            ..
+        }) = slot.0
+        {
+            aseprite.name = registry.get_spell_props(spell).icon.clone();
         } else {
             aseprite.name = "empty".into();
         }

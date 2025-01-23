@@ -1,6 +1,5 @@
 use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
-use crate::asset::GameAssets;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::life::Life;
@@ -11,6 +10,7 @@ use crate::controller::servant::Servant;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -25,7 +25,7 @@ pub struct BasicEnemySprite;
 
 pub fn spawn_basic_enemy(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     aseprite: Handle<Aseprite>,
     position: Vec2,
@@ -33,10 +33,10 @@ pub fn spawn_basic_enemy(
     master: Option<Entity>,
     actor: Actor,
     life: Life,
-    props: &ActorProps,
 ) -> Entity {
     let golds = actor.golds;
     let actor_group = actor.actor_group;
+    let props = registry.get_actor_props(actor.to_type());
     let mut builder = commands.spawn((
         BasicEnemy,
         Name::new(name.to_string()),
@@ -66,7 +66,7 @@ pub fn spawn_basic_enemy(
     builder.with_children(|mut parent| {
         parent.spawn((
             AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
+                aseprite: registry.assets.atlas.clone(),
                 name: "chicken_shadow".into(),
             },
             Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),

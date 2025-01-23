@@ -1,5 +1,6 @@
 use crate::constant::PARTICLE_LAYER_Z;
-use crate::states::{GameState, TimeState};
+use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 

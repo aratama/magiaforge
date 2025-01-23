@@ -34,6 +34,7 @@ mod page;
 mod physics;
 mod player_state;
 mod random;
+mod registry;
 mod save;
 mod se;
 mod set;

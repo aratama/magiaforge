@@ -2,12 +2,12 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::wand::Wand;
@@ -41,36 +41,33 @@ pub fn default_eyeball() -> (Actor, Life) {
 
 pub fn spawn_eyeball(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
     life: Life,
-    props: &ActorProps,
 ) -> Entity {
     let actor_group = actor.actor_group;
     spawn_basic_enemy(
         &mut commands,
-        &assets,
+        &registry,
         life_bar_locals,
         match actor_group {
-            ActorGroup::Friend => assets.eyeball_friend.clone(),
-            ActorGroup::Enemy => assets.eyeball.clone(),
-            ActorGroup::Neutral => assets.eyeball_friend.clone(),
-            ActorGroup::Entity => assets.eyeball_friend.clone(),
+            ActorGroup::Friend => registry.assets.eyeball_friend.clone(),
+            ActorGroup::Enemy => registry.assets.eyeball.clone(),
+            ActorGroup::Neutral => registry.assets.eyeball_friend.clone(),
+            ActorGroup::Entity => registry.assets.eyeball_friend.clone(),
         },
         position,
         "eyeball",
         None,
         actor,
         life,
-        props,
     )
 }
 
 fn control_eyeball(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(
         Entity,
         Option<&mut EyeballControl>,
@@ -79,10 +76,8 @@ fn control_eyeball(
     )>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
-
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&constants, &lens.query());
+    let finder = Finder::new(&registry, &lens.query());
 
     // 各アイボールの行動を選択します
     for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in query.iter_mut()

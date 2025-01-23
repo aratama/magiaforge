@@ -3,7 +3,6 @@ use crate::actor::witch::WITCH_COLLIDER_RADIUS;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::life::Life;
@@ -11,8 +10,6 @@ use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
-use crate::constant::ActorProps;
-use crate::constant::GameConstants;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
@@ -29,6 +26,7 @@ use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
 use crate::random::randomize_velocity;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -132,19 +130,16 @@ pub enum SpellCast {
 pub fn cast_spell(
     mut commands: &mut Commands,
     // resources
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     // events
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
     impact: &mut EventWriter<SpawnImpact>,
     mut spawn: &mut EventWriter<SpawnEntity>,
-    // constants
-    constants: &GameConstants,
     // components
     actor_entity: Entity,
     mut actor: &mut Actor,
-    props: &ActorProps,
     actor_life: &mut Life,
     actor_transform: &Transform,
     mut actor_impulse: &mut ExternalImpulse,
@@ -178,7 +173,7 @@ pub fn cast_spell(
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index] {
-            let props = spell.spell_type.to_props(&constants);
+            let props = registry.get_spell_props(spell.spell_type);
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;
@@ -234,7 +229,7 @@ pub fn cast_spell(
                         actor.effects.web -= 1;
                     }
 
-                    spawn_bullet(commands, &assets, se, &spawn);
+                    spawn_bullet(commands, registry, se, &spawn);
                     clear_effect = true;
 
                     // リモートへ呪文詠唱を伝えます
@@ -376,7 +371,7 @@ pub fn cast_spell(
                 }
                 SpellCast::RockFall => {
                     let position = actor_position + actor.pointer;
-                    spawn_falling_rock(&mut commands, &assets, position);
+                    spawn_falling_rock(&mut commands, registry, position);
                     se.send(SEEvent::pos(SE::Status2, position));
                 }
                 SpellCast::Fireball => {
@@ -447,7 +442,7 @@ pub fn cast_spell(
                         actor.effects.web -= 1;
                     }
 
-                    spawn_bullet(commands, &assets, se, &spawn);
+                    spawn_bullet(commands, registry, se, &spawn);
                     clear_effect = true;
                 }
                 SpellCast::Web => {
@@ -497,7 +492,7 @@ pub fn cast_spell(
             // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
             let entity = cast_metamorphosis(
                 &mut commands,
-                &assets,
+                registry,
                 &life_bar_resource,
                 &mut se,
                 &mut spawn,
@@ -505,7 +500,6 @@ pub fn cast_spell(
                 actor.clone(),
                 actor_life.clone(),
                 &actor_metamorphosis,
-                props,
                 actor_position,
                 metamorphse,
             );
@@ -523,7 +517,7 @@ pub fn cast_spell(
         if 0 < actor.effects.web {
             spawn_web(
                 &mut commands,
-                &assets,
+                registry,
                 &mut se,
                 actor_position,
                 actor.actor_group,

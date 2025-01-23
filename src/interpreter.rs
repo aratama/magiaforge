@@ -1,13 +1,11 @@
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
-use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::bgm::BGMType;
 use crate::camera::GameCamera;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
-use crate::constant::GameConstants;
 use crate::controller::player::Player;
 use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
@@ -18,6 +16,7 @@ use crate::language::Languages;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::spell::SpellType;
@@ -212,7 +211,7 @@ fn read_interpreter_events(
 
 fn interpret(
     mut commands: Commands,
-    assets: Res<GameAssets>,
+    registry: Registry,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
@@ -223,7 +222,6 @@ fn interpret(
     mut se_writer: EventWriter<SEEvent>,
     mut level: ResMut<LevelSetup>,
     mut time: ResMut<NextState<TimeState>>,
-    ron: Res<Assets<GameConstants>>,
     named_entity_query: Query<(&Name, Entity)>,
     mut interpreter_events: EventWriter<InterpreterEvent>,
 ) {
@@ -239,8 +237,6 @@ fn interpret(
         interpreter.wait -= 1;
         return;
     }
-
-    let constants = ron.get(assets.spells.id()).unwrap();
 
     let entities: HashMap<String, Entity> = named_entity_query
         .iter()
@@ -283,7 +279,7 @@ fn interpret(
             }
         }
         Cmd::BGM { bgm } => {
-            next_bgm.0 = bgm.map(|b| b.to_source(&assets)).clone();
+            next_bgm.0 = bgm.map(|b| b.to_source(&registry.assets)).clone();
             interpreter.index += 1;
         }
         Cmd::SE { se } => {
@@ -379,7 +375,7 @@ fn interpret(
             commands.spawn((
                 Name::new(name),
                 AseSpriteAnimation {
-                    aseprite: assets.raven.clone(),
+                    aseprite: registry.assets.raven.clone(),
                     animation: "idle".into(),
                 },
                 EntityDepth::new(),
@@ -409,14 +405,7 @@ fn interpret(
                     price: 0,
                 });
                 if !player.discovered_spells.contains(&spell) {
-                    spawn_new_spell(
-                        &mut commands,
-                        &assets,
-                        &constants,
-                        &mut time,
-                        spell,
-                        &mut se_writer,
-                    );
+                    spawn_new_spell(&mut commands, &registry, &mut time, spell, &mut se_writer);
                 }
             }
             interpreter.index += 1;

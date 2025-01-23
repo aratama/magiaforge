@@ -2,7 +2,6 @@ use crate::actor::witch::default_witch;
 use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -15,6 +14,7 @@ use crate::level::entities::SpawnEntity;
 use crate::page::in_game::setup_level;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateInGameSet;
@@ -187,6 +187,7 @@ struct RemoteStates {
 
 fn receive_events(
     mut commands: Commands,
+    registry: Registry,
     mut reader: EventReader<ServerMessage>,
     mut remotes: Query<
         (
@@ -199,7 +200,6 @@ fn receive_events(
         ),
         With<RemotePlayer>,
     >,
-    assets: Res<GameAssets>,
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
     mut writer: EventWriter<SEEvent>,
@@ -262,7 +262,7 @@ fn receive_events(
                                 spawned_players.insert(uuid);
                                 let entity = spawn_witch(
                                     &mut commands,
-                                    &assets,
+                                    &registry,
                                     Vec2::new(x, y),
                                     Some(name.clone()),
                                     &life_bar_res,
@@ -279,7 +279,7 @@ fn receive_events(
                             }
                         }
                         RemoteMessage::Fire(spawning) => {
-                            spawn_bullet(&mut commands, &assets, &mut writer, &spawning);
+                            spawn_bullet(&mut commands, &registry, &mut writer, &spawning);
                         }
                         RemoteMessage::Hit {
                             sender: _sender,
@@ -307,10 +307,10 @@ fn receive_events(
                                 let position = transform.translation.truncate();
                                 writer.send(SEEvent::pos(SE::Cry, position));
                                 commands.entity(entity).despawn_recursive();
-                                
+
                                 let player_defeat_bonus = 100;
                                 for _ in 0..player_defeat_bonus {
-                                    spawn_gold(&mut commands, &assets, position);
+                                    spawn_gold(&mut commands, &registry, position);
                                 }
                             }
                         }
@@ -348,7 +348,6 @@ fn despawn_no_contact_remotes(
         if 120 < (frame_count.0 as i32 - remote.last_update.0 as i32) {
             info!("Remote player {} despawned", actor.uuid);
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }

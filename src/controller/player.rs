@@ -291,7 +291,6 @@ fn pick_gold(
                 actor.golds += 1;
                 got_gold = true;
                 commands.entity(gold_entity).despawn_recursive();
-                
             } else if diff.length() < 48.0 {
                 gold.magnet = true;
             }
@@ -326,7 +325,6 @@ fn die_player(
     if let Ok((entity, actor, player_life, transform, player, morph)) = player_query.get_single() {
         if player_life.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            
 
             game.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
 

@@ -1,17 +1,16 @@
-use crate::asset::GameAssets;
+use crate::actor::Actor;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
-use crate::constant::GameConstants;
 use crate::controller::player::Player;
-use crate::actor::Actor;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -33,17 +32,16 @@ struct SpellSprites {
 
 pub fn spawn_dropped_item(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
-    constants: &GameConstants,
+    registry: &Registry,
     position: Vec2,
     item: InventoryItem,
 ) {
     let item_type = item.item_type;
     let icon = match item_type {
-        InventoryItemType::Spell(spell) => spell.to_props(&constants).icon.clone(),
+        InventoryItemType::Spell(spell) => registry.get_spell_props(spell).icon.clone(),
     };
     let name = match item_type {
-        InventoryItemType::Spell(spell) => spell.to_props(&constants).name.en.clone(),
+        InventoryItemType::Spell(spell) => registry.get_spell_props(spell).name.en.clone(),
     };
     let frame_slice = match item_type {
         InventoryItemType::Spell(_) if 0 < item.price => "spell_frame",
@@ -97,7 +95,7 @@ pub fn spawn_dropped_item(
                             // Text2dはVisibilityを必須としているため、その親にもVisibility::default(),を設定しないと警告が出る
                             Text2d(format!("{}", item.price)),
                             TextFont {
-                                font: assets.noto_sans_jp.clone(),
+                                font: registry.assets.noto_sans_jp.clone(),
                                 font_size: 24.0,
                                 ..default()
                             },
@@ -109,7 +107,7 @@ pub fn spawn_dropped_item(
 
                     parent.spawn((
                         AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: frame_slice.into(),
                         },
                         Transform::from_xyz(0.0, 0.0, 0.0001),
@@ -117,7 +115,7 @@ pub fn spawn_dropped_item(
 
                     parent.spawn((
                         AseSpriteSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: icon.into(),
                         },
                         Transform::from_xyz(0.0, 0.0, 0.0),
@@ -148,7 +146,7 @@ fn pickup_dropped_item(
                 let mut actor = player_query.get_mut(player_entity).unwrap();
                 if actor.inventory.insert(item.item) {
                     commands.entity(item_entity).despawn_recursive();
-                    
+
                     se.send(SEEvent::new(SE::PickUp));
 
                     let InventoryItem {

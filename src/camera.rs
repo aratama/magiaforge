@@ -1,7 +1,7 @@
+use crate::actor::Actor;
 use crate::constant::CAMERA_SPEED;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerServant;
-use crate::actor::Actor;
 use crate::entity::explosion::ExplosionPointLight;
 use crate::entity::explosion::EXPLOSION_COUNT;
 use crate::page::in_game::GameLevel;

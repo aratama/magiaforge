@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::life::Life;
 use crate::controller::remote::RemotePlayer;
@@ -15,6 +14,7 @@ use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::physics::identify_single;
 use crate::physics::IdentifiedCollisionEvent;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -133,7 +133,7 @@ pub struct SpawnBullet {
 /// それ以外の物体に衝突した場合はそのまま消滅します
 pub fn spawn_bullet(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     writer: &mut EventWriter<SEEvent>,
     spawn: &SpawnBullet,
 ) {
@@ -193,11 +193,11 @@ pub fn spawn_bullet(
 
     match spawn.slices {
         BulletImage::Slice { ref names } => entity.insert(AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: names.choose(&mut rng).unwrap().clone().into(),
         }),
         BulletImage::Freeze => entity.insert(AseSpriteAnimation {
-            aseprite: assets.freeze.clone(),
+            aseprite: registry.assets.freeze.clone(),
             animation: "default".into(),
         }),
     };
@@ -227,7 +227,6 @@ fn despawn_bullet_by_lifetime(
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn_recursive();
-            
         }
     }
 }
@@ -339,7 +338,7 @@ fn bullet_collision(
             if bullet.owner == None || Some(actor.uuid) != bullet.owner {
                 despawnings.insert(bullet_entity.clone());
                 commands.entity(bullet_entity).despawn_recursive();
-                
+
                 spawn.send(SpawnEntity::Particle {
                     position: bullet_position,
                     spawn: SpawnParticle::default(),
@@ -389,7 +388,7 @@ fn bullet_collision(
         } else if life_query.contains(other_entity) {
             despawnings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
-            
+
             spawn.send(SpawnEntity::Particle {
                 position: bullet_position,
                 spawn: SpawnParticle::default(),
@@ -416,7 +415,7 @@ fn bullet_collision(
             // ヒット判定やダメージなどはリモート側で処理します
             despawnings.insert(bullet_entity.clone());
             commands.entity(bullet_entity).despawn_recursive();
-            
+
             spawn.send(SpawnEntity::Particle {
                 position: bullet_position,
                 spawn: SpawnParticle::default(),
@@ -449,7 +448,7 @@ fn despawn_bullet_residual(
         residual.count -= 1;
         if residual.count <= 0 {
             commands.entity(entity).despawn_recursive();
-            
+
             spawn_particle_system(
                 &mut commands,
                 transform.translation.truncate(),

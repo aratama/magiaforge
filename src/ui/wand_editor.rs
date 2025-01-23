@@ -1,9 +1,9 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::message::SORT;
+use crate::registry::Registry;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::command_button::command_button;
@@ -29,7 +29,7 @@ pub const INVENTORY_IMAGE_HEIGHT: f32 = 168.0;
 
 const SCALE: f32 = 2.0;
 
-pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, assets: &Res<GameAssets>) {
+pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, registry: &Registry) {
     builder
         .spawn((
             WandEditorRoot,
@@ -62,18 +62,18 @@ pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, assets: &Res<GameAssets
                     ..default()
                 },
                 AseUiSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "inventory".into(),
                 },
             ));
 
             // 操作可能なグリッド部分
-            spawn_inventory(&mut parent, &assets);
+            spawn_inventory(&mut parent, &registry);
 
             // 並び変えボタン
             command_button(
                 parent,
-                assets,
+                &registry,
                 SortButton,
                 160.0,
                 32.0,
@@ -82,7 +82,7 @@ pub fn spawn_wand_editor(mut builder: &mut ChildBuilder, assets: &Res<GameAssets
             );
         });
 
-    spawn_spell_information(&mut builder, &assets);
+    spawn_spell_information(&mut builder, &registry);
 }
 
 fn switch_sort_button_disabled(

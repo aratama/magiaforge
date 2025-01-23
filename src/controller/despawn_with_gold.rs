@@ -1,6 +1,6 @@
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::entity::gold::spawn_gold;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -17,7 +17,7 @@ pub struct DespawnWithGold {
 /// Enemy側に実装されています
 fn dead_enemy(
     mut commands: Commands,
-    assets: Res<GameAssets>,
+    registry: Registry,
     mut query: Query<(Entity, &DespawnWithGold, &Life, &Transform)>,
     mut writer: EventWriter<SEEvent>,
 ) {
@@ -25,10 +25,10 @@ fn dead_enemy(
         if enemy_life.life <= 0 {
             let position = transform.translation.truncate();
             commands.entity(entity).despawn_recursive();
-            
+
             writer.send(SEEvent::pos(SE::Cry, position));
             for _ in 0..enemy.golds {
-                spawn_gold(&mut commands, &assets, position);
+                spawn_gold(&mut commands, &registry, position);
             }
         }
     }

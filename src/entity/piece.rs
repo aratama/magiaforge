@@ -1,6 +1,6 @@
-use crate::asset::GameAssets;
 use crate::collision::PIECE_GROUPS;
 use crate::constant::*;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -9,7 +9,7 @@ use core::f32;
 
 pub fn spawn_broken_piece(
     commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     position: Vec2,
     name: &str,
 ) {
@@ -19,7 +19,7 @@ pub fn spawn_broken_piece(
             Quat::from_rotation_z(2.0 * f32::consts::PI * rand::random::<f32>()),
         ),
         AseSpriteSlice {
-            aseprite: assets.atlas.clone(),
+            aseprite: registry.assets.atlas.clone(),
             name: name.into(),
         },
         RigidBody::Dynamic,

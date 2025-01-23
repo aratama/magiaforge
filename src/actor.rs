@@ -25,9 +25,6 @@ use crate::component::life::Life;
 use crate::component::life::LifeBeingSprite;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
-use crate::constant::ActorProps;
-use crate::constant::GameActors;
-use crate::constant::GameConstants;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::recovery;
@@ -49,6 +46,7 @@ use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnWitchType;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -98,16 +96,6 @@ pub enum ActorType {
     Chest,
     BookShelf,
     Rabbit,
-}
-
-impl ActorType {
-    pub fn to_props<'a>(&self, constants: &'a GameActors) -> &'a ActorProps {
-        let name = format!("{:?}", self);
-        &constants
-            .actors
-            .get(&format!("{:?}", self))
-            .expect(format!("ActorType {:?} not found", name).as_str())
-    }
 }
 
 #[derive(Reflect, Clone, Default, Debug)]
@@ -249,9 +237,6 @@ impl Actor {
     pub fn to_type(&self) -> ActorType {
         self.extra.to_type()
     }
-    pub fn to_props<'a>(&self, constants: &'a GameActors) -> &'a ActorProps {
-        self.to_type().to_props(constants)
-    }
 }
 
 /// Actorで種族固有の部分を格納します
@@ -327,18 +312,17 @@ pub struct ActorSpriteGroup;
 
 impl Actor {
     #[allow(dead_code)]
-    pub fn get_item_icon(
-        &self,
-        constants: &GameConstants,
-        index: FloatingContent,
-    ) -> Option<String> {
+    pub fn get_item_icon(&self, registry: Registry, index: FloatingContent) -> Option<String> {
         match index {
             FloatingContent::Inventory(index) => self
                 .inventory
                 .get(index)
-                .map(|i| i.item_type.get_icon(&constants)),
-            FloatingContent::WandSpell(w, s) => self.wands[w].slots[s]
-                .map(|spell| spell.spell_type.to_props(&constants).icon.clone()),
+                .map(|i| i.item_type.get_icon(&registry)),
+            FloatingContent::WandSpell(w, s) => {
+                self.wands[w].slots[s].map(|WandSpell { spell_type, .. }| {
+                    registry.get_spell_props(spell_type).icon.clone()
+                })
+            }
         }
     }
 
@@ -390,8 +374,9 @@ impl Actor {
 
     /// 装備を含めた移動力の合計を返します
     /// ただし魔法発射中のペナルティは含まれません
-    fn get_total_move_force(&self, constants: &GameActors) -> f32 {
-        let mut force = self.to_props(&constants).move_force;
+    fn get_total_move_force(&self, registry: &Registry) -> f32 {
+        let props = registry.get_actor_props(self.to_type());
+        let mut force = props.move_force;
 
         //todo
 
@@ -630,9 +615,7 @@ fn update_actor_light(
 /// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
     mut commands: Commands,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
-    game_actors: Res<Assets<GameActors>>,
+    registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
     mut actor_query: Query<
         (
@@ -656,10 +639,6 @@ fn fire_bullet(
     websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
-
-    let constants = ron.get(assets.spells.id()).unwrap();
-
-    let game_actors_constants = game_actors.get(assets.actors.id()).unwrap();
 
     for (
         actor_entity,
@@ -688,8 +667,6 @@ fn fire_bullet(
             continue;
         }
 
-        let props = actor.to_props(&game_actors_constants);
-
         if actor.fire_state == ActorFireState::Fire {
             let wand = if actor_metamorphosis.is_none() {
                 actor.current_wand
@@ -698,16 +675,14 @@ fn fire_bullet(
             };
             cast_spell(
                 &mut commands,
-                &assets,
+                &registry,
                 &life_bar_resource,
                 &mut remote_writer,
                 &mut se_writer,
                 &mut impact_writer,
                 &mut spawn,
-                &constants,
                 actor_entity,
                 &mut actor,
-                &props,
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
@@ -725,16 +700,14 @@ fn fire_bullet(
         if actor.fire_state_secondary == ActorFireState::Fire {
             cast_spell(
                 &mut commands,
-                &assets,
+                &registry,
                 &life_bar_resource,
                 &mut remote_writer,
                 &mut se_writer,
                 &mut impact_writer,
                 &mut spawn,
-                &constants,
                 actor_entity,
                 &mut actor,
-                &props,
                 &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
@@ -758,13 +731,12 @@ fn fire_bullet(
 /// actor.move_direction の値に従って、アクターに外力を適用します
 /// 魔法の発射中は移動速度が低下します
 fn apply_external_force(
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(&mut Actor, &mut ExternalForce, &Transform, &Vertical)>,
     mut se: EventWriter<SEEvent>,
     level: Res<LevelSetup>,
 ) {
-    let constants = constants.get(assets.actors.id()).unwrap();
+    let constants = registry.actor();
 
     if let Some(ref chunk) = level.chunk {
         for (mut actor, mut external_force, transform, vertical) in query.iter_mut() {
@@ -793,7 +765,7 @@ fn apply_external_force(
                 1.0
             };
 
-            let force = actor.move_direction * actor.get_total_move_force(&constants) * ratio;
+            let force = actor.move_direction * actor.get_total_move_force(&registry) * ratio;
 
             if 0.0 < force.length() {
                 if 0 < actor.trapped {
@@ -817,14 +789,9 @@ fn apply_external_force(
     }
 }
 
-fn defreeze(
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
-    mut query: Query<&mut Actor>,
-) {
-    let constants = constants.get(assets.actors.id()).unwrap();
+fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
     for mut actor in query.iter_mut() {
-        let props = actor.to_props(&constants);
+        let props = registry.get_actor_props(actor.to_type());
         if props.defreeze <= actor.frozen {
             actor.frozen -= props.defreeze;
         } else if 0 < actor.frozen {
@@ -839,14 +806,9 @@ pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut Collis
     }
 }
 
-fn decrement_levitation(
-    mut actor_query: Query<&mut Actor>,
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
-) {
-    let constants = constants.get(assets.actors.id()).unwrap();
+fn decrement_levitation(mut actor_query: Query<&mut Actor>, registry: Registry) {
     for mut actor in actor_query.iter_mut() {
-        let props = actor.to_props(&constants);
+        let props = registry.get_actor_props(actor.to_type());
         if 0 < actor.levitation {
             actor.levitation -= 1;
         }
@@ -857,17 +819,15 @@ fn decrement_levitation(
 }
 
 fn levitation_effect(
+    registry: Registry,
     actor_query: Query<&Actor>,
     mut group_query: Query<(&Parent, &mut Counter), With<ActorSpriteGroup>>,
     mut effect_query: Query<(&Parent, &mut Visibility), With<ActorLevitationEffect>>,
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
 ) {
-    let constants = constants.get(assets.actors.id()).unwrap();
     for (parent, mut visibility) in effect_query.iter_mut() {
         let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
         let actor = actor_query.get(group.get()).unwrap();
-        let props = actor.to_props(&constants);
+        let props = registry.get_actor_props(actor.to_type());
         if props.auto_levitation {
             *visibility = Visibility::Hidden;
         } else if 120 < actor.levitation {
@@ -932,19 +892,20 @@ fn apply_z(
 }
 
 fn apply_damping(
+    registry: Registry,
     mut query: Query<(&Vertical, &mut Damping, &Actor, &Transform)>,
-    assets: Res<GameAssets>,
-    constants: Res<Assets<GameActors>>,
     level: Res<LevelSetup>,
 ) {
+    let constants = registry.actor();
+
     if let Some(ref chunk) = level.chunk {
         for (vertical, mut damping, actor, transform) in query.iter_mut() {
             let on_ice = match chunk.get_tile_by_coords(transform.translation.truncate()) {
                 Tile::Ice => true,
                 _ => false,
             };
-            let constants = constants.get(assets.actors.id()).unwrap();
-            let props = actor.to_props(&constants);
+
+            let props = registry.get_actor_props(actor.to_type());
             damping.linear_damping = props.linear_damping
                 * if 0.0 < vertical.v {
                     constants.dumping_on_air

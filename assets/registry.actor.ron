@@ -1,5 +1,5 @@
 
-GameActors(
+ActorRegistry(
     dumping_on_ice: 0.1,
     dumping_on_air: 0.5,
     acceleration_on_ice: 0.1,

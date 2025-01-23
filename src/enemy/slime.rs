@@ -2,12 +2,12 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
 use crate::wand::Wand;
@@ -46,39 +46,36 @@ pub fn default_slime() -> (Actor, Life) {
 
 pub fn spawn_slime(
     mut commands: &mut Commands,
-    assets: &Res<GameAssets>,
+    registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     actor: Actor,
     life: Life,
     position: Vec2,
     owner: Option<Entity>,
-    props: &ActorProps,
 ) -> Entity {
     let actor_group = actor.actor_group;
     spawn_basic_enemy(
         &mut commands,
-        &assets,
+        &registry,
         life_bar_locals,
         match actor_group {
-            ActorGroup::Friend => assets.friend_slime.clone(),
-            ActorGroup::Enemy => assets.slime.clone(),
-            ActorGroup::Neutral => assets.friend_slime.clone(),
-            ActorGroup::Entity => assets.friend_slime.clone(),
+            ActorGroup::Friend => registry.assets.friend_slime.clone(),
+            ActorGroup::Enemy => registry.assets.slime.clone(),
+            ActorGroup::Neutral => registry.assets.friend_slime.clone(),
+            ActorGroup::Entity => registry.assets.friend_slime.clone(),
         },
         position,
         "slime",
         owner,
         actor,
         life,
-        props,
     )
 }
 
 /// 1マス以上5マス以内にプレイヤーがいたら追いかけます
 /// また、プレイヤーを狙います
 fn control_slime(
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameActors>>,
+    registry: Registry,
     mut query: Query<(
         Entity,
         Option<&mut SlimeControl>,
@@ -90,14 +87,12 @@ fn control_slime(
     navmesh: Query<(&ManagedNavMesh, Ref<NavMeshStatus>)>,
     navmeshes: Res<Assets<NavMesh>>,
 ) {
-    let constants = ron.get(&assets.actors).unwrap();
-
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&constants, &lens.query());
+    let finder = Finder::new(&registry, &lens.query());
 
     // 各スライムの行動を選択します
     for (slime_entity, slime_optional, mut slime_actor, slime_transform) in query.iter_mut() {
-        let props = slime_actor.to_props(&constants);
+        let props = registry.get_actor_props(slime_actor.to_type());
 
         if let Some(mut slime) = slime_optional {
             slime_actor.move_direction = Vec2::ZERO;

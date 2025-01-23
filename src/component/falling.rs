@@ -1,6 +1,7 @@
 use crate::component::vertical::Vertical;
 use crate::page::in_game::LevelSetup;
-use crate::se::{SEEvent, SE};
+use crate::se::SEEvent;
+use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 

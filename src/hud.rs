@@ -4,17 +4,13 @@ pub mod pointer;
 
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::asset::GameAssets;
 use crate::component::life::Life;
-use crate::config::GameConfig;
-use crate::constant::GameConstants;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerDown;
-use crate::message::MULTIPLAY_ARENA;
-use crate::message::UNKNOWN_LEVEL;
-use crate::page::in_game::GameLevel;
+use crate::language::M18NTtext;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::states::GameState;
 use crate::ui::bar::spawn_status_bar;
 use crate::ui::bar::StatusBar;
@@ -36,15 +32,7 @@ pub struct PlayerLifeBar;
 #[derive(Component)]
 pub struct PlayerGold;
 
-fn setup_hud(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    ron: Res<Assets<GameConstants>>,
-    next: Res<LevelSetup>,
-    config: Res<GameConfig>,
-) {
-    let constants = ron.get(assets.spells.id()).unwrap();
-
+fn setup_hud(mut commands: Commands, registry: Registry, next: Res<LevelSetup>) {
     commands
         .spawn((
             Name::new("hud_root"),
@@ -69,7 +57,7 @@ fn setup_hud(
         ))
         .with_children(|mut parent| {
             // 左上
-            spawn_status_bars(&mut parent, &assets);
+            spawn_status_bars(&mut parent, &registry);
 
             // 下半分
             parent
@@ -98,42 +86,33 @@ fn setup_hud(
                             },
                         ))
                         .with_children(|mut parent| {
-                            spawn_wand_list(&mut parent, &assets);
+                            spawn_wand_list(&mut parent, &registry);
                         });
 
                     // 右下
 
-                    let level_name = match next.next_level {
-                        GameLevel::Level(i) => constants
-                            .levels
-                            .get(i as usize)
-                            .map(|l| l.name.clone())
-                            .unwrap_or(UNKNOWN_LEVEL.to_string()),
-                        GameLevel::MultiPlayArena => MULTIPLAY_ARENA.to_string(),
-                    };
-                    let name = level_name.get(config.language).to_string();
-
+                    let level_props = registry.get_level_props(next.next_level);
                     parent.spawn((
-                        Text(name),
+                        M18NTtext::new(&level_props.name.clone()),
                         TextColor(Color::srgba(1.0, 1.0, 1.0, 0.3)),
                         TextFont {
-                            font: assets.noto_sans_jp.clone(),
+                            font: registry.assets.noto_sans_jp.clone(),
                             font_size: 12.0,
                             ..default()
                         },
                     ));
                 });
 
-            spawn_wand_editor(&mut parent, &assets);
+            spawn_wand_editor(&mut parent, &registry);
 
-            spawn_inventory_floating(&mut parent, &assets);
+            spawn_inventory_floating(&mut parent, &registry);
 
-            spawn_boss_hitpoint_bar(&mut parent, &assets);
+            spawn_boss_hitpoint_bar(&mut parent, &registry);
 
             spawn_drop_area(&mut parent);
         });
 
-    spawn_speech_bubble(&mut commands, &assets);
+    spawn_speech_bubble(&mut commands, &registry);
 }
 
 #[derive(Component)]
@@ -189,7 +168,7 @@ fn drop_area_visibility(
     }
 }
 
-fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
+fn spawn_status_bars(parent: &mut ChildBuilder, registry: &Registry) {
     parent
         .spawn((Node {
             display: Display::Flex,
@@ -204,7 +183,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
         .with_children(|mut parent| {
             spawn_status_bar(
                 &mut parent,
-                &assets,
+                registry,
                 PlayerLifeBar,
                 0,
                 0,
@@ -222,7 +201,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
                 .with_children(|parent| {
                     parent.spawn((
                         AseUiSlice {
-                            aseprite: assets.atlas.clone(),
+                            aseprite: registry.assets.atlas.clone(),
                             name: "gold_icon".to_string(),
                         },
                         Transform::from_scale(Vec3::new(2.0, 2.0, 1.0)),
@@ -235,7 +214,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, assets: &Res<GameAssets>) {
                         Text::new(""),
                         TextColor(Color::hsla(57.0, 1.0, 0.5, 0.7)),
                         TextFont {
-                            font: assets.noto_sans_jp.clone(),
+                            font: registry.assets.noto_sans_jp.clone(),
                             font_size: 18.0,
                             ..default()
                         },
