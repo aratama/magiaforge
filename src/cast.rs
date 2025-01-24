@@ -1,11 +1,11 @@
 use crate::actor::jump_actor;
+use crate::actor::rock::spawn_falling_rock;
 use crate::actor::witch::WITCH_COLLIDER_RADIUS;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
-use crate::component::life::Life;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
@@ -20,7 +20,6 @@ use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::impact::SpawnImpact;
-use crate::entity::rock::spawn_falling_rock;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
@@ -139,7 +138,6 @@ pub fn cast_spell(
     // components
     actor_entity: Entity,
     mut actor: &mut Actor,
-    actor_life: &mut Life,
     actor_transform: &Transform,
     mut actor_impulse: &mut ExternalImpulse,
     actor_velocity: &Velocity,
@@ -271,11 +269,10 @@ pub fn cast_spell(
                             .min(3.0);
                 }
                 SpellCast::Heal => {
-                    if spell.spell_type == SpellType::Heal && actor_life.life == actor_life.max_life
-                    {
+                    if spell.spell_type == SpellType::Heal && actor.life == actor.max_life {
                         wand_delay = wand_delay.max(1);
                     } else {
-                        actor_life.life = (actor_life.life + 2).min(actor_life.max_life);
+                        actor.life = (actor.life + 2).min(actor.max_life);
                         se.send(SEEvent::pos(SE::Heal, actor_position));
                     }
                 }
@@ -340,7 +337,10 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEntityEvent {
                         position,
-                        entity: SpawnEntity::Bomb,
+                        entity: SpawnEntity::DefaultActor {
+                            actor_type: ActorType::Bomb,
+                            actor_group: ActorGroup::Neutral,
+                        },
                     });
                 }
                 SpellCast::SpawnEntity { ref entity } => {
@@ -508,7 +508,6 @@ pub fn cast_spell(
                 &mut spawn,
                 &actor_entity,
                 actor.clone(),
-                actor_life.clone(),
                 &actor_metamorphosis,
                 actor_position,
                 metamorphse,

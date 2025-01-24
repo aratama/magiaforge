@@ -1,8 +1,8 @@
+use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorGroup;
 use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
-use crate::component::life::Life;
 use crate::constant::PARTICLE_LAYER_Z;
 use crate::entity::grass::Grasses;
 use crate::registry::Registry;
@@ -34,8 +34,8 @@ pub fn spawn_slash(
     context_query: &mut Query<&mut RapierContext, With<DefaultRapierContext>>,
     actor_group: ActorGroup,
     actor_event: &mut EventWriter<ActorEvent>,
-    life_query: &Query<&Transform, With<Life>>,
-    grass_query: &Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
+    life_query: &Query<&Transform, With<Actor>>,
+    grass_query: &Query<(Entity, &Transform), (With<Grasses>, Without<Actor>)>,
     damage: u32,
 ) {
     let rotation = Quat::from_rotation_z(angle);

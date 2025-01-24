@@ -1,4 +1,4 @@
-use crate::component::life::Life;
+use crate::actor::Actor;
 use crate::entity::gold::spawn_gold;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -18,7 +18,7 @@ pub struct DespawnWithGold {
 fn dead_enemy(
     mut commands: Commands,
     registry: Registry,
-    mut query: Query<(Entity, &DespawnWithGold, &Life, &Transform)>,
+    mut query: Query<(Entity, &DespawnWithGold, &Actor, &Transform)>,
     mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, enemy, enemy_life, transform) in query.iter_mut() {

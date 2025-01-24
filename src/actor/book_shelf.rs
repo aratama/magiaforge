@@ -1,11 +1,10 @@
+use super::LifeBeingSprite;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::collision::*;
 use crate::component::falling::Falling;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::registry::Registry;
@@ -25,15 +24,14 @@ const ENTITY_HEIGHT: f32 = 8.0;
 #[derive(Default, Component, Reflect)]
 pub struct Bookshelf;
 
-pub fn default_bookshelf() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::BookShelf,
-            actor_group: ActorGroup::Entity,
-            ..default()
-        },
-        Life::new(25),
-    )
+pub fn default_bookshelf() -> Actor {
+    Actor {
+        extra: ActorExtra::BookShelf,
+        actor_group: ActorGroup::Entity,
+        life: 25,
+        max_life: 25,
+        ..default()
+    }
 }
 
 /// 指定した位置に本棚を生成します
@@ -43,7 +41,6 @@ pub fn spawn_book_shelf(
     aseprite: Handle<Aseprite>,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     let aseprite_clone = aseprite.clone();
 
@@ -51,7 +48,6 @@ pub fn spawn_book_shelf(
         Name::new("book_shelf"),
         StateScoped(GameState::InGame),
         actor,
-        life,
         Bookshelf,
         Burnable {
             life: 60 * 20 + rand::random::<u32>() % 30,
@@ -90,7 +86,7 @@ pub fn spawn_book_shelf(
 fn break_book_shelf(
     mut commands: Commands,
     registry: Registry,
-    query: Query<(Entity, &Life, &Transform, &Burnable), With<Bookshelf>>,
+    query: Query<(Entity, &Actor, &Transform, &Burnable), With<Bookshelf>>,
     mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform, burnable) in query.iter() {

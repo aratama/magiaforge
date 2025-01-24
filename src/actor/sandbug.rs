@@ -1,7 +1,6 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::component::life::Life;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
@@ -22,16 +21,15 @@ impl Sandbag {
     }
 }
 
-pub fn default_sandbag() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Sandbag,
-            actor_group: ActorGroup::Neutral,
-            wands: Wand::single(Some(SpellType::Jump)),
-            ..default()
-        },
-        Life::new(10000000),
-    )
+pub fn default_sandbag() -> Actor {
+    Actor {
+        extra: ActorExtra::Sandbag,
+        actor_group: ActorGroup::Neutral,
+        wands: Wand::single(Some(SpellType::Jump)),
+        life: 10000,
+        max_life: 10000,
+        ..default()
+    }
 }
 
 pub fn spawn_sandbag(
@@ -40,9 +38,8 @@ pub fn spawn_sandbag(
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
-    let entity = spawn_basic_enemy(
+    spawn_basic_enemy(
         &mut commands,
         &registry,
         life_bar_locals,
@@ -51,9 +48,7 @@ pub fn spawn_sandbag(
         "sandbag",
         None,
         actor,
-        life,
-    );
-    entity
+    )
 }
 
 fn go_back(mut query: Query<(&mut Actor, &Transform, &Sandbag)>) {

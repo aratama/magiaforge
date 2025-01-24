@@ -1,8 +1,8 @@
+use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::collision::SENSOR_GROUPS;
-use crate::component::life::Life;
 use crate::constant::*;
 use crate::entity::fire::Fire;
 use crate::level::map::index_to_position;
@@ -39,8 +39,8 @@ fn spawn_explosion(
     mut reader: EventReader<SpawnExplosion>,
     mut camera_query: Query<&mut GameCamera>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut life_query: Query<&Transform, With<Life>>,
-    fire_query: Query<(Entity, &Transform), (With<Fire>, Without<Life>)>,
+    mut life_query: Query<&Transform, With<Actor>>,
+    fire_query: Query<(Entity, &Transform), (With<Fire>, Without<Actor>)>,
     mut damage_writer: EventWriter<ActorEvent>,
     mut level: ResMut<LevelSetup>,
 ) {

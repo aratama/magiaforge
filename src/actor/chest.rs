@@ -1,11 +1,10 @@
+use super::LifeBeingSprite;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::collision::*;
 use crate::component::falling::Falling;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
@@ -76,7 +75,7 @@ pub enum ChestItem {
     Item(InventoryItem),
 }
 
-pub fn default_random_chest() -> (Actor, Life) {
+pub fn default_random_chest() -> Actor {
     let chest_type = *CHEST_OR_BARREL
         .iter()
         .choose(&mut rand::thread_rng())
@@ -93,18 +92,17 @@ pub fn default_random_chest() -> (Actor, Life) {
     chest_actor(chest_type, item)
 }
 
-pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem) -> (Actor, Life) {
-    (
-        Actor {
-            actor_group: ActorGroup::Entity,
-            extra: ActorExtra::Chest {
-                chest_type,
-                chest_item,
-            },
-            ..default()
+pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem) -> Actor {
+    Actor {
+        actor_group: ActorGroup::Entity,
+        extra: ActorExtra::Chest {
+            chest_type,
+            chest_item,
         },
-        Life::new(30),
-    )
+        life: 30,
+        max_life: 30,
+        ..default()
+    }
 }
 
 /// チェストを生成します
@@ -114,7 +112,6 @@ pub fn spawn_chest(
     aseprite: Handle<Aseprite>,
     position: Vec2,
     actor: Actor,
-    life: Life,
     chest_type: ChestType,
 ) -> Entity {
     commands
@@ -122,7 +119,6 @@ pub fn spawn_chest(
             Name::new("chest"),
             StateScoped(GameState::InGame),
             actor,
-            life,
             Chest,
             Burnable {
                 life: 60 * 20 + rand::random::<u32>() % 30,
@@ -166,13 +162,13 @@ pub fn spawn_chest(
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(Entity, &Life, &Transform, &Actor, &Burnable), With<Chest>>,
+    query: Query<(Entity, &Transform, &Actor, &Burnable), With<Chest>>,
     registry: Registry,
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
 ) {
-    for (entity, breakabke, transform, actor, burnable) in query.iter() {
-        if breakabke.life <= 0 || burnable.life <= 0 {
+    for (entity, transform, actor, burnable) in query.iter() {
+        if actor.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             let ActorExtra::Chest {
                 chest_type,

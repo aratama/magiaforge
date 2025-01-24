@@ -3,7 +3,6 @@ use crate::actor::ActorEvent;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::life::Life;
 use crate::controller::remote::RemotePlayer;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
@@ -298,9 +297,8 @@ fn bullet_collision(
     mut actor_event: EventWriter<ActorEvent>,
     mut spawn: EventWriter<SpawnEntityEvent>,
     mut se: EventWriter<SEEvent>,
-    mut actor_query: Query<&mut Actor, (With<Life>, Without<RemotePlayer>)>,
+    mut actor_query: Query<&mut Actor, Without<RemotePlayer>>,
     bullet_query: Query<(&Bullet, &Transform, &Velocity)>,
-    life_query: Query<&Life, Without<Actor>>,
     wall_collider_query: Query<Entity, With<WallCollider>>,
 ) {
     // 弾丸が壁の角に当たった場合、衝突イベントが同時に複数回発生することがあります
@@ -352,17 +350,6 @@ fn bullet_collision(
             }
             actor.levitation += bullet.levitation;
 
-            actor_event.send(ActorEvent::Damaged {
-                actor: other_entity,
-                damage: bullet_damage as u32,
-                position: bullet_position,
-                fire: false,
-                impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
-                stagger: bullet.stagger,
-                metamorphose: bullet.metamorphose,
-                dispel: bullet.dispel,
-            });
-        } else if life_query.contains(other_entity) {
             actor_event.send(ActorEvent::Damaged {
                 actor: other_entity,
                 damage: bullet_damage as u32,

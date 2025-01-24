@@ -1,9 +1,9 @@
 use crate::actor::ActorGroup;
+use crate::actor::LifeBeingSprite;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
-use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::component::vertical::Vertical;
 use crate::entity::fire::spawn_fire;

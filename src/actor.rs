@@ -1,7 +1,9 @@
+pub mod bomb;
 pub mod book_shelf;
 pub mod chest;
 pub mod chicken;
 pub mod rabbit;
+pub mod rock;
 pub mod sandbug;
 pub mod stone_lantern;
 pub mod witch;
@@ -21,8 +23,7 @@ use crate::collision::PLAYER_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
+use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
 use crate::constant::MAX_WANDS;
@@ -37,11 +38,14 @@ use crate::enemy::slime::default_slime;
 use crate::enemy::spider::default_spider;
 use crate::entity::blood::Blood;
 use crate::entity::bullet::Trigger;
+use crate::entity::fire::Burnable;
+use crate::entity::fire::Fire;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
+use crate::level::entities::add_default_behavior;
 use crate::level::entities::SpawnEntityEvent;
 use crate::level::entities::SpawnWitchType;
 use crate::level::tile::Tile;
@@ -58,21 +62,27 @@ use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_light_2d::light::PointLight2d;
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::Damping;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
+use bevy_rapier2d::prelude::QueryFilter;
 use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use bomb::default_bomb;
 use book_shelf::default_bookshelf;
 use chest::default_random_chest;
 use chest::ChestItem;
 use chest::ChestType;
 use rabbit::default_rabbit;
 use rabbit::RabbitType;
+use rock::default_rock;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -96,6 +106,8 @@ pub enum ActorType {
     Chest,
     BookShelf,
     Rabbit,
+    Rock,
+    Bomb,
 }
 
 #[derive(Reflect, Clone, Default, Debug, Deserialize)]
@@ -147,6 +159,17 @@ pub struct Actor {
     pub uuid: Uuid,
 
     pub actor_group: ActorGroup,
+
+    // ライフ //////////////////////////////////////////////////////////////////////////////////////
+    pub life: u32,
+
+    pub max_life: u32,
+
+    /// ダメージを受けた時の振動の幅
+    pub amplitude: f32,
+
+    /// 次に炎でダメージを受けるまでの間隔
+    pub fire_damage_wait: u32,
 
     // 操作 ///////////////////////////////////////////////////////////////////////////////////////
     /// プレイヤーの位置からの相対的なポインターの位置
@@ -265,6 +288,8 @@ pub enum ActorExtra {
     Rabbit {
         rabbit_type: RabbitType,
     },
+    Rock,
+    Bomb,
 }
 
 impl ActorExtra {
@@ -283,6 +308,8 @@ impl ActorExtra {
             ActorExtra::Chest { .. } => ActorType::Chest,
             ActorExtra::BookShelf => ActorType::BookShelf,
             ActorExtra::Rabbit { .. } => ActorType::Rabbit,
+            ActorExtra::Rock => ActorType::Rock,
+            ActorExtra::Bomb => ActorType::Rock,
         }
     }
 }
@@ -445,8 +472,13 @@ impl Actor {
 
 impl Default for Actor {
     fn default() -> Self {
+        let default_life = 100;
         Actor {
             uuid: Uuid::new_v4(),
+            life: default_life,
+            max_life: default_life,
+            amplitude: 0.0,
+            fire_damage_wait: 0,
             pointer: Vec2::ZERO,
             point_light_radius: 0.0,
             current_wand: 0,
@@ -621,7 +653,6 @@ fn fire_bullet(
         (
             Entity,
             &mut Actor,
-            &mut Life,
             &mut Transform,
             &mut ExternalImpulse,
             &Velocity,
@@ -643,7 +674,6 @@ fn fire_bullet(
     for (
         actor_entity,
         mut actor,
-        mut actor_life,
         actor_transform,
         mut actor_impulse,
         actor_velocty,
@@ -683,7 +713,6 @@ fn fire_bullet(
                 &mut spawn,
                 actor_entity,
                 &mut actor,
-                &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
                 &actor_velocty,
@@ -708,7 +737,6 @@ fn fire_bullet(
                 &mut spawn,
                 actor_entity,
                 &mut actor,
-                &mut actor_life,
                 &actor_transform,
                 &mut actor_impulse,
                 &actor_velocty,
@@ -949,7 +977,6 @@ fn drown_damage(
         &mut Actor,
         &Transform,
         &Vertical,
-        &mut Life,
         Option<&Player>,
         Option<&Metamorphosed>,
     )>,
@@ -959,7 +986,7 @@ fn drown_damage(
     mut se: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
-    for (entity, mut actor, transform, vertical, life, player, morph) in actor_query.iter_mut() {
+    for (entity, mut actor, transform, vertical, player, morph) in actor_query.iter_mut() {
         let position = transform.translation.truncate();
         let tile = if let Some(ref chunk) = level.chunk {
             chunk.get_tile_by_coords(position)
@@ -1003,7 +1030,7 @@ fn drown_damage(
 
                 se.send(SEEvent::pos(SE::Scene2, position));
                 if let Some(player) = player {
-                    recovery(&mut level, &mut interpreter, &morph, &player, &life, &actor);
+                    recovery(&mut level, &mut interpreter, &morph, &player, &actor);
                 }
             }
             _ => {}
@@ -1046,7 +1073,7 @@ pub fn jump_actor(
     }
 }
 
-pub fn get_default_actor(actor_type: ActorType) -> (Actor, Life) {
+pub fn get_default_actor(actor_type: ActorType) -> Actor {
     match actor_type {
         ActorType::Witch => default_witch(),
         ActorType::HugeSlime => default_huge_slime(),
@@ -1061,6 +1088,164 @@ pub fn get_default_actor(actor_type: ActorType) -> (Actor, Life) {
         ActorType::Chest => default_random_chest(),
         ActorType::BookShelf => default_bookshelf(),
         ActorType::Rabbit => default_rabbit(RabbitType::Guide),
+        ActorType::Rock => default_rock(),
+        ActorType::Bomb => default_bomb(),
+    }
+}
+
+/// ダメージを受けた時に振動するスプライト
+#[derive(Default, Component, Reflect)]
+pub struct LifeBeingSprite;
+
+fn vibrate_breakabke_sprite(
+    time: Res<Time>,
+    mut breakable_query: Query<(&mut Actor, &Children)>,
+    mut breakable_sprite_query: Query<&mut Transform, With<LifeBeingSprite>>,
+) {
+    for (mut breakable, children) in breakable_query.iter_mut() {
+        for child in children {
+            if let Ok(mut transform) = breakable_sprite_query.get_mut(*child) {
+                transform.translation.x = (time.elapsed_secs() * 56.0).sin() * breakable.amplitude;
+            }
+            breakable.amplitude *= 0.9;
+        }
+    }
+}
+
+/// 付近に炎がある場合、ダメージを受けます
+/// ただし、Burnableである場合はダメージを受けませんが、その代わりに引火することがあり、
+/// 引火したあとで Burnable の life がゼロになった場合はエンティティは消滅します
+fn fire_damage(
+    mut actor_query: Query<(Entity, &mut Actor, &Transform), Without<Burnable>>,
+    fire_query: Query<&mut Transform, (With<Fire>, Without<Actor>)>,
+    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
+    mut actor_event: EventWriter<ActorEvent>,
+) {
+    for (actor_entity, mut actor, actor_transform) in actor_query.iter_mut() {
+        if actor.fire_damage_wait <= 0 && !actor.fire_resistance {
+            let mut detected_fires = Vec::<Entity>::new();
+            let context = rapier_context.single();
+
+            // 各アクターは、自分の周囲に対して炎を検索します
+            // 炎は多数になる可能性があることや、
+            // アクターはダメージの待機時間があり大半のフレームでは判定を行わないため、
+            // 炎側からアクター側へ判定を行うのではなく、アクター側から炎側へ判定を行ったほうが効率が良くなります
+            context.intersections_with_shape(
+                actor_transform.translation.truncate(),
+                0.0,
+                &Collider::ball(12.0),
+                QueryFilter {
+                    groups: Some(actor.actor_group.to_groups(0.0, 0)),
+                    ..default()
+                },
+                |entity| {
+                    if fire_query.contains(entity) {
+                        if actor.fire_damage_wait <= 0 {
+                            detected_fires.push(entity);
+
+                            // 一度炎ダメージを受けたらそれ以上他の炎からダメージを受けることはないため、
+                            // 探索を打ち切る
+                            return false;
+                        }
+                    }
+                    true // 交差図形の検索を続ける
+                },
+            );
+
+            for _ in detected_fires {
+                actor_event.send(ActorEvent::Damaged {
+                    actor: actor_entity,
+                    damage: 4,
+                    position: actor_transform.translation.truncate(),
+                    fire: true,
+                    impulse: Vec2::ZERO,
+                    stagger: 0,
+                    metamorphose: None,
+                    dispel: false,
+                });
+            }
+        }
+
+        if 0 < actor.fire_damage_wait {
+            actor.fire_damage_wait -= 1;
+        }
+    }
+}
+
+fn damage(
+    mut commands: Commands,
+    registry: Registry,
+    life_bar_resource: Res<LifeBarResource>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut query: Query<(
+        &mut Actor,
+        &Transform,
+        Option<&mut ExternalImpulse>,
+        Option<&Player>,
+        Option<&mut Metamorphosed>,
+    )>,
+    mut reader: EventReader<ActorEvent>,
+    mut se: EventWriter<SEEvent>,
+) {
+    for event in reader.read() {
+        match event {
+            ActorEvent::Damaged {
+                actor: actor_entity,
+                damage,
+                position,
+                fire,
+                impulse,
+                stagger,
+                metamorphose,
+                dispel,
+            } => {
+                let Ok((mut actor, life_transform, life_impulse, _, mut actor_metamorphosis)) =
+                    query.get_mut(*actor_entity)
+                else {
+                    continue;
+                };
+
+                if actor.staggered == 0 || !actor.invincibility_on_staggered {
+                    actor.life = (actor.life as i32 - *damage as i32).max(0) as u32;
+                    actor.staggered = (actor.staggered + stagger).min(120);
+                }
+
+                actor.amplitude = 6.0;
+
+                se.send(SEEvent::pos(SE::Damage, *position));
+
+                if *fire {
+                    actor.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
+                }
+
+                if let Some(mut life_impulse) = life_impulse {
+                    life_impulse.impulse += *impulse;
+                }
+
+                if let Some(morphing_to) = metamorphose {
+                    if 0 < actor.life {
+                        let position = life_transform.translation.truncate();
+                        let entity = cast_metamorphosis(
+                            &mut commands,
+                            &registry,
+                            &life_bar_resource,
+                            &mut se,
+                            &mut spawn,
+                            actor_entity,
+                            actor.clone(),
+                            &actor_metamorphosis.as_deref(),
+                            position,
+                            *morphing_to,
+                        );
+                        add_default_behavior(&mut commands, *morphing_to, position, entity);
+                    }
+                } else if let Some(ref mut actor_metamorphosis) = actor_metamorphosis {
+                    if *dispel {
+                        actor_metamorphosis.count = 0;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1091,6 +1276,9 @@ impl Plugin for ActorPlugin {
                 drown,
                 drown_damage,
                 stagger,
+                damage,
+                vibrate_breakabke_sprite,
+                fire_damage,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

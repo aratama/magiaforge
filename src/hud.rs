@@ -4,7 +4,6 @@ pub mod pointer;
 
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::component::life::Life;
 use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerDown;
@@ -227,7 +226,7 @@ fn spawn_status_bars(parent: &mut ChildBuilder, registry: &Registry) {
 fn update_life_in_hud(
     // ライフバーのみ、変身中も現在の姿のライフを表示します
     // なお、そのほかのゴールドやスペルは変身前の状態を表示しています
-    player_query: Query<&Life, (With<Player>, Without<Camera2d>)>,
+    player_query: Query<&Actor, (With<Player>, Without<Camera2d>)>,
     mut player_life_query: Query<&mut StatusBar, With<PlayerLifeBar>>,
     player_down_query: Query<&PlayerDown>,
 ) {

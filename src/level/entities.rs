@@ -1,3 +1,5 @@
+use crate::actor::bomb::default_bomb;
+use crate::actor::bomb::spawn_bomb;
 use crate::actor::book_shelf::spawn_book_shelf;
 use crate::actor::chest::chest_actor;
 use crate::actor::chest::default_random_chest;
@@ -10,9 +12,10 @@ use crate::actor::get_default_actor;
 use crate::actor::rabbit::default_rabbit;
 use crate::actor::rabbit::spawn_rabbit;
 use crate::actor::rabbit::RabbitType;
+use crate::actor::rock::default_rock;
+use crate::actor::rock::spawn_fallen_rock;
 use crate::actor::sandbug::spawn_sandbag;
 use crate::actor::sandbug::Sandbag;
-use crate::actor::stone_lantern::default_lantern;
 use crate::actor::stone_lantern::spawn_stone_lantern;
 use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
@@ -20,7 +23,6 @@ use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::Player;
@@ -39,7 +41,6 @@ use crate::enemy::slime::SlimeControl;
 use crate::enemy::spider::spawn_spider;
 use crate::enemy::spider::Spider;
 use crate::entity::bgm::spawn_bgm_switch;
-use crate::entity::bomb::spawn_bomb;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
@@ -97,10 +98,6 @@ pub enum SpawnEntity {
     ReadingRabbit,
     SpellListRabbit,
 
-    // 魔法で生成されるもの
-    StoneLantern,
-    Bomb,
-
     SpellInChest {
         spell: SpellType,
     },
@@ -138,7 +135,6 @@ pub enum SpawnEntity {
     /// 変化の復帰のときなどに使います
     /// Actorはシリアライズ不可能なので
     Actor {
-        life: Life,
         actor: Actor,
     },
 }
@@ -169,8 +165,8 @@ pub fn spawn_entity(
     mut actor_event: EventWriter<ActorEvent>,
     websocket: Res<WebSocketState>,
     resource: Res<BulletParticleResource>,
-    life_query: Query<&Transform, With<Life>>,
-    grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Life>)>,
+    life_query: Query<&Transform, With<Actor>>,
+    grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Actor>)>,
 ) {
     for SpawnEntityEvent { position, entity } in reader.read() {
         if setup.shop_items.is_empty() {
@@ -223,10 +219,6 @@ pub fn spawn_entity(
             SpawnEntity::BrokenMagicCircle => {
                 spawn_broken_magic_circle(&mut commands, registry.assets.atlas.clone(), *position);
             }
-            SpawnEntity::StoneLantern => {
-                let (actor, life) = default_lantern();
-                spawn_stone_lantern(&mut commands, &registry, *position, actor, life);
-            }
             SpawnEntity::Usage => {
                 commands.spawn((
                     Name::new("usage"),
@@ -261,79 +253,65 @@ pub fn spawn_entity(
                 }
             }
             SpawnEntity::ShopRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::Shop);
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::Shop),
                     RabbitType::Shop,
                 );
             }
             SpawnEntity::TrainingRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::Training);
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::Training),
                     RabbitType::Training,
                 );
             }
             SpawnEntity::SinglePlayRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::Singleplay);
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::Singleplay),
                     RabbitType::Singleplay,
                 );
             }
             SpawnEntity::GuideRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::Guide);
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::Guide),
                     RabbitType::Guide,
                 );
             }
             SpawnEntity::MultiplayerRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::MultiPlay);
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::MultiPlay),
                     RabbitType::MultiPlay,
                 );
             }
             SpawnEntity::ReadingRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::Reading);
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::Reading),
                     RabbitType::Reading,
                 );
             }
             SpawnEntity::SpellListRabbit => {
-                let (actor, life) = default_rabbit(RabbitType::SpellList);
                 let entity = spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    actor,
-                    life,
+                    default_rabbit(RabbitType::SpellList),
                     RabbitType::SpellList,
                 );
 
@@ -345,38 +323,31 @@ pub fn spawn_entity(
             SpawnEntity::BGM => {
                 spawn_bgm_switch(&mut commands, &registry, *position);
             }
-            SpawnEntity::Bomb => {
-                spawn_bomb(&mut commands, &registry, *position);
-            }
             SpawnEntity::RandomChest => {
-                let (actor, life) = default_random_chest();
                 spawn_actor_internal(
                     &mut commands,
                     &registry,
                     &life_bar_resource,
                     *position,
-                    &actor,
-                    &life,
+                    &default_random_chest(),
                 );
             }
             SpawnEntity::SpellInChest { spell } => {
                 let chest_item: ChestItem =
                     ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(*spell)));
-                let (actor, life) = chest_actor(ChestType::Chest, chest_item);
                 spawn_actor_internal(
                     &mut commands,
                     &registry,
                     &life_bar_resource,
                     *position,
-                    &actor,
-                    &life,
+                    &chest_actor(ChestType::Chest, chest_item),
                 );
             }
             SpawnEntity::DefaultActor {
                 actor_type,
                 actor_group,
             } => {
-                let (mut actor, life) = get_default_actor(*actor_type);
+                let mut actor = get_default_actor(*actor_type);
                 actor.actor_group = *actor_group;
                 let entity = spawn_actor(
                     &mut commands,
@@ -384,13 +355,12 @@ pub fn spawn_entity(
                     &life_bar_resource,
                     *position,
                     actor,
-                    life,
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
             SpawnEntity::HugeSlime { boss } => {
-                let (actor, life) = default_huge_slime();
-                let entity = spawn_huge_slime(&mut commands, &registry, *position, actor, life);
+                let entity =
+                    spawn_huge_slime(&mut commands, &registry, *position, default_huge_slime());
                 if let Some(boss_name) = boss {
                     commands.entity(entity).insert(Boss {
                         name: boss_name.clone(),
@@ -462,13 +432,12 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Actor { life, actor } => spawn_actor_internal(
+            SpawnEntity::Actor { actor } => spawn_actor_internal(
                 &mut commands,
                 &registry,
                 &life_bar_resource,
                 *position,
                 actor,
-                life,
             ),
         }
     }
@@ -480,7 +449,6 @@ pub fn spawn_actor(
     life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     match actor.extra.clone() {
         ActorExtra::Witch { .. } => spawn_witch(
@@ -491,14 +459,12 @@ pub fn spawn_actor(
             &life_bar_resource,
             false,
             actor,
-            life,
         ),
         ActorExtra::Slime => spawn_slime(
             &mut commands,
             &registry,
             &life_bar_resource,
             actor,
-            life,
             position,
             None,
         ),
@@ -508,7 +474,6 @@ pub fn spawn_actor(
             &life_bar_resource,
             position,
             actor,
-            life,
         ),
         ActorExtra::Shadow => spawn_shadow(
             &mut commands,
@@ -516,7 +481,6 @@ pub fn spawn_actor(
             &life_bar_resource,
             position,
             actor,
-            life,
         ),
         ActorExtra::Spider => spawn_spider(
             &mut commands,
@@ -524,7 +488,6 @@ pub fn spawn_actor(
             &life_bar_resource,
             position,
             actor,
-            life,
         ),
         ActorExtra::Salamander => spawn_salamander(
             &mut commands,
@@ -532,14 +495,12 @@ pub fn spawn_actor(
             &life_bar_resource,
             position,
             actor,
-            life,
         ),
         ActorExtra::Chicken => spawn_chiken(
             &mut commands,
             &registry,
             &life_bar_resource,
             actor,
-            life,
             position,
         ),
         ActorExtra::Sandbag => spawn_sandbag(
@@ -548,15 +509,13 @@ pub fn spawn_actor(
             &life_bar_resource,
             position,
             actor,
-            life,
         ),
-        ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &registry, position, actor, life),
+        ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &registry, position, actor),
         ActorExtra::Chest { chest_type, .. } => spawn_chest(
             &mut commands,
             registry.assets.atlas.clone(),
             position,
             actor,
-            life,
             chest_type,
         ),
         ActorExtra::BookShelf => spawn_book_shelf(
@@ -565,13 +524,17 @@ pub fn spawn_actor(
             // 本棚のみ2タイルの幅があるため、例外的に半タイルずらした位置に生成します
             position + Vec2::new(TILE_HALF, 0.0),
             actor,
-            life,
         ),
-        ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &registry, position, actor, life),
-        ActorExtra::Rabbit { rabbit_type } => {
-            let (actor, life) = default_rabbit(rabbit_type);
-            spawn_rabbit(commands, &registry, position, actor, life, rabbit_type)
-        }
+        ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &registry, position, actor),
+        ActorExtra::Rabbit { rabbit_type } => spawn_rabbit(
+            &mut commands,
+            &registry,
+            position,
+            default_rabbit(rabbit_type),
+            rabbit_type,
+        ),
+        ActorExtra::Rock => spawn_fallen_rock(&mut commands, &registry, position, default_rock()),
+        ActorExtra::Bomb => spawn_bomb(&mut commands, &registry, position, default_bomb()),
     }
 }
 
@@ -581,7 +544,6 @@ fn spawn_actor_internal(
     life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
     actor: &Actor,
-    life: &Life,
 ) {
     let entity = spawn_actor(
         &mut commands,
@@ -589,7 +551,6 @@ fn spawn_actor_internal(
         &life_bar_resource,
         position,
         actor.clone(),
-        life.clone(),
     );
     if let ActorExtra::Witch {
         witch_type,
@@ -651,5 +612,7 @@ pub fn add_default_behavior(
         ActorType::Chest => {}
         ActorType::BookShelf => {}
         ActorType::Rabbit { .. } => {}
+        ActorType::Rock => {}
+        ActorType::Bomb => {}
     }
 }

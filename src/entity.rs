@@ -1,6 +1,5 @@
 pub mod bgm;
 pub mod blood;
-pub mod bomb;
 pub mod broken_magic_circle;
 pub mod bullet;
 pub mod bullet_particle;
@@ -15,7 +14,6 @@ pub mod impact;
 pub mod light;
 pub mod magic_circle;
 pub mod piece;
-pub mod rock;
 pub mod servant_seed;
 pub mod shop;
 pub mod slash;

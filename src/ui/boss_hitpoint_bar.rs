@@ -1,4 +1,4 @@
-use crate::component::life::Life;
+use crate::actor::Actor;
 use crate::enemy::huge_slime::Boss;
 use crate::language::Dict;
 use crate::language::M18NTtext;
@@ -126,7 +126,7 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, registry: &Registry) {
 
 fn update_bar_visibility(
     mut bar_query: Query<&mut Visibility, With<BossHitpointBar>>,
-    boss_query: Query<(&Boss, &Life)>,
+    boss_query: Query<(&Boss, &Actor)>,
     mut rect_query: Query<&mut Node, (With<StatusBarRect>, Without<StatusBarBackground>)>,
     mut text_query: Query<
         &mut Text,

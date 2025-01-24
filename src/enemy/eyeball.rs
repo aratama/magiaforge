@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::component::life::Life;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
@@ -27,16 +26,15 @@ const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
 const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 8.0;
 
-pub fn default_eyeball() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Eyeball,
-            actor_group: ActorGroup::Enemy,
-            wands: Wand::single(Some(SpellType::PurpleBolt)),
-            ..default()
-        },
-        Life::new(25),
-    )
+pub fn default_eyeball() -> Actor {
+    Actor {
+        extra: ActorExtra::Eyeball,
+        actor_group: ActorGroup::Enemy,
+        wands: Wand::single(Some(SpellType::PurpleBolt)),
+        life: 25,
+        max_life: 25,
+        ..default()
+    }
 }
 
 pub fn spawn_eyeball(
@@ -45,7 +43,6 @@ pub fn spawn_eyeball(
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     let actor_group = actor.actor_group;
     spawn_basic_enemy(
@@ -62,7 +59,6 @@ pub fn spawn_eyeball(
         "eyeball",
         None,
         actor,
-        life,
     )
 }
 

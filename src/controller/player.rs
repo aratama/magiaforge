@@ -5,7 +5,6 @@ use crate::actor::ActorState;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
-use crate::component::life::Life;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::ENTITY_LAYER_Z;
 use crate::constant::MAX_WANDS;
@@ -308,22 +307,15 @@ fn pick_gold(
 fn die_player(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    player_query: Query<(
-        Entity,
-        &Actor,
-        &Life,
-        &Transform,
-        &Player,
-        Option<&Metamorphosed>,
-    )>,
+    player_query: Query<(Entity, &Actor, &Transform, &Player, Option<&Metamorphosed>)>,
     mut writer: EventWriter<ClientMessage>,
     mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
     mut interpreter: EventWriter<InterpreterEvent>,
     mut next: ResMut<LevelSetup>,
 ) {
-    if let Ok((entity, actor, player_life, transform, player, morph)) = player_query.get_single() {
-        if player_life.life <= 0 {
+    if let Ok((entity, actor, transform, player, morph)) = player_query.get_single() {
+        if actor.life <= 0 {
             commands.entity(entity).despawn_recursive();
 
             game.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
@@ -358,14 +350,7 @@ fn die_player(
                 },
             );
 
-            recovery(
-                &mut next,
-                &mut interpreter,
-                &morph,
-                player,
-                player_life,
-                actor,
-            );
+            recovery(&mut next, &mut interpreter, &morph, player, actor);
         }
     }
 }
@@ -375,7 +360,6 @@ pub fn recovery(
     interpreter: &mut EventWriter<InterpreterEvent>,
     morph: &Option<&Metamorphosed>,
     player: &Player,
-    player_life: &Life,
     actor: &Actor,
 ) {
     // ダウン後はキャンプに戻る
@@ -383,9 +367,9 @@ pub fn recovery(
 
     // 次のシーンのためにプレイヤーの状態を保存
     let mut player_state = if let Some(morph) = morph {
-        PlayerState::from_morph(morph, &actor, &player_life)
+        PlayerState::from_morph(morph, &actor)
     } else {
-        PlayerState::from_player(&player, &actor, &player_life)
+        PlayerState::from_player(&player, &actor)
     };
     // 全回復させてから戻る
     player_state.life = player_state.max_life;

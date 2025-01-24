@@ -10,7 +10,6 @@ use crate::collision::ENEMY_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::player::Player;
@@ -63,31 +62,30 @@ pub enum HugeSlimeState {
 #[derive(Component)]
 pub struct HugeSlimeSprite;
 
-pub fn default_huge_slime() -> (Actor, Life) {
+pub fn default_huge_slime() -> Actor {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(WandSpell {
         spell_type: SpellType::MagicBolt,
         price: 0,
     });
-    (
-        Actor {
-            extra: ActorExtra::HugeSlime,
-            actor_group: ActorGroup::Enemy,
-            wands: [
-                Wand::with_slots(slots),
-                Wand::default(),
-                Wand::default(),
-                Wand::default(),
-            ],
-            fire_resistance: true,
-            poise: 60,
-            // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
-            // 通常1秒しか拘束
-            floundering: 8,
-            ..default()
-        },
-        Life::new(4000),
-    )
+    Actor {
+        extra: ActorExtra::HugeSlime,
+        actor_group: ActorGroup::Enemy,
+        wands: [
+            Wand::with_slots(slots),
+            Wand::default(),
+            Wand::default(),
+            Wand::default(),
+        ],
+        fire_resistance: true,
+        poise: 60,
+        // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
+        // 通常1秒しか拘束
+        floundering: 8,
+        life: 4000,
+        max_life: 4000,
+        ..default()
+    }
 }
 
 pub fn spawn_huge_slime(
@@ -95,7 +93,6 @@ pub fn spawn_huge_slime(
     registry: &Registry,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     let mut slots = [None; MAX_SPELLS_IN_WAND];
     slots[0] = Some(WandSpell {
@@ -115,7 +112,6 @@ pub fn spawn_huge_slime(
             },
             Counter::up(0),
             actor,
-            life,
             AseSpriteAnimation {
                 aseprite: registry.assets.huge_slime_shadow.clone(),
                 animation: Animation::default().with_tag("idle"),
@@ -184,7 +180,7 @@ fn update_huge_slime_growl(
 
 fn update_huge_slime_approach(
     registry: Registry,
-    player_query: Query<(&mut Life, &Transform, &mut ExternalImpulse), With<Player>>,
+    player_query: Query<(&mut Actor, &Transform, &mut ExternalImpulse), With<Player>>,
     mut huge_slime_query: Query<
         (
             &mut HugeSlime,
@@ -322,7 +318,7 @@ fn update_huge_slime_promote(
     }
 }
 
-fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Life, &mut Counter)>) {
+fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Actor, &mut Counter)>) {
     for (mut huge_slime, life, mut counter) in huge_slime_query.iter_mut() {
         if !huge_slime.promoted && life.life < 2000 {
             huge_slime.state = HugeSlimeState::Promote;
@@ -337,7 +333,7 @@ pub struct DespawnHugeSlime;
 
 fn despawn(
     mut commands: Commands,
-    query: Query<(Entity, &Life, &Transform), With<DespawnHugeSlime>>,
+    query: Query<(Entity, &Actor, &Transform), With<DespawnHugeSlime>>,
     assets: Res<GameAssets>,
     mut theater_writer: EventWriter<InterpreterEvent>,
     player_query: Query<&Transform, With<Player>>,

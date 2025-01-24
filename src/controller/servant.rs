@@ -1,4 +1,4 @@
-use crate::component::life::Life;
+use crate::actor::Actor;
 use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
 
@@ -10,7 +10,7 @@ pub struct Servant {
 }
 
 fn despawn_if_no_master(
-    mut servant_query: Query<(&mut Life, &Servant)>,
+    mut servant_query: Query<(&mut Actor, &Servant)>,
     master_query: Query<Entity, Without<Servant>>,
 ) {
     for (mut servant_life, servant) in servant_query.iter_mut() {

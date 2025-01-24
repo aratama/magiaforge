@@ -1,5 +1,4 @@
 use crate::actor::Actor;
-use crate::component::life::Life;
 use crate::constant::BLOOD_LAYER_Z;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
@@ -14,9 +13,9 @@ pub enum Blood {
     Blue,
 }
 
-fn blood(mut commands: Commands, registry: Registry, query: Query<(&Life, &Transform, &Actor)>) {
-    for (life, transform, actor) in query.iter() {
-        if life.life <= 0 {
+fn blood(mut commands: Commands, registry: Registry, query: Query<(&Transform, &Actor)>) {
+    for (transform, actor) in query.iter() {
+        if actor.life <= 0 {
             let props = registry.get_actor_props(actor.to_type());
             if let Some(ref blood) = props.blood {
                 let position = transform.translation.truncate();

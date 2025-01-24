@@ -1,4 +1,3 @@
-use super::life::Life;
 use crate::actor::get_default_actor;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
@@ -26,7 +25,6 @@ pub struct Metamorphosed {
     /// 0 になったら変身が解除されます
     pub count: u32,
     pub original_actor: Actor,
-    pub original_life: Life,
 }
 
 pub fn random_actor_type(mut rng: &mut ThreadRng, except: ActorType) -> ActorType {
@@ -62,7 +60,6 @@ pub fn cast_metamorphosis(
 
     original_actor_entity: &Entity,
     original_actor: Actor,
-    original_life: Life,
     original_morph: &Option<&Metamorphosed>,
 
     position: Vec2,
@@ -72,11 +69,7 @@ pub fn cast_metamorphosis(
         .map(|r| r.original_actor.clone())
         .unwrap_or(original_actor);
 
-    let original_life = original_morph
-        .map(|r| r.original_life.clone())
-        .unwrap_or(original_life);
-
-    let (mut dest_actor, mut dest_life) = get_default_actor(morphed_type);
+    let mut dest_actor = get_default_actor(morphed_type);
 
     dest_actor.fire_state = original_actor.fire_state;
     dest_actor.fire_state_secondary = original_actor.fire_state_secondary;
@@ -93,8 +86,8 @@ pub fn cast_metamorphosis(
         _ => original_actor.actor_group,
     };
 
-    dest_life.life =
-        dest_life.life * (original_life.life as f32 / original_life.max_life as f32).ceil() as u32;
+    dest_actor.life = dest_actor.life
+        * (original_actor.life as f32 / original_actor.max_life as f32).ceil() as u32;
 
     commands.entity(*original_actor_entity).despawn_recursive();
 
@@ -104,7 +97,6 @@ pub fn cast_metamorphosis(
         &life_bar_resource,
         position,
         dest_actor,
-        dest_life,
     );
 
     let mut builder = commands.entity(entity);
@@ -112,7 +104,6 @@ pub fn cast_metamorphosis(
     builder.insert(Metamorphosed {
         count: 60 * 10,
         original_actor,
-        original_life,
     });
     se.send(SEEvent::pos(SE::Kyushu2Short, position));
     spawn.send(SpawnEntityEvent {
@@ -127,7 +118,7 @@ pub fn cast_metamorphosis(
 
 fn revert(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Metamorphosed, &Transform, &Actor, &Life)>,
+    mut query: Query<(Entity, &mut Metamorphosed, &Transform, &Actor)>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEntityEvent>,
     time: Res<State<TimeState>>,
@@ -135,7 +126,7 @@ fn revert(
     if *time == TimeState::Inactive {
         return;
     }
-    for (entity, mut metamorphosis, transform, actor, life) in query.iter_mut() {
+    for (entity, mut metamorphosis, transform, actor) in query.iter_mut() {
         if 0 < metamorphosis.count {
             metamorphosis.count -= 1;
             continue;
@@ -151,15 +142,12 @@ fn revert(
             original_actor.fire_state = actor.fire_state;
             original_actor.fire_state_secondary = actor.fire_state_secondary;
             original_actor.move_direction = actor.move_direction;
-
-            let mut original_life = metamorphosis.original_life.clone();
-            original_life.life =
-                original_life.life * (life.life as f32 / life.max_life as f32).ceil() as u32;
+            original_actor.life =
+                original_actor.life * (actor.life as f32 / actor.max_life as f32).ceil() as u32;
 
             spawn.send(SpawnEntityEvent {
                 position,
                 entity: SpawnEntity::Actor {
-                    life: original_life,
                     actor: original_actor,
                 },
             });

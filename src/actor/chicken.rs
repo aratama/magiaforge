@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::controller::player::PlayerServant;
 use crate::enemy::basic::spawn_basic_enemy;
@@ -33,16 +32,15 @@ impl Default for Chicken {
     }
 }
 
-pub fn default_chiken() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Chicken,
-            actor_group: ActorGroup::Neutral,
-            wands: Wand::single(Some(SpellType::Jump)),
-            ..default()
-        },
-        Life::new(2),
-    )
+pub fn default_chiken() -> Actor {
+    Actor {
+        extra: ActorExtra::Chicken,
+        actor_group: ActorGroup::Neutral,
+        wands: Wand::single(Some(SpellType::Jump)),
+        life: 2,
+        max_life: 2,
+        ..default()
+    }
 }
 
 pub fn spawn_chiken(
@@ -50,7 +48,6 @@ pub fn spawn_chiken(
     registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     actor: Actor,
-    life: Life,
     position: Vec2,
 ) -> Entity {
     let entity = spawn_basic_enemy(
@@ -62,7 +59,6 @@ pub fn spawn_chiken(
         "chicken",
         None,
         actor,
-        life,
     );
     entity
 }

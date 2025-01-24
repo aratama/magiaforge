@@ -3,7 +3,6 @@ use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
 use crate::component::counter::CounterAnimated;
-use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::entity::bullet::HomingTarget;
@@ -33,19 +32,18 @@ pub struct WitchWandSprite;
 #[derive(Component)]
 pub struct Witch;
 
-pub fn default_witch() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Witch {
-                witch_type: SpawnWitchType::Dummy,
-                getting_up: false,
-                name: "default".to_string(),
-                discovered_spells: HashSet::new(),
-            },
-            ..default()
+pub fn default_witch() -> Actor {
+    Actor {
+        extra: ActorExtra::Witch {
+            witch_type: SpawnWitchType::Dummy,
+            getting_up: false,
+            name: "default".to_string(),
+            discovered_spells: HashSet::new(),
         },
-        Life::new(60),
-    )
+        life: 60,
+        max_life: 60,
+        ..default()
+    }
 }
 
 pub fn spawn_witch(
@@ -56,7 +54,6 @@ pub fn spawn_witch(
     res: &Res<LifeBarResource>,
     life_bar: bool,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     let actor_group = actor.actor_group;
     let mut entity = commands.spawn((
@@ -64,7 +61,6 @@ pub fn spawn_witch(
         StateScoped(GameState::InGame),
         actor,
         Witch,
-        life,
         HomingTarget,
         // 足音
         // footsteps.rsで音量を調整

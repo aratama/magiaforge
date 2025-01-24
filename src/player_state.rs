@@ -1,6 +1,5 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
-use crate::component::life::Life;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
@@ -72,11 +71,11 @@ impl Default for PlayerState {
 }
 
 impl PlayerState {
-    pub fn new(player: &Player, actor: &Actor, life: &Life) -> Self {
+    pub fn new(player: &Player, actor: &Actor) -> Self {
         PlayerState {
             name: player.name.clone(),
-            life: life.life,
-            max_life: life.max_life,
+            life: actor.life,
+            max_life: actor.max_life,
             inventory: actor.inventory.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
@@ -97,11 +96,11 @@ impl PlayerState {
         self.discovered_spells = discovered_spells;
     }
 
-    pub fn from_player(player: &Player, actor: &Actor, life: &Life) -> Self {
+    pub fn from_player(player: &Player, actor: &Actor) -> Self {
         let mut instance = PlayerState {
             name: player.name.clone(),
-            life: life.life,
-            max_life: life.max_life,
+            life: actor.life,
+            max_life: actor.max_life,
             inventory: actor.inventory.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
@@ -112,7 +111,7 @@ impl PlayerState {
         instance
     }
 
-    pub fn from_morph(morph: &Metamorphosed, actor: &Actor, life: &Life) -> Self {
+    pub fn from_morph(morph: &Metamorphosed, actor: &Actor) -> Self {
         let ActorExtra::Witch {
             name,
             discovered_spells,
@@ -124,8 +123,8 @@ impl PlayerState {
 
         let mut instance = PlayerState {
             name: name.clone(),
-            life: life.life,
-            max_life: life.max_life,
+            life: actor.life,
+            max_life: actor.max_life,
             inventory: actor.inventory.clone(),
             wands: actor.wands.clone(),
             golds: actor.golds,
@@ -136,9 +135,9 @@ impl PlayerState {
         instance
     }
 
-    pub fn from_query(query: &Query<(&Player, &Actor, &Life)>) -> Self {
-        let (player, actor, life) = query.single();
-        PlayerState::from_player(player, actor, life)
+    pub fn from_query(query: &Query<(&Player, &Actor)>) -> Self {
+        let (player, actor) = query.single();
+        PlayerState::from_player(player, actor)
     }
 }
 

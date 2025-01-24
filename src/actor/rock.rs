@@ -1,10 +1,10 @@
-use crate::asset::GameAssets;
+use super::Actor;
+use super::ActorExtra;
+use super::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::component::vertical::Vertical;
 use crate::entity::impact::SpawnImpact;
 use crate::level::tile::Tile;
@@ -56,7 +56,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, registry: &Registry, position
 
 fn fall(
     mut commands: Commands,
-    assets: Res<GameAssets>,
+    registry: Registry,
     child_query: Query<(&Parent, &Transform)>,
     parent_query: Query<(Entity, &Transform), (With<FallingRock>, Without<Vertical>)>,
     interlevel: Res<LevelSetup>,
@@ -77,7 +77,7 @@ fn fall(
                             radius: 16.0,
                             impulse: 30000.0,
                         });
-                        spawn_fallen_rock(&mut commands, &assets, position);
+                        spawn_fallen_rock(&mut commands, &registry, position, default_rock());
                     }
                 }
             }
@@ -85,45 +85,62 @@ fn fall(
     }
 }
 
-fn spawn_fallen_rock(commands: &mut Commands, assets: &Res<GameAssets>, position: Vec2) {
+pub fn default_rock() -> Actor {
+    Actor {
+        extra: ActorExtra::Rock,
+        life: 200,
+        max_life: 200,
+        ..default()
+    }
+}
+
+pub fn spawn_fallen_rock(
+    commands: &mut Commands,
+    registry: &Registry,
+    position: Vec2,
+    actor: Actor,
+) -> Entity {
     commands
         .spawn((
             Name::new("fallen rock"),
             StateScoped(GameState::InGame),
-            Life::new(200),
+            actor,
             FallenRock,
             EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
             Falling,
-            RigidBody::Dynamic,
-            Damping {
-                linear_damping: 60.0,
-                angular_damping: 0.0,
-            },
-            LockedAxes::ROTATION_LOCKED,
-            Collider::ball(16.0),
-            ColliderMassProperties::Density(10.0),
-            *ENTITY_GROUPS,
-            ExternalImpulse::default(),
+            (
+                RigidBody::Dynamic,
+                Damping {
+                    linear_damping: 60.0,
+                    angular_damping: 0.0,
+                },
+                LockedAxes::ROTATION_LOCKED,
+                Collider::ball(16.0),
+                ColliderMassProperties::Density(10.0),
+                *ENTITY_GROUPS,
+                ExternalImpulse::default(),
+            ),
         ))
         .with_children(|parent| {
             parent.spawn((
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteSlice {
-                    aseprite: assets.atlas.clone(),
+                    aseprite: registry.assets.atlas.clone(),
                     name: "fallen_rock".to_string(),
                     ..default()
                 },
                 Transform::from_xyz(0.0, 0.0, 0.01),
             ));
-        });
+        })
+        .id()
 }
 
 fn despawn(
     mut commands: Commands,
-    query: Query<(Entity, &Life, &Transform), With<FallenRock>>,
+    query: Query<(Entity, &Actor, &Transform), With<FallenRock>>,
     mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform) in query.iter() {

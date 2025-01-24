@@ -2,7 +2,6 @@ use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::collision::PLAYER_GROUPS;
 use crate::collision::SENSOR_GROUPS;
-use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::interpreter::Cmd;
@@ -157,7 +156,7 @@ fn power_on_circle(
 
 fn warp(
     mut commands: Commands,
-    mut player_query: Query<(Entity, &Player, &Actor, &Life), With<Witch>>,
+    mut player_query: Query<(Entity, &Player, &Actor), With<Witch>>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<SEEvent>,
@@ -165,12 +164,12 @@ fn warp(
 ) {
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step == MAX_POWER {
-            if let Ok((entity, player, actor, player_life)) = player_query.get_single_mut() {
+            if let Ok((entity, player, actor)) = player_query.get_single_mut() {
                 writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
 
                 circle.step = 0;
-                let player_state = PlayerState::from_player(&player, &actor, &player_life);
+                let player_state = PlayerState::from_player(&player, &actor);
                 level.next_state = Some(player_state);
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {

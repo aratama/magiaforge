@@ -3,11 +3,10 @@ use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
+use crate::actor::LifeBeingSprite;
 use crate::collision::SHADOW_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::flip::Flip;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
@@ -50,15 +49,14 @@ impl Default for Shadow {
 #[derive(Component, Debug)]
 pub struct ChildSprite;
 
-pub fn default_shadow() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Shadow,
-            actor_group: ActorGroup::Enemy,
-            ..default()
-        },
-        Life::new(40),
-    )
+pub fn default_shadow() -> Actor {
+    Actor {
+        extra: ActorExtra::Shadow,
+        actor_group: ActorGroup::Enemy,
+        life: 40,
+        max_life: 40,
+        ..default()
+    }
 }
 
 pub fn spawn_shadow(
@@ -67,7 +65,6 @@ pub fn spawn_shadow(
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     let radius = 8.0;
     let golds = 10;
@@ -77,7 +74,6 @@ pub fn spawn_shadow(
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
         actor,
-        life,
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
         GlobalTransform::default(),
@@ -263,19 +259,13 @@ fn approach(
 
 fn attack(
     registry: Registry,
-    mut query: Query<(
-        Entity,
-        Option<&mut Shadow>,
-        &mut Actor,
-        &mut Transform,
-        &mut Life,
-    )>,
+    mut query: Query<(Entity, Option<&mut Shadow>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&registry, &lens.query());
-    for (entity, shadow, actor, transform, _) in query.iter_mut() {
+    for (entity, shadow, actor, transform) in query.iter_mut() {
         let props = registry.get_actor_props(actor.to_type());
 
         if let Some(shadow) = shadow {

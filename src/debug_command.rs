@@ -1,5 +1,4 @@
 use crate::actor::Actor;
-use crate::component::life::Life;
 use crate::constant::LAST_BOSS_LEVEL;
 use crate::constant::LEVELS;
 use crate::controller::player::Player;
@@ -74,7 +73,7 @@ fn process_debug_command(
 fn debug_next(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     match level.next_level {
         GameLevel::Level(n) => {
@@ -92,7 +91,7 @@ fn debug_next(
 fn debug_home(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(0);
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -102,7 +101,7 @@ fn debug_home(
 fn debug_level_1(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(1);
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -112,7 +111,7 @@ fn debug_level_1(
 fn debug_level_2(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(2);
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -122,7 +121,7 @@ fn debug_level_2(
 fn debug_level_3(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(3);
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -132,7 +131,7 @@ fn debug_level_3(
 fn debug_level_4(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(4);
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -142,7 +141,7 @@ fn debug_level_4(
 fn debug_level_5(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(5);
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -152,7 +151,7 @@ fn debug_level_5(
 fn debug_arena(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::MultiPlayArena;
     level.next_state = Some(PlayerState::from_query(&player_query));
@@ -162,7 +161,7 @@ fn debug_arena(
 fn debug_boss(
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
     level.next_state = Some(PlayerState::from_query(&player_query));

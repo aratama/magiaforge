@@ -1,3 +1,4 @@
+use super::LifeBeingSprite;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
@@ -5,8 +6,6 @@ use crate::actor::ActorSpriteGroup;
 use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::falling::Falling;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::component::point_light::WithPointLight;
 use crate::entity::piece::spawn_broken_piece;
 use crate::registry::Registry;
@@ -22,15 +21,14 @@ use bevy_rapier2d::prelude::*;
 #[derive(Default, Component, Reflect)]
 struct StoneLantern;
 
-pub fn default_lantern() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Lantern,
-            actor_group: ActorGroup::Entity,
-            ..default()
-        },
-        Life::new(50),
-    )
+pub fn default_lantern() -> Actor {
+    Actor {
+        extra: ActorExtra::Lantern,
+        actor_group: ActorGroup::Entity,
+        life: 50,
+        max_life: 50,
+        ..default()
+    }
 }
 
 /// チェストを生成します
@@ -40,14 +38,12 @@ pub fn spawn_stone_lantern(
     registry: &Registry,
     position: Vec2,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     commands
         .spawn((
             Name::new("stone_lantern"),
             StateScoped(GameState::InGame),
             actor,
-            life,
             StoneLantern,
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
@@ -95,7 +91,7 @@ pub fn spawn_stone_lantern(
 fn break_stone_lantern(
     mut commands: Commands,
     registry: Registry,
-    query: Query<(Entity, &Life, &Transform), With<StoneLantern>>,
+    query: Query<(Entity, &Actor, &Transform), With<StoneLantern>>,
     mut writer: EventWriter<SEEvent>,
 ) {
     for (entity, breakabke, transform) in query.iter() {

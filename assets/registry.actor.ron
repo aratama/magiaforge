@@ -126,5 +126,23 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false
         ),
+        "Rock": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
+        ),
+        "Bomb": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false
+        ),
     }
 )

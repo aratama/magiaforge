@@ -1,9 +1,9 @@
+use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::asset::GameAssets;
 use crate::camera::GameCamera;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
-use crate::component::life::Life;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::TILE_SIZE;
 use crate::level::map::index_to_position;
@@ -38,8 +38,8 @@ fn read_impact_event(
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut writer: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnImpact>,
-    mut life_query: Query<&Transform, With<Life>>,
-    mut camera_query: Query<(&mut GameCamera, &Transform), Without<Life>>,
+    mut life_query: Query<&Transform, With<Actor>>,
+    mut camera_query: Query<(&mut GameCamera, &Transform), Without<Actor>>,
     mut damage_writer: EventWriter<ActorEvent>,
 ) {
     let context: &RapierContext = rapier_context.single();

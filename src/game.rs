@@ -1,7 +1,9 @@
+use crate::actor::bomb::BombPlugin;
 use crate::actor::book_shelf::BookshelfPlugin;
 use crate::actor::chest::ChestPlugin;
 use crate::actor::chicken::ChikenControlPlugin;
 use crate::actor::rabbit::RabbitPlugin;
+use crate::actor::rock::RockPlugin;
 use crate::actor::sandbug::SandbagPlugin;
 use crate::actor::stone_lantern::StoneLanternPlugin;
 use crate::actor::witch::WitchPlugin;
@@ -14,7 +16,6 @@ use crate::component::counter::CounterPlugin;
 use crate::component::entity_depth::EntityDepthPlugin;
 use crate::component::falling::FallingPlugin;
 use crate::component::flip::FlipPlugin;
-use crate::component::life::LifePlugin;
 use crate::component::metamorphosis::MetamorphosisPlugin;
 use crate::component::point_light::EntityPointLightPlugin;
 use crate::component::vertical::VerticalPlugin;
@@ -40,7 +41,6 @@ use crate::enemy::slime::SlimeControlPlugin;
 use crate::enemy::spider::SpiderPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
 use crate::entity::blood::BloodPlugin;
-use crate::entity::bomb::BombPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::damege::DamagePlugin;
@@ -53,7 +53,6 @@ use crate::entity::grass::GrassPlugin;
 use crate::entity::impact::ImpactPlugin;
 use crate::entity::light::FlashLightPlugin;
 use crate::entity::magic_circle::MagicCirclePlugin;
-use crate::entity::rock::RockPlugin;
 use crate::entity::servant_seed::ServantSeedPlugin;
 use crate::entity::shop::ShopPlugin;
 use crate::entity::slash::SlashPlugin;
@@ -215,7 +214,6 @@ pub fn run_game() {
         .add_plugins(BookshelfPlugin)
         .add_plugins(BombPlugin)
         .add_plugins(BossHitpointBarPlugin)
-        .add_plugins(LifePlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(BulletParticlePlugin)
         .add_plugins(CameraPlugin)

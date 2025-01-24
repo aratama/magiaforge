@@ -6,7 +6,6 @@ use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::falling::Falling;
-use crate::component::life::Life;
 use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
@@ -36,21 +35,15 @@ pub enum RabbitType {
     SpellList,
 }
 
-pub fn default_rabbit(rabbit_type: RabbitType) -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Rabbit { rabbit_type },
-            actor_group: ActorGroup::Friend,
-            fire_resistance: true,
-            ..default()
-        },
-        Life {
-            life: 100000,
-            max_life: 100000,
-            amplitude: 0.0,
-            fire_damage_wait: 0,
-        },
-    )
+pub fn default_rabbit(rabbit_type: RabbitType) -> Actor {
+    Actor {
+        extra: ActorExtra::Rabbit { rabbit_type },
+        actor_group: ActorGroup::Friend,
+        fire_resistance: true,
+        life: 100000,
+        max_life: 100000,
+        ..default()
+    }
 }
 
 pub fn spawn_rabbit(
@@ -58,14 +51,12 @@ pub fn spawn_rabbit(
     registry: &Registry,
     position: Vec2,
     actor: Actor,
-    life: Life,
     rabbit_type: RabbitType,
 ) -> Entity {
     let mut entity = commands.spawn((
         Name::new("rabbit"),
         StateScoped(GameState::InGame),
         actor,
-        life,
         Transform::from_translation(position.extend(0.0)),
         GlobalTransform::default(),
         Visibility::default(),

@@ -1,10 +1,8 @@
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
-use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::entity::fire::Burnable;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -48,8 +46,6 @@ pub fn spawn_web(
             lifetime: 60 * 60,
             adherence: 60 * 4,
         },
-        Life::new(4),
-        Burnable { life: 30 },
         Transform::from_translation(position.extend(PAINT_LAYER_Z)),
         AseSpriteSlice {
             aseprite: registry.assets.atlas.clone(),
@@ -88,10 +84,10 @@ fn trap(
     }
 }
 
-fn despawn(mut commands: Commands, mut web_query: Query<(Entity, &mut Web, &Burnable, &Life)>) {
-    for (entity, mut web, burnable, life) in web_query.iter_mut() {
+fn despawn(mut commands: Commands, mut web_query: Query<(Entity, &mut Web)>) {
+    for (entity, mut web) in web_query.iter_mut() {
         web.lifetime -= 1;
-        if web.lifetime <= 0 || burnable.life <= 0 || life.life <= 0 {
+        if web.lifetime <= 0 {
             commands.entity(entity).despawn_recursive();
         }
     }

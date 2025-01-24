@@ -1,5 +1,4 @@
 use crate::actor::Actor;
-use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::CRATE_NAME;
 use crate::controller::player::Player;
@@ -51,11 +50,11 @@ fn load_player(pkv: Res<PkvStore>, mut interlevel: ResMut<LevelSetup>) {
 fn save_player(
     mut pkv: ResMut<PkvStore>,
     frame_count: Res<FrameCount>,
-    player_query: Query<(&Player, &Actor, &Life)>,
+    player_query: Query<(&Player, &Actor)>,
 ) {
     if frame_count.0 % 60 == 0 {
-        if let Ok((player, actor, life)) = player_query.get_single() {
-            let player_state = PlayerState::new(&player, &actor, &life);
+        if let Ok((player, actor)) = player_query.get_single() {
+            let player_state = PlayerState::new(&player, &actor);
             if let Ok(serialized) = serde_json::to_string(&player_state) {
                 if let Err(err) = pkv.set::<String>("state", &serialized) {
                     warn!("Failed to save state: {}", err);

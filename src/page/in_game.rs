@@ -5,7 +5,6 @@ use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
-use crate::component::life::Life;
 use crate::config::GameConfig;
 use crate::constant::*;
 use crate::entity::dropped_item::spawn_dropped_item;
@@ -276,13 +275,11 @@ pub fn setup_level(
     spawn.send(SpawnEntityEvent {
         position: Vec2::new(player_x, player_y),
         entity: SpawnEntity::Actor {
-            life: Life {
+            actor: Actor {
                 life: player_state.life,
                 max_life: player_state.max_life,
                 amplitude: 0.0,
                 fire_damage_wait: 0,
-            },
-            actor: Actor {
                 actor_group: ActorGroup::Friend,
                 wands: player_state.wands,
                 inventory: player_state.inventory,

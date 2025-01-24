@@ -1,11 +1,10 @@
+use super::entities::SpawnEntity;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::tile::Tile;
 use crate::registry::Registry;
 use bevy::prelude::*;
 use serde::Deserialize;
-
-use super::entities::SpawnEntity;
 
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub enum Zone {

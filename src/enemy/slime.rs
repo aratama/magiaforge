@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::component::life::Life;
 use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
@@ -32,16 +31,15 @@ const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 20.0;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
-pub fn default_slime() -> (Actor, Life) {
-    (
-        Actor {
-            extra: ActorExtra::Slime,
-            actor_group: ActorGroup::Enemy,
-            wands: Wand::single(Some(SpellType::SlimeCharge)),
-            ..default()
-        },
-        Life::new(15),
-    )
+pub fn default_slime() -> Actor {
+    Actor {
+        extra: ActorExtra::Slime,
+        actor_group: ActorGroup::Enemy,
+        wands: Wand::single(Some(SpellType::SlimeCharge)),
+        life: 15,
+        max_life: 15,
+        ..default()
+    }
 }
 
 pub fn spawn_slime(
@@ -49,7 +47,6 @@ pub fn spawn_slime(
     registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     actor: Actor,
-    life: Life,
     position: Vec2,
     owner: Option<Entity>,
 ) -> Entity {
@@ -68,7 +65,6 @@ pub fn spawn_slime(
         "slime",
         owner,
         actor,
-        life,
     )
 }
 
@@ -134,7 +130,7 @@ fn control_slime(
                         // 到達不可能になってしまうので、タイルの中心を使います
                         from, to,
                     ) else {
-                        warn!("path not found");
+                        // warn!("path not found");
                         continue;
                     };
 

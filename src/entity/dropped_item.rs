@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::life::Life;
 use crate::controller::player::Player;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
@@ -62,7 +61,6 @@ pub fn spawn_dropped_item(
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
             Visibility::default(),
-            Life::new(300),
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,

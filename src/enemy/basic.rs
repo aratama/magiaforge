@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::life::Life;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::despawn_with_gold::DespawnWithGold;
@@ -32,7 +31,6 @@ pub fn spawn_basic_enemy(
     name: &str,
     master: Option<Entity>,
     actor: Actor,
-    life: Life,
 ) -> Entity {
     let golds = actor.golds;
     let actor_group = actor.actor_group;
@@ -43,7 +41,6 @@ pub fn spawn_basic_enemy(
         StateScoped(GameState::InGame),
         DespawnWithGold { golds },
         actor,
-        life,
         HomingTarget,
         Transform::from_translation(position.extend(0.0)),
         Vertical::default(),

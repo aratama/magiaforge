@@ -1,10 +1,11 @@
+use super::Actor;
+use super::ActorExtra;
+use super::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
-use crate::component::life::Life;
-use crate::component::life::LifeBeingSprite;
 use crate::entity::explosion::SpawnExplosion;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
@@ -16,15 +17,29 @@ use bevy_rapier2d::prelude::*;
 #[derive(Default, Component, Reflect)]
 struct Bomb;
 
+pub fn default_bomb() -> Actor {
+    Actor {
+        life: 10,
+        max_life: 10,
+        extra: ActorExtra::Bomb,
+        ..default()
+    }
+}
+
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
-pub fn spawn_bomb(commands: &mut Commands, registry: &Registry, position: Vec2) {
+pub fn spawn_bomb(
+    commands: &mut Commands,
+    registry: &Registry,
+    position: Vec2,
+    actor: Actor,
+) -> Entity {
     let aseprite = registry.assets.bomb.clone();
     commands
         .spawn((
             Name::new("bomb"),
             StateScoped(GameState::InGame),
-            Life::new(10),
+            actor,
             Bomb,
             Counter::up(0),
             EntityDepth::new(),
@@ -50,12 +65,13 @@ pub fn spawn_bomb(commands: &mut Commands, registry: &Registry, position: Vec2) 
                     animation: "default".into(), // TODO
                 },
             ));
-        });
+        })
+        .id()
 }
 
 fn explode_bomb(
     mut commands: Commands,
-    query: Query<(Entity, &Transform, &Life, &Counter), With<Bomb>>,
+    query: Query<(Entity, &Transform, &Actor, &Counter), With<Bomb>>,
     mut explosion_writer: EventWriter<SpawnExplosion>,
 ) {
     for (entity, transform, life, counter) in query.iter() {

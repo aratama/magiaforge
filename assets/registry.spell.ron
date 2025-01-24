@@ -296,7 +296,10 @@ SpellRegistry(
         (223, 113, 38, 255): (
             tile: Some(StoneTile),
             zone: SafeZone,
-            entity: Some(StoneLantern),
+            entity: Some(DefaultActor (
+                actor_type: Lantern,
+                actor_group: Neutral,
+            )),
             entry_point: false,
         ),
         (0, 222, 255, 255): (

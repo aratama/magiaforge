@@ -180,14 +180,13 @@ fn spawn_servant(
     for event in reader.read() {
         match event.servant_type {
             ServantType::Slime => {
-                let (mut actor, life) = default_slime();
+                let mut actor = default_slime();
                 actor.actor_group = event.actor_group;
                 let entity = spawn_slime(
                     &mut commands,
                     &registry,
                     &life_bar_locals,
                     actor,
-                    life,
                     event.position,
                     event.master,
                 );
@@ -200,14 +199,13 @@ fn spawn_servant(
                 }
             }
             ServantType::Eyeball => {
-                let (actor, life) = crate::enemy::eyeball::default_eyeball();
+                let actor = crate::enemy::eyeball::default_eyeball();
                 let entity = spawn_eyeball(
                     &mut commands,
                     &registry,
                     &life_bar_locals,
                     event.position,
                     actor,
-                    life,
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
@@ -216,13 +214,12 @@ fn spawn_servant(
                 }
             }
             ServantType::Chiken => {
-                let (actor, life) = default_chiken();
+                let actor = default_chiken();
                 let entity = spawn_chiken(
                     &mut commands,
                     &registry,
                     &life_bar_locals,
                     actor,
-                    life,
                     event.position,
                 );
                 if event.servant {
