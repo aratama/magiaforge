@@ -72,7 +72,7 @@ fn update_inventory_slot(
                     panel.0 = None;
                 }
                 _ => {
-                    panel.0 = actor.inventory.get(slot.0);
+                    panel.0 = actor.inventory.get(slot.0).clone();
                 }
             }
         }

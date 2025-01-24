@@ -7,7 +7,7 @@ use crate::language::M18NTtext;
 use crate::message::UNPAID;
 use crate::registry::Registry;
 use crate::spell::get_spell_appendix;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
@@ -22,10 +22,10 @@ const POPUP_WIDTH: f32 = 300.0;
 
 const POPUP_HEIGHT: f32 = 300.0;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum PopupContent {
     FloatingContent(FloatingContent),
-    DiscoveredSpell(SpellType),
+    DiscoveredSpell(Spell),
 }
 
 #[derive(Component)]
@@ -146,13 +146,13 @@ fn update_spell_icon(
                         item_type: InventoryItemType::Spell(spell),
                         ..
                     }) => {
-                        let props = registry.get_spell_props(spell);
+                        let props = registry.get_spell_props(&spell);
                         slice.name = props.icon.clone();
                     }
                     None => {}
                 },
                 PopupContent::DiscoveredSpell(spell) => {
-                    let props = registry.get_spell_props(*spell);
+                    let props = registry.get_spell_props(spell);
                     slice.name = props.icon.clone();
                 }
             }
@@ -183,11 +183,11 @@ fn update_spell_name(
                     ..
                 }) = content.get_item(actor)
                 {
-                    text.0 = registry.get_spell_props(spell).name.clone();
+                    text.0 = registry.get_spell_props(&spell).name.clone();
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props = registry.get_spell_props(*spell);
+                let props = registry.get_spell_props(spell);
                 text.0 = props.name.clone();
             }
             _ => {}
@@ -216,7 +216,7 @@ fn update_item_description(
                     ..
                 }) = content.get_item(actor)
                 {
-                    let props = registry.get_spell_props(spell);
+                    let props = registry.get_spell_props(&spell);
                     let mut dict = props.description.clone();
                     let appendix = get_spell_appendix(&props.cast);
                     // dict += format!("\n{}", appendix).as_str();
@@ -244,7 +244,7 @@ fn update_item_description(
                 }
             }
             Some(PopupContent::DiscoveredSpell(spell)) => {
-                let props: &crate::spell::SpellProps = registry.get_spell_props(*spell);
+                let props: &crate::spell::SpellProps = registry.get_spell_props(spell);
                 let mut dict = props.description.clone();
                 dict += get_spell_appendix(&props.cast);
                 // dict += format!(

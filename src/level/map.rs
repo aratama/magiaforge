@@ -167,7 +167,7 @@ pub fn image_to_tilemap(
     min_y: i32,
     max_y: i32,
 ) -> LevelChunk {
-    let map = &registry.spell().tiles;
+    let map = &registry.game().tiles;
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTile> = Vec::new();
     for y in min_y..max_y {

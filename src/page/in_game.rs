@@ -33,7 +33,7 @@ use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::set::FixedUpdateAfterAll;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::asset::*;
@@ -90,17 +90,17 @@ impl Default for LevelSetup {
 
 pub fn new_shop_item_queue(
     registry: &Registry,
-    discovered_spells: Vec<SpellType>,
+    discovered_spells: Vec<Spell>,
 ) -> Vec<InventoryItem> {
     let mut rng = rand::thread_rng();
 
     let mut shop_items: Vec<InventoryItem> = registry
         .spells()
         .iter()
-        .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(**s).rank <= 1)
+        .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
         .map(|s| InventoryItem {
-            item_type: InventoryItemType::Spell(*s),
-            price: registry.get_spell_props(*s).price,
+            item_type: InventoryItemType::Spell(s.clone()),
+            price: registry.get_spell_props(s).price,
         })
         .collect();
 
@@ -121,6 +121,8 @@ pub fn setup_level(
     mut spawn: EventWriter<SpawnEvent>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
+    let game_registry = registry.game();
+
     overlay.send(OverlayEvent::SetOpen(true));
 
     let mut rng = StdRng::from_entropy();
@@ -184,8 +186,8 @@ pub fn setup_level(
         .clone()
         .unwrap_or(if cfg!(feature = "item") {
             PlayerState {
-                inventory: Inventory::from_vec(registry.spell().debug_items.clone()),
-                wands: Wand::from_vec(registry.spell().debug_wands.clone()),
+                inventory: Inventory::from_vec(game_registry.debug_items.clone()),
+                wands: Wand::from_vec(game_registry.debug_wands.clone()),
                 ..default()
             }
         } else {
@@ -428,7 +430,7 @@ fn spawn_dropped_items(
             .spells()
             .iter()
             .filter(|i| {
-                let props = registry.get_spell_props(**i);
+                let props = registry.get_spell_props(*i);
                 ranks.contains(&props.rank)
             })
             .choose(&mut rng)
@@ -437,8 +439,8 @@ fn spawn_dropped_items(
                 &mut commands,
                 &registry,
                 position,
-                InventoryItem {
-                    item_type: InventoryItemType::Spell(*spell),
+                &InventoryItem {
+                    item_type: InventoryItemType::Spell(spell.clone()),
                     price: 0,
                 },
             );

@@ -26,11 +26,11 @@ pub enum FloatingContent {
 impl FloatingContent {
     pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
         match self {
-            FloatingContent::Inventory(index) => actor.inventory.get(*index),
+            FloatingContent::Inventory(index) => actor.inventory.get(*index).clone(),
             FloatingContent::WandSpell(wand_index, spell_index) => {
-                match actor.wands[*wand_index].slots[*spell_index] {
+                match &actor.wands[*wand_index].slots[*spell_index] {
                     Some(spell) => Some(InventoryItem {
-                        item_type: InventoryItemType::Spell(spell.spell_type),
+                        item_type: InventoryItemType::Spell(spell.spell_type.clone()),
                         price: spell.price,
                     }),
                     None => None,
@@ -157,7 +157,7 @@ fn drop(
                                                 &mut commands,
                                                 &registry,
                                                 pointer_in_world,
-                                                item,
+                                                &item,
                                             );
                                             floating.content = None;
 
@@ -176,8 +176,8 @@ fn drop(
                     // 移動先のアイテムを取得
                     let item_optional_to = target.get_inventory_item(&actor);
 
-                    if target.is_settable(item_optional_from)
-                        && content.is_settable(item_optional_to)
+                    if target.is_settable(&item_optional_from)
+                        && content.is_settable(&item_optional_to)
                     {
                         // 移動先に書きこみ
                         target.set_item(item_optional_from, &mut actor);
@@ -193,18 +193,18 @@ fn drop(
 impl FloatingContent {
     pub fn get_inventory_item(&self, actor: &Actor) -> Option<InventoryItem> {
         match self {
-            FloatingContent::Inventory(i) => actor.inventory.get(*i),
+            FloatingContent::Inventory(i) => actor.inventory.get(*i).clone(),
             FloatingContent::WandSpell(w, i) => actor.get_spell(*w, *i).map(|w| InventoryItem {
-                item_type: InventoryItemType::Spell(w.spell_type),
+                item_type: InventoryItemType::Spell(w.spell_type.clone()),
                 price: w.price,
             }),
         }
     }
 
     pub fn set_item(&self, item: Option<InventoryItem>, actor: &mut Actor) {
-        match (self, item) {
+        match (self, item.clone()) {
             (FloatingContent::Inventory(i), _) => {
-                actor.inventory.set(*i, item);
+                actor.inventory.set(*i, item.as_ref().cloned());
             }
 
             (
@@ -224,7 +224,7 @@ impl FloatingContent {
         }
     }
 
-    pub fn is_settable(&self, item: Option<InventoryItem>) -> bool {
+    pub fn is_settable(&self, item: &Option<InventoryItem>) -> bool {
         match (self, item) {
             (FloatingContent::Inventory(_), _) => true,
             (

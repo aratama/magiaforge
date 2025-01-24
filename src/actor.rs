@@ -57,7 +57,7 @@ use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameState;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
@@ -356,21 +356,24 @@ impl Actor {
             FloatingContent::Inventory(index) => self
                 .inventory
                 .get(index)
+                .as_ref()
                 .map(|i| i.item_type.get_icon(&registry)),
             FloatingContent::WandSpell(w, s) => {
-                self.wands[w].slots[s].map(|WandSpell { spell_type, .. }| {
-                    registry.get_spell_props(spell_type).icon.clone()
-                })
+                self.wands[w].slots[s]
+                    .as_ref()
+                    .map(|WandSpell { ref spell_type, .. }| {
+                        registry.get_spell_props(spell_type).icon.clone()
+                    })
             }
         }
     }
 
     pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
-        self.wands[wand_index].slots[spell_index]
+        self.wands[wand_index].slots[spell_index].clone()
     }
 
     pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
-        self.wands[wand_index].slots[spell_index]
+        self.wands[wand_index].slots[spell_index].clone()
     }
 
     /// 現在所持している有料呪文の合計金額を返します
@@ -420,12 +423,13 @@ impl Actor {
         //todo
 
         for wand in self.wands.iter() {
-            for slot in wand.slots {
+            for slot in &wand.slots {
                 force += match slot {
-                    Some(WandSpell {
-                        spell_type: SpellType::SpikeBoots,
-                        ..
-                    }) => 40000.0,
+                    Some(WandSpell { spell_type, .. })
+                        if *spell_type == Spell::new("SpikeBoots") =>
+                    {
+                        40000.0
+                    }
                     _ => 0.0,
                 }
             }
@@ -439,16 +443,18 @@ impl Actor {
         // todo
 
         for wand in self.wands.iter() {
-            for slot in wand.slots {
+            for slot in &wand.slots {
                 scale_factor += match slot {
-                    Some(WandSpell {
-                        spell_type: SpellType::Telescope,
-                        ..
-                    }) => 0.5,
-                    Some(WandSpell {
-                        spell_type: SpellType::Magnifier,
-                        ..
-                    }) => -0.5,
+                    Some(WandSpell { spell_type, .. })
+                        if *spell_type == Spell::new("Telescope") =>
+                    {
+                        0.5
+                    }
+                    Some(WandSpell { spell_type, .. })
+                        if *spell_type == Spell::new("Magnifier") =>
+                    {
+                        -0.5
+                    }
                     _ => 0.0,
                 }
             }
@@ -457,13 +463,13 @@ impl Actor {
         scale_factor.max(-2.0).min(1.0)
     }
 
-    pub fn get_owned_spell_types(&self) -> HashSet<SpellType> {
-        let mut discovered_spells = HashSet::new();
+    pub fn get_owned_spell_types(&self) -> HashSet<Spell> {
+        let mut discovered_spells: HashSet<Spell> = HashSet::new();
         for item in self.inventory.0.iter() {
             if let Some(ref item) = item {
-                match item.item_type {
+                match &item.item_type {
                     InventoryItemType::Spell(spell) if item.price == 0 => {
-                        let _ = discovered_spells.insert(spell);
+                        let _ = discovered_spells.insert(spell.clone());
                     }
                     _ => {}
                 };
@@ -471,9 +477,9 @@ impl Actor {
         }
         for wand in self.wands.iter() {
             for item in wand.slots.iter() {
-                if let Some(ref item) = item {
+                if let Some(ref item) = &item {
                     if item.price == 0 {
-                        let _ = discovered_spells.insert(item.spell_type);
+                        let _ = discovered_spells.insert(item.spell_type.clone());
                     }
                 }
             }
@@ -621,12 +627,11 @@ fn update_actor_light(
         // 大量に複製すると明るくなりすぎるため
         if actor.cloned.is_none() {
             for wand in actor.wands.iter() {
-                for slot in wand.slots {
+                for slot in &wand.slots {
                     match slot {
-                        Some(WandSpell {
-                            spell_type: SpellType::Lantern,
-                            ..
-                        }) => {
+                        Some(WandSpell { spell_type, .. })
+                            if *spell_type == Spell::new("Lantern") =>
+                        {
                             point_light_radius += 160.0;
                         }
                         _ => {}

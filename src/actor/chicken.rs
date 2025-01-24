@@ -8,7 +8,7 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use core::f32;
@@ -36,7 +36,7 @@ pub fn default_chiken() -> Actor {
     Actor {
         extra: ActorExtra::Chicken,
         actor_group: ActorGroup::Neutral,
-        wands: Wand::single(Some(SpellType::Jump)),
+        wands: Wand::single(Some(Spell::new("Jump"))),
         life: 2,
         max_life: 2,
         ..default()

@@ -1,4 +1,5 @@
 use crate::registry::ActorRegistry;
+use crate::registry::GameRegistry;
 use crate::registry::SenarioRegistry;
 use crate::registry::SpellRegistry;
 use bevy::asset::*;
@@ -9,6 +10,9 @@ use bevy_asset_loader::prelude::*;
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
     // 設定 //////////////////////////////////////////////////////////////////////////////////////////////////////
+    #[asset(path = "registry.game.ron")]
+    pub game_registry: Handle<GameRegistry>,
+
     #[asset(path = "registry.spell.ron")]
     pub spell_registry: Handle<SpellRegistry>,
 

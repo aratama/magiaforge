@@ -66,7 +66,7 @@ pub const CHEST_OR_BARREL: [ChestType; 12] = [
 #[derive(Component, Reflect, Debug)]
 struct Chest;
 
-#[derive(Reflect, Clone, Debug, Copy, Deserialize)]
+#[derive(Reflect, Clone, Debug, Deserialize)]
 pub enum ChestItem {
     Gold,
     Item(InventoryItem),
@@ -167,7 +167,7 @@ fn break_chest(
             let ActorExtra::Chest {
                 chest_type,
                 chest_item,
-            } = actor.extra
+            } = &actor.extra
             else {
                 panic!("ActorExtra::Chest is expected");
             };
@@ -198,7 +198,7 @@ fn break_chest(
                             &registry,
                             position,
                             "crate",
-                            JarColor::Red,
+                            &JarColor::Red,
                             i,
                         );
                     }
@@ -210,7 +210,7 @@ fn break_chest(
                             &registry,
                             position,
                             "barrel",
-                            JarColor::Red,
+                            &JarColor::Red,
                             i,
                         );
                     }
@@ -239,7 +239,7 @@ fn spawn_jar_piece(
     registry: &Registry,
     position: Vec2,
     type_name: &str,
-    color: JarColor,
+    color: &JarColor,
     index: u32,
 ) {
     spawn_broken_piece(

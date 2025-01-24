@@ -1,20 +1,20 @@
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::MAX_WANDS;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Reflect, Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Reflect, Clone, Debug, Serialize, Deserialize)]
 pub struct WandSpell {
-    pub spell_type: SpellType,
+    pub spell_type: Spell,
     pub price: u32,
 }
 
 impl Default for Wand {
     fn default() -> Self {
         Self {
-            slots: [None; MAX_SPELLS_IN_WAND],
+            slots: [None, None, None, None, None, None, None, None],
             index: 0,
             delay: 0,
         }
@@ -22,7 +22,7 @@ impl Default for Wand {
 }
 
 impl WandSpell {
-    pub fn new(spell_type: SpellType) -> Self {
+    pub fn new(spell_type: Spell) -> Self {
         Self {
             spell_type,
             price: 0,
@@ -50,7 +50,7 @@ impl Wand {
         }
     }
 
-    pub fn from_vec(slots: Vec<Vec<Option<SpellType>>>) -> [Wand; MAX_WANDS] {
+    pub fn from_vec(slots: Vec<Vec<Option<Spell>>>) -> [Wand; MAX_WANDS] {
         let mut wands = [
             Wand::default(),
             Wand::default(),
@@ -59,14 +59,14 @@ impl Wand {
         ];
         for (i, wand_slots) in slots.iter().enumerate().take(MAX_WANDS) {
             for (j, spell_type) in wand_slots.iter().enumerate().take(MAX_SPELLS_IN_WAND) {
-                wands[i].slots[j] = spell_type.map(WandSpell::new);
+                wands[i].slots[j] = spell_type.as_ref().map(|s| WandSpell::new(s.clone()));
             }
         }
         wands
     }
 
-    pub fn single(spell: Option<SpellType>) -> [Wand; MAX_WANDS] {
-        let mut slots = [None; MAX_SPELLS_IN_WAND];
+    pub fn single(spell: Option<Spell>) -> [Wand; MAX_WANDS] {
+        let mut slots = [None, None, None, None, None, None, None, None];
         slots[0] = spell.map(|s| WandSpell::new(s));
         [
             Wand::with_slots(slots),

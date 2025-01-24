@@ -33,14 +33,14 @@ pub fn spawn_dropped_item(
     commands: &mut Commands,
     registry: &Registry,
     position: Vec2,
-    item: InventoryItem,
+    item: &InventoryItem,
 ) {
-    let item_type = item.item_type;
+    let item_type = &item.item_type;
     let icon = match item_type {
-        InventoryItemType::Spell(spell) => registry.get_spell_props(spell).icon.clone(),
+        InventoryItemType::Spell(spell) => registry.get_spell_props(&spell).icon.clone(),
     };
     let name = match item_type {
-        InventoryItemType::Spell(spell) => registry.get_spell_props(spell).name.en.clone(),
+        InventoryItemType::Spell(spell) => registry.get_spell_props(&spell).name.en.clone(),
     };
     let frame_slice = match item_type {
         InventoryItemType::Spell(_) if 0 < item.price => "spell_frame",
@@ -56,7 +56,7 @@ pub fn spawn_dropped_item(
         .spawn((
             Name::new(format!("dropped item {}", name)),
             StateScoped(GameState::InGame),
-            DroppedItemEntity { item },
+            DroppedItemEntity { item: item.clone() },
             EntityDepth::new(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
@@ -142,7 +142,7 @@ fn pickup_dropped_item(
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
                 let item = item_query.get(item_entity).unwrap();
                 let mut actor = player_query.get_mut(player_entity).unwrap();
-                if actor.inventory.insert(item.item) {
+                if actor.inventory.insert(item.item.clone()) {
                     commands.entity(item_entity).despawn_recursive();
 
                     se.send(SEEvent::new(SE::PickUp));
@@ -150,10 +150,12 @@ fn pickup_dropped_item(
                     let InventoryItem {
                         item_type: InventoryItemType::Spell(spell),
                         price: _,
-                    } = item.item;
+                    } = &item.item;
 
                     interpreter.send(InterpreterEvent::Play {
-                        commands: vec![Cmd::GetSpell { spell }],
+                        commands: vec![Cmd::GetSpell {
+                            spell: spell.clone(),
+                        }],
                     });
                 }
             }

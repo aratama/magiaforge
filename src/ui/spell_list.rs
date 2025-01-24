@@ -7,7 +7,7 @@ use crate::controller::player::Player;
 use crate::language::M18NTtext;
 use crate::message::DISCOVERED_SPELLS;
 use crate::registry::Registry;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameState;
 use crate::ui::popup::PopUp;
 use crate::ui::popup::PopupContent;
@@ -31,7 +31,7 @@ struct SpellList {
 
 #[derive(Component)]
 struct SpellListItem {
-    spell_type: Option<SpellType>,
+    spell_type: Option<Spell>,
 }
 
 #[derive(Component)]
@@ -41,11 +41,11 @@ fn setup(mut commands: Commands, registry: Registry) {
     let spells = registry.spells();
     let spell_iter = spells.iter().cloned();
     let count = spell_iter.clone().count();
-    let mut spells: Vec<Option<SpellType>> = spell_iter.map(|s| Some(s)).collect();
+    let mut spells: Vec<Option<Spell>> = spell_iter.map(|s| Some(s)).collect();
     spells.sort_by(|a, b| match (a, b) {
         (Some(a), Some(b)) => {
-            let a_props = registry.get_spell_props(*a);
-            let b_props = registry.get_spell_props(*b);
+            let a_props = registry.get_spell_props(a);
+            let b_props = registry.get_spell_props(b);
             a_props.rank.cmp(&b_props.rank)
         }
         (Some(_), None) => std::cmp::Ordering::Less,
@@ -110,11 +110,12 @@ fn setup(mut commands: Commands, registry: Registry) {
                         let y = i / COLUMNS;
 
                         let icon = spell_type
-                            .map(|spell| registry.get_spell_props(spell).icon.clone())
+                            .as_ref()
+                            .map(|spell| registry.get_spell_props(&spell).icon.clone())
                             .unwrap_or("unknown".to_string());
                         builder.spawn((
                             SpellListItem {
-                                spell_type: *spell_type,
+                                spell_type: spell_type.clone(),
                             },
                             AseUiSlice {
                                 aseprite: registry.assets.atlas.clone(),
@@ -163,8 +164,8 @@ fn update_icons(
 ) {
     if let Ok(player) = player_query.get_single() {
         for (item, mut aseprite) in query.iter_mut() {
-            if let Some(spell_type) = item.spell_type {
-                let props = registry.get_spell_props(spell_type);
+            if let Some(spell_type) = &item.spell_type {
+                let props = registry.get_spell_props(&spell_type);
                 let discovered = player.discovered_spells.contains(&spell_type);
                 aseprite.name = (if discovered {
                     props.icon.clone()
@@ -206,17 +207,21 @@ fn interaction(
             match *interaction {
                 Interaction::Pressed => {}
                 Interaction::Hovered => {
-                    if let Some(spell) = item.spell_type {
+                    if let Some(spell) = &item.spell_type {
                         if player.discovered_spells.contains(&spell) {
-                            popup.set.insert(PopupContent::DiscoveredSpell(spell));
+                            popup
+                                .set
+                                .insert(PopupContent::DiscoveredSpell(spell.clone()));
                             popup.anchor_left = false;
                             popup.anchor_top = true;
                         }
                     }
                 }
                 Interaction::None => {
-                    if let Some(spell) = item.spell_type {
-                        popup.set.remove(&PopupContent::DiscoveredSpell(spell));
+                    if let Some(spell) = &item.spell_type {
+                        popup
+                            .set
+                            .remove(&PopupContent::DiscoveredSpell(spell.clone()));
                     }
                 }
             }

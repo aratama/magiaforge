@@ -2,7 +2,7 @@ use crate::actor::Actor;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::inventory::Inventory;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
 use bevy::prelude::*;
@@ -19,7 +19,7 @@ pub struct PlayerState {
     pub wands: [Wand; MAX_WANDS],
     pub golds: u32,
     pub current_wand: u8,
-    pub discovered_spells: HashSet<SpellType>,
+    pub discovered_spells: HashSet<Spell>,
 }
 
 impl Default for PlayerState {
@@ -28,7 +28,7 @@ impl Default for PlayerState {
 
         let wands = [
             Wand::with_slots([
-                Some(WandSpell::new(SpellType::MagicBolt)),
+                Some(WandSpell::new(Spell::new("MagicBolt"))),
                 None,
                 None,
                 None,
@@ -40,8 +40,8 @@ impl Default for PlayerState {
             Wand::default(),
             Wand::default(),
             Wand::with_slots([
-                Some(WandSpell::new(SpellType::LightBall)),
-                Some(WandSpell::new(SpellType::Lantern)),
+                Some(WandSpell::new(Spell::new("LightBall"))),
+                Some(WandSpell::new(Spell::new("Lantern"))),
                 None,
                 None,
                 None,
@@ -86,7 +86,7 @@ impl PlayerState {
         for wand in self.wands.iter() {
             for spell in wand.slots.iter() {
                 if let Some(spell) = spell {
-                    discovered_spells.insert(spell.spell_type);
+                    discovered_spells.insert(spell.spell_type.clone());
                 }
             }
         }

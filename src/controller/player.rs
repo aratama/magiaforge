@@ -23,7 +23,7 @@ use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateInGameSet;
 use crate::set::FixedUpdatePlayerActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use bevy::core::FrameCount;
@@ -51,11 +51,11 @@ pub struct Player {
     pub last_idle_vy: f32,
     pub last_idle_life: u32,
     pub last_idle_max_life: u32,
-    pub discovered_spells: HashSet<SpellType>,
+    pub discovered_spells: HashSet<Spell>,
 }
 
 impl Player {
-    pub fn new(name: String, discovered_spells: &HashSet<SpellType>) -> Self {
+    pub fn new(name: String, discovered_spells: &HashSet<Spell>) -> Self {
         Self {
             name,
             last_idle_frame_count: FrameCount(0),

@@ -1,4 +1,7 @@
 
+// https://github.com/ron-rs/ron/blob/master/docs/extensions.md
+#![enable(unwrap_newtypes)]
+#![enable(implicit_some)]
 ActorRegistry(
     dumping_on_ice: 0.1,
     dumping_on_air: 0.5,
@@ -12,7 +15,7 @@ ActorRegistry(
             move_force: 40000.0,
             jump: 0.0,
             linear_damping: 6.0,
-            blood: Some(Red),
+            blood: Red,
             defreeze: 1,
             auto_levitation: false,
             cry: true
@@ -22,7 +25,7 @@ ActorRegistry(
             move_force: 40000.0,
             jump: 1.5,
             linear_damping: 10.0,
-            blood: Some(Red),
+            blood: Red,
             defreeze: 1,
             auto_levitation: false,
             cry: true
@@ -32,7 +35,7 @@ ActorRegistry(
             move_force: 60000.0,
             jump: 1.5,
             linear_damping: 10.0,
-            blood: Some(Red),
+            blood: Red,
             defreeze: 1,
             auto_levitation: false,
             cry: true
@@ -42,7 +45,7 @@ ActorRegistry(
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: Some(Red),
+            blood: Red,
             defreeze: 1,
             auto_levitation: true,
             cry: true
@@ -62,7 +65,7 @@ ActorRegistry(
             move_force: 50000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: Some(Blue),
+            blood: Blue,
             defreeze: 1,
             auto_levitation: false,
             cry: true
@@ -72,7 +75,7 @@ ActorRegistry(
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
-            blood: Some(Red),
+            blood: Red,
             defreeze: 2,
             auto_levitation: false,
             cry: true

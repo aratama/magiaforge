@@ -6,7 +6,7 @@ use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateInGameSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameMenuState;
 use crate::states::TimeState;
 use bevy::prelude::*;
@@ -19,14 +19,14 @@ pub fn spawn_new_spell(
     commands: &mut Commands,
     registry: &Registry,
     time: &mut ResMut<NextState<TimeState>>,
-    spell: SpellType,
+    spell: Spell,
     se: &mut EventWriter<SEEvent>,
 ) {
     se.send(SEEvent::new(SE::Hakken));
 
     time.set(TimeState::Inactive);
 
-    let props = registry.get_spell_props(spell);
+    let props = registry.get_spell_props(&spell);
     commands
         // 背景
         .spawn((

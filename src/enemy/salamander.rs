@@ -10,7 +10,7 @@ use crate::level::entities::SpawnEvent;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -43,7 +43,7 @@ pub fn default_salamander() -> Actor {
     Actor {
         extra: ActorExtra::Salamander,
         actor_group: ActorGroup::Enemy,
-        wands: Wand::single(Some(SpellType::Fireball)),
+        wands: Wand::single(Some(Spell::new("Fireball"))),
         life: 100,
         max_life: 100,
         golds: 10,

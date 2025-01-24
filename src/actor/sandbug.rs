@@ -5,7 +5,7 @@ use crate::enemy::basic::spawn_basic_enemy;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::wand::Wand;
 use bevy::prelude::*;
 
@@ -25,7 +25,7 @@ pub fn default_sandbag() -> Actor {
     Actor {
         extra: ActorExtra::Sandbag,
         actor_group: ActorGroup::Neutral,
-        wands: Wand::single(Some(SpellType::Jump)),
+        wands: Wand::single(Some(Spell::new("Jump"))),
         life: 10000,
         max_life: 10000,
         ..default()

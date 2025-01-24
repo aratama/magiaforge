@@ -1,12 +1,12 @@
 use crate::registry::Registry;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, Serialize, Deserialize)]
 pub enum InventoryItemType {
-    Spell(SpellType),
+    Spell(Spell),
 }
 
 impl InventoryItemType {
@@ -18,7 +18,7 @@ impl InventoryItemType {
 
     pub fn get_icon(&self, registry: &Registry) -> String {
         match self {
-            InventoryItemType::Spell(spell) => registry.get_spell_props(*spell).icon.clone(),
+            InventoryItemType::Spell(spell) => registry.get_spell_props(spell).icon.clone(),
         }
     }
 

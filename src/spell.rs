@@ -5,79 +5,13 @@ use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(
-    Reflect,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    PartialEq,
-    PartialOrd,
-    Ord,
-    strum::EnumIter,
-    Hash,
-    Serialize,
-    Deserialize,
-)]
-pub enum SpellType {
-    // ランク0
-    Lantern,
-    LightBall,
-    MagicBolt,
-    // ランク1
-    Magnifier,
-    PurpleBolt,
-    SlimeCharge,
-    SpawnJar,
-    Telescope,
-    // ランク2
-    BulletSpeedDoown,
-    DualCast,
-    Jump,
-    Servant,
-    SummonEnemyEyeball,
-    SummonEnemySlime,
-    WaterBall,
-    Web,
-    // ランク3
-    Fireball,
-    HeavyShot,
-    Homing,
-    PrecisionUp,
-    SpawnBookshelf,
-    SummonChiken,
-    SummonFriendSlime,
-    TripleCast,
-    // ランク4
-    BulletSpeedUp,
-    Dash,
-    Impact,
-    Metamorphosis,
-    RockFall,
-    Slash,
-    SummonFriendEyeball,
+#[derive(Reflect, Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+pub struct Spell(pub String);
 
-    // ランク5
-    ApplyLevitation,
-    Heal,
-    QuickCast,
-    SpikeBoots,
-    // ランク 6
-    Dispel,
-    Freeze,
-    Clone,
-
-    // Quick 時間加速魔法
-    // Stop, // 時間停止魔法
-    // ランク7
-    Bomb,
-    Levitation,
-    LightSword,
-    SummonHugeSlime,
-
-    // ランク 100
-    // 基本的に入手不可能
-    InfinityClone,
+impl Spell {
+    pub fn new(name: &str) -> Self {
+        Self(name.to_string())
+    }
 }
 
 #[derive(Debug, serde::Deserialize, Clone)]

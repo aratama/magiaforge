@@ -8,7 +8,7 @@ use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -24,7 +24,7 @@ pub fn default_eyeball() -> Actor {
     Actor {
         extra: ActorExtra::Eyeball,
         actor_group: ActorGroup::Enemy,
-        wands: Wand::single(Some(SpellType::PurpleBolt)),
+        wands: Wand::single(Some(Spell::new("PurpleBolt"))),
         life: 25,
         max_life: 25,
         ..default()

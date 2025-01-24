@@ -8,7 +8,7 @@ use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -35,7 +35,7 @@ pub fn default_slime() -> Actor {
     Actor {
         extra: ActorExtra::Slime,
         actor_group: ActorGroup::Enemy,
-        wands: Wand::single(Some(SpellType::SlimeCharge)),
+        wands: Wand::single(Some(Spell::new("SlimeCharge"))),
         life: 15,
         max_life: 15,
         ..default()

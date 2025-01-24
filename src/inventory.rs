@@ -1,11 +1,11 @@
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::inventory_item::InventoryItemType;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
 pub struct InventoryItem {
     pub item_type: InventoryItemType,
     pub price: u32,
@@ -28,7 +28,7 @@ impl Inventory {
         Inventory(vec![None; MAX_ITEMS_IN_INVENTORY])
     }
 
-    pub fn from_vec(vec: Vec<SpellType>) -> Inventory {
+    pub fn from_vec(vec: Vec<Spell>) -> Inventory {
         let mut inventory = Inventory(vec![None; MAX_ITEMS_IN_INVENTORY]);
         for i in 0..MAX_ITEMS_IN_INVENTORY {
             inventory.0[i] = vec
@@ -38,9 +38,9 @@ impl Inventory {
         inventory
     }
 
-    pub fn get(&self, index: usize) -> Option<InventoryItem> {
+    pub fn get(&self, index: usize) -> &Option<InventoryItem> {
         let Inventory(ref inventory) = *self;
-        return inventory[index];
+        &inventory[index]
     }
 
     pub fn set(&mut self, index: usize, item: Option<InventoryItem>) {
@@ -76,7 +76,7 @@ impl Inventory {
         let Inventory(ref mut inventory) = *self;
         let mut i = 0;
         while i < MAX_ITEMS_IN_INVENTORY {
-            match inventory[i] {
+            match &inventory[i] {
                 None => {
                     inventory[i] = Some(item);
                     return true;
@@ -90,7 +90,7 @@ impl Inventory {
     }
 
     #[allow(dead_code)]
-    pub fn insert_spell(&mut self, item_type: SpellType) -> bool {
+    pub fn insert_spell(&mut self, item_type: Spell) -> bool {
         self.insert(InventoryItem {
             item_type: InventoryItemType::Spell(item_type),
             price: 0,
@@ -106,7 +106,7 @@ impl Inventory {
             if b.is_none() {
                 return std::cmp::Ordering::Less;
             }
-            match (a.unwrap(), b.unwrap()) {
+            match (a.as_ref().unwrap(), b.as_ref().unwrap()) {
                 (a, b) => a.item_type.cmp(&b.item_type),
             }
         });
@@ -115,11 +115,11 @@ impl Inventory {
             if MAX_ITEMS_IN_INVENTORY <= i {
                 break;
             }
-            let width = match item {
+            let width = match &item {
                 Some(item) => item.item_type.get_width(),
                 None => 1,
             };
-            self.0[i] = item;
+            self.0[i] = item.clone();
             for j in 1..width {
                 self.0[i + j] = None;
             }

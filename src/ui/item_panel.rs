@@ -1,7 +1,7 @@
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::registry::Registry;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -113,7 +113,7 @@ fn update_inventory_slot(registry: Registry, mut slot_query: Query<(&ItemPanel, 
         if let Some(InventoryItem {
             item_type: InventoryItemType::Spell(spell),
             ..
-        }) = slot.0
+        }) = &slot.0
         {
             aseprite.name = registry.get_spell_props(spell).icon.clone();
         } else {
@@ -128,7 +128,7 @@ fn update_panel_width(
 ) {
     for (parent, mut node) in frame_query.iter_mut() {
         let (slot, mut aseprite) = slot_query.get_mut(parent.get()).unwrap();
-        if let Some(item) = slot.0 {
+        if let Some(item) = &slot.0 {
             let width = Val::Px(item.item_type.get_icon_width());
             node.width = width;
             aseprite.width = width;
@@ -165,7 +165,7 @@ fn update_charge_alert(
 ) {
     for (parent, mut aseprite) in children_query.iter_mut() {
         let slot = slot_query.get(parent.get()).unwrap();
-        match slot.0 {
+        match &slot.0 {
             Some(item) if 0 < item.price => {
                 aseprite.display = Display::default();
             }
@@ -182,10 +182,18 @@ fn update_friend_marker(
 ) {
     for (parent, mut aseprite) in children_query.iter_mut() {
         let slot = slot_query.get(parent.get()).unwrap();
-        let visible = match slot.0 {
-            Some(item) => match item.item_type {
-                InventoryItemType::Spell(SpellType::SummonFriendSlime) => true,
-                InventoryItemType::Spell(SpellType::SummonFriendEyeball) => true,
+        let visible = match &slot.0 {
+            Some(item) => match &item.item_type {
+                InventoryItemType::Spell(spell)
+                    if *spell == Spell::new("SummonFriendSlime") =>
+                {
+                    true
+                }
+                InventoryItemType::Spell(spell)
+                    if *spell == Spell::new("SummonFriendEyeball") =>
+                {
+                    true
+                }
                 _ => false,
             },
             _ => false,

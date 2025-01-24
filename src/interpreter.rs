@@ -19,7 +19,7 @@ use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::states::TimeState;
@@ -120,11 +120,11 @@ pub enum Cmd {
     },
 
     GetSpell {
-        spell: SpellType,
+        spell: Spell,
     },
 
     OnNewSpell {
-        spell: SpellType,
+        spell: Spell,
         commands_then: Vec<Cmd>,
         commands_else: Vec<Cmd>,
     },
@@ -398,7 +398,7 @@ fn interpret(
         Cmd::GetSpell { spell } => {
             if let Ok((mut actor, player)) = player_query.get_single_mut() {
                 actor.inventory.insert(InventoryItem {
-                    item_type: InventoryItemType::Spell(spell),
+                    item_type: InventoryItemType::Spell(spell.clone()),
                     price: 0,
                 });
                 if !player.discovered_spells.contains(&spell) {

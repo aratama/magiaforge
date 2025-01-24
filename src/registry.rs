@@ -6,22 +6,25 @@ use crate::language::Dict;
 use crate::level::map::LevelTile;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
+use crate::spell::Spell;
 use crate::spell::SpellProps;
-use crate::spell::SpellType;
 use bevy::asset::Assets;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::Res;
 use std::collections::HashMap;
-use strum::IntoEnumIterator;
+
+#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
+pub struct GameRegistry {
+    pub levels: Vec<LevelProps>,
+    pub arena: LevelProps,
+    pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
+    pub debug_items: Vec<Spell>,
+    pub debug_wands: Vec<Vec<Option<Spell>>>,
+}
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct SpellRegistry {
     pub spells: HashMap<String, SpellProps>,
-    pub levels: Vec<LevelProps>,
-    pub arena: LevelProps,
-    pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
-    pub debug_items: Vec<SpellType>,
-    pub debug_wands: Vec<Vec<Option<SpellType>>>,
 }
 
 #[derive(serde::Deserialize)]
@@ -91,12 +94,17 @@ pub struct SenarioRegistry {
 #[derive(SystemParam)]
 pub struct Registry<'w> {
     pub assets: Res<'w, GameAssets>,
+    game: Res<'w, Assets<GameRegistry>>,
     spell: Res<'w, Assets<SpellRegistry>>,
     actor: Res<'w, Assets<ActorRegistry>>,
     senario: Res<'w, Assets<SenarioRegistry>>,
 }
 
 impl<'w> Registry<'w> {
+    pub fn game(&self) -> &GameRegistry {
+        self.game.get(&self.assets.game_registry).unwrap()
+    }
+
     pub fn spell(&self) -> &SpellRegistry {
         self.spell.get(&self.assets.spell_registry).unwrap()
     }
@@ -120,22 +128,23 @@ impl<'w> Registry<'w> {
             .expect(format!("ActorType {:?} not found", name).as_str())
     }
 
-    pub fn get_spell_props(&self, spell_type: SpellType) -> &SpellProps {
+    pub fn get_spell_props(&self, Spell(spell_type): &Spell) -> &SpellProps {
         let constants = self.spell.get(&self.assets.spell_registry).unwrap();
-        let key = format!("{:?}", spell_type);
-        &constants.spells.get(&key).expect(key.as_str())
+        &constants
+            .spells
+            .get(spell_type)
+            .expect(&format!("spell '{}' not found", spell_type))
     }
 
     pub fn get_level_props(&self, level: GameLevel) -> &LevelProps {
-        let constants = self.spell.get(&self.assets.spell_registry).unwrap();
+        let constants = self.game.get(&self.assets.game_registry).unwrap();
         match level {
             GameLevel::Level(l) => constants.levels.get(l as usize).unwrap(),
             GameLevel::MultiPlayArena => &constants.arena,
         }
     }
 
-    pub fn spells(&self) -> Vec<SpellType> {
-        // todo
-        SpellType::iter().collect()
+    pub fn spells(&self) -> Vec<Spell> {
+        self.spell().spells.keys().map(|k| Spell::new(k)).collect()
     }
 }

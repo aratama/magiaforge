@@ -75,7 +75,7 @@ pub struct SpellCastBullet {
 /// そのほかの魔法も動作の種別によって分類されています
 #[derive(Debug, serde::Deserialize, Clone)]
 pub enum SpellCast {
-    None,
+    NoCast,
     Bullet(SpellCastBullet),
     Heal,
     BulletSpeedUpDown {
@@ -164,8 +164,8 @@ pub fn cast_spell(
     let actor_position = actor_transform.translation.truncate();
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
-        if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index] {
-            let props = registry.get_spell_props(spell.spell_type);
+        if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index].as_ref() {
+            let props = registry.get_spell_props(&spell.spell_type);
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;
@@ -175,7 +175,7 @@ pub fn cast_spell(
             let actor_props = registry.get_actor_props(actor.to_type());
 
             match props.cast {
-                SpellCast::None => {}
+                SpellCast::NoCast => {}
                 SpellCast::Bullet(ref cast) => {
                     let normalized = actor.pointer.normalize();
                     let angle = actor.pointer.to_angle();

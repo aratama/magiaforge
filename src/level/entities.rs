@@ -60,7 +60,7 @@ use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::spell::SpellType;
+use crate::spell::Spell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
@@ -130,7 +130,7 @@ pub enum Spawn {
     BGM,
     RandomChest,
     SpellInChest {
-        spell: SpellType,
+        spell: Spell,
     },
 }
 
@@ -244,7 +244,7 @@ pub fn spawn_entity(
             }
             Spawn::ShopSpell => {
                 if let Some(item) = level.shop_items.pop() {
-                    spawn_dropped_item(&mut commands, &registry, *position, item);
+                    spawn_dropped_item(&mut commands, &registry, *position, &item);
                 }
             }
             Spawn::Rabbit(rabbit_type) => {
@@ -274,7 +274,7 @@ pub fn spawn_entity(
             }
             Spawn::SpellInChest { spell } => {
                 let chest_item: ChestItem =
-                    ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(*spell)));
+                    ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(spell.clone())));
                 spawn_actor_internal(
                     &mut commands,
                     &registry,
