@@ -4,7 +4,6 @@ use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
 use crate::collision::*;
-use crate::component::falling::Falling;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
@@ -14,7 +13,6 @@ use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -117,16 +115,12 @@ pub fn spawn_chest(
     commands
         .spawn((
             Name::new("chest"),
-            StateScoped(GameState::InGame),
             actor,
             Chest,
             Burnable {
                 life: 60 * 20 + rand::random::<u32>() % 30,
             },
             Transform::from_translation(position.extend(0.0)),
-            GlobalTransform::default(),
-            Visibility::default(),
-            Falling,
             (
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,

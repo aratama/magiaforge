@@ -13,7 +13,6 @@ use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -55,7 +54,6 @@ pub fn spawn_witch(
     let props = registry.get_actor_props(ActorType::Witch);
     let mut entity = commands.spawn((
         Name::new("witch"),
-        StateScoped(GameState::InGame),
         actor,
         Witch {
             getting_up: if getting_up { 0 } else { MAX_GETTING_UP },
@@ -73,7 +71,6 @@ pub fn spawn_witch(
         // キャラクター画像とシャドウでz座標の計算が異なるため、
         // 親のzは常に0にします
         Transform::from_translation(position.extend(0.0)),
-        Visibility::default(),
         (
             RigidBody::Dynamic,
             Velocity::default(),

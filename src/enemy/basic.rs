@@ -3,7 +3,6 @@ use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::servant::Servant;
 use crate::entity::bullet::HomingTarget;
@@ -11,7 +10,6 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -39,12 +37,9 @@ pub fn spawn_basic_enemy(
     let mut builder = commands.spawn((
         BasicEnemy,
         Name::new(name.to_string()),
-        StateScoped(GameState::InGame),
         actor,
         HomingTarget,
         Transform::from_translation(position.extend(0.0)),
-        Vertical::default(),
-        Visibility::default(),
         Counter::default(),
         (
             RigidBody::Dynamic,

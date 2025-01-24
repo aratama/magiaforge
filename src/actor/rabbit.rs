@@ -6,7 +6,6 @@ use crate::collision::RABBIT_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::ChildEntityDepth;
-use crate::component::falling::Falling;
 use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
@@ -17,7 +16,6 @@ use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::registry::Registry;
 use crate::registry::SenarioType;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -57,12 +55,8 @@ pub fn spawn_rabbit(
     let props = registry.get_actor_props(ActorType::Rabbit);
     let mut entity = commands.spawn((
         Name::new("rabbit"),
-        StateScoped(GameState::InGame),
         actor,
         Transform::from_translation(position.extend(0.0)),
-        GlobalTransform::default(),
-        Visibility::default(),
-        Falling,
         // 以下はRapier2Dのコンポーネント
         (
             RigidBody::Dynamic,

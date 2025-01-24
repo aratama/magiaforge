@@ -151,6 +151,10 @@ pub enum Blood {
     Blue,
 }
 
+fn state_scoped_in_game() -> StateScoped<GameState> {
+    StateScoped(GameState::InGame)
+}
+
 /// 自発的に移動し、攻撃の対象になる、プレイヤーキャラクターや敵モンスターを表します
 /// Actorは外観の構造を規定しません。外観は各エンティティで具体的に実装するか、
 /// BasicEnemyのような抽象化されたエンティティで実装しています
@@ -161,7 +165,7 @@ pub enum Blood {
 /// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
 ///
 #[derive(Component, Reflect, Debug, Clone, Deserialize)]
-#[require(Vertical)]
+#[require(Vertical, StateScoped<GameState>(state_scoped_in_game), Visibility)]
 pub struct Actor {
     /// このアクターの種族を表すとともに、種族特有の情報を格納します
     pub extra: ActorExtra,
@@ -606,34 +610,62 @@ pub struct ActorLight {
 fn update_actor_light(
     mut commands: Commands,
     mut light_query: Query<(Entity, &ActorLight, &mut PointLight2d, &mut Transform)>,
-    actor_query: Query<(Entity, &Actor, &Transform, Option<&Player>), Without<ActorLight>>,
+    mut actor_query: Query<(Entity, &mut Actor, &Transform, Option<&Player>), Without<ActorLight>>,
 ) {
-    for (actor_entity, actor, transform, _) in actor_query.iter() {
-        if light_query
-            .iter()
-            .find(|(_, light, _, _)| light.owner == actor_entity)
-            .is_none()
-        {
-            // SpriteBundle に PointLight2d を追加すると、画面外に出た時に Sprite が描画されなくなり、
-            // ライトも描画されず不自然になるため、別で追加する
-            // https://github.com/jgayfer/bevy_light_2d/issues/26
-            commands.spawn((
-                Name::new("actor light"),
-                StateScoped(GameState::InGame),
-                ActorLight {
-                    owner: actor_entity,
-                },
-                transform.clone(),
-                PointLight2d {
-                    radius: actor.point_light_radius,
-                    intensity: 1.0,
-                    falloff: 10.0,
-                    ..default()
-                },
-            ));
+    for (actor_entity, mut actor, transform, _) in actor_query.iter_mut() {
+        // 光源の明るさ(というか半径)を計算
+        let mut point_light_radius: f32 = 0.0;
+
+        // 複製されたアクターは光源を0とする
+        // プレイヤーキャラクターは明るい光源を装備していることが多く、
+        // 大量に複製すると明るくなりすぎるため
+        if actor.cloned.is_none() {
+            for wand in actor.wands.iter() {
+                for slot in wand.slots {
+                    match slot {
+                        Some(WandSpell {
+                            spell_type: SpellType::Lantern,
+                            ..
+                        }) => {
+                            point_light_radius += 160.0;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+
+        actor.point_light_radius = point_light_radius;
+
+        // 光源がないアクターに光源を追加
+        if 0.0 < point_light_radius {
+            if light_query
+                .iter()
+                .find(|(_, light, _, _)| light.owner == actor_entity)
+                .is_none()
+            {
+                // SpriteBundle に PointLight2d を追加すると、画面外に出た時に Sprite が描画されなくなり、
+                // ライトも描画されず不自然になるため、別で追加する
+                // https://github.com/jgayfer/bevy_light_2d/issues/26
+                commands.spawn((
+                    Name::new("actor light"),
+                    StateScoped(GameState::InGame),
+                    ActorLight {
+                        owner: actor_entity,
+                    },
+                    transform.clone(),
+                    PointLight2d {
+                        radius: actor.point_light_radius,
+                        intensity: 1.0,
+                        falloff: 10.0,
+                        ..default()
+                    },
+                ));
+            }
         }
     }
 
+    // 光源の明るさを更新
     for (light_entity, light, mut point_light, mut light_transform) in light_query.iter_mut() {
         if let Ok((_, actor, actor_transform, player)) = actor_query.get(light.owner) {
             if 0.0 < actor.point_light_radius {
@@ -1285,52 +1317,53 @@ fn despawn(
     query: Query<(Entity, &Actor, &Transform, Option<&Player>)>,
 ) {
     for (entity, actor, transform, player) in query.iter() {
-        if actor.life <= 0 {
+        let position = transform.translation.truncate();
+
+        if actor.cloned.map(|c| c == 0).unwrap_or(false) {
+            // 分身の時間切れによる消滅
             commands.entity(entity).despawn_recursive();
-            let position = transform.translation.truncate();
+            se.send(SEEvent::pos(SE::Shuriken, position));
+            spawn.send(SpawnEntityEvent {
+                position,
+                entity: SpawnEntity::Particle {
+                    particle: metamorphosis_effect(),
+                },
+            });
+        } else if actor.life <= 0 {
+            commands.entity(entity).despawn_recursive();
 
-            if actor.cloned.is_none() {
-                let props = registry.get_actor_props(actor.to_type());
+            let props = registry.get_actor_props(actor.to_type());
 
-                // 悲鳴
-                if props.cry {
-                    se.send(SEEvent::pos(SE::Cry, position));
+            // 悲鳴
+            if props.cry {
+                se.send(SEEvent::pos(SE::Cry, position));
+            }
+
+            // ゴールドをばらまく
+            // ただしプレイヤーキャラクターのみ、極端に大量にゴールドを持っているため
+            // ゴールドばらまきは行わない
+            if player.is_none() {
+                for _ in 0..actor.golds {
+                    spawn_gold(&mut commands, &registry, position);
                 }
+            }
 
-                // ゴールドをばらまく
-                // ただしプレイヤーキャラクターのみ、極端に大量にゴールドを持っているため
-                // ゴールドばらまきは行わない
-                if player.is_none() {
-                    for _ in 0..actor.golds {
-                        spawn_gold(&mut commands, &registry, position);
-                    }
-                }
-
-                // 血痕
-                // todo 溺れた場合など原因によっては血痕を残さないほうがいいかも
-                if let Some(ref blood) = props.blood {
-                    let position = transform.translation.truncate();
-                    commands.spawn((
-                        StateScoped(GameState::InGame),
-                        AseSpriteSlice {
-                            aseprite: registry.assets.atlas.clone(),
-                            name: match blood {
-                                Blood::Red => format!("blood_{}", rand::random::<u8>() % 3),
-                                Blood::Blue => format!("slime_blood_{}", rand::random::<u8>() % 3),
-                            },
+            // 血痕
+            // todo 溺れた場合など原因によっては血痕を残さないほうがいいかも
+            if let Some(ref blood) = props.blood {
+                let position = transform.translation.truncate();
+                commands.spawn((
+                    StateScoped(GameState::InGame),
+                    AseSpriteSlice {
+                        aseprite: registry.assets.atlas.clone(),
+                        name: match blood {
+                            Blood::Red => format!("blood_{}", rand::random::<u8>() % 3),
+                            Blood::Blue => format!("slime_blood_{}", rand::random::<u8>() % 3),
                         },
-                        Transform::from_translation(position.extend(BLOOD_LAYER_Z))
-                            .with_scale(Vec3::new(2.0, 2.0, 1.0)),
-                    ));
-                }
-            } else {
-                se.send(SEEvent::pos(SE::Shuriken, position));
-                spawn.send(SpawnEntityEvent {
-                    position,
-                    entity: SpawnEntity::Particle {
-                        particle: metamorphosis_effect(),
                     },
-                });
+                    Transform::from_translation(position.extend(BLOOD_LAYER_Z))
+                        .with_scale(Vec3::new(2.0, 2.0, 1.0)),
+                ));
             }
         }
     }

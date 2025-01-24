@@ -74,6 +74,10 @@ pub enum SpellType {
     Levitation,
     LightSword,
     SummonHugeSlime,
+
+    // ランク 100
+    // 基本的に入手不可能
+    InfinityClone,
 }
 
 #[derive(Debug, serde::Deserialize, Clone)]

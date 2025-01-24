@@ -26,7 +26,6 @@ use crate::set::FixedUpdatePlayerActiveSet;
 use crate::spell::SpellType;
 use crate::states::GameMenuState;
 use crate::states::GameState;
-use crate::wand::WandSpell;
 use bevy::core::FrameCount;
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
@@ -128,28 +127,6 @@ fn move_player(
                 actor.state = ActorState::Idle;
             }
         }
-    }
-}
-
-fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>) {
-    if let Ok(mut actor) = player_query.get_single_mut() {
-        let mut point_light_radius: f32 = 0.0;
-
-        for wand in actor.wands.iter() {
-            for slot in wand.slots {
-                match slot {
-                    Some(WandSpell {
-                        spell_type: SpellType::Lantern,
-                        ..
-                    }) => {
-                        point_light_radius += 160.0;
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        actor.point_light_radius = point_light_radius;
     }
 }
 
@@ -406,13 +383,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (
-                pick_gold,
-                die_player,
-                apply_intensity_by_lantern,
-                insert_discovered_spells,
-                move_player,
-            )
+            (pick_gold, die_player, insert_discovered_spells, move_player)
                 .in_set(FixedUpdateInGameSet),
         );
 

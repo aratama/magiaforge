@@ -12,7 +12,6 @@ use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -47,13 +46,11 @@ pub fn spawn_book_shelf(
 
     let mut parent = commands.spawn((
         Name::new("book_shelf"),
-        StateScoped(GameState::InGame),
         actor,
         Bookshelf,
         Burnable {
             life: 60 * 20 + rand::random::<u32>() % 30,
         },
-        Visibility::default(),
         Transform::from_translation(position.extend(0.0)),
         Falling,
         (

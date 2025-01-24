@@ -3,9 +3,8 @@ use crate::actor::ActorExtra;
 use crate::actor::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::component::vertical::Vertical;
+use crate::constant::PARTICLE_LAYER_Z;
 use crate::entity::impact::SpawnImpact;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -30,9 +29,8 @@ pub fn spawn_falling_rock(commands: &mut Commands, registry: &Registry, position
             Name::new("vertical rock"),
             StateScoped(GameState::InGame),
             FallingRock,
-            EntityDepth::new(),
             Visibility::default(),
-            Transform::from_translation(position.extend(0.0)),
+            Transform::from_translation(position.extend(PARTICLE_LAYER_Z)),
             AseSpriteSlice {
                 aseprite: registry.assets.atlas.clone(),
                 name: "fallen_rock_shadow".to_string(),
@@ -103,13 +101,9 @@ pub fn spawn_fallen_rock(
     commands
         .spawn((
             Name::new("fallen rock"),
-            StateScoped(GameState::InGame),
             actor,
             FallenRock,
-            EntityDepth::new(),
-            Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
-            Falling,
             (
                 RigidBody::Dynamic,
                 Damping {

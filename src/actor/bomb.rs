@@ -4,12 +4,10 @@ use crate::actor::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::EntityDepth;
 use crate::component::falling::Falling;
 use crate::entity::explosion::SpawnExplosion;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -26,8 +24,6 @@ pub fn default_bomb() -> Actor {
     }
 }
 
-/// チェストを生成します
-/// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 pub fn spawn_bomb(
     commands: &mut Commands,
     registry: &Registry,
@@ -38,14 +34,10 @@ pub fn spawn_bomb(
     commands
         .spawn((
             Name::new("bomb"),
-            StateScoped(GameState::InGame),
             actor,
             Bomb,
             Counter::up(0),
-            EntityDepth::new(),
             Transform::from_translation(position.extend(0.0)),
-            GlobalTransform::default(),
-            Visibility::default(),
             Falling,
             (
                 RigidBody::Dynamic,

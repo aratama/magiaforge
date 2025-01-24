@@ -5,14 +5,12 @@ use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
 use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
-use crate::component::falling::Falling;
 use crate::component::point_light::WithPointLight;
 use crate::entity::piece::spawn_broken_piece;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::*;
@@ -42,12 +40,9 @@ pub fn spawn_stone_lantern(
     commands
         .spawn((
             Name::new("stone_lantern"),
-            StateScoped(GameState::InGame),
             actor,
             StoneLantern,
-            Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
-            Falling,
             (
                 RigidBody::Dynamic,
                 Damping::default(),

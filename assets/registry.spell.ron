@@ -1848,6 +1848,37 @@ SpellRegistry(
             cast_delay: 120,
             cast: Levitation,
         ),
+        "InfinityClone": (
+            rank: 100,
+            name: Dict (
+                ja: "無限分身",
+                en: "Infinity Clone",
+                zh_cn: "无限克隆",
+                zh_tw: "無限克隆",
+                es: "Clon Infinito",
+                fr: "Clone Infini",
+                pt: "Clone Infinito",
+                de: "Unendlicher Klon",
+                ko: "무한 클론",
+                ru: "Бесконечный клон"
+            ),
+            description: Dict (
+                ja: "分裂します。時間制限はありません。分身も同じ呪文を詠唱することができます。",
+                en: "Creates infinite clones. There is no time limit. Clones can also cast the same spell.",
+                zh_cn: "创建无限克隆。没有时间限制。克隆也可以施放相同的法术。",
+                zh_tw: "創建無限克隆。沒有時間限制。克隆也可以施放相同的法術。",
+                es: "Crea clones infinitos. No hay límite de tiempo. Los clones también pueden lanzar el mismo hechizo.",
+                fr: "Crée des clones infinis. Il n'y a pas de limite de temps. Les clones peuvent également lancer le même sort.",
+                pt: "Cria clones infinitos. Não há limite de tempo. Os clones também podem lançar o mesmo feitiço.",
+                de: "Erzeugt unendliche Klone. Es gibt kein Zeitlimit. Klone können auch denselben Zauber wirken.",
+                ko: "무한 클론을 생성합니다. 시간 제한이 없습니다. 클론도 동일한 주문을 시전할 수 있습니다.",
+                ru: "Создает бесконечные клоны. Нет ограничения по времени. Клоны также могут накладывать то же заклинание."
+            ),
+            icon: "infinity_clone_icon",
+            price: 10000,
+            cast_delay: 120,
+            cast: InfinityClone,
+        ),
     },
 
     debug_items: [
@@ -1902,12 +1933,13 @@ SpellRegistry(
         Metamorphosis,
         Slash,
         Dispel,
-        Clone
+        Clone,
+        InfinityClone
     ],
 
     debug_wands: [
         [
-            Some(Clone),
+            Some(InfinityClone),
             None,
             None,
             None,

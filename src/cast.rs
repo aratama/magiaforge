@@ -13,6 +13,7 @@ use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
 use crate::constant::MAX_SPELLS_IN_WAND;
+use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::controller::remote::send_remote_message;
 use crate::controller::remote::RemoteMessage;
@@ -124,6 +125,7 @@ pub enum SpellCast {
     },
     Dispel,
     Clone,
+    InfinityClone,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -500,37 +502,27 @@ pub fn cast_spell(
                     // 分身も分身を詠唱できると指数関数的に増えてしまって強力すぎるので、
                     // プレイヤー本人が操作しているキャラクターのみ分身を詠唱できるものとします
                     if player.is_some() {
-                        if let Some(ref chunk) = level.chunk {
-                            let position = actor_position + actor.pointer;
-                            if chunk.get_tile_by_coords(position).is_floor() {
-                                let mut cloned = actor.clone();
-                                cloned.uuid = Uuid::new_v4();
-                                cloned.wait = 30; // これがないと一瞬で無限クローンしてしまうので注意
-                                cloned.fire_state = ActorFireState::Idle;
-                                cloned.fire_state_secondary = ActorFireState::Idle;
-                                cloned.move_direction = Vec2::ZERO;
-                                cloned.state = ActorState::Idle;
-                                cloned.cloned = Some(60 * 10);
-                                cloned.life = 1;
-                                cloned.max_life = 1;
-                                cloned.golds = 0;
-                                spawn.send(SpawnEntityEvent {
-                                    position,
-                                    entity: SpawnEntity::Respawn {
-                                        actor: cloned,
-                                        player_controlled,
-                                    },
-                                });
-                                spawn.send(SpawnEntityEvent {
-                                    position,
-                                    entity: SpawnEntity::Particle {
-                                        particle: metamorphosis_effect(),
-                                    },
-                                });
-                                se.send(SEEvent::pos(SE::Heal, actor_position));
-                            }
-                        }
+                        cast_clone(
+                            &mut se,
+                            &mut spawn,
+                            actor,
+                            actor_position,
+                            &level,
+                            player_controlled,
+                            60 * 10,
+                        );
                     }
+                }
+                SpellCast::InfinityClone => {
+                    cast_clone(
+                        &mut se,
+                        &mut spawn,
+                        actor,
+                        actor_position,
+                        &level,
+                        player_controlled,
+                        std::u32::MAX,
+                    );
                 }
             }
         } else {
@@ -597,4 +589,50 @@ pub fn cast_spell(
 
     actor.wands[wand_index as usize].delay = wand_delay;
     actor.wands[wand_index as usize].index = spell_index % MAX_SPELLS_IN_WAND;
+}
+
+fn cast_clone(
+    se: &mut EventWriter<SEEvent>,
+    spawn: &mut EventWriter<SpawnEntityEvent>,
+    actor: &Actor,
+    actor_position: Vec2,
+    level: &LevelSetup,
+    player_controlled: bool,
+    lifetime: u32,
+) {
+    if let Some(ref chunk) = level.chunk {
+        for _ in 0..16 {
+            let angle = f32::consts::PI * 2.0 * rand::random::<f32>();
+            let position = actor_position + TILE_SIZE * 2.0 * Vec2::from_angle(angle);
+            if chunk.get_tile_by_coords(position).is_floor() {
+                let mut cloned = actor.clone();
+                cloned.uuid = Uuid::new_v4();
+                cloned.wait = 30; // これがないと一瞬で無限クローンしてしまうので注意
+                cloned.fire_state = ActorFireState::Idle;
+                cloned.fire_state_secondary = ActorFireState::Idle;
+                cloned.move_direction = Vec2::ZERO;
+                cloned.state = ActorState::Idle;
+                cloned.cloned = Some(lifetime);
+                cloned.life = 1;
+                cloned.max_life = 1;
+                cloned.golds = 0;
+                spawn.send(SpawnEntityEvent {
+                    position,
+                    entity: SpawnEntity::Respawn {
+                        actor: cloned,
+                        player_controlled,
+                    },
+                });
+                spawn.send(SpawnEntityEvent {
+                    position,
+                    entity: SpawnEntity::Particle {
+                        particle: metamorphosis_effect(),
+                    },
+                });
+                se.send(SEEvent::pos(SE::Heal, actor_position));
+
+                break;
+            }
+        }
+    }
 }

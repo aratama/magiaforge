@@ -103,7 +103,6 @@ pub fn spawn_huge_slime(
     let entity = commands
         .spawn((
             Name::new("huge slime"),
-            StateScoped(GameState::InGame),
             DespawnHugeSlime,
             HomingTarget,
             HugeSlime {
