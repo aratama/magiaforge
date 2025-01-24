@@ -1,0 +1,166 @@
+
+// https://github.com/ron-rs/ron/blob/master/docs/extensions.md
+#![enable(unwrap_newtypes)]
+#![enable(implicit_some)]
+ActorRegistry(
+    dumping_on_ice: 0.1,
+    dumping_on_air: 0.5,
+    acceleration_on_ice: 0.1,
+    acceleration_on_air: 0.5,
+    acceleration_on_drowning: 0.2,
+    acceleration_on_firing: 0.5,
+    actors: {
+        "Witch": (
+            radius: 5.0,
+            move_force: 40000.0,
+            jump: 0.0,
+            linear_damping: 6.0,
+            blood: Red,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "Rabbit": (
+            radius: 5.0,
+            move_force: 40000.0,
+            jump: 1.5,
+            linear_damping: 10.0,
+            blood: Red,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "Chicken": (
+            radius: 5.0,
+            move_force: 60000.0,
+            jump: 1.5,
+            linear_damping: 10.0,
+            blood: Red,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "EyeBall": (
+            radius: 5.0,
+            move_force: 100000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: Red,
+            defreeze: 1,
+            auto_levitation: true,
+            cry: true
+        ),
+        "Sandbag": (
+            radius: 5.0,
+            move_force: 100000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "Slime": (
+            radius: 5.0,
+            move_force: 50000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: Blue,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "Salamander": (
+            radius: 5.0,
+            move_force: 100000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: Red,
+            defreeze: 2,
+            auto_levitation: false,
+            cry: true
+        ),
+        "Shadow": (
+            radius: 5.0,
+            move_force: 50000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "Spider": (
+            radius: 8.0,
+            move_force: 150000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true
+        ),
+        "HugeSlime": (
+            radius: 5.0,
+            // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
+            move_force: 400000.0,
+            jump: 3.0,
+            linear_damping: 10.0,
+            blood: None,
+            // スライムの王は凍結無効
+            defreeze: 10000,
+            auto_levitation: false,
+            cry: false
+        ),
+        "Lantern": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: false
+        ),
+        "Chest": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: false
+        ),
+        "BookShelf": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: false
+        ),
+        "Rock": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: false
+        ),
+        "Bomb": (
+            radius: 5.0,
+            move_force: 0.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: false
+        ),
+    }
+)
