@@ -250,7 +250,7 @@ pub fn setup_level(
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEntityEvent {
                     position: index_to_position((*x, *y)),
-                    entity: SpawnEntity::DefaultActor {
+                    entity: SpawnEntity::Actor {
                         actor_type: ActorType::Chicken,
                         actor_group: ActorGroup::Neutral,
                     },
@@ -274,7 +274,7 @@ pub fn setup_level(
     // プレイヤーキャラクターの魔法使いを生成
     spawn.send(SpawnEntityEvent {
         position: Vec2::new(player_x, player_y),
-        entity: SpawnEntity::Actor {
+        entity: SpawnEntity::Respawn {
             actor: Actor {
                 life: player_state.life,
                 max_life: player_state.max_life,
@@ -372,7 +372,7 @@ fn spawn_random_enemies(
             Some(enemy_type) => {
                 spawn.send(SpawnEntityEvent {
                     position,
-                    entity: SpawnEntity::DefaultActor {
+                    entity: SpawnEntity::Actor {
                         actor_type: *enemy_type,
                         actor_group: ActorGroup::Enemy,
                     },

@@ -337,7 +337,7 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEntityEvent {
                         position,
-                        entity: SpawnEntity::DefaultActor {
+                        entity: SpawnEntity::Actor {
                             actor_type: ActorType::Bomb,
                             actor_group: ActorGroup::Neutral,
                         },
@@ -351,7 +351,7 @@ pub fn cast_spell(
                         SpellCastEntityType::BookShelf => {
                             spawn.send(SpawnEntityEvent {
                                 position,
-                                entity: SpawnEntity::DefaultActor {
+                                entity: SpawnEntity::Actor {
                                     actor_type: ActorType::BookShelf,
                                     actor_group: ActorGroup::Entity,
                                 },
@@ -361,14 +361,17 @@ pub fn cast_spell(
                         SpellCastEntityType::HugeSlime => {
                             spawn.send(SpawnEntityEvent {
                                 position,
-                                entity: SpawnEntity::HugeSlime { boss: None },
+                                entity: SpawnEntity::Actor {
+                                    actor_type: ActorType::HugeSlime,
+                                    actor_group: ActorGroup::Enemy,
+                                },
                             });
                             se.send(SEEvent::pos(SE::Status2, position));
                         }
                         SpellCastEntityType::Jar => {
                             spawn.send(SpawnEntityEvent {
                                 position,
-                                entity: SpawnEntity::DefaultActor {
+                                entity: SpawnEntity::Actor {
                                     actor_type: ActorType::Chest,
                                     actor_group: ActorGroup::Entity,
                                 },

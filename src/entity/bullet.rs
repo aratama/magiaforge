@@ -392,7 +392,7 @@ fn spawn_bullet_effect(
         spawn.send(SpawnEntityEvent {
             position: bullet_position,
             entity: SpawnEntity::Web {
-                owner_actor_group: bullet.actor_group,
+                actor_group: bullet.actor_group,
             },
         });
     }

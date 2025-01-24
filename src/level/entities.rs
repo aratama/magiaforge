@@ -24,12 +24,10 @@ use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::constant::*;
-use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::Player;
 use crate::controller::training_dummy::TraningDummyController;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
-use crate::enemy::huge_slime::default_huge_slime;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::huge_slime::Boss;
 use crate::enemy::salamander::spawn_salamander;
@@ -76,37 +74,34 @@ use serde::Deserialize;
 /// シリアライズ可能です
 #[derive(Clone, Debug, Deserialize)]
 pub enum SpawnEntity {
-    // 施設
-    MagicCircle,
-    MagicCircleHome,
-    MultiPlayArenaMagicCircle,
-    MagicCircleDemoEnding,
-    BrokenMagicCircle,
-    Usage,
-    Routes,
-    ShopSpell,
-    ShopDoor,
-    BGM,
-    RandomChest,
-
-    // ウサギ
-    ShopRabbit,
-    TrainingRabbit,
-    GuideRabbit,
-    SinglePlayRabbit,
-    MultiplayerRabbit,
-    ReadingRabbit,
-    SpellListRabbit,
-
-    SpellInChest {
-        spell: SpellType,
-    },
-    DefaultActor {
+    /// 種別を指定してアクターを生成します
+    Actor {
         actor_type: ActorType,
         actor_group: ActorGroup,
     },
-    HugeSlime {
-        boss: Option<Dict<String>>,
+
+    /// Actorを復帰します
+    /// 変化からの復帰や分裂のときなどに使います
+    Respawn {
+        actor: Actor,
+    },
+
+    Rabbit(RabbitType),
+
+    Boss {
+        actor_type: ActorType,
+        name: Dict<String>,
+    },
+
+    // アクター以外のエンティティ
+    Particle {
+        spawn: SpawnParticle,
+    },
+    Slash {
+        velocity: Vec2,
+        actor_group: ActorGroup,
+        angle: f32,
+        damage: u32,
     },
     Fireball {
         velocity: Vec2,
@@ -121,21 +116,21 @@ pub enum SpawnEntity {
         servant: bool,
     },
     Web {
-        owner_actor_group: ActorGroup,
-    },
-    Particle {
-        spawn: SpawnParticle,
-    },
-    Slash {
-        velocity: Vec2,
         actor_group: ActorGroup,
-        angle: f32,
-        damage: u32,
     },
-    /// 変化の復帰のときなどに使います
-    /// Actorはシリアライズ不可能なので
-    Actor {
-        actor: Actor,
+    MagicCircle,
+    MagicCircleHome,
+    MultiPlayArenaMagicCircle,
+    MagicCircleDemoEnding,
+    BrokenMagicCircle,
+    Usage,
+    Routes,
+    ShopSpell,
+    ShopDoor,
+    BGM,
+    RandomChest,
+    SpellInChest {
+        spell: SpellType,
     },
 }
 
@@ -252,70 +247,14 @@ pub fn spawn_entity(
                     spawn_dropped_item(&mut commands, &registry, *position, item);
                 }
             }
-            SpawnEntity::ShopRabbit => {
+            SpawnEntity::Rabbit(rabbit_type) => {
                 spawn_rabbit(
                     &mut commands,
                     &registry,
                     *position,
-                    default_rabbit(RabbitType::Shop),
-                    RabbitType::Shop,
+                    default_rabbit(*rabbit_type),
+                    *rabbit_type,
                 );
-            }
-            SpawnEntity::TrainingRabbit => {
-                spawn_rabbit(
-                    &mut commands,
-                    &registry,
-                    *position,
-                    default_rabbit(RabbitType::Training),
-                    RabbitType::Training,
-                );
-            }
-            SpawnEntity::SinglePlayRabbit => {
-                spawn_rabbit(
-                    &mut commands,
-                    &registry,
-                    *position,
-                    default_rabbit(RabbitType::Singleplay),
-                    RabbitType::Singleplay,
-                );
-            }
-            SpawnEntity::GuideRabbit => {
-                spawn_rabbit(
-                    &mut commands,
-                    &registry,
-                    *position,
-                    default_rabbit(RabbitType::Guide),
-                    RabbitType::Guide,
-                );
-            }
-            SpawnEntity::MultiplayerRabbit => {
-                spawn_rabbit(
-                    &mut commands,
-                    &registry,
-                    *position,
-                    default_rabbit(RabbitType::MultiPlay),
-                    RabbitType::MultiPlay,
-                );
-            }
-            SpawnEntity::ReadingRabbit => {
-                spawn_rabbit(
-                    &mut commands,
-                    &registry,
-                    *position,
-                    default_rabbit(RabbitType::Reading),
-                    RabbitType::Reading,
-                );
-            }
-            SpawnEntity::SpellListRabbit => {
-                let entity = spawn_rabbit(
-                    &mut commands,
-                    &registry,
-                    *position,
-                    default_rabbit(RabbitType::SpellList),
-                    RabbitType::SpellList,
-                );
-
-                commands.entity(entity).insert(SpellListRabbit);
             }
             SpawnEntity::ShopDoor => {
                 spawn_shop_door(&mut commands, &registry, *position);
@@ -343,7 +282,7 @@ pub fn spawn_entity(
                     &chest_actor(ChestType::Chest, chest_item),
                 );
             }
-            SpawnEntity::DefaultActor {
+            SpawnEntity::Actor {
                 actor_type,
                 actor_group,
             } => {
@@ -358,14 +297,17 @@ pub fn spawn_entity(
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
-            SpawnEntity::HugeSlime { boss } => {
-                let entity =
-                    spawn_huge_slime(&mut commands, &registry, *position, default_huge_slime());
-                if let Some(boss_name) = boss {
-                    commands.entity(entity).insert(Boss {
-                        name: boss_name.clone(),
-                    });
-                }
+            SpawnEntity::Boss { actor_type, name } => {
+                let mut actor = get_default_actor(*actor_type);
+                actor.actor_group = ActorGroup::Enemy;
+                let entity = spawn_actor(
+                    &mut commands,
+                    &registry,
+                    &life_bar_resource,
+                    *position,
+                    actor,
+                );
+                commands.entity(entity).insert(Boss { name: name.clone() });
             }
             &SpawnEntity::Seed {
                 to,
@@ -396,7 +338,9 @@ pub fn spawn_entity(
                 spawn_fireball(&mut commands, &registry, *position, *velocity, *actor_group);
             }
 
-            SpawnEntity::Web { owner_actor_group } => {
+            SpawnEntity::Web {
+                actor_group: owner_actor_group,
+            } => {
                 spawn_web(
                     &mut commands,
                     &registry,
@@ -432,7 +376,7 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Actor { actor } => spawn_actor_internal(
+            SpawnEntity::Respawn { actor } => spawn_actor_internal(
                 &mut commands,
                 &registry,
                 &life_bar_resource,
@@ -611,7 +555,7 @@ pub fn add_default_behavior(
         ActorType::Lantern => {}
         ActorType::Chest => {}
         ActorType::BookShelf => {}
-        ActorType::Rabbit { .. } => {}
+        ActorType::Rabbit => {}
         ActorType::Rock => {}
         ActorType::Bomb => {}
     }

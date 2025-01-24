@@ -110,6 +110,7 @@ impl<'w> Registry<'w> {
 
     pub fn get_actor_props(&self, actor_type: ActorType) -> &ActorPropsByType {
         let constants = self.actor.get(&self.assets.actor_registry).unwrap();
+
         let name = format!("{:?}", actor_type);
         &constants
             .actors

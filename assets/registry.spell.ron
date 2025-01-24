@@ -197,7 +197,7 @@ SpellRegistry(
         (118, 66, 138, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(DefaultActor (
+            entity: Some(Actor (
                 actor_type: BookShelf,
                 actor_group: Entity,
             )),
@@ -296,7 +296,7 @@ SpellRegistry(
         (223, 113, 38, 255): (
             tile: Some(StoneTile),
             zone: SafeZone,
-            entity: Some(DefaultActor (
+            entity: Some(Actor (
                 actor_type: Lantern,
                 actor_group: Neutral,
             )),
@@ -317,8 +317,9 @@ SpellRegistry(
         (184, 0, 255, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(HugeSlime (
-                boss: Some((
+            entity: Some(Boss (
+                actor_type: HugeSlime,
+                name: Dict (
                     ja: "スライムの王 エミルス",
                     en: "Slime King Emils",
                     zh_cn: "史莱姆之王 艾米尔斯",
@@ -329,56 +330,56 @@ SpellRegistry(
                     de: "Schleimkönig Emils",
                     ko: "슬라임 왕 에밀스",
                     ru: "Король слизней Эмильс",
-                )),
+                ),
             )),
             entry_point: false,
         ),
         (255, 243, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(ShopRabbit),
+            entity: Some(Rabbit(Shop)),
             entry_point: false,
         ),
         (255, 244, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(TrainingRabbit),
+            entity: Some(Rabbit(Training)),
             entry_point: false,
         ),
         (255, 245, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(GuideRabbit),
+            entity: Some(Rabbit(Guide)),
             entry_point: false,
         ),
         (255, 246, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(MultiplayerRabbit),
+            entity: Some(Rabbit(MultiPlay)),
             entry_point: false,
         ),
         (255, 247, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(SinglePlayRabbit),
+            entity: Some(Rabbit(Singleplay)),
             entry_point: false,
         ),
         (255, 248, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(ReadingRabbit),
+            entity: Some(Rabbit(Reading)),
             entry_point: false,
         ),
         (255, 249, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(SpellListRabbit),
+            entity: Some(Rabbit(SpellList)),
             entry_point: false,
         ),
         (182, 0, 255, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(DefaultActor (
+            entity: Some(Actor (
                 actor_type: Sandbag,
                 actor_group: Neutral,
             )),

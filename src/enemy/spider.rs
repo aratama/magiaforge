@@ -151,7 +151,7 @@ fn transition(
                     spawn.send(SpawnEntityEvent {
                         position: origin,
                         entity: SpawnEntity::Web {
-                            owner_actor_group: actor.actor_group,
+                            actor_group: actor.actor_group,
                         },
                     });
                     shadow.state = State::Wait(30 + rand::random::<u32>() % 30);

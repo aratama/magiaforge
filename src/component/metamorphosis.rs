@@ -147,7 +147,7 @@ fn revert(
 
             spawn.send(SpawnEntityEvent {
                 position,
-                entity: SpawnEntity::Actor {
+                entity: SpawnEntity::Respawn {
                     actor: original_actor,
                 },
             });

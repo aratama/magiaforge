@@ -10,6 +10,7 @@ use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
+use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
@@ -21,10 +22,11 @@ use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 use serde::Deserialize;
+use serde::Serialize;
 
 const RABBIT_RADIUS: f32 = 5.0;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, Serialize, Deserialize)]
 pub enum RabbitType {
     Guide,
     Training,
@@ -106,6 +108,7 @@ pub fn spawn_rabbit(
             });
         }
         RabbitType::SpellList => {
+            entity.insert(SpellListRabbit);
             entity.insert(MessageRabbit {
                 senario: SenarioType::SpellListRabbit,
             });

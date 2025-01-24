@@ -91,6 +91,8 @@ use stone_lantern::default_lantern;
 use uuid::Uuid;
 use witch::default_witch;
 
+/// アクターの種類を表します
+/// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
 #[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActorType {
     Witch,
