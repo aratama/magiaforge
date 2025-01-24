@@ -4,7 +4,6 @@ use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::controller::servant::Servant;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
@@ -32,14 +31,12 @@ pub fn spawn_basic_enemy(
     master: Option<Entity>,
     actor: Actor,
 ) -> Entity {
-    let golds = actor.golds;
     let actor_group = actor.actor_group;
     let props = registry.get_actor_props(actor.to_type());
     let mut builder = commands.spawn((
         BasicEnemy,
         Name::new(name.to_string()),
         StateScoped(GameState::InGame),
-        DespawnWithGold { golds },
         actor,
         HomingTarget,
         Transform::from_translation(position.extend(0.0)),

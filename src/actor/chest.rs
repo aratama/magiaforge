@@ -8,7 +8,6 @@ use crate::component::falling::Falling;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
-use crate::entity::gold::spawn_gold;
 use crate::entity::piece::spawn_broken_piece;
 use crate::inventory::InventoryItem;
 use crate::registry::Registry;
@@ -71,7 +70,7 @@ struct Chest;
 
 #[derive(Reflect, Clone, Debug, Copy, Deserialize)]
 pub enum ChestItem {
-    Gold(u32),
+    Gold,
     Item(InventoryItem),
 }
 
@@ -81,18 +80,18 @@ pub fn default_random_chest() -> Actor {
         .choose(&mut rand::thread_rng())
         .unwrap();
 
-    let item = ChestItem::Gold(match chest_type {
+    let golds = match chest_type {
         ChestType::Chest => 10,
         ChestType::Crate => 1,
         ChestType::Barrel => 1,
         ChestType::BarrelBomb => 3,
         ChestType::Jar(_) => 1,
-    });
+    };
 
-    chest_actor(chest_type, item)
+    chest_actor(chest_type, ChestItem::Gold, golds)
 }
 
-pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem) -> Actor {
+pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem, golds: u32) -> Actor {
     Actor {
         actor_group: ActorGroup::Entity,
         extra: ActorExtra::Chest {
@@ -101,6 +100,7 @@ pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem) -> Actor {
         },
         life: 30,
         max_life: 30,
+        golds,
         ..default()
     }
 }
@@ -162,12 +162,12 @@ pub fn spawn_chest(
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(Entity, &Transform, &Actor, &Burnable), With<Chest>>,
+    query: Query<(&Transform, &Actor, &Burnable), With<Chest>>,
     registry: Registry,
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
 ) {
-    for (entity, transform, actor, burnable) in query.iter() {
+    for (transform, actor, burnable) in query.iter() {
         if actor.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
             let ActorExtra::Chest {
@@ -177,8 +177,6 @@ fn break_chest(
             else {
                 panic!("ActorExtra::Chest is expected");
             };
-
-            commands.entity(entity).despawn_recursive();
 
             writer.send(SEEvent::pos(
                 match chest_type {
@@ -192,11 +190,7 @@ fn break_chest(
             ));
 
             match chest_item {
-                ChestItem::Gold(gold) => {
-                    for _ in 0..gold {
-                        spawn_gold(&mut commands, &registry, position);
-                    }
-                }
+                ChestItem::Gold => {}
                 ChestItem::Item(item) => {
                     spawn_dropped_item(&mut commands, &registry, position, item);
                 }

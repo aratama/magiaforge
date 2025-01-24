@@ -109,7 +109,7 @@ pub fn cast_metamorphosis(
     spawn.send(SpawnEntityEvent {
         position,
         entity: SpawnEntity::Particle {
-            spawn: metamorphosis_effect(),
+            particle: metamorphosis_effect(),
         },
     });
 
@@ -149,12 +149,13 @@ fn revert(
                 position,
                 entity: SpawnEntity::Respawn {
                     actor: original_actor,
+                    player_controlled: false,
                 },
             });
             spawn.send(SpawnEntityEvent {
                 position,
                 entity: SpawnEntity::Particle {
-                    spawn: metamorphosis_effect(),
+                    particle: metamorphosis_effect(),
                 },
             });
             se.send(SEEvent::pos(SE::Kyushu2Short, position));

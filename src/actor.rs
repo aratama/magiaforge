@@ -24,30 +24,33 @@ use crate::component::counter::Counter;
 use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::metamorphosis::cast_metamorphosis;
+use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
+use crate::constant::BLOOD_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::recovery;
 use crate::controller::player::Player;
+use crate::controller::player::PlayerControlled;
 use crate::enemy::eyeball::default_eyeball;
 use crate::enemy::huge_slime::default_huge_slime;
 use crate::enemy::salamander::default_salamander;
 use crate::enemy::shadow::default_shadow;
 use crate::enemy::slime::default_slime;
 use crate::enemy::spider::default_spider;
-use crate::entity::blood::Blood;
 use crate::entity::bullet::Trigger;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
+use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::add_default_behavior;
+use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnEntityEvent;
-use crate::level::entities::SpawnWitchType;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
@@ -141,6 +144,12 @@ pub enum ActorState {
     Idle,
     Run,
     GettingUp,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect, Deserialize)]
+pub enum Blood {
+    Red,
+    Blue,
 }
 
 /// 自発的に移動し、攻撃の対象になる、プレイヤーキャラクターや敵モンスターを表します
@@ -256,6 +265,9 @@ pub struct Actor {
     // 0 より大きい場合は溺れている状態で、詠唱ができません。また移動速度が低下します
     // 水中にいる間は 1フレームに1 づつ増加し、60を超えるとダメージを受け、0に戻ります
     pub drowning: u32,
+
+    /// 複製された場合の残り時間
+    pub cloned: Option<u32>,
 }
 
 impl Actor {
@@ -268,7 +280,6 @@ impl Actor {
 #[derive(Clone, Debug, Reflect, Deserialize)]
 pub enum ActorExtra {
     Witch {
-        witch_type: SpawnWitchType,
         getting_up: bool,
         name: String,
         discovered_spells: HashSet<SpellType>,
@@ -511,6 +522,7 @@ impl Default for Actor {
             poise: 1,
             invincibility_on_staggered: false,
             extra: ActorExtra::Chicken,
+            cloned: None,
         }
     }
 }
@@ -651,6 +663,14 @@ fn fire_bullet(
     mut commands: Commands,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
+    level: Res<LevelSetup>,
+    websocket: Res<WebSocketState>,
+
+    mut remote_writer: EventWriter<ClientMessage>,
+    mut se_writer: EventWriter<SEEvent>,
+    mut impact_writer: EventWriter<SpawnImpact>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
+
     mut actor_query: Query<
         (
             Entity,
@@ -661,15 +681,11 @@ fn fire_bullet(
             &mut Vertical,
             &mut CollisionGroups,
             Option<&Player>,
+            Option<&PlayerControlled>,
             Option<&Metamorphosed>,
         ),
         Without<Camera2d>,
     >,
-    mut remote_writer: EventWriter<ClientMessage>,
-    mut se_writer: EventWriter<SEEvent>,
-    mut impact_writer: EventWriter<SpawnImpact>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
-    websocket: Res<WebSocketState>,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 
@@ -682,6 +698,7 @@ fn fire_bullet(
         mut actor_falling,
         mut collision_groups,
         player,
+        player_controlled,
         actor_metamorphosis,
     ) in actor_query.iter_mut()
     {
@@ -709,6 +726,7 @@ fn fire_bullet(
                 &mut commands,
                 &registry,
                 &life_bar_resource,
+                &level,
                 &mut remote_writer,
                 &mut se_writer,
                 &mut impact_writer,
@@ -722,6 +740,7 @@ fn fire_bullet(
                 &mut collision_groups,
                 &actor_metamorphosis,
                 player,
+                player_controlled.is_some(),
                 online,
                 wand,
                 Trigger::Primary,
@@ -733,6 +752,7 @@ fn fire_bullet(
                 &mut commands,
                 &registry,
                 &life_bar_resource,
+                &level,
                 &mut remote_writer,
                 &mut se_writer,
                 &mut impact_writer,
@@ -746,6 +766,7 @@ fn fire_bullet(
                 &mut collision_groups,
                 &actor_metamorphosis,
                 player,
+                player_controlled.is_some(),
                 online,
                 MAX_WANDS as u8 - 1,
                 Trigger::Secondary,
@@ -1251,6 +1272,85 @@ fn damage(
     }
 }
 
+fn despawn_cloned(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut Actor, &Transform)>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut se: EventWriter<SEEvent>,
+) {
+    for (entity, mut actor, transform) in query.iter_mut() {
+        if let Some(ref mut cloned) = &mut actor.cloned {
+            if 0 < *cloned {
+                *cloned = *cloned - 1;
+            }
+            if *cloned <= 0 {
+                commands.entity(entity).despawn_recursive();
+                let position = transform.translation.truncate();
+                se.send(SEEvent::pos(SE::Shuriken, position));
+                spawn.send(SpawnEntityEvent {
+                    position,
+                    entity: SpawnEntity::Particle {
+                        particle: metamorphosis_effect(),
+                    },
+                });
+            }
+        }
+    }
+}
+
+fn despawn(
+    mut commands: Commands,
+    registry: Registry,
+    mut se: EventWriter<SEEvent>,
+    mut spawn: EventWriter<SpawnEntityEvent>,
+    query: Query<(Entity, &Actor, &Transform)>,
+) {
+    for (entity, actor, transform) in query.iter() {
+        if actor.life <= 0 {
+            commands.entity(entity).despawn_recursive();
+            let position = transform.translation.truncate();
+
+            if actor.cloned.is_none() {
+                let props = registry.get_actor_props(actor.to_type());
+
+                // 悲鳴
+                if props.cry {
+                    se.send(SEEvent::pos(SE::Cry, position));
+                }
+
+                // ゴールドをばらまく
+                for _ in 0..actor.golds {
+                    spawn_gold(&mut commands, &registry, position);
+                }
+
+                // 血痕
+                if let Some(ref blood) = props.blood {
+                    let position = transform.translation.truncate();
+                    commands.spawn((
+                        StateScoped(GameState::InGame),
+                        AseSpriteSlice {
+                            aseprite: registry.assets.atlas.clone(),
+                            name: match blood {
+                                Blood::Red => format!("blood_{}", rand::random::<u8>() % 3),
+                                Blood::Blue => format!("slime_blood_{}", rand::random::<u8>() % 3),
+                            },
+                        },
+                        Transform::from_translation(position.extend(BLOOD_LAYER_Z))
+                            .with_scale(Vec3::new(2.0, 2.0, 1.0)),
+                    ));
+                }
+            } else {
+                spawn.send(SpawnEntityEvent {
+                    position,
+                    entity: SpawnEntity::Particle {
+                        particle: metamorphosis_effect(),
+                    },
+                });
+            }
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -1281,6 +1381,8 @@ impl Plugin for ActorPlugin {
                 damage,
                 vibrate_breakabke_sprite,
                 fire_damage,
+                despawn_cloned,
+                despawn,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

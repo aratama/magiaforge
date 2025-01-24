@@ -1,3 +1,4 @@
+use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
@@ -7,7 +8,10 @@ use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
 use crate::constant::*;
+use crate::controller::player::Player;
+use crate::controller::player::PlayerControlled;
 use crate::entity::dropped_item::spawn_dropped_item;
+use crate::hud::life_bar::LifeBarResource;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::Inventory;
 use crate::inventory::InventoryItem;
@@ -21,7 +25,6 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnEntityEvent;
-use crate::level::entities::SpawnWitchType;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
@@ -41,6 +44,7 @@ use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
+use std::collections::HashSet;
 use strum::IntoEnumIterator;
 use vleue_navigator::prelude::NavMeshSettings;
 use vleue_navigator::prelude::NavMeshUpdateMode;
@@ -112,6 +116,7 @@ pub fn setup_level(
     registry: Registry,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
+    life_bar: Res<LifeBarResource>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntityEvent>,
@@ -272,29 +277,37 @@ pub fn setup_level(
     setup_camera(&mut commands, Vec2::new(player_x, player_y));
 
     // プレイヤーキャラクターの魔法使いを生成
-    spawn.send(SpawnEntityEvent {
-        position: Vec2::new(player_x, player_y),
-        entity: SpawnEntity::Respawn {
-            actor: Actor {
-                life: player_state.life,
-                max_life: player_state.max_life,
-                amplitude: 0.0,
-                fire_damage_wait: 0,
-                actor_group: ActorGroup::Friend,
-                wands: player_state.wands,
-                inventory: player_state.inventory,
-                current_wand: player_state.current_wand,
-                golds: player_state.golds,
-                extra: ActorExtra::Witch {
-                    witch_type: SpawnWitchType::Player,
-                    getting_up: getting_up_animation,
-                    name: player_state.name,
-                    discovered_spells: player_state.discovered_spells,
-                },
-                ..default()
+    // プレイヤーキャラクターのみ Player コンポーネントの追加が必要なため、
+    // イベントではなく直接生成します
+    let entity = spawn_witch(
+        &mut commands,
+        &registry,
+        Vec2::new(player_x, player_y),
+        None,
+        &life_bar,
+        false,
+        Actor {
+            life: player_state.life,
+            max_life: player_state.max_life,
+            amplitude: 0.0,
+            fire_damage_wait: 0,
+            actor_group: ActorGroup::Friend,
+            wands: player_state.wands,
+            inventory: player_state.inventory,
+            current_wand: player_state.current_wand,
+            golds: player_state.golds,
+            extra: ActorExtra::Witch {
+                getting_up: getting_up_animation,
+                name: player_state.name,
+                discovered_spells: player_state.discovered_spells,
             },
+            ..default()
         },
-    });
+    );
+    commands.entity(entity).insert((
+        PlayerControlled,
+        Player::new(config.player_name.clone(), false, &HashSet::new()),
+    ));
 
     current.chunk = Some(chunk);
 }

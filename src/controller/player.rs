@@ -2,8 +2,6 @@ use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
-use crate::asset::GameAssets;
-use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::ENTITY_LAYER_Z;
@@ -19,6 +17,7 @@ use crate::interpreter::InterpreterEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateInGameSet;
@@ -39,7 +38,9 @@ use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use std::collections::HashSet;
 
-/// 操作可能なプレイヤーキャラクターを表します
+/// プレイヤーキャラクター本体を表します
+/// Playerは最大で1体です
+/// このアクターが消滅したらゲームオーバーとなります
 #[derive(Component, Debug, Clone)]
 pub struct Player {
     pub name: String,
@@ -81,6 +82,11 @@ impl Player {
     }
 }
 
+/// プレイヤーの操作対象となっているアクターを表します
+/// Playerは最大1体ですが、分身によってPlayerControlledは複数存在することがあります
+#[derive(Component, Debug, Clone)]
+pub struct PlayerControlled;
+
 /// 現在プレイヤーが操作対象としている召喚キャラクターです
 /// これを付与したアクターは、そのエンティティ本来の操作と、プレイヤーの操作が、衝突しないように注意します
 #[derive(Component, Debug, Clone)]
@@ -92,30 +98,24 @@ pub struct PlayerDown;
 /// プレイヤーの移動
 /// ここではまだ ExternalForce へはアクセスしません
 /// Actor側で ExternalForce にアクセスして、移動を行います
+/// メニューを開いた瞬間に立ち止まるため、FixedUpdateInGameSetにスケジュールされています
 fn move_player(
-    mut player_query: Query<&mut Actor, With<Player>>,
-    mut servant_query: Query<&mut Actor, (With<PlayerServant>, Without<Player>)>,
+    mut player_query: Query<&mut Actor, With<PlayerControlled>>,
     keys: Res<ButtonInput<KeyCode>>,
     menu: Res<State<GameMenuState>>,
 ) {
-    if let Ok(mut actor) = player_query.get_single_mut() {
+    let direction = get_direction(&keys);
+    let state = if direction != Vec2::ZERO {
+        ActorState::Run
+    } else {
+        ActorState::Idle
+    };
+
+    for mut actor in player_query.iter_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
-                let direction = get_direction(keys);
-                let state = if direction != Vec2::ZERO {
-                    ActorState::Run
-                } else {
-                    ActorState::Idle
-                };
-                if let Some(mut servant) = servant_query.iter_mut().next() {
-                    actor.move_direction = Vec2::ZERO;
-                    actor.state = ActorState::Idle;
-                    servant.move_direction = direction;
-                    servant.state = state;
-                } else {
-                    actor.move_direction = direction;
-                    actor.state = state;
-                }
+                actor.move_direction = direction;
+                actor.state = state;
             }
             GameMenuState::PlayerInActive => {
                 // 起き上がりアニメーションのときは ActorState::GettingUp になっているはず
@@ -154,20 +154,12 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 
 /// 魔法の発射
 pub fn actor_cast(
-    mut commands: Commands,
-    mut player_query: Query<&mut Actor, (With<Player>, Without<Camera2d>)>,
-    servant_query: Query<Entity, (With<PlayerServant>, Without<Player>)>,
+    mut player_query: Query<&mut Actor, (With<PlayerControlled>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
-    camera_query: Query<&GameCamera>,
     mut se: EventWriter<SEEvent>,
 ) {
-    let camera = camera_query.single();
-    if camera.target.is_some() {
-        return;
-    }
-
-    if let Ok(mut actor) = player_query.get_single_mut() {
+    for mut actor in player_query.iter_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
                 // プライマリ魔法の発射
@@ -184,25 +176,18 @@ pub fn actor_cast(
                     se.send(SEEvent::new(SE::Sen));
                 }
 
-                if let Some(servant) = servant_query.iter().next() {
-                    // 憑依の解除
-                    if buttons.just_pressed(MouseButton::Right) {
-                        commands.entity(servant).remove::<PlayerServant>();
-                    }
+                // セカンダリ魔法の発射
+                if buttons.pressed(MouseButton::Right) {
+                    actor.fire_state_secondary = ActorFireState::Fire;
                 } else {
-                    // セカンダリ魔法の発射
-                    if buttons.pressed(MouseButton::Right) {
-                        actor.fire_state_secondary = ActorFireState::Fire;
-                    } else {
-                        actor.fire_state_secondary = ActorFireState::Idle;
-                    }
+                    actor.fire_state_secondary = ActorFireState::Idle;
+                }
 
-                    // 杖が空の場合の失敗音
-                    if actor.wands[actor.wands.len() - 1].is_empty()
-                        && buttons.just_pressed(MouseButton::Right)
-                    {
-                        se.send(SEEvent::new(SE::Sen));
-                    }
+                // 杖が空の場合の失敗音
+                if actor.wands[actor.wands.len() - 1].is_empty()
+                    && buttons.just_pressed(MouseButton::Right)
+                {
+                    se.send(SEEvent::new(SE::Sen));
                 }
             }
             _ => {
@@ -253,7 +238,7 @@ pub fn release_holded_bullets(
 }
 
 fn switch_wand(
-    mut witch_query: Query<&mut Actor, (With<Player>, With<Witch>)>,
+    mut witch_query: Query<&mut Actor, (With<PlayerControlled>, With<Witch>)>,
     mut wheel: EventReader<MouseWheel>,
     mut writer: EventWriter<SEEvent>,
     state: Res<State<GameMenuState>>,
@@ -262,7 +247,7 @@ fn switch_wand(
         return;
     }
     for event in wheel.read() {
-        if let Ok(mut actor) = witch_query.get_single_mut() {
+        for mut actor in witch_query.iter_mut() {
             let next = (actor.current_wand as i32 - event.y.signum() as i32)
                 .max(0)
                 .min(MAX_WANDS as i32 - 2) as u8;
@@ -306,27 +291,22 @@ fn pick_gold(
 
 fn die_player(
     mut commands: Commands,
-    assets: Res<GameAssets>,
-    player_query: Query<(Entity, &Actor, &Transform, &Player, Option<&Metamorphosed>)>,
+    registry: Registry,
+    player_query: Query<(&Actor, &Transform, &Player, Option<&Metamorphosed>)>,
     mut writer: EventWriter<ClientMessage>,
-    mut game: EventWriter<SEEvent>,
     websocket: Res<WebSocketState>,
     mut interpreter: EventWriter<InterpreterEvent>,
     mut next: ResMut<LevelSetup>,
 ) {
-    if let Ok((entity, actor, transform, player, morph)) = player_query.get_single() {
+    if let Ok((actor, transform, player, morph)) = player_query.get_single() {
         if actor.life <= 0 {
-            commands.entity(entity).despawn_recursive();
-
-            game.send(SEEvent::pos(SE::Cry, transform.translation.truncate()));
-
             // 倒れるアニメーションを残す
             commands.spawn((
                 PlayerDown,
                 StateScoped(GameState::InGame),
                 CounterAnimated,
                 AseSpriteAnimation {
-                    aseprite: assets.witch.clone(),
+                    aseprite: registry.assets.witch.clone(),
                     animation: "get_down".into(),
                 },
                 Transform::from_translation(
@@ -402,16 +382,11 @@ fn getting_up(
 /// マウスポインタの位置を参照してプレイヤーアクターのポインターを設定します
 /// この関数はプレイヤーのモジュールに移動する？
 fn update_pointer_by_mouse(
-    mut player_query: Query<(&mut Actor, &GlobalTransform), With<Player>>,
+    mut player_query: Query<(&mut Actor, &GlobalTransform), With<PlayerControlled>>,
     q_window: Query<&Window, With<PrimaryWindow>>,
-    camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    state: Res<State<GameMenuState>>,
+    camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<PlayerControlled>)>,
 ) {
-    if *state.get() != GameMenuState::Closed {
-        return;
-    }
-
-    if let Ok((mut player, player_transform)) = player_query.get_single_mut() {
+    for (mut player, player_transform) in player_query.iter_mut() {
         if player.state != ActorState::GettingUp {
             if let Ok(window) = q_window.get_single() {
                 if let Some(cursor_in_screen) = window.cursor_position() {
@@ -442,7 +417,6 @@ impl Plugin for PlayerPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                update_pointer_by_mouse,
                 getting_up,
                 pick_gold,
                 die_player,
@@ -456,6 +430,7 @@ impl Plugin for PlayerPlugin {
         app.add_systems(
             FixedUpdate,
             (
+                update_pointer_by_mouse,
                 actor_cast,
                 switch_wand,
                 rotate_holded_bullets,

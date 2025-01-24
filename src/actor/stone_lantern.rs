@@ -91,13 +91,12 @@ pub fn spawn_stone_lantern(
 fn break_stone_lantern(
     mut commands: Commands,
     registry: Registry,
-    query: Query<(Entity, &Actor, &Transform), With<StoneLantern>>,
+    query: Query<(&Actor, &Transform), With<StoneLantern>>,
     mut writer: EventWriter<SEEvent>,
 ) {
-    for (entity, breakabke, transform) in query.iter() {
+    for (breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
-            commands.entity(entity).despawn_recursive();
 
             writer.send(SEEvent::pos(SE::Break, position));
 

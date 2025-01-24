@@ -14,7 +14,8 @@ ActorRegistry(
             linear_damping: 6.0,
             blood: Some(Red),
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "Rabbit": (
             radius: 5.0,
@@ -23,7 +24,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: Some(Red),
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "Chicken": (
             radius: 5.0,
@@ -32,7 +34,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: Some(Red),
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "EyeBall": (
             radius: 5.0,
@@ -41,7 +44,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: Some(Red),
             defreeze: 1,
-            auto_levitation: true
+            auto_levitation: true,
+            cry: true
         ),
         "Sandbag": (
             radius: 5.0,
@@ -50,7 +54,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "Slime": (
             radius: 5.0,
@@ -59,7 +64,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: Some(Blue),
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "Salamander": (
             radius: 5.0,
@@ -68,7 +74,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: Some(Red),
             defreeze: 2,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "Shadow": (
             radius: 5.0,
@@ -77,7 +84,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "Spider": (
             radius: 5.0,
@@ -86,7 +94,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: true
         ),
         "HugeSlime": (
             radius: 5.0,
@@ -97,7 +106,8 @@ ActorRegistry(
             blood: None,
             // スライムの王は凍結無効
             defreeze: 10000,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: false
         ),
         "Lantern": (
             radius: 5.0,
@@ -106,7 +116,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: false
         ),
         "Chest": (
             radius: 5.0,
@@ -115,7 +126,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: false
         ),
         "BookShelf": (
             radius: 5.0,
@@ -124,7 +136,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: false
         ),
         "Rock": (
             radius: 5.0,
@@ -133,7 +146,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: false
         ),
         "Bomb": (
             radius: 5.0,
@@ -142,7 +156,8 @@ ActorRegistry(
             linear_damping: 10.0,
             blood: None,
             defreeze: 1,
-            auto_levitation: false
+            auto_levitation: false,
+            cry: false
         ),
     }
 )

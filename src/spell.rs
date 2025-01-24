@@ -65,6 +65,8 @@ pub enum SpellType {
     // ランク 6
     Dispel,
     Freeze,
+    Clone,
+
     // Quick 時間加速魔法
     // Stop, // 時間停止魔法
     // ランク7

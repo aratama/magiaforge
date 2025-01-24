@@ -2,11 +2,14 @@ use crate::actor::jump_actor;
 use crate::actor::rock::spawn_falling_rock;
 use crate::actor::witch::WITCH_COLLIDER_RADIUS;
 use crate::actor::Actor;
+use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
+use crate::actor::ActorState;
 use crate::actor::ActorType;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::component::metamorphosis::cast_metamorphosis;
+use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::component::vertical::Vertical;
@@ -25,6 +28,7 @@ use crate::entity::web::spawn_web;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnEntityEvent;
+use crate::page::in_game::LevelSetup;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -120,6 +124,7 @@ pub enum SpellCast {
         damage: u32,
     },
     Dispel,
+    Clone,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -130,6 +135,7 @@ pub fn cast_spell(
     // resources
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
+    level: &Res<LevelSetup>,
     // events
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
@@ -145,6 +151,7 @@ pub fn cast_spell(
     mut collision_groups: &mut CollisionGroups,
     actor_metamorphosis: &Option<&Metamorphosed>,
     player: Option<&Player>,
+    player_controlled: bool,
     // misc
     online: bool,
     wand_index: u8,
@@ -487,6 +494,42 @@ pub fn cast_spell(
                 SpellCast::Dispel => {
                     actor.effects.dispel = (actor.effects.dispel + 1).min(4);
                     se.send(SEEvent::pos(SE::Heal, actor_position));
+                }
+                SpellCast::Clone => {
+                    // 分身も分身を詠唱できると指数関数的に増えてしまって強力すぎるので、
+                    // プレイヤー本人が操作しているキャラクターのみ分身を詠唱できるものとします
+                    if player.is_some() {
+                        if let Some(ref chunk) = level.chunk {
+                            let position = actor_position + actor.pointer;
+                            if chunk.get_tile_by_coords(position).is_floor() {
+                                let mut cloned = actor.clone();
+                                cloned.uuid = Uuid::new_v4();
+                                cloned.wait = 30; // これがないと一瞬で無限クローンしてしまうので注意
+                                cloned.fire_state = ActorFireState::Idle;
+                                cloned.fire_state_secondary = ActorFireState::Idle;
+                                cloned.move_direction = Vec2::ZERO;
+                                cloned.state = ActorState::Idle;
+                                cloned.cloned = Some(60 * 10);
+                                cloned.life = 1;
+                                cloned.max_life = 1;
+                                cloned.golds = 0;
+                                spawn.send(SpawnEntityEvent {
+                                    position,
+                                    entity: SpawnEntity::Respawn {
+                                        actor: cloned,
+                                        player_controlled,
+                                    },
+                                });
+                                spawn.send(SpawnEntityEvent {
+                                    position,
+                                    entity: SpawnEntity::Particle {
+                                        particle: metamorphosis_effect(),
+                                    },
+                                });
+                                se.send(SEEvent::pos(SE::Heal, actor_position));
+                            }
+                        }
+                    }
                 }
             }
         } else {

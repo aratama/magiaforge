@@ -384,7 +384,7 @@ fn spawn_bullet_effect(
     spawn.send(SpawnEntityEvent {
         position: bullet_position,
         entity: SpawnEntity::Particle {
-            spawn: SpawnParticle::default(),
+            particle: SpawnParticle::default(),
         },
     });
 

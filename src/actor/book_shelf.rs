@@ -86,13 +86,12 @@ pub fn spawn_book_shelf(
 fn break_book_shelf(
     mut commands: Commands,
     registry: Registry,
-    query: Query<(Entity, &Actor, &Transform, &Burnable), With<Bookshelf>>,
+    query: Query<(&Actor, &Transform, &Burnable), With<Bookshelf>>,
     mut writer: EventWriter<SEEvent>,
 ) {
-    for (entity, breakabke, transform, burnable) in query.iter() {
+    for (breakabke, transform, burnable) in query.iter() {
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
-            commands.entity(entity).despawn_recursive();
 
             writer.send(SEEvent::pos(SE::Break, position));
             for i in 0..6 {

@@ -138,16 +138,10 @@ pub fn spawn_fallen_rock(
         .id()
 }
 
-fn despawn(
-    mut commands: Commands,
-    query: Query<(Entity, &Actor, &Transform), With<FallenRock>>,
-    mut writer: EventWriter<SEEvent>,
-) {
-    for (entity, breakabke, transform) in query.iter() {
+fn despawn(query: Query<(&Actor, &Transform), With<FallenRock>>, mut writer: EventWriter<SEEvent>) {
+    for (breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
-            commands.entity(entity).despawn_recursive();
-
             writer.send(SEEvent::pos(SE::Break, position));
         }
     }

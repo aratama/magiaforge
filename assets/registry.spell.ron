@@ -298,7 +298,7 @@ SpellRegistry(
             zone: SafeZone,
             entity: Some(Actor (
                 actor_type: Lantern,
-                actor_group: Neutral,
+                actor_group: Entity,
             )),
             entry_point: false,
         ),
@@ -1723,6 +1723,38 @@ SpellRegistry(
             price: 2000,
             cast: Dispel,
         ),
+        "Clone": (
+            rank: 6,
+            name: Dict (
+                ja: "分身",
+                en: "Clone",
+                zh_cn: "克隆",
+                zh_tw: "克隆",
+                es: "Clonar",
+                fr: "Cloner",
+                pt: "Clonar",
+                de: "Klonen",
+                ko: "클론",
+                ru: "Клон"
+            ),
+            description: Dict (
+                ja: "対象の分身を創り出します。分身は一定時間で消滅します。",
+                en: "Creates a clone of the target. The clone will disappear after a certain period of time.",
+                zh_cn: "创建目标的克隆。克隆将在一段时间后消失。",
+                zh_tw: "創建目標的克隆。克隆將在一段時間後消失。",
+                es: "Crea un clon del objetivo. El clon desaparecerá después de un cierto período de tiempo.",
+                fr: "Crée un clone de la cible. Le clone disparaîtra après un certain temps.",
+                pt: "Cria um clone do alvo. O clone desaparecerá após um certo período de tempo.",
+                de: "Erstellt einen Klon des Ziels. Der Klon wird nach einer bestimmten Zeit verschwinden.",
+                ko: "대상의 클론을 생성합니다. 클론은 일정 시간이 지나면 사라집니다.",
+                ru: "Создает клон цели. Клон исчезнет через определенное время."
+
+            ),
+            cast_delay: 120,
+            icon: "clone_icon",
+            price: 1000,
+            cast: Clone,
+        ),
         "SummonHugeSlime": (
             rank: 8,
             name: Dict (
@@ -1870,13 +1902,14 @@ SpellRegistry(
         Metamorphosis,
         Slash,
         Dispel,
+        Clone
     ],
 
     debug_wands: [
         [
-            Some(DualCast),
-            Some(Slash),
-            Some(MagicBolt),
+            Some(Clone),
+            None,
+            None,
             None,
             None,
             None,

@@ -1,4 +1,3 @@
-pub mod despawn_with_gold;
 pub mod message_rabbit;
 pub mod player;
 pub mod remote;

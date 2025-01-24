@@ -8,7 +8,6 @@ use crate::constant::*;
 use crate::entity::bullet::HomingTarget;
 use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::entities::SpawnWitchType;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -35,7 +34,6 @@ pub struct Witch;
 pub fn default_witch() -> Actor {
     Actor {
         extra: ActorExtra::Witch {
-            witch_type: SpawnWitchType::Dummy,
             getting_up: false,
             name: "default".to_string(),
             discovered_spells: HashSet::new(),

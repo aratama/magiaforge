@@ -9,7 +9,6 @@ use crate::component::counter::CounterAnimated;
 use crate::component::flip::Flip;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::controller::despawn_with_gold::DespawnWithGold;
 use crate::entity::bullet::HomingTarget;
 use crate::finder::Finder;
 use crate::hud::life_bar::spawn_life_bar;
@@ -55,6 +54,7 @@ pub fn default_shadow() -> Actor {
         actor_group: ActorGroup::Enemy,
         life: 40,
         max_life: 40,
+        golds: 10,
         ..default()
     }
 }
@@ -67,12 +67,10 @@ pub fn spawn_shadow(
     actor: Actor,
 ) -> Entity {
     let radius = 8.0;
-    let golds = 10;
     let actor_group = actor.actor_group;
     let mut builder = commands.spawn((
         Name::new("shadow"),
         StateScoped(GameState::InGame),
-        DespawnWithGold { golds },
         actor,
         HomingTarget,
         Transform::from_translation(position.extend(SHADOW_LAYER_Z)),

@@ -21,7 +21,6 @@ use crate::component::point_light::EntityPointLightPlugin;
 use crate::component::vertical::VerticalPlugin;
 use crate::config::GameConfigPlugin;
 use crate::constant::*;
-use crate::controller::despawn_with_gold::DespawnWithGoldPlugin;
 use crate::controller::message_rabbit::MessageRabbitPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
@@ -40,7 +39,6 @@ use crate::enemy::shadow::ShadowPlugin;
 use crate::enemy::slime::SlimeControlPlugin;
 use crate::enemy::spider::SpiderPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
-use crate::entity::blood::BloodPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
 use crate::entity::damege::DamagePlugin;
@@ -210,7 +208,6 @@ pub fn run_game() {
         .add_plugins(AnimatedSlicePlugin)
         .add_plugins(BasicEnemyPlugin)
         .add_plugins(BGMSwitchPlugin)
-        .add_plugins(BloodPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BombPlugin)
         .add_plugins(BossHitpointBarPlugin)
@@ -222,7 +219,6 @@ pub fn run_game() {
         .add_plugins(CommandButtonPlugin)
         .add_plugins(CounterPlugin)
         .add_plugins(DamagePlugin)
-        .add_plugins(DespawnWithGoldPlugin)
         .add_plugins(EndingPlugin)
         .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityDepthPlugin)

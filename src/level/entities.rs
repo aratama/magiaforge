@@ -24,8 +24,7 @@ use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::constant::*;
-use crate::controller::player::Player;
-use crate::controller::training_dummy::TraningDummyController;
+use crate::controller::player::PlayerControlled;
 use crate::enemy::eyeball::spawn_eyeball;
 use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::huge_slime::spawn_huge_slime;
@@ -84,6 +83,7 @@ pub enum SpawnEntity {
     /// 変化からの復帰や分裂のときなどに使います
     Respawn {
         actor: Actor,
+        player_controlled: bool,
     },
 
     Rabbit(RabbitType),
@@ -95,7 +95,7 @@ pub enum SpawnEntity {
 
     // アクター以外のエンティティ
     Particle {
-        spawn: SpawnParticle,
+        particle: SpawnParticle,
     },
     Slash {
         velocity: Vec2,
@@ -152,7 +152,7 @@ pub fn spawn_entity(
     mut commands: Commands,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
-    mut setup: ResMut<LevelSetup>,
+    mut level: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
     mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnEntityEvent>,
@@ -164,10 +164,10 @@ pub fn spawn_entity(
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Actor>)>,
 ) {
     for SpawnEntityEvent { position, entity } in reader.read() {
-        if setup.shop_items.is_empty() {
-            setup.shop_items = new_shop_item_queue(
+        if level.shop_items.is_empty() {
+            level.shop_items = new_shop_item_queue(
                 &registry,
-                setup
+                level
                     .next_state
                     .clone()
                     .unwrap_or_default()
@@ -243,7 +243,7 @@ pub fn spawn_entity(
                 ));
             }
             SpawnEntity::ShopSpell => {
-                if let Some(item) = setup.shop_items.pop() {
+                if let Some(item) = level.shop_items.pop() {
                     spawn_dropped_item(&mut commands, &registry, *position, item);
                 }
             }
@@ -269,6 +269,7 @@ pub fn spawn_entity(
                     &life_bar_resource,
                     *position,
                     &default_random_chest(),
+                    false,
                 );
             }
             SpawnEntity::SpellInChest { spell } => {
@@ -279,7 +280,8 @@ pub fn spawn_entity(
                     &registry,
                     &life_bar_resource,
                     *position,
-                    &chest_actor(ChestType::Chest, chest_item),
+                    &chest_actor(ChestType::Chest, chest_item, 0),
+                    false,
                 );
             }
             SpawnEntity::Actor {
@@ -350,7 +352,7 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Particle { spawn } => {
+            SpawnEntity::Particle { particle: spawn } => {
                 spawn_particle_system(&mut commands, *position, &resource, &spawn);
             }
 
@@ -376,13 +378,19 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Respawn { actor } => spawn_actor_internal(
-                &mut commands,
-                &registry,
-                &life_bar_resource,
-                *position,
+            SpawnEntity::Respawn {
                 actor,
-            ),
+                player_controlled,
+            } => {
+                spawn_actor_internal(
+                    &mut commands,
+                    &registry,
+                    &life_bar_resource,
+                    *position,
+                    actor,
+                    *player_controlled,
+                );
+            }
         }
     }
 }
@@ -488,6 +496,7 @@ fn spawn_actor_internal(
     life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
     actor: &Actor,
+    player_controlled: bool,
 ) {
     let entity = spawn_actor(
         &mut commands,
@@ -496,30 +505,9 @@ fn spawn_actor_internal(
         position,
         actor.clone(),
     );
-    if let ActorExtra::Witch {
-        witch_type,
-        getting_up,
-        name,
-        discovered_spells,
-        ..
-    } = actor.extra.clone()
-    {
-        match witch_type {
-            SpawnWitchType::Player => {
-                commands.entity(entity).insert(Player::new(
-                    name.clone(),
-                    getting_up,
-                    &discovered_spells,
-                ));
-            }
-            SpawnWitchType::Dummy => {
-                commands.entity(entity).insert(TraningDummyController {
-                    home: position,
-                    fire: false,
-                });
-            }
-        };
-    };
+    if player_controlled {
+        commands.entity(entity).insert(PlayerControlled);
+    }
 }
 
 pub fn add_default_behavior(

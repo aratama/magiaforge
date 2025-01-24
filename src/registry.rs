@@ -1,6 +1,6 @@
 use crate::actor::ActorType;
+use crate::actor::Blood;
 use crate::asset::GameAssets;
-use crate::entity::blood::Blood;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
 use crate::level::map::LevelTile;
@@ -59,6 +59,7 @@ pub struct ActorPropsByType {
     /// 一部のアクターでコリジョンの半径として使われます
     /// 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
     pub radius: f32,
+    pub cry: bool,
 }
 
 #[derive(Debug)]
@@ -120,7 +121,8 @@ impl<'w> Registry<'w> {
 
     pub fn get_spell_props(&self, spell_type: SpellType) -> &SpellProps {
         let constants = self.spell.get(&self.assets.spell_registry).unwrap();
-        &constants.spells.get(&format!("{:?}", spell_type)).unwrap()
+        let key = format!("{:?}", spell_type);
+        &constants.spells.get(&key).expect(key.as_str())
     }
 
     pub fn get_level_props(&self, level: GameLevel) -> &LevelProps {

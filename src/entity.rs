@@ -1,5 +1,4 @@
 pub mod bgm;
-pub mod blood;
 pub mod broken_magic_circle;
 pub mod bullet;
 pub mod bullet_particle;
