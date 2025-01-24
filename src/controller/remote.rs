@@ -9,8 +9,8 @@ use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
 use crate::entity::servant_seed::ServantType;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::page::in_game::setup_level;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
@@ -202,7 +202,7 @@ fn receive_events(
     frame_count: Res<FrameCount>,
     life_bar_res: Res<LifeBarResource>,
     mut writer: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -313,9 +313,9 @@ fn receive_events(
                             actor_group,
                             servant_type,
                         } => {
-                            spawn.send(SpawnEntityEvent {
+                            spawn.send(SpawnEvent {
                                 position: from,
-                                entity: SpawnEntity::Seed {
+                                entity: Spawn::Seed {
                                     to,
                                     actor_group,
                                     owner: None,

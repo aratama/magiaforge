@@ -49,8 +49,8 @@ use crate::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::add_default_behavior;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
@@ -696,7 +696,7 @@ fn fire_bullet(
     mut remote_writer: EventWriter<ClientMessage>,
     mut se_writer: EventWriter<SEEvent>,
     mut impact_writer: EventWriter<SpawnImpact>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
 
     mut actor_query: Query<
         (
@@ -1226,7 +1226,7 @@ fn damage(
     mut commands: Commands,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
     mut query: Query<(
         &mut Actor,
         &Transform,
@@ -1313,7 +1313,7 @@ fn despawn(
     mut commands: Commands,
     registry: Registry,
     mut se: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
     query: Query<(Entity, &Actor, &Transform, Option<&Player>)>,
 ) {
     for (entity, actor, transform, player) in query.iter() {
@@ -1323,9 +1323,9 @@ fn despawn(
             // 分身の時間切れによる消滅
             commands.entity(entity).despawn_recursive();
             se.send(SEEvent::pos(SE::Shuriken, position));
-            spawn.send(SpawnEntityEvent {
+            spawn.send(SpawnEvent {
                 position,
-                entity: SpawnEntity::Particle {
+                entity: Spawn::Particle {
                     particle: metamorphosis_effect(),
                 },
             });
@@ -1353,6 +1353,7 @@ fn despawn(
             if let Some(ref blood) = props.blood {
                 let position = transform.translation.truncate();
                 commands.spawn((
+                    Name::new("blood"),
                     StateScoped(GameState::InGame),
                     AseSpriteSlice {
                         aseprite: registry.assets.atlas.clone(),

@@ -8,8 +8,8 @@ use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::level::collision::WallCollider;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::physics::identify_single;
@@ -295,7 +295,7 @@ fn bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut actor_event: EventWriter<ActorEvent>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
     mut se: EventWriter<SEEvent>,
     mut actor_query: Query<&mut Actor, Without<RemotePlayer>>,
     bullet_query: Query<(&Bullet, &Transform, &Velocity)>,
@@ -376,31 +376,31 @@ fn bullet_collision(
 }
 
 fn spawn_bullet_effect(
-    spawn: &mut EventWriter<SpawnEntityEvent>,
+    spawn: &mut EventWriter<SpawnEvent>,
     bullet: &Bullet,
     bullet_position: Vec2,
     bullet_velocity: &Velocity,
 ) {
-    spawn.send(SpawnEntityEvent {
+    spawn.send(SpawnEvent {
         position: bullet_position,
-        entity: SpawnEntity::Particle {
+        entity: Spawn::Particle {
             particle: SpawnParticle::default(),
         },
     });
 
     if bullet.web {
-        spawn.send(SpawnEntityEvent {
+        spawn.send(SpawnEvent {
             position: bullet_position,
-            entity: SpawnEntity::Web {
+            entity: Spawn::Web {
                 actor_group: bullet.actor_group,
             },
         });
     }
 
     if let Some(damage) = bullet.slash {
-        spawn.send(SpawnEntityEvent {
+        spawn.send(SpawnEvent {
             position: bullet_position,
-            entity: SpawnEntity::Slash {
+            entity: Spawn::Slash {
                 velocity: Vec2::ZERO,
                 actor_group: bullet.actor_group,
                 angle: bullet_velocity.linvel.to_angle(),

@@ -12,6 +12,7 @@ use bevy::asset::Assets;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::Res;
 use std::collections::HashMap;
+use strum::IntoEnumIterator;
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct SpellRegistry {
@@ -131,5 +132,10 @@ impl<'w> Registry<'w> {
             GameLevel::Level(l) => constants.levels.get(l as usize).unwrap(),
             GameLevel::MultiPlayArena => &constants.arena,
         }
+    }
+
+    pub fn spells(&self) -> Vec<SpellType> {
+        // todo
+        SpellType::iter().collect()
     }
 }

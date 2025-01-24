@@ -13,7 +13,6 @@ use crate::ui::popup::PopUp;
 use crate::ui::popup::PopupContent;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use strum::IntoEnumIterator;
 
 const TILE_SIZE: f32 = 32.0;
 
@@ -39,7 +38,10 @@ struct SpellListItem {
 struct DicoveredSpellCount;
 
 fn setup(mut commands: Commands, registry: Registry) {
-    let mut spells: Vec<Option<SpellType>> = SpellType::iter().map(|s| Some(s)).collect();
+    let spells = registry.spells();
+    let spell_iter = spells.iter().cloned();
+    let count = spell_iter.clone().count();
+    let mut spells: Vec<Option<SpellType>> = spell_iter.map(|s| Some(s)).collect();
     spells.sort_by(|a, b| match (a, b) {
         (Some(a), Some(b)) => {
             let a_props = registry.get_spell_props(*a);
@@ -50,7 +52,7 @@ fn setup(mut commands: Commands, registry: Registry) {
         (None, Some(_)) => std::cmp::Ordering::Greater,
         (None, None) => std::cmp::Ordering::Equal,
     });
-    spells.extend(vec![None; ROWS * COLUMNS - SpellType::iter().count()]);
+    spells.extend(vec![None; ROWS * COLUMNS - count]);
 
     commands
         .spawn((
@@ -178,6 +180,7 @@ fn update_icons(
 }
 
 fn update_discovered_items_count(
+    registry: Registry,
     mut query: Query<&mut Text, With<DicoveredSpellCount>>,
     player_query: Query<&Player>,
 ) {
@@ -186,7 +189,7 @@ fn update_discovered_items_count(
             text.0 = format!(
                 "{} / {}",
                 player.discovered_spells.len(),
-                SpellType::iter().count()
+                registry.spells().iter().count()
             );
         }
     }

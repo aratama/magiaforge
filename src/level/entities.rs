@@ -72,7 +72,7 @@ use serde::Deserialize;
 /// レベル生成時にタイルマップから生成されるエンティティです
 /// シリアライズ可能です
 #[derive(Clone, Debug, Deserialize)]
-pub enum SpawnEntity {
+pub enum Spawn {
     /// 種別を指定してアクターを生成します
     Actor {
         actor_type: ActorType,
@@ -135,9 +135,9 @@ pub enum SpawnEntity {
 }
 
 #[derive(Event, Clone, Debug)]
-pub struct SpawnEntityEvent {
+pub struct SpawnEvent {
     pub position: Vec2,
-    pub entity: SpawnEntity,
+    pub entity: Spawn,
 }
 
 #[derive(Clone, Debug, Reflect, Deserialize)]
@@ -155,7 +155,7 @@ pub fn spawn_entity(
     mut level: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
     mut se: EventWriter<SEEvent>,
-    mut reader: EventReader<SpawnEntityEvent>,
+    mut reader: EventReader<SpawnEvent>,
     mut client_message_writer: EventWriter<ClientMessage>,
     mut actor_event: EventWriter<ActorEvent>,
     websocket: Res<WebSocketState>,
@@ -163,7 +163,7 @@ pub fn spawn_entity(
     life_query: Query<&Transform, With<Actor>>,
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Actor>)>,
 ) {
-    for SpawnEntityEvent { position, entity } in reader.read() {
+    for SpawnEvent { position, entity } in reader.read() {
         if level.shop_items.is_empty() {
             level.shop_items = new_shop_item_queue(
                 &registry,
@@ -179,7 +179,7 @@ pub fn spawn_entity(
         }
 
         match entity {
-            SpawnEntity::MagicCircle => {
+            Spawn::MagicCircle => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -187,7 +187,7 @@ pub fn spawn_entity(
                     MagicCircleDestination::NextLevel,
                 );
             }
-            SpawnEntity::MagicCircleHome => {
+            Spawn::MagicCircleHome => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -195,7 +195,7 @@ pub fn spawn_entity(
                     MagicCircleDestination::Home,
                 );
             }
-            SpawnEntity::MultiPlayArenaMagicCircle => {
+            Spawn::MultiPlayArenaMagicCircle => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -203,7 +203,7 @@ pub fn spawn_entity(
                     MagicCircleDestination::MultiplayArena,
                 );
             }
-            SpawnEntity::MagicCircleDemoEnding => {
+            Spawn::MagicCircleDemoEnding => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
@@ -211,10 +211,10 @@ pub fn spawn_entity(
                     MagicCircleDestination::Ending,
                 );
             }
-            SpawnEntity::BrokenMagicCircle => {
+            Spawn::BrokenMagicCircle => {
                 spawn_broken_magic_circle(&mut commands, registry.assets.atlas.clone(), *position);
             }
-            SpawnEntity::Usage => {
+            Spawn::Usage => {
                 commands.spawn((
                     Name::new("usage"),
                     Transform::from_translation(position.extend(PAINT_LAYER_Z)),
@@ -228,7 +228,7 @@ pub fn spawn_entity(
                     },
                 ));
             }
-            SpawnEntity::Routes => {
+            Spawn::Routes => {
                 commands.spawn((
                     Name::new("routes"),
                     Transform::from_translation(position.extend(PAINT_LAYER_Z)),
@@ -242,12 +242,12 @@ pub fn spawn_entity(
                     },
                 ));
             }
-            SpawnEntity::ShopSpell => {
+            Spawn::ShopSpell => {
                 if let Some(item) = level.shop_items.pop() {
                     spawn_dropped_item(&mut commands, &registry, *position, item);
                 }
             }
-            SpawnEntity::Rabbit(rabbit_type) => {
+            Spawn::Rabbit(rabbit_type) => {
                 spawn_rabbit(
                     &mut commands,
                     &registry,
@@ -256,13 +256,13 @@ pub fn spawn_entity(
                     *rabbit_type,
                 );
             }
-            SpawnEntity::ShopDoor => {
+            Spawn::ShopDoor => {
                 spawn_shop_door(&mut commands, &registry, *position);
             }
-            SpawnEntity::BGM => {
+            Spawn::BGM => {
                 spawn_bgm_switch(&mut commands, &registry, *position);
             }
-            SpawnEntity::RandomChest => {
+            Spawn::RandomChest => {
                 spawn_actor_internal(
                     &mut commands,
                     &registry,
@@ -272,7 +272,7 @@ pub fn spawn_entity(
                     false,
                 );
             }
-            SpawnEntity::SpellInChest { spell } => {
+            Spawn::SpellInChest { spell } => {
                 let chest_item: ChestItem =
                     ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(*spell)));
                 spawn_actor_internal(
@@ -284,7 +284,7 @@ pub fn spawn_entity(
                     false,
                 );
             }
-            SpawnEntity::Actor {
+            Spawn::Actor {
                 actor_type,
                 actor_group,
             } => {
@@ -299,7 +299,7 @@ pub fn spawn_entity(
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
-            SpawnEntity::Boss { actor_type, name } => {
+            Spawn::Boss { actor_type, name } => {
                 let mut actor = get_default_actor(*actor_type);
                 actor.actor_group = ActorGroup::Enemy;
                 let entity = spawn_actor(
@@ -311,7 +311,7 @@ pub fn spawn_entity(
                 );
                 commands.entity(entity).insert(Boss { name: name.clone() });
             }
-            &SpawnEntity::Seed {
+            &Spawn::Seed {
                 to,
                 actor_group,
                 owner,
@@ -333,14 +333,14 @@ pub fn spawn_entity(
                     servant,
                 );
             }
-            SpawnEntity::Fireball {
+            Spawn::Fireball {
                 velocity,
                 actor_group,
             } => {
                 spawn_fireball(&mut commands, &registry, *position, *velocity, *actor_group);
             }
 
-            SpawnEntity::Web {
+            Spawn::Web {
                 actor_group: owner_actor_group,
             } => {
                 spawn_web(
@@ -352,11 +352,11 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Particle { particle: spawn } => {
+            Spawn::Particle { particle: spawn } => {
                 spawn_particle_system(&mut commands, *position, &resource, &spawn);
             }
 
-            SpawnEntity::Slash {
+            Spawn::Slash {
                 actor_group,
                 velocity,
                 angle,
@@ -378,7 +378,7 @@ pub fn spawn_entity(
                 );
             }
 
-            SpawnEntity::Respawn {
+            Spawn::Respawn {
                 actor,
                 player_controlled,
             } => {

@@ -20,18 +20,16 @@ use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::language::Dict;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
 use crate::registry::SenarioRegistry;
 use crate::registry::SenarioType;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::SpellType;
 use crate::states::GameState;
 use crate::wand::Wand;
-use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -63,16 +61,11 @@ pub enum HugeSlimeState {
 pub struct HugeSlimeSprite;
 
 pub fn default_huge_slime() -> Actor {
-    let mut slots = [None; MAX_SPELLS_IN_WAND];
-    slots[0] = Some(WandSpell {
-        spell_type: SpellType::MagicBolt,
-        price: 0,
-    });
     Actor {
         extra: ActorExtra::HugeSlime,
         actor_group: ActorGroup::Enemy,
         wands: [
-            Wand::with_slots(slots),
+            Wand::default(),
             Wand::default(),
             Wand::default(),
             Wand::default(),
@@ -94,12 +87,6 @@ pub fn spawn_huge_slime(
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    let mut slots = [None; MAX_SPELLS_IN_WAND];
-    slots[0] = Some(WandSpell {
-        spell_type: SpellType::MagicBolt,
-        price: 0,
-    });
-
     let entity = commands
         .spawn((
             Name::new("huge slime"),
@@ -251,7 +238,7 @@ fn update_huge_slime_summon(
         Without<Player>,
     >,
     mut se_writer: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
 ) {
     for (huge_slime_entity, mut huge_slime, transform, mut counter, mut actor) in
         huge_slime_query.iter_mut()
@@ -269,9 +256,9 @@ fn update_huge_slime_summon(
                             let angle = a + t * i as f32 + t * 0.5 * rand::random::<f32>(); // 少しランダムにずらす
                             let offset = Vec2::from_angle(angle) * 30.0 * (1.0 + n as f32); // 100ピクセルの演習場にばらまく
                             let to = player.translation.truncate() + offset;
-                            spawn.send(SpawnEntityEvent {
+                            spawn.send(SpawnEvent {
                                 position: transform.translation.truncate(),
-                                entity: SpawnEntity::Seed {
+                                entity: Spawn::Seed {
                                     to,
                                     actor_group: ActorGroup::Enemy,
                                     owner: Some(huge_slime_entity),

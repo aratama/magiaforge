@@ -5,8 +5,8 @@ use crate::actor::ActorType;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::spawn_actor;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::SE;
@@ -56,7 +56,7 @@ pub fn cast_metamorphosis(
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     se: &mut EventWriter<SEEvent>,
-    spawn: &mut EventWriter<SpawnEntityEvent>,
+    spawn: &mut EventWriter<SpawnEvent>,
 
     original_actor_entity: &Entity,
     original_actor: Actor,
@@ -106,9 +106,9 @@ pub fn cast_metamorphosis(
         original_actor,
     });
     se.send(SEEvent::pos(SE::Kyushu2Short, position));
-    spawn.send(SpawnEntityEvent {
+    spawn.send(SpawnEvent {
         position,
-        entity: SpawnEntity::Particle {
+        entity: Spawn::Particle {
             particle: metamorphosis_effect(),
         },
     });
@@ -120,7 +120,7 @@ fn revert(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Metamorphosed, &Transform, &Actor)>,
     mut se: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
     time: Res<State<TimeState>>,
 ) {
     if *time == TimeState::Inactive {
@@ -145,16 +145,16 @@ fn revert(
             original_actor.life =
                 original_actor.life * (actor.life as f32 / actor.max_life as f32).ceil() as u32;
 
-            spawn.send(SpawnEntityEvent {
+            spawn.send(SpawnEvent {
                 position,
-                entity: SpawnEntity::Respawn {
+                entity: Spawn::Respawn {
                     actor: original_actor,
                     player_controlled: false,
                 },
             });
-            spawn.send(SpawnEntityEvent {
+            spawn.send(SpawnEvent {
                 position,
-                entity: SpawnEntity::Particle {
+                entity: Spawn::Particle {
                     particle: metamorphosis_effect(),
                 },
             });

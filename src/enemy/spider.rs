@@ -6,8 +6,8 @@ use crate::constant::TILE_SIZE;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::registry::*;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
@@ -71,7 +71,7 @@ fn transition(
     registry: Registry,
     mut query: Query<(Entity, Option<&mut Spider>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&registry, &lens.query());
@@ -101,9 +101,9 @@ fn transition(
                     }
                 }
                 State::Approarch(_) => {
-                    spawn.send(SpawnEntityEvent {
+                    spawn.send(SpawnEvent {
                         position: origin,
-                        entity: SpawnEntity::Web {
+                        entity: Spawn::Web {
                             actor_group: actor.actor_group,
                         },
                     });

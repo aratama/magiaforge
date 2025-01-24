@@ -1,6 +1,6 @@
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
-use crate::level::entities::SpawnEntity;
+use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::registry::Registry;
 use bevy::prelude::*;
@@ -19,7 +19,7 @@ pub enum Zone {
 pub struct LevelTile {
     pub tile: Option<Tile>,
     pub zone: Zone,
-    pub entity: Option<SpawnEntity>,
+    pub entity: Option<Spawn>,
     pub entry_point: bool,
 }
 

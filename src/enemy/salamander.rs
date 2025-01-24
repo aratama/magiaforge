@@ -5,8 +5,8 @@ use crate::constant::*;
 use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
 use crate::hud::life_bar::LifeBarResource;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
@@ -175,7 +175,7 @@ fn attack(
     registry: Registry,
     mut query: Query<(Entity, Option<&mut Salamander>, &mut Actor, &mut Transform)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
 ) {
     let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
     let finder = Finder::new(&registry, &lens.query());
@@ -196,9 +196,9 @@ fn attack(
                             let actor_position = transform.translation.truncate();
                             let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
                             let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                            spawn.send(SpawnEntityEvent {
+                            spawn.send(SpawnEvent {
                                 position,
-                                entity: SpawnEntity::Fireball {
+                                entity: Spawn::Fireball {
                                     velocity,
                                     actor_group: actor.actor_group,
                                 },

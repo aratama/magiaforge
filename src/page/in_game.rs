@@ -23,8 +23,8 @@ use crate::level::appearance::TileSprite;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
-use crate::level::entities::SpawnEntity;
-use crate::level::entities::SpawnEntityEvent;
+use crate::level::entities::Spawn;
+use crate::level::entities::SpawnEvent;
 use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
@@ -43,7 +43,6 @@ use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use strum::IntoEnumIterator;
 use vleue_navigator::prelude::NavMeshSettings;
 use vleue_navigator::prelude::NavMeshUpdateMode;
 use vleue_navigator::Triangulation;
@@ -95,11 +94,13 @@ pub fn new_shop_item_queue(
 ) -> Vec<InventoryItem> {
     let mut rng = rand::thread_rng();
 
-    let mut shop_items: Vec<InventoryItem> = SpellType::iter()
-        .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
+    let mut shop_items: Vec<InventoryItem> = registry
+        .spells()
+        .iter()
+        .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(**s).rank <= 1)
         .map(|s| InventoryItem {
-            item_type: InventoryItemType::Spell(s),
-            price: registry.get_spell_props(s).price,
+            item_type: InventoryItemType::Spell(*s),
+            price: registry.get_spell_props(*s).price,
         })
         .collect();
 
@@ -117,7 +118,7 @@ pub fn setup_level(
     life_bar: Res<LifeBarResource>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
+    mut spawn: EventWriter<SpawnEvent>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
     overlay.send(OverlayEvent::SetOpen(true));
@@ -208,7 +209,7 @@ pub fn setup_level(
         for x in chunk.min_x..chunk.max_x {
             let tile = chunk.get_level_tile(x, y);
             if let Some(ref entity) = tile.entity {
-                spawn.send(SpawnEntityEvent {
+                spawn.send(SpawnEvent {
                     position: index_to_position((x, y)),
                     entity: entity.clone(),
                 });
@@ -247,9 +248,9 @@ pub fn setup_level(
     if level == GameLevel::Level(0) {
         for _ in 0..5 {
             if let Some((x, y)) = empties.choose(&mut rng) {
-                spawn.send(SpawnEntityEvent {
+                spawn.send(SpawnEvent {
                     position: index_to_position((*x, *y)),
-                    entity: SpawnEntity::Actor {
+                    entity: Spawn::Actor {
                         actor_type: ActorType::Chicken,
                         actor_group: ActorGroup::Neutral,
                     },
@@ -259,7 +260,7 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    // spawn.send(SpawnEntity::DefaultActor {
+    // spawn.send(Spawn::Actor {
     //     actor_type: ActorType::Slime,
     //     actor_group: ActorGroup::Enemy,
     //     position: index_to_position((53, 68)),
@@ -349,7 +350,7 @@ fn spawn_random_enemies(
     safe_zone_center: (i32, i32),
     spaw_enemy_count: u8,
     enemy_types: &Vec<ActorType>,
-    spawn: &mut EventWriter<SpawnEntityEvent>,
+    spawn: &mut EventWriter<SpawnEvent>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
@@ -375,9 +376,9 @@ fn spawn_random_enemies(
 
         match enemy_types.choose(&mut rng) {
             Some(enemy_type) => {
-                spawn.send(SpawnEntityEvent {
+                spawn.send(SpawnEvent {
                     position,
-                    entity: SpawnEntity::Actor {
+                    entity: Spawn::Actor {
                         actor_type: *enemy_type,
                         actor_group: ActorGroup::Enemy,
                     },
@@ -423,9 +424,11 @@ fn spawn_dropped_items(
             TILE_SIZE * -y as f32 - TILE_HALF,
         );
 
-        if let Some(spell) = SpellType::iter()
+        if let Some(spell) = registry
+            .spells()
+            .iter()
             .filter(|i| {
-                let props = registry.get_spell_props(*i);
+                let props = registry.get_spell_props(**i);
                 ranks.contains(&props.rank)
             })
             .choose(&mut rng)
@@ -435,7 +438,7 @@ fn spawn_dropped_items(
                 &registry,
                 position,
                 InventoryItem {
-                    item_type: InventoryItemType::Spell(spell),
+                    item_type: InventoryItemType::Spell(*spell),
                     price: 0,
                 },
             );
@@ -515,7 +518,7 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEntityEvent>();
+        app.add_event::<SpawnEvent>();
         app.add_systems(FixedUpdate, spawn_entity.in_set(FixedUpdateGameActiveSet));
         app.add_systems(OnEnter(GameState::InGame), setup_level);
         app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
