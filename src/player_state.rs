@@ -1,6 +1,4 @@
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
-use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::MAX_WANDS;
 use crate::controller::player::Player;
 use crate::inventory::Inventory;
@@ -11,7 +9,6 @@ use bevy::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
-use std::panic;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerState {
@@ -106,30 +103,6 @@ impl PlayerState {
             golds: actor.golds,
             current_wand: actor.current_wand,
             discovered_spells: HashSet::new(),
-        };
-        instance.update_discovered_spell();
-        instance
-    }
-
-    pub fn from_morph(morph: &Metamorphosed, actor: &Actor) -> Self {
-        let ActorExtra::Witch {
-            name,
-            discovered_spells,
-            ..
-        } = &morph.original_actor.extra
-        else {
-            panic!("Not a witch");
-        };
-
-        let mut instance = PlayerState {
-            name: name.clone(),
-            life: actor.life,
-            max_life: actor.max_life,
-            inventory: actor.inventory.clone(),
-            wands: actor.wands.clone(),
-            golds: actor.golds,
-            current_wand: actor.current_wand,
-            discovered_spells: discovered_spells.clone(),
         };
         instance.update_discovered_spell();
         instance

@@ -1,8 +1,8 @@
-use super::LifeBeingSprite;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
+use crate::actor::LifeBeingSprite;
 use crate::collision::ENTITY_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::component::falling::Falling;

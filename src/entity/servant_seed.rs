@@ -210,7 +210,7 @@ fn spawn_servant(
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
                 } else {
-                    commands.entity(entity).insert(EyeballControl::default());
+                    commands.entity(entity).insert(EyeballControl);
                 }
             }
             ServantType::Chiken => {

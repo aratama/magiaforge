@@ -3,22 +3,21 @@ use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::LifeBeingSprite;
+use crate::actor::ActorSpriteGroup;
 use crate::collision::SHADOW_GROUPS;
-use crate::component::counter::CounterAnimated;
-use crate::component::flip::Flip;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::entity::bullet::HomingTarget;
+use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+use super::basic::basic_animate;
+use super::basic::BasicEnemySprite;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
@@ -45,9 +44,6 @@ impl Default for Shadow {
     }
 }
 
-#[derive(Component, Debug)]
-pub struct ChildSprite;
-
 pub fn default_shadow() -> Actor {
     Actor {
         extra: ActorExtra::Shadow,
@@ -60,56 +56,22 @@ pub fn default_shadow() -> Actor {
 }
 
 pub fn spawn_shadow(
-    commands: &mut Commands,
+    mut commands: &mut Commands,
     registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    let radius = 8.0;
-    let actor_group = actor.actor_group;
-    let mut builder = commands.spawn((
-        Name::new("shadow"),
-        StateScoped(GameState::InGame),
+    spawn_basic_enemy(
+        &mut commands,
+        &registry,
+        &life_bar_locals,
+        registry.assets.shadow.clone(),
+        position,
+        "shadow",
+        None,
         actor,
-        HomingTarget,
-        Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
-        GlobalTransform::default(),
-        Visibility::default(),
-        (
-            RigidBody::Dynamic,
-            Collider::ball(radius),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping::default(),
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(0.0, 0),
-        ),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: "chicken_shadow".into(),
-        },
-    ));
-
-    builder.with_children(|mut parent| {
-        parent.spawn((
-            ChildSprite,
-            Vertical::new(0.0, -0.1),
-            Flip,
-            LifeBeingSprite,
-            CounterAnimated,
-            AseSpriteAnimation {
-                aseprite: registry.assets.shadow.clone(),
-                animation: Animation::tag("idle"),
-            },
-        ));
-
-        spawn_life_bar(&mut parent, &life_bar_locals);
-    });
-
-    builder.id()
+    )
 }
 
 fn transition(
@@ -190,28 +152,31 @@ fn pointer(
     }
 }
 
-fn animate(
+pub fn animate(
     query: Query<&Shadow>,
-    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
+    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
-        if let Ok(shadow) = query.get(parent.get()) {
-            match shadow.state {
-                State::Wait(_) => {
-                    animation.animation.tag = Some("idle".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                State::Hide(_) => {
-                    animation.animation.tag = Some("hide".to_string());
-                    animation.animation.repeat = AnimationRepeat::Count(1);
-                }
-                State::Appear(_) => {
-                    animation.animation.tag = Some("appear".to_string());
-                    animation.animation.repeat = AnimationRepeat::Count(1);
-                }
-                State::Attack(_) => {
-                    animation.animation.tag = Some("attack".to_string());
-                    animation.animation.repeat = AnimationRepeat::Count(1);
+        if let Ok(group) = group_query.get(parent.get()) {
+            if let Ok(shadow) = query.get(group.get()) {
+                match shadow.state {
+                    State::Wait(_) => {
+                        animation.animation.tag = Some("idle".to_string());
+                        animation.animation.repeat = AnimationRepeat::Loop;
+                    }
+                    State::Hide(_) => {
+                        animation.animation.tag = Some("hide".to_string());
+                        animation.animation.repeat = AnimationRepeat::Count(1);
+                    }
+                    State::Appear(_) => {
+                        animation.animation.tag = Some("appear".to_string());
+                        animation.animation.repeat = AnimationRepeat::Count(1);
+                    }
+                    State::Attack(_) => {
+                        animation.animation.tag = Some("attack".to_string());
+                        animation.animation.repeat = AnimationRepeat::Count(1);
+                    }
                 }
             }
         }
@@ -323,7 +288,7 @@ impl Plugin for ShadowPlugin {
             FixedUpdate,
             (
                 transition,
-                animate,
+                animate.after(basic_animate),
                 approach,
                 attack,
                 pointer,

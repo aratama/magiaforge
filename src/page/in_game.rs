@@ -34,7 +34,6 @@ use crate::registry::Registry;
 use crate::set::FixedUpdateAfterAll;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
-use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::asset::*;
@@ -44,7 +43,6 @@ use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use std::collections::HashSet;
 use strum::IntoEnumIterator;
 use vleue_navigator::prelude::NavMeshSettings;
 use vleue_navigator::prelude::NavMeshUpdateMode;
@@ -120,7 +118,6 @@ pub fn setup_level(
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEntityEvent>,
-    mut next: ResMut<NextState<GameMenuState>>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
     overlay.send(OverlayEvent::SetOpen(true));
@@ -132,9 +129,6 @@ pub fn setup_level(
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
     let getting_up_animation = level == GameLevel::Level(0) && cfg!(not(feature = "ingame"));
-    if getting_up_animation {
-        next.set(GameMenuState::PlayerInActive);
-    }
 
     let biome_tile = registry.get_level_props(level).biome;
 
@@ -287,7 +281,8 @@ pub fn setup_level(
         &life_bar,
         false,
         Actor {
-            life: player_state.life,
+            // 新しいレベルに入るたびに全回復している
+            life: player_state.max_life,
             max_life: player_state.max_life,
             amplitude: 0.0,
             fire_damage_wait: 0,
@@ -296,17 +291,14 @@ pub fn setup_level(
             inventory: player_state.inventory,
             current_wand: player_state.current_wand,
             golds: player_state.golds,
-            extra: ActorExtra::Witch {
-                getting_up: getting_up_animation,
-                name: player_state.name,
-                discovered_spells: player_state.discovered_spells,
-            },
+            extra: ActorExtra::Witch,
             ..default()
         },
+        getting_up_animation,
     );
     commands.entity(entity).insert((
         PlayerControlled,
-        Player::new(config.player_name.clone(), false, &HashSet::new()),
+        Player::new(config.player_name.clone(), &player_state.discovered_spells),
     ));
 
     current.chunk = Some(chunk);

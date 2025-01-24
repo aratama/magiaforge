@@ -143,7 +143,6 @@ pub enum ActorState {
     #[default]
     Idle,
     Run,
-    GettingUp,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect, Deserialize)]
@@ -279,11 +278,7 @@ impl Actor {
 /// Actorで種族固有の部分を格納します
 #[derive(Clone, Debug, Reflect, Deserialize)]
 pub enum ActorExtra {
-    Witch {
-        getting_up: bool,
-        name: String,
-        discovered_spells: HashSet<SpellType>,
-    },
+    Witch,
     Slime,
     HugeSlime,
     Eyeball,
@@ -1272,27 +1267,11 @@ fn damage(
     }
 }
 
-fn despawn_cloned(
-    mut commands: Commands,
-    mut query: Query<(Entity, &mut Actor, &Transform)>,
-    mut spawn: EventWriter<SpawnEntityEvent>,
-    mut se: EventWriter<SEEvent>,
-) {
-    for (entity, mut actor, transform) in query.iter_mut() {
+fn decrement_cloned(mut query: Query<&mut Actor>) {
+    for mut actor in query.iter_mut() {
         if let Some(ref mut cloned) = &mut actor.cloned {
             if 0 < *cloned {
                 *cloned = *cloned - 1;
-            }
-            if *cloned <= 0 {
-                commands.entity(entity).despawn_recursive();
-                let position = transform.translation.truncate();
-                se.send(SEEvent::pos(SE::Shuriken, position));
-                spawn.send(SpawnEntityEvent {
-                    position,
-                    entity: SpawnEntity::Particle {
-                        particle: metamorphosis_effect(),
-                    },
-                });
             }
         }
     }
@@ -1303,9 +1282,9 @@ fn despawn(
     registry: Registry,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEntityEvent>,
-    query: Query<(Entity, &Actor, &Transform)>,
+    query: Query<(Entity, &Actor, &Transform, Option<&Player>)>,
 ) {
-    for (entity, actor, transform) in query.iter() {
+    for (entity, actor, transform, player) in query.iter() {
         if actor.life <= 0 {
             commands.entity(entity).despawn_recursive();
             let position = transform.translation.truncate();
@@ -1319,11 +1298,16 @@ fn despawn(
                 }
 
                 // ゴールドをばらまく
-                for _ in 0..actor.golds {
-                    spawn_gold(&mut commands, &registry, position);
+                // ただしプレイヤーキャラクターのみ、極端に大量にゴールドを持っているため
+                // ゴールドばらまきは行わない
+                if player.is_none() {
+                    for _ in 0..actor.golds {
+                        spawn_gold(&mut commands, &registry, position);
+                    }
                 }
 
                 // 血痕
+                // todo 溺れた場合など原因によっては血痕を残さないほうがいいかも
                 if let Some(ref blood) = props.blood {
                     let position = transform.translation.truncate();
                     commands.spawn((
@@ -1340,6 +1324,7 @@ fn despawn(
                     ));
                 }
             } else {
+                se.send(SEEvent::pos(SE::Shuriken, position));
                 spawn.send(SpawnEntityEvent {
                     position,
                     entity: SpawnEntity::Particle {
@@ -1381,7 +1366,7 @@ impl Plugin for ActorPlugin {
                 damage,
                 vibrate_breakabke_sprite,
                 fire_damage,
-                despawn_cloned,
+                decrement_cloned,
                 despawn,
             )
                 .in_set(FixedUpdateGameActiveSet),

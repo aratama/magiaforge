@@ -261,6 +261,7 @@ fn receive_events(
                                     &life_bar_res,
                                     true,
                                     actor,
+                                    false,
                                 );
                                 commands.entity(entity).insert(RemotePlayer {
                                     name,

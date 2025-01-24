@@ -1,6 +1,5 @@
 use crate::actor::jump_actor;
 use crate::actor::rock::spawn_falling_rock;
-use crate::actor::witch::WITCH_COLLIDER_RADIUS;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
@@ -184,6 +183,8 @@ pub fn cast_spell(
             wand_delay = wand_delay.max(delay as u32);
             multicast -= 1;
 
+            let actor_props = registry.get_actor_props(actor.to_type());
+
             match props.cast {
                 SpellCast::None => {}
                 SpellCast::Bullet(ref cast) => {
@@ -192,7 +193,7 @@ pub fn cast_spell(
                     let updated_scattering = (cast.scattering - actor.effects.precision).max(0.0);
                     let angle_with_random = angle + (random::<f32>() - 0.5) * updated_scattering;
                     let direction = Vec2::from_angle(angle_with_random);
-                    let range = WITCH_COLLIDER_RADIUS + BULLET_SPAWNING_MARGIN;
+                    let range = actor_props.radius + BULLET_SPAWNING_MARGIN;
                     let bullet_position = actor_position + range * normalized;
 
                     let slash = actor.effects.slash.pop();
@@ -560,7 +561,6 @@ pub fn cast_spell(
             );
             commands.entity(entity).insert(Player::new(
                 player.map(|p| p.name.clone()).unwrap_or_default(),
-                false,
                 &player
                     .map(|p| p.discovered_spells.clone())
                     .unwrap_or_default(),

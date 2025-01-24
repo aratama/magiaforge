@@ -1,5 +1,6 @@
 use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
+use crate::actor::ActorState;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::vertical::Vertical;
@@ -21,6 +22,8 @@ pub struct BasicEnemy;
 #[derive(Component, Debug)]
 pub struct BasicEnemySprite;
 
+/// 敵モンスターの共通の構造です
+/// スプライトには idle, run, staggered, frozen のアニメーションが必要です
 pub fn spawn_basic_enemy(
     commands: &mut Commands,
     registry: &Registry,
@@ -86,7 +89,9 @@ pub fn spawn_basic_enemy(
     builder.id()
 }
 
-fn animate(
+/// frozen, staggerd, run, idle のみからなる基本的なアニメーションを実装します
+/// これ以外の表現が必要な場合は各アクターで個別に実装して上書きします
+pub fn basic_animate(
     query: Query<&Actor, With<BasicEnemy>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
@@ -100,6 +105,8 @@ fn animate(
                         "frozen"
                     } else if 0 < actor.staggered {
                         "staggered"
+                    } else if actor.state == ActorState::Run {
+                        "run"
                     } else {
                         "idle"
                     }
@@ -131,7 +138,7 @@ impl Plugin for BasicEnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (animate, flip).in_set(FixedUpdateGameActiveSet),
+            (basic_animate, flip).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

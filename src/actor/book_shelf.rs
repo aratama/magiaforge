@@ -1,10 +1,11 @@
-use super::LifeBeingSprite;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
+use crate::actor::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::falling::Falling;
+use crate::constant::TILE_HALF;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::registry::Registry;
@@ -17,9 +18,9 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 use vleue_navigator::prelude::PrimitiveObstacle;
 
-const ENTITY_WIDTH: f32 = 16.0;
+const ENTITY_HALF_WIDTH: f32 = TILE_HALF * 2.0;
 
-const ENTITY_HEIGHT: f32 = 8.0;
+const ENTITY_HALF_HEIGHT: f32 = TILE_HALF;
 
 #[derive(Default, Component, Reflect)]
 pub struct Bookshelf;
@@ -62,12 +63,15 @@ pub fn spawn_book_shelf(
                 angular_damping: 0.0,
             },
             LockedAxes::ROTATION_LOCKED,
-            Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+            Collider::cuboid(ENTITY_HALF_WIDTH, ENTITY_HALF_HEIGHT),
             ColliderMassProperties::Density(10.0),
             *ENTITY_GROUPS,
             ExternalImpulse::default(),
         ),
-        PrimitiveObstacle::Rectangle(Rectangle::new(ENTITY_WIDTH * 2.0, ENTITY_HEIGHT * 2.0)),
+        PrimitiveObstacle::Rectangle(Rectangle::new(
+            ENTITY_HALF_WIDTH * 2.0,
+            ENTITY_HALF_HEIGHT * 2.0,
+        )),
     ));
 
     parent.with_children(move |parent| {

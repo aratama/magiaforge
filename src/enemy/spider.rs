@@ -2,23 +2,15 @@ use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::LifeBeingSprite;
-use crate::component::counter::CounterAnimated;
-use crate::component::flip::Flip;
-use crate::component::vertical::Vertical;
-use crate::constant::SHADOW_LAYER_Z;
 use crate::constant::TILE_SIZE;
-use crate::entity::bullet::HomingTarget;
+use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnEntityEvent;
 use crate::registry::*;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
@@ -45,9 +37,6 @@ impl Default for Spider {
     }
 }
 
-#[derive(Component, Debug)]
-pub struct ChildSprite;
-
 pub fn default_spider() -> Actor {
     Actor {
         extra: ActorExtra::Spider,
@@ -60,56 +49,22 @@ pub fn default_spider() -> Actor {
 }
 
 pub fn spawn_spider(
-    commands: &mut Commands,
+    mut commands: &mut Commands,
     registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    let radius = 8.0;
-    let actor_group = actor.actor_group;
-    let mut builder = commands.spawn((
-        Name::new("spider"),
-        StateScoped(GameState::InGame),
+    spawn_basic_enemy(
+        &mut commands,
+        &registry,
+        &life_bar_locals,
+        registry.assets.spider.clone(),
+        position,
+        "spider",
+        None,
         actor,
-        HomingTarget,
-        Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
-        GlobalTransform::default(),
-        Visibility::default(),
-        (
-            RigidBody::Dynamic,
-            Collider::ball(radius),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping::default(),
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(0.0, 0),
-        ),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: "chicken_shadow".into(),
-        },
-    ));
-
-    builder.with_children(|mut parent| {
-        parent.spawn((
-            ChildSprite,
-            Vertical::new(0.0, -0.1),
-            Flip,
-            LifeBeingSprite,
-            CounterAnimated,
-            AseSpriteAnimation {
-                aseprite: registry.assets.spider.clone(),
-                animation: Animation::tag("idle"),
-            },
-        ));
-
-        spawn_life_bar(&mut parent, &life_bar_locals);
-    });
-
-    builder.id()
+    )
 }
 
 fn transition(
@@ -179,31 +134,6 @@ fn pointer(
             if let Some(nearest) = nearest {
                 let diff = nearest.position - origin;
                 actor.pointer = diff.normalize_or_zero();
-            }
-        }
-    }
-}
-
-fn animate(
-    query: Query<&Spider>,
-    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
-) {
-    for (parent, mut animation) in sprite_query.iter_mut() {
-        if let Ok(spider) = query.get(parent.get()) {
-            match spider.state {
-                State::Wait(_) if animation.animation.tag != Some("idle".to_string()) => {
-                    animation.animation.tag = Some("idle".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                State::Approarch(_) if animation.animation.tag != Some("run".to_string()) => {
-                    animation.animation.tag = Some("run".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                State::Attack(_) if animation.animation.tag != Some("idle".to_string()) => {
-                    animation.animation.tag = Some("idle".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                _ => {}
             }
         }
     }
@@ -292,7 +222,7 @@ impl Plugin for SpiderPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (transition, animate, approach, attack, pointer)
+            (transition, approach, attack, pointer)
                 .chain()
                 .in_set(FixedUpdateGameActiveSet),
         );

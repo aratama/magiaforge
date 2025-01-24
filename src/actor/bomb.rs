@@ -1,6 +1,6 @@
-use super::Actor;
-use super::ActorExtra;
-use super::LifeBeingSprite;
+use crate::actor::Actor;
+use crate::actor::ActorExtra;
+use crate::actor::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;

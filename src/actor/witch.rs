@@ -1,3 +1,4 @@
+use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
@@ -17,10 +18,8 @@ use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-use core::f32;
-use std::collections::HashSet;
 
-pub const WITCH_COLLIDER_RADIUS: f32 = 5.0;
+pub const MAX_GETTING_UP: u32 = 240;
 
 #[derive(Default, Component, Reflect)]
 pub struct ActorAnimationSprite;
@@ -29,15 +28,13 @@ pub struct ActorAnimationSprite;
 pub struct WitchWandSprite;
 
 #[derive(Component)]
-pub struct Witch;
+pub struct Witch {
+    pub getting_up: u32,
+}
 
 pub fn default_witch() -> Actor {
     Actor {
-        extra: ActorExtra::Witch {
-            getting_up: false,
-            name: "default".to_string(),
-            discovered_spells: HashSet::new(),
-        },
+        extra: ActorExtra::Witch,
         life: 60,
         max_life: 60,
         ..default()
@@ -52,13 +49,17 @@ pub fn spawn_witch(
     res: &Res<LifeBarResource>,
     life_bar: bool,
     actor: Actor,
+    getting_up: bool,
 ) -> Entity {
     let actor_group = actor.actor_group;
+    let props = registry.get_actor_props(ActorType::Witch);
     let mut entity = commands.spawn((
         Name::new("witch"),
         StateScoped(GameState::InGame),
         actor,
-        Witch,
+        Witch {
+            getting_up: if getting_up { 0 } else { MAX_GETTING_UP },
+        },
         HomingTarget,
         // 足音
         // footsteps.rsで音量を調整
@@ -76,7 +77,7 @@ pub fn spawn_witch(
         (
             RigidBody::Dynamic,
             Velocity::default(),
-            Collider::ball(WITCH_COLLIDER_RADIUS),
+            Collider::ball(props.radius),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
             Damping::default(),
@@ -138,7 +139,7 @@ pub fn spawn_witch(
 }
 
 fn update_witch_animation(
-    witch_query: Query<&Actor, With<Witch>>,
+    mut witch_query: Query<(&Actor, &mut Witch)>,
     witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut witch_animation_query: Query<
         (&Parent, &mut Sprite, &mut AseSpriteAnimation),
@@ -149,7 +150,7 @@ fn update_witch_animation(
         // 魔女エンティティは３階層になっていることに注意
         // 魔女スプライトから Actor を辿るのには２回 get が必要です
         let sprite_group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
-        let actor = witch_query.get(sprite_group_parent.get()).unwrap();
+        let (actor, mut witch) = witch_query.get_mut(sprite_group_parent.get()).unwrap();
 
         if 0 < actor.drowning {
             if animation.animation.tag != Some("drown".to_string()) {
@@ -162,6 +163,15 @@ fn update_witch_animation(
             if animation.animation.tag != Some("staggered".to_string()) {
                 animation.animation.tag = Some("staggered".to_string());
             }
+            continue;
+        }
+
+        if witch.getting_up < MAX_GETTING_UP {
+            sprite.flip_x = false;
+            if animation.animation.tag != Some("get_up".to_string()) {
+                animation.animation.tag = Some("get_up".to_string());
+            }
+            witch.getting_up += 1;
             continue;
         }
 
@@ -214,18 +224,12 @@ fn update_witch_animation(
                     }
                 };
             }
-            ActorState::GettingUp => {
-                sprite.flip_x = false;
-                if animation.animation.tag != Some("get_up".to_string()) {
-                    animation.animation.tag = Some("get_up".to_string());
-                }
-            }
         };
     }
 }
 
 fn update_wand(
-    actor_query: Query<&Actor>,
+    actor_query: Query<(&Actor, &Witch)>,
     witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut query: Query<
         (&Parent, &mut Transform, &mut Visibility),
@@ -234,7 +238,7 @@ fn update_wand(
 ) {
     for (parent, mut transform, mut visibility) in query.iter_mut() {
         let group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
-        let actor = actor_query.get(group_parent.get()).unwrap();
+        let (actor, witch) = actor_query.get(group_parent.get()).unwrap();
         let direction = actor.pointer;
         let angle = direction.to_angle();
         let pi = std::f32::consts::PI;
@@ -250,9 +254,10 @@ fn update_wand(
         *visibility = if 0 < actor.drowning || 0 < actor.staggered {
             Visibility::Hidden
         } else {
-            match actor.state {
-                ActorState::GettingUp => Visibility::Hidden,
-                _ => Visibility::Visible,
+            if witch.getting_up < MAX_GETTING_UP {
+                Visibility::Hidden
+            } else {
+                Visibility::Visible
             }
         };
     }

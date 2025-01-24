@@ -79,7 +79,7 @@ ActorRegistry(
         ),
         "Shadow": (
             radius: 5.0,
-            move_force: 100000.0,
+            move_force: 50000.0,
             jump: 0.0,
             linear_damping: 10.0,
             blood: None,
@@ -88,7 +88,7 @@ ActorRegistry(
             cry: true
         ),
         "Spider": (
-            radius: 5.0,
+            radius: 8.0,
             move_force: 150000.0,
             jump: 0.0,
             linear_damping: 10.0,

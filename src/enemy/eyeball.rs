@@ -13,14 +13,8 @@ use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct EyeballControl;
-
-impl Default for EyeballControl {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
 
@@ -107,7 +101,7 @@ impl Plugin for EyeballControlPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            control_eyeball.in_set(FixedUpdateGameActiveSet),
+            (control_eyeball).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

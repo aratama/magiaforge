@@ -1,6 +1,7 @@
-use super::ActorGroup;
+use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
+use crate::actor::ActorGroup;
 use crate::collision::RABBIT_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
@@ -23,8 +24,6 @@ use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
-
-const RABBIT_RADIUS: f32 = 5.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, Serialize, Deserialize)]
 pub enum RabbitType {
@@ -55,6 +54,7 @@ pub fn spawn_rabbit(
     actor: Actor,
     rabbit_type: RabbitType,
 ) -> Entity {
+    let props = registry.get_actor_props(ActorType::Rabbit);
     let mut entity = commands.spawn((
         Name::new("rabbit"),
         StateScoped(GameState::InGame),
@@ -67,7 +67,7 @@ pub fn spawn_rabbit(
         (
             RigidBody::Dynamic,
             Velocity::default(),
-            Collider::ball(RABBIT_RADIUS),
+            Collider::ball(props.radius),
             GravityScale(0.0),
             LockedAxes::ROTATION_LOCKED,
             Damping::default(),

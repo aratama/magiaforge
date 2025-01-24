@@ -1,14 +1,9 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::LifeBeingSprite;
-use crate::component::counter::CounterAnimated;
-use crate::component::flip::Flip;
-use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::entity::bullet::HomingTarget;
+use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::SpawnEntity;
 use crate::level::entities::SpawnEntityEvent;
@@ -16,10 +11,8 @@ use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::SpellType;
-use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 6.0;
@@ -46,9 +39,6 @@ impl Default for Salamander {
     }
 }
 
-#[derive(Component, Debug)]
-pub struct ChildSprite;
-
 pub fn default_salamander() -> Actor {
     Actor {
         extra: ActorExtra::Salamander,
@@ -62,56 +52,22 @@ pub fn default_salamander() -> Actor {
 }
 
 pub fn spawn_salamander(
-    commands: &mut Commands,
+    mut commands: &mut Commands,
     registry: &Registry,
     life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    let radius = 8.0;
-    let actor_group = actor.actor_group;
-    let mut builder = commands.spawn((
-        Name::new("salamander"),
-        StateScoped(GameState::InGame),
+    spawn_basic_enemy(
+        &mut commands,
+        &registry,
+        &life_bar_locals,
+        registry.assets.salamander.clone(),
+        position,
+        "salamander",
+        None,
         actor,
-        HomingTarget,
-        Transform::from_translation(position.extend(SHADOW_LAYER_Z)),
-        GlobalTransform::default(),
-        Visibility::default(),
-        (
-            RigidBody::Dynamic,
-            Collider::ball(radius),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping::default(),
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            ActiveEvents::COLLISION_EVENTS,
-            actor_group.to_groups(0.0, 0),
-        ),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: "chicken_shadow".into(),
-        },
-    ));
-
-    builder.with_children(|mut parent| {
-        parent.spawn((
-            ChildSprite,
-            Vertical::new(0.0, -0.1),
-            Flip,
-            LifeBeingSprite,
-            CounterAnimated,
-            AseSpriteAnimation {
-                aseprite: registry.assets.salamander.clone(),
-                animation: Animation::tag("idle"),
-            },
-        ));
-
-        spawn_life_bar(&mut parent, &life_bar_locals);
-    });
-
-    builder.id()
+    )
 }
 
 fn transition(
@@ -174,31 +130,6 @@ fn pointer(
             if let Some(nearest) = nearest {
                 let diff = nearest.position - origin;
                 actor.pointer = diff; // 火球を当てるためにここでは正規化しない
-            }
-        }
-    }
-}
-
-fn animate(
-    query: Query<&Salamander>,
-    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<ChildSprite>>,
-) {
-    for (parent, mut animation) in sprite_query.iter_mut() {
-        if let Ok(shadow) = query.get(parent.get()) {
-            match shadow.state {
-                State::Wait(count) if count == 0 => {
-                    animation.animation.tag = Some("idle".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                State::Approarch(count) if count == 0 => {
-                    animation.animation.tag = Some("run".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                State::Attack(count) if count == 0 => {
-                    animation.animation.tag = Some("idle".to_string());
-                    animation.animation.repeat = AnimationRepeat::Loop;
-                }
-                _ => {}
             }
         }
     }
@@ -287,7 +218,7 @@ impl Plugin for SalamanderPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (transition, animate, approach, attack, pointer)
+            (transition, approach, attack, pointer)
                 .chain()
                 .in_set(FixedUpdateGameActiveSet),
         );

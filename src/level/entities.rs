@@ -403,7 +403,7 @@ pub fn spawn_actor(
     actor: Actor,
 ) -> Entity {
     match actor.extra.clone() {
-        ActorExtra::Witch { .. } => spawn_witch(
+        ActorExtra::Witch => spawn_witch(
             &mut commands,
             registry,
             position,
@@ -411,6 +411,7 @@ pub fn spawn_actor(
             &life_bar_resource,
             false,
             actor,
+            false,
         ),
         ActorExtra::Slime => spawn_slime(
             &mut commands,

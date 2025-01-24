@@ -61,10 +61,6 @@ pub enum GameMenuState {
     PauseMenuClosing,
 
     WandEditOpen,
-
-    /// プレイヤーキャラクターが起き上がるアニメーション中
-    /// 本来はメニューのステートではないが、切り替えに便利なのでここに置いている
-    PlayerInActive,
 }
 
 #[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]

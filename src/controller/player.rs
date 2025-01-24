@@ -1,4 +1,5 @@
 use crate::actor::witch::Witch;
+use crate::actor::witch::MAX_GETTING_UP;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
@@ -51,14 +52,11 @@ pub struct Player {
     pub last_idle_vy: f32,
     pub last_idle_life: u32,
     pub last_idle_max_life: u32,
-
-    /// 起き上がりアニメーションのフレーム数
-    pub getting_up: u32,
     pub discovered_spells: HashSet<SpellType>,
 }
 
 impl Player {
-    pub fn new(name: String, getting_up: bool, discovered_spells: &HashSet<SpellType>) -> Self {
+    pub fn new(name: String, discovered_spells: &HashSet<SpellType>) -> Self {
         Self {
             name,
             last_idle_frame_count: FrameCount(0),
@@ -68,7 +66,6 @@ impl Player {
             last_idle_vy: 0.0,
             last_idle_life: 0,
             last_idle_max_life: 0,
-            getting_up: if getting_up { 240 } else { 0 },
             discovered_spells: discovered_spells.clone(),
         }
     }
@@ -100,10 +97,19 @@ pub struct PlayerDown;
 /// Actor側で ExternalForce にアクセスして、移動を行います
 /// メニューを開いた瞬間に立ち止まるため、FixedUpdateInGameSetにスケジュールされています
 fn move_player(
-    mut player_query: Query<&mut Actor, With<PlayerControlled>>,
+    player_query: Query<&Witch, With<Player>>,
+    mut controlled_query: Query<&mut Actor, With<PlayerControlled>>,
     keys: Res<ButtonInput<KeyCode>>,
     menu: Res<State<GameMenuState>>,
 ) {
+    let Ok(witch) = player_query.get_single() else {
+        return;
+    };
+
+    if witch.getting_up < MAX_GETTING_UP {
+        return;
+    }
+
     let direction = get_direction(&keys);
     let state = if direction != Vec2::ZERO {
         ActorState::Run
@@ -111,16 +117,11 @@ fn move_player(
         ActorState::Idle
     };
 
-    for mut actor in player_query.iter_mut() {
+    for mut actor in controlled_query.iter_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
                 actor.move_direction = direction;
                 actor.state = state;
-            }
-            GameMenuState::PlayerInActive => {
-                // 起き上がりアニメーションのときは ActorState::GettingUp になっているはず
-                actor.move_direction = Vec2::ZERO;
-                actor.state = ActorState::GettingUp;
             }
             _ => {
                 actor.move_direction = Vec2::ZERO;
@@ -154,12 +155,21 @@ fn apply_intensity_by_lantern(mut player_query: Query<&mut Actor, With<Player>>)
 
 /// 魔法の発射
 pub fn actor_cast(
-    mut player_query: Query<&mut Actor, (With<PlayerControlled>, Without<Camera2d>)>,
+    player_query: Query<&Witch, With<Player>>,
+    mut controlled_query: Query<&mut Actor, (With<PlayerControlled>, Without<Camera2d>)>,
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
     mut se: EventWriter<SEEvent>,
 ) {
-    for mut actor in player_query.iter_mut() {
+    let Ok(witch) = player_query.get_single() else {
+        return;
+    };
+
+    if witch.getting_up < MAX_GETTING_UP {
+        return;
+    }
+
+    for mut actor in controlled_query.iter_mut() {
         match *menu.get() {
             GameMenuState::Closed => {
                 // プライマリ魔法の発射
@@ -340,17 +350,17 @@ pub fn recovery(
     interpreter: &mut EventWriter<InterpreterEvent>,
     morph: &Option<&Metamorphosed>,
     player: &Player,
-    actor: &Actor,
+    current_actor: &Actor,
 ) {
     // ダウン後はキャンプに戻る
     level.next_level = GameLevel::Level(0);
 
+    // 元に戻ったあとのActorを取得します
+    // current_actor は変身済みのものである可能性があることに注意します
+    let actor = morph.map(|m| &m.original_actor).unwrap_or(current_actor);
+
     // 次のシーンのためにプレイヤーの状態を保存
-    let mut player_state = if let Some(morph) = morph {
-        PlayerState::from_morph(morph, &actor)
-    } else {
-        PlayerState::from_player(&player, &actor)
-    };
+    let mut player_state = PlayerState::from_player(&player, &actor);
     // 全回復させてから戻る
     player_state.life = player_state.max_life;
     level.next_state = Some(player_state);
@@ -361,24 +371,6 @@ pub fn recovery(
     });
 }
 
-fn getting_up(
-    mut player_query: Query<(&mut Actor, &mut Player)>,
-    mut next: ResMut<NextState<GameMenuState>>,
-) {
-    for (mut actor, mut player) in player_query.iter_mut() {
-        if 0 < player.getting_up {
-            player.getting_up -= 1;
-            if player.getting_up == 0 {
-                actor.fire_state = ActorFireState::Idle;
-                actor.fire_state_secondary = ActorFireState::Idle;
-                next.set(GameMenuState::Closed);
-            } else {
-                actor.state = ActorState::GettingUp;
-            }
-        }
-    }
-}
-
 /// マウスポインタの位置を参照してプレイヤーアクターのポインターを設定します
 /// この関数はプレイヤーのモジュールに移動する？
 fn update_pointer_by_mouse(
@@ -387,16 +379,14 @@ fn update_pointer_by_mouse(
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<PlayerControlled>)>,
 ) {
     for (mut player, player_transform) in player_query.iter_mut() {
-        if player.state != ActorState::GettingUp {
-            if let Ok(window) = q_window.get_single() {
-                if let Some(cursor_in_screen) = window.cursor_position() {
-                    if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
-                        if let Ok(mouse_in_world) =
-                            camera.viewport_to_world(camera_global_transform, cursor_in_screen)
-                        {
-                            player.pointer = mouse_in_world.origin.truncate()
-                                - player_transform.translation().truncate();
-                        }
+        if let Ok(window) = q_window.get_single() {
+            if let Some(cursor_in_screen) = window.cursor_position() {
+                if let Ok((camera, camera_global_transform)) = camera_query.get_single() {
+                    if let Ok(mouse_in_world) =
+                        camera.viewport_to_world(camera_global_transform, cursor_in_screen)
+                    {
+                        player.pointer = mouse_in_world.origin.truncate()
+                            - player_transform.translation().truncate();
                     }
                 }
             }
@@ -417,7 +407,6 @@ impl Plugin for PlayerPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                getting_up,
                 pick_gold,
                 die_player,
                 apply_intensity_by_lantern,

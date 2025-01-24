@@ -125,8 +125,6 @@ use vleue_navigator::prelude::NavmeshUpdaterPlugin;
 use vleue_navigator::prelude::PrimitiveObstacle;
 use vleue_navigator::VleueNavigatorPlugin;
 
-// const AUDIO_SCALE: f32 = 1. / 1000.0;
-
 pub fn run_game() {
     let mut app = App::new();
 
