@@ -62,12 +62,7 @@ impl LevelChunk {
     }
 
     pub fn get_tile(&self, x: i32, y: i32) -> Tile {
-        if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
-            return Tile::Blank;
-        }
-        let w = self.max_x - self.min_x;
-        let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
-        return self.tiles[i].tile.unwrap_or(self.biome);
+        self.get_level_tile(x, y).tile.unwrap_or(self.biome)
     }
 
     pub fn get_tile_by_coords(&self, p: Vec2) -> Tile {

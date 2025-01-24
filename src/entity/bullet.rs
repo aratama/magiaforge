@@ -330,77 +330,28 @@ fn bullet_collision(
             continue;
         }
 
+        despawnings.insert(bullet_entity.clone());
+        commands.entity(bullet_entity).despawn_recursive();
+        spawn_bullet_effect(&mut spawn, &bullet, bullet_position, &bullet_velocity);
+
         if let Ok(mut actor) = actor_query.get_mut(other_entity) {
             // 弾丸がアクターに衝突したとき
             // このクエリにはプレイヤーキャラクター自身、発射したキャラクター自身も含まれることに注意
-            // 弾丸の詠唱者自身に命中した場合はダメージやノックバックはなし
             // リモートプレイヤーのダメージやノックバックはリモートで処理されるため、ここでは処理しない
-            if bullet.owner == None || Some(actor.uuid) != bullet.owner {
-                despawnings.insert(bullet_entity.clone());
-                commands.entity(bullet_entity).despawn_recursive();
 
-                spawn.send(SpawnEntityEvent {
-                    position: bullet_position,
-                    entity: SpawnEntity::Particle {
-                        spawn: SpawnParticle::default(),
-                    },
-                });
-
-                // TODO
-                // Life と Actor は分離されているので、Damagedイベントでは扱わない
-                // 一貫性がない？
-                if actor.frozen == 0 && 0 < bullet.freeze {
-                    se.send(SEEvent::pos(SE::Freeze, bullet_position));
-                }
-                actor.frozen += bullet.freeze;
-
-                if actor.levitation == 0 && 0 < bullet.levitation {
-                    se.send(SEEvent::pos(SE::Status2, bullet_position));
-                }
-                actor.levitation += bullet.levitation;
-
-                actor_event.send(ActorEvent::Damaged {
-                    actor: other_entity,
-                    damage: bullet_damage as u32,
-                    position: bullet_position,
-                    fire: false,
-                    impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
-                    stagger: bullet.stagger,
-                    metamorphose: bullet.metamorphose,
-                    dispel: bullet.dispel,
-                });
-
-                if bullet.web {
-                    spawn.send(SpawnEntityEvent {
-                        position: bullet_position,
-                        entity: SpawnEntity::Web {
-                            owner_actor_group: bullet.actor_group,
-                        },
-                    });
-                }
-
-                if let Some(damage) = bullet.slash {
-                    spawn.send(SpawnEntityEvent {
-                        position: bullet_position,
-                        entity: SpawnEntity::Slash {
-                            velocity: Vec2::ZERO,
-                            actor_group: bullet.actor_group,
-                            angle: bullet_velocity.linvel.to_angle(),
-                            damage,
-                        },
-                    });
-                }
+            // TODO
+            // Life と Actor は分離されているので、Damagedイベントでは扱わない
+            // 一貫性がない？
+            if actor.frozen == 0 && 0 < bullet.freeze {
+                se.send(SEEvent::pos(SE::Freeze, bullet_position));
             }
-        } else if life_query.contains(other_entity) {
-            despawnings.insert(bullet_entity.clone());
-            commands.entity(bullet_entity).despawn_recursive();
+            actor.frozen += bullet.freeze;
 
-            spawn.send(SpawnEntityEvent {
-                position: bullet_position,
-                entity: SpawnEntity::Particle {
-                    spawn: SpawnParticle::default(),
-                },
-            });
+            if actor.levitation == 0 && 0 < bullet.levitation {
+                se.send(SEEvent::pos(SE::Status2, bullet_position));
+            }
+            actor.levitation += bullet.levitation;
+
             actor_event.send(ActorEvent::Damaged {
                 actor: other_entity,
                 damage: bullet_damage as u32,
@@ -411,27 +362,20 @@ fn bullet_collision(
                 metamorphose: bullet.metamorphose,
                 dispel: bullet.dispel,
             });
-
-            if bullet.web {
-                spawn.send(SpawnEntityEvent {
-                    position: bullet_position,
-                    entity: SpawnEntity::Web {
-                        owner_actor_group: bullet.actor_group,
-                    },
-                });
-            }
+        } else if life_query.contains(other_entity) {
+            actor_event.send(ActorEvent::Damaged {
+                actor: other_entity,
+                damage: bullet_damage as u32,
+                position: bullet_position,
+                fire: false,
+                impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
+                stagger: bullet.stagger,
+                metamorphose: bullet.metamorphose,
+                dispel: bullet.dispel,
+            });
         } else {
             // リモートプレイヤーに命中した場合もここ
             // ヒット判定やダメージなどはリモート側で処理します
-            despawnings.insert(bullet_entity.clone());
-            commands.entity(bullet_entity).despawn_recursive();
-
-            spawn.send(SpawnEntityEvent {
-                position: bullet_position,
-                entity: SpawnEntity::Particle {
-                    spawn: SpawnParticle::default(),
-                },
-            });
             se.send(SEEvent::pos(
                 if wall_collider_query.contains(other_entity) {
                     SE::Steps
@@ -440,16 +384,42 @@ fn bullet_collision(
                 },
                 bullet_position,
             ));
-
-            if bullet.web {
-                spawn.send(SpawnEntityEvent {
-                    position: bullet_position,
-                    entity: SpawnEntity::Web {
-                        owner_actor_group: bullet.actor_group,
-                    },
-                });
-            }
         }
+    }
+}
+
+fn spawn_bullet_effect(
+    spawn: &mut EventWriter<SpawnEntityEvent>,
+    bullet: &Bullet,
+    bullet_position: Vec2,
+    bullet_velocity: &Velocity,
+) {
+    spawn.send(SpawnEntityEvent {
+        position: bullet_position,
+        entity: SpawnEntity::Particle {
+            spawn: SpawnParticle::default(),
+        },
+    });
+
+    if bullet.web {
+        spawn.send(SpawnEntityEvent {
+            position: bullet_position,
+            entity: SpawnEntity::Web {
+                owner_actor_group: bullet.actor_group,
+            },
+        });
+    }
+
+    if let Some(damage) = bullet.slash {
+        spawn.send(SpawnEntityEvent {
+            position: bullet_position,
+            entity: SpawnEntity::Slash {
+                velocity: Vec2::ZERO,
+                actor_group: bullet.actor_group,
+                angle: bullet_velocity.linvel.to_angle(),
+                damage,
+            },
+        });
     }
 }
 
