@@ -1,3 +1,4 @@
+use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::actor::Blood;
 use crate::asset::GameAssets;
@@ -80,10 +81,49 @@ pub struct ActorPropsByType {
     pub auto_levitation: bool,
     /// 一部のアクターでコリジョンの半径として使われます
     /// 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
-    pub radius: f32,
+    pub collider: ActorCollider,
     pub cry: bool,
+    pub life: u32,
+    pub actor_group: ActorGroup,
+    pub aseprite: String,
+    pub animations: ActorAnimationMap,
     pub wands: Vec<Vec<Option<Spell>>>,
     pub strategies: HashMap<String, Strategy>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub enum ActorCollider {
+    Ball(f32),
+    Cuboid(f32, f32),
+}
+
+impl ActorCollider {
+    pub fn size(&self) -> f32 {
+        match self {
+            ActorCollider::Ball(radius) => *radius,
+            ActorCollider::Cuboid(width, height) => width.max(*height),
+        }
+    }
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub struct ActorAnimationMap {
+    pub idle_r: String,
+    pub idle_d: String,
+    pub idle_u: String,
+    pub run_r: String,
+    pub run_d: String,
+    pub run_u: String,
+    pub get_down: String,
+    pub get_up: String,
+    pub frozen: String,
+    pub drown: String,
+    pub staggered: String,
+    // オープニング用
+    // pub fly: String,
+    // pub turn: String,
+    // pub hang: String,
+    // pub drown: String,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]

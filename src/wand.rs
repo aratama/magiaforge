@@ -65,17 +65,6 @@ impl Wand {
         wands
     }
 
-    pub fn single(spell: Option<Spell>) -> [Wand; MAX_WANDS] {
-        let mut slots = [None, None, None, None, None, None, None, None];
-        slots[0] = spell.map(|s| WandSpell::new(s));
-        [
-            Wand::with_slots(slots),
-            Wand::default(),
-            Wand::default(),
-            Wand::default(),
-        ]
-    }
-
     pub fn dept(&self) -> u32 {
         self.slots
             .iter()

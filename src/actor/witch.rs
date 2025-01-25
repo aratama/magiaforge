@@ -1,20 +1,10 @@
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
-use crate::actor::ActorState;
-use crate::actor::ActorType;
-use crate::component::counter::CounterAnimated;
 use crate::component::vertical::Vertical;
-use crate::constant::*;
-use crate::entity::bullet::HomingTarget;
-use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::CHAKUCHI;
 use crate::set::FixedUpdateGameActiveSet;
-use bevy::audio::Volume;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 pub const MAX_GETTING_UP: u32 = 240;
 
@@ -27,185 +17,6 @@ pub struct WitchWandSprite;
 #[derive(Component)]
 pub struct Witch {
     pub getting_up: u32,
-}
-
-pub fn default_witch() -> Actor {
-    Actor {
-        extra: ActorExtra::Witch,
-        life: 60,
-        max_life: 60,
-        ..default()
-    }
-}
-
-pub fn spawn_witch(
-    commands: &mut Commands,
-    registry: &Registry,
-    position: Vec2,
-    name_plate: Option<String>,
-    actor: Actor,
-    getting_up: bool,
-) -> Entity {
-    let actor_group = actor.actor_group;
-    let props = registry.get_actor_props(ActorType::Witch);
-    let mut entity = commands.spawn((
-        Name::new(format!("{:?}", actor.to_type())),
-        actor,
-        Witch {
-            getting_up: if getting_up { 0 } else { MAX_GETTING_UP },
-        },
-        HomingTarget,
-        // 足音
-        // footsteps.rsで音量を調整
-        AudioPlayer::new(registry.assets.taiikukan.clone()),
-        PlaybackSettings {
-            volume: Volume::new(0.0),
-            mode: bevy::audio::PlaybackMode::Loop,
-            ..default()
-        },
-        // XとYは親エンティティ側で設定しますが、
-        // キャラクター画像とシャドウでz座標の計算が異なるため、
-        // 親のzは常に0にします
-        Transform::from_translation(position.extend(0.0)),
-        Collider::ball(props.radius),
-        actor_group.to_groups(0.0, 0),
-    ));
-
-    entity.with_children(move |spawn_children| {
-        spawn_children.spawn((
-            Transform::from_translation(Vec2::new(0.0, -4.0).extend(SHADOW_LAYER_Z)),
-            AseSpriteSlice {
-                aseprite: registry.assets.atlas.clone(),
-                name: "entity_shadow".into(),
-            },
-        ));
-
-        spawn_children
-            .spawn(ActorSpriteGroup)
-            .with_child((
-                ActorAnimationSprite,
-                CounterAnimated,
-                AseSpriteAnimation {
-                    aseprite: registry.assets.witch.clone(),
-                    animation: "idle_r".into(),
-                },
-            ))
-            .with_child((
-                WitchWandSprite,
-                AseSpriteSlice {
-                    aseprite: registry.assets.atlas.clone(),
-                    name: "wand_cypress".into(),
-                },
-                Transform::from_xyz(0.0, 4.0, -0.0001),
-            ));
-
-        // リモートプレイヤーの名前
-        // 自分のプレイヤーキャラクターは名前を表示しません
-        if let Some(name) = name_plate {
-            spawn_children.spawn((
-                Transform::from_xyz(0.0, 20.0, 100.0),
-                Text2d::new(name),
-                TextColor(Color::hsla(120.0, 1.0, 0.5, 0.3)),
-                TextFont {
-                    font: registry.assets.noto_sans_jp.clone(),
-                    font_size: 10.0,
-                    ..default()
-                },
-            ));
-        }
-    });
-
-    return entity.id();
-}
-
-fn update_witch_animation(
-    mut witch_query: Query<(&Actor, &mut Witch)>,
-    witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    mut witch_animation_query: Query<
-        (&Parent, &mut Sprite, &mut AseSpriteAnimation),
-        With<ActorAnimationSprite>,
-    >,
-) {
-    for (parent, mut sprite, mut animation) in witch_animation_query.iter_mut() {
-        // 魔女エンティティは３階層になっていることに注意
-        // 魔女スプライトから Actor を辿るのには２回 get が必要です
-        let sprite_group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
-        let (actor, mut witch) = witch_query.get_mut(sprite_group_parent.get()).unwrap();
-
-        if 0 < actor.drowning {
-            if animation.animation.tag != Some("drown".to_string()) {
-                animation.animation.tag = Some("drown".to_string());
-            }
-            continue;
-        }
-
-        if 0 < actor.staggered {
-            if animation.animation.tag != Some("staggered".to_string()) {
-                animation.animation.tag = Some("staggered".to_string());
-            }
-            continue;
-        }
-
-        if witch.getting_up < MAX_GETTING_UP {
-            sprite.flip_x = false;
-            if animation.animation.tag != Some("get_up".to_string()) {
-                animation.animation.tag = Some("get_up".to_string());
-            }
-            witch.getting_up += 1;
-            continue;
-        }
-
-        let angle = actor.pointer.to_angle();
-        let pi = std::f32::consts::PI;
-        match actor.state {
-            ActorState::Idle => {
-                if angle < pi * -0.75 || pi * 0.75 < angle {
-                    sprite.flip_x = true;
-                    if animation.animation.tag != Some("idle_r".to_string()) {
-                        animation.animation.tag = Some("idle_r".to_string());
-                    }
-                } else if pi * 0.25 < angle && angle < pi * 0.75 {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("idle_u".to_string()) {
-                        animation.animation.tag = Some("idle_u".to_string());
-                    }
-                } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("idle_d".to_string()) {
-                        animation.animation.tag = Some("idle_d".to_string());
-                    }
-                } else {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("idle_r".to_string()) {
-                        animation.animation.tag = Some("idle_r".to_string());
-                    }
-                };
-            }
-            ActorState::Run => {
-                if angle < pi * -0.75 || pi * 0.75 < angle {
-                    sprite.flip_x = true;
-                    if animation.animation.tag != Some("run_r".to_string()) {
-                        animation.animation.tag = Some("run_r".to_string());
-                    }
-                } else if pi * 0.25 < angle && angle < pi * 0.75 {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("run_u".to_string()) {
-                        animation.animation.tag = Some("run_u".to_string());
-                    }
-                } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("run_d".to_string()) {
-                        animation.animation.tag = Some("run_d".to_string());
-                    }
-                } else {
-                    sprite.flip_x = false;
-                    if animation.animation.tag != Some("run_r".to_string()) {
-                        animation.animation.tag = Some("run_r".to_string());
-                    }
-                };
-            }
-        };
-    }
 }
 
 fn update_wand(
@@ -231,7 +42,7 @@ fn update_wand(
             0.0
         };
 
-        *visibility = if 0 < actor.drowning || 0 < actor.staggered {
+        *visibility = if 0 < actor.drown || 0 < actor.staggered {
             Visibility::Hidden
         } else {
             if witch.getting_up < MAX_GETTING_UP {
@@ -258,7 +69,7 @@ impl Plugin for WitchPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (update_witch_animation, update_wand, land_se).in_set(FixedUpdateGameActiveSet),
+            (update_wand, land_se).in_set(FixedUpdateGameActiveSet),
         );
     }
 }

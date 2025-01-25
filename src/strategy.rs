@@ -1,7 +1,6 @@
 use crate::{
     actor::{Actor, ActorFireState, ActorGroup},
     collision::SENSOR_GROUPS,
-    finder::{compare_distance, FindResult},
     registry::Registry,
     states::{GameState, TimeState},
 };
@@ -11,7 +10,7 @@ use bevy_rapier2d::{
     prelude::{Collider, QueryFilter},
 };
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 use vleue_navigator::{
     prelude::{ManagedNavMesh, NavMeshStatus},
     NavMesh,
@@ -76,11 +75,21 @@ pub enum Action {
     /// rangeは相手と自分の距離で、相手と自分の大きさを考慮するので、0のときは密着状態です
     Fire { count: u32, random: u32, range: f32 },
 
+    GoTo {
+        destination: Destination,
+        count: u32,
+    },
+
     /// ループを開始します
     Loop,
 
     /// ループを終了します
     End,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub enum Destination {
+    HomePosition,
 }
 
 #[derive(Default, Component, Debug, Deserialize, Clone, Reflect)]
@@ -99,6 +108,12 @@ pub struct Commander {
     pub destination: Vec2,
 }
 
+#[derive(Debug, Clone)]
+pub struct FindResult {
+    pub position: Vec2,
+    pub radius: f32,
+}
+
 fn update(
     registry: Registry,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
@@ -112,7 +127,14 @@ fn update(
         .iter()
         .map(|(e, a, t)| {
             let props = registry.get_actor_props(a.to_type());
-            (e, (a.actor_group, t.translation.truncate(), props.radius))
+            (
+                e,
+                (
+                    a.actor_group,
+                    t.translation.truncate(),
+                    props.collider.size(),
+                ),
+            )
         })
         .collect();
 
@@ -267,12 +289,12 @@ fn update(
                     entity,
                     self_actor_group,
                     origin,
-                    props.radius + *range + 48.0,
+                    props.collider.size() + *range + 48.0,
                 ) else {
                     continue;
                 };
 
-                let max_range = props.radius + nearest.radius + range;
+                let max_range = props.collider.size() + nearest.radius + range;
 
                 // 指定した距離から遠ければ中止
                 let diff = nearest.position - origin;
@@ -290,6 +312,28 @@ fn update(
                 actor.move_direction = Vec2::ZERO;
                 actor.fire_state = ActorFireState::Fire;
                 actor.fire_state_secondary = ActorFireState::Idle;
+
+                if *count < actor.commander.count {
+                    actor.commander.count = 0;
+                    actor.commander.next_action += 1;
+                }
+            }
+            Action::GoTo { destination, count } => {
+                actor.fire_state = ActorFireState::Idle;
+                actor.fire_state_secondary = ActorFireState::Idle;
+
+                let dest = match destination {
+                    Destination::HomePosition => actor.home_position,
+                };
+                let diff = dest - origin;
+                if diff.length() < 8.0 {
+                    actor.move_direction = Vec2::ZERO;
+                    actor.commander.count = 0;
+                    actor.commander.next_action += 1;
+                    continue;
+                }
+
+                actor.move_direction = diff.normalize_or_zero();
 
                 if *count < actor.commander.count {
                     actor.commander.count = 0;
@@ -338,7 +382,6 @@ fn find_target(
                 if let Some((e_g, e_t, e_r)) = map.get(&e) {
                     if *e_g != self_actor_group && *e_g != ActorGroup::Entity {
                         enemies.push(FindResult {
-                            entity: e,
                             position: *e_t,
                             radius: *e_r,
                         });
@@ -352,6 +395,14 @@ fn find_target(
     // 最も近くにいる、別グループのアクターに対して接近または攻撃
     enemies.sort_by(compare_distance(origin));
     enemies.first().cloned()
+}
+
+pub fn compare_distance(origin: Vec2) -> impl FnMut(&FindResult, &FindResult) -> Ordering {
+    move |a, b| {
+        let a_diff = a.position - origin;
+        let b_diff = b.position - origin;
+        a_diff.length().partial_cmp(&b_diff.length()).unwrap()
+    }
 }
 
 pub struct StrategyPlugin;

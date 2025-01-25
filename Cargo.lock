@@ -718,9 +718,7 @@ dependencies = [
 
 [[package]]
 name = "bevy_aseprite_ultra"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fe5ac2d20e051bd06e2f7e3cc06bfe9c8c84fc0c8eb79e68e65ffee21912e7f"
+version = "0.4.5"
 dependencies = [
  "aseprite-loader",
  "bevy",

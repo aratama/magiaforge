@@ -1,57 +1,13 @@
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
-use crate::actor::LifeBeingSprite;
-use crate::collision::*;
 use crate::component::counter::Counter;
-use crate::component::counter::CounterAnimated;
 use crate::entity::explosion::SpawnExplosion;
-use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 #[derive(Default, Component, Reflect)]
 struct Bomb;
-
-pub fn default_bomb() -> Actor {
-    Actor {
-        life: 10,
-        max_life: 10,
-        extra: ActorExtra::Bomb,
-        ..default()
-    }
-}
-
-pub fn spawn_bomb(
-    commands: &mut Commands,
-    registry: &Registry,
-    position: Vec2,
-    actor: Actor,
-) -> Entity {
-    commands
-        .spawn((
-            Name::new(format!("{:?}", actor.to_type())),
-            actor,
-            Bomb,
-            Counter::up(0),
-            Transform::from_translation(position.extend(0.0)),
-            Collider::ball(6.0),
-            *ENTITY_GROUPS,
-        ))
-        .with_children(move |parent| {
-            parent.spawn(ActorSpriteGroup).with_child((
-                LifeBeingSprite,
-                CounterAnimated,
-                AseSpriteAnimation {
-                    aseprite: registry.assets.bomb.clone(),
-                    animation: "default".into(),
-                },
-            ));
-        })
-        .id()
-}
 
 fn explode_bomb(
     mut commands: Commands,

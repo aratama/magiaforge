@@ -1,16 +1,12 @@
-use crate::actor::chicken::default_chiken;
-use crate::actor::chicken::spawn_chiken;
-use crate::actor::chicken::Chicken;
+use crate::actor::get_default_actor;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::constant::*;
-use crate::controller::player::PlayerServant;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
-use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::slime::default_slime;
-use crate::enemy::slime::spawn_slime;
+use crate::level::entities::spawn_actor;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -31,10 +27,10 @@ pub struct ServantSeed {
     from: Vec2,
     to: Vec2,
     speed: u32,
-    actor_group: ActorGroup,
-    master: Option<Entity>,
+    // actor_group: ActorGroup,
+    // master: Option<Entity>,
     servant_type: ServantType,
-    servant: bool,
+    // servant: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -90,10 +86,10 @@ pub fn spawn_servant_seed(
                     to.y + 16.0 * (rand::random::<f32>() - 0.5),
                 ),
                 speed: 60 + rand::random::<u32>() % 30,
-                actor_group: actor_group,
-                master: owner,
+                // actor_group: actor_group,
+                // master: owner,
                 servant_type: servant_type,
-                servant: servant,
+                // servant: servant,
             },
             AseSpriteSlice {
                 aseprite: registry.assets.atlas.clone(),
@@ -148,9 +144,9 @@ fn update_servant_seed(
                     spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type,
                         position: seed.to,
-                        actor_group: seed.actor_group,
-                        master: seed.master,
-                        servant: seed.servant,
+                        // actor_group: seed.actor_group,
+                        // master: seed.master,
+                        // servant: seed.servant,
                     });
                     se_writer.send(SEEvent::pos(BICHA, seed.to));
                 }
@@ -163,49 +159,32 @@ fn update_servant_seed(
 struct SpawnServantEvent {
     servant_type: ServantType,
     position: Vec2,
-    actor_group: ActorGroup,
-    master: Option<Entity>,
-    servant: bool,
+    // actor_group: ActorGroup,
+    // master: Option<Entity>,
+    // servant: bool,
 }
 
 fn spawn_servant(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     mut reader: EventReader<SpawnServantEvent>,
 ) {
     for event in reader.read() {
-        match event.servant_type {
-            ServantType::Slime => {
-                let mut actor = default_slime(&registry);
-                actor.actor_group = event.actor_group;
-                let entity = spawn_slime(
-                    &mut commands,
-                    &registry,
-                    actor,
-                    event.position,
-                    event.master,
-                );
-                if event.servant {
-                    commands.entity(entity).insert(PlayerServant);
-                }
-            }
-            ServantType::Eyeball => {
-                let actor = crate::enemy::eyeball::default_eyeball();
-                let entity = spawn_eyeball(&mut commands, &registry, event.position, actor);
-                if event.servant {
-                    commands.entity(entity).insert(PlayerServant);
-                }
-            }
-            ServantType::Chiken => {
-                let actor = default_chiken();
-                let entity = spawn_chiken(&mut commands, &registry, actor, event.position);
-                if event.servant {
-                    commands.entity(entity).insert(PlayerServant);
-                } else {
-                    commands.entity(entity).insert(Chicken::default());
-                }
-            }
-        }
+        spawn_actor(
+            &mut commands,
+            &asset_server,
+            &registry,
+            event.position,
+            get_default_actor(
+                &registry,
+                match event.servant_type {
+                    ServantType::Slime => ActorType::Slime,
+                    ServantType::Eyeball => ActorType::EyeBall,
+                    ServantType::Chiken => ActorType::Chicken,
+                },
+            ),
+        );
     }
 }
 

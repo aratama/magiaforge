@@ -1,5 +1,4 @@
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
 use crate::collision::*;
@@ -17,6 +16,8 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+use super::get_default_actor;
 
 #[derive(Default, Component, Reflect)]
 struct FallingRock;
@@ -75,20 +76,16 @@ fn fall(
                             radius: 16.0,
                             impulse: 30000.0,
                         });
-                        spawn_fallen_rock(&mut commands, &registry, position, default_rock());
+                        spawn_fallen_rock(
+                            &mut commands,
+                            &registry,
+                            position,
+                            get_default_actor(&registry, super::ActorType::Rock),
+                        );
                     }
                 }
             }
         }
-    }
-}
-
-pub fn default_rock() -> Actor {
-    Actor {
-        extra: ActorExtra::Rock,
-        life: 200,
-        max_life: 200,
-        ..default()
     }
 }
 

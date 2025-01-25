@@ -11,7 +11,7 @@ ActorRegistry(
     acceleration_on_firing: 0.5,
     actors: {
         "Witch": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 40000.0,
             jump: 0.0,
             linear_damping: 6.0,
@@ -19,6 +19,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 60,
+            actor_group: Friend,
+            aseprite: "entity/witch.aseprite",
+            animations: (
+                idle_r: "idle_r",
+                idle_d: "idle_d",
+                idle_u: "idle_u",
+                run_r: "run_r",
+                run_d: "run_d",
+                run_u: "run_u",
+                get_down: "get_down",
+                get_up: "get_up",
+                frozen: "staggered",
+                drown: "drown",
+                staggered: "staggered",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -28,7 +44,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Rabbit": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 40000.0,
             jump: 1.5,
             linear_damping: 10.0,
@@ -36,6 +52,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 100,
+            actor_group: Friend,
+            aseprite: "entity/rabbit_blue.aseprite",
+            animations: (
+                idle_r: "idle_d",
+                idle_d: "idle_d",
+                idle_u: "idle_d",
+                run_r: "idle_d",
+                run_d: "idle_d",
+                run_u: "idle_d",
+                get_down: "idle_d",
+                get_up: "idle_d",
+                frozen: "idle_d",
+                drown: "idle_d",
+                staggered: "idle_d",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -45,7 +77,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Chicken": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 60000.0,
             jump: 1.5,
             linear_damping: 10.0,
@@ -53,6 +85,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 2,
+            actor_group: Neutral,
+            aseprite: "entity/chicken.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "run",
+                run_d: "run",
+                run_u: "run",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -62,7 +110,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Sandbag": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -70,16 +118,39 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 10000,
+            actor_group: Neutral,
+            aseprite: "entity/sandbag.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "run",
+                run_d: "run",
+                run_u: "run",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "frozen",
+                drown: "idle",
+                staggered: "staggered",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
             ],
-            strategies: {}
+            strategies: {
+                "default": (
+                    min_life: 100000,
+                    actions: [
+                        GoTo (destination: HomePosition, count: 300000),
+                    ] 
+                )
+            }
         ),
         "Slime": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 50000.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -87,6 +158,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 15,
+            actor_group: Enemy,
+            aseprite: "entity/slime.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 ["SlimeCharge", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -105,7 +192,7 @@ ActorRegistry(
             }
         ),
         "EyeBall": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -113,6 +200,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: true,
             cry: true,
+            life: 25,
+            actor_group: Enemy,
+            aseprite: "entity/eyeball.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "staggered",
+            ),
             wands: [
                 ["PurpleBolt", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -131,7 +234,7 @@ ActorRegistry(
             }
         ),
         "Spider": (
-            radius: 8.0,
+            collider: Ball(8.0),
             move_force: 150000.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -139,11 +242,27 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 40,
+            actor_group: Enemy,
+            aseprite: "entity/spider.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 ["Web", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
-                [None, None, None, None, None, None, None, None], 
+                ["PurpleBolt", None, None, None, None, None, None, None], 
             ],
             strategies: {
                 "default": (
@@ -157,7 +276,7 @@ ActorRegistry(
             }
         ),
         "Salamander": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -165,12 +284,28 @@ ActorRegistry(
             defreeze: 2,
             auto_levitation: false,
             cry: true,
+            life: 100,
+            actor_group: Enemy,
             wands: [
                 ["Fireball", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
             ],
+            aseprite: "entity/salamander.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             strategies: {
                 "default": (
                     min_life: 1000,
@@ -183,7 +318,7 @@ ActorRegistry(
             }
         ),
         "Shadow": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 50000.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -191,6 +326,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: true,
+            life: 40,
+            actor_group: Enemy,
+            aseprite: "entity/shadow.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -200,7 +351,7 @@ ActorRegistry(
             strategies: {}
         ),
         "HugeSlime": (
-            radius: 5.0,
+            collider: Ball(5.0),
             // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
             move_force: 400000.0,
             jump: 3.0,
@@ -210,6 +361,22 @@ ActorRegistry(
             defreeze: 10000,
             auto_levitation: false,
             cry: false,
+            life: 4000,
+            actor_group: Enemy,
+            aseprite: "entity/huge_slime.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -219,7 +386,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Lantern": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -227,6 +394,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: false,
+            life: 100,
+            actor_group: Entity,
+            aseprite: "entity/stone_lantern.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -236,7 +419,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Chest": (
-            radius: 5.0,
+            collider: Cuboid(8.0, 8.0),
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 10.0,
@@ -244,6 +427,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: false,
+            life: 10,
+            actor_group: Entity,
+            aseprite: "entity/chest.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -253,7 +452,7 @@ ActorRegistry(
             strategies: {}
         ),
         "BookShelf": (
-            radius: 5.0,
+            collider: Cuboid(16.0, 8.0),
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 80.0,
@@ -261,6 +460,22 @@ ActorRegistry(
             defreeze: 1,
             auto_levitation: false,
             cry: false,
+            life: 25,
+            actor_group: Entity,
+            aseprite: "entity/bookshelf.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -270,7 +485,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Rock": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 60.0,
@@ -278,6 +493,22 @@ ActorRegistry(
             defreeze: 10000,
             auto_levitation: false,
             cry: false,
+            life: 100,
+            actor_group: Entity,
+            aseprite: "entity/rock.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -287,7 +518,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Bomb": (
-            radius: 5.0,
+            collider: Ball(5.0),
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 1.0,
@@ -295,6 +526,22 @@ ActorRegistry(
             defreeze: 10000,
             auto_levitation: false,
             cry: false,
+            life: 100,
+            actor_group: Entity,
+            aseprite: "entity/bomb.aseprite",
+            animations: (
+                idle_r: "idle",
+                idle_d: "idle",
+                idle_u: "idle",
+                run_r: "idle",
+                run_d: "idle",
+                run_u: "idle",
+                get_down: "idle",
+                get_up: "idle",
+                frozen: "idle",
+                drown: "idle",
+                staggered: "idle",
+            ),
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 

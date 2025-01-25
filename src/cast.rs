@@ -184,7 +184,7 @@ pub fn cast_spell(
                     let updated_scattering = (cast.scattering - actor.effects.precision).max(0.0);
                     let angle_with_random = angle + (random::<f32>() - 0.5) * updated_scattering;
                     let direction = Vec2::from_angle(angle_with_random);
-                    let range = actor_props.radius + BULLET_SPAWNING_MARGIN;
+                    let range = actor_props.collider.size() + BULLET_SPAWNING_MARGIN;
                     let bullet_position = actor_position + range * normalized;
 
                     let slash = actor.effects.slash.pop();

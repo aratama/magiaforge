@@ -17,7 +17,6 @@ mod debug;
 mod debug_command;
 mod enemy;
 mod entity;
-mod finder;
 mod footsteps;
 mod game;
 mod hud;

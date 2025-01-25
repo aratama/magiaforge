@@ -1,5 +1,10 @@
+use crate::actor::basic::BasicActor;
+use crate::actor::basic::BasicActorSprite;
+use crate::actor::chest::ChestType;
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
+use crate::actor::ActorExtra;
+use crate::actor::ActorSpriteGroup;
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
 use crate::interpreter::Cmd;
@@ -11,6 +16,7 @@ use crate::physics::IdentifiedCollisionItem;
 use crate::registry::Registry;
 use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
@@ -88,13 +94,35 @@ fn collision_outer_sensor(
     }
 }
 
+pub fn update_rabbit_sprite(
+    asset_server: Res<AssetServer>,
+    mut query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicActorSprite>>,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
+    actor_query: Query<&Actor, With<MessageRabbit>>,
+) {
+    for (parent, mut animation) in query.iter_mut() {
+        let parent = group_query.get(parent.get()).unwrap();
+        if let Ok(actor) = actor_query.get(parent.get()) {
+            let ActorExtra::Rabbit { aseprite, .. } = &actor.extra else {
+                continue;
+            };
+            animation.aseprite = asset_server.load(aseprite);
+        }
+    }
+}
+
 pub struct MessageRabbitPlugin;
 
 impl Plugin for MessageRabbitPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (collision_inner_sensor, collision_outer_sensor).in_set(FixedUpdateInGameSet),
+            (
+                collision_inner_sensor,
+                collision_outer_sensor,
+                update_rabbit_sprite,
+            )
+                .in_set(FixedUpdateInGameSet),
         );
     }
 }

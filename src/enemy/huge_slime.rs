@@ -1,15 +1,10 @@
 use crate::actor::jump_actor;
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorType;
 use crate::audio::NextBGM;
-use crate::collision::ENEMY_GROUPS;
 use crate::component::counter::Counter;
-use crate::component::counter::CounterAnimated;
 use crate::component::vertical::Vertical;
-use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
@@ -21,9 +16,7 @@ use crate::se::SEEvent;
 use crate::se::GROWL;
 use crate::se::PUYON;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::wand::Wand;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 const HUGE_SLIME_COLLIDER_RADIUS: f32 = 24.0;
@@ -38,8 +31,8 @@ pub struct Boss {
 
 #[derive(Component)]
 pub struct HugeSlime {
-    state: HugeSlimeState,
-    promoted: bool,
+    pub state: HugeSlimeState,
+    pub promoted: bool,
 }
 
 #[derive(Clone)]
@@ -48,73 +41,6 @@ pub enum HugeSlimeState {
     Approach,
     Summon,
     Promote,
-}
-
-#[derive(Component)]
-pub struct HugeSlimeSprite;
-
-pub fn default_huge_slime() -> Actor {
-    Actor {
-        extra: ActorExtra::HugeSlime,
-        actor_group: ActorGroup::Enemy,
-        wands: [
-            Wand::default(),
-            Wand::default(),
-            Wand::default(),
-            Wand::default(),
-        ],
-        fire_resistance: true,
-        poise: 60,
-        // スライムの王は通常のモンスターの4倍の速度で蜘蛛の巣から逃れます
-        // 通常1秒しか拘束
-        floundering: 8,
-        life: 4000,
-        max_life: 4000,
-        ..default()
-    }
-}
-
-pub fn spawn_huge_slime(
-    commands: &mut Commands,
-    registry: &Registry,
-    position: Vec2,
-    actor: Actor,
-) -> Entity {
-    let entity = commands
-        .spawn((
-            Name::new(format!("{:?}", actor.to_type())),
-            HugeSlime {
-                state: HugeSlimeState::Growl,
-                promoted: false,
-            },
-            actor,
-            Counter::up(0),
-            Transform::from_translation(position.extend(0.0)),
-            Collider::ball(HUGE_SLIME_COLLIDER_RADIUS),
-            *ENEMY_GROUPS,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                AseSpriteAnimation {
-                    aseprite: registry.assets.huge_slime_shadow.clone(),
-                    animation: Animation::default().with_tag("idle"),
-                },
-                Transform::from_translation(Vec3::new(0.0, 0.0, PAINT_LAYER_Z)),
-            ));
-
-            parent.spawn(ActorSpriteGroup).with_child((
-                HugeSlimeSprite,
-                CounterAnimated,
-                AseSpriteAnimation {
-                    aseprite: registry.assets.huge_slime.clone(),
-                    animation: Animation::default().with_tag("idle"),
-                },
-                Transform::from_xyz(0.0, 0.0, 0.0),
-            ));
-        })
-        .id();
-
-    entity
 }
 
 fn impact(

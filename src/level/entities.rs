@@ -1,43 +1,35 @@
-use crate::actor::bomb::default_bomb;
-use crate::actor::bomb::spawn_bomb;
-use crate::actor::book_shelf::spawn_book_shelf;
+use crate::actor::basic::spawn_basic_actor;
 use crate::actor::chest::chest_actor;
-use crate::actor::chest::default_random_chest;
-use crate::actor::chest::spawn_chest;
+use crate::actor::chest::Chest;
 use crate::actor::chest::ChestItem;
 use crate::actor::chest::ChestType;
-use crate::actor::chicken::spawn_chiken;
 use crate::actor::chicken::Chicken;
 use crate::actor::get_default_actor;
-use crate::actor::rabbit::default_rabbit;
-use crate::actor::rabbit::spawn_rabbit;
-use crate::actor::rock::default_rock;
-use crate::actor::rock::spawn_fallen_rock;
-use crate::actor::sandbug::spawn_sandbag;
-use crate::actor::sandbug::Sandbag;
-use crate::actor::stone_lantern::spawn_stone_lantern;
-use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
+use crate::collision::SENSOR_GROUPS;
 use crate::constant::*;
+use crate::controller::message_rabbit::MessageRabbit;
+use crate::controller::message_rabbit::MessageRabbitInnerSensor;
+use crate::controller::message_rabbit::MessageRabbitOuterSensor;
+use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::PlayerControlled;
-use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::huge_slime::spawn_huge_slime;
+use crate::controller::shop_rabbit::ShopRabbit;
+use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
+use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::huge_slime::Boss;
-use crate::enemy::salamander::spawn_salamander;
-use crate::enemy::shadow::spawn_shadow;
-use crate::enemy::shadow::Shadow;
-use crate::enemy::slime::spawn_slime;
-use crate::enemy::spider::spawn_spider;
+use crate::enemy::huge_slime::HugeSlime;
+use crate::enemy::huge_slime::HugeSlimeState;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::entity::dropped_item::spawn_dropped_item;
+use crate::entity::fire::Burnable;
 use crate::entity::fireball::spawn_fireball;
 use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
@@ -59,6 +51,9 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::ActiveEvents;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::Sensor;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
@@ -243,15 +238,87 @@ pub fn spawn_entity(
                     spawn_dropped_item(&mut commands, &registry, *position, &item);
                 }
             }
-            Spawn::Rabbit { aseprite, senario } => {
-                spawn_rabbit(
-                    &mut commands,
-                    asset_server.load(aseprite),
-                    &registry,
-                    *position,
-                    default_rabbit(aseprite, senario),
-                    senario,
-                );
+            Spawn::Rabbit {
+                aseprite: aseprite_value,
+                senario,
+            } => {
+                let mut actor = get_default_actor(&registry, ActorType::Rabbit);
+
+                actor.extra = ActorExtra::Rabbit {
+                    aseprite: aseprite_value.clone(),
+                    senario: senario.clone(),
+                };
+
+                let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+
+                let mut entity = commands.entity(entity);
+
+                entity.insert(MessageRabbit::new(senario));
+
+                match senario.as_str() {
+                    "ShopRabbit" => {
+                        entity.insert(ShopRabbit);
+                    }
+                    "SpellListRabbit" => {
+                        entity.insert(SpellListRabbit);
+                    }
+                    _ => {}
+                };
+
+                entity.with_children(|builder| {
+                    match senario.as_str() {
+                        "ShopRabbit" => {
+                            builder.spawn((
+                                ShopRabbitSensor,
+                                Collider::ball(16.0),
+                                Sensor,
+                                ActiveEvents::COLLISION_EVENTS,
+                                *SENSOR_GROUPS,
+                                Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
+                            ));
+                        }
+                        _ => {
+                            builder.spawn((
+                                MessageRabbitInnerSensor,
+                                Collider::ball(16.0),
+                                Sensor,
+                                ActiveEvents::COLLISION_EVENTS,
+                                *SENSOR_GROUPS,
+                                Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
+                            ));
+                        }
+                    };
+
+                    match senario.as_str() {
+                        "ShopRabbit" => {
+                            builder.spawn((
+                                ShopRabbitOuterSensor,
+                                Collider::ball(32.0),
+                                Sensor,
+                                ActiveEvents::COLLISION_EVENTS,
+                                *SENSOR_GROUPS,
+                            ));
+                        }
+                        _ => {
+                            builder.spawn((
+                                MessageRabbitOuterSensor,
+                                Collider::ball(32.0),
+                                Sensor,
+                                ActiveEvents::COLLISION_EVENTS,
+                                *SENSOR_GROUPS,
+                            ));
+                        }
+                    };
+                });
+
+                //  spawn_rabbit(
+                //     &mut commands,
+                //     asset_server.load(aseprite),
+                //     &registry,
+                //     *position,
+                //     get_default_actor(&registry, ActorType::Rabbit),
+                //     senario,
+                // );
             }
             Spawn::ShopDoor => {
                 spawn_shop_door(&mut commands, &registry, *position);
@@ -265,20 +332,19 @@ pub fn spawn_entity(
                     &asset_server,
                     &registry,
                     *position,
-                    &default_random_chest(),
+                    &&get_default_actor(&registry, ActorType::Chest),
                     false,
                 );
             }
             Spawn::SpellInChest { spell } => {
                 let chest_item: ChestItem =
                     ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(spell.clone())));
-                spawn_actor_internal(
+                spawn_actor(
                     &mut commands,
                     &asset_server,
                     &registry,
                     *position,
-                    &chest_actor(ChestType::Chest, chest_item, 0),
-                    false,
+                    chest_actor(ChestType::Chest, chest_item, 0),
                 );
             }
             Spawn::Actor {
@@ -287,8 +353,7 @@ pub fn spawn_entity(
             } => {
                 let mut actor = get_default_actor(&registry, *actor_type);
                 actor.actor_group = *actor_group;
-                let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
-                add_default_behavior(&mut commands, *actor_type, *position, entity);
+                spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
             Spawn::Boss {
                 actor_type,
@@ -392,44 +457,33 @@ pub fn spawn_actor(
     asset_server: &Res<AssetServer>,
     registry: &Registry,
     position: Vec2,
-    actor: Actor,
+    mut actor: Actor,
 ) -> Entity {
-    match actor.extra.clone() {
-        ActorExtra::Witch => spawn_witch(&mut commands, registry, position, None, actor, false),
-        ActorExtra::Slime => spawn_slime(&mut commands, &registry, actor, position, None),
-        ActorExtra::Eyeball => spawn_eyeball(&mut commands, &registry, position, actor),
-        ActorExtra::Shadow => spawn_shadow(&mut commands, &registry, position, actor),
-        ActorExtra::Spider => spawn_spider(&mut commands, &registry, position, actor),
-        ActorExtra::Salamander => spawn_salamander(&mut commands, &registry, position, actor),
-        ActorExtra::Chicken => spawn_chiken(&mut commands, &registry, actor, position),
-        ActorExtra::Sandbag => spawn_sandbag(&mut commands, &registry, position, actor),
-        ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &registry, position, actor),
-        ActorExtra::Chest { chest_type, .. } => spawn_chest(
-            &mut commands,
-            registry.assets.atlas.clone(),
-            position,
-            actor,
-            chest_type,
-        ),
-        ActorExtra::BookShelf => spawn_book_shelf(
-            &mut commands,
-            registry.assets.atlas.clone(),
-            // 本棚のみ2タイルの幅があるため、例外的に半タイルずらした位置に生成します
-            position + Vec2::new(TILE_HALF, 0.0),
-            actor,
-        ),
-        ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &registry, position, actor),
-        ActorExtra::Rabbit { aseprite, senario } => spawn_rabbit(
-            &mut commands,
-            asset_server.load(aseprite.clone()),
-            &registry,
-            position,
-            default_rabbit(&aseprite, &senario),
-            &senario,
-        ),
-        ActorExtra::Rock => spawn_fallen_rock(&mut commands, &registry, position, default_rock()),
-        ActorExtra::Bomb => spawn_bomb(&mut commands, &registry, position, default_bomb()),
+    let actor_type = actor.to_type();
+    let props = registry.get_actor_props(actor_type);
+    let aseprite = asset_server.load(props.aseprite.clone());
+    actor.home_position = position;
+    let entity = spawn_basic_actor(&mut commands, &registry, aseprite, position, None, actor);
+
+    match actor_type {
+        ActorType::HugeSlime => {
+            commands.entity(entity).insert(HugeSlime {
+                state: HugeSlimeState::Growl,
+                promoted: false,
+            });
+        }
+        ActorType::Chicken => {
+            commands.entity(entity).insert(Chicken::default());
+        }
+        ActorType::Chest => {
+            commands
+                .entity(entity)
+                .insert((Chest, Burnable { life: 30 }));
+        }
+        _ => {}
     }
+
+    entity
 }
 
 fn spawn_actor_internal(
@@ -449,36 +503,5 @@ fn spawn_actor_internal(
     );
     if player_controlled {
         commands.entity(entity).insert(PlayerControlled);
-    }
-}
-
-pub fn add_default_behavior(
-    commands: &mut Commands,
-    enemy_type: ActorType,
-    position: Vec2,
-    entity: Entity,
-) {
-    match enemy_type {
-        ActorType::HugeSlime => {}
-        ActorType::Witch => {}
-        ActorType::Slime => {}
-        ActorType::EyeBall => {}
-        ActorType::Shadow => {
-            commands.entity(entity).insert(Shadow::default());
-        }
-        ActorType::Spider => {}
-        ActorType::Salamander => {}
-        ActorType::Chicken => {
-            commands.entity(entity).insert(Chicken::default());
-        }
-        ActorType::Sandbag => {
-            commands.entity(entity).insert(Sandbag::new(position));
-        }
-        ActorType::Lantern => {}
-        ActorType::Chest => {}
-        ActorType::BookShelf => {}
-        ActorType::Rabbit => {}
-        ActorType::Rock => {}
-        ActorType::Bomb => {}
     }
 }

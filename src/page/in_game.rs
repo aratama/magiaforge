@@ -1,4 +1,4 @@
-use crate::actor::witch::spawn_witch;
+use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
@@ -20,6 +20,7 @@ use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
+use crate::level::entities::spawn_actor;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
@@ -114,6 +115,7 @@ pub fn new_shop_item_queue(
 /// レベルとプレイヤーキャラクターを生成します
 pub fn setup_level(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
@@ -132,8 +134,8 @@ pub fn setup_level(
     let level = &current.next_level;
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    let getting_up_animation =
-        *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
+    // let getting_up_animation =
+    //     *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
 
     let biome_tile = registry.get_level(&level).biome;
 
@@ -207,7 +209,7 @@ pub fn setup_level(
             let tile = chunk.get_level_tile(x, y);
             if let Some(ref entity) = tile.entity {
                 spawn.send(SpawnEvent {
-                    position: index_to_position((x, y)),
+                    position: index_to_position((x, y)) + Vec2::new(tile.spawn_offset_x, 0.0),
                     spawn: entity.clone(),
                 });
             }
@@ -257,13 +259,13 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    spawn.send(SpawnEvent {
-        position: index_to_position((29, 52)),
-        spawn: Spawn::Actor {
-            actor_type: ActorType::Spider,
-            actor_group: ActorGroup::Enemy,
-        },
-    });
+    // spawn.send(SpawnEvent {
+    //     position: index_to_position((29, 52)),
+    //     spawn: Spawn::Actor {
+    //         actor_type: ActorType::Spider,
+    //         actor_group: ActorGroup::Enemy,
+    //     },
+    // });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
@@ -273,11 +275,32 @@ pub fn setup_level(
     // プレイヤーキャラクターの魔法使いを生成
     // プレイヤーキャラクターのみ Player コンポーネントの追加が必要なため、
     // イベントではなく直接生成します
-    let entity = spawn_witch(
+    // let entity = spawn_witch(
+    //     &mut commands,
+    //     &registry,
+    //     Vec2::new(player_x, player_y),
+    //     None,
+    //     Actor {
+    //         // 新しいレベルに入るたびに全回復している
+    //         life: player_state.max_life,
+    //         max_life: player_state.max_life,
+    //         amplitude: 0.0,
+    //         fire_damage_wait: 0,
+    //         actor_group: ActorGroup::Friend,
+    //         wands: player_state.wands,
+    //         inventory: player_state.inventory,
+    //         current_wand: player_state.current_wand,
+    //         golds: player_state.golds,
+    //         extra: ActorExtra::Witch,
+    //         ..default()
+    //     },
+    //     getting_up_animation,
+    // );
+    let entity = spawn_actor(
         &mut commands,
+        &asset_server,
         &registry,
         Vec2::new(player_x, player_y),
-        None,
         Actor {
             // 新しいレベルに入るたびに全回復している
             life: player_state.max_life,
@@ -292,9 +315,9 @@ pub fn setup_level(
             extra: ActorExtra::Witch,
             ..default()
         },
-        getting_up_animation,
     );
     commands.entity(entity).insert((
+        Witch { getting_up: 1000 },
         PlayerControlled,
         Player::new(config.player_name.clone(), &player_state.discovered_spells),
     ));

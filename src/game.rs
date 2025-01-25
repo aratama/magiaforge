@@ -3,9 +3,7 @@ use crate::actor::bomb::BombPlugin;
 use crate::actor::book_shelf::BookshelfPlugin;
 use crate::actor::chest::ChestPlugin;
 use crate::actor::chicken::ChikenControlPlugin;
-use crate::actor::rabbit::RabbitPlugin;
 use crate::actor::rock::RockPlugin;
-use crate::actor::sandbug::SandbagPlugin;
 use crate::actor::stone_lantern::StoneLanternPlugin;
 use crate::actor::witch::WitchPlugin;
 use crate::actor::ActorPlugin;
@@ -33,7 +31,6 @@ use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
-use crate::enemy::shadow::ShadowPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
@@ -261,17 +258,14 @@ pub fn run_game() {
         .add_plugins(PlayerStatePlugin)
         .add_plugins(PointerPlugin)
         .add_plugins(PopUpPlugin)
-        .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(RockPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
-        .add_plugins(ShadowPlugin)
         .add_plugins(SlashPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
-        .add_plugins(SandbagPlugin)
         .add_plugins(InterpreterPlugin)
         .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)

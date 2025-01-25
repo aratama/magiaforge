@@ -1,14 +1,9 @@
-use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
-use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::component::vertical::Vertical;
 use crate::controller::player::PlayerServant;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::spell::Spell;
-use crate::wand::Wand;
 use bevy::prelude::*;
 use core::f32;
 
@@ -29,34 +24,6 @@ impl Default for Chicken {
             state: ChickenState::Wait(60),
         }
     }
-}
-
-pub fn default_chiken() -> Actor {
-    Actor {
-        extra: ActorExtra::Chicken,
-        actor_group: ActorGroup::Neutral,
-        wands: Wand::single(Some(Spell::new("Jump"))),
-        life: 2,
-        max_life: 2,
-        ..default()
-    }
-}
-
-pub fn spawn_chiken(
-    mut commands: &mut Commands,
-    registry: &Registry,
-    actor: Actor,
-    position: Vec2,
-) -> Entity {
-    let entity = spawn_basic_actor(
-        &mut commands,
-        &registry,
-        registry.assets.chicken.clone(),
-        position,
-        None,
-        actor,
-    );
-    entity
 }
 
 fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&PlayerServant>)>) {

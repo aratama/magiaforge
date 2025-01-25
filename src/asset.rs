@@ -87,16 +87,20 @@ pub struct GameAssets {
     #[asset(path = "entity/chicken.aseprite")]
     pub chicken: Handle<Aseprite>,
 
-    #[asset(path = "entity/sandbug.aseprite")]
-    pub sandbug: Handle<Aseprite>,
+    #[asset(path = "entity/sandbag.aseprite")]
+    #[allow(dead_code)]
+    pub sandbag: Handle<Aseprite>,
 
     #[asset(path = "entity/shadow.aseprite")]
+    #[allow(dead_code)]
     pub shadow: Handle<Aseprite>,
 
     #[asset(path = "entity/spider.aseprite")]
+    #[allow(dead_code)]
     pub spider: Handle<Aseprite>,
 
     #[asset(path = "entity/salamander.aseprite")]
+    #[allow(dead_code)]
     pub salamander: Handle<Aseprite>,
 
     // ボス ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,9 +108,11 @@ pub struct GameAssets {
     // #[asset(path = "entity/buer.aseprite")]
     // pub buer: Handle<Aseprite>,
     #[asset(path = "entity/huge_slime.aseprite")]
+    #[allow(dead_code)]
     pub huge_slime: Handle<Aseprite>,
 
     #[asset(path = "entity/huge_slime_shadow.aseprite")]
+    #[allow(dead_code)]
     pub huge_slime_shadow: Handle<Aseprite>,
 
     #[asset(path = "entity/raven.aseprite")]
@@ -140,8 +146,31 @@ pub struct GameAssets {
     #[allow(dead_code)]
     pub rabbit_green: Handle<Aseprite>,
 
+    // 箱 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+    #[asset(path = "entity/chest.aseprite")]
+    pub _chest: Handle<Aseprite>,
+
+    #[asset(path = "entity/crate.aseprite")]
+    pub _crate: Handle<Aseprite>,
+
+    #[asset(path = "entity/barrel.aseprite")]
+    pub _barrel: Handle<Aseprite>,
+
+    #[asset(path = "entity/barrel_bomb.aseprite")]
+    pub _barrel_bomb: Handle<Aseprite>,
+
+    #[asset(path = "entity/jar_red.aseprite")]
+    pub _jar_red: Handle<Aseprite>,
+
+    #[asset(path = "entity/jar_blue.aseprite")]
+    pub _jar_blue: Handle<Aseprite>,
+
+    #[asset(path = "entity/jar_green.aseprite")]
+    pub _jar_green: Handle<Aseprite>,
+
     // 呪文 /////////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/bomb.aseprite")]
+    #[allow(dead_code)]
     pub bomb: Handle<Aseprite>,
 
     #[asset(path = "entity/gold.aseprite")]
@@ -154,6 +183,7 @@ pub struct GameAssets {
     pub fire: Handle<Aseprite>,
 
     #[asset(path = "entity/stone_lantern.aseprite")]
+    #[allow(dead_code)]
     pub stone_lantern: Handle<Aseprite>,
 
     #[asset(path = "entity/impact.aseprite")]

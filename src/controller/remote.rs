@@ -1,5 +1,3 @@
-use crate::actor::witch::default_witch;
-use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::constant::ARENA;
@@ -16,7 +14,6 @@ use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::CRY;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
@@ -203,7 +200,7 @@ fn receive_events(
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
     // 1フレームに複数のキャラクターが生成されないようにセットで管理します
-    let mut spawned_players = HashSet::new();
+    let spawned_players: HashSet<Uuid> = HashSet::new();
 
     for message in reader.read() {
         match message {
@@ -219,7 +216,7 @@ fn receive_events(
                         RemoteMessage::Position {
                             sender: _sender,
                             uuid,
-                            name,
+                            name: _name,
                             golds,
                             x,
                             y,
@@ -247,22 +244,22 @@ fn receive_events(
                                 actor.pointer = Vec2::from_angle(angle);
                                 actor.point_light_radius = intensity;
                             } else if !spawned_players.contains(&uuid) {
-                                let actor = default_witch();
-                                spawned_players.insert(uuid);
-                                let entity = spawn_witch(
-                                    &mut commands,
-                                    &registry,
-                                    Vec2::new(x, y),
-                                    Some(name.clone()),
-                                    actor,
-                                    false,
-                                );
-                                commands.entity(entity).insert(RemotePlayer {
-                                    name,
-                                    golds,
-                                    last_update: *frame_count,
-                                });
-                                info!("Remote player spawned: {}", uuid);
+                                // spawned_players.insert(uuid);
+                                // let entity = spawn_basic_actor(
+                                //     &mut commands,
+                                //     &registry,
+                                //     Vec2::new(x, y),
+                                //     Some(name.clone()),
+                                //     get_default_actor(&registry, ActorType::Witch),
+                                //     false,
+                                // );
+                                // commands.entity(entity).insert(RemotePlayer {
+                                //     name,
+                                //     golds,
+                                //     last_update: *frame_count,
+                                // });
+                                // info!("Remote player spawned: {}", uuid);
+                                unimplemented!();
                             }
                         }
                         RemoteMessage::Fire(spawning) => {

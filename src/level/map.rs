@@ -21,6 +21,7 @@ pub struct LevelTile {
     pub zone: Zone,
     pub entity: Option<Spawn>,
     pub entry_point: bool,
+    pub spawn_offset_x: f32,
 }
 
 impl Default for LevelTile {
@@ -30,6 +31,7 @@ impl Default for LevelTile {
             zone: Zone::SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         }
     }
 }
@@ -53,6 +55,7 @@ impl LevelChunk {
                 zone: Zone::SafeZone,
                 entity: None,
                 entry_point: false,
+                spawn_offset_x: 0.0,
             };
         }
         let w = self.max_x - self.min_x;

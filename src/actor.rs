@@ -3,14 +3,10 @@ pub mod bomb;
 pub mod book_shelf;
 pub mod chest;
 pub mod chicken;
-pub mod rabbit;
 pub mod rock;
-pub mod sandbug;
 pub mod stone_lantern;
 pub mod witch;
 
-use crate::actor::chicken::default_chiken;
-use crate::actor::sandbug::default_sandbag;
 use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::collision::ENEMY_BULLET_GROUP;
@@ -34,13 +30,7 @@ use crate::constant::TILE_SIZE;
 use crate::controller::player::recovery;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerControlled;
-use crate::enemy::eyeball::default_eyeball;
-use crate::enemy::huge_slime::default_huge_slime;
 use crate::enemy::huge_slime::Boss;
-use crate::enemy::salamander::default_salamander;
-use crate::enemy::shadow::default_shadow;
-use crate::enemy::slime::default_slime;
-use crate::enemy::spider::default_spider;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::bullet::Trigger;
 use crate::entity::fire::Burnable;
@@ -54,7 +44,6 @@ use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
-use crate::level::entities::add_default_behavior;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
@@ -95,20 +84,15 @@ use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
-use bomb::default_bomb;
-use book_shelf::default_bookshelf;
-use chest::default_random_chest;
 use chest::ChestItem;
 use chest::ChestType;
-use rabbit::default_rabbit;
-use rock::default_rock;
+use chest::CHEST_OR_BARREL;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::f32::consts::PI;
-use stone_lantern::default_lantern;
 use uuid::Uuid;
-use witch::default_witch;
+use rand::seq::IteratorRandom;
 
 /// アクターの種類を表します
 /// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
@@ -235,6 +219,8 @@ pub struct Actor {
 
     pub commander: Commander,
 
+    pub home_position: Vec2,
+
     // 装備とアイテム /////////////////////////////////////////////////////////////////////////////////////////
     /// アクターが所持している杖のリスト
     /// モンスターの呪文詠唱の仕組みもプレイヤーキャラクターと同一であるため、
@@ -298,7 +284,7 @@ pub struct Actor {
 
     // 0 より大きい場合は溺れている状態で、詠唱ができません。また移動速度が低下します
     // 水中にいる間は 1フレームに1 づつ増加し、60を超えるとダメージを受け、0に戻ります
-    pub drowning: u32,
+    pub drown: u32,
 
     /// 複製された場合の残り時間
     pub cloned: Option<u32>,
@@ -354,6 +340,38 @@ impl ActorExtra {
             ActorExtra::Rabbit { .. } => ActorType::Rabbit,
             ActorExtra::Rock => ActorType::Rock,
             ActorExtra::Bomb => ActorType::Bomb,
+        }
+    }
+    pub fn from(actor_type: &ActorType) -> Self {
+        match actor_type {
+            ActorType::Witch => ActorExtra::Witch,
+            ActorType::Chicken => ActorExtra::Chicken,
+            ActorType::EyeBall => ActorExtra::Eyeball,
+            ActorType::Sandbag => ActorExtra::Sandbag,
+            ActorType::Slime => ActorExtra::Slime,
+            ActorType::HugeSlime => ActorExtra::HugeSlime,
+            ActorType::Shadow => ActorExtra::Shadow,
+            ActorType::Spider => ActorExtra::Spider,
+            ActorType::Salamander => ActorExtra::Salamander,
+            ActorType::Lantern => ActorExtra::Lantern,
+            ActorType::Chest => {
+                let chest_type = *CHEST_OR_BARREL
+                    .iter()
+                    .choose(&mut rand::thread_rng())
+                    .unwrap();                    
+                ActorExtra::Chest {
+                    chest_type,
+                    chest_item: ChestItem::Gold,
+                }
+            },
+            ActorType::BookShelf => ActorExtra::BookShelf,
+            ActorType::Rabbit => ActorExtra::Rabbit {
+                // ここは spawn_entity の Spawn::Rabbit で上書きする
+                aseprite: "rabbit".to_string(),
+                senario: "rabbit".to_string(),
+            },
+            ActorType::Rock => ActorExtra::Rock,
+            ActorType::Bomb => ActorExtra::Bomb,
         }
     }
 }
@@ -537,12 +555,13 @@ impl Default for Actor {
             effects: default(),
             state: ActorState::default(),
             wait: 30,
+            home_position: Vec2::ZERO,
             trapped: 0,
             trap_moratorium: 0,
             floundering: 1,
             frozen: 0,
             levitation: 0,
-            drowning: 0,
+            drown: 0,
             staggered: 0,
             poise: 1,
             invincibility_on_staggered: false,
@@ -856,7 +875,7 @@ fn apply_external_force(
                 0.0
             } else if 0 < actor.staggered {
                 0.0
-            } else if 0 < actor.drowning {
+            } else if 0 < actor.drown {
                 constants.acceleration_on_drowning
             } else if 0.0 < vertical.v {
                 constants.acceleration_on_air
@@ -907,7 +926,7 @@ fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
 
 pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut CollisionGroups)>) {
     for (actor, vertical, mut groups) in query.iter_mut() {
-        *groups = actor.actor_group.to_groups(vertical.v, actor.drowning);
+        *groups = actor.actor_group.to_groups(vertical.v, actor.drown);
     }
 }
 
@@ -1034,15 +1053,15 @@ fn drown(
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::Water || tile == Tile::Lava {
-                    if actor.drowning == 0 {
+                    if actor.drown == 0 {
                         se.send(SEEvent::pos(BASHA2, position));
                     }
-                    actor.drowning += 1;
+                    actor.drown += 1;
                 } else {
-                    actor.drowning = 0;
+                    actor.drown = 0;
                 }
             } else {
-                actor.drowning = 0;
+                actor.drown = 0;
             }
         }
     }
@@ -1072,7 +1091,7 @@ fn drown_damage(
         };
         match tile {
             Tile::Water => {
-                if 60 < actor.drowning {
+                if 60 < actor.drown {
                     damage.send(ActorEvent::Damaged {
                         actor: entity,
                         position: transform.translation.truncate(),
@@ -1083,11 +1102,11 @@ fn drown_damage(
                         metamorphose: None,
                         dispel: false,
                     });
-                    actor.drowning = 1;
+                    actor.drown = 1;
                 }
             }
             Tile::Lava => {
-                if 20 < actor.drowning {
+                if 20 < actor.drown {
                     damage.send(ActorEvent::Damaged {
                         actor: entity,
                         position: transform.translation.truncate(),
@@ -1098,7 +1117,7 @@ fn drown_damage(
                         metamorphose: None,
                         dispel: false,
                     });
-                    actor.drowning = 1;
+                    actor.drown = 1;
                 }
             }
             Tile::Crack if vertical.v <= 0.0 => {
@@ -1141,7 +1160,7 @@ pub fn jump_actor(
         actor_falling.v = actor_falling.v.max(0.01);
         actor_falling.velocity = velocity;
         actor_impulse.impulse += actor.move_direction.normalize_or_zero() * impulse;
-        *collision_groups = actor.actor_group.to_groups(actor_falling.v, actor.drowning);
+        *collision_groups = actor.actor_group.to_groups(actor_falling.v, actor.drown);
         let position = actor_transform.translation.truncate();
         se.send(SEEvent::pos(SUNA, position));
         true
@@ -1154,25 +1173,14 @@ pub fn get_default_actor(
     registry: &Registry,
     actor_type: ActorType
 ) -> Actor {
-    match actor_type {
-        ActorType::Witch => default_witch(),
-        ActorType::HugeSlime => default_huge_slime(),
-        ActorType::Slime => default_slime(&registry),
-        ActorType::EyeBall => default_eyeball(),
-        ActorType::Shadow => default_shadow(),
-        ActorType::Spider => default_spider(&registry),
-        ActorType::Salamander => default_salamander(),
-        ActorType::Chicken => default_chiken(),
-        ActorType::Sandbag => default_sandbag(),
-        ActorType::Lantern => default_lantern(),
-        ActorType::Chest => default_random_chest(),
-        ActorType::BookShelf => default_bookshelf(),
-        ActorType::Rabbit => default_rabbit(
-            &"entity/rabbit_blue.aseprite".to_string(),
-            &"GuideRabbit".to_string(),
-        ),
-        ActorType::Rock => default_rock(),
-        ActorType::Bomb => default_bomb(),
+    let props = registry.get_actor_props(actor_type);
+    Actor {
+        extra:  ActorExtra::from(&actor_type),
+        actor_group: props.actor_group,
+        wands: Wand::from_vec(&props.wands),
+        life: props.life,
+        max_life: props.life,
+        ..default()
     }
 }
 
@@ -1308,7 +1316,7 @@ fn damage(
                 if let Some(morphing_to) = metamorphose {
                     if 0 < actor.life {
                         let position = life_transform.translation.truncate();
-                        let entity = cast_metamorphosis(
+                        cast_metamorphosis(
                             &mut commands,
                             &asset_server,
                             &registry,
@@ -1320,7 +1328,6 @@ fn damage(
                             position,
                             *morphing_to,
                         );
-                        add_default_behavior(&mut commands, *morphing_to, position, entity);
                     }
                 } else if let Some(ref mut actor_metamorphosis) = actor_metamorphosis {
                     if *dispel {
