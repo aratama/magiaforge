@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::config::GameConfig;
 use crate::constant::GAME_MENU_Z_INDEX;
+use crate::constant::HOME_LEVEL;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
 use crate::language::Languages;
@@ -105,7 +106,7 @@ fn exit(
     mut overlay_event_writer: EventWriter<OverlayEvent>,
     mut next: ResMut<LevelSetup>,
 ) {
-    next.next_level = GameLevel::Level(0);
+    next.next_level = GameLevel::new(HOME_LEVEL);
     overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
     writer.send(SEEvent::new(SE::Click));
     websocket.send(ClientMessage::Close);

@@ -9,8 +9,8 @@ use serde::Serialize;
 pub struct Spell(pub String);
 
 impl Spell {
-    pub fn new(name: &str) -> Self {
-        Self(name.to_string())
+    pub fn new<T: Into<String>>(name: T) -> Self {
+        Self(name.into())
     }
 }
 

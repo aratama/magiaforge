@@ -90,7 +90,7 @@ fn setup_hud(mut commands: Commands, registry: Registry, next: Res<LevelSetup>) 
 
                     // 右下
 
-                    let level_props = registry.get_level_props(next.next_level);
+                    let level_props = registry.get_level(&next.next_level);
                     parent.spawn((
                         M18NTtext::new(&level_props.name.clone()),
                         TextColor(Color::srgba(1.0, 1.0, 1.0, 0.3)),

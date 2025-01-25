@@ -12,8 +12,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
-use rand::rngs::StdRng;
-use rand::seq::IteratorRandom;
 
 const WATER_PLANE_OFFEST: f32 = -4.0;
 
@@ -26,26 +24,12 @@ pub fn read_level_chunk_data(
     registry: &Registry,
     level_aseprites: &Res<Assets<Aseprite>>,
     images: &Res<Assets<Image>>,
-
-    level: GameLevel,
-    mut rng: &mut StdRng,
+    level: &GameLevel,
     biome_tile: Tile,
 ) -> LevelChunk {
     let level_aseprite = level_aseprites.get(registry.assets.level.id()).unwrap();
     let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
-
-    let level_slice = match level {
-        GameLevel::Level(level) => {
-            let keys = level_aseprite
-                .slices
-                .keys()
-                .filter(|s| s.starts_with(&format!("level_{}_", level)));
-            keys.choose(&mut rng).unwrap()
-        }
-        GameLevel::MultiPlayArena => "multiplay_arena",
-    };
-
-    let slice = level_aseprite.slices.get(level_slice).unwrap();
+    let slice = level_aseprite.slices.get(&level.0).unwrap();
 
     let chunk = image_to_tilemap(
         &registry,

@@ -207,7 +207,7 @@ pub fn cast_spell(
                         homing: actor.effects.homing,
                         freeze: cast.freeze,
                         stagger: cast.stagger,
-                        levitation: cast.levitation,
+                        levitation: cast.levitation + actor.effects.levitation,
                         metamorphose: actor.effects.metamorphse,
                         dispel: 0 < actor.effects.dispel,
                         web: 0 < actor.effects.web,
@@ -222,6 +222,8 @@ pub fn cast_spell(
                     if 0 < actor.effects.web {
                         actor.effects.web -= 1;
                     }
+
+                    actor.effects.levitation = 0;
 
                     spawn_bullet(commands, registry, se, &spawn);
                     clear_effect = true;
@@ -428,8 +430,7 @@ pub fn cast_spell(
                     actor.effects.web += 1;
                 }
                 SpellCast::Levitation => {
-                    actor.levitation += 300;
-                    se.send(SEEvent::pos(SE::Status2, actor_position));
+                    actor.effects.levitation += 300;
                 }
                 SpellCast::Jump { velocity, impulse } => {
                     jump_actor(
@@ -526,6 +527,12 @@ pub fn cast_spell(
                 actor.actor_group,
             );
             actor.effects.web = 0;
+        }
+
+        if 0 < actor.effects.levitation {
+            actor.levitation += actor.effects.levitation;
+            se.send(SEEvent::pos(SE::Status2, actor_position));
+            actor.effects.levitation = 0;
         }
 
         for damage in actor.effects.slash.iter() {

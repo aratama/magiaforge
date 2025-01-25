@@ -15,8 +15,7 @@ use std::collections::HashMap;
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameRegistry {
-    pub levels: Vec<LevelProps>,
-    pub arena: LevelProps,
+    pub levels: HashMap<String, LevelProps>,
     pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
     pub debug_items: Vec<Spell>,
     pub debug_wands: Vec<Vec<Option<Spell>>>,
@@ -29,12 +28,15 @@ pub struct SpellRegistry {
 
 #[derive(serde::Deserialize)]
 pub struct LevelProps {
+    pub next: Vec<GameLevel>,
     pub name: Dict<String>,
     pub enemies: u8,
     pub enemy_types: Vec<ActorType>,
     pub items: u8,
     pub item_ranks: Vec<u8>,
     pub biome: Tile,
+    pub bgm: String,
+    pub brightness: f32,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
@@ -136,15 +138,15 @@ impl<'w> Registry<'w> {
             .expect(&format!("spell '{}' not found", spell_type))
     }
 
-    pub fn get_level_props(&self, level: GameLevel) -> &LevelProps {
-        let constants = self.game.get(&self.assets.game_registry).unwrap();
-        match level {
-            GameLevel::Level(l) => constants.levels.get(l as usize).unwrap(),
-            GameLevel::MultiPlayArena => &constants.arena,
-        }
-    }
-
     pub fn spells(&self) -> Vec<Spell> {
         self.spell().spells.keys().map(|k| Spell::new(k)).collect()
+    }
+
+    pub fn get_level(&self, GameLevel(level): &GameLevel) -> &LevelProps {
+        let constants = self.game.get(&self.assets.game_registry).unwrap();
+        constants
+            .levels
+            .get(level)
+            .expect(&format!("Level '{:?}' not found", level).as_str())
     }
 }

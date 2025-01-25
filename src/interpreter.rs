@@ -6,6 +6,8 @@ use crate::bgm::BGMType;
 use crate::camera::GameCamera;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
+use crate::constant::ARENA;
+use crate::constant::HOME_LEVEL;
 use crate::controller::player::Player;
 use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
@@ -94,7 +96,7 @@ pub enum Cmd {
     Arena,
 
     Warp {
-        level: i32,
+        level: GameLevel,
     },
 
     SetTile {
@@ -344,17 +346,17 @@ fn interpret(
             interpreter.index += 1;
         }
         Cmd::Home => {
-            level.next_level = GameLevel::Level(0);
+            level.next_level = GameLevel::new(HOME_LEVEL);
             writer.send(OverlayEvent::Close(GameState::Warp));
             interpreter.index += 1;
         }
         Cmd::Arena => {
-            level.next_level = GameLevel::MultiPlayArena;
+            level.next_level = GameLevel::new(ARENA);
             writer.send(OverlayEvent::Close(GameState::Warp));
             interpreter.index += 1;
         }
         Cmd::Warp { level: l } => {
-            level.next_level = GameLevel::Level(l);
+            level.next_level = l;
             writer.send(OverlayEvent::Close(GameState::Warp));
             interpreter.index += 1;
         }

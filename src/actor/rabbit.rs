@@ -1,3 +1,4 @@
+use super::ActorSpriteGroup;
 use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
@@ -118,23 +119,25 @@ pub fn spawn_rabbit(
             Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
         ));
 
-        builder.spawn((
-            CounterAnimated,
-            AseSpriteAnimation {
-                aseprite: match rabbit_type {
-                    RabbitType::Shop => registry.assets.rabbit_yellow.clone(),
-                    RabbitType::Training => registry.assets.rabbit_red.clone(),
-                    RabbitType::Singleplay => registry.assets.rabbit_white.clone(),
-                    RabbitType::Guide => registry.assets.rabbit_blue.clone(),
-                    RabbitType::MultiPlay => registry.assets.rabbit_black.clone(),
-                    RabbitType::Reading => registry.assets.rabbit_green.clone(),
-                    RabbitType::SpellList => registry.assets.rabbit_blue.clone(),
-                }
-                .clone(),
-                animation: "idle_d".into(),
-            },
-            ChildEntityDepth { offset: 0.0 },
-        ));
+        builder.spawn(ActorSpriteGroup).with_children(|builder| {
+            builder.spawn((
+                CounterAnimated,
+                AseSpriteAnimation {
+                    aseprite: match rabbit_type {
+                        RabbitType::Shop => registry.assets.rabbit_yellow.clone(),
+                        RabbitType::Training => registry.assets.rabbit_red.clone(),
+                        RabbitType::Singleplay => registry.assets.rabbit_white.clone(),
+                        RabbitType::Guide => registry.assets.rabbit_blue.clone(),
+                        RabbitType::MultiPlay => registry.assets.rabbit_black.clone(),
+                        RabbitType::Reading => registry.assets.rabbit_green.clone(),
+                        RabbitType::SpellList => registry.assets.rabbit_blue.clone(),
+                    }
+                    .clone(),
+                    animation: "idle_d".into(),
+                },
+                ChildEntityDepth { offset: 0.0 },
+            ));
+        });
 
         match rabbit_type {
             RabbitType::Shop => {

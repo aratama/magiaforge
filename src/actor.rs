@@ -136,6 +136,8 @@ pub struct CastEffects {
     pub web: u8,
 
     pub slash: Vec<u32>,
+
+    pub levitation: u32,
 }
 
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
@@ -331,9 +333,7 @@ impl ActorExtra {
 pub struct ActorLevitationEffect;
 
 /// Actor のスプライトをまとめる子エンティティのマーカーです
-/// ボスキャラクターなどの一部のActorはこのマーカーを使いませんが、
-/// 通常のキャラクターはこのマーカーでスプライトをまとめます
-/// このマーカーを使うと、その子には浮遊エフェクトの子が追加され、浮遊魔法での浮遊アニメーションが描画されるようになります
+/// ActorSpriteGroupにはx座標とy座標に応じて自動的にz座標が割り当てられます
 ///
 /// 通常、キャラクターのスプライトはルートのエンティティに直接アタッチされず、
 /// この ActorSpriteGroup の子、ルートのエンティティ孫としてアタッチされます

@@ -12,6 +12,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::ActorSpriteGroup;
+
 #[derive(Default, Component, Reflect)]
 struct Bomb;
 
@@ -49,7 +51,7 @@ pub fn spawn_bomb(
             ),
         ))
         .with_children(move |parent| {
-            parent.spawn((
+            parent.spawn(ActorSpriteGroup).with_child((
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteAnimation {

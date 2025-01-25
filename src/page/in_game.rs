@@ -4,6 +4,7 @@ use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::asset::GameAssets;
+use crate::asset_credit::path_to_string;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
@@ -43,14 +44,18 @@ use rand::rngs::StdRng;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
+use serde::Deserialize;
 use vleue_navigator::prelude::NavMeshSettings;
 use vleue_navigator::prelude::NavMeshUpdateMode;
 use vleue_navigator::Triangulation;
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum GameLevel {
-    Level(i32),
-    MultiPlayArena,
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
+pub struct GameLevel(pub String);
+
+impl GameLevel {
+    pub fn new<T: Into<String>>(level: T) -> Self {
+        GameLevel(level.into())
+    }
 }
 
 /// 現在のレベル、次のレベル、次のレベルでのプレイヤーキャラクターの状態など、
@@ -81,7 +86,7 @@ impl Default for LevelSetup {
         LevelSetup {
             level: None,
             chunk: None,
-            next_level: GameLevel::Level(INITIAL_LEVEL),
+            next_level: GameLevel::new(HOME_LEVEL),
             next_state: None,
             shop_items: Vec::new(),
         }
@@ -127,23 +132,17 @@ pub fn setup_level(
 
     let mut rng = StdRng::from_entropy();
 
-    let level = current.next_level;
-    current.level = Some(current.next_level);
+    current.level = Some(current.next_level.clone());
+    let level = &current.next_level;
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    let getting_up_animation = level == GameLevel::Level(0) && cfg!(not(feature = "ingame"));
+    let getting_up_animation =
+        *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
 
-    let biome_tile = registry.get_level_props(level).biome;
+    let biome_tile = registry.get_level(&level).biome;
 
     // 画像データからレベルの情報を選択して読み取ります
-    let chunk = read_level_chunk_data(
-        &registry,
-        &level_aseprites,
-        &images,
-        level,
-        &mut rng,
-        biome_tile,
-    );
+    let chunk = read_level_chunk_data(&registry, &level_aseprites, &images, &level, biome_tile);
 
     // ナビゲーションメッシュを作成します
     // Spawn a new navmesh that will be automatically updated.
@@ -199,7 +198,7 @@ pub fn setup_level(
     let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
 
     // 拠点に戻ってきたときは全回復します
-    if level == GameLevel::Level(0) {
+    if *level == GameLevel::new(HOME_LEVEL) {
         player_state.life = player_state.max_life;
     }
 
@@ -224,7 +223,7 @@ pub fn setup_level(
     let empties = image_to_spawn_tiles(&chunk);
 
     // 空いた空間に敵モブキャラクターをランダムに生成します
-    let props = registry.get_level_props(level);
+    let props = registry.get_level(&level);
     let spaw_enemy_count = props.enemies;
     let spaw_enemy_types = props.enemy_types.clone();
     spawn_random_enemies(
@@ -247,7 +246,7 @@ pub fn setup_level(
     );
 
     // 拠点のみ、数羽のニワトリを生成します
-    if level == GameLevel::Level(0) {
+    if *level == GameLevel::new(HOME_LEVEL) {
         for _ in 0..5 {
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEvent {
@@ -308,41 +307,43 @@ pub fn setup_level(
 }
 
 fn select_level_bgm(
+    registry: Registry,
     next_level: Res<LevelSetup>,
     mut next_bgm: ResMut<NextBGM>,
     assets: Res<GameAssets>,
 ) {
+    let bgms = vec![
+        assets.dokutsu.clone(),
+        assets.arechi.clone(),
+        assets.touha.clone(),
+        assets.mori.clone(),
+        assets.meikyu.clone(),
+        assets.shiden.clone(),
+        assets.midnight_forest.clone(),
+        assets.deamon.clone(),
+        assets.action.clone(),
+        assets.decisive.clone(),
+        assets.enjin.clone(),
+        assets.sacred.clone(), // ボスのプロモート後用BGM
+        assets.final_battle.clone(),
+        assets.human_vs_machine.clone(),
+    ];
     if next_level.is_changed() {
-        *next_bgm = NextBGM(Some(match next_level.next_level {
-            GameLevel::Level(0) => assets.dokutsu.clone(),
-            GameLevel::Level(LAST_BOSS_LEVEL) => {
-                let mut rng = rand::thread_rng();
-                let mut bgms = vec![
-                    assets.deamon.clone(),
-                    assets.action.clone(),
-                    assets.decisive.clone(),
-                    assets.enjin.clone(),
-                    // assets.sacred.clone(), // ボスのプロモート後用BGM
-                    assets.final_battle.clone(),
-                    assets.human_vs_machine.clone(),
-                ];
-                bgms.shuffle(&mut rng);
-                bgms.pop().unwrap()
-            }
-            _ => {
-                let mut rng = rand::thread_rng();
-                let mut bgms = vec![
-                    assets.arechi.clone(),
-                    assets.touha.clone(),
-                    assets.mori.clone(),
-                    assets.meikyu.clone(),
-                    assets.shiden.clone(),
-                    assets.midnight_forest.clone(),
-                ];
-                bgms.shuffle(&mut rng);
-                bgms.pop().unwrap()
-            }
-        }));
+        let props = registry.get_level(&next_level.next_level);
+
+        let handle = bgms
+            .iter()
+            .find(|bgm| bgm.path().map(path_to_string) == Some(props.bgm.clone()));
+
+        if handle.is_none() {
+            warn!(
+                "No BGM found for {:?} in {:?}",
+                props.bgm,
+                bgms.iter().map(|i| i.path().map(|p| p.to_string()))
+            );
+        }
+
+        *next_bgm = NextBGM(handle.cloned());
     }
 }
 

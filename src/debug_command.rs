@@ -1,6 +1,5 @@
 use crate::actor::Actor;
-use crate::constant::LAST_BOSS_LEVEL;
-use crate::constant::LEVELS;
+use crate::asset::GameAssets;
 use crate::controller::player::Player;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
@@ -13,11 +12,17 @@ use bevy::input::keyboard::Key;
 use bevy::input::keyboard::KeyboardInput;
 use bevy::input::ButtonState;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::Aseprite;
 
 fn process_debug_command(
-    mut commands: Commands,
     mut evr_kbd: EventReader<KeyboardInput>,
     mut local: Local<String>,
+    assets: Res<GameAssets>,
+    aseprites: Res<Assets<Aseprite>>,
+    mut level: ResMut<LevelSetup>,
+    mut writer: EventWriter<OverlayEvent>,
+    player_query: Query<(&Player, &Actor)>,
+    mut in_game_time: ResMut<NextState<TimeState>>,
 ) {
     for ev in evr_kbd.read() {
         if ev.state == ButtonState::Released {
@@ -31,153 +36,33 @@ fn process_debug_command(
         }
     }
 
-    if local.ends_with("@next") {
-        local.clear();
-        commands.run_system_cached(debug_next);
-    } else if local.ends_with("@home") {
-        local.clear();
-        commands.run_system_cached(debug_home);
-    } else if local.ends_with("@arena") {
-        local.clear();
-        commands.run_system_cached(debug_arena);
-    } else if local.ends_with("@boss") {
-        local.clear();
-        commands.run_system_cached(debug_boss);
-    } else if local.ends_with("@ending") {
-        local.clear();
-        commands.run_system_cached(debug_ending);
-    } else if local.ends_with("@pause") {
-        local.clear();
-        commands.run_system_cached(debug_pause);
-    } else if local.ends_with("@resume") {
-        local.clear();
-        commands.run_system_cached(debug_resume);
-    } else if local.ends_with("@level1") {
-        local.clear();
-        commands.run_system_cached(debug_level_1);
-    } else if local.ends_with("@level2") {
-        local.clear();
-        commands.run_system_cached(debug_level_2);
-    } else if local.ends_with("@level3") {
-        local.clear();
-        commands.run_system_cached(debug_level_3);
-    } else if local.ends_with("@level4") {
-        local.clear();
-        commands.run_system_cached(debug_level_4);
-    } else if local.ends_with("@level5") {
-        local.clear();
-        commands.run_system_cached(debug_level_5);
-    }
-}
-
-fn debug_next(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    match level.next_level {
-        GameLevel::Level(n) => {
-            level.next_level = GameLevel::Level((n + 1) % LEVELS);
+    let Some(level_map) = aseprites.get(&assets.level) else {
+        return;
+    };
+    let atmark_level_names = level_map.slices.iter().map(|(s, _)| format!("@{}", s));
+    for atmark_level_name in atmark_level_names {
+        if local.ends_with(&atmark_level_name) {
+            level.next_level = GameLevel::new(atmark_level_name.strip_prefix("@").unwrap());
             level.next_state = Some(PlayerState::from_query(&player_query));
             writer.send(OverlayEvent::Close(GameState::Warp));
+            local.clear();
+            return;
         }
-        GameLevel::MultiPlayArena => {
-            level.next_level = GameLevel::Level(0);
-            writer.send(OverlayEvent::Close(GameState::Warp));
-        }
-    };
-}
+    }
 
-fn debug_home(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(0);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_level_1(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(1);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_level_2(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(2);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_level_3(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(3);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_level_4(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(4);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_level_5(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(5);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_arena(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::MultiPlayArena;
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_boss(
-    mut level: ResMut<LevelSetup>,
-    mut writer: EventWriter<OverlayEvent>,
-    player_query: Query<(&Player, &Actor)>,
-) {
-    level.next_level = GameLevel::Level(LAST_BOSS_LEVEL);
-    level.next_state = Some(PlayerState::from_query(&player_query));
-    writer.send(OverlayEvent::Close(GameState::Warp));
-}
-
-fn debug_ending(mut writer: EventWriter<OverlayEvent>) {
-    writer.send(OverlayEvent::Close(GameState::Ending));
-}
-
-fn debug_pause(mut in_game_time: ResMut<NextState<TimeState>>) {
-    in_game_time.set(TimeState::Inactive);
-}
-
-fn debug_resume(mut in_game_time: ResMut<NextState<TimeState>>) {
-    in_game_time.set(TimeState::Active);
+    if local.ends_with("@next") {
+        in_game_time.set(TimeState::Inactive);
+        local.clear();
+    } else if local.ends_with("@pause") {
+        in_game_time.set(TimeState::Inactive);
+        local.clear();
+    } else if local.ends_with("@resume") {
+        in_game_time.set(TimeState::Active);
+        local.clear();
+    } else if local.ends_with("@ending") {
+        writer.send(OverlayEvent::Close(GameState::Ending));
+        local.clear();
+    }
 }
 
 pub struct DebugCommandPlugin;

@@ -4,8 +4,6 @@ pub const CRATE_NAME: &str = "magiaforge";
 
 pub const WEBSOCKET_URL: &str = "wss://magia-server-38847751193.asia-northeast1.run.app";
 
-pub const INITIAL_LEVEL: i32 = 0;
-
 pub const DEFAULT_BGM_VOLUME: f32 = 0.3;
 
 pub const DEFAULT_SE_VOLUME: f32 = 0.8;
@@ -21,18 +19,15 @@ pub const MAX_ITEMS_IN_INVENTORY_COLUMN: usize = 8;
 pub const MAX_ITEMS_IN_INVENTORY: usize =
     MAX_ITEMS_IN_INVENTORY_ROW * MAX_ITEMS_IN_INVENTORY_COLUMN;
 
-/// 拠点を含むシングルプレイ用ステージの数
-/// level.aseprite のスライスの最大値 - 1
-pub const LEVELS: i32 = 8;
-
-/// このレベルにボスがいなくなったらエンディングへ移行
-pub const LAST_BOSS_LEVEL: i32 = LEVELS - 1;
-
 /// 1タイルのサイズのピクセル数
 /// タイルサイズは意味合いとしてゃ u32 ですが、f32 で扱うことが多いので f32 にしています
 pub const TILE_SIZE: f32 = 16.0;
 
 pub const TILE_HALF: f32 = TILE_SIZE / 2.0;
+
+pub const HOME_LEVEL: &'static str = "home";
+
+pub const ARENA: &'static str = "arena";
 
 /// 壁の高さのピクセル数
 /// 天井のタイルはこの大きさだけ上方向にずれます

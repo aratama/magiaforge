@@ -1,3 +1,4 @@
+use bevy::asset::AssetPath;
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 
@@ -8,15 +9,15 @@ pub struct AssetCredit {
     pub appendix: &'static str,
 }
 
+pub fn path_to_string(path: &AssetPath) -> String {
+    path.path().to_str().unwrap_or("").to_string()
+}
+
 pub fn asset_to_credit(handle: &Handle<AudioSource>) -> AssetCredit {
     if let Some(path) = handle.path() {
-        let name = path
-            .path()
-            .file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or("");
+        let name = path_to_string(path);
 
-        match name {
+        match name.as_str() {
             // 拠点
             "茫漠たる庭" => AssetCredit {
                 authoer: "のる",

@@ -1,5 +1,6 @@
 use crate::actor::Actor;
 use crate::asset::GameAssets;
+use crate::constant::ARENA;
 use crate::controller::player::Player;
 use crate::controller::remote::RemotePlayer;
 use crate::page::in_game::GameLevel;
@@ -81,7 +82,7 @@ fn update_player_list_visibility(
     let mut player_list_root = player_list_query.single_mut();
 
     player_list_root.display =
-        if current.level != None && current.level == Some(GameLevel::MultiPlayArena) {
+        if current.level != None && current.level == Some(GameLevel::new(ARENA)) {
             Display::Flex
         } else {
             Display::None

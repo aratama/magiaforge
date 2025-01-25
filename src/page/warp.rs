@@ -1,3 +1,4 @@
+use crate::constant::ARENA;
 use crate::hud::overlay::OverlayEvent;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
@@ -10,10 +11,13 @@ fn setup(
     next_level: Res<LevelSetup>,
 ) {
     commands.spawn((StateScoped(GameState::Warp), Camera2d::default()));
-    overlay_writer.send(OverlayEvent::Close(match next_level.next_level {
-        GameLevel::Level(_) => GameState::InGame,
-        GameLevel::MultiPlayArena => GameState::NameInput,
-    }));
+    overlay_writer.send(OverlayEvent::Close(
+        if next_level.next_level == GameLevel::new(ARENA) {
+            GameState::NameInput
+        } else {
+            GameState::InGame
+        },
+    ));
 }
 
 pub struct WarpPagePlugin;

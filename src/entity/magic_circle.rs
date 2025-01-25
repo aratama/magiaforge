@@ -6,7 +6,6 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
-use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
@@ -23,6 +22,7 @@ use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::QueryFilter;
 use bevy_rapier2d::prelude::Sensor;
+use rand::seq::SliceRandom;
 
 const MAX_POWER: i32 = 360;
 const MIN_RADIUS_ON: f32 = 100.0;
@@ -156,12 +156,20 @@ fn power_on_circle(
 
 fn warp(
     mut commands: Commands,
+    registry: Registry,
     mut player_query: Query<(Entity, &Player, &Actor), With<Witch>>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut level: ResMut<LevelSetup>,
     mut writer: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
+    let Some(current) = &level.level else {
+        return;
+    };
+    let props = registry.get_level(current);
+
+    let mut rand = &mut rand::thread_rng();
+
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step == MAX_POWER {
             if let Ok((entity, player, actor)) = player_query.get_single_mut() {
@@ -173,15 +181,12 @@ fn warp(
                 level.next_state = Some(player_state);
                 match circle.destination {
                     MagicCircleDestination::NextLevel => {
-                        let next_level = match level.level {
-                            Some(GameLevel::Level(l)) => (l + 1) % LEVELS,
-                            Some(GameLevel::MultiPlayArena) => 1,
-                            _ => 0,
-                        };
                         interpreter.send(InterpreterEvent::Play {
                             commands: vec![
                                 Cmd::Wait { count: 60 },
-                                Cmd::Warp { level: next_level },
+                                Cmd::Warp {
+                                    level: props.next.choose(&mut rand).unwrap().clone(),
+                                },
                             ],
                         });
                     }

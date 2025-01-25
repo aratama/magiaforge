@@ -2,6 +2,7 @@ use crate::actor::witch::default_witch;
 use crate::actor::witch::spawn_witch;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
+use crate::constant::ARENA;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::bullet::spawn_bullet;
@@ -106,7 +107,7 @@ fn send_player_states(
     frame_count: Res<FrameCount>,
     current: Res<LevelSetup>,
 ) {
-    if current.level == Some(GameLevel::MultiPlayArena) && state.ready_state == ReadyState::OPEN {
+    if current.level == Some(GameLevel::new(ARENA)) && state.ready_state == ReadyState::OPEN {
         if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
             if actor.life <= 0 {
                 return;
@@ -147,18 +148,14 @@ fn send_player_states(
 }
 
 fn on_enter(mut writer: EventWriter<ClientMessage>, current: Res<LevelSetup>) {
-    if current.level != Some(GameLevel::MultiPlayArena)
-        && current.next_level == GameLevel::MultiPlayArena
-    {
+    if current.level != Some(GameLevel::new(ARENA)) && current.next_level == GameLevel::new(ARENA) {
         info!("Connecting to {}", WEBSOCKET_URL);
         writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
     }
 }
 
 fn on_exit(mut writer: EventWriter<ClientMessage>, current: Res<LevelSetup>) {
-    if current.level == Some(GameLevel::MultiPlayArena)
-        && current.next_level != GameLevel::MultiPlayArena
-    {
+    if current.level == Some(GameLevel::new(ARENA)) && current.next_level != GameLevel::new(ARENA) {
         info!("Closing {}", WEBSOCKET_URL);
         writer.send(ClientMessage::Close);
     }

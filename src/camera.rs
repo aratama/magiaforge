@@ -4,8 +4,8 @@ use crate::controller::player::Player;
 use crate::controller::player::PlayerServant;
 use crate::entity::explosion::ExplosionPointLight;
 use crate::entity::explosion::EXPLOSION_COUNT;
-use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::core::FrameCount;
@@ -126,20 +126,17 @@ fn update_camera_position(
 }
 
 fn update_camera_brightness(
+    registry: Registry,
     mut camera_query: Query<&mut AmbientLight2d, With<Camera2d>>,
-    state: Res<State<GameState>>,
     level: Res<LevelSetup>,
     explosion_query: Query<&ExplosionPointLight>,
 ) {
     if let Ok(mut light) = camera_query.get_single_mut() {
-        // 爆発エフェクトを考慮しない、レベルごとの画面の明るさ
-        let brightness = match state.get() {
-            GameState::InGame => match level.level {
-                Some(GameLevel::Level(2)) => 0.02,
-                _ => BLIGHTNESS_IN_GAME,
-            },
-            _ => 1.0,
+        let Some(level) = &level.level else {
+            return;
         };
+        let props = registry.get_level(&level);
+        let brightness = props.brightness;
 
         let max_explosion = explosion_query
             .iter()

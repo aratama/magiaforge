@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::config::GameConfig;
+use crate::constant::HOME_LEVEL;
 use crate::constant::HUD_Z_INDEX;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::language_to_font;
@@ -55,7 +56,7 @@ fn setup(
 
     *next_bgm = NextBGM(Some(assets.boubaku.clone()));
 
-    current.next_level = GameLevel::Level(0);
+    current.next_level = GameLevel::new(HOME_LEVEL);
 
     commands.spawn((
         Name::new("main_menu"),

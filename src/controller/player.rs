@@ -330,7 +330,7 @@ pub fn recovery(
     current_actor: &Actor,
 ) {
     // ダウン後はキャンプに戻る
-    level.next_level = GameLevel::Level(0);
+    level.next_level = GameLevel::new("level_0_0");
 
     // 元に戻ったあとのActorを取得します
     // current_actor は変身済みのものである可能性があることに注意します

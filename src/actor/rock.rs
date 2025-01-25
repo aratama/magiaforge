@@ -17,6 +17,8 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::ActorSpriteGroup;
+
 #[derive(Default, Component, Reflect)]
 struct FallingRock;
 
@@ -38,8 +40,7 @@ pub fn spawn_falling_rock(commands: &mut Commands, registry: &Registry, position
             },
         ))
         .with_children(|parent| {
-            parent.spawn((
-                Vertical::new(0.0, -0.1),
+            parent.spawn(ActorSpriteGroup).with_child((
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteSlice {
@@ -118,7 +119,7 @@ pub fn spawn_fallen_rock(
             ),
         ))
         .with_children(|parent| {
-            parent.spawn((
+            parent.spawn(ActorSpriteGroup).with_child((
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteSlice {
