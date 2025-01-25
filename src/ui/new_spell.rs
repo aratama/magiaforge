@@ -4,7 +4,8 @@ use crate::language::M18NTtext;
 use crate::message::NEW_SPELL;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::HAKKEN;
 use crate::set::FixedUpdateInGameSet;
 use crate::spell::Spell;
 use crate::states::GameMenuState;
@@ -22,7 +23,7 @@ pub fn spawn_new_spell(
     spell: Spell,
     se: &mut EventWriter<SEEvent>,
 ) {
-    se.send(SEEvent::new(SE::Hakken));
+    se.send(SEEvent::new(HAKKEN));
 
     time.set(TimeState::Inactive);
 

@@ -10,7 +10,8 @@ use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BREAK;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -94,7 +95,7 @@ fn break_book_shelf(
         if breakabke.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
 
-            writer.send(SEEvent::pos(SE::Break, position));
+            writer.send(SEEvent::pos(BREAK, position));
             for i in 0..6 {
                 spawn_broken_piece(
                     &mut commands,

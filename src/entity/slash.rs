@@ -7,7 +7,8 @@ use crate::constant::PARTICLE_LAYER_Z;
 use crate::entity::grass::Grasses;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::KEN2;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
@@ -57,7 +58,7 @@ pub fn spawn_slash(
             CollisionGroups::new(Group::NONE, Group::NONE),
         ),
     ));
-    se.send(SEEvent::pos(SE::Ken2, position));
+    se.send(SEEvent::pos(KEN2, position));
 
     let context = context_query.single_mut();
 

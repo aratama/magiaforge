@@ -10,7 +10,8 @@ use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::DROP;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
@@ -51,7 +52,7 @@ fn read_impact_event(
         impulse,
     } in reader.read()
     {
-        writer.send(SEEvent::pos(SE::Drop, *position));
+        writer.send(SEEvent::pos(DROP, *position));
         let (mut camera, camera_transform) = camera_query.single_mut();
         camera.vibrate(&camera_transform, *position, 20.0);
 

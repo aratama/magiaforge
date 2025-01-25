@@ -1,7 +1,7 @@
 use crate::component::vertical::Vertical;
 use crate::page::in_game::LevelSetup;
-use crate::se::SEEvent;
-use crate::se::SE;
+use crate::se::{SEEvent, SCENE2};
+
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 
@@ -24,7 +24,7 @@ fn despawn(
             if !tile.is_plane() && vertical.map(|v| v.v == 0.0).unwrap_or(true) {
                 commands.entity(entity).despawn_recursive();
 
-                se.send(SEEvent::pos(SE::Scene2, position));
+                se.send(SEEvent::pos(SCENE2, position));
                 info!(
                     "[falling] {:?} falled into {:?}",
                     name.unwrap_or(&Name::new("(no name)")),

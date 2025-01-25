@@ -32,7 +32,10 @@ use crate::page::in_game::LevelSetup;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+use crate::se::HEAL;
+use crate::se::SHURIKEN;
+use crate::se::STATUS2;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalImpulse;
@@ -270,7 +273,7 @@ pub fn cast_spell(
                 }
                 SpellCast::Heal => {
                     actor.life = (actor.life + 2).min(actor.max_life);
-                    se.send(SEEvent::pos(SE::Heal, actor_position));
+                    se.send(SEEvent::pos(HEAL, actor_position));
                 }
                 SpellCast::MultipleCast { ref amount } => {
                     multicast += amount;
@@ -311,7 +314,7 @@ pub fn cast_spell(
                     } else {
                         actor.pointer.normalize()
                     } * 50000.0;
-                    se.send(SEEvent::pos(SE::Shuriken, actor_position));
+                    se.send(SEEvent::pos(SHURIKEN, actor_position));
                 }
                 SpellCast::QuickCast => {
                     actor.effects.quick_cast += 6;
@@ -347,12 +350,12 @@ pub fn cast_spell(
                         position,
                         entity: entity.clone(),
                     });
-                    se.send(SEEvent::pos(SE::Status2, position));
+                    se.send(SEEvent::pos(STATUS2, position));
                 }
                 SpellCast::RockFall => {
                     let position = actor_position + actor.pointer;
                     spawn_falling_rock(&mut commands, registry, position);
-                    se.send(SEEvent::pos(SE::Status2, position));
+                    se.send(SEEvent::pos(STATUS2, position));
                 }
                 SpellCast::Fireball => {
                     let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
@@ -454,7 +457,7 @@ pub fn cast_spell(
                 }
                 SpellCast::Dispel => {
                     actor.effects.dispel = (actor.effects.dispel + 1).min(4);
-                    se.send(SEEvent::pos(SE::Heal, actor_position));
+                    se.send(SEEvent::pos(HEAL, actor_position));
                 }
                 SpellCast::Clone => {
                     // 分身も分身を詠唱できると指数関数的に増えてしまって強力すぎるので、
@@ -533,7 +536,7 @@ pub fn cast_spell(
 
         if 0 < actor.effects.levitation {
             actor.levitation += actor.effects.levitation;
-            se.send(SEEvent::pos(SE::Status2, actor_position));
+            se.send(SEEvent::pos(STATUS2, actor_position));
             actor.effects.levitation = 0;
         }
 
@@ -594,7 +597,7 @@ fn cast_clone(
                         particle: metamorphosis_effect(),
                     },
                 });
-                se.send(SEEvent::pos(SE::Heal, actor_position));
+                se.send(SEEvent::pos(HEAL, actor_position));
 
                 break;
             }

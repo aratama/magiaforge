@@ -11,7 +11,9 @@ use crate::entity::piece::spawn_broken_piece;
 use crate::inventory::InventoryItem;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BREAK;
+use crate::se::GLASS;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -174,11 +176,11 @@ fn break_chest(
 
             writer.send(SEEvent::pos(
                 match chest_type {
-                    ChestType::Chest => SE::Break,
-                    ChestType::Crate => SE::Break,
-                    ChestType::Barrel => SE::Break,
-                    ChestType::BarrelBomb => SE::Break,
-                    ChestType::Jar(_) => SE::Glass,
+                    ChestType::Chest => BREAK,
+                    ChestType::Crate => BREAK,
+                    ChestType::Barrel => BREAK,
+                    ChestType::BarrelBomb => BREAK,
+                    ChestType::Jar(_) => GLASS,
                 },
                 position,
             ));

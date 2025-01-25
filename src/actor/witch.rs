@@ -11,7 +11,8 @@ use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::CHAKUCHI;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::audio::Volume;
 use bevy::prelude::*;
@@ -264,7 +265,7 @@ fn land_se(witch_query: Query<(&Vertical, &Transform), With<Witch>>, mut se: Eve
     for (vertical, transform) in witch_query.iter() {
         if vertical.just_landed {
             let position = transform.translation.truncate();
-            se.send(SEEvent::pos(SE::Chakuchi, position));
+            se.send(SEEvent::pos(CHAKUCHI, position));
         }
     }
 }

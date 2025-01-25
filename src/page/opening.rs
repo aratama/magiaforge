@@ -2,7 +2,11 @@ use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::hud::overlay::OverlayEvent;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::DAMAGE;
+use crate::se::DRAGON;
+use crate::se::DRAGON_FLUTTER;
+use crate::se::SE_TAORERU;
 use crate::states::GameState;
 use bevy::animation::animated_field;
 use bevy::animation::AnimationTarget;
@@ -33,7 +37,7 @@ struct Raven;
 
 #[derive(Event, Clone, Debug, PartialEq, Eq)]
 enum OpeningEvent {
-    SE(SE),
+    SE(String),
     BGM(Option<Handle<AudioSource>>),
     Animate {
         name: String,
@@ -47,6 +51,7 @@ enum OpeningEvent {
 
 fn setup(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     assets: Res<GameAssets>,
 
     mut count: ResMut<OpeningCount>,
@@ -104,7 +109,13 @@ fn setup(
         ],
     );
 
-    setup_witch(&mut commands, &assets, &mut animations, &mut graphs);
+    setup_witch(
+        &mut commands,
+        &asset_server,
+        &assets,
+        &mut animations,
+        &mut graphs,
+    );
 
     setup_raven(&mut commands, &assets, &mut animations, &mut graphs);
 }
@@ -159,6 +170,7 @@ fn setup_cloud(
 
 fn setup_witch(
     commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
     assets: &Res<GameAssets>,
     animations: &mut ResMut<Assets<AnimationClip>>,
     graphs: &mut ResMut<Assets<AnimationGraph>>,
@@ -220,7 +232,10 @@ fn setup_witch(
         ),
     );
 
-    animation.add_event(0.0, OpeningEvent::BGM(Some(assets.kaze.clone())));
+    animation.add_event(
+        0.0,
+        OpeningEvent::BGM(Some(asset_server.load("audio/風が吹く1.ogg"))),
+    );
     animation.add_event(0.0, OpeningEvent::FadeOut);
     animation.add_event(FADE_IN, OpeningEvent::FadeIn);
 
@@ -240,10 +255,10 @@ fn setup_witch(
             frame: 33,
         },
     );
-    animation.add_event(HIT, OpeningEvent::SE(SE::Damage));
+    animation.add_event(HIT, OpeningEvent::SE(DAMAGE.to_string()));
     animation.add_event(FADE_OUT, OpeningEvent::FadeOut);
     animation.add_event(FADE_OUT, OpeningEvent::BGM(None));
-    animation.add_event(TAORERU, OpeningEvent::SE(SE::Taoreru));
+    animation.add_event(TAORERU, OpeningEvent::SE(SE_TAORERU.to_string()));
     animation.add_event(CLOSE, OpeningEvent::Close);
 
     let (graph, animation_index) = AnimationGraph::from_clip(animations.add(animation));
@@ -299,11 +314,11 @@ fn setup_raven(
         ),
     );
 
-    animation.add_event(CRY, OpeningEvent::SE(SE::Dragon));
-    animation.add_event(APPEAR + 0.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 1.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 2.0, OpeningEvent::SE(SE::DragonFlutter));
-    animation.add_event(APPEAR + 3.0, OpeningEvent::SE(SE::DragonFlutter));
+    animation.add_event(CRY, OpeningEvent::SE(DRAGON.to_string()));
+    animation.add_event(APPEAR + 0.0, OpeningEvent::SE(DRAGON_FLUTTER.to_string()));
+    animation.add_event(APPEAR + 1.0, OpeningEvent::SE(DRAGON_FLUTTER.to_string()));
+    animation.add_event(APPEAR + 2.0, OpeningEvent::SE(DRAGON_FLUTTER.to_string()));
+    animation.add_event(APPEAR + 3.0, OpeningEvent::SE(DRAGON_FLUTTER.to_string()));
     animation.add_event(
         ATTACK,
         OpeningEvent::Animate {
@@ -353,7 +368,7 @@ impl Plugin for OpeningPlugin {
              mut query_raven: Query<(&Name, &mut AseSpriteAnimation, &mut AnimationState)>,
              mut next_bgm: ResMut<NextBGM>| match trigger.event() {
                 OpeningEvent::SE(se) => {
-                    se_writer.send(SEEvent::new(*se));
+                    se_writer.send(SEEvent::new(se.clone()));
                 }
                 OpeningEvent::Close => {
                     overlay_event_writer.send(OverlayEvent::Close(GameState::InGame));

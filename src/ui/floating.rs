@@ -8,7 +8,8 @@ use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::PICK_UP;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::item_panel::spawn_item_panel;
@@ -161,7 +162,7 @@ fn drop(
                                             );
                                             floating.content = None;
 
-                                            se.send(SEEvent::new(SE::PickUp));
+                                            se.send(SEEvent::new(PICK_UP));
                                         }
                                     }
                                 }

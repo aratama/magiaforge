@@ -1042,7 +1042,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "slash_icon",
             price: 2400,
-            cast: Slash (damage: 20),
+            cast: Slash (damage: 120),
         ),
         "Heal": (
             rank: 5,

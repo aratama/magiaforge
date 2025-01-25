@@ -11,7 +11,8 @@ use crate::message::CLICK_TO_START;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::CLICK;
 use crate::states::GameState;
 use crate::states::MainMenuPhase;
 use crate::ui::on_press::OnPress;
@@ -45,7 +46,7 @@ struct LanguageButton {
 
 fn setup(
     mut commands: Commands,
-    res: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
     mut current: ResMut<LevelSetup>,
@@ -55,7 +56,7 @@ fn setup(
 
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 
-    *next_bgm = NextBGM(Some(res.load("bgm/茫漠たる庭.ogg")));
+    *next_bgm = NextBGM(Some(asset_server.load("bgm/茫漠たる庭.ogg")));
 
     current.next_level = GameLevel::new(HOME_LEVEL);
 
@@ -324,7 +325,7 @@ fn toggle_language(
                 background.0 = SELECTED;
                 config.language = button.language;
                 changed.0 = true;
-                writer.send(SEEvent::new(SE::Click));
+                writer.send(SEEvent::new(CLICK));
             }
         }
     }
@@ -348,7 +349,7 @@ fn toggle_language_with_key(
         let next =
             (Languages::iter().count() as i32 + current.unwrap_or(0) as i32 + delta) as usize;
         config.language = Languages::iter().cycle().skip(next).next().unwrap();
-        writer.send(SEEvent::new(SE::Click));
+        writer.send(SEEvent::new(CLICK));
     }
 }
 
@@ -401,7 +402,7 @@ fn read_events(
                     *visibility = Visibility::Hidden;
                 }
                 menu_next_state.set(MainMenuPhase::Paused);
-                writer.send(SEEvent::new(SE::Click));
+                writer.send(SEEvent::new(CLICK));
 
                 overlay_event_writer.send(OverlayEvent::Close(
                     if interlevel.next_state.is_none() {

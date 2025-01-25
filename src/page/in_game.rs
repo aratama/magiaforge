@@ -312,7 +312,7 @@ fn select_level_bgm(
 ) {
     if next_level.is_changed() {
         let props = registry.get_level(&next_level.next_level);
-        *next_bgm = NextBGM(asset_server.get_handle(props.bgm.clone()));
+        *next_bgm = NextBGM(Some(asset_server.load(props.bgm.clone())));
     }
 }
 

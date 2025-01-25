@@ -17,7 +17,8 @@ use crate::hud::life_bar::LifeBarResource;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BICHA;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -155,7 +156,7 @@ fn update_servant_seed(
                         master: seed.master,
                         servant: seed.servant,
                     });
-                    se_writer.send(SEEvent::pos(SE::Bicha, seed.to));
+                    se_writer.send(SEEvent::pos(BICHA, seed.to));
                 }
             }
         }

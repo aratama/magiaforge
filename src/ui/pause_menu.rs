@@ -16,7 +16,8 @@ use crate::message::SFX_VOLUME;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::CLICK;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameMenuState;
 use crate::states::GameState;
@@ -97,7 +98,7 @@ impl FromWorld for ButtonShots {
 
 fn resume(mut state: ResMut<NextState<GameMenuState>>, mut writer: EventWriter<SEEvent>) {
     state.set(GameMenuState::PauseMenuClosing);
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn exit(
@@ -108,78 +109,78 @@ fn exit(
 ) {
     next.next_level = GameLevel::new(HOME_LEVEL);
     overlay_event_writer.send(OverlayEvent::Close(GameState::MainMenu));
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
     websocket.send(ClientMessage::Close);
 }
 
 fn volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.bgm_volume = (config.bgm_volume + 0.1).min(1.0);
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.bgm_volume = (config.bgm_volume - 0.1).max(0.0);
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn se_volume_up(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.se_volume = (config.se_volume + 0.1).min(1.0);
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn se_volume_down(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.se_volume = (config.se_volume - 0.1).max(0.0);
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn ja(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Ja;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn en(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::En;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn zh_cn(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::ZhCn;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn zh_tw(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::ZhTw;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn es(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Es;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn fr(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Fr;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn pt(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Pt;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn ru(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Ru;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn de(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::De;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn ko(mut config: ResMut<GameConfig>, mut writer: EventWriter<SEEvent>) {
     config.language = Languages::Ko;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -190,7 +191,7 @@ fn fullscreen_on(
 ) {
     let mut window = window_query.single_mut();
     window.mode = WindowMode::SizedFullscreen(MonitorSelection::Primary);
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
     config.fullscreen = true;
 }
 
@@ -202,7 +203,7 @@ fn fullscreen_off(
 ) {
     let mut window = window_query.single_mut();
     window.mode = WindowMode::Windowed;
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
     config.fullscreen = false;
 }
 

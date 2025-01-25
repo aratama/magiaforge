@@ -19,7 +19,8 @@ use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::KAWAII;
 use crate::spell::Spell;
 use crate::states::GameMenuState;
 use crate::states::GameState;
@@ -50,7 +51,7 @@ pub enum Cmd {
     BGM(Option<String>),
 
     SE {
-        se: SE,
+        path: String,
     },
 
     /// フキダシを非表示にします
@@ -269,25 +270,22 @@ fn interpret(
                 };
 
                 if interpreter.speech_count % (DELAY * step) == 0 {
-                    se_writer.send(SEEvent::new(SE::Kawaii));
+                    se_writer.send(SEEvent::new(KAWAII));
                 }
 
                 interpreter.speech_count += step;
             }
         }
         Cmd::BGM(path) => {
-            let handle = path
-                .clone()
-                .and_then(|b| asset_server.get_handle(b))
-                .clone();
+            let handle = path.clone().map(|b| asset_server.load(b)).clone();
             if handle.is_none() {
                 warn!("BGM not found: {:?}", path);
             }
             next_bgm.0 = handle;
             interpreter.index += 1;
         }
-        Cmd::SE { se } => {
-            se_writer.send(SEEvent::new(se));
+        Cmd::SE { path } => {
+            se_writer.send(SEEvent::new(path));
             interpreter.index += 1;
         }
         Cmd::GetItem(item) => {

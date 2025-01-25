@@ -24,7 +24,9 @@ use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::GROWL;
+use crate::se::PUYON;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use crate::wand::Wand;
@@ -153,7 +155,7 @@ fn update_huge_slime_growl(
     for (mut huge_slime, transform, mut counter) in huge_slime_query.iter_mut() {
         if let HugeSlimeState::Growl = huge_slime.state {
             if counter.count == 120 {
-                se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
+                se_writer.send(SEEvent::pos(GROWL, transform.translation.truncate()));
             } else if 300 <= counter.count {
                 huge_slime.state = HugeSlimeState::Approach;
                 counter.count = 0;
@@ -267,7 +269,7 @@ fn update_huge_slime_summon(
                             });
                         }
                     }
-                    se_writer.send(SEEvent::pos(SE::Puyon, transform.translation.truncate()));
+                    se_writer.send(SEEvent::pos(PUYON, transform.translation.truncate()));
                 }
             }
 
@@ -292,7 +294,7 @@ fn update_huge_slime_promote(
         actor.move_direction = Vec2::ZERO;
         if let HugeSlimeState::Promote = huge_slime.state {
             if counter.count == 120 {
-                se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
+                se_writer.send(SEEvent::pos(GROWL, transform.translation.truncate()));
                 *next_bgm = NextBGM(Some(asset_server.load("bgm/Sacred_Sacrifice.ogg")));
             } else if 300 <= counter.count {
                 huge_slime.state = HugeSlimeState::Approach;

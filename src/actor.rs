@@ -55,7 +55,14 @@ use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BASHA2;
+use crate::se::CRY;
+use crate::se::DAMAGE;
+use crate::se::SCENE2;
+use crate::se::SHURIKEN;
+use crate::se::SUNA;
+use crate::se::ZOMBIE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
 use crate::states::GameState;
@@ -850,7 +857,7 @@ fn apply_external_force(
                     actor.trapped -= actor.floundering;
                     if actor.trapped == 0 {
                         actor.trap_moratorium = 180;
-                        se.send(SEEvent::pos(SE::Zombie, position));
+                        se.send(SEEvent::pos(ZOMBIE, position));
                     }
                 } else {
                     external_force.force = force;
@@ -1007,7 +1014,7 @@ fn drown(
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::Water || tile == Tile::Lava {
                     if actor.drowning == 0 {
-                        se.send(SEEvent::pos(SE::Basha2, position));
+                        se.send(SEEvent::pos(BASHA2, position));
                     }
                     actor.drowning += 1;
                 } else {
@@ -1077,7 +1084,7 @@ fn drown_damage(
                 let position = transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();
 
-                se.send(SEEvent::pos(SE::Scene2, position));
+                se.send(SEEvent::pos(SCENE2, position));
                 if let Some(player) = player {
                     recovery(&mut level, &mut interpreter, &morph, &player, &actor);
                 }
@@ -1115,7 +1122,7 @@ pub fn jump_actor(
         actor_impulse.impulse += actor.move_direction.normalize_or_zero() * impulse;
         *collision_groups = actor.actor_group.to_groups(actor_falling.v, actor.drowning);
         let position = actor_transform.translation.truncate();
-        se.send(SEEvent::pos(SE::Suna, position));
+        se.send(SEEvent::pos(SUNA, position));
         true
     } else {
         false
@@ -1265,7 +1272,7 @@ fn damage(
 
                 actor.amplitude = 6.0;
 
-                se.send(SEEvent::pos(SE::Damage, *position));
+                se.send(SEEvent::pos(DAMAGE, *position));
 
                 if *fire {
                     actor.fire_damage_wait = 60 + (rand::random::<u32>() % 60);
@@ -1326,7 +1333,7 @@ fn despawn(
         if actor.cloned.map(|c| c == 0).unwrap_or(false) {
             // 分身の時間切れによる消滅
             commands.entity(entity).despawn_recursive();
-            se.send(SEEvent::pos(SE::Shuriken, position));
+            se.send(SEEvent::pos(SHURIKEN, position));
             spawn.send(SpawnEvent {
                 position,
                 entity: Spawn::Particle {
@@ -1340,7 +1347,7 @@ fn despawn(
 
             // 悲鳴
             if props.cry {
-                se.send(SEEvent::pos(SE::Cry, position));
+                se.send(SEEvent::pos(CRY, position));
             }
 
             // ゴールドをばらまく

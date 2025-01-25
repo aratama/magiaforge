@@ -10,7 +10,8 @@ use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BREAK;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -137,7 +138,7 @@ fn despawn(query: Query<(&Actor, &Transform), With<FallenRock>>, mut writer: Eve
     for (breakabke, transform) in query.iter() {
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
-            writer.send(SEEvent::pos(SE::Break, position));
+            writer.send(SEEvent::pos(BREAK, position));
         }
     }
 }

@@ -347,6 +347,11 @@ GameRegistry(
             author: "Kulakovka",
             title: "Human vs Machine",
             appendix: "",
+        ),
+        "audio/風が吹く1.ogg": (
+            author: "",
+            title: "",
+            appendix: "",
         )
     },
 

@@ -6,7 +6,8 @@ use crate::language::M18NTtext;
 use crate::message::INPUT_YOUR_NAME;
 use crate::message::START;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::CLICK;
 use crate::states::GameState;
 use crate::states::MainMenuPhase;
 use crate::ui::menu_button::menu_button;
@@ -50,7 +51,7 @@ fn start_game(
     let TextInputValue(text_input) = text_input_query.single();
     config.player_name = text_input.clone();
 
-    writer.send(SEEvent::new(SE::Click));
+    writer.send(SEEvent::new(CLICK));
 }
 
 fn setup(

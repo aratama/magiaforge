@@ -9,7 +9,8 @@ use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::KYUSHU2_SHORT;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::TimeState;
 use bevy::prelude::*;
@@ -107,7 +108,7 @@ pub fn cast_metamorphosis(
         count: 60 * 10,
         original_actor,
     });
-    se.send(SEEvent::pos(SE::Kyushu2Short, position));
+    se.send(SEEvent::pos(KYUSHU2_SHORT, position));
     spawn.send(SpawnEvent {
         position,
         entity: Spawn::Particle {
@@ -160,7 +161,7 @@ fn revert(
                     particle: metamorphosis_effect(),
                 },
             });
-            se.send(SEEvent::pos(SE::Kyushu2Short, position));
+            se.send(SEEvent::pos(KYUSHU2_SHORT, position));
         }
     }
 }

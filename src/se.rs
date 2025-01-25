@@ -5,66 +5,66 @@ use bevy::prelude::*;
 use bevy::utils::hashbrown::HashSet;
 use std::cmp::Ordering;
 
+pub const DAMAGE: &'static str = "audio/dageki.ogg";
+pub const NO_DAMAGE: &'static str = "audio/shibafu.ogg";
+pub const CRY: &'static str = "audio/hiyoko.ogg";
+pub const BREAK: &'static str = "audio/kuzureru.ogg";
+pub const CLICK: &'static str = "audio/kettei.ogg";
+pub const FIRE: &'static str = "audio/suburi.ogg";
+pub const STEPS: &'static str = "audio/アスファルトの上を歩く2.ogg";
+pub const TURN_ON: &'static str = "audio/メニューを開く2.ogg";
+pub const WARP: &'static str = "audio/ワープ.ogg";
+pub const PICK_UP: &'static str = "audio/キャンセル9.ogg";
+pub const HEAL: &'static str = "audio/回復魔法1.ogg";
+pub const SWITCH: &'static str = "audio/カーソル移動2.ogg";
+pub const DROP: &'static str = "audio/爆発3_drop.ogg";
+pub const GROWL: &'static str = "audio/イノシシの鳴き声.ogg";
+pub const PUYON: &'static str = "audio/ぷよん.ogg";
+pub const BICHA: &'static str = "audio/お風呂.ogg";
+pub const KAWAII: &'static str = "audio/可愛い動作.ogg";
+pub const REGISTER: &'static str = "audio/レジスターで精算.ogg";
+pub const SHURIKEN: &'static str = "audio/手裏剣を投げる.ogg";
+pub const BUS: &'static str = "audio/バスのドアが開く2.ogg";
+pub const GLASS: &'static str = "audio/ガラスが割れる2.ogg";
+// pub const KAMINARI: &'static str = "audio/雷魔法4.ogg";
+// pub const JISHIN: &'static str = "audio/地震魔法2.ogg";
+pub const BAKUHATSU: &'static str = "audio/爆発2.ogg";
+pub const STATUS2: &'static str = "audio/ステータス上昇魔法2.ogg";
+pub const ZOMBIE: &'static str = "audio/ゾンビの食事.ogg";
+pub const KAMAE: &'static str = "audio/構えを取る.ogg";
+pub const SEN: &'static str = "audio/コルク栓を抜く1.ogg";
+pub const DRAGON: &'static str = "audio/ドラゴンの鳴き声2.ogg";
+pub const DRAGON_FLUTTER: &'static str = "audio/ドラゴンの羽ばたき.ogg";
+pub const SE_TAORERU: &'static str = "audio/倒れる.ogg";
+pub const FREEZE: &'static str = "audio/氷魔法で凍結.ogg";
+pub const BASHA2: &'static str = "audio/水をバシャッとかける2.ogg";
+pub const SUNA: &'static str = "audio/砂の上を走る.ogg";
+pub const CHAKUCHI: &'static str = "audio/ジャンプの着地.ogg";
+pub const SCENE2: &'static str = "audio/シーン切り替え2.ogg";
+pub const KYUSHU2_SHORT: &'static str = "audio/HP吸収魔法2_short.ogg";
+pub const KEN2: &'static str = "audio/剣の素振り2.ogg";
+pub const HAKKEN: &'static str = "bgm/発見.ogg";
+
 #[derive(Event, Clone)]
 pub struct SEEvent {
-    se: SE,
+    path: String,
     position: Option<Vec2>,
 }
 
 impl SEEvent {
-    pub fn pos(se: SE, position: Vec2) -> Self {
+    pub fn pos<T: Into<String>>(path: T, position: Vec2) -> Self {
         Self {
-            se,
+            path: path.into(),
             position: Some(position),
         }
     }
 
-    pub fn new(se: SE) -> Self {
-        Self { se, position: None }
+    pub fn new<T: Into<String>>(path: T) -> Self {
+        Self {
+            path: path.into(),
+            position: None,
+        }
     }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, serde::Deserialize)]
-pub enum SE {
-    Damage,
-    NoDamage,
-    Cry,
-    Break,
-    Click,
-    Fire,
-    Steps,
-    TurnOn,
-    Warp,
-    PickUp,
-    Heal,
-    Switch,
-    Drop,
-    Growl,
-    Puyon,
-    Bicha,
-    Kawaii,
-    Register,
-    Shuriken,
-    Bus,
-    Glass,
-    Kaminari,
-    Jishin,
-    Bakuhatsu,
-    Status2,
-    Zombie,
-    Kamae,
-    Sen,
-    Dragon,
-    DragonFlutter,
-    Taoreru,
-    Freeze,
-    Basha2,
-    Suna,
-    Chakuchi,
-    Scene2,
-    Kyushu2Short,
-    Ken2,
-    Hakken,
 }
 
 /// 効果音イベントを順次再生していきます
@@ -72,7 +72,7 @@ pub enum SE {
 /// 同じ効果音が同時に複数回リクエストされても、最も距離が近いもののみが再生されます
 fn se_events(
     mut commands: Commands,
-    assets: Res<GameAssets>,
+    asset_server: Res<AssetServer>,
     config: Res<GameConfig>,
     mut reader: EventReader<SEEvent>,
     camera_query: Query<&Transform, With<Camera2d>>,
@@ -92,58 +92,22 @@ fn se_events(
         la.partial_cmp(&lb).unwrap_or(Ordering::Equal)
     });
 
-    let mut played = HashSet::<SE>::new();
+    let mut played = HashSet::<&String>::new();
 
-    for SEEvent { se, position } in vec.iter() {
-        if played.contains(se) {
+    for SEEvent { path, position } in vec.iter() {
+        if played.contains(path) {
             continue;
         }
 
-        played.insert(*se);
+        played.insert(path);
 
-        let handle = match se {
-            SE::Damage => &assets.dageki,
-            SE::NoDamage => &assets.shibafu,
-            SE::Cry => &assets.hiyoko,
-            SE::Break => &assets.kuzureru,
-            SE::Click => &assets.kettei,
-            SE::Fire => &assets.suburi,
-            SE::Steps => &assets.asphalt,
-            SE::TurnOn => &assets.menu_open,
-            SE::Warp => &assets.warp,
-            SE::PickUp => &assets.cancel,
-            SE::Heal => &assets.kaifuku1,
-            SE::Switch => &assets.cursor2,
-            SE::Drop => &assets.drop,
-            SE::Growl => &assets.inoshishi,
-            SE::Puyon => &assets.puyon,
-            SE::Bicha => &assets.bicha,
-            SE::Kawaii => &assets.kawaii,
-            SE::Register => &assets.register,
-            SE::Shuriken => &assets.shuriken,
-            SE::Bus => &assets.bus,
-            SE::Glass => &assets.glass,
-            SE::Kaminari => &assets.kaminari,
-            SE::Jishin => &assets.jishin,
-            SE::Bakuhatsu => &assets.bakuhatsu,
-            SE::Status2 => &assets.status2,
-            SE::Zombie => &assets.zombie,
-            SE::Kamae => &assets.kamae,
-            SE::Sen => &assets.sen,
-            SE::Dragon => &assets.dragon,
-            SE::DragonFlutter => &assets.dragon_flutter,
-            SE::Taoreru => &assets.taoreru,
-            SE::Freeze => &assets.freeze_se,
-            SE::Basha2 => &assets.basha2,
-            SE::Suna => &assets.suna,
-            SE::Chakuchi => &assets.chakuchi,
-            SE::Scene2 => &assets.scene2,
-            SE::Kyushu2Short => &assets.kyushu2_short,
-            SE::Ken2 => &assets.ken2,
-            SE::Hakken => &assets.hakken,
-        };
-
-        play_se(&mut commands, &config, handle, position, camera_position);
+        play_se(
+            &mut commands,
+            &config,
+            asset_server.load(path),
+            position,
+            camera_position,
+        );
     }
 }
 

@@ -1,4 +1,5 @@
 use crate::config::GameConfig;
+use crate::registry::path_to_string;
 use crate::registry::Registry;
 use crate::states::GameState;
 use crate::ui::pause_menu::BGMCredit;
@@ -11,7 +12,7 @@ const SPATIAL_AUDIO_MAX_DISTANCE: f32 = 400.0;
 pub fn play_se(
     commands: &mut Commands,
     config: &GameConfig,
-    source: &Handle<AudioSource>,
+    source: Handle<AudioSource>,
     position: &Option<Vec2>,
     camera_position: Vec2,
 ) {
@@ -49,24 +50,28 @@ pub fn play_se(
 #[derive(Resource, Default)]
 pub struct NextBGM(pub Option<Handle<AudioSource>>);
 
-#[derive(Component)]
-pub struct BGM {
+#[derive(Component, Debug)]
+struct BGM {
     volume: f32,
 }
 
 fn change_bgm(
     mut commands: Commands,
     registry: Registry,
-    mut bgm_query: Query<(Entity, &AudioPlayer, &AudioSink, &mut BGM)>,
+    // BGMをspawnした直後、一瞬 AudioSink がないフレームがあるので Option<&AudioSink> としています
+    // そうでないとBGM がクエリにヒットせず、新しいBGMをspawnしてしまい、重複してspawnしてしまうことがある
+    mut bgm_query: Query<(Entity, &AudioPlayer, Option<&AudioSink>, &mut BGM)>,
     next_bgm: ResMut<NextBGM>,
     config: Res<GameConfig>,
     mut bgm_credit_query: Query<&mut Text, With<BGMCredit>>,
 ) {
     if let Ok((entity, player, sink, mut bgm)) = bgm_query.get_single_mut() {
         if let Some(ref next) = next_bgm.0 {
-            if player.0 != *next {
+            if player.0.path().map(path_to_string) != next.path().map(path_to_string) {
                 bgm.volume = (bgm.volume - 0.01).max(0.0);
-                sink.set_volume(config.bgm_volume * bgm.volume);
+                if let Some(sink) = sink {
+                    sink.set_volume(config.bgm_volume * bgm.volume);
+                }
 
                 if bgm.volume == 0.0 {
                     // AudioPlayer を上書きするだけでは音声を変更できないことに注意
@@ -82,18 +87,21 @@ fn change_bgm(
                     );
                 }
             }
-        } else {
+        } else if let Some(sink) = sink {
             bgm.volume = (bgm.volume - 0.01).max(0.0);
             sink.set_volume(config.bgm_volume * bgm.volume);
         }
     } else if let Some(ref next) = next_bgm.0 {
-        spawn_bgm(
-            &mut commands,
-            &registry,
-            &mut bgm_credit_query,
-            next,
-            &config,
-        );
+        if bgm_query.is_empty() {
+            info!("no bgm, spawn new bgm: {:?}", next);
+            spawn_bgm(
+                &mut commands,
+                &registry,
+                &mut bgm_credit_query,
+                next,
+                &config,
+            );
+        }
     }
 }
 

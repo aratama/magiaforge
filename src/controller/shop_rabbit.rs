@@ -9,7 +9,8 @@ use crate::message::SHOP_RABBIT;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::REGISTER;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -40,7 +41,7 @@ fn collision_inner_sensor(
                 if 0 < dept {
                     if actor.liquidate() {
                         camera.target = Some(sensor_entity);
-                        se.send(SEEvent::new(SE::Register));
+                        se.send(SEEvent::new(REGISTER));
                         speech_writer.send(InterpreterEvent::Play {
                             commands: vec![
                                 Cmd::Focus(sensor_entity),

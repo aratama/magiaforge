@@ -20,7 +20,10 @@ use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::PICK_UP;
+use crate::se::SEN;
+use crate::se::SWITCH;
 use crate::set::FixedUpdateInGameSet;
 use crate::set::FixedUpdatePlayerActiveSet;
 use crate::spell::Spell;
@@ -160,7 +163,7 @@ pub fn actor_cast(
                 if actor.wands[actor.current_wand as usize].is_empty()
                     && buttons.just_pressed(MouseButton::Left)
                 {
-                    se.send(SEEvent::new(SE::Sen));
+                    se.send(SEEvent::new(SEN));
                 }
 
                 // セカンダリ魔法の発射
@@ -174,7 +177,7 @@ pub fn actor_cast(
                 if actor.wands[actor.wands.len() - 1].is_empty()
                     && buttons.just_pressed(MouseButton::Right)
                 {
-                    se.send(SEEvent::new(SE::Sen));
+                    se.send(SEEvent::new(SEN));
                 }
             }
             _ => {
@@ -240,7 +243,7 @@ fn switch_wand(
                 .min(MAX_WANDS as i32 - 2) as u8;
             if next != actor.current_wand {
                 actor.current_wand = next;
-                writer.send(SEEvent::new(SE::Switch));
+                writer.send(SEEvent::new(SWITCH));
             }
         }
     }
@@ -269,7 +272,7 @@ fn pick_gold(
 
         if got_gold {
             writer.send(SEEvent::pos(
-                SE::PickUp,
+                PICK_UP,
                 player_transform.translation.truncate(),
             ));
         }

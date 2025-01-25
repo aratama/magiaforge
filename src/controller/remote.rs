@@ -17,7 +17,8 @@ use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::CRY;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
 use bevy::core::FrameCount;
@@ -295,7 +296,7 @@ fn receive_events(
 
                             if let Some((entity, _, _, transform, _)) = target {
                                 let position = transform.translation.truncate();
-                                writer.send(SEEvent::pos(SE::Cry, position));
+                                writer.send(SEEvent::pos(CRY, position));
                                 commands.entity(entity).despawn_recursive();
 
                                 let player_defeat_bonus = 100;

@@ -4,6 +4,7 @@ use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
+/// TODO 枝が一個だけになって今は不要なので削除する？
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Reflect, Serialize, Deserialize)]
 pub enum InventoryItemType {
     Spell(Spell),

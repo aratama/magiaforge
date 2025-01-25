@@ -7,7 +7,9 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::KAMAE;
+use crate::se::ZOMBIE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -37,7 +39,7 @@ pub fn spawn_web(
     position: Vec2,
     owner_actor_group: ActorGroup,
 ) {
-    se.send(SEEvent::pos(SE::Kamae, position));
+    se.send(SEEvent::pos(KAMAE, position));
     commands.spawn((
         Name::new("web"),
         StateScoped(GameState::InGame),
@@ -76,7 +78,7 @@ fn trap(
                     && vertical.v == 0.0
                 {
                     actor.trapped = web.adherence;
-                    writer.send(SEEvent::pos(SE::Zombie, transform.translation.truncate()));
+                    writer.send(SEEvent::pos(ZOMBIE, transform.translation.truncate()));
                 }
             }
             _ => {}

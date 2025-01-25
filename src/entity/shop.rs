@@ -14,7 +14,8 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BUS;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -119,10 +120,7 @@ fn sensor(
                     }
                 } else {
                     sensor.open = true;
-                    se_writer.send(SEEvent::pos(
-                        SE::Bus,
-                        sensor_transform.translation.truncate(),
-                    ));
+                    se_writer.send(SEEvent::pos(BUS, sensor_transform.translation.truncate()));
                 }
             }
             IdentifiedCollisionEvent::Stopped(sensor_entity, _) => {

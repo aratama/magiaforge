@@ -16,7 +16,12 @@ use crate::physics::identify_single;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::FIRE;
+use crate::se::FREEZE;
+use crate::se::NO_DAMAGE;
+use crate::se::STATUS2;
+use crate::se::STEPS;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -138,7 +143,7 @@ pub fn spawn_bullet(
 ) {
     let mut rng = rand::thread_rng();
 
-    writer.send(SEEvent::pos(SE::Fire, spawn.position));
+    writer.send(SEEvent::pos(FIRE, spawn.position));
 
     let mut entity = commands.spawn((
         Name::new("bullet"),
@@ -278,11 +283,11 @@ fn bullet_freeze_water(
                 match chunk.get_tile_by_coords(position) {
                     Tile::Water => {
                         chunk.set_tile_by_position(position, Tile::Ice);
-                        se.send(SEEvent::pos(SE::Freeze, position));
+                        se.send(SEEvent::pos(FREEZE, position));
                     }
                     Tile::Lava => {
                         chunk.set_tile_by_position(position, Tile::Soil);
-                        se.send(SEEvent::pos(SE::Freeze, position));
+                        se.send(SEEvent::pos(FREEZE, position));
                     }
                     _ => {}
                 }
@@ -341,12 +346,12 @@ fn bullet_collision(
             // Life と Actor は分離されているので、Damagedイベントでは扱わない
             // 一貫性がない？
             if actor.frozen == 0 && 0 < bullet.freeze {
-                se.send(SEEvent::pos(SE::Freeze, bullet_position));
+                se.send(SEEvent::pos(FREEZE, bullet_position));
             }
             actor.frozen += bullet.freeze;
 
             if actor.levitation == 0 && 0 < bullet.levitation {
-                se.send(SEEvent::pos(SE::Status2, bullet_position));
+                se.send(SEEvent::pos(STATUS2, bullet_position));
             }
             actor.levitation += bullet.levitation;
 
@@ -365,9 +370,9 @@ fn bullet_collision(
             // ヒット判定やダメージなどはリモート側で処理します
             se.send(SEEvent::pos(
                 if wall_collider_query.contains(other_entity) {
-                    SE::Steps
+                    STEPS
                 } else {
-                    SE::NoDamage
+                    NO_DAMAGE
                 },
                 bullet_position,
             ));

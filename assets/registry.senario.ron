@@ -353,7 +353,7 @@ SenarioRegistry(
         "HugeSlime": [
             BGM (None),
             Shake (value: 6.0),
-            SE (se: Kaminari),
+            SE (path: "audio/雷魔法4.ogg"),
             Flash (
                 position: Var (value: "position"),
                 intensity: 10.0,
@@ -363,7 +363,7 @@ SenarioRegistry(
             ),
             Wait (count: 60),
             Shake ( value: 6.0),
-            SE (se: Kaminari),
+            SE (path: "audio/雷魔法4.ogg"),
             Flash (
                 position: Var (value: "position"),
                 intensity: 10.0,
@@ -373,7 +373,7 @@ SenarioRegistry(
             ),
             Wait (count: 180),
             ShakeStart (value: 6.0),
-            SE (se: Jishin),
+            SE (path: "audio/地震魔法2.ogg"),
             Flash (
                 position: Var (value: "position"),
                 intensity: 10.0,
@@ -382,7 +382,7 @@ SenarioRegistry(
                 reverse: true,
             ),
             Wait (count: 240),
-            SE (se: Kaminari),
+            SE (path: "audio/雷魔法4.ogg"),
             Flash (
                 position: Var (value: "position"),
                 intensity: 10.0,
@@ -400,7 +400,7 @@ SenarioRegistry(
                 h: 5,
                 tile: StoneTile,
             ),
-            SE (se: Break),
+            SE (path: "audio/kuzureru.ogg"),
             SpawnRaven (name: "raven", position: (392.0, -2504.0,)),
             Wait (count: 120),
             SetCameraTarget (name: "raven"),

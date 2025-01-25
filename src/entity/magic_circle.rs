@@ -10,7 +10,9 @@ use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::TURN_ON;
+use crate::se::WARP;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -143,7 +145,7 @@ fn power_on_circle(
     for (circle_entity, mut circle) in circle_query.iter_mut() {
         if Some(circle_entity) == entity {
             if !circle.active {
-                writer.send(SEEvent::new(SE::TurnOn));
+                writer.send(SEEvent::new(TURN_ON));
             }
             circle.active = true;
             circle.step = (circle.step + 1).min(MAX_POWER);
@@ -173,7 +175,7 @@ fn warp(
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step == MAX_POWER {
             if let Ok((entity, player, actor)) = player_query.get_single_mut() {
-                writer.send(SEEvent::pos(SE::Warp, transform.translation.truncate()));
+                writer.send(SEEvent::pos(WARP, transform.translation.truncate()));
                 commands.entity(entity).despawn_recursive();
 
                 circle.step = 0;

@@ -11,7 +11,8 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::PICK_UP;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -145,7 +146,7 @@ fn pickup_dropped_item(
                 if actor.inventory.insert(item.item.clone()) {
                     commands.entity(item_entity).despawn_recursive();
 
-                    se.send(SEEvent::new(SE::PickUp));
+                    se.send(SEEvent::new(PICK_UP));
 
                     let InventoryItem {
                         item_type: InventoryItemType::Spell(spell),

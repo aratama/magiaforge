@@ -9,7 +9,8 @@ use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-use crate::se::SE;
+
+use crate::se::BAKUHATSU;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -107,7 +108,7 @@ fn spawn_explosion(
             Transform::from_translation(position.extend(0.0)),
         ));
 
-        se.send(SEEvent::pos(SE::Bakuhatsu, *position));
+        se.send(SEEvent::pos(BAKUHATSU, *position));
 
         let mut camera = camera_query.single_mut();
         camera.vibration = 12.0;
