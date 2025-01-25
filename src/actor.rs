@@ -418,22 +418,11 @@ impl Actor {
     /// ただし魔法発射中のペナルティは含まれません
     fn get_total_move_force(&self, registry: &Registry) -> f32 {
         let props = registry.get_actor_props(self.to_type());
-        let mut force = props.move_force;
+        let force = props.move_force;
 
-        //todo
+        // もともとはここで装備による速度上昇を計算していましたが、
+        // 常時発動型の魔法は単調で工夫の余地がないのでボツにしました
 
-        for wand in self.wands.iter() {
-            for slot in &wand.slots {
-                force += match slot {
-                    Some(WandSpell { spell_type, .. })
-                        if *spell_type == Spell::new("SpikeBoots") =>
-                    {
-                        40000.0
-                    }
-                    _ => 0.0,
-                }
-            }
-        }
         force
     }
 

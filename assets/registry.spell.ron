@@ -1106,37 +1106,6 @@ SpellRegistry(
             price: 500,
             cast: QuickCast,
         ),
-        "SpikeBoots": (
-            rank: 5,
-            name: Dict (
-                ja: "スパイクブーツ",
-                en: "Spike Boots",
-                zh_cn: "尖刺靴",
-                zh_tw: "尖刺靴",
-                es: "Botas de clavos",
-                fr: "Bottes à crampons",
-                pt: "Botas com cravos",
-                de: "Stiefel mit Spikes",
-                ko: "스파이크 부츠",
-                ru: "Ботинки с шипами",
-            ),
-            description: Dict (
-                ja: "滑り止めのついた革靴。装備すると移動速度が上昇します。",
-                en: "Leather shoes with anti-slip. Movement speed increases.",
-                zh_cn: "带有防滑功能的皮鞋。移动速度增加。",
-                zh_tw: "帶有防滑功能的皮鞋。移動速度增加。",
-                es: "Zapatos de cuero con antideslizante. Aumenta la velocidad de movimiento.",
-                fr: "Chaussures en cuir avec antidérapant. La vitesse de déplacement augmente.",
-                pt: "Sapatos de couro com antiderrapante. A velocidade de movimento aumenta.",
-                de: "Lederschuhe mit Anti-Rutsch. Die Bewegungsgeschwindigkeit erhöht sich.",
-                ko: "미끄럼 방지 기능이 있는 가죽 신발. 이동 속도가 증가합니다.",
-                ru: "Кожаные ботинки с противоскользящими вставками. Скорость передвижения увеличивается.",
-            ),
-            icon: "boots",
-            price: 100,
-            cast_delay: 0,
-            cast: NoCast,
-        ),
         "ApplyLevitation": (
             rank: 5,
             name: Dict (
@@ -1418,6 +1387,7 @@ SpellRegistry(
             cast_delay: 120,
             cast: Levitation,
         ),
+        // レベル 100 以上はデバッグ用 /////////////////////////////////////////////////////////////////////////////
         "InfinityClone": (
             rank: 100,
             name: Dict (

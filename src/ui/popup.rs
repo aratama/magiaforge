@@ -211,11 +211,12 @@ fn update_item_description(
     if let Ok(actor) = actor_query.get_single() {
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
-                if let Some(InventoryItem {
-                    item_type: InventoryItemType::Spell(spell),
-                    ..
-                }) = content.get_item(actor)
-                {
+                if let Some(item) = content.get_item(actor) {
+                    let InventoryItem {
+                        item_type: InventoryItemType::Spell(spell),
+                        ..
+                    } = item;
+
                     let props = registry.get_spell_props(&spell);
                     let mut dict = props.description.clone();
                     let appendix = get_spell_appendix(&props.cast);
@@ -234,7 +235,7 @@ fn update_item_description(
 
                     dict += appendix;
 
-                    if 0 < props.price {
+                    if 0 < item.price {
                         dict = dict + UNPAID.to_string();
 
                         //  &format!("\n未清算:{}ゴールド", first.price);
