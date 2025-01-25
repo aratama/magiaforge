@@ -68,7 +68,7 @@ pub fn cast_metamorphosis(
         .map(|r| r.original_actor.clone())
         .unwrap_or(original_actor);
 
-    let mut dest_actor = get_default_actor(morphed_type);
+    let mut dest_actor = get_default_actor(&registry, morphed_type);
 
     dest_actor.fire_state = original_actor.fire_state;
     dest_actor.fire_state_secondary = original_actor.fire_state_secondary;

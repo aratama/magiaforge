@@ -38,6 +38,7 @@ mod se;
 mod set;
 mod spell;
 mod states;
+mod strategy;
 mod ui;
 mod wand;
 

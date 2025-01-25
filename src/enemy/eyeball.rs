@@ -1,23 +1,11 @@
 use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
-use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::constant::*;
-use crate::finder::Finder;
 use crate::registry::Registry;
-use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
 use crate::wand::Wand;
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
-
-#[derive(Component, Default)]
-pub struct EyeballControl;
-
-const ENEMY_DETECTION_RANGE: f32 = TILE_SIZE * 10.0;
-
-const ENEMY_ATTACK_RANGE: f32 = TILE_SIZE * 8.0;
 
 pub fn default_eyeball() -> Actor {
     Actor {
@@ -50,54 +38,4 @@ pub fn spawn_eyeball(
         None,
         actor,
     )
-}
-
-fn control_eyeball(
-    registry: Registry,
-    mut query: Query<(
-        Entity,
-        Option<&mut EyeballControl>,
-        &mut Actor,
-        &mut Transform,
-    )>,
-    rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
-) {
-    let mut lens = query.transmute_lens_filtered::<(Entity, &Actor, &Transform), ()>();
-    let finder = Finder::new(&registry, &lens.query());
-
-    // 各アイボールの行動を選択します
-    for (eyeball_entity, eyeball_optional, mut eyeball_actor, eyeball_transform) in query.iter_mut()
-    {
-        if let Some(_) = eyeball_optional {
-            eyeball_actor.move_direction = Vec2::ZERO;
-            eyeball_actor.fire_state = ActorFireState::Idle;
-
-            // 最も近くにいる、別グループのアクターに対して接近または攻撃
-            let origin = eyeball_transform.translation.truncate();
-            if let Some(nearest) =
-                finder.nearest_opponent(&rapier_context, eyeball_entity, ENEMY_DETECTION_RANGE)
-            {
-                let diff = nearest.position - origin;
-                if diff.length() < ENEMY_ATTACK_RANGE {
-                    eyeball_actor.move_direction = Vec2::ZERO;
-                    eyeball_actor.pointer = diff;
-                    eyeball_actor.fire_state = ActorFireState::Fire;
-                } else if diff.length() < ENEMY_DETECTION_RANGE {
-                    eyeball_actor.move_direction = diff.normalize_or_zero();
-                    eyeball_actor.fire_state = ActorFireState::Idle;
-                }
-            }
-        }
-    }
-}
-
-pub struct EyeballControlPlugin;
-
-impl Plugin for EyeballControlPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(
-            FixedUpdate,
-            (control_eyeball).in_set(FixedUpdateGameActiveSet),
-        );
-    }
 }

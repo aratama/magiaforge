@@ -182,7 +182,7 @@ pub fn setup_level(
         .unwrap_or(if cfg!(feature = "item") {
             PlayerState {
                 inventory: Inventory::from_vec(game_registry.debug_items.clone()),
-                wands: Wand::from_vec(game_registry.debug_wands.clone()),
+                wands: Wand::from_vec(&game_registry.debug_wands),
                 ..default()
             }
         } else {
@@ -257,11 +257,13 @@ pub fn setup_level(
     }
 
     // テスト用モンスター
-    // spawn.send(Spawn::Actor {
-    //     actor_type: ActorType::Slime,
-    //     actor_group: ActorGroup::Enemy,
-    //     position: index_to_position((53, 68)),
-    // });
+    spawn.send(SpawnEvent {
+        position: index_to_position((29, 52)),
+        spawn: Spawn::Actor {
+            actor_type: ActorType::Spider,
+            actor_group: ActorGroup::Enemy,
+        },
+    });
 
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します

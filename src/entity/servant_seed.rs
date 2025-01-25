@@ -9,14 +9,11 @@ use crate::controller::player::PlayerServant;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
 use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::slime::default_slime;
 use crate::enemy::slime::spawn_slime;
-use crate::enemy::slime::SlimeControl;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::BICHA;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
@@ -179,7 +176,7 @@ fn spawn_servant(
     for event in reader.read() {
         match event.servant_type {
             ServantType::Slime => {
-                let mut actor = default_slime();
+                let mut actor = default_slime(&registry);
                 actor.actor_group = event.actor_group;
                 let entity = spawn_slime(
                     &mut commands,
@@ -190,10 +187,6 @@ fn spawn_servant(
                 );
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
-                } else {
-                    commands.entity(entity).insert(SlimeControl {
-                        wait: 30 + rand::random::<u32>() % 30,
-                    });
                 }
             }
             ServantType::Eyeball => {
@@ -201,8 +194,6 @@ fn spawn_servant(
                 let entity = spawn_eyeball(&mut commands, &registry, event.position, actor);
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
-                } else {
-                    commands.entity(entity).insert(EyeballControl);
                 }
             }
             ServantType::Chiken => {

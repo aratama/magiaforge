@@ -61,7 +61,6 @@ use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::BASHA2;
 use crate::se::CRY;
 use crate::se::DAMAGE;
@@ -72,6 +71,7 @@ use crate::se::ZOMBIE;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
 use crate::states::GameState;
+use crate::strategy::Commander;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
@@ -232,6 +232,8 @@ pub struct Actor {
     pub fire_state_secondary: ActorFireState,
 
     pub current_wand: u8,
+
+    pub commander: Commander,
 
     // 装備とアイテム /////////////////////////////////////////////////////////////////////////////////////////
     /// アクターが所持している杖のリスト
@@ -525,6 +527,7 @@ impl Default for Actor {
                 Wand::default(),
                 Wand::default(),
             ],
+            commander: Commander::default(), 
             blood: None,
             inventory: Inventory::new(),
             fire_resistance: false,
@@ -1147,14 +1150,17 @@ pub fn jump_actor(
     }
 }
 
-pub fn get_default_actor(actor_type: ActorType) -> Actor {
+pub fn get_default_actor(
+    registry: &Registry,
+    actor_type: ActorType
+) -> Actor {
     match actor_type {
         ActorType::Witch => default_witch(),
         ActorType::HugeSlime => default_huge_slime(),
-        ActorType::Slime => default_slime(),
+        ActorType::Slime => default_slime(&registry),
         ActorType::EyeBall => default_eyeball(),
         ActorType::Shadow => default_shadow(),
-        ActorType::Spider => default_spider(),
+        ActorType::Spider => default_spider(&registry),
         ActorType::Salamander => default_salamander(),
         ActorType::Chicken => default_chiken(),
         ActorType::Sandbag => default_sandbag(),

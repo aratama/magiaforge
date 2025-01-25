@@ -8,6 +8,7 @@ use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::spell::Spell;
 use crate::spell::SpellProps;
+use crate::strategy::Strategy;
 use bevy::asset::AssetPath;
 use bevy::asset::Assets;
 use bevy::asset::Handle;
@@ -81,6 +82,8 @@ pub struct ActorPropsByType {
     /// 大型のモンスターは半径が大きいので、中心間の距離では攻撃が当たるかどうか判定できません
     pub radius: f32,
     pub cry: bool,
+    pub wands: Vec<Vec<Option<Spell>>>,
+    pub strategies: HashMap<String, Strategy>,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]

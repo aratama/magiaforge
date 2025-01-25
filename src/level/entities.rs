@@ -25,17 +25,13 @@ use crate::actor::ActorType;
 use crate::constant::*;
 use crate::controller::player::PlayerControlled;
 use crate::enemy::eyeball::spawn_eyeball;
-use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::huge_slime::spawn_huge_slime;
 use crate::enemy::huge_slime::Boss;
 use crate::enemy::salamander::spawn_salamander;
-use crate::enemy::salamander::Salamander;
 use crate::enemy::shadow::spawn_shadow;
 use crate::enemy::shadow::Shadow;
 use crate::enemy::slime::spawn_slime;
-use crate::enemy::slime::SlimeControl;
 use crate::enemy::spider::spawn_spider;
-use crate::enemy::spider::Spider;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
@@ -289,7 +285,7 @@ pub fn spawn_entity(
                 actor_type,
                 actor_group,
             } => {
-                let mut actor = get_default_actor(*actor_type);
+                let mut actor = get_default_actor(&registry, *actor_type);
                 actor.actor_group = *actor_group;
                 let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
@@ -299,7 +295,7 @@ pub fn spawn_entity(
                 name,
                 on_despawn,
             } => {
-                let mut actor = get_default_actor(*actor_type);
+                let mut actor = get_default_actor(&registry, *actor_type);
                 actor.actor_group = ActorGroup::Enemy;
                 let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
                 commands.entity(entity).insert(Boss {
@@ -465,21 +461,13 @@ pub fn add_default_behavior(
     match enemy_type {
         ActorType::HugeSlime => {}
         ActorType::Witch => {}
-        ActorType::Slime => {
-            commands.entity(entity).insert(SlimeControl::default());
-        }
-        ActorType::EyeBall => {
-            commands.entity(entity).insert(EyeballControl::default());
-        }
+        ActorType::Slime => {}
+        ActorType::EyeBall => {}
         ActorType::Shadow => {
             commands.entity(entity).insert(Shadow::default());
         }
-        ActorType::Spider => {
-            commands.entity(entity).insert(Spider::default());
-        }
-        ActorType::Salamander => {
-            commands.entity(entity).insert(Salamander::default());
-        }
+        ActorType::Spider => {}
+        ActorType::Salamander => {}
         ActorType::Chicken => {
             commands.entity(entity).insert(Chicken::default());
         }

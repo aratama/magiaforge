@@ -18,7 +18,14 @@ ActorRegistry(
             blood: Red,
             defreeze: 1,
             auto_levitation: false,
-            cry: true
+            cry: true,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Rabbit": (
             radius: 5.0,
@@ -28,7 +35,14 @@ ActorRegistry(
             blood: Red,
             defreeze: 1,
             auto_levitation: false,
-            cry: true
+            cry: true,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Chicken": (
             radius: 5.0,
@@ -38,17 +52,14 @@ ActorRegistry(
             blood: Red,
             defreeze: 1,
             auto_levitation: false,
-            cry: true
-        ),
-        "EyeBall": (
-            radius: 5.0,
-            move_force: 100000.0,
-            jump: 0.0,
-            linear_damping: 10.0,
-            blood: Red,
-            defreeze: 1,
-            auto_levitation: true,
-            cry: true
+            cry: true,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Sandbag": (
             radius: 5.0,
@@ -58,7 +69,14 @@ ActorRegistry(
             blood: None,
             defreeze: 1,
             auto_levitation: false,
-            cry: true
+            cry: true,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Slime": (
             radius: 5.0,
@@ -68,27 +86,49 @@ ActorRegistry(
             blood: Blue,
             defreeze: 1,
             auto_levitation: false,
-            cry: true
+            cry: true,
+            wands: [
+                ["SlimeCharge", None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {
+                "default": (
+                    min_life: 1000,
+                    actions: [
+                        Wait (count: 30, random: 30),
+                        Approach (count: 120, random: 120, far: 200.0, near: 16.0),
+                        Fire (count: 15, random: 15, range: 8.0)
+                    ] 
+                )
+            }
         ),
-        "Salamander": (
+        "EyeBall": (
             radius: 5.0,
             move_force: 100000.0,
             jump: 0.0,
             linear_damping: 10.0,
             blood: Red,
-            defreeze: 2,
-            auto_levitation: false,
-            cry: true
-        ),
-        "Shadow": (
-            radius: 5.0,
-            move_force: 50000.0,
-            jump: 0.0,
-            linear_damping: 10.0,
-            blood: None,
             defreeze: 1,
-            auto_levitation: false,
-            cry: true
+            auto_levitation: true,
+            cry: true,
+            wands: [
+                ["PurpleBolt", None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {
+                "default": (
+                    min_life: 1000,
+                    actions: [
+                        Wait (count: 30, random: 30),
+                        Approach (count: 120, random: 120, far: 150.0, near: 80.0),
+                        Fire (count: 15, random: 15, range: 1000.0)
+                    ] 
+                )
+            }
         ),
         "Spider": (
             radius: 8.0,
@@ -98,7 +138,66 @@ ActorRegistry(
             blood: None,
             defreeze: 1,
             auto_levitation: false,
-            cry: true
+            cry: true,
+            wands: [
+                ["Web", None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {
+                "default": (
+                    min_life: 1000,
+                    actions: [
+                        Wait (count: 30, random: 30),
+                        Approach (count: 120, random: 120, far: 200.0, near: 16.0),
+                        Fire (count: 15, random: 15, range: 32.0)
+                    ] 
+                )
+            }
+        ),
+        "Salamander": (
+            radius: 5.0,
+            move_force: 100000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: Red,
+            defreeze: 2,
+            auto_levitation: false,
+            cry: true,
+            wands: [
+                ["Fireball", None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {
+                "default": (
+                    min_life: 1000,
+                    actions: [
+                        Wait (count: 30, random: 30),
+                        Approach (count: 120, random: 120, far: 100.0, near: 80.0),
+                        Fire (count: 15, random: 15, range: 80.0)
+                    ] 
+                )
+            }
+        ),
+        "Shadow": (
+            radius: 5.0,
+            move_force: 50000.0,
+            jump: 0.0,
+            linear_damping: 10.0,
+            blood: None,
+            defreeze: 1,
+            auto_levitation: false,
+            cry: true,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "HugeSlime": (
             radius: 5.0,
@@ -110,7 +209,14 @@ ActorRegistry(
             // スライムの王は凍結無効
             defreeze: 10000,
             auto_levitation: false,
-            cry: false
+            cry: false,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Lantern": (
             radius: 5.0,
@@ -120,7 +226,14 @@ ActorRegistry(
             blood: None,
             defreeze: 1,
             auto_levitation: false,
-            cry: false
+            cry: false,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Chest": (
             radius: 5.0,
@@ -130,7 +243,14 @@ ActorRegistry(
             blood: None,
             defreeze: 1,
             auto_levitation: false,
-            cry: false
+            cry: false,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "BookShelf": (
             radius: 5.0,
@@ -140,7 +260,14 @@ ActorRegistry(
             blood: None,
             defreeze: 1,
             auto_levitation: false,
-            cry: false
+            cry: false,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Rock": (
             radius: 5.0,
@@ -150,7 +277,14 @@ ActorRegistry(
             blood: None,
             defreeze: 10000,
             auto_levitation: false,
-            cry: false
+            cry: false,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
         "Bomb": (
             radius: 5.0,
@@ -160,7 +294,14 @@ ActorRegistry(
             blood: None,
             defreeze: 10000,
             auto_levitation: false,
-            cry: false
+            cry: false,
+            wands: [
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+                [None, None, None, None, None, None, None, None], 
+            ],
+            strategies: {}
         ),
     }
 )

@@ -50,7 +50,7 @@ impl Wand {
         }
     }
 
-    pub fn from_vec(slots: Vec<Vec<Option<Spell>>>) -> [Wand; MAX_WANDS] {
+    pub fn from_vec(slots: &Vec<Vec<Option<Spell>>>) -> [Wand; MAX_WANDS] {
         let mut wands = [
             Wand::default(),
             Wand::default(),

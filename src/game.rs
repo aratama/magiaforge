@@ -32,12 +32,8 @@ use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
-use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
-use crate::enemy::salamander::SalamanderPlugin;
 use crate::enemy::shadow::ShadowPlugin;
-use crate::enemy::slime::SlimeControlPlugin;
-use crate::enemy::spider::SpiderPlugin;
 use crate::entity::bgm::BGMSwitchPlugin;
 use crate::entity::bullet::BulletPlugin;
 use crate::entity::bullet_particle::BulletParticlePlugin;
@@ -81,6 +77,7 @@ use crate::save::SavePlugin;
 use crate::se::SECommandPlugin;
 use crate::set::GameSetPlugin;
 use crate::states::*;
+use crate::strategy::StrategyPlugin;
 use crate::ui::bar::StatusBarPlugin;
 use crate::ui::boss_hitpoint_bar::BossHitpointBarPlugin;
 use crate::ui::command_button::CommandButtonPlugin;
@@ -220,7 +217,6 @@ pub fn run_game() {
         .add_plugins(CounterPlugin)
         .add_plugins(DamagePlugin)
         .add_plugins(EndingPlugin)
-        .add_plugins(EyeballControlPlugin)
         .add_plugins(EntityDepthPlugin)
         .add_plugins(EntityPointLightPlugin)
         .add_plugins(ExplosionPlugin)
@@ -268,13 +264,11 @@ pub fn run_game() {
         .add_plugins(RabbitPlugin)
         .add_plugins(RemotePlayerPlugin)
         .add_plugins(RockPlugin)
-        .add_plugins(SalamanderPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
         .add_plugins(ShadowPlugin)
         .add_plugins(SlashPlugin)
-        .add_plugins(SlimeControlPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
         .add_plugins(SandbagPlugin)
@@ -283,7 +277,7 @@ pub fn run_game() {
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
         .add_plugins(SpellListPlugin)
-        .add_plugins(SpiderPlugin)
+        .add_plugins(StrategyPlugin)
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
