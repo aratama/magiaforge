@@ -3,8 +3,8 @@
 #![enable(implicit_some)]
 GameRegistry(
     debug_wands: [
+        ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt", None, None],
         ["DualCast", "Levitation", "MagicBolt", None, None, None, None, None],
-        ["QuickCast", "QuickCast", "HeavyShot", "HeavyShot", "TripleCast", "MagicBolt", "MagicBolt", "MagicBolt"],
         ["InfinityClone", None, None, None, None, None, None, None],
         ["DualCast", "Dash", "Jump", "Lantern", None, None, None, None]
     ],
@@ -514,6 +514,7 @@ GameRegistry(
                     ko: "슬라임 왕 에밀스",
                     ru: "Король слизней Эмильс",
                 ),
+                on_despawn: "HugeSlime"
             ),
             entry_point: false,
         ),

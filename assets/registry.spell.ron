@@ -1,6 +1,7 @@
 // https://github.com/ron-rs/ron/blob/master/docs/extensions.md
 #![enable(unwrap_newtypes)]
 #![enable(implicit_some)]
+#![enable(unwrap_variant_newtypes)]
 SpellRegistry(
     spells: {
         "MagicBolt": (
@@ -32,7 +33,7 @@ SpellRegistry(
             cast_delay: 20,
             icon: "bullet_magic_bolt",
             price: 10,
-            cast: Bullet (SpellCastBullet (
+            cast: Bullet (
                 slices: Slice (names: ["bullet_magic_bolt"]),
                 collier_radius: 5.0,
                 speed: 100.0,
@@ -46,7 +47,7 @@ SpellRegistry(
                 freeze: 0,
                 levitation: 0,
                 stagger: 60,
-            )),
+            ),
         ),
         "LightBall": (
             rank: 0,
@@ -77,7 +78,7 @@ SpellRegistry(
             cast_delay: 120,
             icon: "light_ball_icon",
             price: 10,
-            cast: Bullet(SpellCastBullet(
+            cast: Bullet(
                 slices: Slice (names: ["light_ball"]),
                 collier_radius: 5.0,
                 speed: 4.0,
@@ -91,7 +92,7 @@ SpellRegistry(
                 freeze: 0,
                 levitation: 0,
                 stagger: 0,
-            )),
+            ),
         ),
         "Lantern": (
             rank: 0,
@@ -188,7 +189,7 @@ SpellRegistry(
             cast_delay: 120,
             icon: "bullet_purple",
             price: 5,
-            cast: Bullet(SpellCastBullet(
+            cast: Bullet(
                 slices: Slice (names: ["bullet_purple"] ),
                 collier_radius: 5.0,
                 speed: 50.0,
@@ -202,8 +203,7 @@ SpellRegistry(
                 freeze: 0,
                 levitation: 0,
                 stagger: 30,
-
-            )),
+            ),
         ),
         "SlimeCharge": (
             rank: 1,
@@ -234,7 +234,7 @@ SpellRegistry(
             cast_delay: 50,
             icon: "bullet_slime_charge",
             price: 15,
-            cast: Bullet(SpellCastBullet(
+            cast: Bullet(
                 slices: Slice (names: ["bullet_slime_charge"]),
                 collier_radius: 5.0,
                 speed: 2.0,
@@ -248,7 +248,7 @@ SpellRegistry(
                 freeze: 0,
                 levitation: 0,
                 stagger: 20,
-            )),
+            ),
         ),
         "Telescope": (
             rank: 1,
@@ -372,7 +372,7 @@ SpellRegistry(
             cast_delay: 8,
             icon: "spell_water_ball",
             price: 15,
-            cast: Bullet (SpellCastBullet(
+            cast: Bullet (
                 slices: Slice (names: ["water_ball"]),
                 collier_radius: 5.0,
                 speed: 80.0,
@@ -387,7 +387,7 @@ SpellRegistry(
                 levitation: 0,
                 stagger: 10,
 
-            )),
+            ),
         ),
         "BulletSpeedDoown": (
             rank: 2,
@@ -1042,7 +1042,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "slash_icon",
             price: 2400,
-            cast: Slash (damage: 120),
+            cast: Slash (damage: 1120),
         ),
         "Heal": (
             rank: 5,
@@ -1135,7 +1135,7 @@ SpellRegistry(
             icon: "apply_levitation_icon",
             price: 1000,
             cast_delay: 120,
-            cast: Bullet( SpellCastBullet(
+            cast: Bullet(
                 slices: Slice (names: ["light_ball"] ),
                 collier_radius: 5.0,
                 speed: 64.0,
@@ -1149,7 +1149,7 @@ SpellRegistry(
                 freeze: 0,
                 levitation: 180,
                 stagger: 0,
-            )),
+            ),
         ),
         "LightSword": (
             rank: 7,
@@ -1211,7 +1211,7 @@ SpellRegistry(
             cast_delay: 20,
             icon: "tile_ice",
             price: 1000,
-            cast: Bullet(SpellCastBullet(
+            cast: Bullet(
                 slices: Freeze,
                 collier_radius: 5.0,
                 speed: 64.0,
@@ -1225,7 +1225,7 @@ SpellRegistry(
                 freeze: 120,
                 levitation: 0,
                 stagger: 0,
-            )),
+            ),
         ),
         "Dispel": (
             rank: 6,

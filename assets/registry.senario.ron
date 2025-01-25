@@ -351,11 +351,16 @@ SenarioRegistry(
             )
         ],
         "HugeSlime": [
+            Sprite (
+                name: "huge slime body",
+                position: Var ("position"),
+                aseprite: "entity/huge_slime.aseprite"
+            ),
             BGM (None),
             Shake (value: 6.0),
             SE (path: "audio/雷魔法4.ogg"),
             Flash (
-                position: Var (value: "position"),
+                position: Var ("position"),
                 intensity: 10.0,
                 radius: 480.0,
                 duration: 10,
@@ -365,7 +370,7 @@ SenarioRegistry(
             Shake ( value: 6.0),
             SE (path: "audio/雷魔法4.ogg"),
             Flash (
-                position: Var (value: "position"),
+                position: Var ("position"),
                 intensity: 10.0,
                 radius: 480.0,
                 duration: 10,
@@ -375,7 +380,7 @@ SenarioRegistry(
             ShakeStart (value: 6.0),
             SE (path: "audio/地震魔法2.ogg"),
             Flash (
-                position: Var (value: "position"),
+                position: Var ("position"),
                 intensity: 10.0,
                 radius: 240.0,
                 duration: 240,
@@ -384,19 +389,19 @@ SenarioRegistry(
             Wait (count: 240),
             SE (path: "audio/雷魔法4.ogg"),
             Flash (
-                position: Var (value: "position"),
+                position: Var ("position"),
                 intensity: 10.0,
                 radius: 240.0,
                 duration: 240,
                 reverse: false,
             ),
-            Despawn (name: "huge slime"),
+            Despawn (name: "huge slime body"),
             ShakeStart (count: None),
             Wait (count: 240),
             SetTile (
-                x: 23,
+                x: 22,
                 y: 153,
-                w: 3,
+                w: 5,
                 h: 5,
                 tile: StoneTile,
             ),
