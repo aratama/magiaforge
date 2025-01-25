@@ -140,16 +140,9 @@ pub struct SpawnEvent {
     pub entity: Spawn,
 }
 
-#[derive(Clone, Debug, Reflect, Deserialize)]
-pub enum SpawnWitchType {
-    Player,
-
-    #[allow(dead_code)]
-    Dummy,
-}
-
 pub fn spawn_entity(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
     mut level: ResMut<LevelSetup>,
@@ -260,7 +253,7 @@ pub fn spawn_entity(
                 spawn_shop_door(&mut commands, &registry, *position);
             }
             Spawn::BGM => {
-                spawn_bgm_switch(&mut commands, &registry, *position);
+                spawn_bgm_switch(&mut commands, &asset_server, &registry, *position);
             }
             Spawn::RandomChest => {
                 spawn_actor_internal(

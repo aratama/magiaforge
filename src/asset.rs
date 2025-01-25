@@ -276,63 +276,6 @@ pub struct GameAssets {
     #[asset(path = "audio/剣の素振り2.ogg")]
     pub ken2: Handle<AudioSource>,
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // BGM //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    #[asset(path = "bgm/茫漠たる庭.ogg")]
-    pub boubaku: Handle<AudioSource>,
-
     #[asset(path = "bgm/発見.ogg")]
     pub hakken: Handle<AudioSource>,
-
-    // 拠点 //////////////////////////////////////////////////////////////////////
-    #[asset(path = "bgm/水のしたたる洞窟.ogg")]
-    pub dokutsu: Handle<AudioSource>,
-
-    #[asset(path = "bgm/最果てのルージュ.ogg")]
-    pub saihate: Handle<AudioSource>,
-
-    // 通常フロア ////////////////////////////////////////////////////////////////
-    #[asset(path = "bgm/荒れ地の先へ.ogg")]
-    pub arechi: Handle<AudioSource>,
-
-    #[asset(path = "bgm/Tides_of_Adventure.ogg")]
-    pub ending_bgm: Handle<AudioSource>,
-
-    #[asset(path = "bgm/ダンジョンを踏破せし者.ogg")]
-    pub touha: Handle<AudioSource>,
-
-    #[asset(path = "bgm/森のいざない.ogg")]
-    pub mori: Handle<AudioSource>,
-
-    #[asset(path = "bgm/迷宮.ogg")]
-    pub meikyu: Handle<AudioSource>,
-
-    #[asset(path = "bgm/忘れられた神殿.ogg")]
-    pub shiden: Handle<AudioSource>,
-
-    #[asset(path = "bgm/midnight-forest-184304.ogg")]
-    pub midnight_forest: Handle<AudioSource>,
-
-    // ボス //////////////////////////////////////////////////////////////////////
-    #[asset(path = "bgm/悪魔との戦闘.ogg")]
-    pub deamon: Handle<AudioSource>,
-
-    #[asset(path = "bgm/アクション・バトル.ogg")]
-    pub action: Handle<AudioSource>,
-
-    #[asset(path = "bgm/Decisive_Battle.ogg")]
-    pub decisive: Handle<AudioSource>,
-
-    #[asset(path = "bgm/炎神の吐息.ogg")]
-    pub enjin: Handle<AudioSource>,
-
-    #[asset(path = "bgm/Sacred_Sacrifice.ogg")]
-    pub sacred: Handle<AudioSource>,
-
-    #[asset(path = "bgm/final-battle-trailer-music-217488.ogg")]
-    pub final_battle: Handle<AudioSource>,
-
-    #[asset(path = "bgm/human-vs-machine-dark-orchestral-cinematic-epic-action-271968.ogg")]
-    pub human_vs_machine: Handle<AudioSource>,
 }

@@ -8,17 +8,32 @@ use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::spell::Spell;
 use crate::spell::SpellProps;
+use bevy::asset::AssetPath;
 use bevy::asset::Assets;
+use bevy::asset::Handle;
+use bevy::audio::AudioSource;
 use bevy::ecs::system::SystemParam;
+use bevy::log::warn;
 use bevy::prelude::Res;
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameRegistry {
     pub levels: HashMap<String, LevelProps>,
+    pub bgms: HashMap<String, BGMProps>,
+    pub home_bgm: String,
+    pub ending_bgm: String,
     pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
     pub debug_items: Vec<Spell>,
     pub debug_wands: Vec<Vec<Option<Spell>>>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct BGMProps {
+    pub author: String,
+    pub title: String,
+    pub appendix: String,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
@@ -149,4 +164,26 @@ impl<'w> Registry<'w> {
             .get(level)
             .expect(&format!("Level '{:?}' not found", level).as_str())
     }
+
+    pub fn get_bgm(&self, handle: &Handle<AudioSource>) -> &BGMProps {
+        if let Some(path) = handle.path() {
+            let name = path_to_string(path);
+            self.game()
+                .bgms
+                .get(&name)
+                .expect(&format!("BGM '{}' not found", name))
+        } else {
+            warn!("no path in audio handle");
+            static DEFAULT_BGM_PROPS: LazyLock<BGMProps> = LazyLock::new(|| BGMProps {
+                author: "".to_string(),
+                title: "".to_string(),
+                appendix: "".to_string(),
+            });
+            &DEFAULT_BGM_PROPS
+        }
+    }
+}
+
+pub fn path_to_string(path: &AssetPath) -> String {
+    path.path().to_str().unwrap_or("").to_string()
 }

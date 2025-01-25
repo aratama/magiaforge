@@ -17,10 +17,15 @@ struct BGMSwitch {
     audio: Handle<AudioSource>,
 }
 
-pub fn spawn_bgm_switch(commands: &mut Commands, registry: &Registry, position: Vec2) {
+pub fn spawn_bgm_switch(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    registry: &Registry,
+    position: Vec2,
+) {
     commands.spawn((
         BGMSwitch {
-            audio: registry.assets.saihate.clone(),
+            audio: asset_server.load(registry.game().home_bgm.clone()),
         },
         StateScoped(GameState::InGame),
         Sensor,

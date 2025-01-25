@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use bevy::utils::hashbrown::HashSet;
 use std::cmp::Ordering;
 
-#[derive(Event, Clone, Copy)]
+#[derive(Event, Clone)]
 pub struct SEEvent {
     se: SE,
     position: Option<Vec2>,
@@ -83,7 +83,7 @@ fn se_events(
 
     let mut vec = Vec::<SEEvent>::new();
     for event in reader.read() {
-        vec.push(*event);
+        vec.push(event.clone());
     }
 
     vec.sort_by(|a, b| {

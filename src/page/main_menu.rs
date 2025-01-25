@@ -45,6 +45,7 @@ struct LanguageButton {
 
 fn setup(
     mut commands: Commands,
+    res: Res<AssetServer>,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
     mut current: ResMut<LevelSetup>,
@@ -54,7 +55,7 @@ fn setup(
 
     commands.spawn((Camera2d::default(), StateScoped(GameState::MainMenu)));
 
-    *next_bgm = NextBGM(Some(assets.boubaku.clone()));
+    *next_bgm = NextBGM(Some(res.load("bgm/茫漠たる庭.ogg")));
 
     current.next_level = GameLevel::new(HOME_LEVEL);
 

@@ -254,8 +254,105 @@ GameRegistry(
             brightness: 0.4
         ),
     },
-    
 
+
+    bgms: {
+        // タイトル画面ではポーズメニューを開けないため、
+        // 洞窟環境音のときにタイトル画面BGMのクレジットを表示
+        "bgm/茫漠たる庭.ogg": (
+            author: "のる",
+            title: "茫漠たる庭",
+            appendix: "",
+        ),
+        "bgm/水のしたたる洞窟.ogg": (
+            author: "",
+            title: "水のしたたる洞窟",
+            appendix: "(タイトル画面BGM)"
+        ),
+        // 拠点        
+        "bgm/最果てのルージュ.ogg": (
+            author: "のる",
+            title: "最果てのルージュ",
+            appendix: "",
+        ),
+        // 通常
+        "bgm/荒れ地の先へ.ogg": (
+            author: "松浦洋介",
+            title: "荒れ地の先へ",
+            appendix: "",
+        ),
+
+        "bgm/Tides_of_Adventure.ogg": (
+            author: "K’z Art Storage",
+            title: "Tides of Adventure",
+            appendix: "",
+        ),
+        "bgm/ダンジョンを踏破せし者.ogg": (
+            author: "こーち",
+            title: "ダンジョンを踏破せし者",
+            appendix: "",
+        ),
+        "bgm/森のいざない.ogg": (
+            author: "MATSU",
+            title: "森のいざない",
+            appendix: "",
+        ),
+        "bgm/迷宮.ogg": (
+            author: "オオヒラセイジ",
+            title: "迷宮",
+            appendix: "",
+        ),
+        "bgm/忘れられた神殿.ogg": (
+            author: "KK",
+            title: "忘れられた神殿",
+            appendix: "",
+        ),
+        "bgm/midnight-forest-184304.ogg": (
+            author: "Syouki Takahashi",
+            title: "Midnight Forest",
+            appendix: "",
+        ),
+        // ボス
+        "bgm/悪魔との戦闘.ogg": (
+            author: "今川彰人オーケストラ",
+            title: "悪魔との戦闘",
+            appendix: "",
+        ),
+        "bgm/アクション・バトル.ogg": (
+            author: "田中芳典",
+            title: "アクション・バトル",
+            appendix: "",
+        ),
+        "bgm/Decisive_Battle.ogg": (
+            author: "Make a field Music",
+            title: "Decisive Battle",
+            appendix: "",
+        ),
+        "bgm/炎神の吐息.ogg": (
+            author: "こおろぎ",
+            title: "炎神の吐息",
+            appendix: "",
+        ),
+        "bgm/Sacred_Sacrifice.ogg": (
+            author: "ilodolly",
+            title: "Sacred Sacrifice",
+            appendix: "",
+        ),
+        "bgm/final-battle-trailer-music-217488.ogg": (
+            author: "Ihor_Koliako",
+            title: "FINAL BATTLE",
+            appendix: "",
+        ),
+        "bgm/human-vs-machine-dark-orchestral-cinematic-epic-action-271968.ogg": (
+            author: "Kulakovka",
+            title: "Human vs Machine",
+            appendix: "",
+        )
+    },
+
+    home_bgm: "bgm/最果てのルージュ.ogg",
+    ending_bgm: "bgm/Tides_of_Adventure.ogg",
+    
     tiles: {
         (203, 219, 252, 255): (
             tile: None,

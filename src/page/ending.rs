@@ -1,6 +1,7 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::hud::overlay::OverlayEvent;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
@@ -10,6 +11,8 @@ pub struct EndingImage;
 
 fn setup(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    registry: Registry,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
     mut overlay: EventWriter<OverlayEvent>,
@@ -18,7 +21,7 @@ fn setup(
 
     commands.spawn((StateScoped(GameState::Ending), Camera2d::default()));
 
-    next_bgm.0 = Some(assets.ending_bgm.clone());
+    next_bgm.0 = Some(asset_server.load(registry.game().ending_bgm.clone()));
 
     commands.spawn((
         Name::new("ending"),

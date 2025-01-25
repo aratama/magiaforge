@@ -5,7 +5,7 @@
 SenarioRegistry(
     senarios: {
         "HelloRabbit": [
-            BGM (bgm: Saihate),
+            BGM ("bgm/最果てのルージュ.ogg"),
             Speech (
                 ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
                 en: "Oh, you are a mage. This is our merchant camp. Visitors are welcome.",
@@ -351,7 +351,7 @@ SenarioRegistry(
             )
         ],
         "HugeSlime": [
-            BGM (bgm: None),
+            BGM (None),
             Shake (value: 6.0),
             SE (se: Kaminari),
             Flash (

@@ -3,8 +3,6 @@ use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
-use crate::asset_credit::path_to_string;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
@@ -307,43 +305,14 @@ pub fn setup_level(
 }
 
 fn select_level_bgm(
+    asset_server: Res<AssetServer>,
     registry: Registry,
     next_level: Res<LevelSetup>,
     mut next_bgm: ResMut<NextBGM>,
-    assets: Res<GameAssets>,
 ) {
-    let bgms = vec![
-        assets.dokutsu.clone(),
-        assets.arechi.clone(),
-        assets.touha.clone(),
-        assets.mori.clone(),
-        assets.meikyu.clone(),
-        assets.shiden.clone(),
-        assets.midnight_forest.clone(),
-        assets.deamon.clone(),
-        assets.action.clone(),
-        assets.decisive.clone(),
-        assets.enjin.clone(),
-        assets.sacred.clone(), // ボスのプロモート後用BGM
-        assets.final_battle.clone(),
-        assets.human_vs_machine.clone(),
-    ];
     if next_level.is_changed() {
         let props = registry.get_level(&next_level.next_level);
-
-        let handle = bgms
-            .iter()
-            .find(|bgm| bgm.path().map(path_to_string) == Some(props.bgm.clone()));
-
-        if handle.is_none() {
-            warn!(
-                "No BGM found for {:?} in {:?}",
-                props.bgm,
-                bgms.iter().map(|i| i.path().map(|p| p.to_string()))
-            );
-        }
-
-        *next_bgm = NextBGM(handle.cloned());
+        *next_bgm = NextBGM(asset_server.get_handle(props.bgm.clone()));
     }
 }
 

@@ -282,12 +282,12 @@ fn update_huge_slime_summon(
 }
 
 fn update_huge_slime_promote(
+    asset_server: Res<AssetServer>,
     mut huge_slime_query: Query<
         (&mut HugeSlime, &Transform, &mut Counter, &mut Actor),
         Without<Player>,
     >,
     mut se_writer: EventWriter<SEEvent>,
-    assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
 ) {
     for (mut huge_slime, transform, mut counter, mut actor) in huge_slime_query.iter_mut() {
@@ -295,7 +295,7 @@ fn update_huge_slime_promote(
         if let HugeSlimeState::Promote = huge_slime.state {
             if counter.count == 120 {
                 se_writer.send(SEEvent::pos(SE::Growl, transform.translation.truncate()));
-                *next_bgm = NextBGM(Some(assets.sacred.clone()));
+                *next_bgm = NextBGM(Some(asset_server.load("bgm/Sacred_Sacrifice.ogg")));
             } else if 300 <= counter.count {
                 huge_slime.state = HugeSlimeState::Approach;
                 counter.count = 0;

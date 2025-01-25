@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
 use crate::audio::NextBGM;
-use crate::bgm::BGMType;
 use crate::camera::GameCamera;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
@@ -48,9 +47,7 @@ pub enum Cmd {
     Speech(Dict<String>),
 
     /// BGMを変更します
-    BGM {
-        bgm: Option<BGMType>,
-    },
+    BGM(Option<String>),
 
     SE {
         se: SE,
@@ -210,6 +207,7 @@ fn read_interpreter_events(
 
 fn interpret(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
     config: Res<GameConfig>,
@@ -277,8 +275,15 @@ fn interpret(
                 interpreter.speech_count += step;
             }
         }
-        Cmd::BGM { bgm } => {
-            next_bgm.0 = bgm.map(|b| b.to_source(&registry.assets)).clone();
+        Cmd::BGM(path) => {
+            let handle = path
+                .clone()
+                .and_then(|b| asset_server.get_handle(b))
+                .clone();
+            if handle.is_none() {
+                warn!("BGM not found: {:?}", path);
+            }
+            next_bgm.0 = handle;
             interpreter.index += 1;
         }
         Cmd::SE { se } => {

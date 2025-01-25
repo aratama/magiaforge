@@ -1,5 +1,6 @@
-use crate::asset_credit::asset_to_credit;
 use crate::config::GameConfig;
+use crate::registry::Registry;
+use crate::states::GameState;
 use crate::ui::pause_menu::BGMCredit;
 use bevy::audio::PlaybackMode;
 use bevy::audio::Volume;
@@ -55,6 +56,7 @@ pub struct BGM {
 
 fn change_bgm(
     mut commands: Commands,
+    registry: Registry,
     mut bgm_query: Query<(Entity, &AudioPlayer, &AudioSink, &mut BGM)>,
     next_bgm: ResMut<NextBGM>,
     config: Res<GameConfig>,
@@ -71,7 +73,13 @@ fn change_bgm(
                     // いったん despawn する必要がある
                     commands.entity(entity).despawn_recursive();
 
-                    spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
+                    spawn_bgm(
+                        &mut commands,
+                        &registry,
+                        &mut bgm_credit_query,
+                        next,
+                        &config,
+                    );
                 }
             }
         } else {
@@ -79,23 +87,27 @@ fn change_bgm(
             sink.set_volume(config.bgm_volume * bgm.volume);
         }
     } else if let Some(ref next) = next_bgm.0 {
-        spawn_bgm(&mut commands, &mut bgm_credit_query, next, &config);
+        spawn_bgm(
+            &mut commands,
+            &registry,
+            &mut bgm_credit_query,
+            next,
+            &config,
+        );
     }
 }
 
 fn spawn_bgm(
     commands: &mut Commands,
+    registry: &Registry,
     bgm_credit_query: &mut Query<&mut Text, With<BGMCredit>>,
     next: &Handle<AudioSource>,
     config: &GameConfig,
 ) {
-    let credit = asset_to_credit(next);
+    let credit = registry.get_bgm(&next);
 
     if let Ok(mut bgm_credit) = bgm_credit_query.get_single_mut() {
-        bgm_credit.0 = format!(
-            "♪ {}『{}』{}",
-            credit.authoer, credit.title, credit.appendix
-        );
+        bgm_credit.0 = format!("♪ {}『{}』{}", credit.author, credit.title, credit.appendix);
     }
 
     commands.spawn((
@@ -121,7 +133,17 @@ pub struct GameAudioPlugin;
 
 impl Plugin for GameAudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (update_bgm_volue, change_bgm));
+        app.add_systems(
+            FixedUpdate,
+            (update_bgm_volue, change_bgm).run_if(
+                in_state(GameState::MainMenu)
+                    .or(in_state(GameState::InGame))
+                    .or(in_state(GameState::Opening))
+                    .or(in_state(GameState::Warp))
+                    .or(in_state(GameState::NameInput))
+                    .or(in_state(GameState::Ending)),
+            ),
+        );
         app.init_resource::<NextBGM>();
     }
 }

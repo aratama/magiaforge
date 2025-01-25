@@ -4,9 +4,7 @@
 
 mod actor;
 mod asset;
-mod asset_credit;
 mod audio;
-mod bgm;
 mod camera;
 mod cast;
 mod collision;
