@@ -83,23 +83,6 @@ pub struct ActorPropsByType {
     pub cry: bool,
 }
 
-#[derive(Debug)]
-pub enum SenarioType {
-    HelloRabbit,
-    SingleplayRabbit,
-    MultiplayerRabbit,
-    ReserchRabbit,
-    TrainingRabbit,
-    SpellListRabbit,
-    HugeSlime,
-}
-
-impl SenarioType {
-    pub fn to_acts<'a>(&self, senarios: &'a SenarioRegistry) -> &'a Vec<Cmd> {
-        senarios.senarios.get(&format!("{:?}", self)).unwrap()
-    }
-}
-
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct SenarioRegistry {
     pub senarios: HashMap<String, Vec<Cmd>>,
@@ -133,6 +116,14 @@ impl<'w> Registry<'w> {
 
     pub fn senario(&self) -> &SenarioRegistry {
         self.senario.get(&self.assets.senario_registry).unwrap()
+    }
+
+    pub fn get_senario<T: Into<String>>(&self, name: T) -> &Vec<Cmd> {
+        let name = name.into();
+        self.senario()
+            .senarios
+            .get(&name)
+            .expect(&format!("Senario '{}' not found", &name))
     }
 
     pub fn get_actor_props(&self, actor_type: ActorType) -> &ActorPropsByType {

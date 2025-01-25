@@ -53,6 +53,7 @@ pub fn random_actor_type(mut rng: &mut ThreadRng, except: ActorType) -> ActorTyp
 ///
 pub fn cast_metamorphosis(
     mut commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     se: &mut EventWriter<SEEvent>,
@@ -93,6 +94,7 @@ pub fn cast_metamorphosis(
 
     let entity = spawn_actor(
         &mut commands,
+        &asset_server,
         &registry,
         &life_bar_resource,
         position,

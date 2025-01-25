@@ -23,8 +23,6 @@ use crate::language::Dict;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
-use crate::registry::SenarioRegistry;
-use crate::registry::SenarioType;
 use crate::se::SEEvent;
 use crate::se::SE;
 use crate::set::FixedUpdateGameActiveSet;
@@ -319,14 +317,12 @@ pub struct DespawnHugeSlime;
 
 fn despawn(
     mut commands: Commands,
+    registry: Registry,
     query: Query<(Entity, &Actor, &Transform), With<DespawnHugeSlime>>,
     assets: Res<GameAssets>,
     mut theater_writer: EventWriter<InterpreterEvent>,
     player_query: Query<&Transform, With<Player>>,
-    senarios: Res<Assets<SenarioRegistry>>,
 ) {
-    let senarios = senarios.get(assets.senario_registry.id()).unwrap();
-
     if let Ok(_player_transform) = player_query.get_single() {
         for (entity, life, boss_transform) in query.iter() {
             if life.life <= 0 {
@@ -353,7 +349,7 @@ fn despawn(
                     },
                 }];
 
-                commands.extend(SenarioType::HugeSlime.to_acts(&senarios).clone());
+                commands.extend(registry.get_senario("HugeSlime").clone());
 
                 theater_writer.send(InterpreterEvent::Play { commands: commands });
             }

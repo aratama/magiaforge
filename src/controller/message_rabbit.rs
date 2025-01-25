@@ -9,14 +9,21 @@ use crate::physics::identify_item;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::physics::IdentifiedCollisionItem;
 use crate::registry::Registry;
-use crate::registry::SenarioType;
 use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct MessageRabbit {
-    pub senario: SenarioType,
+    pub senario: String,
+}
+
+impl MessageRabbit {
+    pub fn new(senario: &str) -> Self {
+        Self {
+            senario: senario.to_string(),
+        }
+    }
 }
 
 /// 呪文一覧のウサギは特別な処理があるので、区別できるようにするマーカー
@@ -51,7 +58,7 @@ fn collision_inner_sensor(
                 let rabbit = rabbit_query.get(rabbit_entity).unwrap();
                 camera.target = Some(rabbit_entity);
 
-                let event = rabbit.senario.to_acts(registry.senario());
+                let event = registry.get_senario(&rabbit.senario);
                 let mut messages = event.clone();
                 messages.insert(0, Cmd::Focus(rabbit_entity));
                 messages.push(Cmd::Close);

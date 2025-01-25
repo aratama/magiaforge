@@ -4,7 +4,7 @@
 #![enable(unwrap_variant_newtypes)]
 SenarioRegistry(
     senarios: {
-        "HelloRabbit": [
+        "GuideRabbit": [
             BGM ("bgm/最果てのルージュ.ogg"),
             Speech (
                 ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
@@ -119,7 +119,7 @@ SenarioRegistry(
                 ru: "Это многопользовательский уровень. Играйте на здоровье. Не знаю, есть ли здесь кто-нибудь, правда.",
             )
         ],
-        "ReserchRabbit": [
+        "ReadingRabbit": [
             Speech (
                 ja: "昔はこの島にも多くのヒト族がいたらしいが、今は魔法使いが時折訪れるくらいさ。君たち魔法使いはこの地底でいったい何を探しているんだい？",
                 en: "There used to be many humans on this island but now only witches occasionally visit. What are you witches looking for in the depths?",

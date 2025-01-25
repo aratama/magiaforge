@@ -375,10 +375,10 @@ GameRegistry(
         (118, 66, 138, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(Actor (
+            entity: Actor (
                 actor_type: BookShelf,
                 actor_group: Entity,
-            )),
+            ),
             entry_point: false,
         ),
         (251, 242, 54, 255): (
@@ -397,36 +397,36 @@ GameRegistry(
         (255, 155, 88, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(SpellInChest (
+            entity: SpellInChest (
                 spell: "Dash",
-            )),
+            ),
             entry_point: false,
         ),
         // (30, 69) ジャンプ練習場の奥
         (255, 155, 89, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(SpellInChest (
+            entity: SpellInChest (
                 spell: "Levitation",
-            )),
+            ),
             entry_point: false,
         ),
         // (53, 24) Z字型の裂け目の奥の隠し部屋
         (255, 155, 90, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(SpellInChest (
+            entity: SpellInChest (
                 spell: "Bomb",
-            )),
+            ),
             entry_point: false,
         ),
         // (100, 66) 溶岩流を渡った先
         (255, 155, 91, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(SpellInChest (
+            entity: SpellInChest (
                 spell: "LightSword",
-            )),
+            ),
             entry_point: false,
         ),
         (48, 96, 130, 255): (
@@ -474,10 +474,10 @@ GameRegistry(
         (223, 113, 38, 255): (
             tile: StoneTile,
             zone: SafeZone,
-            entity: Some(Actor (
+            entity: Actor (
                 actor_type: Lantern,
                 actor_group: Entity,
-            )),
+            ),
             entry_point: false,
         ),
         (0, 222, 255, 255): (
@@ -495,7 +495,7 @@ GameRegistry(
         (184, 0, 255, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(Boss (
+            entity: Boss (
                 actor_type: HugeSlime,
                 name: Dict (
                     ja: "スライムの王 エミルス",
@@ -509,58 +509,79 @@ GameRegistry(
                     ko: "슬라임 왕 에밀스",
                     ru: "Король слизней Эмильс",
                 ),
-            )),
+            ),
             entry_point: false,
         ),
         (255, 243, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(Shop),
+            entity: Rabbit (
+                aseprite: "entity/rabbit_yellow.aseprite",
+                senario: "ShopRabbit"
+            ),
             entry_point: false,
         ),
         (255, 244, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(Training),
+            entity: Rabbit (
+                aseprite: "entity/rabbit_red.aseprite",
+                senario: "TrainingRabbit"
+            ),
             entry_point: false,
         ),
         (255, 245, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(Guide),
+            entity: Rabbit ( 
+                aseprite: "entity/rabbit_blue.aseprite",
+                senario: "GuideRabbit"
+            ),
             entry_point: false,
         ),
         (255, 246, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(MultiPlay),
+            entity: Rabbit ( 
+                aseprite: "entity/rabbit_black.aseprite",
+                senario: "MultiPlayRabbit"
+            ),
             entry_point: false,
         ),
         (255, 247, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(Singleplay),
+            entity: Rabbit (
+                aseprite: "entity/rabbit_white.aseprite",
+                senario: "SingleplayRabbit"
+            ),
             entry_point: false,
         ),
         (255, 248, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(Reading),
+            entity: Rabbit (
+                aseprite: "entity/rabbit_green.aseprite",
+                senario: "ReadingRabbit"
+            ),
             entry_point: false,
         ),
         (255, 249, 0, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Rabbit(SpellList),
+            entity: Rabbit (
+                aseprite: "entity/rabbit_blue.aseprite",
+                senario: "SpellListRabbit"
+            ),
             entry_point: false,
         ),
         (182, 0, 255, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Some(Actor (
+            entity: Actor (
                 actor_type: Sandbag,
                 actor_group: Neutral,
-            )),
+            ),
             entry_point: false,
         ),
         (197, 255, 142, 255): (

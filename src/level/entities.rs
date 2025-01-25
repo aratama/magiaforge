@@ -11,7 +11,6 @@ use crate::actor::chicken::Chicken;
 use crate::actor::get_default_actor;
 use crate::actor::rabbit::default_rabbit;
 use crate::actor::rabbit::spawn_rabbit;
-use crate::actor::rabbit::RabbitType;
 use crate::actor::rock::default_rock;
 use crate::actor::rock::spawn_fallen_rock;
 use crate::actor::sandbug::spawn_sandbag;
@@ -86,7 +85,10 @@ pub enum Spawn {
         player_controlled: bool,
     },
 
-    Rabbit(RabbitType),
+    Rabbit {
+        aseprite: String,
+        senario: String,
+    },
 
     Boss {
         actor_type: ActorType,
@@ -240,13 +242,14 @@ pub fn spawn_entity(
                     spawn_dropped_item(&mut commands, &registry, *position, &item);
                 }
             }
-            Spawn::Rabbit(rabbit_type) => {
+            Spawn::Rabbit { aseprite, senario } => {
                 spawn_rabbit(
                     &mut commands,
+                    asset_server.load(aseprite),
                     &registry,
                     *position,
-                    default_rabbit(*rabbit_type),
-                    *rabbit_type,
+                    default_rabbit(aseprite, senario),
+                    senario,
                 );
             }
             Spawn::ShopDoor => {
@@ -258,6 +261,7 @@ pub fn spawn_entity(
             Spawn::RandomChest => {
                 spawn_actor_internal(
                     &mut commands,
+                    &asset_server,
                     &registry,
                     &life_bar_resource,
                     *position,
@@ -270,6 +274,7 @@ pub fn spawn_entity(
                     ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(spell.clone())));
                 spawn_actor_internal(
                     &mut commands,
+                    &asset_server,
                     &registry,
                     &life_bar_resource,
                     *position,
@@ -285,6 +290,7 @@ pub fn spawn_entity(
                 actor.actor_group = *actor_group;
                 let entity = spawn_actor(
                     &mut commands,
+                    &asset_server,
                     &registry,
                     &life_bar_resource,
                     *position,
@@ -297,6 +303,7 @@ pub fn spawn_entity(
                 actor.actor_group = ActorGroup::Enemy;
                 let entity = spawn_actor(
                     &mut commands,
+                    &asset_server,
                     &registry,
                     &life_bar_resource,
                     *position,
@@ -377,6 +384,7 @@ pub fn spawn_entity(
             } => {
                 spawn_actor_internal(
                     &mut commands,
+                    &asset_server,
                     &registry,
                     &life_bar_resource,
                     *position,
@@ -390,6 +398,7 @@ pub fn spawn_entity(
 
 pub fn spawn_actor(
     mut commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
@@ -472,12 +481,13 @@ pub fn spawn_actor(
             actor,
         ),
         ActorExtra::HugeSlime => spawn_huge_slime(&mut commands, &registry, position, actor),
-        ActorExtra::Rabbit { rabbit_type } => spawn_rabbit(
+        ActorExtra::Rabbit { aseprite, senario } => spawn_rabbit(
             &mut commands,
+            asset_server.load(aseprite.clone()),
             &registry,
             position,
-            default_rabbit(rabbit_type),
-            rabbit_type,
+            default_rabbit(&aseprite, &senario),
+            &senario,
         ),
         ActorExtra::Rock => spawn_fallen_rock(&mut commands, &registry, position, default_rock()),
         ActorExtra::Bomb => spawn_bomb(&mut commands, &registry, position, default_bomb()),
@@ -486,6 +496,7 @@ pub fn spawn_actor(
 
 fn spawn_actor_internal(
     mut commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
@@ -494,6 +505,7 @@ fn spawn_actor_internal(
 ) {
     let entity = spawn_actor(
         &mut commands,
+        &asset_server,
         &registry,
         &life_bar_resource,
         position,

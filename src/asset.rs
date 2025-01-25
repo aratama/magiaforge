@@ -113,24 +113,31 @@ pub struct GameAssets {
     pub raven: Handle<Aseprite>,
 
     // ウサギ //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //
+    // スプライトは registry ファイルのほうで指定しているのでここでは dead_code になっているが、
+    // 先読みのためにここでも含めておく
+    // でも通常はタイトル画面を表示しているあいだに読み込みが間に合う？
     #[asset(path = "entity/rabbit_yellow.aseprite")]
+    #[allow(dead_code)]
     pub rabbit_yellow: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_red.aseprite")]
+    #[allow(dead_code)]
     pub rabbit_red: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_blue.aseprite")]
+    #[allow(dead_code)]
     pub rabbit_blue: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_black.aseprite")]
+    #[allow(dead_code)]
     pub rabbit_black: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_white.aseprite")]
+    #[allow(dead_code)]
     pub rabbit_white: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_green.aseprite")]
+    #[allow(dead_code)]
     pub rabbit_green: Handle<Aseprite>,
 
     // 呪文 /////////////////////////////////////////////////////////////////////////////////////////////////////////

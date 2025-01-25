@@ -84,7 +84,6 @@ use chest::default_random_chest;
 use chest::ChestItem;
 use chest::ChestType;
 use rabbit::default_rabbit;
-use rabbit::RabbitType;
 use rock::default_rock;
 use serde::Deserialize;
 use serde::Serialize;
@@ -96,6 +95,8 @@ use witch::default_witch;
 
 /// アクターの種類を表します
 /// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
+/// ActorType は registry.actor.ron と対応しているが、
+/// 行動アルゴリズムがコーディングされているため外部設定ファイル化は向いていない
 #[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActorType {
     Witch,
@@ -300,7 +301,8 @@ pub enum ActorExtra {
     },
     BookShelf,
     Rabbit {
-        rabbit_type: RabbitType,
+        aseprite: String,
+        senario: String,
     },
     Rock,
     Bomb,
@@ -682,6 +684,7 @@ fn update_actor_light(
 /// 攻撃状態にあるアクターがスペルを詠唱します
 fn fire_bullet(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
     level: Res<LevelSetup>,
@@ -745,6 +748,7 @@ fn fire_bullet(
             };
             cast_spell(
                 &mut commands,
+                &asset_server,
                 &registry,
                 &life_bar_resource,
                 &level,
@@ -771,6 +775,7 @@ fn fire_bullet(
         if actor.fire_state_secondary == ActorFireState::Fire {
             cast_spell(
                 &mut commands,
+                &asset_server,
                 &registry,
                 &life_bar_resource,
                 &level,
@@ -1131,7 +1136,10 @@ pub fn get_default_actor(actor_type: ActorType) -> Actor {
         ActorType::Lantern => default_lantern(),
         ActorType::Chest => default_random_chest(),
         ActorType::BookShelf => default_bookshelf(),
-        ActorType::Rabbit => default_rabbit(RabbitType::Guide),
+        ActorType::Rabbit => default_rabbit(
+            &"entity/rabbit_blue.aseprite".to_string(),
+            &"GuideRabbit".to_string(),
+        ),
         ActorType::Rock => default_rock(),
         ActorType::Bomb => default_bomb(),
     }
@@ -1218,6 +1226,7 @@ fn fire_damage(
 
 fn damage(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     life_bar_resource: Res<LifeBarResource>,
     mut spawn: EventWriter<SpawnEvent>,
@@ -1271,6 +1280,7 @@ fn damage(
                         let position = life_transform.translation.truncate();
                         let entity = cast_metamorphosis(
                             &mut commands,
+                            &asset_server,
                             &registry,
                             &life_bar_resource,
                             &mut se,

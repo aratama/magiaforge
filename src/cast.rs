@@ -121,6 +121,7 @@ pub enum SpellCast {
 pub fn cast_spell(
     mut commands: &mut Commands,
     // resources
+    asset_server: &Res<AssetServer>,
     registry: &Registry,
     life_bar_resource: &Res<LifeBarResource>,
     level: &Res<LevelSetup>,
@@ -498,6 +499,7 @@ pub fn cast_spell(
             // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
             let entity = cast_metamorphosis(
                 &mut commands,
+                &asset_server,
                 registry,
                 &life_bar_resource,
                 &mut se,
