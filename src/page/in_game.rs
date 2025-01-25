@@ -10,7 +10,6 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerControlled;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::hud::life_bar::LifeBarResource;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::Inventory;
 use crate::inventory::InventoryItem;
@@ -118,7 +117,6 @@ pub fn setup_level(
     registry: Registry,
     level_aseprites: Res<Assets<Aseprite>>,
     images: Res<Assets<Image>>,
-    life_bar: Res<LifeBarResource>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEvent>,
@@ -210,7 +208,7 @@ pub fn setup_level(
             if let Some(ref entity) = tile.entity {
                 spawn.send(SpawnEvent {
                     position: index_to_position((x, y)),
-                    entity: entity.clone(),
+                    spawn: entity.clone(),
                 });
             }
         }
@@ -249,7 +247,7 @@ pub fn setup_level(
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEvent {
                     position: index_to_position((*x, *y)),
-                    entity: Spawn::Actor {
+                    spawn: Spawn::Actor {
                         actor_type: ActorType::Chicken,
                         actor_group: ActorGroup::Neutral,
                     },
@@ -278,8 +276,6 @@ pub fn setup_level(
         &registry,
         Vec2::new(player_x, player_y),
         None,
-        &life_bar,
-        false,
         Actor {
             // 新しいレベルに入るたびに全回復している
             life: player_state.max_life,
@@ -350,7 +346,7 @@ fn spawn_random_enemies(
             Some(enemy_type) => {
                 spawn.send(SpawnEvent {
                     position,
-                    entity: Spawn::Actor {
+                    spawn: Spawn::Actor {
                         actor_type: *enemy_type,
                         actor_group: ActorGroup::Enemy,
                     },

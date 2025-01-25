@@ -1,11 +1,10 @@
+use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::constant::*;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
@@ -45,16 +44,14 @@ pub fn default_slime() -> Actor {
 pub fn spawn_slime(
     mut commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     actor: Actor,
     position: Vec2,
     owner: Option<Entity>,
 ) -> Entity {
     let actor_group = actor.actor_group;
-    spawn_basic_enemy(
+    spawn_basic_actor(
         &mut commands,
         &registry,
-        life_bar_locals,
         match actor_group {
             ActorGroup::Friend => registry.assets.friend_slime.clone(),
             ActorGroup::Enemy => registry.assets.slime.clone(),
@@ -62,7 +59,6 @@ pub fn spawn_slime(
             ActorGroup::Entity => registry.assets.friend_slime.clone(),
         },
         position,
-        "slime",
         owner,
         actor,
     )

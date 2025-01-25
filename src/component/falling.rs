@@ -6,6 +6,7 @@ use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 
 /// 水面、亀裂などの床に落ちた場合にdespawnするコンポーネントを表します
+/// ただしアクターは独自で落下の実装が行われているため、このコンポーネントは使いません
 /// Verticalと併用します
 #[derive(Component, Debug)]
 #[require(Vertical)]

@@ -4,13 +4,11 @@ use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
 use crate::collision::*;
-use crate::component::falling::Falling;
 use crate::constant::TILE_HALF;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::BREAK;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
@@ -44,28 +42,17 @@ pub fn spawn_book_shelf(
     actor: Actor,
 ) -> Entity {
     let aseprite_clone = aseprite.clone();
-
     let mut parent = commands.spawn((
-        Name::new("book_shelf"),
+        Name::new(format!("{:?}", actor.to_type())),
         actor,
         Bookshelf,
         Burnable {
             life: 60 * 20 + rand::random::<u32>() % 30,
         },
         Transform::from_translation(position.extend(0.0)),
-        Falling,
-        (
-            RigidBody::Dynamic,
-            Damping {
-                linear_damping: 80.0,
-                angular_damping: 0.0,
-            },
-            LockedAxes::ROTATION_LOCKED,
-            Collider::cuboid(ENTITY_HALF_WIDTH, ENTITY_HALF_HEIGHT),
-            ColliderMassProperties::Density(10.0),
-            *ENTITY_GROUPS,
-            ExternalImpulse::default(),
-        ),
+        Collider::cuboid(ENTITY_HALF_WIDTH, ENTITY_HALF_HEIGHT),
+        ColliderMassProperties::Density(10.0),
+        *ENTITY_GROUPS,
         PrimitiveObstacle::Rectangle(Rectangle::new(
             ENTITY_HALF_WIDTH * 2.0,
             ENTITY_HALF_HEIGHT * 2.0,

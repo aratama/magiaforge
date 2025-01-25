@@ -1,11 +1,10 @@
+use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::constant::*;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
@@ -34,15 +33,13 @@ pub fn default_eyeball() -> Actor {
 pub fn spawn_eyeball(
     mut commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
     let actor_group = actor.actor_group;
-    spawn_basic_enemy(
+    spawn_basic_actor(
         &mut commands,
         &registry,
-        life_bar_locals,
         match actor_group {
             ActorGroup::Friend => registry.assets.eyeball_friend.clone(),
             ActorGroup::Enemy => registry.assets.eyeball.clone(),
@@ -50,7 +47,6 @@ pub fn spawn_eyeball(
             ActorGroup::Entity => registry.assets.eyeball_friend.clone(),
         },
         position,
-        "eyeball",
         None,
         actor,
     )

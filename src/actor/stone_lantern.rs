@@ -40,28 +40,22 @@ pub fn spawn_stone_lantern(
 ) -> Entity {
     commands
         .spawn((
-            Name::new("stone_lantern"),
+            Name::new(format!("{:?}", actor.to_type())),
             actor,
             StoneLantern,
             Transform::from_translation(position.extend(0.0)),
-            (
-                RigidBody::Dynamic,
-                Damping::default(),
-                LockedAxes::ROTATION_LOCKED,
-                Collider::cuboid(8.0, 8.0),
-                ColliderMassProperties::Density(10.0),
-                *ENTITY_GROUPS,
-                ExternalImpulse::default(),
-                WithPointLight {
-                    radius: 64.0,
-                    intensity: 1.0,
-                    falloff: 10.0,
-                    color: Color::hsl(42.0, 1.0, 0.71),
-                    animation_offset: rand::random::<u32>() % 1000,
-                    speed: 0.43,
-                    amplitude: 0.1,
-                },
-            ),
+            Collider::cuboid(8.0, 8.0),
+            ColliderMassProperties::Density(10.0),
+            *ENTITY_GROUPS,
+            WithPointLight {
+                radius: 64.0,
+                intensity: 1.0,
+                falloff: 10.0,
+                color: Color::hsl(42.0, 1.0, 0.71),
+                animation_offset: rand::random::<u32>() % 1000,
+                speed: 0.43,
+                amplitude: 0.1,
+            },
         ))
         .with_children(|parent| {
             parent.spawn(ActorSpriteGroup).with_child((

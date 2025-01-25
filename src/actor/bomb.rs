@@ -1,18 +1,16 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
+use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::falling::Falling;
 use crate::entity::explosion::SpawnExplosion;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::ActorSpriteGroup;
 
 #[derive(Default, Component, Reflect)]
 struct Bomb;
@@ -32,31 +30,23 @@ pub fn spawn_bomb(
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    let aseprite = registry.assets.bomb.clone();
     commands
         .spawn((
-            Name::new("bomb"),
+            Name::new(format!("{:?}", actor.to_type())),
             actor,
             Bomb,
             Counter::up(0),
             Transform::from_translation(position.extend(0.0)),
-            Falling,
-            (
-                RigidBody::Dynamic,
-                LockedAxes::ROTATION_LOCKED,
-                Damping::default(),
-                Collider::ball(6.0),
-                *ENTITY_GROUPS,
-                ExternalImpulse::default(),
-            ),
+            Collider::ball(6.0),
+            *ENTITY_GROUPS,
         ))
         .with_children(move |parent| {
             parent.spawn(ActorSpriteGroup).with_child((
                 LifeBeingSprite,
                 CounterAnimated,
                 AseSpriteAnimation {
-                    aseprite: aseprite.clone(),
-                    animation: "default".into(), // TODO
+                    aseprite: registry.assets.bomb.clone(),
+                    animation: "default".into(),
                 },
             ));
         })
@@ -84,13 +74,16 @@ fn explode_bomb(
 }
 
 fn set_bomb_rotation(
-    mut query: Query<(&Children, &Transform), With<Bomb>>,
-    mut sprite_query: Query<&mut Transform, (With<AseSpriteAnimation>, Without<Bomb>)>, // TODO
+    bomb_query: Query<&Transform, With<Bomb>>,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
+    mut sprite_query: Query<(&Parent, &mut Transform), (With<AseSpriteAnimation>, Without<Bomb>)>,
 ) {
-    for (children, transform) in query.iter_mut() {
-        for child in children.iter() {
-            if let Ok(mut child) = sprite_query.get_mut(*child) {
-                child.rotation = Quat::from_rotation_z(transform.translation.x * -0.1);
+    for (parent, mut sprite_transform) in sprite_query.iter_mut() {
+        if let Ok(group) = group_query.get(parent.get()) {
+            if let Ok(bomb_transform) = bomb_query.get(group.get()) {
+                sprite_transform.rotation = Quat::from_rotation_z(
+                    (bomb_transform.translation.x + bomb_transform.translation.y) * -0.1,
+                );
             }
         }
     }

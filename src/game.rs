@@ -1,3 +1,4 @@
+use crate::actor::basic::BasicEnemyPlugin;
 use crate::actor::bomb::BombPlugin;
 use crate::actor::book_shelf::BookshelfPlugin;
 use crate::actor::chest::ChestPlugin;
@@ -31,7 +32,6 @@ use crate::controller::training_dummy::TrainingDummyPlugin;
 use crate::debug::DebugPlugin;
 #[cfg(feature = "debug_command")]
 use crate::debug_command::DebugCommandPlugin;
-use crate::enemy::basic::BasicEnemyPlugin;
 use crate::enemy::eyeball::EyeballControlPlugin;
 use crate::enemy::huge_slime::HugeSlimePlugin;
 use crate::enemy::salamander::SalamanderPlugin;

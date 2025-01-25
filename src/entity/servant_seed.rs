@@ -13,7 +13,6 @@ use crate::enemy::eyeball::EyeballControl;
 use crate::enemy::slime::default_slime;
 use crate::enemy::slime::spawn_slime;
 use crate::enemy::slime::SlimeControl;
-use crate::hud::life_bar::LifeBarResource;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -175,7 +174,6 @@ struct SpawnServantEvent {
 fn spawn_servant(
     mut commands: Commands,
     registry: Registry,
-    life_bar_locals: Res<LifeBarResource>,
     mut reader: EventReader<SpawnServantEvent>,
 ) {
     for event in reader.read() {
@@ -186,7 +184,6 @@ fn spawn_servant(
                 let entity = spawn_slime(
                     &mut commands,
                     &registry,
-                    &life_bar_locals,
                     actor,
                     event.position,
                     event.master,
@@ -201,13 +198,7 @@ fn spawn_servant(
             }
             ServantType::Eyeball => {
                 let actor = crate::enemy::eyeball::default_eyeball();
-                let entity = spawn_eyeball(
-                    &mut commands,
-                    &registry,
-                    &life_bar_locals,
-                    event.position,
-                    actor,
-                );
+                let entity = spawn_eyeball(&mut commands, &registry, event.position, actor);
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
                 } else {
@@ -216,13 +207,7 @@ fn spawn_servant(
             }
             ServantType::Chiken => {
                 let actor = default_chiken();
-                let entity = spawn_chiken(
-                    &mut commands,
-                    &registry,
-                    &life_bar_locals,
-                    actor,
-                    event.position,
-                );
+                let entity = spawn_chiken(&mut commands, &registry, actor, event.position);
                 if event.servant {
                     commands.entity(entity).insert(PlayerServant);
                 } else {

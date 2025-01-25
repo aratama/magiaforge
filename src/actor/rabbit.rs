@@ -1,8 +1,8 @@
-use super::ActorSpriteGroup;
-use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
+use crate::actor::ActorSpriteGroup;
+use crate::actor::ActorType;
 use crate::collision::RABBIT_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
@@ -46,22 +46,12 @@ pub fn spawn_rabbit(
 ) -> Entity {
     let props = registry.get_actor_props(ActorType::Rabbit);
     let mut entity = commands.spawn((
-        Name::new("rabbit"),
+        Name::new(format!("{:?}", actor.to_type())),
         actor,
         Transform::from_translation(position.extend(0.0)),
         // 以下はRapier2Dのコンポーネント
-        (
-            RigidBody::Dynamic,
-            Velocity::default(),
-            Collider::ball(props.radius),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping::default(),
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            ActiveCollisionTypes::DYNAMIC_KINEMATIC,
-            *RABBIT_GROUPS,
-        ),
+        Collider::ball(props.radius),
+        *RABBIT_GROUPS,
     ));
 
     entity.insert(MessageRabbit::new(senario));

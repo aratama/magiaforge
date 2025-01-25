@@ -65,7 +65,7 @@ pub struct ActorRegistry {
     pub actors: HashMap<String, ActorPropsByType>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug)]
 pub struct ActorPropsByType {
     pub move_force: f32,
     pub jump: f32,

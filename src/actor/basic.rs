@@ -5,9 +5,6 @@ use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::servant::Servant;
-use crate::entity::bullet::HomingTarget;
-use crate::hud::life_bar::spawn_life_bar;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
@@ -15,47 +12,34 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component, Debug)]
-pub struct BasicEnemy;
+pub struct BasicActor;
 
 #[derive(Component, Debug)]
-pub struct BasicEnemySprite;
+pub struct BasicActorSprite;
 
 /// 敵モンスターの共通の構造です
 /// スプライトには idle, run, staggered, frozen のアニメーションが必要です
-pub fn spawn_basic_enemy(
+pub fn spawn_basic_actor(
     commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     aseprite: Handle<Aseprite>,
     position: Vec2,
-    name: &str,
     master: Option<Entity>,
     actor: Actor,
 ) -> Entity {
     let actor_group = actor.actor_group;
     let props = registry.get_actor_props(actor.to_type());
     let mut builder = commands.spawn((
-        BasicEnemy,
-        Name::new(name.to_string()),
+        BasicActor,
+        Name::new(format!("{:?}", actor.to_type())),
         actor,
-        HomingTarget,
         Transform::from_translation(position.extend(0.0)),
         Counter::default(),
-        (
-            RigidBody::Dynamic,
-            Collider::ball(props.radius),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping::default(),
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            ActiveEvents::COLLISION_EVENTS,
-            Velocity::default(),
-            actor_group.to_groups(0.0, 0),
-        ),
+        Collider::ball(props.radius),
+        actor_group.to_groups(0.0, 0),
     ));
 
-    builder.with_children(|mut parent| {
+    builder.with_children(|parent| {
         parent.spawn((
             AseSpriteSlice {
                 aseprite: registry.assets.atlas.clone(),
@@ -65,7 +49,7 @@ pub fn spawn_basic_enemy(
         ));
 
         parent.spawn(ActorSpriteGroup).with_child((
-            BasicEnemySprite,
+            BasicActorSprite,
             CounterAnimated,
             AseSpriteAnimation {
                 aseprite,
@@ -73,8 +57,6 @@ pub fn spawn_basic_enemy(
             },
             Transform::from_xyz(0.0, 0.0, 0.0),
         ));
-
-        spawn_life_bar(&mut parent, &life_bar_locals);
     });
 
     if let Some(owner) = master {
@@ -87,9 +69,9 @@ pub fn spawn_basic_enemy(
 /// frozen, staggerd, run, idle のみからなる基本的なアニメーションを実装します
 /// これ以外の表現が必要な場合は各アクターで個別に実装して上書きします
 pub fn basic_animate(
-    query: Query<&Actor, With<BasicEnemy>>,
+    query: Query<&Actor, With<BasicActor>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
+    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicActorSprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
         if let Ok(group) = group_query.get(parent.get()) {
@@ -113,11 +95,11 @@ pub fn basic_animate(
 }
 
 fn flip(
-    actor_query: Query<&Actor, With<BasicEnemy>>,
+    actor_query: Query<&Actor, With<BasicActor>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut sprite_query: Query<
         (&Parent, &mut Sprite),
-        (With<BasicEnemySprite>, Without<ActorSpriteGroup>),
+        (With<BasicActorSprite>, Without<ActorSpriteGroup>),
     >,
 ) {
     for (parent, mut sprite) in sprite_query.iter_mut() {

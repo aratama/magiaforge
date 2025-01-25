@@ -3,13 +3,11 @@ use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::entity::bullet_particle::SpawnParticle;
-use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::spawn_actor;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::KYUSHU2_SHORT;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::TimeState;
@@ -56,7 +54,6 @@ pub fn cast_metamorphosis(
     mut commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     registry: &Registry,
-    life_bar_resource: &Res<LifeBarResource>,
     se: &mut EventWriter<SEEvent>,
     spawn: &mut EventWriter<SpawnEvent>,
 
@@ -97,7 +94,6 @@ pub fn cast_metamorphosis(
         &mut commands,
         &asset_server,
         &registry,
-        &life_bar_resource,
         position,
         dest_actor,
     );
@@ -111,7 +107,7 @@ pub fn cast_metamorphosis(
     se.send(SEEvent::pos(KYUSHU2_SHORT, position));
     spawn.send(SpawnEvent {
         position,
-        entity: Spawn::Particle {
+        spawn: Spawn::Particle {
             particle: metamorphosis_effect(),
         },
     });
@@ -150,14 +146,14 @@ fn revert(
 
             spawn.send(SpawnEvent {
                 position,
-                entity: Spawn::Respawn {
+                spawn: Spawn::Respawn {
                     actor: original_actor,
                     player_controlled: false,
                 },
             });
             spawn.send(SpawnEvent {
                 position,
-                entity: Spawn::Particle {
+                spawn: Spawn::Particle {
                     particle: metamorphosis_effect(),
                 },
             });

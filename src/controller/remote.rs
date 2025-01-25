@@ -9,7 +9,6 @@ use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
 use crate::entity::servant_seed::ServantType;
-use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::page::in_game::setup_level;
@@ -198,7 +197,6 @@ fn receive_events(
         With<RemotePlayer>,
     >,
     frame_count: Res<FrameCount>,
-    life_bar_res: Res<LifeBarResource>,
     mut writer: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEvent>,
 ) {
@@ -256,8 +254,6 @@ fn receive_events(
                                     &registry,
                                     Vec2::new(x, y),
                                     Some(name.clone()),
-                                    &life_bar_res,
-                                    true,
                                     actor,
                                     false,
                                 );
@@ -313,7 +309,7 @@ fn receive_events(
                         } => {
                             spawn.send(SpawnEvent {
                                 position: from,
-                                entity: Spawn::Seed {
+                                spawn: Spawn::Seed {
                                     to,
                                     actor_group,
                                     owner: None,

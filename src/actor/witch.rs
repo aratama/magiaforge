@@ -1,17 +1,14 @@
-use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
+use crate::actor::ActorType;
 use crate::component::counter::CounterAnimated;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::entity::bullet::HomingTarget;
-use crate::hud::life_bar::spawn_life_bar;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::CHAKUCHI;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::audio::Volume;
@@ -46,15 +43,13 @@ pub fn spawn_witch(
     registry: &Registry,
     position: Vec2,
     name_plate: Option<String>,
-    res: &Res<LifeBarResource>,
-    life_bar: bool,
     actor: Actor,
     getting_up: bool,
 ) -> Entity {
     let actor_group = actor.actor_group;
     let props = registry.get_actor_props(ActorType::Witch);
     let mut entity = commands.spawn((
-        Name::new("witch"),
+        Name::new(format!("{:?}", actor.to_type())),
         actor,
         Witch {
             getting_up: if getting_up { 0 } else { MAX_GETTING_UP },
@@ -72,17 +67,8 @@ pub fn spawn_witch(
         // キャラクター画像とシャドウでz座標の計算が異なるため、
         // 親のzは常に0にします
         Transform::from_translation(position.extend(0.0)),
-        (
-            RigidBody::Dynamic,
-            Velocity::default(),
-            Collider::ball(props.radius),
-            GravityScale(0.0),
-            LockedAxes::ROTATION_LOCKED,
-            Damping::default(),
-            ExternalForce::default(),
-            ExternalImpulse::default(),
-            actor_group.to_groups(0.0, 0),
-        ),
+        Collider::ball(props.radius),
+        actor_group.to_groups(0.0, 0),
     ));
 
     entity.with_children(move |spawn_children| {
@@ -126,10 +112,6 @@ pub fn spawn_witch(
                     ..default()
                 },
             ));
-        }
-
-        if life_bar {
-            spawn_life_bar(spawn_children, &res);
         }
     });
 

@@ -116,24 +116,18 @@ pub fn spawn_chest(
 ) -> Entity {
     commands
         .spawn((
-            Name::new("chest"),
+            Name::new(format!("{:?}", actor.to_type())),
             actor,
             Chest,
             Burnable {
                 life: 60 * 20 + rand::random::<u32>() % 30,
             },
             Transform::from_translation(position.extend(0.0)),
-            (
-                RigidBody::Dynamic,
-                LockedAxes::ROTATION_LOCKED,
-                Damping::default(),
-                match chest_type {
-                    ChestType::Jar(_) => Collider::ball(6.0),
-                    _ => Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
-                },
-                *ENTITY_GROUPS,
-                ExternalImpulse::default(),
-            ),
+            match chest_type {
+                ChestType::Jar(_) => Collider::ball(6.0),
+                _ => Collider::cuboid(ENTITY_WIDTH, ENTITY_HEIGHT),
+            },
+            *ENTITY_GROUPS,
         ))
         .with_children(move |parent| {
             parent.spawn(ActorSpriteGroup).with_child((

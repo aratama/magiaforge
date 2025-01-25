@@ -1,3 +1,6 @@
+use crate::actor::basic::basic_animate;
+use crate::actor::basic::spawn_basic_actor;
+use crate::actor::basic::BasicActorSprite;
 use crate::actor::collision_group_by_actor;
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
@@ -7,17 +10,12 @@ use crate::actor::ActorSpriteGroup;
 use crate::collision::SHADOW_GROUPS;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::basic::basic_animate;
-use super::basic::BasicEnemySprite;
 
 const ENEMY_ATTACK_MARGIN: f32 = TILE_SIZE * 0.5;
 
@@ -58,17 +56,14 @@ pub fn default_shadow() -> Actor {
 pub fn spawn_shadow(
     mut commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    spawn_basic_enemy(
+    spawn_basic_actor(
         &mut commands,
         &registry,
-        &life_bar_locals,
         registry.assets.shadow.clone(),
         position,
-        "shadow",
         None,
         actor,
     )
@@ -155,7 +150,7 @@ fn pointer(
 pub fn animate(
     query: Query<&Shadow>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicEnemySprite>>,
+    mut sprite_query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicActorSprite>>,
 ) {
     for (parent, mut animation) in sprite_query.iter_mut() {
         if let Ok(group) = group_query.get(parent.get()) {

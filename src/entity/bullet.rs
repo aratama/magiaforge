@@ -70,7 +70,7 @@ pub struct BulletBundle {
     transform: Transform,
 }
 
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Default)]
 pub struct HomingTarget;
 
 #[derive(Component, Reflect)]
@@ -388,7 +388,7 @@ fn spawn_bullet_effect(
 ) {
     spawn.send(SpawnEvent {
         position: bullet_position,
-        entity: Spawn::Particle {
+        spawn: Spawn::Particle {
             particle: SpawnParticle::default(),
         },
     });
@@ -396,7 +396,7 @@ fn spawn_bullet_effect(
     if bullet.web {
         spawn.send(SpawnEvent {
             position: bullet_position,
-            entity: Spawn::Web {
+            spawn: Spawn::Web {
                 actor_group: bullet.actor_group,
             },
         });
@@ -405,7 +405,7 @@ fn spawn_bullet_effect(
     if let Some(damage) = bullet.slash {
         spawn.send(SpawnEvent {
             position: bullet_position,
-            entity: Spawn::Slash {
+            spawn: Spawn::Slash {
                 velocity: Vec2::ZERO,
                 actor_group: bullet.actor_group,
                 angle: bullet_velocity.linvel.to_angle(),

@@ -51,7 +51,6 @@ use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
-use crate::hud::life_bar::LifeBarResource;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
@@ -68,8 +67,6 @@ use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
 
-/// レベル生成時にタイルマップから生成されるエンティティです
-/// シリアライズ可能です
 #[derive(Clone, Debug, Deserialize)]
 pub enum Spawn {
     /// 種別を指定してアクターを生成します
@@ -137,17 +134,20 @@ pub enum Spawn {
     },
 }
 
+/// エンティティを生成するイベントです
+/// ゲーム内にエンティティを生成する場合は、基本的にSpawnEventを使います
+/// 生成したエンティティに対して追加の処理を行うときのみ、
+/// SpawnEventを使わずに直接 spawn_* 関数を呼んで生成します
 #[derive(Event, Clone, Debug)]
 pub struct SpawnEvent {
     pub position: Vec2,
-    pub entity: Spawn,
+    pub spawn: Spawn,
 }
 
 pub fn spawn_entity(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    life_bar_resource: Res<LifeBarResource>,
     mut level: ResMut<LevelSetup>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
     mut se: EventWriter<SEEvent>,
@@ -159,7 +159,11 @@ pub fn spawn_entity(
     life_query: Query<&Transform, With<Actor>>,
     grass_query: Query<(Entity, &Transform), (With<Grasses>, Without<Actor>)>,
 ) {
-    for SpawnEvent { position, entity } in reader.read() {
+    for SpawnEvent {
+        position,
+        spawn: entity,
+    } in reader.read()
+    {
         if level.shop_items.is_empty() {
             level.shop_items = new_shop_item_queue(
                 &registry,
@@ -264,7 +268,6 @@ pub fn spawn_entity(
                     &mut commands,
                     &asset_server,
                     &registry,
-                    &life_bar_resource,
                     *position,
                     &default_random_chest(),
                     false,
@@ -277,7 +280,6 @@ pub fn spawn_entity(
                     &mut commands,
                     &asset_server,
                     &registry,
-                    &life_bar_resource,
                     *position,
                     &chest_actor(ChestType::Chest, chest_item, 0),
                     false,
@@ -289,14 +291,7 @@ pub fn spawn_entity(
             } => {
                 let mut actor = get_default_actor(*actor_type);
                 actor.actor_group = *actor_group;
-                let entity = spawn_actor(
-                    &mut commands,
-                    &asset_server,
-                    &registry,
-                    &life_bar_resource,
-                    *position,
-                    actor,
-                );
+                let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
             Spawn::Boss {
@@ -306,14 +301,7 @@ pub fn spawn_entity(
             } => {
                 let mut actor = get_default_actor(*actor_type);
                 actor.actor_group = ActorGroup::Enemy;
-                let entity = spawn_actor(
-                    &mut commands,
-                    &asset_server,
-                    &registry,
-                    &life_bar_resource,
-                    *position,
-                    actor,
-                );
+                let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
                 commands.entity(entity).insert(Boss {
                     name: name.clone(),
                     on_despawn: on_despawn.clone(),
@@ -394,7 +382,6 @@ pub fn spawn_entity(
                     &mut commands,
                     &asset_server,
                     &registry,
-                    &life_bar_resource,
                     *position,
                     actor,
                     *player_controlled,
@@ -408,71 +395,18 @@ pub fn spawn_actor(
     mut commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     registry: &Registry,
-    life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
     match actor.extra.clone() {
-        ActorExtra::Witch => spawn_witch(
-            &mut commands,
-            registry,
-            position,
-            None,
-            &life_bar_resource,
-            false,
-            actor,
-            false,
-        ),
-        ActorExtra::Slime => spawn_slime(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            actor,
-            position,
-            None,
-        ),
-        ActorExtra::Eyeball => spawn_eyeball(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            position,
-            actor,
-        ),
-        ActorExtra::Shadow => spawn_shadow(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            position,
-            actor,
-        ),
-        ActorExtra::Spider => spawn_spider(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            position,
-            actor,
-        ),
-        ActorExtra::Salamander => spawn_salamander(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            position,
-            actor,
-        ),
-        ActorExtra::Chicken => spawn_chiken(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            actor,
-            position,
-        ),
-        ActorExtra::Sandbag => spawn_sandbag(
-            &mut commands,
-            &registry,
-            &life_bar_resource,
-            position,
-            actor,
-        ),
+        ActorExtra::Witch => spawn_witch(&mut commands, registry, position, None, actor, false),
+        ActorExtra::Slime => spawn_slime(&mut commands, &registry, actor, position, None),
+        ActorExtra::Eyeball => spawn_eyeball(&mut commands, &registry, position, actor),
+        ActorExtra::Shadow => spawn_shadow(&mut commands, &registry, position, actor),
+        ActorExtra::Spider => spawn_spider(&mut commands, &registry, position, actor),
+        ActorExtra::Salamander => spawn_salamander(&mut commands, &registry, position, actor),
+        ActorExtra::Chicken => spawn_chiken(&mut commands, &registry, actor, position),
+        ActorExtra::Sandbag => spawn_sandbag(&mut commands, &registry, position, actor),
         ActorExtra::Lantern => spawn_stone_lantern(&mut commands, &registry, position, actor),
         ActorExtra::Chest { chest_type, .. } => spawn_chest(
             &mut commands,
@@ -506,7 +440,6 @@ fn spawn_actor_internal(
     mut commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     registry: &Registry,
-    life_bar_resource: &Res<LifeBarResource>,
     position: Vec2,
     actor: &Actor,
     player_controlled: bool,
@@ -515,7 +448,6 @@ fn spawn_actor_internal(
         &mut commands,
         &asset_server,
         &registry,
-        &life_bar_resource,
         position,
         actor.clone(),
     );

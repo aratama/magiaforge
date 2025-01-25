@@ -25,7 +25,6 @@ use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
 use crate::entity::web::spawn_web;
-use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::page::in_game::LevelSetup;
@@ -126,7 +125,6 @@ pub fn cast_spell(
     // resources
     asset_server: &Res<AssetServer>,
     registry: &Registry,
-    life_bar_resource: &Res<LifeBarResource>,
     level: &Res<LevelSetup>,
     // events
     writer: &mut EventWriter<ClientMessage>,
@@ -291,7 +289,7 @@ pub fn cast_spell(
                 } => {
                     spawn.send(SpawnEvent {
                         position: actor_position,
-                        entity: Spawn::Seed {
+                        spawn: Spawn::Seed {
                             to: actor_position + actor.pointer,
                             owner: Some(actor_entity),
                             servant_type,
@@ -336,7 +334,7 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEvent {
                         position,
-                        entity: Spawn::Actor {
+                        spawn: Spawn::Actor {
                             actor_type: ActorType::Bomb,
                             actor_group: ActorGroup::Neutral,
                         },
@@ -348,7 +346,7 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEvent {
                         position,
-                        entity: entity.clone(),
+                        spawn: entity.clone(),
                     });
                     se.send(SEEvent::pos(STATUS2, position));
                 }
@@ -362,7 +360,7 @@ pub fn cast_spell(
                     let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
                     spawn.send(SpawnEvent {
                         position,
-                        entity: Spawn::Fireball {
+                        spawn: Spawn::Fireball {
                             velocity,
                             actor_group: actor.actor_group,
                         },
@@ -504,7 +502,6 @@ pub fn cast_spell(
                 &mut commands,
                 &asset_server,
                 registry,
-                &life_bar_resource,
                 &mut se,
                 &mut spawn,
                 &actor_entity,
@@ -543,7 +540,7 @@ pub fn cast_spell(
         for damage in actor.effects.slash.iter() {
             spawn.send(SpawnEvent {
                 position: actor_position,
-                entity: Spawn::Slash {
+                spawn: Spawn::Slash {
                     velocity: actor_velocity.linvel,
                     actor_group: actor.actor_group,
                     angle: actor.pointer.to_angle(),
@@ -586,14 +583,14 @@ fn cast_clone(
                 cloned.golds = 0;
                 spawn.send(SpawnEvent {
                     position,
-                    entity: Spawn::Respawn {
+                    spawn: Spawn::Respawn {
                         actor: cloned,
                         player_controlled,
                     },
                 });
                 spawn.send(SpawnEvent {
                     position,
-                    entity: Spawn::Particle {
+                    spawn: Spawn::Particle {
                         particle: metamorphosis_effect(),
                     },
                 });

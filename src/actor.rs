@@ -1,3 +1,4 @@
+pub mod basic;
 pub mod bomb;
 pub mod book_shelf;
 pub mod chest;
@@ -40,11 +41,13 @@ use crate::enemy::salamander::default_salamander;
 use crate::enemy::shadow::default_shadow;
 use crate::enemy::slime::default_slime;
 use crate::enemy::spider::default_spider;
+use crate::entity::bullet::HomingTarget;
 use crate::entity::bullet::Trigger;
 use crate::entity::fire::Burnable;
 use crate::entity::fire::Fire;
 use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
+use crate::hud::life_bar::spawn_life_bar;
 use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
@@ -83,8 +86,12 @@ use bevy_rapier2d::prelude::Damping;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_rapier2d::prelude::Group;
+use bevy_rapier2d::prelude::LockedAxes;
 use bevy_rapier2d::prelude::QueryFilter;
+use bevy_rapier2d::prelude::RigidBody;
 use bevy_rapier2d::prelude::Velocity;
+use bevy_rapier2d::prelude::GravityScale;
+use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
@@ -164,10 +171,6 @@ pub enum Blood {
     Blue,
 }
 
-fn state_scoped_in_game() -> StateScoped<GameState> {
-    StateScoped(GameState::InGame)
-}
-
 /// 自発的に移動し、攻撃の対象になる、プレイヤーキャラクターや敵モンスターを表します
 /// Actorは外観の構造を規定しません。外観は各エンティティで具体的に実装するか、
 /// BasicEnemyのような抽象化されたエンティティで実装しています
@@ -178,7 +181,20 @@ fn state_scoped_in_game() -> StateScoped<GameState> {
 /// またこのとき、それぞれのActorの実装は歩行のアニメーションを再生します
 ///
 #[derive(Component, Reflect, Debug, Clone, Deserialize)]
-#[require(Vertical, StateScoped<GameState>(state_scoped_in_game), Visibility)]
+#[require(
+    HomingTarget,
+    Vertical, 
+    StateScoped<GameState>(||StateScoped(GameState::InGame)), 
+    Visibility, 
+    Damping, 
+    LockedAxes(||LockedAxes::ROTATION_LOCKED), 
+    RigidBody(||RigidBody::Dynamic),
+    GravityScale(||GravityScale(0.0)),
+    ExternalForce,
+    ExternalImpulse,
+    Velocity,
+    ActiveEvents(||ActiveEvents::COLLISION_EVENTS)
+)]
 pub struct Actor {
     /// このアクターの種族を表すとともに、種族特有の情報を格納します
     pub extra: ActorExtra,
@@ -335,7 +351,7 @@ impl ActorExtra {
             ActorExtra::BookShelf => ActorType::BookShelf,
             ActorExtra::Rabbit { .. } => ActorType::Rabbit,
             ActorExtra::Rock => ActorType::Rock,
-            ActorExtra::Bomb => ActorType::Rock,
+            ActorExtra::Bomb => ActorType::Bomb,
         }
     }
 }
@@ -698,7 +714,6 @@ fn fire_bullet(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    life_bar_resource: Res<LifeBarResource>,
     level: Res<LevelSetup>,
     websocket: Res<WebSocketState>,
 
@@ -762,7 +777,6 @@ fn fire_bullet(
                 &mut commands,
                 &asset_server,
                 &registry,
-                &life_bar_resource,
                 &level,
                 &mut remote_writer,
                 &mut se_writer,
@@ -789,7 +803,6 @@ fn fire_bullet(
                 &mut commands,
                 &asset_server,
                 &registry,
-                &life_bar_resource,
                 &level,
                 &mut remote_writer,
                 &mut se_writer,
@@ -1240,7 +1253,6 @@ fn damage(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    life_bar_resource: Res<LifeBarResource>,
     mut spawn: EventWriter<SpawnEvent>,
     mut query: Query<(
         &mut Actor,
@@ -1294,7 +1306,6 @@ fn damage(
                             &mut commands,
                             &asset_server,
                             &registry,
-                            &life_bar_resource,
                             &mut se,
                             &mut spawn,
                             actor_entity,
@@ -1342,7 +1353,7 @@ fn despawn(
             se.send(SEEvent::pos(SHURIKEN, position));
             spawn.send(SpawnEvent {
                 position,
-                entity: Spawn::Particle {
+                spawn: Spawn::Particle {
                     particle: metamorphosis_effect(),
                 },
             });
@@ -1403,6 +1414,18 @@ fn despawn(
     }
 }
 
+fn add_life_bar(
+    mut commands: Commands,
+    query: Query<Entity, Added<Actor>>,
+    life_bar_resource: Res<LifeBarResource>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).with_children(|spawn_children| {
+            spawn_life_bar(spawn_children, &life_bar_resource);
+        });
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -1435,6 +1458,7 @@ impl Plugin for ActorPlugin {
                 fire_damage,
                 decrement_cloned,
                 despawn,
+                add_life_bar
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

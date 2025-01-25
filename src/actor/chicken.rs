@@ -1,11 +1,10 @@
+use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::component::vertical::Vertical;
 use crate::controller::player::PlayerServant;
-use crate::enemy::basic::spawn_basic_enemy;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
@@ -46,17 +45,14 @@ pub fn default_chiken() -> Actor {
 pub fn spawn_chiken(
     mut commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     actor: Actor,
     position: Vec2,
 ) -> Entity {
-    let entity = spawn_basic_enemy(
+    let entity = spawn_basic_actor(
         &mut commands,
         &registry,
-        life_bar_locals,
         registry.assets.chicken.clone(),
         position,
-        "chicken",
         None,
         actor,
     );

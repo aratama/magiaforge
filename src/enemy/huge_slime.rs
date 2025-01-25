@@ -11,7 +11,6 @@ use crate::component::counter::CounterAnimated;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
 use crate::language::Dict;
@@ -83,27 +82,16 @@ pub fn spawn_huge_slime(
 ) -> Entity {
     let entity = commands
         .spawn((
-            Name::new("huge slime"),
+            Name::new(format!("{:?}", actor.to_type())),
             HugeSlime {
                 state: HugeSlimeState::Growl,
                 promoted: false,
             },
             actor,
             Counter::up(0),
-            HomingTarget,
             Transform::from_translation(position.extend(0.0)),
-            (
-                RigidBody::Dynamic,
-                Velocity::zero(),
-                Collider::ball(HUGE_SLIME_COLLIDER_RADIUS),
-                GravityScale(0.0),
-                LockedAxes::ROTATION_LOCKED,
-                Damping::default(),
-                ExternalForce::default(),
-                ExternalImpulse::default(),
-                ActiveEvents::COLLISION_EVENTS,
-                *ENEMY_GROUPS,
-            ),
+            Collider::ball(HUGE_SLIME_COLLIDER_RADIUS),
+            *ENEMY_GROUPS,
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -255,7 +243,7 @@ fn update_huge_slime_summon(
                             let to = player.translation.truncate() + offset;
                             spawn.send(SpawnEvent {
                                 position: transform.translation.truncate(),
-                                entity: Spawn::Seed {
+                                spawn: Spawn::Seed {
                                     to,
                                     actor_group: ActorGroup::Enemy,
                                     owner: Some(huge_slime_entity),

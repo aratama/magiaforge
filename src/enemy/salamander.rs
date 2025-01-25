@@ -1,10 +1,9 @@
+use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::constant::*;
-use crate::enemy::basic::spawn_basic_enemy;
 use crate::finder::Finder;
-use crate::hud::life_bar::LifeBarResource;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::random::randomize_velocity;
@@ -54,17 +53,14 @@ pub fn default_salamander() -> Actor {
 pub fn spawn_salamander(
     mut commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    spawn_basic_enemy(
+    spawn_basic_actor(
         &mut commands,
         &registry,
-        &life_bar_locals,
         registry.assets.salamander.clone(),
         position,
-        "salamander",
         None,
         actor,
     )
@@ -198,7 +194,7 @@ fn attack(
                             let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
                             spawn.send(SpawnEvent {
                                 position,
-                                entity: Spawn::Fireball {
+                                spawn: Spawn::Fireball {
                                     velocity,
                                     actor_group: actor.actor_group,
                                 },

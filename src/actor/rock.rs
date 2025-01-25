@@ -1,5 +1,6 @@
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
+use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
@@ -10,15 +11,12 @@ use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::BREAK;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::ActorSpriteGroup;
 
 #[derive(Default, Component, Reflect)]
 struct FallingRock;
@@ -102,22 +100,13 @@ pub fn spawn_fallen_rock(
 ) -> Entity {
     commands
         .spawn((
-            Name::new("fallen rock"),
+            Name::new(format!("{:?}", actor.to_type())),
             actor,
             FallenRock,
             Transform::from_translation(position.extend(0.0)),
-            (
-                RigidBody::Dynamic,
-                Damping {
-                    linear_damping: 60.0,
-                    angular_damping: 0.0,
-                },
-                LockedAxes::ROTATION_LOCKED,
-                Collider::ball(16.0),
-                ColliderMassProperties::Density(10.0),
-                *ENTITY_GROUPS,
-                ExternalImpulse::default(),
-            ),
+            Collider::ball(16.0),
+            ColliderMassProperties::Density(10.0),
+            *ENTITY_GROUPS,
         ))
         .with_children(|parent| {
             parent.spawn(ActorSpriteGroup).with_child((

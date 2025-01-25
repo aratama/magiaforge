@@ -1,8 +1,7 @@
+use crate::actor::basic::spawn_basic_actor;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
-use crate::enemy::basic::spawn_basic_enemy;
-use crate::hud::life_bar::LifeBarResource;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
@@ -35,17 +34,14 @@ pub fn default_sandbag() -> Actor {
 pub fn spawn_sandbag(
     mut commands: &mut Commands,
     registry: &Registry,
-    life_bar_locals: &Res<LifeBarResource>,
     position: Vec2,
     actor: Actor,
 ) -> Entity {
-    spawn_basic_enemy(
+    spawn_basic_actor(
         &mut commands,
         &registry,
-        life_bar_locals,
         registry.assets.sandbug.clone(),
         position,
-        "sandbag",
         None,
         actor,
     )

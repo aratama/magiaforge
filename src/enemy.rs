@@ -1,4 +1,3 @@
-pub mod basic;
 pub mod eyeball;
 pub mod huge_slime;
 pub mod salamander;

@@ -3,6 +3,7 @@ use crate::actor::witch::MAX_GETTING_UP;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
+use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::constant::ENTITY_LAYER_Z;
@@ -140,7 +141,13 @@ pub fn actor_cast(
     buttons: Res<ButtonInput<MouseButton>>,
     menu: Res<State<GameMenuState>>,
     mut se: EventWriter<SEEvent>,
+    camera_query: Query<&GameCamera, With<Camera2d>>,
 ) {
+    let camera = camera_query.single();
+    if camera.target.is_some() {
+        return;
+    }
+
     let Ok(witch) = player_query.get_single() else {
         return;
     };
