@@ -35,6 +35,7 @@ use crate::controller::player::Player;
 use crate::controller::player::PlayerControlled;
 use crate::enemy::eyeball::default_eyeball;
 use crate::enemy::huge_slime::default_huge_slime;
+use crate::enemy::huge_slime::Boss;
 use crate::enemy::salamander::default_salamander;
 use crate::enemy::shadow::default_shadow;
 use crate::enemy::slime::default_slime;
@@ -45,7 +46,9 @@ use crate::entity::fire::Fire;
 use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::LifeBarResource;
+use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
+use crate::interpreter::Value;
 use crate::inventory::Inventory;
 use crate::inventory_item::InventoryItemType;
 use crate::level::entities::add_default_behavior;
@@ -577,6 +580,8 @@ impl ActorGroup {
 
 #[derive(Event, Debug, Clone)]
 pub enum ActorEvent {
+    /// アクターにダメージを与えます
+    /// このイベント以外を通じてアクターのライフを変更した場合は、ダメージの数値が画面に表示されません
     Damaged {
         actor: Entity,
         position: Vec2,
@@ -1323,11 +1328,12 @@ fn decrement_cloned(mut query: Query<&mut Actor>) {
 fn despawn(
     mut commands: Commands,
     registry: Registry,
+    mut interpreter: EventWriter<InterpreterEvent>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEvent>,
-    query: Query<(Entity, &Actor, &Transform, Option<&Player>)>,
+    query: Query<(Entity, &Actor, &Transform, Option<&Player>, Option<&Boss>)>,
 ) {
-    for (entity, actor, transform, player) in query.iter() {
+    for (entity, actor, transform, player, boss) in query.iter() {
         let position = transform.translation.truncate();
 
         if actor.cloned.map(|c| c == 0).unwrap_or(false) {
@@ -1376,6 +1382,22 @@ fn despawn(
                     Transform::from_translation(position.extend(BLOOD_LAYER_Z))
                         .with_scale(Vec3::new(2.0, 2.0, 1.0)),
                 ));
+            }
+
+            // ボス用の消滅シナリオ実行
+            if let Some(boss) = boss {
+                let mut cmds = registry.get_senario(&boss.on_despawn).clone();
+                cmds.insert(
+                    0,
+                    Cmd::Set {
+                        name: "position".to_string(),
+                        value: Value::Vec2 {
+                            x: position.x,
+                            y: position.y,
+                        },
+                    },
+                );
+                interpreter.send(InterpreterEvent::Play { commands: cmds });
             }
         }
     }

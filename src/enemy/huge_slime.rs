@@ -4,31 +4,24 @@ use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::collision::ENEMY_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
-use crate::component::entity_depth::EntityDepth;
 use crate::component::vertical::Vertical;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::servant_seed::ServantType;
-use crate::interpreter::Cmd;
-use crate::interpreter::InterpreterEvent;
-use crate::interpreter::Value;
 use crate::language::Dict;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::GROWL;
 use crate::se::PUYON;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
@@ -41,6 +34,7 @@ const IMPACT_MARGIN: f32 = 16.0;
 #[derive(Component)]
 pub struct Boss {
     pub name: Dict<String>,
+    pub on_despawn: String,
 }
 
 #[derive(Component)]
@@ -90,19 +84,14 @@ pub fn spawn_huge_slime(
     let entity = commands
         .spawn((
             Name::new("huge slime"),
-            DespawnHugeSlime,
-            HomingTarget,
             HugeSlime {
                 state: HugeSlimeState::Growl,
                 promoted: false,
             },
-            Counter::up(0),
             actor,
-            AseSpriteAnimation {
-                aseprite: registry.assets.huge_slime_shadow.clone(),
-                animation: Animation::default().with_tag("idle"),
-            },
-            Transform::from_translation(position.extend(PAINT_LAYER_Z)),
+            Counter::up(0),
+            HomingTarget,
+            Transform::from_translation(position.extend(0.0)),
             (
                 RigidBody::Dynamic,
                 Velocity::zero(),
@@ -117,6 +106,14 @@ pub fn spawn_huge_slime(
             ),
         ))
         .with_children(|parent| {
+            parent.spawn((
+                AseSpriteAnimation {
+                    aseprite: registry.assets.huge_slime_shadow.clone(),
+                    animation: Animation::default().with_tag("idle"),
+                },
+                Transform::from_translation(Vec3::new(0.0, 0.0, PAINT_LAYER_Z)),
+            ));
+
             parent.spawn(ActorSpriteGroup).with_child((
                 HugeSlimeSprite,
                 CounterAnimated,
@@ -124,7 +121,7 @@ pub fn spawn_huge_slime(
                     aseprite: registry.assets.huge_slime.clone(),
                     animation: Animation::default().with_tag("idle"),
                 },
-                Transform::from_xyz(0.0, 0.0, ENTITY_LAYER_Z),
+                Transform::from_xyz(0.0, 0.0, 0.0),
             ));
         })
         .id();
@@ -314,51 +311,6 @@ fn promote(mut huge_slime_query: Query<(&mut HugeSlime, &Actor, &mut Counter)>) 
     }
 }
 
-#[derive(Component)]
-pub struct DespawnHugeSlime;
-
-fn despawn(
-    mut commands: Commands,
-    registry: Registry,
-    query: Query<(Entity, &Actor, &Transform), With<DespawnHugeSlime>>,
-    assets: Res<GameAssets>,
-    mut theater_writer: EventWriter<InterpreterEvent>,
-    player_query: Query<&Transform, With<Player>>,
-) {
-    if let Ok(_player_transform) = player_query.get_single() {
-        for (entity, life, boss_transform) in query.iter() {
-            if life.life <= 0 {
-                // いったんボスを消して、その場所に新しいボスをスプライトだけ出現させる
-                commands.entity(entity).despawn_recursive();
-
-                commands.spawn((
-                    Name::new("huge slime"),
-                    CounterAnimated,
-                    AseSpriteAnimation {
-                        aseprite: assets.huge_slime.clone(),
-                        animation: "idle".into(),
-                    },
-                    StateScoped(GameState::InGame),
-                    Transform::from_translation(boss_transform.translation),
-                    EntityDepth::new(),
-                ));
-
-                let mut commands = vec![Cmd::Set {
-                    name: "position".to_string(),
-                    value: Value::Vec2 {
-                        x: boss_transform.translation.x,
-                        y: boss_transform.translation.y,
-                    },
-                }];
-
-                commands.extend(registry.get_senario("HugeSlime").clone());
-
-                theater_writer.send(InterpreterEvent::Play { commands: commands });
-            }
-        }
-    }
-}
-
 pub struct HugeSlimePlugin;
 
 impl Plugin for HugeSlimePlugin {
@@ -372,7 +324,6 @@ impl Plugin for HugeSlimePlugin {
                 update_huge_slime_summon,
                 update_huge_slime_promote,
                 promote,
-                despawn,
             )
                 .chain(),)
                 .in_set(FixedUpdateGameActiveSet),

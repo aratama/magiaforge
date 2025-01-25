@@ -93,6 +93,7 @@ pub enum Spawn {
     Boss {
         actor_type: ActorType,
         name: Dict<String>,
+        on_despawn: String,
     },
 
     // アクター以外のエンティティ
@@ -298,7 +299,11 @@ pub fn spawn_entity(
                 );
                 add_default_behavior(&mut commands, *actor_type, *position, entity);
             }
-            Spawn::Boss { actor_type, name } => {
+            Spawn::Boss {
+                actor_type,
+                name,
+                on_despawn,
+            } => {
                 let mut actor = get_default_actor(*actor_type);
                 actor.actor_group = ActorGroup::Enemy;
                 let entity = spawn_actor(
@@ -309,7 +314,10 @@ pub fn spawn_entity(
                     *position,
                     actor,
                 );
-                commands.entity(entity).insert(Boss { name: name.clone() });
+                commands.entity(entity).insert(Boss {
+                    name: name.clone(),
+                    on_despawn: on_despawn.clone(),
+                });
             }
             &Spawn::Seed {
                 to,

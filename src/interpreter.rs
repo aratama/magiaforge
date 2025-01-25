@@ -3,6 +3,7 @@ use crate::actor::ActorFireState;
 use crate::actor::ActorState;
 use crate::audio::NextBGM;
 use crate::camera::GameCamera;
+use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::config::GameConfig;
 use crate::constant::ARENA;
@@ -114,6 +115,12 @@ pub enum Cmd {
         name: String,
     },
 
+    Sprite {
+        name: String,
+        position: Expr,
+        aseprite: String,
+    },
+
     // todo ravenに合うような仮実装
     SetCameraTarget {
         name: Option<String>,
@@ -132,9 +139,9 @@ pub enum Cmd {
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
 pub enum Expr {
-    Vec2 { x: f32, y: f32 },
-    String { value: String },
-    Var { value: String },
+    Vec2(f32, f32),
+    String(String),
+    Var(String),
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
@@ -146,10 +153,14 @@ pub enum Value {
 impl Expr {
     pub fn to_vec2(&self, environment: &HashMap<String, Value>) -> Vec2 {
         match self {
-            Expr::Vec2 { x, y } => Vec2::new(*x, *y),
-            Expr::Var { value } => match environment.get(value) {
+            Expr::Vec2(x, y) => Vec2::new(*x, *y),
+            Expr::Var(key) => match environment.get(key) {
+                None => panic!("Value not found: {:?}, environment: {:?}", key, environment),
                 Some(Value::Vec2 { x, y }) => Vec2::new(*x, *y),
-                _ => panic!("Value is not Vec2: {:?}", self),
+                _ => panic!(
+                    "Value is not Vec2: {:?}, environment: {:?}",
+                    self, environment
+                ),
             },
             _ => panic!("Value is not Vec2: {:?}", self),
         }
@@ -159,6 +170,7 @@ impl Expr {
 #[derive(Event)]
 pub enum InterpreterEvent {
     /// シナリオを再生します
+    /// このとき、現在再生中のコマンド列は失われます
     Play { commands: Vec<Cmd> },
 
     /// 現在実行中のシナリオをすべて中止します
@@ -192,7 +204,6 @@ fn read_interpreter_events(
             InterpreterEvent::Play { commands } => {
                 theater.speech_count = 0;
                 theater.commands = commands.clone();
-                theater.environment = HashMap::new();
                 theater.index = 0;
             }
             InterpreterEvent::Quit => {
@@ -278,7 +289,7 @@ fn interpret(
         }
         Cmd::BGM(path) => {
             let handle = path.clone().map(|b| asset_server.load(b)).clone();
-            if handle.is_none() {
+            if path.is_some() && handle.is_none() {
                 warn!("BGM not found: {:?}", path);
             }
             next_bgm.0 = handle;
@@ -334,11 +345,37 @@ fn interpret(
             interpreter.index += 1;
         }
         Cmd::Despawn { name } => {
-            if let Some(entity) = entities.get(&name) {
-                commands.entity(*entity).despawn_recursive();
+            if !entities.contains_key(&name) {
+                warn!("Entity not found: {:?}", name);
+            }
+            for (entity_name, entity) in entities.iter() {
+                if *entity_name == name {
+                    commands.entity(*entity).despawn_recursive();
+                }
             }
             interpreter.index += 1;
         }
+
+        Cmd::Sprite {
+            name,
+            position,
+            aseprite,
+        } => {
+            let p = position.to_vec2(&interpreter.environment);
+            commands.spawn((
+                Name::new(name),
+                CounterAnimated,
+                AseSpriteAnimation {
+                    aseprite: asset_server.load(aseprite),
+                    animation: "idle".into(),
+                },
+                StateScoped(GameState::InGame),
+                Transform::from_translation(p.extend(0.0)),
+                EntityDepth::new(),
+            ));
+            interpreter.index += 1;
+        }
+
         Cmd::Wait { count } => {
             interpreter.wait = count;
             interpreter.index += 1;
