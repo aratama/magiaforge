@@ -1,4 +1,3 @@
-use crate::actor::basic::BasicEnemyPlugin;
 use crate::actor::bomb::BombPlugin;
 use crate::actor::book_shelf::BookshelfPlugin;
 use crate::actor::chest::ChestPlugin;
@@ -200,7 +199,6 @@ pub fn run_game() {
         .add_systems(Update, toggle_fullscreen)
         .add_plugins(ActorPlugin)
         .add_plugins(AnimatedSlicePlugin)
-        .add_plugins(BasicEnemyPlugin)
         .add_plugins(BGMSwitchPlugin)
         .add_plugins(BookshelfPlugin)
         .add_plugins(BombPlugin)

@@ -1,3 +1,4 @@
+use crate::actor::spawn_actor;
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
@@ -20,7 +21,6 @@ use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
-use crate::level::entities::spawn_actor;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;

@@ -1,4 +1,5 @@
 use crate::actor::get_default_actor;
+use crate::actor::spawn_actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::asset::GameAssets;
@@ -6,7 +7,6 @@ use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
-use crate::level::entities::spawn_actor;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;

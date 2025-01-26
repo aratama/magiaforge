@@ -1,9 +1,9 @@
 use crate::actor::get_default_actor;
+use crate::actor::spawn_actor;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::entity::bullet_particle::SpawnParticle;
-use crate::level::entities::spawn_actor;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;

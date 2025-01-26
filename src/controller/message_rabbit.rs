@@ -1,6 +1,6 @@
-use crate::actor::basic::BasicActorSprite;
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
+use crate::actor::ActorAppearanceSprite;
 use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::camera::GameCamera;
@@ -94,7 +94,7 @@ fn collision_outer_sensor(
 
 pub fn update_rabbit_sprite(
     asset_server: Res<AssetServer>,
-    mut query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicActorSprite>>,
+    mut query: Query<(&Parent, &mut AseSpriteAnimation), With<ActorAppearanceSprite>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
     actor_query: Query<&Actor, With<MessageRabbit>>,
 ) {

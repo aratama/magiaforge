@@ -1,5 +1,4 @@
-use super::basic::BasicActor;
-use super::basic::BasicActorSprite;
+use super::ActorAppearanceSprite;
 use super::ActorSpriteGroup;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;
@@ -62,9 +61,9 @@ pub enum ChestItem {
 
 pub fn update_sprite(
     asset_server: Res<AssetServer>,
-    mut query: Query<(&Parent, &mut AseSpriteAnimation), With<BasicActorSprite>>,
+    mut query: Query<(&Parent, &mut AseSpriteAnimation), With<ActorAppearanceSprite>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    actor_query: Query<&Actor, With<BasicActor>>,
+    actor_query: Query<&Actor>,
 ) {
     for (parent, mut animation) in query.iter_mut() {
         let parent = group_query.get(parent.get()).unwrap();

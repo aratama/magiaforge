@@ -1,4 +1,3 @@
-pub mod basic;
 pub mod bomb;
 pub mod book_shelf;
 pub mod chest;
@@ -20,6 +19,7 @@ use crate::collision::PLAYER_GROUPS;
 use crate::collision::RABBIT_GROUPS;
 use crate::collision::SHADOW_GROUPS;
 use crate::component::counter::Counter;
+use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::metamorphosis::cast_metamorphosis;
@@ -29,10 +29,13 @@ use crate::component::vertical::Vertical;
 use crate::constant::BLOOD_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
+use crate::constant::*;
 use crate::controller::player::recovery;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerControlled;
 use crate::enemy::huge_slime::Boss;
+use crate::enemy::huge_slime::HugeSlime;
+use crate::enemy::huge_slime::HugeSlimeState;
 use crate::entity::bullet::HomingTarget;
 use crate::entity::bullet::Trigger;
 use crate::entity::fire::Burnable;
@@ -50,6 +53,7 @@ use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::registry::ActorCollider;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BASHA2;
@@ -66,8 +70,10 @@ use crate::strategy::Commander;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
 use crate::wand::WandSpell;
+use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
+use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
@@ -86,15 +92,18 @@ use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use chest::Chest;
 use chest::ChestItem;
 use chest::ChestType;
 use chest::CHEST_OR_BARREL;
+use chicken::Chicken;
 use rand::seq::IteratorRandom;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
+use witch::WitchWandSprite;
 
 /// アクターの種類を表します
 /// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
@@ -156,6 +165,9 @@ pub enum Blood {
     Red,
     Blue,
 }
+
+#[derive(Component, Debug)]
+pub struct ActorAppearanceSprite;
 
 /// 自発的に移動し、攻撃の対象になる、プレイヤーキャラクターや敵モンスターを表します
 /// Actorは外観の構造を規定しません。外観は各エンティティで具体的に実装するか、
@@ -1471,6 +1483,205 @@ fn getting_up(mut query: Query<&mut Actor>) {
     }
 }
 
+/// 指定した位置にアクターの実体を生成します
+pub fn spawn_actor(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    registry: &Registry,
+    position: Vec2,
+    mut actor: Actor,
+) -> Entity {
+    let actor_type = actor.to_type();
+    let actor_group = actor.actor_group;
+    let props = registry.get_actor_props(actor_type);
+
+    actor.home_position = position;
+
+    let mut builder = commands.spawn((
+        Name::new(format!("{:?}", actor.to_type())),
+        actor,
+        Transform::from_translation(position.extend(0.0)),
+        Counter::default(),
+        match props.collider {
+            ActorCollider::Ball(radius) => Collider::ball(radius),
+            ActorCollider::Cuboid(width, height) => Collider::cuboid(width, height),
+        },
+        actor_group.to_groups(0.0, 0),
+    ));
+
+    builder.with_children(|parent| {
+        if let Some(shadow) = &props.shadow {
+            parent.spawn((
+                AseSpriteSlice {
+                    aseprite: registry.assets.atlas.clone(),
+                    name: shadow.clone(),
+                },
+                Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
+            ));
+        }
+
+        parent.spawn(ActorSpriteGroup).with_children(|parent| {
+            parent.spawn((
+                ActorAppearanceSprite,
+                CounterAnimated,
+                AseSpriteAnimation {
+                    aseprite: asset_server.load(props.aseprite.clone()),
+                    animation: Animation::default().with_tag(props.animations.idle_r.clone()),
+                },
+                Transform::from_xyz(0.0, 0.0, 0.0),
+            ));
+
+            if actor_type == ActorType::Witch {
+                parent.spawn((
+                    WitchWandSprite,
+                    AseSpriteSlice {
+                        aseprite: registry.assets.atlas.clone(),
+                        name: "wand_cypress".into(),
+                    },
+                    Transform::from_xyz(0.0, 4.0, -0.0001),
+                ));
+            }
+        });
+    });
+
+    if actor_type == ActorType::Witch {
+        builder.insert((
+            // 足音
+            // footsteps.rsで音量を調整
+            AudioPlayer::new(registry.assets.taiikukan.clone()),
+            PlaybackSettings {
+                volume: Volume::new(0.0),
+                mode: bevy::audio::PlaybackMode::Loop,
+                ..default()
+            },
+        ));
+    }
+
+    // if let Some(owner) = master {
+    //     builder.insert(Servant { master: owner });
+    // }
+
+    match actor_type {
+        ActorType::HugeSlime => {
+            builder.insert(HugeSlime {
+                state: HugeSlimeState::Growl,
+                promoted: false,
+            });
+        }
+        ActorType::Chicken => {
+            builder.insert(Chicken::default());
+        }
+        ActorType::Chest => {
+            builder.insert((Chest, Burnable { life: 30 }));
+        }
+        ActorType::BookShelf => {
+            builder.insert((Chest, Burnable { life: 30 }));
+        }
+        _ => {}
+    }
+
+    builder.id()
+}
+
+/// frozen, staggerd, run, idle のみからなる基本的なアニメーションを実装します
+/// これ以外の表現が必要な場合は各アクターで個別に実装して上書きします
+pub fn basic_animate(
+    query: Query<&Actor>,
+    registry: Registry,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
+    mut sprite_query: Query<
+        (&Parent, &mut Sprite, &mut AseSpriteAnimation),
+        With<ActorAppearanceSprite>,
+    >,
+) {
+    for (parent, mut sprite, mut animation) in sprite_query.iter_mut() {
+        if let Ok(group) = group_query.get(parent.get()) {
+            if let Ok(actor) = query.get(group.get()) {
+                let props = registry.get_actor_props(actor.to_type());
+
+                let angle = actor.pointer.to_angle();
+                let pi = std::f32::consts::PI;
+
+                animation.animation.repeat = AnimationRepeat::Loop;
+                animation.animation.tag = Some(if 0 < actor.frozen {
+                    props.animations.frozen.clone()
+                } else if 0 < actor.drown {
+                    props.animations.drown.clone()
+                } else if 0 < actor.staggered {
+                    props.animations.staggered.clone()
+                } else if 0 < actor.getting_up {
+                    props.animations.get_up.clone()
+                } else {
+                    match actor.state {
+                        ActorState::Idle => {
+                            if angle < pi * -0.75 || pi * 0.75 < angle {
+                                props.animations.idle_r.clone()
+                            } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                                props.animations.idle_u.clone()
+                            } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                                props.animations.idle_d.clone()
+                            } else {
+                                props.animations.idle_r.clone()
+                            }
+                        }
+                        ActorState::Run => {
+                            if angle < pi * -0.75 || pi * 0.75 < angle {
+                                props.animations.run_r.clone()
+                            } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                                props.animations.run_u.clone()
+                            } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                                props.animations.run_d.clone()
+                            } else {
+                                props.animations.run_r.clone()
+                            }
+                        }
+                    }
+                });
+
+                sprite.flip_x = match actor.state {
+                    ActorState::Idle => {
+                        if angle < pi * -0.75 || pi * 0.75 < angle {
+                            true
+                        } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                            false
+                        } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                            false
+                        } else {
+                            false
+                        }
+                    }
+                    ActorState::Run => {
+                        if angle < pi * -0.75 || pi * 0.75 < angle {
+                            true
+                        } else if pi * 0.25 < angle && angle < pi * 0.75 {
+                            false
+                        } else if pi * -0.75 <= angle && angle <= pi * -0.25 {
+                            false
+                        } else {
+                            false
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn flip(
+    actor_query: Query<&Actor>,
+    group_query: Query<&Parent, With<ActorSpriteGroup>>,
+    mut sprite_query: Query<
+        (&Parent, &mut Sprite),
+        (With<ActorAppearanceSprite>, Without<ActorSpriteGroup>),
+    >,
+) {
+    for (parent, mut sprite) in sprite_query.iter_mut() {
+        let parent = group_query.get(parent.get()).unwrap();
+        let chicken = actor_query.get(parent.get()).unwrap();
+        sprite.flip_x = chicken.pointer.x < 0.0;
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -1480,31 +1691,38 @@ impl Plugin for ActorPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                update_sprite_flip,
-                update_actor_light,
-                apply_external_force,
-                fire_bullet,
-                defreeze,
-                collision_group_by_actor,
+                // 操作
                 (
+                    apply_external_force,
+                    fire_bullet,
+                    collision_group_by_actor,
+                    apply_damping,
+                ),
+                // 状態異常
+                (
+                    drown,
+                    drown_damage,
+                    stagger,
+                    damage,
+                    fire_damage,
+                    despawn,
+                    decrement_cloned,
+                    defreeze,
+                    (decrement_levitation, levitation_effect).chain(),
+                ),
+                // 外観
+                (
+                    apply_v,
+                    apply_z,
                     add_levitation_effect,
-                    decrement_levitation,
-                    levitation_effect,
-                )
-                    .chain(),
-                apply_v,
-                apply_z,
-                apply_damping,
-                drown,
-                drown_damage,
-                stagger,
-                damage,
-                vibrate_breakabke_sprite,
-                fire_damage,
-                decrement_cloned,
-                despawn,
-                add_life_bar,
-                getting_up,
+                    update_sprite_flip,
+                    update_actor_light,
+                    add_life_bar,
+                    getting_up,
+                    basic_animate,
+                    flip,
+                    vibrate_breakabke_sprite,
+                ),
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

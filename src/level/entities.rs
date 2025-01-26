@@ -1,10 +1,8 @@
-use crate::actor::basic::spawn_basic_actor;
 use crate::actor::chest::chest_actor;
-use crate::actor::chest::Chest;
 use crate::actor::chest::ChestItem;
 use crate::actor::chest::ChestType;
-use crate::actor::chicken::Chicken;
 use crate::actor::get_default_actor;
+use crate::actor::spawn_actor;
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
 use crate::actor::ActorExtra;
@@ -21,15 +19,12 @@ use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::huge_slime::Boss;
-use crate::enemy::huge_slime::HugeSlime;
-use crate::enemy::huge_slime::HugeSlimeState;
 use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::entity::fire::Burnable;
 use crate::entity::fireball::spawn_fireball;
 use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
@@ -443,45 +438,6 @@ pub fn spawn_entity(
             }
         }
     }
-}
-
-pub fn spawn_actor(
-    mut commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    registry: &Registry,
-    position: Vec2,
-    mut actor: Actor,
-) -> Entity {
-    let actor_type = actor.to_type();
-    let props = registry.get_actor_props(actor_type);
-    let aseprite = asset_server.load(props.aseprite.clone());
-    actor.home_position = position;
-    let entity = spawn_basic_actor(&mut commands, &registry, aseprite, position, None, actor);
-
-    match actor_type {
-        ActorType::HugeSlime => {
-            commands.entity(entity).insert(HugeSlime {
-                state: HugeSlimeState::Growl,
-                promoted: false,
-            });
-        }
-        ActorType::Chicken => {
-            commands.entity(entity).insert(Chicken::default());
-        }
-        ActorType::Chest => {
-            commands
-                .entity(entity)
-                .insert((Chest, Burnable { life: 30 }));
-        }
-        ActorType::BookShelf => {
-            commands
-                .entity(entity)
-                .insert((Chest, Burnable { life: 30 }));
-        }
-        _ => {}
-    }
-
-    entity
 }
 
 fn spawn_actor_internal(
