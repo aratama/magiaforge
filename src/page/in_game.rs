@@ -1,7 +1,6 @@
 use crate::actor::spawn_actor;
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::audio::NextBGM;
@@ -249,7 +248,7 @@ pub fn setup_level(
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEvent {
                     position: index_to_position((*x, *y)),
-                    spawn: Spawn::Actor(ActorType::Chicken),
+                    spawn: Spawn::Actor(ActorType::new("Chicken")),
                 });
             }
         }
@@ -259,7 +258,7 @@ pub fn setup_level(
     // spawn.send(SpawnEvent {
     //     position: index_to_position((29, 52)),
     //     spawn: Spawn::Actor {
-    //         actor_type: ActorType::Salamander,
+    //         actor_type: ActorType::new("Salamander"),
     //         actor_group: ActorGroup::Enemy,
     //     },
     // });
@@ -278,8 +277,8 @@ pub fn setup_level(
         &registry,
         Vec2::new(player_x, player_y),
         Actor {
-            // 新しいレベルに入るたびに全回復している
-            life: player_state.max_life,
+            actor_type: ActorType::new("Witch"),
+            life: player_state.max_life, // 新しいレベルに入るたびに全回復している
             max_life: player_state.max_life,
             amplitude: 0.0,
             fire_damage_wait: 0,
@@ -288,7 +287,6 @@ pub fn setup_level(
             inventory: player_state.inventory,
             current_wand: player_state.current_wand,
             golds: player_state.golds,
-            extra: ActorExtra::Witch,
             getting_up: if getting_up_animation { 240 } else { 0 },
             ..default()
         },

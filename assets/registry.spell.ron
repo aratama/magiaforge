@@ -154,7 +154,7 @@ SpellRegistry(
             cast_delay: 120,
             icon: "spawn_jar_icon",
             price: 20,
-            cast: Spawn (Actor (Chest)),
+            cast: Spawn (Actor ("Chest")),
         ),
         "PurpleBolt": (
             rank: 1,
@@ -477,7 +477,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "slime",
             price: 200,
-            cast: Summon (friend: false, servant_type: Slime, servant: false),
+            cast: Summon (friend: false, servant_type: "Slime", servant: false),
         ),
         "SummonEnemyEyeball": (
             rank: 2,
@@ -508,7 +508,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "eyeball",
             price: 200,
-            cast: Summon (friend: false, servant_type: EyeBall, servant: false),
+            cast: Summon (friend: false, servant_type: "EyeBall", servant: false),
         ),
         "Servant": (
             rank: 2,
@@ -539,7 +539,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "summon_servant",
             price: 200,
-            cast: Summon (friend: true, servant_type: Chicken, servant: true),
+            cast: Summon (friend: true, servant_type: "Chicken", servant: true),
         ),
         "Web": (
             rank: 2,
@@ -601,7 +601,7 @@ SpellRegistry(
             cast_delay: 120,
             icon: "spawn_chiken_icon",
             price: 100,
-            cast: Summon (friend: true, servant_type: Chicken, servant: false ),
+            cast: Summon (friend: true, servant_type: "Chicken", servant: false ),
         ),
         "HeavyShot": (
             rank: 3,
@@ -726,7 +726,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "slime",
             price: 200,
-            cast: Summon (friend: true, servant_type: Slime, servant: false ),
+            cast: Summon (friend: true, servant_type: "Slime", servant: false ),
         ),
         "PrecisionUp": (
             rank: 3,
@@ -788,7 +788,7 @@ SpellRegistry(
             cast_delay: 120,
             icon: "spawn_bookshelf_icon",
             price: 500,
-            cast: Spawn (Actor (BookShelf)),
+            cast: Spawn (Actor ("BookShelf")),
         ),
         "Fireball": (
             rank: 3,
@@ -850,7 +850,7 @@ SpellRegistry(
             cast_delay: 30,
             icon: "eyeball",
             price: 200,
-            cast: Summon (friend: true, servant_type: EyeBall, servant: false ),
+            cast: Summon (friend: true, servant_type: "EyeBall", servant: false ),
         ),
         "Dash": (
             rank: 4,
@@ -1314,7 +1314,7 @@ SpellRegistry(
             cast_delay: 180,
             icon: "summon_huge_slime_icon",
             price: 10000,
-            cast: Spawn (Actor (HugeSlime)),
+            cast: Spawn (Actor ("HugeSlime")),
         ),
         "Bomb": (
             rank: 7,

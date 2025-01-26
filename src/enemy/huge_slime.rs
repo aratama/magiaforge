@@ -91,7 +91,7 @@ fn update_huge_slime_approach(
     >,
     mut se: EventWriter<SEEvent>,
 ) {
-    let props = registry.get_actor_props(&ActorType::HugeSlime);
+    let props = registry.get_actor_props(&ActorType::new("HugeSlime"));
 
     for (
         mut huge_slime,
@@ -172,7 +172,7 @@ fn update_huge_slime_summon(
                                     to,
                                     actor_group: ActorGroup::Enemy,
                                     owner: Some(huge_slime_entity),
-                                    servant_type: ActorType::Slime,
+                                    servant_type: ActorType::new("Slime"),
                                     remote: false,
                                     servant: false,
                                 },

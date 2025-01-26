@@ -1,20 +1,23 @@
 use super::ActorAppearanceSprite;
 use super::ActorSpriteGroup;
+use super::ActorType;
 use crate::actor::Actor;
-use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::inventory::InventoryItem;
+use crate::inventory_item::InventoryItemType;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BREAK;
 use crate::se::GLASS;
 use crate::set::FixedUpdateGameActiveSet;
+use crate::spell::Spell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
+use rand::seq::IteratorRandom;
 use serde::Deserialize;
 
 #[derive(Clone, Copy, PartialEq, Eq, Reflect, Default, Debug, Deserialize)]
@@ -51,48 +54,53 @@ pub const CHEST_OR_BARREL: [ChestType; 12] = [
 ];
 
 #[derive(Component, Reflect, Debug)]
-pub struct Chest;
+pub struct Chest {
+    pub chest_type: ChestType,
+    pub chest_item: Option<Spell>,
+}
 
-#[derive(Reflect, Clone, Debug, Deserialize)]
-pub enum ChestItem {
-    Gold,
-    Item(InventoryItem),
+impl Chest {
+    pub fn random() -> Self {
+        let chest_type = *CHEST_OR_BARREL
+            .iter()
+            .choose(&mut rand::thread_rng())
+            .unwrap();
+        Self {
+            chest_type,
+            chest_item: None,
+        }
+    }
 }
 
 pub fn update_sprite(
     asset_server: Res<AssetServer>,
     mut query: Query<(&Parent, &mut AseSpriteAnimation), With<ActorAppearanceSprite>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    actor_query: Query<&Actor>,
+    chest_query: Query<&Chest>,
 ) {
     for (parent, mut animation) in query.iter_mut() {
         let parent = group_query.get(parent.get()).unwrap();
-        let actor = actor_query.get(parent.get()).unwrap();
-        let ActorExtra::Chest { chest_type, .. } = &actor.extra else {
-            continue;
-        };
-        animation.aseprite = asset_server.load(format!(
-            "entity/{}.aseprite",
-            match chest_type {
-                ChestType::Chest => "chest",
-                ChestType::Crate => "crate",
-                ChestType::Barrel => "barrel",
-                ChestType::BarrelBomb => "barrel_bomb",
-                ChestType::Jar(JarColor::Red) => "jar_red",
-                ChestType::Jar(JarColor::Blue) => "jar_blue",
-                ChestType::Jar(JarColor::Green) => "jar_green",
-            }
-        ));
+        if let Ok(chest) = chest_query.get(parent.get()) {
+            animation.aseprite = asset_server.load(format!(
+                "entity/{}.aseprite",
+                match chest.chest_type {
+                    ChestType::Chest => "chest",
+                    ChestType::Crate => "crate",
+                    ChestType::Barrel => "barrel",
+                    ChestType::BarrelBomb => "barrel_bomb",
+                    ChestType::Jar(JarColor::Red) => "jar_red",
+                    ChestType::Jar(JarColor::Blue) => "jar_blue",
+                    ChestType::Jar(JarColor::Green) => "jar_green",
+                }
+            ));
+        }
     }
 }
 
-pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem, golds: u32) -> Actor {
+pub fn chest_actor(golds: u32) -> Actor {
     Actor {
+        actor_type: ActorType::new("Chest"),
         actor_group: ActorGroup::Entity,
-        extra: ActorExtra::Chest {
-            chest_type,
-            chest_item,
-        },
         life: 30,
         max_life: 30,
         golds,
@@ -102,25 +110,17 @@ pub fn chest_actor(chest_type: ChestType, chest_item: ChestItem, golds: u32) -> 
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(&Transform, &Actor, &Burnable), With<Chest>>,
+    query: Query<(&Transform, &Actor, &Burnable, &Chest)>,
     registry: Registry,
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
 ) {
-    for (transform, actor, burnable) in query.iter() {
+    for (transform, actor, burnable, chest) in query.iter() {
         if actor.life <= 0 || burnable.life <= 0 {
             let position = transform.translation.truncate();
-            let ActorExtra::Chest {
-                chest_type,
-                chest_item,
-            } = &actor.extra
-            else {
-                warn!("ActorExtra::Chest is expected, but found {:?}", actor.extra);
-                continue;
-            };
 
             writer.send(SEEvent::pos(
-                match chest_type {
+                match &chest.chest_type {
                     ChestType::Chest => BREAK,
                     ChestType::Crate => BREAK,
                     ChestType::Barrel => BREAK,
@@ -130,14 +130,12 @@ fn break_chest(
                 position,
             ));
 
-            match chest_item {
-                ChestItem::Gold => {}
-                ChestItem::Item(item) => {
-                    spawn_dropped_item(&mut commands, &registry, position, item);
-                }
+            if let Some(chest_item) = &chest.chest_item {
+                let item = InventoryItem::new(InventoryItemType::Spell(chest_item.clone()));
+                spawn_dropped_item(&mut commands, &registry, position, &item);
             }
 
-            match chest_type {
+            match chest.chest_type {
                 ChestType::Crate => {
                     for i in 0..4 {
                         spawn_jar_piece(
@@ -172,7 +170,7 @@ fn break_chest(
                 }
                 ChestType::Jar(color) => {
                     for i in 0..4 {
-                        spawn_jar_piece(&mut commands, &registry, position, "jar", color, i);
+                        spawn_jar_piece(&mut commands, &registry, position, "jar", &color, i);
                     }
                 }
                 _ => {}

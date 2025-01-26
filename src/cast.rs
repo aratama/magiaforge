@@ -172,7 +172,7 @@ pub fn cast_spell(
             wand_delay = wand_delay.max(delay as u32);
             multicast -= 1;
 
-            let actor_props = registry.get_actor_props(&actor.to_type());
+            let actor_props = registry.get_actor_props(&actor.actor_type);
 
             match &props.cast {
                 SpellCast::NoCast => {}
@@ -332,7 +332,7 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEvent {
                         position,
-                        spawn: Spawn::Actor(ActorType::Bomb),
+                        spawn: Spawn::Actor(ActorType::new("Bomb")),
                     });
                 }
                 SpellCast::Spawn(ref entity) => {
@@ -442,7 +442,7 @@ pub fn cast_spell(
                     );
                 }
                 SpellCast::Metamorphosis => {
-                    let morphing_to = random_actor_type(&mut rng, &actor.to_type());
+                    let morphing_to = random_actor_type(&mut rng, &actor.actor_type);
                     actor.effects.metamorphse = Some(morphing_to);
                 }
                 SpellCast::Slash { damage } => {

@@ -250,7 +250,7 @@ fn receive_events(
                                 //     &registry,
                                 //     Vec2::new(x, y),
                                 //     Some(name.clone()),
-                                //     get_default_actor(&registry, ActorType::Witch),
+                                //     get_default_actor(&registry, ActorType::new("Witch")),
                                 //     false,
                                 // );
                                 // commands.entity(entity).insert(RemotePlayer {

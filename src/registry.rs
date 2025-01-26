@@ -174,12 +174,10 @@ impl<'w> Registry<'w> {
 
     pub fn get_actor_props(&self, actor_type: &ActorType) -> &ActorPropsByType {
         let constants = self.actor.get(&self.assets.actor_registry).unwrap();
-
-        let name = format!("{:?}", actor_type);
         &constants
             .actors
-            .get(&name)
-            .expect(format!("ActorType {:?} not found", name).as_str())
+            .get(&actor_type.0)
+            .expect(format!("ActorType {:?} not found", actor_type.0).as_str())
     }
 
     pub fn get_spell_props(&self, Spell(spell_type): &Spell) -> &SpellProps {

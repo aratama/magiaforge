@@ -1,7 +1,6 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorAppearanceSprite;
-use crate::actor::ActorExtra;
 use crate::actor::ActorSpriteGroup;
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
@@ -20,11 +19,13 @@ use bevy_rapier2d::prelude::*;
 #[derive(Component)]
 pub struct MessageRabbit {
     pub senario: String,
+    pub aseprite: String,
 }
 
 impl MessageRabbit {
-    pub fn new(senario: &str) -> Self {
+    pub fn new(aseprite: &str, senario: &str) -> Self {
         Self {
+            aseprite: aseprite.to_string(),
             senario: senario.to_string(),
         }
     }
@@ -96,15 +97,12 @@ pub fn update_rabbit_sprite(
     asset_server: Res<AssetServer>,
     mut query: Query<(&Parent, &mut AseSpriteAnimation), With<ActorAppearanceSprite>>,
     group_query: Query<&Parent, With<ActorSpriteGroup>>,
-    actor_query: Query<&Actor, With<MessageRabbit>>,
+    actor_query: Query<&MessageRabbit>,
 ) {
     for (parent, mut animation) in query.iter_mut() {
         let parent = group_query.get(parent.get()).unwrap();
-        if let Ok(actor) = actor_query.get(parent.get()) {
-            let ActorExtra::Rabbit { aseprite, .. } = &actor.extra else {
-                continue;
-            };
-            animation.aseprite = asset_server.load(aseprite);
+        if let Ok(rabbit) = actor_query.get(parent.get()) {
+            animation.aseprite = asset_server.load(rabbit.aseprite.clone());
         }
     }
 }

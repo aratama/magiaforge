@@ -93,11 +93,7 @@ use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use chest::Chest;
-use chest::ChestItem;
-use chest::ChestType;
-use chest::CHEST_OR_BARREL;
 use chicken::Chicken;
-use rand::seq::IteratorRandom;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -107,25 +103,13 @@ use witch::WitchWandSprite;
 
 /// アクターの種類を表します
 /// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
-/// ActorType は registry.actor.ron と対応しているが、
-/// 行動アルゴリズムがコーディングされているため外部設定ファイル化は向いていない
 #[derive(Reflect, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ActorType {
-    Witch,
-    Chicken,
-    EyeBall,
-    Sandbag,
-    Slime,
-    HugeSlime,
-    Salamander,
-    Shadow,
-    Spider,
-    Lantern,
-    Chest,
-    BookShelf,
-    Rabbit,
-    Rock,
-    Bomb,
+pub struct ActorType(pub String);
+
+impl ActorType {
+    pub fn new(name: &str) -> Self {
+        ActorType(name.to_string())
+    }
 }
 
 #[derive(Reflect, Clone, Default, Debug, Deserialize)]
@@ -194,8 +178,7 @@ pub struct ActorAppearanceSprite;
     ActiveEvents(||ActiveEvents::COLLISION_EVENTS)
 )]
 pub struct Actor {
-    /// このアクターの種族を表すとともに、種族特有の情報を格納します
-    pub extra: ActorExtra,
+    pub actor_type: ActorType,
 
     pub uuid: Uuid,
 
@@ -311,92 +294,6 @@ pub struct Actor {
     pub hidden: bool,
 }
 
-impl Actor {
-    pub fn to_type(&self) -> ActorType {
-        self.extra.to_type()
-    }
-}
-
-/// Actorで種族固有の部分を格納します
-#[derive(Clone, Debug, Reflect, Deserialize)]
-pub enum ActorExtra {
-    Witch,
-    Slime,
-    HugeSlime,
-    Eyeball,
-    Shadow,
-    Spider,
-    Salamander,
-    Chicken,
-    Sandbag,
-    Lantern,
-    Chest {
-        chest_type: ChestType,
-        chest_item: ChestItem,
-    },
-    BookShelf,
-    Rabbit {
-        aseprite: String,
-        senario: String,
-    },
-    Rock,
-    Bomb,
-}
-
-impl ActorExtra {
-    pub fn to_type(&self) -> ActorType {
-        match self {
-            ActorExtra::Witch { .. } => ActorType::Witch,
-            ActorExtra::Chicken => ActorType::Chicken,
-            ActorExtra::Eyeball => ActorType::EyeBall,
-            ActorExtra::Sandbag => ActorType::Sandbag,
-            ActorExtra::Slime => ActorType::Slime,
-            ActorExtra::HugeSlime => ActorType::HugeSlime,
-            ActorExtra::Shadow => ActorType::Shadow,
-            ActorExtra::Spider => ActorType::Spider,
-            ActorExtra::Salamander => ActorType::Salamander,
-            ActorExtra::Lantern => ActorType::Lantern,
-            ActorExtra::Chest { .. } => ActorType::Chest,
-            ActorExtra::BookShelf => ActorType::BookShelf,
-            ActorExtra::Rabbit { .. } => ActorType::Rabbit,
-            ActorExtra::Rock => ActorType::Rock,
-            ActorExtra::Bomb => ActorType::Bomb,
-        }
-    }
-    pub fn from(actor_type: &ActorType) -> Self {
-        match actor_type {
-            ActorType::Witch => ActorExtra::Witch,
-            ActorType::Chicken => ActorExtra::Chicken,
-            ActorType::EyeBall => ActorExtra::Eyeball,
-            ActorType::Sandbag => ActorExtra::Sandbag,
-            ActorType::Slime => ActorExtra::Slime,
-            ActorType::HugeSlime => ActorExtra::HugeSlime,
-            ActorType::Shadow => ActorExtra::Shadow,
-            ActorType::Spider => ActorExtra::Spider,
-            ActorType::Salamander => ActorExtra::Salamander,
-            ActorType::Lantern => ActorExtra::Lantern,
-            ActorType::Chest => {
-                let chest_type = *CHEST_OR_BARREL
-                    .iter()
-                    .choose(&mut rand::thread_rng())
-                    .unwrap();
-                ActorExtra::Chest {
-                    chest_type,
-                    chest_item: ChestItem::Gold,
-                }
-            }
-            ActorType::BookShelf => ActorExtra::BookShelf,
-            ActorType::Rabbit => ActorExtra::Rabbit {
-                // ここは spawn_entity の Spawn::Rabbit で上書きする
-                aseprite: "rabbit".to_string(),
-                senario: "rabbit".to_string(),
-            },
-            ActorType::Rock => ActorExtra::Rock,
-            ActorType::Bomb => ActorExtra::Bomb,
-        }
-    }
-}
-
 #[derive(Default, Component, Reflect)]
 #[require(Visibility(||Visibility::Hidden), Transform)]
 pub struct ActorLevitationEffect;
@@ -486,7 +383,7 @@ impl Actor {
     /// 装備を含めた移動力の合計を返します
     /// ただし魔法発射中のペナルティは含まれません
     fn get_total_move_force(&self, registry: &Registry) -> f32 {
-        let props = registry.get_actor_props(&self.to_type());
+        let props = registry.get_actor_props(&self.actor_type);
         let force = props.move_force;
 
         // もともとはここで装備による速度上昇を計算していましたが、
@@ -550,6 +447,7 @@ impl Default for Actor {
     fn default() -> Self {
         let default_life = 100;
         Actor {
+            actor_type: ActorType::new("Chicken"),
             uuid: Uuid::new_v4(),
             life: default_life,
             max_life: default_life,
@@ -586,7 +484,6 @@ impl Default for Actor {
             staggered: 0,
             poise: 1,
             invincibility_on_staggered: false,
-            extra: ActorExtra::Chicken,
             cloned: None,
             getting_up: 0,
             hidden: false,
@@ -940,7 +837,7 @@ fn apply_external_force(
 
 fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
     for mut actor in query.iter_mut() {
-        let props = registry.get_actor_props(&actor.to_type());
+        let props = registry.get_actor_props(&actor.actor_type);
         if props.defreeze <= actor.frozen {
             actor.frozen -= props.defreeze;
         } else if 0 < actor.frozen {
@@ -951,10 +848,9 @@ fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
 
 pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut CollisionGroups)>) {
     for (actor, vertical, mut groups) in query.iter_mut() {
-        let actor_type = actor.extra.to_type();
         *groups = if actor.hidden {
             *SHADOW_GROUPS
-        } else if actor_type == ActorType::Rabbit {
+        } else if actor.actor_type == ActorType::new("Rabbit") {
             *RABBIT_GROUPS
         } else {
             actor.actor_group.to_groups(vertical.v, actor.drown)
@@ -964,7 +860,7 @@ pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut Collis
 
 fn decrement_levitation(mut actor_query: Query<&mut Actor>, registry: Registry) {
     for mut actor in actor_query.iter_mut() {
-        let props = registry.get_actor_props(&actor.to_type());
+        let props = registry.get_actor_props(&actor.actor_type);
         if 0 < actor.levitation {
             actor.levitation -= 1;
         }
@@ -983,7 +879,7 @@ fn levitation_effect(
     for (parent, mut visibility) in effect_query.iter_mut() {
         let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
         let actor = actor_query.get(group.get()).unwrap();
-        let props = registry.get_actor_props(&actor.to_type());
+        let props = registry.get_actor_props(&actor.actor_type);
         if props.auto_levitation {
             *visibility = Visibility::Hidden;
         } else if 120 < actor.levitation {
@@ -1061,7 +957,7 @@ fn apply_damping(
                 _ => false,
             };
 
-            let props = registry.get_actor_props(&actor.to_type());
+            let props = registry.get_actor_props(&actor.actor_type);
             damping.linear_damping = props.linear_damping
                 * if 0.0 < vertical.v {
                     constants.dumping_on_air
@@ -1204,7 +1100,7 @@ pub fn jump_actor(
 pub fn get_default_actor(registry: &Registry, actor_type: &ActorType) -> Actor {
     let props = registry.get_actor_props(&actor_type);
     Actor {
-        extra: ActorExtra::from(&actor_type),
+        actor_type: actor_type.clone(),
         actor_group: props.actor_group,
         wands: Wand::from_vec(&props.wands),
         life: props.life,
@@ -1409,7 +1305,7 @@ fn despawn(
         } else if actor.life <= 0 || burnable.map(|b| b.life <= 0).unwrap_or(false) {
             commands.entity(entity).despawn_recursive();
 
-            let props = registry.get_actor_props(&actor.to_type());
+            let props = registry.get_actor_props(&actor.actor_type);
 
             // 悲鳴
             if props.cry {
@@ -1491,14 +1387,14 @@ pub fn spawn_actor(
     position: Vec2,
     mut actor: Actor,
 ) -> Entity {
-    let actor_type = actor.to_type();
+    let actor_type = actor.actor_type.clone();
     let actor_group = actor.actor_group;
-    let props = registry.get_actor_props(&actor_type);
+    let props = registry.get_actor_props(&actor.actor_type);
 
     actor.home_position = position;
 
     let mut builder = commands.spawn((
-        Name::new(format!("{:?}", actor.to_type())),
+        Name::new(format!("{:?}", &actor.actor_type)),
         actor,
         Transform::from_translation(position.extend(0.0)),
         Counter::default(),
@@ -1531,7 +1427,7 @@ pub fn spawn_actor(
                 Transform::from_xyz(0.0, 0.0, 0.0),
             ));
 
-            if actor_type == ActorType::Witch {
+            if actor_type == ActorType::new("Witch") {
                 parent.spawn((
                     WitchWandSprite,
                     AseSpriteSlice {
@@ -1544,7 +1440,7 @@ pub fn spawn_actor(
         });
     });
 
-    if actor_type == ActorType::Witch {
+    if actor_type == ActorType::new("Witch") {
         builder.insert((
             // 足音
             // footsteps.rsで音量を調整
@@ -1561,21 +1457,21 @@ pub fn spawn_actor(
     //     builder.insert(Servant { master: owner });
     // }
 
-    match actor_type {
-        ActorType::HugeSlime => {
+    match actor_type.0.as_str() {
+        "HugeSlime" => {
             builder.insert(HugeSlime {
                 state: HugeSlimeState::Growl,
                 promoted: false,
             });
         }
-        ActorType::Chicken => {
+        "Chicken" => {
             builder.insert(Chicken::default());
         }
-        ActorType::Chest => {
-            builder.insert((Chest, Burnable { life: 30 }));
+        "Chest" => {
+            builder.insert((Chest::random(), Burnable { life: 30 }));
         }
-        ActorType::BookShelf => {
-            builder.insert((Chest, Burnable { life: 30 }));
+        "BookShelf" => {
+            builder.insert(Burnable { life: 30 });
         }
         _ => {}
     }
@@ -1597,7 +1493,7 @@ pub fn basic_animate(
     for (parent, mut sprite, mut animation) in sprite_query.iter_mut() {
         if let Ok(group) = group_query.get(parent.get()) {
             if let Ok(actor) = query.get(group.get()) {
-                let props = registry.get_actor_props(&actor.to_type());
+                let props = registry.get_actor_props(&actor.actor_type);
 
                 let angle = actor.pointer.to_angle();
                 let pi = std::f32::consts::PI;

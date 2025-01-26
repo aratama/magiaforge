@@ -1,11 +1,10 @@
 use crate::actor::chest::chest_actor;
-use crate::actor::chest::ChestItem;
+use crate::actor::chest::Chest;
 use crate::actor::chest::ChestType;
 use crate::actor::get_default_actor;
 use crate::actor::spawn_actor;
 use crate::actor::Actor;
 use crate::actor::ActorEvent;
-use crate::actor::ActorExtra;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::collision::SENSOR_GROUPS;
@@ -33,8 +32,6 @@ use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
-use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
@@ -233,18 +230,13 @@ pub fn spawn_entity(
                 aseprite: aseprite_value,
                 senario,
             } => {
-                let mut actor = get_default_actor(&registry, &ActorType::Rabbit);
-
-                actor.extra = ActorExtra::Rabbit {
-                    aseprite: aseprite_value.clone(),
-                    senario: senario.clone(),
-                };
+                let actor = get_default_actor(&registry, &ActorType::new("Rabbit"));
 
                 let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
 
                 let mut entity = commands.entity(entity);
 
-                entity.insert(MessageRabbit::new(senario));
+                entity.insert(MessageRabbit::new(aseprite_value, senario));
 
                 match senario.as_str() {
                     "ShopRabbit" => {
@@ -307,7 +299,7 @@ pub fn spawn_entity(
                 //     asset_server.load(aseprite),
                 //     &registry,
                 //     *position,
-                //     get_default_actor(&registry, ActorType::Rabbit),
+                //     get_default_actor(&registry, ActorType::new("Rabbit")),
                 //     senario,
                 // );
             }
@@ -323,20 +315,22 @@ pub fn spawn_entity(
                     &asset_server,
                     &registry,
                     *position,
-                    &&get_default_actor(&registry, &ActorType::Chest),
+                    &&get_default_actor(&registry, &ActorType::new("Chest")),
                     false,
                 );
             }
             Spawn::SpellInChest { spell } => {
-                let chest_item: ChestItem =
-                    ChestItem::Item(InventoryItem::new(InventoryItemType::Spell(spell.clone())));
-                spawn_actor(
+                let entity = spawn_actor(
                     &mut commands,
                     &asset_server,
                     &registry,
                     *position,
-                    chest_actor(ChestType::Chest, chest_item, 0),
+                    chest_actor(0),
                 );
+                commands.entity(entity).insert(Chest {
+                    chest_type: ChestType::Chest,
+                    chest_item: Some(spell.clone()),
+                });
             }
             Spawn::Actor(actor_type) => {
                 let actor = get_default_actor(&registry, actor_type);

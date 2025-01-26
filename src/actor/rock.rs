@@ -80,7 +80,7 @@ fn fall(
                             &mut commands,
                             &registry,
                             position,
-                            get_default_actor(&registry, &ActorType::Rock),
+                            get_default_actor(&registry, &ActorType::new("Rock")),
                         );
                     }
                 }
@@ -97,7 +97,7 @@ pub fn spawn_fallen_rock(
 ) -> Entity {
     commands
         .spawn((
-            Name::new(format!("{:?}", actor.to_type())),
+            Name::new(format!("{:?}", actor.actor_type)),
             actor,
             FallenRock,
             Transform::from_translation(position.extend(0.0)),

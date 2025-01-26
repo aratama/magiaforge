@@ -28,16 +28,16 @@ pub struct Metamorphosed {
 
 pub fn random_actor_type(mut rng: &mut ThreadRng, except: &ActorType) -> ActorType {
     [
-        ActorType::Slime,
-        ActorType::EyeBall,
-        ActorType::Shadow,
-        ActorType::Spider,
-        ActorType::Salamander,
-        ActorType::Chicken,
-        ActorType::Sandbag,
-        ActorType::Lantern,
-        ActorType::Chest,
-        ActorType::BookShelf,
+        ActorType::new("Slime"),
+        ActorType::new("EyeBall"),
+        ActorType::new("Shadow"),
+        ActorType::new("Spider"),
+        ActorType::new("Salamander"),
+        ActorType::new("Chicken"),
+        ActorType::new("Sandbag"),
+        ActorType::new("Lantern"),
+        ActorType::new("Chest"),
+        ActorType::new("BookShelf"),
     ]
     .iter()
     .filter(|a| **a != *except)
