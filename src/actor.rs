@@ -94,6 +94,7 @@ use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use chest::Chest;
 use chicken::Chicken;
+use rand::seq::SliceRandom;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -142,12 +143,6 @@ pub enum ActorState {
     #[default]
     Idle,
     Run,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect, Deserialize)]
-pub enum Blood {
-    Red,
-    Blue,
 }
 
 #[derive(Component, Debug)]
@@ -230,8 +225,6 @@ pub struct Actor {
 
     // 外観 ///////////////////////////////////////////////////////////////////////////////////////////
     pub state: ActorState,
-
-    pub blood: Option<Blood>,
 
     // 定数 ////////////////////////////////////////////////////////////////////////////////////////////////
     /// 1フレームあたりの stagger の回復速度です
@@ -465,7 +458,6 @@ impl Default for Actor {
                 Wand::default(),
             ],
             commander: Commander::default(),
-            blood: None,
             inventory: Inventory::new(),
             fire_resistance: false,
             move_direction: Vec2::ZERO,
@@ -1323,17 +1315,14 @@ fn despawn(
 
             // 血痕
             // todo 溺れた場合など原因によっては血痕を残さないほうがいいかも
-            if let Some(ref blood) = props.blood {
+            if let Some(blood) = props.bloods.choose(&mut rand::thread_rng()) {
                 let position = transform.translation.truncate();
                 commands.spawn((
                     Name::new("blood"),
                     StateScoped(GameState::InGame),
                     AseSpriteSlice {
                         aseprite: registry.assets.atlas.clone(),
-                        name: match blood {
-                            Blood::Red => format!("blood_{}", rand::random::<u8>() % 3),
-                            Blood::Blue => format!("slime_blood_{}", rand::random::<u8>() % 3),
-                        },
+                        name: blood.clone(),
                     },
                     Transform::from_translation(position.extend(BLOOD_LAYER_Z))
                         .with_scale(Vec3::new(2.0, 2.0, 1.0)),

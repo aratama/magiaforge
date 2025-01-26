@@ -1,6 +1,5 @@
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::actor::Blood;
 use crate::asset::GameAssets;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
@@ -72,7 +71,7 @@ pub struct ActorPropsByType {
     pub move_force: f32,
     pub jump: f32,
     pub linear_damping: f32,
-    pub blood: Option<Blood>,
+    pub bloods: Vec<String>,
     /// 凍結から復帰する速度です
     /// 通常は 1 ですが、ボスなどの特定のモンスターはより大きい値になることがあります
     pub defreeze: u32,
