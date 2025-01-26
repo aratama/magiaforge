@@ -160,7 +160,7 @@ pub fn spawn_entity(
             )
         }
 
-        match entity {
+        match &entity {
             Spawn::MagicCircle => {
                 spawn_magic_circle(
                     &mut commands,
@@ -370,12 +370,12 @@ pub fn spawn_entity(
                     &mut client_message_writer,
                     &websocket,
                     *position,
-                    to,
-                    actor_group,
-                    owner,
-                    servant_type,
-                    remote,
-                    servant,
+                    *to,
+                    *actor_group,
+                    *owner,
+                    &servant_type,
+                    *remote,
+                    *servant,
                 );
             }
             Spawn::Fireball {

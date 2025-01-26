@@ -174,7 +174,7 @@ pub fn cast_spell(
 
             let actor_props = registry.get_actor_props(&actor.to_type());
 
-            match props.cast {
+            match &props.cast {
                 SpellCast::NoCast => {}
                 SpellCast::Bullet(ref cast) => {
                     let normalized = actor.pointer.normalize();
@@ -208,7 +208,7 @@ pub fn cast_spell(
                         freeze: cast.freeze,
                         stagger: cast.stagger,
                         levitation: cast.levitation + actor.effects.levitation,
-                        metamorphose: actor.effects.metamorphse,
+                        metamorphose: actor.effects.metamorphse.clone(),
                         dispel: 0 < actor.effects.dispel,
                         web: 0 < actor.effects.web,
                         slash,
@@ -290,7 +290,7 @@ pub fn cast_spell(
                         spawn: Spawn::Seed {
                             to: actor_position + actor.pointer,
                             owner: Some(actor_entity),
-                            servant_type,
+                            servant_type: servant_type.clone(),
                             actor_group: match (actor.actor_group, friend) {
                                 (ActorGroup::Friend, true) => ActorGroup::Friend,
                                 (ActorGroup::Friend, false) => ActorGroup::Enemy,
@@ -300,7 +300,7 @@ pub fn cast_spell(
                                 (ActorGroup::Entity, _) => ActorGroup::Neutral,
                             },
                             remote: true,
-                            servant,
+                            servant: *servant,
                         },
                     });
                 }
@@ -437,8 +437,8 @@ pub fn cast_spell(
                         &mut actor_impulse,
                         &mut collision_groups,
                         &actor_transform,
-                        velocity,
-                        impulse,
+                        *velocity,
+                        *impulse,
                     );
                 }
                 SpellCast::Metamorphosis => {
@@ -446,7 +446,7 @@ pub fn cast_spell(
                     actor.effects.metamorphse = Some(morphing_to);
                 }
                 SpellCast::Slash { damage } => {
-                    actor.effects.slash.push(damage);
+                    actor.effects.slash.push(*damage);
                 }
                 SpellCast::Dispel => {
                     actor.effects.dispel = (actor.effects.dispel + 1).min(4);

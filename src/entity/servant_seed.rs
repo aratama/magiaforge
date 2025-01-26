@@ -43,7 +43,7 @@ pub fn spawn_servant_seed(
     to: Vec2,
     actor_group: ActorGroup,
     _owner: Option<Entity>,
-    servant_type: ActorType,
+    servant_type: &ActorType,
     remote: bool,
     _servant: bool,
 ) {
@@ -65,7 +65,7 @@ pub fn spawn_servant_seed(
                 speed: 60 + rand::random::<u32>() % 30,
                 // actor_group: actor_group,
                 // master: owner,
-                servant_type: servant_type,
+                servant_type: servant_type.clone(),
                 // servant: servant,
             },
             AseSpriteSlice {
@@ -93,7 +93,7 @@ pub fn spawn_servant_seed(
                 ActorGroup::Neutral => ActorGroup::Neutral,
                 ActorGroup::Entity => ActorGroup::Entity,
             },
-            servant_type: servant_type,
+            servant_type: servant_type.clone(),
         };
         let serialized = bincode::serialize::<RemoteMessage>(&message).unwrap();
         writer.send(ClientMessage::Binary(serialized));
@@ -119,7 +119,7 @@ fn update_servant_seed(
             if let Some(ref chunk) = current.chunk {
                 if chunk.get_tile_by_coords(seed.to).is_plane() {
                     spawn_writer.send(SpawnServantEvent {
-                        servant_type: seed.servant_type,
+                        servant_type: seed.servant_type.clone(),
                         position: seed.to,
                         // actor_group: seed.actor_group,
                         // master: seed.master,

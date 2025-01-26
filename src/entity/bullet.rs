@@ -158,7 +158,7 @@ pub fn spawn_bullet(
             actor_group: spawn.actor_group,
             holder: spawn.holder,
             levitation: spawn.levitation,
-            metamorphose: spawn.metamorphose,
+            metamorphose: spawn.metamorphose.clone(),
             dispel: spawn.dispel,
             web: spawn.web,
             slash: spawn.slash,
@@ -361,7 +361,7 @@ fn bullet_collision(
                 fire: false,
                 impulse: bullet_velocity.linvel.normalize_or_zero() * bullet.impulse,
                 stagger: bullet.stagger,
-                metamorphose: bullet.metamorphose,
+                metamorphose: bullet.metamorphose.clone(),
                 dispel: bullet.dispel,
             });
         } else {

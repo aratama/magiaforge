@@ -109,7 +109,7 @@ use witch::WitchWandSprite;
 /// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
 /// ActorType は registry.actor.ron と対応しているが、
 /// 行動アルゴリズムがコーディングされているため外部設定ファイル化は向いていない
-#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Reflect, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActorType {
     Witch,
     Chicken,

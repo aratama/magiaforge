@@ -348,7 +348,7 @@ fn spawn_random_enemies(
             Some(enemy_type) => {
                 spawn.send(SpawnEvent {
                     position,
-                    spawn: Spawn::Actor(*enemy_type),
+                    spawn: Spawn::Actor(enemy_type.clone()),
                 });
             }
             None => {

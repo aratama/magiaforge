@@ -27,7 +27,7 @@ pub struct Metamorphosed {
 }
 
 pub fn random_actor_type(mut rng: &mut ThreadRng, except: &ActorType) -> ActorType {
-    *[
+    [
         ActorType::Slime,
         ActorType::EyeBall,
         ActorType::Shadow,
@@ -41,10 +41,11 @@ pub fn random_actor_type(mut rng: &mut ThreadRng, except: &ActorType) -> ActorTy
     ]
     .iter()
     .filter(|a| **a != *except)
-    .collect::<Vec<&ActorType>>()
+    .collect::<Vec<_>>()
     .choose(&mut rng)
+    .cloned()
     .unwrap()
-    .to_owned()
+    .clone()
 }
 
 /// ActorGroupは基本的には変化しませんが、変化先が物体の場合は ENtityGroup になり、
