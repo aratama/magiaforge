@@ -35,7 +35,7 @@ opening = []
 default = ["debug_command"]
 
 [dependencies]
-bevy_aseprite_ultra = { path = "../bevy_aseprite_ultra" }
+bevy_aseprite_ultra = "0.4.1"
 bevy_asset_loader = "0.22.0"
 bevy_common_assets = { version = "0.12.0", features = ["ron"] }
 bevy_embedded_assets = "0.12.0"
