@@ -383,10 +383,7 @@ GameRegistry(
         (118, 66, 138, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Actor (
-                actor_type: BookShelf,
-                actor_group: Entity,
-            ),
+            entity: Actor(BookShelf),
             entry_point: false,
             spawn_offset_x: 8.0,
         ),
@@ -496,10 +493,7 @@ GameRegistry(
         (223, 113, 38, 255): (
             tile: StoneTile,
             zone: SafeZone,
-            entity: Actor (
-                actor_type: Lantern,
-                actor_group: Entity,
-            ),
+            entity: Actor(Lantern),
             entry_point: false,
             spawn_offset_x: 0.0,
         ),
@@ -612,10 +606,7 @@ GameRegistry(
         (182, 0, 255, 255): (
             tile: None,
             zone: SafeZone,
-            entity: Actor (
-                actor_type: Sandbag,
-                actor_group: Neutral,
-            ),
+            entity: Actor(Sandbag),
             entry_point: false,
             spawn_offset_x: 0.0,
         ),
