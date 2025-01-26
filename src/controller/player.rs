@@ -233,7 +233,7 @@ pub fn release_holded_bullets(
 }
 
 fn switch_wand(
-    mut witch_query: Query<&mut Actor, (With<PlayerControlled>, With<Witch>)>,
+    mut witch_query: Query<&mut Actor, With<PlayerControlled>>,
     mut wheel: EventReader<MouseWheel>,
     mut writer: EventWriter<SEEvent>,
     state: Res<State<GameMenuState>>,

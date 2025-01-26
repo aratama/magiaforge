@@ -75,6 +75,14 @@ pub struct ActorPropsByType {
     /// 凍結から復帰する速度です
     /// 通常は 1 ですが、ボスなどの特定のモンスターはより大きい値になることがあります
     pub defreeze: u32,
+    /// Staggered からの回復速度
+    pub poise: u32,
+    /// 蜘蛛の巣から逃れる速度
+    /// 毎ターンこの値が trapped から減算され、trappedが0になるとアクターが解放されます
+    /// また、解放された瞬間に trap_moratorium が 180 に設定され、
+    /// 3秒間は再びトラップにかからないようになります
+    pub floundering: u32,
+    pub fire_resistance: bool,
     /// 常時浮遊のモンスターであることを表します
     /// 通常は false ですが、アイボールなどの一部のモンスターは true になります
     pub auto_levitation: bool,

@@ -227,20 +227,7 @@ pub struct Actor {
     pub state: ActorState,
 
     // 定数 ////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 1フレームあたりの stagger の回復速度です
-    pub poise: u32,
-
-    pub invincibility_on_staggered: bool,
-
     pub point_light_radius: f32,
-
-    /// 蜘蛛の巣から逃れる速度
-    /// 毎ターンこの値が trapped から減算され、trappedが0になるとアクターが解放されます
-    /// また、解放された瞬間に trap_moratorium が 180 に設定され、
-    /// 3秒間は再びトラップにかからないようになります
-    pub floundering: u32,
-
-    pub fire_resistance: bool,
 
     // 効果と状態異常 ////////////////////////////////////////////////////////////////////////////////////////////
     /// 再び詠唱操作をできるようになるまでの待ち時間
@@ -459,7 +446,6 @@ impl Default for Actor {
             ],
             commander: Commander::default(),
             inventory: Inventory::new(),
-            fire_resistance: false,
             move_direction: Vec2::ZERO,
             fire_state: ActorFireState::Idle,
             fire_state_secondary: ActorFireState::Idle,
@@ -469,13 +455,10 @@ impl Default for Actor {
             home_position: Vec2::ZERO,
             trapped: 0,
             trap_moratorium: 0,
-            floundering: 1,
             frozen: 0,
             levitation: 0,
             drown: 0,
             staggered: 0,
-            poise: 1,
-            invincibility_on_staggered: false,
             cloned: None,
             getting_up: 0,
             hidden: false,
@@ -702,11 +685,7 @@ fn fire_bullet(
         }
 
         if actor.fire_state == ActorFireState::Fire {
-            let wand = if actor_metamorphosis.is_none() {
-                actor.current_wand
-            } else {
-                0
-            };
+            let wand = actor.current_wand;
             cast_spell(
                 &mut commands,
                 &asset_server,
@@ -777,6 +756,7 @@ fn apply_external_force(
     if let Some(ref chunk) = level.chunk {
         for (mut actor, mut external_force, transform, vertical) in query.iter_mut() {
             let position = transform.translation.truncate();
+            let props = registry.get_actor_props(&actor.actor_type);
 
             let on_ice = match chunk.get_tile_by_coords(position) {
                 Tile::Ice => true,
@@ -808,7 +788,7 @@ fn apply_external_force(
             if 0.0 < force.length() {
                 if 0 < actor.trapped {
                     external_force.force = Vec2::ZERO;
-                    actor.trapped -= actor.floundering;
+                    actor.trapped -= props.floundering;
                     if actor.trapped == 0 {
                         actor.trap_moratorium = 180;
                         se.send(SEEvent::pos(ZOMBIE, position));
@@ -1054,10 +1034,11 @@ fn drown_damage(
     }
 }
 
-fn stagger(mut actor_query: Query<&mut Actor>) {
+fn stagger(registry: Registry, mut actor_query: Query<&mut Actor>) {
     for mut actor in actor_query.iter_mut() {
-        if actor.poise < actor.staggered {
-            actor.staggered -= actor.poise;
+        let props = registry.get_actor_props(&actor.actor_type);
+        if props.poise < actor.staggered {
+            actor.staggered -= props.poise;
         } else {
             actor.staggered = 0;
         }
@@ -1124,13 +1105,15 @@ fn vibrate_breakabke_sprite(
 /// ただし、Burnableである場合はダメージを受けませんが、その代わりに引火することがあり、
 /// 引火したあとで Burnable の life がゼロになった場合はエンティティは消滅します
 fn fire_damage(
+    registry: Registry,
     mut actor_query: Query<(Entity, &mut Actor, &Transform), Without<Burnable>>,
     fire_query: Query<&mut Transform, (With<Fire>, Without<Actor>)>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut actor_event: EventWriter<ActorEvent>,
 ) {
     for (actor_entity, mut actor, actor_transform) in actor_query.iter_mut() {
-        if actor.fire_damage_wait <= 0 && !actor.fire_resistance {
+        let props = registry.get_actor_props(&actor.actor_type);
+        if actor.fire_damage_wait <= 0 && !props.fire_resistance {
             let mut detected_fires = Vec::<Entity>::new();
             let context = rapier_context.single();
 
@@ -1213,7 +1196,7 @@ fn damage(
                     continue;
                 };
 
-                if actor.staggered == 0 || !actor.invincibility_on_staggered {
+                if actor.staggered == 0 {
                     actor.life = (actor.life as i32 - *damage as i32).max(0) as u32;
                     actor.staggered = (actor.staggered + stagger).min(120);
                 }
@@ -1350,13 +1333,28 @@ fn despawn(
 
 fn add_life_bar(
     mut commands: Commands,
-    query: Query<Entity, Added<Actor>>,
+    query: Query<
+        (
+            Entity,
+            &Actor,
+            Option<&Player>,
+            Option<&Metamorphosed>,
+            Option<&Boss>,
+        ),
+        Added<Actor>,
+    >,
     life_bar_resource: Res<LifeBarResource>,
 ) {
-    for entity in query.iter() {
-        commands.entity(entity).with_children(|spawn_children| {
-            spawn_life_bar(spawn_children, &life_bar_resource);
-        });
+    for (entity, actor, player, morphed, boss) in query.iter() {
+        if player.is_none()
+            && morphed.is_none()
+            && boss.is_none()
+            && actor.actor_group != ActorGroup::Entity
+        {
+            commands.entity(entity).with_children(|spawn_children| {
+                spawn_life_bar(spawn_children, &life_bar_resource);
+            });
+        }
     }
 }
 
