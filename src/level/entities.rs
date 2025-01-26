@@ -61,10 +61,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Deserialize)]
 pub enum Spawn {
     /// 種別を指定してアクターを生成します
-    Actor {
-        actor_type: ActorType,
-        actor_group: ActorGroup,
-    },
+    Actor(ActorType),
 
     /// Actorを復帰します
     /// 変化からの復帰や分裂のときなどに使います
@@ -347,12 +344,8 @@ pub fn spawn_entity(
                     chest_actor(ChestType::Chest, chest_item, 0),
                 );
             }
-            Spawn::Actor {
-                actor_type,
-                actor_group,
-            } => {
-                let mut actor = get_default_actor(&registry, *actor_type);
-                actor.actor_group = *actor_group;
+            Spawn::Actor(actor_type) => {
+                let actor = get_default_actor(&registry, *actor_type);
                 spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
             Spawn::Boss {
@@ -476,6 +469,11 @@ pub fn spawn_actor(
             commands.entity(entity).insert(Chicken::default());
         }
         ActorType::Chest => {
+            commands
+                .entity(entity)
+                .insert((Chest, Burnable { life: 30 }));
+        }
+        ActorType::BookShelf => {
             commands
                 .entity(entity)
                 .insert((Chest, Burnable { life: 30 }));

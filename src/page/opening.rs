@@ -2,7 +2,6 @@ use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::hud::overlay::OverlayEvent;
 use crate::se::SEEvent;
-
 use crate::se::DAMAGE;
 use crate::se::DRAGON;
 use crate::se::DRAGON_FLUTTER;

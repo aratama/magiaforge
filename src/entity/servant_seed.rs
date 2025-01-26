@@ -67,10 +67,10 @@ pub fn spawn_servant_seed(
     from: Vec2,
     to: Vec2,
     actor_group: ActorGroup,
-    owner: Option<Entity>,
+    _owner: Option<Entity>,
     servant_type: ServantType,
     remote: bool,
-    servant: bool,
+    _servant: bool,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
 

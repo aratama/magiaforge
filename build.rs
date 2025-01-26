@@ -6,6 +6,9 @@ extern crate embed_resource;
 use chrono;
 
 fn main() {
+    // https://doc.rust-lang.org/cargo/reference/build-scripts.html#rerun-if-changed
+    println!("cargo::rerun-if-changed=src");
+
     let now = chrono::Utc::now();
     let datetime = now.format("%Y-%m-%d").to_string();
     println!("cargo:rustc-env=BUILD_DATETIME={}", datetime);

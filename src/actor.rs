@@ -17,6 +17,8 @@ use crate::collision::FLYING_PLAYER_GROUPS;
 use crate::collision::NEUTRAL_GROUPS;
 use crate::collision::PLAYER_BULLET_GROUP;
 use crate::collision::PLAYER_GROUPS;
+use crate::collision::RABBIT_GROUPS;
+use crate::collision::SHADOW_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::get_entity_z;
 use crate::component::entity_depth::ChildEntityDepth;
@@ -69,30 +71,30 @@ use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_light_2d::light::PointLight2d;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::Damping;
 use bevy_rapier2d::prelude::ExternalForce;
 use bevy_rapier2d::prelude::ExternalImpulse;
+use bevy_rapier2d::prelude::GravityScale;
 use bevy_rapier2d::prelude::Group;
 use bevy_rapier2d::prelude::LockedAxes;
 use bevy_rapier2d::prelude::QueryFilter;
 use bevy_rapier2d::prelude::RigidBody;
 use bevy_rapier2d::prelude::Velocity;
-use bevy_rapier2d::prelude::GravityScale;
-use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
 use chest::ChestItem;
 use chest::ChestType;
 use chest::CHEST_OR_BARREL;
+use rand::seq::IteratorRandom;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
-use rand::seq::IteratorRandom;
 
 /// アクターの種類を表します
 /// registry.actor.ron で種類ごとに移動速度やジャンプ力などが設定されます
@@ -167,11 +169,11 @@ pub enum Blood {
 #[derive(Component, Reflect, Debug, Clone, Deserialize)]
 #[require(
     HomingTarget,
-    Vertical, 
-    StateScoped<GameState>(||StateScoped(GameState::InGame)), 
-    Visibility, 
-    Damping, 
-    LockedAxes(||LockedAxes::ROTATION_LOCKED), 
+    Vertical,
+    StateScoped<GameState>(||StateScoped(GameState::InGame)),
+    Visibility,
+    Damping,
+    LockedAxes(||LockedAxes::ROTATION_LOCKED),
     RigidBody(||RigidBody::Dynamic),
     GravityScale(||GravityScale(0.0)),
     ExternalForce,
@@ -288,6 +290,13 @@ pub struct Actor {
 
     /// 複製された場合の残り時間
     pub cloned: Option<u32>,
+
+    /// ゼロより大きい場合は起き上がりアニメーション中
+    pub getting_up: u32,
+
+    /// 影の中に隠れた状態
+    /// この状態では弾丸に当たらないが、壁やアクターには当たる
+    pub hidden: bool,
 }
 
 impl Actor {
@@ -358,12 +367,12 @@ impl ActorExtra {
                 let chest_type = *CHEST_OR_BARREL
                     .iter()
                     .choose(&mut rand::thread_rng())
-                    .unwrap();                    
+                    .unwrap();
                 ActorExtra::Chest {
                     chest_type,
                     chest_item: ChestItem::Gold,
                 }
-            },
+            }
             ActorType::BookShelf => ActorExtra::BookShelf,
             ActorType::Rabbit => ActorExtra::Rabbit {
                 // ここは spawn_entity の Spawn::Rabbit で上書きする
@@ -545,7 +554,7 @@ impl Default for Actor {
                 Wand::default(),
                 Wand::default(),
             ],
-            commander: Commander::default(), 
+            commander: Commander::default(),
             blood: None,
             inventory: Inventory::new(),
             fire_resistance: false,
@@ -567,6 +576,8 @@ impl Default for Actor {
             invincibility_on_staggered: false,
             extra: ActorExtra::Chicken,
             cloned: None,
+            getting_up: 0,
+            hidden: false,
         }
     }
 }
@@ -871,7 +882,9 @@ fn apply_external_force(
                 _ => false,
             };
 
-            let ratio = if 0 < actor.frozen {
+            let ratio = if 0 < actor.getting_up {
+                0.0
+            } else if 0 < actor.frozen {
                 0.0
             } else if 0 < actor.staggered {
                 0.0
@@ -926,7 +939,14 @@ fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
 
 pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut CollisionGroups)>) {
     for (actor, vertical, mut groups) in query.iter_mut() {
-        *groups = actor.actor_group.to_groups(vertical.v, actor.drown);
+        let actor_type = actor.extra.to_type();
+        *groups = if actor.hidden {
+            *SHADOW_GROUPS
+        } else if actor_type == ActorType::Rabbit {
+            *RABBIT_GROUPS
+        } else {
+            actor.actor_group.to_groups(vertical.v, actor.drown)
+        };
     }
 }
 
@@ -1169,13 +1189,10 @@ pub fn jump_actor(
     }
 }
 
-pub fn get_default_actor(
-    registry: &Registry,
-    actor_type: ActorType
-) -> Actor {
+pub fn get_default_actor(registry: &Registry, actor_type: ActorType) -> Actor {
     let props = registry.get_actor_props(actor_type);
     Actor {
-        extra:  ActorExtra::from(&actor_type),
+        extra: ActorExtra::from(&actor_type),
         actor_group: props.actor_group,
         wands: Wand::from_vec(&props.wands),
         life: props.life,
@@ -1355,9 +1372,16 @@ fn despawn(
     mut interpreter: EventWriter<InterpreterEvent>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEvent>,
-    query: Query<(Entity, &Actor, &Transform, Option<&Player>, Option<&Boss>)>,
+    query: Query<(
+        Entity,
+        &Actor,
+        &Transform,
+        Option<&Player>,
+        Option<&Boss>,
+        Option<&Burnable>,
+    )>,
 ) {
-    for (entity, actor, transform, player, boss) in query.iter() {
+    for (entity, actor, transform, player, boss, burnable) in query.iter() {
         let position = transform.translation.truncate();
 
         if actor.cloned.map(|c| c == 0).unwrap_or(false) {
@@ -1370,7 +1394,7 @@ fn despawn(
                     particle: metamorphosis_effect(),
                 },
             });
-        } else if actor.life <= 0 {
+        } else if actor.life <= 0 || burnable.map(|b| b.life <= 0).unwrap_or(false) {
             commands.entity(entity).despawn_recursive();
 
             let props = registry.get_actor_props(actor.to_type());
@@ -1439,6 +1463,14 @@ fn add_life_bar(
     }
 }
 
+fn getting_up(mut query: Query<&mut Actor>) {
+    for mut actor in query.iter_mut() {
+        if 0 < actor.getting_up {
+            actor.getting_up -= 1;
+        }
+    }
+}
+
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
@@ -1471,7 +1503,8 @@ impl Plugin for ActorPlugin {
                 fire_damage,
                 decrement_cloned,
                 despawn,
-                add_life_bar
+                add_life_bar,
+                getting_up,
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

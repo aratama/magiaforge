@@ -134,8 +134,8 @@ pub fn setup_level(
     let level = &current.next_level;
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    // let getting_up_animation =
-    //     *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
+    let getting_up_animation =
+        *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
 
     let biome_tile = registry.get_level(&level).biome;
 
@@ -249,10 +249,7 @@ pub fn setup_level(
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEvent {
                     position: index_to_position((*x, *y)),
-                    spawn: Spawn::Actor {
-                        actor_type: ActorType::Chicken,
-                        actor_group: ActorGroup::Neutral,
-                    },
+                    spawn: Spawn::Actor(ActorType::Chicken),
                 });
             }
         }
@@ -262,7 +259,7 @@ pub fn setup_level(
     // spawn.send(SpawnEvent {
     //     position: index_to_position((29, 52)),
     //     spawn: Spawn::Actor {
-    //         actor_type: ActorType::Spider,
+    //         actor_type: ActorType::Salamander,
     //         actor_group: ActorGroup::Enemy,
     //     },
     // });
@@ -275,27 +272,6 @@ pub fn setup_level(
     // プレイヤーキャラクターの魔法使いを生成
     // プレイヤーキャラクターのみ Player コンポーネントの追加が必要なため、
     // イベントではなく直接生成します
-    // let entity = spawn_witch(
-    //     &mut commands,
-    //     &registry,
-    //     Vec2::new(player_x, player_y),
-    //     None,
-    //     Actor {
-    //         // 新しいレベルに入るたびに全回復している
-    //         life: player_state.max_life,
-    //         max_life: player_state.max_life,
-    //         amplitude: 0.0,
-    //         fire_damage_wait: 0,
-    //         actor_group: ActorGroup::Friend,
-    //         wands: player_state.wands,
-    //         inventory: player_state.inventory,
-    //         current_wand: player_state.current_wand,
-    //         golds: player_state.golds,
-    //         extra: ActorExtra::Witch,
-    //         ..default()
-    //     },
-    //     getting_up_animation,
-    // );
     let entity = spawn_actor(
         &mut commands,
         &asset_server,
@@ -313,11 +289,12 @@ pub fn setup_level(
             current_wand: player_state.current_wand,
             golds: player_state.golds,
             extra: ActorExtra::Witch,
+            getting_up: if getting_up_animation { 240 } else { 0 },
             ..default()
         },
     );
     commands.entity(entity).insert((
-        Witch { getting_up: 1000 },
+        Witch,
         PlayerControlled,
         Player::new(config.player_name.clone(), &player_state.discovered_spells),
     ));
@@ -371,10 +348,7 @@ fn spawn_random_enemies(
             Some(enemy_type) => {
                 spawn.send(SpawnEvent {
                     position,
-                    spawn: Spawn::Actor {
-                        actor_type: *enemy_type,
-                        actor_group: ActorGroup::Enemy,
-                    },
+                    spawn: Spawn::Actor(*enemy_type),
                 });
             }
             None => {

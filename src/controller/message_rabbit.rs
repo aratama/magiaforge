@@ -1,6 +1,4 @@
-use crate::actor::basic::BasicActor;
 use crate::actor::basic::BasicActorSprite;
-use crate::actor::chest::ChestType;
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorExtra;

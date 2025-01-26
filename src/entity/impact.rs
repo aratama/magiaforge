@@ -10,7 +10,6 @@ use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-
 use crate::se::DROP;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;

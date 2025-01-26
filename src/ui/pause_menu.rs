@@ -16,7 +16,6 @@ use crate::message::SFX_VOLUME;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-
 use crate::se::CLICK;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameMenuState;

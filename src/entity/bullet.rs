@@ -16,7 +16,6 @@ use crate::physics::identify_single;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::FIRE;
 use crate::se::FREEZE;
 use crate::se::NO_DAMAGE;

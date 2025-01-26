@@ -20,7 +20,6 @@ use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::KAWAII;
 use crate::spell::Spell;
 use crate::states::GameMenuState;

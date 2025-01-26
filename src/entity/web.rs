@@ -7,7 +7,6 @@ use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::KAMAE;
 use crate::se::ZOMBIE;
 use crate::set::FixedUpdateGameActiveSet;

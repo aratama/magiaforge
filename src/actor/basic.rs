@@ -1,3 +1,5 @@
+use super::witch::WitchWandSprite;
+use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::ActorState;
@@ -12,9 +14,6 @@ use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::witch::WitchWandSprite;
-use super::ActorType;
 
 #[derive(Component, Debug)]
 pub struct BasicActor;
@@ -49,13 +48,15 @@ pub fn spawn_basic_actor(
     ));
 
     builder.with_children(|parent| {
-        parent.spawn((
-            AseSpriteSlice {
-                aseprite: registry.assets.atlas.clone(),
-                name: "chicken_shadow".into(),
-            },
-            Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
-        ));
+        if let Some(shadow) = &props.shadow {
+            parent.spawn((
+                AseSpriteSlice {
+                    aseprite: registry.assets.atlas.clone(),
+                    name: shadow.clone(),
+                },
+                Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
+            ));
+        }
 
         parent.spawn(ActorSpriteGroup).with_children(|parent| {
             parent.spawn((
@@ -127,6 +128,8 @@ pub fn basic_animate(
                     props.animations.drown.clone()
                 } else if 0 < actor.staggered {
                     props.animations.staggered.clone()
+                } else if 0 < actor.getting_up {
+                    props.animations.get_up.clone()
                 } else {
                     match actor.state {
                         ActorState::Idle => {

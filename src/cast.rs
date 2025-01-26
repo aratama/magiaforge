@@ -34,7 +34,6 @@ use crate::se::SEEvent;
 use crate::se::HEAL;
 use crate::se::SHURIKEN;
 use crate::se::STATUS2;
-
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::CollisionGroups;
 use bevy_rapier2d::prelude::ExternalImpulse;
@@ -334,10 +333,7 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEvent {
                         position,
-                        spawn: Spawn::Actor {
-                            actor_type: ActorType::Bomb,
-                            actor_group: ActorGroup::Neutral,
-                        },
+                        spawn: Spawn::Actor(ActorType::Bomb),
                     });
                 }
                 SpellCast::Spawn(ref entity) => {

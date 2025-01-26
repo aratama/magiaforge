@@ -87,6 +87,7 @@ pub struct ActorPropsByType {
     pub actor_group: ActorGroup,
     pub aseprite: String,
     pub animations: ActorAnimationMap,
+    pub shadow: Option<String>,
     pub wands: Vec<Vec<Option<Spell>>>,
     pub strategies: HashMap<String, Strategy>,
 }
@@ -114,7 +115,9 @@ pub struct ActorAnimationMap {
     pub run_r: String,
     pub run_d: String,
     pub run_u: String,
-    pub get_down: String,
+    // すべてのアクターはライフがゼロになると瞬時に消滅するので、
+    // パラメータとしての get_down は不要？
+    // pub get_down: String,
     pub get_up: String,
     pub frozen: String,
     pub drown: String,

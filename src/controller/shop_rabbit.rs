@@ -9,7 +9,6 @@ use crate::message::SHOP_RABBIT;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::se::SEEvent;
-
 use crate::se::REGISTER;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;

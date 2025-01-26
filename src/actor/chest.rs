@@ -116,7 +116,8 @@ fn break_chest(
                 chest_item,
             } = &actor.extra
             else {
-                panic!("ActorExtra::Chest is expected");
+                warn!("ActorExtra::Chest is expected, but found {:?}", actor.extra);
+                continue;
             };
 
             writer.send(SEEvent::pos(

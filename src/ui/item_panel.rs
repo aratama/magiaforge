@@ -184,14 +184,10 @@ fn update_friend_marker(
         let slot = slot_query.get(parent.get()).unwrap();
         let visible = match &slot.0 {
             Some(item) => match &item.item_type {
-                InventoryItemType::Spell(spell)
-                    if *spell == Spell::new("SummonFriendSlime") =>
-                {
+                InventoryItemType::Spell(spell) if *spell == Spell::new("SummonFriendSlime") => {
                     true
                 }
-                InventoryItemType::Spell(spell)
-                    if *spell == Spell::new("SummonFriendEyeball") =>
-                {
+                InventoryItemType::Spell(spell) if *spell == Spell::new("SummonFriendEyeball") => {
                     true
                 }
                 _ => false,

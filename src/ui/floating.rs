@@ -8,7 +8,6 @@ use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::PICK_UP;
 use crate::states::GameMenuState;
 use crate::states::GameState;

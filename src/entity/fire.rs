@@ -32,7 +32,7 @@ pub struct Fire {
 }
 
 /// 可燃性のエンティティを表します
-/// 燃え尽きて消滅するためには Life も付与する必要があります
+/// 可燃性のエンティティのほとんどは Actor ですが、Grassなど Actor でないものも一部あります
 #[derive(Default, Component, Reflect)]
 pub struct Burnable {
     /// 燃焼しているあいだlifeが減少し、0になったらそのエンティティは消滅する処理をしなければなりません

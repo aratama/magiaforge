@@ -7,7 +7,6 @@ use crate::constant::PARTICLE_LAYER_Z;
 use crate::entity::grass::Grasses;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::KEN2;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;

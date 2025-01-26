@@ -1,5 +1,4 @@
 use crate::actor::witch::Witch;
-use crate::actor::witch::MAX_GETTING_UP;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorState;
@@ -21,7 +20,6 @@ use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::PICK_UP;
 use crate::se::SEN;
 use crate::se::SWITCH;
@@ -105,13 +103,9 @@ fn move_player(
     keys: Res<ButtonInput<KeyCode>>,
     menu: Res<State<GameMenuState>>,
 ) {
-    let Ok(witch) = player_query.get_single() else {
+    let Ok(_) = player_query.get_single() else {
         return;
     };
-
-    if witch.getting_up < MAX_GETTING_UP {
-        return;
-    }
 
     let direction = get_direction(&keys);
     let state = if direction != Vec2::ZERO {
@@ -121,6 +115,10 @@ fn move_player(
     };
 
     for mut actor in controlled_query.iter_mut() {
+        if 0 < actor.getting_up {
+            continue;
+        }
+
         match *menu.get() {
             GameMenuState::Closed => {
                 actor.move_direction = direction;
@@ -148,15 +146,15 @@ pub fn actor_cast(
         return;
     }
 
-    let Ok(witch) = player_query.get_single() else {
+    let Ok(_) = player_query.get_single() else {
         return;
     };
 
-    if witch.getting_up < MAX_GETTING_UP {
-        return;
-    }
-
     for mut actor in controlled_query.iter_mut() {
+        if 0 < actor.getting_up {
+            continue;
+        }
+
         match *menu.get() {
             GameMenuState::Closed => {
                 // プライマリ魔法の発射

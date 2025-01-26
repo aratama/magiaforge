@@ -6,7 +6,6 @@ use crate::language::M18NTtext;
 use crate::message::INPUT_YOUR_NAME;
 use crate::message::START;
 use crate::se::SEEvent;
-
 use crate::se::CLICK;
 use crate::states::GameState;
 use crate::states::MainMenuPhase;

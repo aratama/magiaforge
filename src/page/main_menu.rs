@@ -11,7 +11,6 @@ use crate::message::CLICK_TO_START;
 use crate::page::in_game::GameLevel;
 use crate::page::in_game::LevelSetup;
 use crate::se::SEEvent;
-
 use crate::se::CLICK;
 use crate::states::GameState;
 use crate::states::MainMenuPhase;

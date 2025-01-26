@@ -10,7 +10,6 @@ use crate::page::in_game::LevelSetup;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::TURN_ON;
 use crate::se::WARP;
 use crate::set::FixedUpdateGameActiveSet;

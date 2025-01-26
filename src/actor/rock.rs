@@ -1,3 +1,4 @@
+use super::get_default_actor;
 use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
@@ -16,8 +17,6 @@ use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use super::get_default_actor;
 
 #[derive(Default, Component, Reflect)]
 struct FallingRock;

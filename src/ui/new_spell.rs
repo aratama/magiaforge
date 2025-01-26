@@ -4,7 +4,6 @@ use crate::language::M18NTtext;
 use crate::message::NEW_SPELL;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-
 use crate::se::HAKKEN;
 use crate::set::FixedUpdateInGameSet;
 use crate::spell::Spell;

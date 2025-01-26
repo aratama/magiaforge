@@ -1,20 +1,21 @@
-use crate::{
-    actor::{Actor, ActorFireState, ActorGroup},
-    collision::SENSOR_GROUPS,
-    registry::Registry,
-    states::{GameState, TimeState},
-};
+use crate::actor::Actor;
+use crate::actor::ActorFireState;
+use crate::actor::ActorGroup;
+use crate::collision::SENSOR_GROUPS;
+use crate::registry::Registry;
+use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
-use bevy_rapier2d::{
-    plugin::{DefaultRapierContext, RapierContext},
-    prelude::{Collider, QueryFilter},
-};
+use bevy_rapier2d::plugin::DefaultRapierContext;
+use bevy_rapier2d::plugin::RapierContext;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::QueryFilter;
 use serde::Deserialize;
-use std::{cmp::Ordering, collections::HashMap};
-use vleue_navigator::{
-    prelude::{ManagedNavMesh, NavMeshStatus},
-    NavMesh,
-};
+use std::cmp::Ordering;
+use std::collections::HashMap;
+use vleue_navigator::prelude::ManagedNavMesh;
+use vleue_navigator::prelude::NavMeshStatus;
+use vleue_navigator::NavMesh;
 
 // スライム
 // Sleep

@@ -6,8 +6,6 @@ use crate::se::CHAKUCHI;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 
-pub const MAX_GETTING_UP: u32 = 240;
-
 #[derive(Default, Component, Reflect)]
 pub struct ActorAnimationSprite;
 
@@ -15,12 +13,10 @@ pub struct ActorAnimationSprite;
 pub struct WitchWandSprite;
 
 #[derive(Component)]
-pub struct Witch {
-    pub getting_up: u32,
-}
+pub struct Witch;
 
 fn update_wand(
-    actor_query: Query<(&Actor, &Witch)>,
+    actor_query: Query<&Actor>,
     witch_sprite_group_query: Query<&Parent, With<ActorSpriteGroup>>,
     mut query: Query<
         (&Parent, &mut Transform, &mut Visibility),
@@ -29,7 +25,7 @@ fn update_wand(
 ) {
     for (parent, mut transform, mut visibility) in query.iter_mut() {
         let group_parent = witch_sprite_group_query.get(parent.get()).unwrap();
-        let (actor, witch) = actor_query.get(group_parent.get()).unwrap();
+        let actor = actor_query.get(group_parent.get()).unwrap();
         let direction = actor.pointer;
         let angle = direction.to_angle();
         let pi = std::f32::consts::PI;
@@ -42,14 +38,10 @@ fn update_wand(
             0.0
         };
 
-        *visibility = if 0 < actor.drown || 0 < actor.staggered {
+        *visibility = if 0 < actor.drown || 0 < actor.staggered || 0 < actor.getting_up {
             Visibility::Hidden
         } else {
-            if witch.getting_up < MAX_GETTING_UP {
-                Visibility::Hidden
-            } else {
-                Visibility::Visible
-            }
+            Visibility::Visible
         };
     }
 }
