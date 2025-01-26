@@ -14,6 +14,7 @@ use bevy::input::keyboard::KeyboardInput;
 use bevy::input::ButtonState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
+use rand::seq::SliceRandom;
 
 fn process_debug_command(
     registry: Registry,
@@ -55,7 +56,16 @@ fn process_debug_command(
     }
 
     if local.ends_with("@next") {
-        in_game_time.set(TimeState::Inactive);
+        let Some(current) = &level.level else {
+            return;
+        };
+        let props = registry.get_level(&current);
+        let next = props.next.choose(&mut rand::thread_rng()).unwrap();
+        level.next_level = next.clone();
+        level.next_state = Some(PlayerState::from_query(
+            &player_query.transmute_lens().query(),
+        ));
+        writer.send(OverlayEvent::Close(GameState::Warp));
         local.clear();
     } else if local.ends_with("@pause") {
         in_game_time.set(TimeState::Inactive);
