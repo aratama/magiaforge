@@ -2,7 +2,6 @@ use crate::actor::get_default_actor;
 use crate::actor::spawn_actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
@@ -18,8 +17,6 @@ use bevy_aseprite_ultra::prelude::*;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
-use serde::Deserialize;
-use serde::Serialize;
 
 #[derive(Component)]
 pub struct ServantSeed {
@@ -29,31 +26,8 @@ pub struct ServantSeed {
     speed: u32,
     // actor_group: ActorGroup,
     // master: Option<Entity>,
-    servant_type: ServantType,
+    servant_type: ActorType,
     // servant: bool,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-pub enum ServantType {
-    Slime,
-    Eyeball,
-    Chiken,
-}
-
-impl ServantType {
-    pub fn to_asset(&self, assets: &Res<GameAssets>, actor_group: ActorGroup) -> Handle<Aseprite> {
-        match (self, actor_group) {
-            (ServantType::Slime, ActorGroup::Friend) => assets.friend_slime.clone(),
-            (ServantType::Slime, ActorGroup::Neutral) => assets.friend_slime.clone(),
-            (ServantType::Slime, ActorGroup::Enemy) => assets.slime.clone(),
-            (ServantType::Slime, ActorGroup::Entity) => assets.friend_slime.clone(),
-            (ServantType::Eyeball, ActorGroup::Friend) => assets.eyeball_friend.clone(),
-            (ServantType::Eyeball, ActorGroup::Neutral) => assets.eyeball_friend.clone(),
-            (ServantType::Eyeball, ActorGroup::Enemy) => assets.eyeball.clone(),
-            (ServantType::Eyeball, ActorGroup::Entity) => assets.eyeball_friend.clone(),
-            (ServantType::Chiken, _) => assets.chicken.clone(),
-        }
-    }
 }
 
 #[derive(Component)]
@@ -61,6 +35,7 @@ pub struct ServantSeedSprite;
 
 pub fn spawn_servant_seed(
     commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
     registry: &Registry,
     writer: &mut EventWriter<ClientMessage>,
     websocket: &Res<WebSocketState>,
@@ -68,11 +43,13 @@ pub fn spawn_servant_seed(
     to: Vec2,
     actor_group: ActorGroup,
     _owner: Option<Entity>,
-    servant_type: ServantType,
+    servant_type: ActorType,
     remote: bool,
     _servant: bool,
 ) {
     let online = websocket.ready_state == ReadyState::OPEN;
+
+    let props = registry.get_actor_props(&servant_type);
 
     commands
         .spawn((
@@ -101,7 +78,7 @@ pub fn spawn_servant_seed(
             ServantSeedSprite,
             CounterAnimated,
             AseSpriteAnimation {
-                aseprite: servant_type.to_asset(&registry.assets, actor_group),
+                aseprite: asset_server.load(props.aseprite.clone()),
                 animation: "idle".into(),
             },
         ));
@@ -157,7 +134,7 @@ fn update_servant_seed(
 
 #[derive(Event, Debug)]
 struct SpawnServantEvent {
-    servant_type: ServantType,
+    servant_type: ActorType,
     position: Vec2,
     // actor_group: ActorGroup,
     // master: Option<Entity>,
@@ -176,14 +153,7 @@ fn spawn_servant(
             &asset_server,
             &registry,
             event.position,
-            get_default_actor(
-                &registry,
-                match event.servant_type {
-                    ServantType::Slime => ActorType::Slime,
-                    ServantType::Eyeball => ActorType::EyeBall,
-                    ServantType::Chiken => ActorType::Chicken,
-                },
-            ),
+            get_default_actor(&registry, &event.servant_type),
         );
     }
 }

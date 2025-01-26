@@ -486,7 +486,7 @@ impl Actor {
     /// 装備を含めた移動力の合計を返します
     /// ただし魔法発射中のペナルティは含まれません
     fn get_total_move_force(&self, registry: &Registry) -> f32 {
-        let props = registry.get_actor_props(self.to_type());
+        let props = registry.get_actor_props(&self.to_type());
         let force = props.move_force;
 
         // もともとはここで装備による速度上昇を計算していましたが、
@@ -940,7 +940,7 @@ fn apply_external_force(
 
 fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
     for mut actor in query.iter_mut() {
-        let props = registry.get_actor_props(actor.to_type());
+        let props = registry.get_actor_props(&actor.to_type());
         if props.defreeze <= actor.frozen {
             actor.frozen -= props.defreeze;
         } else if 0 < actor.frozen {
@@ -964,7 +964,7 @@ pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut Collis
 
 fn decrement_levitation(mut actor_query: Query<&mut Actor>, registry: Registry) {
     for mut actor in actor_query.iter_mut() {
-        let props = registry.get_actor_props(actor.to_type());
+        let props = registry.get_actor_props(&actor.to_type());
         if 0 < actor.levitation {
             actor.levitation -= 1;
         }
@@ -983,7 +983,7 @@ fn levitation_effect(
     for (parent, mut visibility) in effect_query.iter_mut() {
         let (group, mut counter) = group_query.get_mut(parent.get()).unwrap();
         let actor = actor_query.get(group.get()).unwrap();
-        let props = registry.get_actor_props(actor.to_type());
+        let props = registry.get_actor_props(&actor.to_type());
         if props.auto_levitation {
             *visibility = Visibility::Hidden;
         } else if 120 < actor.levitation {
@@ -1061,7 +1061,7 @@ fn apply_damping(
                 _ => false,
             };
 
-            let props = registry.get_actor_props(actor.to_type());
+            let props = registry.get_actor_props(&actor.to_type());
             damping.linear_damping = props.linear_damping
                 * if 0.0 < vertical.v {
                     constants.dumping_on_air
@@ -1201,8 +1201,8 @@ pub fn jump_actor(
     }
 }
 
-pub fn get_default_actor(registry: &Registry, actor_type: ActorType) -> Actor {
-    let props = registry.get_actor_props(actor_type);
+pub fn get_default_actor(registry: &Registry, actor_type: &ActorType) -> Actor {
+    let props = registry.get_actor_props(&actor_type);
     Actor {
         extra: ActorExtra::from(&actor_type),
         actor_group: props.actor_group,
@@ -1355,7 +1355,7 @@ fn damage(
                             actor.clone(),
                             &actor_metamorphosis.as_deref(),
                             position,
-                            *morphing_to,
+                            morphing_to,
                         );
                     }
                 } else if let Some(ref mut actor_metamorphosis) = actor_metamorphosis {
@@ -1409,7 +1409,7 @@ fn despawn(
         } else if actor.life <= 0 || burnable.map(|b| b.life <= 0).unwrap_or(false) {
             commands.entity(entity).despawn_recursive();
 
-            let props = registry.get_actor_props(actor.to_type());
+            let props = registry.get_actor_props(&actor.to_type());
 
             // 悲鳴
             if props.cry {
@@ -1493,7 +1493,7 @@ pub fn spawn_actor(
 ) -> Entity {
     let actor_type = actor.to_type();
     let actor_group = actor.actor_group;
-    let props = registry.get_actor_props(actor_type);
+    let props = registry.get_actor_props(&actor_type);
 
     actor.home_position = position;
 
@@ -1597,7 +1597,7 @@ pub fn basic_animate(
     for (parent, mut sprite, mut animation) in sprite_query.iter_mut() {
         if let Ok(group) = group_query.get(parent.get()) {
             if let Ok(actor) = query.get(group.get()) {
-                let props = registry.get_actor_props(actor.to_type());
+                let props = registry.get_actor_props(&actor.to_type());
 
                 let angle = actor.pointer.to_angle();
                 let pi = std::f32::consts::PI;

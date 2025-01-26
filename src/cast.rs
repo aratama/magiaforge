@@ -23,7 +23,6 @@ use crate::entity::bullet::SpawnBullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::impact::SpawnImpact;
-use crate::entity::servant_seed::ServantType;
 use crate::entity::web::spawn_web;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
@@ -89,7 +88,7 @@ pub enum SpellCast {
     HeavyShot,
     Summon {
         friend: bool,
-        servant_type: ServantType,
+        servant_type: ActorType,
         servant: bool,
     },
     Dash,
@@ -173,7 +172,7 @@ pub fn cast_spell(
             wand_delay = wand_delay.max(delay as u32);
             multicast -= 1;
 
-            let actor_props = registry.get_actor_props(actor.to_type());
+            let actor_props = registry.get_actor_props(&actor.to_type());
 
             match props.cast {
                 SpellCast::NoCast => {}
@@ -443,7 +442,7 @@ pub fn cast_spell(
                     );
                 }
                 SpellCast::Metamorphosis => {
-                    let morphing_to = random_actor_type(&mut rng, actor.to_type());
+                    let morphing_to = random_actor_type(&mut rng, &actor.to_type());
                     actor.effects.metamorphse = Some(morphing_to);
                 }
                 SpellCast::Slash { damage } => {
@@ -492,7 +491,7 @@ pub fn cast_spell(
     if clear_effect {
         actor.effects = default();
     } else {
-        if let Some(metamorphse) = actor.effects.metamorphse {
+        if let Some(metamorphse) = &actor.effects.metamorphse {
             // このフレームで変身効果が弾丸として発射されていなければ、自身に影響を及ぼします
             let entity = cast_metamorphosis(
                 &mut commands,

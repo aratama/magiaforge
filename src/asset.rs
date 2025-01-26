@@ -73,47 +73,41 @@ pub struct GameAssets {
 
     // モンスター //////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/slime.aseprite")]
-    pub slime: Handle<Aseprite>,
+    pub _slime: Handle<Aseprite>,
 
     #[asset(path = "entity/friend_slime.aseprite")]
-    pub friend_slime: Handle<Aseprite>,
+    pub _friend_slime: Handle<Aseprite>,
 
     #[asset(path = "entity/eyeball.aseprite")]
-    pub eyeball: Handle<Aseprite>,
+    pub _eyeball: Handle<Aseprite>,
 
     #[asset(path = "entity/eyeball_friend.aseprite")]
-    pub eyeball_friend: Handle<Aseprite>,
+    pub _eyeball_friend: Handle<Aseprite>,
 
     #[asset(path = "entity/chicken.aseprite")]
-    pub chicken: Handle<Aseprite>,
+    pub _chicken: Handle<Aseprite>,
 
     #[asset(path = "entity/sandbag.aseprite")]
-    #[allow(dead_code)]
-    pub sandbag: Handle<Aseprite>,
+    pub _sandbag: Handle<Aseprite>,
 
     #[asset(path = "entity/shadow.aseprite")]
-    #[allow(dead_code)]
-    pub shadow: Handle<Aseprite>,
+    pub _shadow: Handle<Aseprite>,
 
     #[asset(path = "entity/spider.aseprite")]
-    #[allow(dead_code)]
-    pub spider: Handle<Aseprite>,
+    pub _spider: Handle<Aseprite>,
 
     #[asset(path = "entity/salamander.aseprite")]
-    #[allow(dead_code)]
-    pub salamander: Handle<Aseprite>,
+    pub _salamander: Handle<Aseprite>,
 
     // ボス ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // #[asset(path = "entity/buer.aseprite")]
     // pub buer: Handle<Aseprite>,
     #[asset(path = "entity/huge_slime.aseprite")]
-    #[allow(dead_code)]
-    pub huge_slime: Handle<Aseprite>,
+    pub _huge_slime: Handle<Aseprite>,
 
     #[asset(path = "entity/huge_slime_shadow.aseprite")]
-    #[allow(dead_code)]
-    pub huge_slime_shadow: Handle<Aseprite>,
+    pub _huge_slime_shadow: Handle<Aseprite>,
 
     #[asset(path = "entity/raven.aseprite")]
     pub raven: Handle<Aseprite>,

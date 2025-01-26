@@ -63,7 +63,7 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
 }
 
 fn hopping(mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>, registry: Registry) {
-    let props = registry.get_actor_props(ActorType::Chicken);
+    let props = registry.get_actor_props(&ActorType::Chicken);
     for (chicken, actor, mut vertical) in chicken_query.iter_mut() {
         if 0 < actor.frozen {
             continue;

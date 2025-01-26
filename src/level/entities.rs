@@ -30,7 +30,6 @@ use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::servant_seed::spawn_servant_seed;
-use crate::entity::servant_seed::ServantType;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
@@ -94,7 +93,7 @@ pub enum Spawn {
         to: Vec2,
         actor_group: ActorGroup,
         owner: Option<Entity>,
-        servant_type: ServantType,
+        servant_type: ActorType,
         remote: bool,
         servant: bool,
     },
@@ -234,7 +233,7 @@ pub fn spawn_entity(
                 aseprite: aseprite_value,
                 senario,
             } => {
-                let mut actor = get_default_actor(&registry, ActorType::Rabbit);
+                let mut actor = get_default_actor(&registry, &ActorType::Rabbit);
 
                 actor.extra = ActorExtra::Rabbit {
                     aseprite: aseprite_value.clone(),
@@ -324,7 +323,7 @@ pub fn spawn_entity(
                     &asset_server,
                     &registry,
                     *position,
-                    &&get_default_actor(&registry, ActorType::Chest),
+                    &&get_default_actor(&registry, &ActorType::Chest),
                     false,
                 );
             }
@@ -340,7 +339,7 @@ pub fn spawn_entity(
                 );
             }
             Spawn::Actor(actor_type) => {
-                let actor = get_default_actor(&registry, *actor_type);
+                let actor = get_default_actor(&registry, actor_type);
                 spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
             Spawn::Boss {
@@ -348,7 +347,7 @@ pub fn spawn_entity(
                 name,
                 on_despawn,
             } => {
-                let mut actor = get_default_actor(&registry, *actor_type);
+                let mut actor = get_default_actor(&registry, actor_type);
                 actor.actor_group = ActorGroup::Enemy;
                 let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
                 commands.entity(entity).insert(Boss {
@@ -366,6 +365,7 @@ pub fn spawn_entity(
             } => {
                 spawn_servant_seed(
                     &mut commands,
+                    &asset_server,
                     &registry,
                     &mut client_message_writer,
                     &websocket,

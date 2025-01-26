@@ -7,7 +7,6 @@ use crate::component::counter::Counter;
 use crate::component::vertical::Vertical;
 use crate::controller::player::Player;
 use crate::entity::impact::SpawnImpact;
-use crate::entity::servant_seed::ServantType;
 use crate::language::Dict;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
@@ -92,7 +91,7 @@ fn update_huge_slime_approach(
     >,
     mut se: EventWriter<SEEvent>,
 ) {
-    let props = registry.get_actor_props(ActorType::HugeSlime);
+    let props = registry.get_actor_props(&ActorType::HugeSlime);
 
     for (
         mut huge_slime,
@@ -173,7 +172,7 @@ fn update_huge_slime_summon(
                                     to,
                                     actor_group: ActorGroup::Enemy,
                                     owner: Some(huge_slime_entity),
-                                    servant_type: ServantType::Slime,
+                                    servant_type: ActorType::Slime,
                                     remote: false,
                                     servant: false,
                                 },

@@ -1,4 +1,5 @@
 use super::get_default_actor;
+use super::ActorType;
 use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
 use crate::actor::LifeBeingSprite;
@@ -79,7 +80,7 @@ fn fall(
                             &mut commands,
                             &registry,
                             position,
-                            get_default_actor(&registry, super::ActorType::Rock),
+                            get_default_actor(&registry, &ActorType::Rock),
                         );
                     }
                 }

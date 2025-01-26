@@ -26,7 +26,7 @@ pub struct Metamorphosed {
     pub original_actor: Actor,
 }
 
-pub fn random_actor_type(mut rng: &mut ThreadRng, except: ActorType) -> ActorType {
+pub fn random_actor_type(mut rng: &mut ThreadRng, except: &ActorType) -> ActorType {
     *[
         ActorType::Slime,
         ActorType::EyeBall,
@@ -40,7 +40,7 @@ pub fn random_actor_type(mut rng: &mut ThreadRng, except: ActorType) -> ActorTyp
         ActorType::BookShelf,
     ]
     .iter()
-    .filter(|a| **a != except)
+    .filter(|a| **a != *except)
     .collect::<Vec<&ActorType>>()
     .choose(&mut rng)
     .unwrap()
@@ -62,13 +62,13 @@ pub fn cast_metamorphosis(
     original_morph: &Option<&Metamorphosed>,
 
     position: Vec2,
-    morphed_type: ActorType,
+    morphed_type: &ActorType,
 ) -> Entity {
     let original_actor = original_morph
         .map(|r| r.original_actor.clone())
         .unwrap_or(original_actor);
 
-    let mut dest_actor = get_default_actor(&registry, morphed_type);
+    let mut dest_actor = get_default_actor(&registry, &morphed_type);
 
     dest_actor.fire_state = original_actor.fire_state;
     dest_actor.fire_state_secondary = original_actor.fire_state_secondary;

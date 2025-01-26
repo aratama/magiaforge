@@ -1,12 +1,12 @@
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::constant::ARENA;
 use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
-use crate::entity::servant_seed::ServantType;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::page::in_game::setup_level;
@@ -82,7 +82,7 @@ pub enum RemoteMessage {
         from: Vec2,
         to: Vec2,
         actor_group: ActorGroup,
-        servant_type: ServantType,
+        servant_type: ActorType,
     },
 
     // ダメージを受けたことを通知します

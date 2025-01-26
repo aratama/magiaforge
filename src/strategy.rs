@@ -127,7 +127,7 @@ fn update(
     let map: HashMap<Entity, (ActorGroup, Vec2, f32)> = query
         .iter()
         .map(|(e, a, t)| {
-            let props = registry.get_actor_props(a.to_type());
+            let props = registry.get_actor_props(&a.to_type());
             (
                 e,
                 (
@@ -140,7 +140,7 @@ fn update(
         .collect();
 
     for (entity, mut actor, transform) in query.iter_mut() {
-        let props = registry.get_actor_props(actor.to_type());
+        let props = registry.get_actor_props(&actor.to_type());
         let strategies = &props.strategies;
 
         if strategies.is_empty() {

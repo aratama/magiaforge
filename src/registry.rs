@@ -172,7 +172,7 @@ impl<'w> Registry<'w> {
             .expect(&format!("Senario '{}' not found", &name))
     }
 
-    pub fn get_actor_props(&self, actor_type: ActorType) -> &ActorPropsByType {
+    pub fn get_actor_props(&self, actor_type: &ActorType) -> &ActorPropsByType {
         let constants = self.actor.get(&self.assets.actor_registry).unwrap();
 
         let name = format!("{:?}", actor_type);
