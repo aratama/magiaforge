@@ -364,18 +364,21 @@ GameRegistry(
             zone: Dungeon,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (234, 255, 214, 255): (
             tile: None,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (82, 75, 36, 255): (
             tile: Wall,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (118, 66, 138, 255): (
             tile: None,
@@ -385,18 +388,21 @@ GameRegistry(
                 actor_group: Entity,
             ),
             entry_point: false,
+            spawn_offset_x: 8.0,
         ),
         (251, 242, 54, 255): (
             tile: None,
             zone: SafeZone,
             entity: RandomChest,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 155, 87, 255): (
             tile: None,
             zone: SafeZone,
             entity: RandomChest,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         // (81, 28) 水路の奥の隠し部屋
         (255, 155, 88, 255): (
@@ -406,6 +412,7 @@ GameRegistry(
                 spell: "Dash",
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         // (30, 69) ジャンプ練習場の奥
         (255, 155, 89, 255): (
@@ -415,6 +422,7 @@ GameRegistry(
                 spell: "Levitation",
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         // (53, 24) Z字型の裂け目の奥の隠し部屋
         (255, 155, 90, 255): (
@@ -424,6 +432,7 @@ GameRegistry(
                 spell: "Bomb",
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         // (100, 66) 溶岩流を渡った先
         (255, 155, 91, 255): (
@@ -433,48 +442,56 @@ GameRegistry(
                 spell: "LightSword",
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (48, 96, 130, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: MagicCircle,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (47, 96, 130, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: MultiPlayArenaMagicCircle,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (56, 111, 161, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: MagicCircleHome,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (46, 96, 130, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: MagicCircleDemoEnding,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 0, 0, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: BrokenMagicCircle,
             entry_point: true,
+            spawn_offset_x: 0.0,
         ),
         (255, 0, 255, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: Usage,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (254, 0, 255, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: Routes,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (223, 113, 38, 255): (
             tile: StoneTile,
@@ -484,18 +501,21 @@ GameRegistry(
                 actor_group: Entity,
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (0, 222, 255, 255): (
             tile: None,
             zone: SafeZone,
             entity: ShopSpell,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (102, 57, 49, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: RandomChest,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (184, 0, 255, 255): (
             tile: None,
@@ -517,6 +537,7 @@ GameRegistry(
                 on_despawn: "HugeSlime"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 243, 0, 255): (
             tile: None,
@@ -526,6 +547,7 @@ GameRegistry(
                 senario: "ShopRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 244, 0, 255): (
             tile: None,
@@ -535,6 +557,7 @@ GameRegistry(
                 senario: "TrainingRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 245, 0, 255): (
             tile: None,
@@ -544,6 +567,7 @@ GameRegistry(
                 senario: "GuideRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 246, 0, 255): (
             tile: None,
@@ -553,6 +577,7 @@ GameRegistry(
                 senario: "MultiPlayRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 247, 0, 255): (
             tile: None,
@@ -562,6 +587,7 @@ GameRegistry(
                 senario: "SingleplayRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 248, 0, 255): (
             tile: None,
@@ -571,6 +597,7 @@ GameRegistry(
                 senario: "ReadingRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (255, 249, 0, 255): (
             tile: None,
@@ -580,6 +607,7 @@ GameRegistry(
                 senario: "SpellListRabbit"
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (182, 0, 255, 255): (
             tile: None,
@@ -589,60 +617,70 @@ GameRegistry(
                 actor_group: Neutral,
             ),
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (197, 255, 142, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: ShopDoor,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (68, 0, 94, 255): (
             tile: None,
             zone: SafeZone,
             entity: BGM,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (153, 229, 80, 255): (
             tile: Grassland,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (156, 156, 156, 255): (
             tile: StoneTile,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (55, 79, 225, 255): (
             tile: Water,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (205, 121, 54, 255): (
             tile: Lava,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (43, 43, 43, 255): (
             tile: Crack,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (222, 233, 255, 255): (
             tile: Ice,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         ),
         (0, 0, 0, 255): (
             tile: PermanentWall,
             zone: SafeZone,
             entity: None,
             entry_point: false,
+            spawn_offset_x: 0.0,
         )
     },
 
