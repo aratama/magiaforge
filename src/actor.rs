@@ -92,6 +92,7 @@ use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use bomb::Bomb;
 use chest::Chest;
 use chicken::Chicken;
 use rand::seq::SliceRandom;
@@ -1463,6 +1464,9 @@ pub fn spawn_actor(
         }
         "BookShelf" => {
             builder.insert(Burnable { life: 30 });
+        }
+        "Bomb" => {
+            builder.insert(Bomb);
         }
         _ => {}
     }

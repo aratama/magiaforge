@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Default, Component, Reflect)]
-struct Bomb;
+pub struct Bomb;
 
 fn explode_bomb(
     mut commands: Commands,
