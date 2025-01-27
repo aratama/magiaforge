@@ -17,7 +17,7 @@ pub fn get_tile_index_left_top(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<Tile>,
+    targets: &Vec<&Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi - 1, yi - 1, depth, targets),
@@ -40,7 +40,7 @@ pub fn get_tile_index_right_top(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<Tile>,
+    targets: &Vec<&Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi + 0, yi - 1, depth, targets),
@@ -63,7 +63,7 @@ pub fn get_tile_index_left_bottom(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<Tile>,
+    targets: &Vec<&Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi - 1, yi + 0, depth, targets),
@@ -86,7 +86,7 @@ pub fn get_tile_index_right_bottom(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<Tile>,
+    targets: &Vec<&Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi + 1, yi + 0, depth, targets),
@@ -107,61 +107,38 @@ pub fn get_tile_index_right_bottom(
 /// ひとつのタイルを四分割し、それぞれのオートタイルを選択して描画します
 /// prefixesにはアニメーションのフレームごとにスライスのプリフィックスを渡します
 /// オートタイルが選択されると、そのプリフィックスに _0 ～ _16 を選択して追加しスライス名とします
-pub fn spawn_autotiles<T: Component>(
+pub fn spawn_autotiles<T: Component + Clone>(
     prefixes: &Vec<String>,
     commands: &mut Commands,
     registry: &Registry,
     chunk: &LevelChunk,
-    targets: &Vec<Tile>,
+    targets: &Vec<&Tile>,
     y_offset: f32,
     xi: i32,
     yi: i32,
     z: f32,
     depth: i32,
-    left_top: T,
-    right_top: T,
-    left_bottom: T,
-    right_bottom: T,
+    marker: &T,
 ) {
     let lt = get_tile_index_left_top(chunk, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, registry, y_offset, xi, yi, z, 0, 0, lt, left_top,
+        prefixes, commands, registry, y_offset, xi, yi, z, 0, 0, lt, marker,
     );
     let rt = get_tile_index_right_top(chunk, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, registry, y_offset, xi, yi, z, 1, 0, rt, right_top,
+        prefixes, commands, registry, y_offset, xi, yi, z, 1, 0, rt, marker,
     );
     let lb = get_tile_index_left_bottom(chunk, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes,
-        commands,
-        registry,
-        y_offset,
-        xi,
-        yi,
-        z,
-        0,
-        1,
-        lb,
-        left_bottom,
+        prefixes, commands, registry, y_offset, xi, yi, z, 0, 1, lb, marker,
     );
     let rb = get_tile_index_right_bottom(chunk, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes,
-        commands,
-        registry,
-        y_offset,
-        xi,
-        yi,
-        z,
-        1,
-        1,
-        rb,
-        right_bottom,
+        prefixes, commands, registry, y_offset, xi, yi, z, 1, 1, rb, marker,
     );
 }
 
-fn spawn_autotile<T: Component>(
+fn spawn_autotile<T: Component + Clone>(
     prefix: &Vec<String>,
     commands: &mut Commands,
     registry: &Registry,
@@ -172,7 +149,7 @@ fn spawn_autotile<T: Component>(
     dx: i32,
     dy: i32,
     roof_index: i32,
-    marker: T,
+    marker: &T,
 ) {
     let x = TILE_SIZE * xi as f32 + TILE_HALF * dx as f32;
     let y = (TILE_SIZE * -yi as f32) + TILE_HALF * -dy as f32 + y_offset;
@@ -193,6 +170,6 @@ fn spawn_autotile<T: Component>(
                 .collect(),
             wait: 50,
         },
-        marker,
+        marker.clone(),
     ));
 }

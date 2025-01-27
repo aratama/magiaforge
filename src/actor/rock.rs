@@ -69,7 +69,10 @@ fn fall(
 
                 if let Some(ref level) = interlevel.chunk {
                     let tile = level.get_tile_by_coords(position);
-                    if tile != Tile::Wall && tile != Tile::Blank && tile != Tile::PermanentWall {
+                    if tile != Tile::new("Wall")
+                        && tile != Tile::new("Blank")
+                        && tile != Tile::new("PermanentWall")
+                    {
                         impact.send(SpawnImpact {
                             owner: None,
                             position,

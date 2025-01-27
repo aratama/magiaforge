@@ -403,7 +403,7 @@ fn interpret(
             if let Some(ref mut chunk) = level.chunk {
                 for i in x..x + w as i32 {
                     for j in y..y + h as i32 {
-                        chunk.set_tile(i, j, tile);
+                        chunk.set_tile(i, j, tile.clone());
                     }
                 }
             }

@@ -4,14 +4,18 @@ use crate::entity::grass::spawn_grasses;
 use crate::level::ceil::spawn_autotiles;
 use crate::level::ceil::WALL_HEIGHT_IN_TILES;
 use crate::level::map::image_to_tilemap;
+use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
 use crate::page::in_game::GameLevel;
 use crate::registry::Registry;
+use crate::registry::TileType;
+use crate::registry::Tiling;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
+use rand::seq::SliceRandom;
 
 const WATER_PLANE_OFFEST: f32 = -4.0;
 
@@ -44,11 +48,11 @@ pub fn read_level_chunk_data(
     return chunk;
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 struct FoamTile;
 
-#[derive(Component)]
-struct CeilmTile;
+#[derive(Component, Clone)]
+struct CeilTile;
 
 /// 床や壁の外観(スプライト)を生成します
 pub fn spawn_world_tilemap(commands: &mut Commands, registry: &Registry, chunk: &LevelChunk) {
@@ -68,138 +72,137 @@ pub fn spawn_world_tile(
     x: i32,
     y: i32,
 ) {
-    match chunk.get_tile(x, y) {
-        Tile::StoneTile => {
-            spawn_stone_tile(&mut commands, registry, x, y);
-        }
-        Tile::Wall => {
+    let mut rand = rand::thread_rng();
+    let tile = chunk.get_tile(x, y);
+    let props = registry.get_tile(&tile);
+    match props.tile_type {
+        TileType::Wall => {
             spawn_ceil_for_blank(&mut commands, registry, chunk, x, y);
         }
-        Tile::PermanentWall => {
-            spawn_ceil_for_blank(&mut commands, registry, chunk, x, y);
-        }
-        Tile::Grassland => {
-            spawn_grassland(&mut commands, registry, x, y);
-        }
-        Tile::Blank => {
-            spawn_ceil_for_blank(&mut commands, registry, chunk, x, y);
-        }
-        Tile::Water => {
+        TileType::Surface => {
             // 水辺の岸の壁
             spawn_water_wall(&mut commands, registry, &chunk, x, y);
 
-            // 岸にできる泡
-            spawn_autotiles(
-                &vec!["water_form_0".to_string(), "water_form_1".to_string()],
-                &mut commands,
-                registry,
-                &chunk,
-                &vec![Tile::Water],
-                WATER_PLANE_OFFEST,
-                x,
-                y,
-                WATER_FOAM_LAYER_Z,
-                1,
-                FoamTile,
-                FoamTile,
-                FoamTile,
-                FoamTile,
-            );
-
-            // 網状の泡の明るいほう
-            let index = rand::random::<u32>() % 2;
-            commands.spawn((
-                TileSprite((x, y)),
-                AnimatedSlice {
-                    slices: (0..4)
-                        .map(|i| format!("water_mesh_lighter_{}_{}", index, i))
-                        .collect(),
-                    wait: 53,
-                },
-                AseSpriteSlice {
-                    aseprite: registry.assets.atlas.clone(),
-                    name: format!("water_mesh_lighter_{}_0", index).to_string(),
-                },
-                Transform::from_xyz(
-                    x as f32 * TILE_SIZE,
-                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-                    WATER_MESH_LIGHTER_LAYER_Z,
-                ),
-            ));
-
-            // 網状の泡
-            commands.spawn((
-                TileSprite((x, y)),
-                AseSpriteSlice {
-                    aseprite: registry.assets.atlas.clone(),
-                    name: format!("water_mesh_{}", rand::random::<u32>() % 2).to_string(),
-                },
-                Transform::from_xyz(
-                    x as f32 * TILE_SIZE,
-                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-                    WATER_MESH_DARKER_LAYER_Z,
-                ),
-            ));
-        }
-        Tile::Lava => {
-            // 水辺の岸の壁
-            spawn_water_wall(&mut commands, registry, &chunk, x, y);
-
-            let mut builder = commands.spawn((
-                TileSprite((x, y)),
-                AseSpriteSlice {
-                    aseprite: registry.assets.atlas.clone(),
-                    name: format!("lava_mesh_{}", rand::random::<u32>() % 2).to_string(),
-                },
-                Transform::from_xyz(
-                    x as f32 * TILE_SIZE,
-                    -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-                    WATER_MESH_DARKER_LAYER_Z,
-                ),
-            ));
-
-            if rand::random::<u32>() % 6 == 0 {
-                builder.insert(PointLight2d {
-                    intensity: 0.4,
-                    color: Color::hsl(22.0, 0.5, 0.5),
-                    radius: TILE_SIZE * 4.0,
-                    ..default()
-                });
+            for layer in &props.layers {
+                match &layer.tiling {
+                    Tiling::Auto { prefixes } => {
+                        if let Some(frame_prefixes) = prefixes.choose(&mut rand) {
+                            spawn_autotiles(
+                                &frame_prefixes,
+                                &mut commands,
+                                registry,
+                                &chunk,
+                                &vec![&tile],
+                                WATER_PLANE_OFFEST,
+                                x,
+                                y,
+                                layer.depth,
+                                1,
+                                &FoamTile,
+                            );
+                        }
+                    }
+                    Tiling::Simple { patterns } => {
+                        if let Some(slices) = patterns.choose(&mut rand) {
+                            if let Some(s) = slices.choose(&mut rand) {
+                                commands.spawn((
+                                    TileSprite((x, y)),
+                                    StateScoped(GameState::InGame),
+                                    AnimatedSlice {
+                                        slices: slices.clone(),
+                                        wait: 53,
+                                    },
+                                    AseSpriteSlice {
+                                        aseprite: registry.assets.atlas.clone(),
+                                        name: s.clone(),
+                                    },
+                                    Transform::from_xyz(
+                                        x as f32 * TILE_SIZE,
+                                        -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
+                                        layer.depth,
+                                    ),
+                                ));
+                            }
+                        }
+                    }
+                }
             }
         }
-        Tile::Soil => {
+        TileType::Floor => {
+            for layer in &props.layers {
+                match &layer.tiling {
+                    Tiling::Auto {
+                        prefixes: _prefixes,
+                    } => {
+                        // if let Some(prefix) = prefixes.choose(&mut rand) {
+                        //     spawn_autotiles(
+                        //         &prefix,
+                        //         &mut commands,
+                        //         registry,
+                        //         &chunk,
+                        //         &vec![Tile::new("Water")],
+                        //         WATER_PLANE_OFFEST,
+                        //         x,
+                        //         y,
+                        //         WATER_FOAM_LAYER_Z,
+                        //         1,
+                        //         &FoamTile,
+                        //     );
+                        // }
+                    }
+                    Tiling::Simple { patterns } => {
+                        if let Some(frames) = patterns.choose(&mut rand) {
+                            commands.spawn((
+                                TileSprite((x, y)),
+                                StateScoped(GameState::InGame),
+                                AnimatedSlice {
+                                    slices: frames.clone(),
+                                    wait: 53,
+                                },
+                                AseSpriteSlice {
+                                    aseprite: registry.assets.atlas.clone(),
+                                    name: frames[0].clone(),
+                                },
+                                Transform::from_xyz(
+                                    x as f32 * TILE_SIZE,
+                                    -y as f32 * TILE_SIZE,
+                                    FLOOR_LAYER_Z,
+                                ),
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if 0.0 < props.light_intensity && 0.0 < props.light_density {
+        if rand::random::<f32>() < props.light_density {
             commands.spawn((
                 TileSprite((x, y)),
-                AseSpriteSlice {
-                    aseprite: registry.assets.atlas.clone(),
-                    name: "soil_tile".to_string(),
+                StateScoped(GameState::InGame),
+                Transform::from_translation(index_to_position((x, y)).extend(0.0)),
+                PointLight2d {
+                    intensity: props.light_intensity,
+                    color: Color::hsl(
+                        props.light_hue,
+                        props.light_saturation,
+                        props.light_lightness,
+                    ),
+                    radius: props.light_radius,
+                    ..default()
                 },
-                Transform::from_xyz(x as f32 * TILE_SIZE, -y as f32 * TILE_SIZE, FLOOR_LAYER_Z),
             ));
         }
-        Tile::Crack => {
-            spawn_water_wall(&mut commands, registry, &chunk, x, y);
-        }
-        Tile::Ice => {
-            spawn_water_wall(&mut commands, registry, &chunk, x, y);
-            spawn_ice_floor(&mut commands, registry, x, y);
-        }
-    };
-}
+    }
 
-fn spawn_ice_floor(commands: &mut Commands, registry: &Registry, x: i32, y: i32) {
-    commands.spawn((
-        TileSprite((x, y)),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: "tile_ice".to_string(),
-        },
-        Transform::from_xyz(
-            x as f32 * TILE_SIZE,
-            -y as f32 * TILE_SIZE + WATER_PLANE_OFFEST,
-            WATER_MESH_DARKER_LAYER_Z,
-        ),
-    ));
+    if props.grasses {
+        if rand::random::<u32>() % 6 != 0 {
+            let left_top = Vec2::new(x as f32 * TILE_SIZE, y as f32 * -TILE_SIZE);
+            let center = left_top + Vec2::new(TILE_HALF, -TILE_HALF);
+            spawn_grasses(&mut commands, &registry, center);
+        }
+    }
 }
 
 // 水辺の岸の壁
@@ -214,10 +217,15 @@ fn spawn_water_wall(
         x,
         y - 1,
         1,
-        &vec![Tile::StoneTile, Tile::Wall, Tile::PermanentWall],
+        &vec![
+            &Tile::new("StoneTile"),
+            &Tile::new("Wall"),
+            &Tile::new("PermanentWall"),
+        ],
     ) {
         commands.spawn((
             TileSprite((x, y)),
+            StateScoped(GameState::InGame),
             AseSpriteSlice {
                 aseprite: registry.assets.atlas.clone(),
                 name: "stone_wall".to_string(),
@@ -225,25 +233,6 @@ fn spawn_water_wall(
             Transform::from_xyz(x as f32 * TILE_SIZE, -y as f32 * TILE_SIZE, SHORE_LAYER_Z),
         ));
     }
-}
-
-fn spawn_stone_tile(commands: &mut Commands, registry: &Registry, x: i32, y: i32) {
-    let r = rand::random::<u32>() % 3;
-    let slice = format!("stone_tile{}", r);
-    commands.spawn((
-        TileSprite((x, y)),
-        Name::new("stone_tile"),
-        StateScoped(GameState::InGame),
-        Transform::from_translation(Vec3::new(
-            x as f32 * TILE_SIZE,
-            y as f32 * -TILE_SIZE,
-            FLOOR_LAYER_Z,
-        )),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: slice.into(),
-        },
-    ));
 }
 
 fn spawn_ceil_for_blank(
@@ -272,7 +261,10 @@ fn spawn_ceil_for_blank(
     }
 
     // // 天井
-    let targets = vec![Tile::Wall, Tile::Blank, Tile::PermanentWall];
+    let wall_tile = Tile::new("Wall");
+    let blank_tile = Tile::new("Blank");
+    let permanent_wall_tile = Tile::new("PermanentWall");
+    let targets = vec![&wall_tile, &blank_tile, &permanent_wall_tile];
     if chunk.is_visible_ceil(x, y, 3, &targets) {
         spawn_autotiles(
             &vec!["roof".to_string()],
@@ -285,29 +277,7 @@ fn spawn_ceil_for_blank(
             y,
             CEIL_LAYER_Z,
             3,
-            CeilmTile,
-            CeilmTile,
-            CeilmTile,
-            CeilmTile,
+            &CeilTile,
         )
-    }
-}
-
-fn spawn_grassland(mut commands: &mut Commands, registry: &Registry, x: i32, y: i32) {
-    let left_top = Vec2::new(x as f32 * TILE_SIZE, y as f32 * -TILE_SIZE);
-    commands.spawn((
-        TileSprite((x, y)),
-        Name::new("grassland"),
-        StateScoped(GameState::InGame),
-        Transform::from_translation(left_top.extend(FLOOR_LAYER_Z)),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: "grassland".into(),
-        },
-    ));
-
-    if rand::random::<u32>() % 6 != 0 {
-        let center = left_top + Vec2::new(TILE_HALF, -TILE_HALF);
-        spawn_grasses(&mut commands, &registry, center);
     }
 }

@@ -758,8 +758,8 @@ fn apply_external_force(
             let position = transform.translation.truncate();
             let props = registry.get_actor_props(&actor.actor_type);
 
-            let on_ice = match chunk.get_tile_by_coords(position) {
-                Tile::Ice => true,
+            let on_ice = match chunk.get_tile_by_coords(position).0.as_str() {
+                "Ice" => true,
                 _ => false,
             };
 
@@ -924,8 +924,12 @@ fn apply_damping(
 
     if let Some(ref chunk) = level.chunk {
         for (vertical, mut damping, actor, transform) in query.iter_mut() {
-            let on_ice = match chunk.get_tile_by_coords(transform.translation.truncate()) {
-                Tile::Ice => true,
+            let on_ice = match chunk
+                .get_tile_by_coords(transform.translation.truncate())
+                .0
+                .as_str()
+            {
+                "Ice" => true,
                 _ => false,
             };
 
@@ -952,7 +956,7 @@ fn drown(
             if actor.levitation == 0 && vertical.v == 0.0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
-                if tile == Tile::Water || tile == Tile::Lava {
+                if tile == Tile::new("Water") || tile == Tile::new("Lava") {
                     if actor.drown == 0 {
                         se.send(SEEvent::pos(BASHA2, position));
                     }
@@ -987,10 +991,10 @@ fn drown_damage(
         let tile = if let Some(ref chunk) = level.chunk {
             chunk.get_tile_by_coords(position)
         } else {
-            Tile::Blank
+            Tile::new("Blank")
         };
-        match tile {
-            Tile::Water => {
+        match tile.0.as_str() {
+            "Water" => {
                 if 60 < actor.drown {
                     damage.send(ActorEvent::Damaged {
                         actor: entity,
@@ -1005,7 +1009,7 @@ fn drown_damage(
                     actor.drown = 1;
                 }
             }
-            Tile::Lava => {
+            "Lava" => {
                 if 20 < actor.drown {
                     damage.send(ActorEvent::Damaged {
                         actor: entity,
@@ -1020,7 +1024,7 @@ fn drown_damage(
                     actor.drown = 1;
                 }
             }
-            Tile::Crack if vertical.v <= 0.0 => {
+            "Crack" if vertical.v <= 0.0 => {
                 let position = transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();
 

@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::entities::Spawn;
@@ -27,7 +29,7 @@ pub struct LevelTile {
 impl Default for LevelTile {
     fn default() -> Self {
         LevelTile {
-            tile: Some(Tile::Blank),
+            tile: Some(Tile::new("Blank")),
             zone: Zone::SafeZone,
             entity: None,
             entry_point: false,
@@ -50,13 +52,14 @@ pub struct LevelChunk {
 impl LevelChunk {
     pub fn get_level_tile(&self, x: i32, y: i32) -> &LevelTile {
         if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
-            return &LevelTile {
-                tile: Some(Tile::Blank),
+            static BLANK_TILE: LazyLock<LevelTile> = LazyLock::new(|| LevelTile {
+                tile: Some(Tile::new("Blank")),
                 zone: Zone::SafeZone,
                 entity: None,
                 entry_point: false,
                 spawn_offset_x: 0.0,
-            };
+            });
+            return &BLANK_TILE;
         }
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
@@ -64,7 +67,11 @@ impl LevelChunk {
     }
 
     pub fn get_tile(&self, x: i32, y: i32) -> Tile {
-        self.get_level_tile(x, y).tile.unwrap_or(self.biome)
+        self.get_level_tile(x, y)
+            .tile
+            .as_ref()
+            .unwrap_or(&self.biome)
+            .clone()
     }
 
     pub fn get_tile_by_coords(&self, p: Vec2) -> Tile {
@@ -116,9 +123,9 @@ impl LevelChunk {
     /// 実際に描画する天井タイルかどうかを返します
     /// 天井が奥の床を隠して見えづらくなるのを避けるため、
     /// 天井タイルが3連続するところだけを描画します
-    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<Tile>) -> bool {
+    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<&Tile>) -> bool {
         for i in 0..depth {
-            if targets.contains(&self.get_tile(x, y - i)) {
+            if targets.contains(&&self.get_tile(x, y - i)) {
                 continue;
             }
             return false;
@@ -130,7 +137,7 @@ impl LevelChunk {
         let mut points = Vec::new();
         for y in self.min_y..self.max_y {
             for x in self.min_x..self.max_x {
-                if self.get_tile(x, y) == Tile::StoneTile {
+                if self.get_tile(x, y) == Tile::new("StoneTile") {
                     if let Some(LevelTile {
                         entry_point: true, ..
                     }) = self.tiles.get(
@@ -170,7 +177,7 @@ pub fn image_to_tilemap(
     min_y: i32,
     max_y: i32,
 ) -> LevelChunk {
-    let map = &registry.game().tiles;
+    let map = &registry.tile().tiles;
     let texture_width = level_image.width();
     let mut tiles: Vec<LevelTile> = Vec::new();
     for y in min_y..max_y {

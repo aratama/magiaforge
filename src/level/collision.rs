@@ -96,7 +96,7 @@ pub struct WallCollider;
 
 pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
     // 衝突形状の生成
-    for rect in get_wall_collisions(&chunk, vec![Tile::Wall, Tile::PermanentWall]) {
+    for rect in get_wall_collisions(&chunk, vec![Tile::new("Wall"), Tile::new("PermanentWall")]) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;
@@ -121,7 +121,10 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
         ));
     }
 
-    for rect in get_wall_collisions(&chunk, vec![Tile::Water, Tile::Lava, Tile::Crack]) {
+    for rect in get_wall_collisions(
+        &chunk,
+        vec![Tile::new("Water"), Tile::new("Lava"), Tile::new("Crack")],
+    ) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;

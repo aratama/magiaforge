@@ -21,13 +21,64 @@ use std::sync::LazyLock;
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameRegistry {
-    pub levels: HashMap<String, LevelProps>,
     pub bgms: HashMap<String, BGMProps>,
     pub home_bgm: String,
     pub ending_bgm: String,
-    pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
     pub debug_items: Vec<Spell>,
     pub debug_wands: Vec<Vec<Option<Spell>>>,
+}
+
+#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
+pub struct TileRegistry {
+    pub levels: HashMap<String, LevelProps>,
+    pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
+    pub tile_types: HashMap<String, TileTypeProps>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub struct TileTypeProps {
+    pub tile_type: TileType,
+    pub layers: Vec<TileTypeLayer>,
+    /// それぞれのタイルに以下の照度をランダムに割り当てます
+    #[serde(default)]
+    pub light_hue: f32,
+
+    #[serde(default)]
+    pub light_saturation: f32,
+
+    #[serde(default)]
+    pub light_lightness: f32,
+
+    #[serde(default)]
+    pub light_intensity: f32,
+
+    #[serde(default)]
+    pub light_radius: f32,
+
+    #[serde(default)]
+    pub light_density: f32,
+
+    #[serde(default)]
+    pub grasses: bool,
+}
+
+#[derive(serde::Deserialize, Copy, Clone, Debug)]
+pub enum TileType {
+    Wall,
+    Surface,
+    Floor,
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub struct TileTypeLayer {
+    pub depth: f32,
+    pub tiling: Tiling,
+}
+
+#[derive(serde::Deserialize, Debug)]
+pub enum Tiling {
+    Simple { patterns: Vec<Vec<String>> },
+    Auto { prefixes: Vec<Vec<String>> },
 }
 
 #[derive(serde::Deserialize)]
@@ -148,6 +199,7 @@ pub struct SenarioRegistry {
 pub struct Registry<'w> {
     pub assets: Res<'w, GameAssets>,
     game: Res<'w, Assets<GameRegistry>>,
+    tile: Res<'w, Assets<TileRegistry>>,
     spell: Res<'w, Assets<SpellRegistry>>,
     actor: Res<'w, Assets<ActorRegistry>>,
     senario: Res<'w, Assets<SenarioRegistry>>,
@@ -156,6 +208,10 @@ pub struct Registry<'w> {
 impl<'w> Registry<'w> {
     pub fn game(&self) -> &GameRegistry {
         self.game.get(&self.assets.game_registry).unwrap()
+    }
+
+    pub fn tile(&self) -> &TileRegistry {
+        self.tile.get(&self.assets.tile_registry).unwrap()
     }
 
     pub fn spell(&self) -> &SpellRegistry {
@@ -187,6 +243,14 @@ impl<'w> Registry<'w> {
             .expect(format!("ActorType {:?} not found", actor_type.0).as_str())
     }
 
+    pub fn get_tile(&self, tile: &Tile) -> &TileTypeProps {
+        let constants = self.tile.get(&self.assets.tile_registry).unwrap();
+        &constants
+            .tile_types
+            .get(&tile.0)
+            .expect(format!("Tile {:?} not found", tile.0).as_str())
+    }
+
     pub fn get_spell_props(&self, Spell(spell_type): &Spell) -> &SpellProps {
         let constants = self.spell.get(&self.assets.spell_registry).unwrap();
         &constants
@@ -200,7 +264,7 @@ impl<'w> Registry<'w> {
     }
 
     pub fn get_level(&self, GameLevel(level): &GameLevel) -> &LevelProps {
-        let constants = self.game.get(&self.assets.game_registry).unwrap();
+        let constants = self.tile.get(&self.assets.tile_registry).unwrap();
         constants
             .levels
             .get(level)

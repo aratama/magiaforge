@@ -89,10 +89,10 @@ fn spawn_fire_on_landed(
             if let Some(ref level) = interlevel.chunk {
                 let position = transform.translation.truncate();
                 let tile = level.get_tile_by_coords(position);
-                if tile != Tile::Wall
-                    && tile != Tile::Blank
-                    && tile != Tile::Water
-                    && tile != Tile::PermanentWall
+                if tile != Tile::new("Wall")
+                    && tile != Tile::new("Blank")
+                    && tile != Tile::new("Water")
+                    && tile != Tile::new("PermanentWall")
                 {
                     spawn_fire(&mut commands, &assets, position, None);
                 }

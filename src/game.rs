@@ -68,6 +68,7 @@ use crate::registry::ActorRegistry;
 use crate::registry::GameRegistry;
 use crate::registry::SenarioRegistry;
 use crate::registry::SpellRegistry;
+use crate::registry::TileRegistry;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
 use crate::se::SECommandPlugin;
@@ -175,6 +176,7 @@ pub fn run_game() {
             //
         )
         .add_plugins(RonAssetPlugin::<GameRegistry>::new(&["game.ron"]))
+        .add_plugins(RonAssetPlugin::<TileRegistry>::new(&["tile.ron"]))
         .add_plugins(RonAssetPlugin::<SpellRegistry>::new(&["spell.ron"]))
         .add_plugins(RonAssetPlugin::<ActorRegistry>::new(&["actor.ron"]))
         .add_plugins(RonAssetPlugin::<SenarioRegistry>::new(&["senario.ron"]))

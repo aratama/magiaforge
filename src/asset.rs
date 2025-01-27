@@ -2,6 +2,7 @@ use crate::registry::ActorRegistry;
 use crate::registry::GameRegistry;
 use crate::registry::SenarioRegistry;
 use crate::registry::SpellRegistry;
+use crate::registry::TileRegistry;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -18,6 +19,9 @@ pub struct GameAssets {
 
     #[asset(path = "registry.actor.ron")]
     pub actor_registry: Handle<ActorRegistry>,
+
+    #[asset(path = "registry.tile.ron")]
+    pub tile_registry: Handle<TileRegistry>,
 
     #[asset(path = "registry.senario.ron")]
     pub senario_registry: Handle<SenarioRegistry>,

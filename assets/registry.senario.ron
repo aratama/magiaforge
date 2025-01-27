@@ -403,7 +403,7 @@ SenarioRegistry(
                 y: 153,
                 w: 5,
                 h: 5,
-                tile: StoneTile,
+                tile: "StoneTile",
             ),
             SE (path: "audio/kuzureru.ogg"),
             SpawnRaven (name: "raven", position: (392.0, -2504.0,)),

@@ -136,7 +136,7 @@ pub fn setup_level(
     let getting_up_animation =
         *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
 
-    let biome_tile = registry.get_level(&level).biome;
+    let biome_tile = registry.get_level(&level).biome.clone();
 
     // 画像データからレベルの情報を選択して読み取ります
     let chunk = read_level_chunk_data(&registry, &level_aseprites, &images, &level, biome_tile);
@@ -431,15 +431,15 @@ fn update_tile_sprites(
                     && !chunk.get_tile(x, y + 2).is_wall()
                 {
                     warn!("filling gap at {} {}", x, y);
-                    chunk.set_tile(x, y + 1, Tile::StoneTile);
+                    chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
                 } else if !chunk.get_tile(x, y + 0).is_wall()
                     && chunk.get_tile(x, y + 1).is_wall()
                     && chunk.get_tile(x, y + 2).is_wall()
                     && !chunk.get_tile(x, y + 3).is_wall()
                 {
                     warn!("filling gap at {} {}", x, y);
-                    chunk.set_tile(x, y + 1, Tile::StoneTile);
-                    chunk.set_tile(x, y + 2, Tile::StoneTile);
+                    chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
+                    chunk.set_tile(x, y + 2, Tile::new("StoneTile"));
                 }
             }
         }

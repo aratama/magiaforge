@@ -279,13 +279,13 @@ fn bullet_freeze_water(
         for (bullet, transform) in bullet_query.iter() {
             if 0 < bullet.freeze {
                 let position = transform.translation.truncate();
-                match chunk.get_tile_by_coords(position) {
-                    Tile::Water => {
-                        chunk.set_tile_by_position(position, Tile::Ice);
+                match chunk.get_tile_by_coords(position).0.as_str() {
+                    "Water" => {
+                        chunk.set_tile_by_position(position, Tile::new("Ice"));
                         se.send(SEEvent::pos(FREEZE, position));
                     }
-                    Tile::Lava => {
-                        chunk.set_tile_by_position(position, Tile::Soil);
+                    "Lava" => {
+                        chunk.set_tile_by_position(position, Tile::new("Soil"));
                         se.send(SEEvent::pos(FREEZE, position));
                     }
                     _ => {}

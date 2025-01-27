@@ -105,9 +105,9 @@ fn read_impact_event(
                     let y = (position.y / -TILE_SIZE) as i32 + dy;
                     let distance = index_to_position((x, y)).distance(*position);
                     if distance < TILE_SIZE * 5.0 {
-                        match chunk.get_tile(x, y) {
-                            Tile::Ice => {
-                                chunk.set_tile(x, y, Tile::Water);
+                        match chunk.get_tile(x, y).0.as_str() {
+                            "Ice" => {
+                                chunk.set_tile(x, y, Tile::new("Water"));
                             }
                             _ => {}
                         };
