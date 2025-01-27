@@ -385,13 +385,35 @@ fn insert_discovered_spells(mut player_query: Query<(&mut Player, &Actor)>) {
     }
 }
 
+fn sync_wands(mut query: Query<(&mut Actor, Option<&Player>), With<PlayerControlled>>) {
+    let Some(original) = query
+        .iter()
+        .find(|(_, player)| player.is_some())
+        .map(|(actor, _)| actor.wands.clone())
+    else {
+        return;
+    };
+    for (mut actor, player) in query.iter_mut() {
+        if player.is_some() {
+            continue;
+        }
+        actor.wands = original.clone();
+    }
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (pick_gold, die_player, insert_discovered_spells, move_player)
+            (
+                pick_gold,
+                die_player,
+                insert_discovered_spells,
+                move_player,
+                sync_wands,
+            )
                 .in_set(FixedUpdateInGameSet),
         );
 

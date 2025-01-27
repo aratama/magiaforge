@@ -24,6 +24,7 @@ use crate::entity::bullet::Trigger;
 use crate::entity::bullet::BULLET_SPAWNING_MARGIN;
 use crate::entity::impact::SpawnImpact;
 use crate::entity::web::spawn_web;
+use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::page::in_game::LevelSetup;
@@ -576,6 +577,7 @@ fn cast_clone(
                 cloned.life = 1;
                 cloned.max_life = 1;
                 cloned.golds = 0;
+                cloned.inventory = Inventory::new();
                 spawn.send(SpawnEvent {
                     position,
                     spawn: Spawn::Respawn {
