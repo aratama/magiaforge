@@ -247,7 +247,7 @@ fn spawn_ceil_for_blank(
     let tz = ENTITY_LAYER_Z + (ty * Z_ORDER_SCALE);
 
     // 壁
-    if !chunk.is_wall(x as i32, y as i32 + 1) {
+    if !chunk.is_wall(&registry, x as i32, y as i32 + 1) {
         commands.spawn((
             TileSprite((x, y)),
             Name::new("wall"),

@@ -1,5 +1,7 @@
 use crate::component::vertical::Vertical;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
+use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::SCENE2;
 use crate::set::FixedUpdateGameActiveSet;
@@ -14,6 +16,7 @@ pub struct Falling;
 
 fn despawn(
     mut commands: Commands,
+    registry: Registry,
     level: Res<LevelSetup>,
     query: Query<(Entity, &Transform, Option<&Vertical>, Option<&Name>), With<Falling>>,
     mut se: EventWriter<SEEvent>,
@@ -22,7 +25,9 @@ fn despawn(
         for (entity, transform, vertical, name) in query.iter() {
             let position = transform.translation.truncate();
             let tile = chunk.get_tile_by_coords(position);
-            if !tile.is_plane() && vertical.map(|v| v.v == 0.0).unwrap_or(true) {
+            let props = registry.get_tile(&tile);
+            if props.tile_type != TileType::Surface && vertical.map(|v| v.v == 0.0).unwrap_or(true)
+            {
                 commands.entity(entity).despawn_recursive();
 
                 se.send(SEEvent::pos(SCENE2, position));

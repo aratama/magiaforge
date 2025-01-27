@@ -30,6 +30,7 @@ use crate::level::entities::SpawnEvent;
 use crate::page::in_game::LevelSetup;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
+use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::HEAL;
 use crate::se::SHURIKEN;
@@ -458,6 +459,7 @@ pub fn cast_spell(
                     // プレイヤー本人が操作しているキャラクターのみ分身を詠唱できるものとします
                     if player.is_some() {
                         cast_clone(
+                            &registry,
                             &mut se,
                             &mut spawn,
                             actor,
@@ -470,6 +472,7 @@ pub fn cast_spell(
                 }
                 SpellCast::InfinityClone => {
                     cast_clone(
+                        &registry,
                         &mut se,
                         &mut spawn,
                         actor,
@@ -553,6 +556,7 @@ pub fn cast_spell(
 }
 
 fn cast_clone(
+    registry: &Registry,
     se: &mut EventWriter<SEEvent>,
     spawn: &mut EventWriter<SpawnEvent>,
     actor: &Actor,
@@ -565,7 +569,9 @@ fn cast_clone(
         for _ in 0..16 {
             let angle = f32::consts::PI * 2.0 * rand::random::<f32>();
             let position = actor_position + TILE_SIZE * 2.0 * Vec2::from_angle(angle);
-            if chunk.get_tile_by_coords(position).is_floor() {
+            let tile = chunk.get_tile_by_coords(position);
+            let props = registry.get_tile(&tile);
+            if props.tile_type == TileType::Floor {
                 let mut cloned = actor.clone();
                 cloned.uuid = Uuid::new_v4();
                 cloned.wait = 30; // これがないと一瞬で無限クローンしてしまうので注意

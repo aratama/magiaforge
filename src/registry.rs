@@ -62,7 +62,7 @@ pub struct TileTypeProps {
     pub grasses: bool,
 }
 
-#[derive(serde::Deserialize, Copy, Clone, Debug)]
+#[derive(serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 pub enum TileType {
     Wall,
     Surface,

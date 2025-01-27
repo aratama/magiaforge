@@ -426,16 +426,16 @@ fn update_tile_sprites(
         // 縦２タイルのみ孤立して残っているものがあれば削除
         for y in chunk.min_y..(chunk.max_y + 1) {
             for x in chunk.min_x..(chunk.max_x + 1) {
-                if !chunk.get_tile(x, y + 0).is_wall()
-                    && chunk.get_tile(x, y + 1).is_wall()
-                    && !chunk.get_tile(x, y + 2).is_wall()
+                if !chunk.is_wall(&registry, x, y + 0)
+                    && chunk.is_wall(&registry, x, y + 1)
+                    && !chunk.is_wall(&registry, x, y + 2)
                 {
                     warn!("filling gap at {} {}", x, y);
                     chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
-                } else if !chunk.get_tile(x, y + 0).is_wall()
-                    && chunk.get_tile(x, y + 1).is_wall()
-                    && chunk.get_tile(x, y + 2).is_wall()
-                    && !chunk.get_tile(x, y + 3).is_wall()
+                } else if !chunk.is_wall(&registry, x, y + 0)
+                    && chunk.is_wall(&registry, x, y + 1)
+                    && chunk.is_wall(&registry, x, y + 2)
+                    && !chunk.is_wall(&registry, x, y + 3)
                 {
                     warn!("filling gap at {} {}", x, y);
                     chunk.set_tile(x, y + 1, Tile::new("StoneTile"));

@@ -8,6 +8,7 @@ use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
+use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::BICHA;
 use crate::set::FixedUpdateGameActiveSet;
@@ -102,6 +103,7 @@ pub fn spawn_servant_seed(
 
 fn update_servant_seed(
     mut commands: Commands,
+    registry: Registry,
     mut query: Query<(Entity, &mut ServantSeed, &mut Transform)>,
     mut se_writer: EventWriter<SEEvent>,
     current: Res<LevelSetup>,
@@ -117,7 +119,9 @@ fn update_servant_seed(
             commands.entity(entity).despawn_recursive();
 
             if let Some(ref chunk) = current.chunk {
-                if chunk.get_tile_by_coords(seed.to).is_plane() {
+                let tile = chunk.get_tile_by_coords(seed.to);
+                let props = registry.get_tile(&tile);
+                if props.tile_type == TileType::Surface {
                     spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type.clone(),
                         position: seed.to,

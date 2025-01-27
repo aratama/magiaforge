@@ -7,6 +7,7 @@ use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
+use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::PICK_UP;
 use crate::states::GameMenuState;
@@ -149,7 +150,8 @@ fn drop(
                                 {
                                     let pointer_in_world = mouse_in_world.origin.truncate();
                                     let tile = chunk.get_tile_by_coords(pointer_in_world);
-                                    if !tile.is_wall() {
+                                    let props = registry.get_tile(&tile);
+                                    if props.tile_type != TileType::Wall {
                                         if let Some(item) = content.get_inventory_item(&actor) {
                                             content.set_item(None, &mut actor);
 

@@ -1,12 +1,12 @@
-use std::sync::LazyLock;
-
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::registry::Registry;
+use crate::registry::TileType;
 use bevy::prelude::*;
 use serde::Deserialize;
+use std::sync::LazyLock;
 
 #[derive(Clone, Copy, Debug, Deserialize)]
 pub enum Zone {
@@ -74,6 +74,15 @@ impl LevelChunk {
             .clone()
     }
 
+    pub fn get_tile_type(&self, registry: &Registry, x: i32, y: i32) -> TileType {
+        let tile = self.get_tile(x, y);
+        registry.get_tile(&tile).tile_type
+    }
+
+    pub fn is_wall(&self, registry: &Registry, x: i32, y: i32) -> bool {
+        self.get_tile_type(&registry, x, y) == TileType::Wall
+    }
+
     pub fn get_tile_by_coords(&self, p: Vec2) -> Tile {
         let x = (p.x / TILE_SIZE as f32).trunc() as i32;
         let y = (-p.y / TILE_SIZE as f32).trunc() as i32;
@@ -87,15 +96,6 @@ impl LevelChunk {
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
         return self.tiles[i].zone;
-    }
-
-    pub fn is_wall(&self, x: i32, y: i32) -> bool {
-        self.get_tile(x, y).is_wall()
-    }
-
-    #[allow(dead_code)]
-    pub fn is_floor(&self, x: i32, y: i32) -> bool {
-        self.get_tile(x, y).is_floor()
     }
 
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
