@@ -41,29 +41,27 @@ fn fall(
     mut spawn: EventWriter<SpawnImpact>,
 ) {
     for (entity, actor, mut vertical, transform) in child_query.iter_mut() {
-        if 0.0 < vertical.v {
-            let next = vertical.v + vertical.velocity;
-            if next <= 0.0 {
-                vertical.just_landed = 0.0 < vertical.v;
-                vertical.v = 0.0;
-                vertical.velocity = 0.0;
-                if vertical.just_landed {
-                    let props = registry.get_actor_props(&actor.actor_type);
-                    if 0.0 < props.impact_radius {
-                        let position = transform.translation.truncate();
-                        spawn.send(SpawnImpact {
-                            position,
-                            radius: props.impact_radius,
-                            impulse: 16.0,
-                            owner: Some(entity),
-                        });
-                    }
+        let next = vertical.v + vertical.velocity;
+        if next <= 0.0 {
+            vertical.just_landed = 0.0 < vertical.v;
+            vertical.v = 0.0;
+            vertical.velocity = 0.0;
+            if vertical.just_landed {
+                let props = registry.get_actor_props(&actor.actor_type);
+                if 0.0 < props.impact_radius {
+                    let position = transform.translation.truncate();
+                    spawn.send(SpawnImpact {
+                        position,
+                        radius: props.impact_radius,
+                        impulse: 16.0,
+                        owner: Some(entity),
+                    });
                 }
-            } else {
-                vertical.just_landed = false;
-                vertical.v = next;
-                vertical.velocity += vertical.gravity;
             }
+        } else {
+            vertical.just_landed = false;
+            vertical.v = next;
+            vertical.velocity += vertical.gravity;
         }
     }
 }
