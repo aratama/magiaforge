@@ -121,7 +121,7 @@ fn update_servant_seed(
             if let Some(ref chunk) = current.chunk {
                 let tile = chunk.get_tile_by_coords(seed.to);
                 let props = registry.get_tile(&tile);
-                if props.tile_type == TileType::Surface {
+                if props.tile_type == TileType::Floor {
                     spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type.clone(),
                         position: seed.to,

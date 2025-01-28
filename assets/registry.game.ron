@@ -5,10 +5,10 @@ GameRegistry(
    
 
     debug_wands: [
-        ["Levitation", None, None, None, None, None, None, None],
-        ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt", None, None],
-        ["DualCast", "Levitation", "MagicBolt", None, None, None, None, None],
-        ["DualCast", "Dash", "Jump", "Lantern", None, None, None, None]
+        ["DualCast", "Levitation", "MagicBolt"],
+        ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt"],
+        ["DualCast", "Levitation", "MagicBolt"],
+        ["DualCast", "Dash", "Jump", "Lantern"]
     ],
 
     debug_items: [
@@ -47,7 +47,6 @@ GameRegistry(
         "Web",
         "Freeze",
         "Levitation",
-        "ApplyLevitation",
         "Jump",
         "Metamorphosis",
         "Slash",
