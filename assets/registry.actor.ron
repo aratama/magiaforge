@@ -149,7 +149,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "staggered",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -193,7 +193,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "idle",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             wands: [
                 ["SlimeCharge", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -239,7 +239,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "staggered",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             wands: [
                 ["PurpleBolt", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -285,7 +285,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "idle",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             wands: [
                 ["Web", None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -337,7 +337,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "idle",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             strategies: {
                 "default": (
                     min_life: 1000,
@@ -453,7 +453,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "idle",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
@@ -490,7 +490,7 @@ ActorRegistry(
                 drown: "idle",
                 staggered: "idle",
             ),
-            shadow: None,
+            shadow: "entity_shadow",
             wands: [
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None], 
