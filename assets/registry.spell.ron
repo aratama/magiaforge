@@ -39,13 +39,11 @@ SpellRegistry(
                 speed: 150.0,
                 lifetime: 240,
                 damage: 10,
-                impulse: 0.0,
                 scattering: 0.4,
                 light_intensity: 1.0,
                 light_radius: 50.0,
                 light_color_hlsa: (245.0, 1.0, 0.6, 1.0),
-                freeze: 0,
-                levitation: 0,
+
                 stagger: 60,
             ),
         ),
@@ -89,8 +87,7 @@ SpellRegistry(
                 light_intensity: 4.0,
                 light_radius: 160.0,
                 light_color_hlsa: (0.0, 0.0, 1.0, 1.0),
-                freeze: 0,
-                levitation: 0,
+
                 stagger: 0,
             ),
         ),
@@ -192,13 +189,8 @@ SpellRegistry(
                 speed: 50.0,
                 lifetime: 500,
                 damage: 3,
-                impulse: 0.0,
                 scattering: 0.6,
-                light_intensity: 0.0,
-                light_radius: 0.0,
-                light_color_hlsa: (0.0, 0.0, 0.0, 1.0),
-                freeze: 0,
-                levitation: 0,
+
                 stagger: 30,
             ),
         ),
@@ -238,12 +230,8 @@ SpellRegistry(
                 lifetime: 5,
                 damage: 1,
                 impulse: 40000.0,
-                scattering: 0.0,
-                light_intensity: 0.0,
-                light_radius: 0.0,
-                light_color_hlsa: (0.0, 0.0, 0.0, 1.0),
-                freeze: 0,
-                levitation: 0,
+                upper_impulse: 2.0,
+
                 stagger: 20,
             ),
         ),
@@ -380,10 +368,7 @@ SpellRegistry(
                 light_intensity: 1.0,
                 light_radius: 50.0,
                 light_color_hlsa: (245.0, 1.0, 0.6, 1.0),
-                freeze: 0,
-                levitation: 0,
                 stagger: 10,
-
             ),
         ),
         "BulletSpeedDoown": (
@@ -634,7 +619,6 @@ SpellRegistry(
             price: 30,
             cast: HeavyShot,
         ),
-
         "TripleCast": (
             rank: 3,
             name: Dict (
@@ -1165,15 +1149,9 @@ SpellRegistry(
                 collier_radius: 5.0,
                 speed: 64.0,
                 lifetime: 180,
-                damage: 0,
-                impulse: 0.0,
+
                 scattering: 0.4,
-                light_intensity: 0.0,
-                light_radius: 0.0,
-                light_color_hlsa: (0.0, 0.0, 0.0, 0.0),
                 freeze: 120,
-                levitation: 0,
-                stagger: 0,
             ),
         ),
         "Dispel": (
@@ -1233,7 +1211,6 @@ SpellRegistry(
                 de: "Erstellt einen Klon des Ziels. Der Klon wird nach einer bestimmten Zeit verschwinden.",
                 ko: "대상의 클론을 생성합니다. 클론은 일정 시간이 지나면 사라집니다.",
                 ru: "Создает клон цели. Клон исчезнет через определенное время."
-
             ),
             cast_delay: 120,
             icon: "clone_icon",
