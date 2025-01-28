@@ -15,6 +15,8 @@ use crate::se::BREAK;
 use crate::se::GLASS;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
+use crate::wand::Wand;
+use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use rand::seq::IteratorRandom;
@@ -56,7 +58,6 @@ pub const CHEST_OR_BARREL: [ChestType; 12] = [
 #[derive(Component, Reflect, Debug)]
 pub struct Chest {
     pub chest_type: ChestType,
-    pub chest_item: Option<Spell>,
 }
 
 impl Chest {
@@ -65,10 +66,7 @@ impl Chest {
             .iter()
             .choose(&mut rand::thread_rng())
             .unwrap();
-        Self {
-            chest_type,
-            chest_item: None,
-        }
+        Self { chest_type }
     }
 }
 
@@ -97,13 +95,15 @@ pub fn update_sprite(
     }
 }
 
-pub fn chest_actor(golds: u32) -> Actor {
+pub fn chest_actor(golds: u32, chest_item: Option<Spell>) -> Actor {
+    let wands = Wand::from_vec(&vec![vec![chest_item]]);
     Actor {
         actor_type: ActorType::new("Chest"),
         actor_group: ActorGroup::Entity,
         life: 30,
         max_life: 30,
         golds,
+        wands,
         ..default()
     }
 }
@@ -130,9 +130,16 @@ fn break_chest(
                 position,
             ));
 
-            if let Some(chest_item) = &chest.chest_item {
-                let item = InventoryItem::new(InventoryItemType::Spell(chest_item.clone()));
-                spawn_dropped_item(&mut commands, &registry, position, &item);
+            for wand in actor.wands.iter() {
+                for spell in wand.slots.iter() {
+                    if let Some(WandSpell {
+                        spell: spell_type, ..
+                    }) = spell
+                    {
+                        let item = InventoryItem::new(InventoryItemType::Spell(spell_type.clone()));
+                        spawn_dropped_item(&mut commands, &registry, position, &item);
+                    }
+                }
             }
 
             match chest.chest_type {

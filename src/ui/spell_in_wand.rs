@@ -57,7 +57,7 @@ fn update_panel_item(
                 _ => actor
                     .get_wand_spell(sprite.wand_index, sprite.spell_index)
                     .map(|e| InventoryItem {
-                        item_type: InventoryItemType::Spell(e.spell_type),
+                        item_type: InventoryItemType::Spell(e.spell),
                         price: e.price,
                     }),
             };

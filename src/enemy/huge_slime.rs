@@ -4,7 +4,6 @@ use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::audio::NextBGM;
 use crate::component::counter::Counter;
-use crate::component::vertical::Vertical;
 use crate::controller::player::Player;
 use crate::entity::impact::SpawnImpact;
 use crate::language::Dict;
@@ -43,7 +42,7 @@ pub enum HugeSlimeState {
 }
 
 fn impact(
-    slime_query: Query<(Entity, &Transform, &Vertical), With<HugeSlime>>,
+    slime_query: Query<(Entity, &Transform, &Actor), With<HugeSlime>>,
     mut impact_writer: EventWriter<SpawnImpact>,
 ) {
     for (entity, transform, vertical) in slime_query.iter() {
@@ -81,7 +80,6 @@ fn update_huge_slime_approach(
         (
             &mut HugeSlime,
             &mut Counter,
-            &mut Vertical,
             &mut Actor,
             &mut ExternalImpulse,
             &mut CollisionGroups,
@@ -93,15 +91,8 @@ fn update_huge_slime_approach(
 ) {
     let props = registry.get_actor_props(&ActorType::new("HugeSlime"));
 
-    for (
-        mut huge_slime,
-        mut counter,
-        mut vertical,
-        mut actor,
-        mut impulse,
-        mut collision_groups,
-        transform,
-    ) in huge_slime_query.iter_mut()
+    for (mut huge_slime, mut counter, mut actor, mut impulse, mut collision_groups, transform) in
+        huge_slime_query.iter_mut()
     {
         let timespan = if huge_slime.promoted { 35 } else { 60 };
         if let HugeSlimeState::Approach = huge_slime.state.clone() {
@@ -121,7 +112,6 @@ fn update_huge_slime_approach(
                 jump_actor(
                     &mut se,
                     &mut actor,
-                    &mut vertical,
                     &mut impulse,
                     &mut collision_groups,
                     &transform,

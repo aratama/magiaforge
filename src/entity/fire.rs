@@ -5,7 +5,6 @@ use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::Counter;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::component::point_light::WithPointLight;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -90,7 +89,6 @@ pub fn spawn_fire(
         EntityDepth::offset(0.00001),
         Visibility::default(),
         Transform::from_translation(position.extend(0.0)),
-        Falling,
         CounterAnimated,
         AseSpriteAnimation {
             aseprite: assets.fire.clone(),

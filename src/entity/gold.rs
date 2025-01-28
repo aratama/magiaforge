@@ -1,7 +1,6 @@
 use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::controller::player::Player;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
@@ -31,7 +30,6 @@ pub fn spawn_gold(commands: &mut Commands, registry: &Registry, position: Vec2) 
             position.y + (random::<f32>() - 0.5) * 16.0,
             0.0,
         )),
-        Falling,
         CounterAnimated,
         AseSpriteAnimation {
             aseprite: registry.assets.gold.clone(),

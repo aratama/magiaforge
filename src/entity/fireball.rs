@@ -1,11 +1,10 @@
+use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::LifeBeingSprite;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
-use crate::component::falling::Falling;
 use crate::component::point_light::WithPointLight;
-use crate::component::vertical::Vertical;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
@@ -37,8 +36,6 @@ pub fn spawn_fireball(
             EntityDepth::new(),
             Visibility::default(),
             Transform::from_translation(position.extend(0.0)),
-            Vertical::new(2.0, -0.1),
-            Falling,
             WithPointLight {
                 radius: 64.0,
                 intensity: 1.0,
@@ -79,7 +76,7 @@ pub fn spawn_fireball(
 fn spawn_fire_on_landed(
     mut commands: Commands,
     assets: Res<GameAssets>,
-    parent_query: Query<(Entity, &Vertical, &Transform), With<Fireball>>,
+    parent_query: Query<(Entity, &Actor, &Transform), With<Fireball>>,
     interlevel: Res<LevelSetup>,
 ) {
     for (entity, vertical, transform) in parent_query.iter() {
@@ -103,7 +100,7 @@ fn spawn_fire_on_landed(
 
 fn apply_v(
     mut query: Query<(&Parent, &mut Transform), With<FireballSprite>>,
-    parent_query: Query<&Vertical, With<Fireball>>,
+    parent_query: Query<&Actor, With<Fireball>>,
 ) {
     for (parent, mut transform) in query.iter_mut() {
         let vertical = parent_query.get(parent.get()).unwrap();

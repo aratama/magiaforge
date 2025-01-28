@@ -31,7 +31,7 @@ impl FloatingContent {
             FloatingContent::WandSpell(wand_index, spell_index) => {
                 match &actor.wands[*wand_index].slots[*spell_index] {
                     Some(spell) => Some(InventoryItem {
-                        item_type: InventoryItemType::Spell(spell.spell_type.clone()),
+                        item_type: InventoryItemType::Spell(spell.spell.clone()),
                         price: spell.price,
                     }),
                     None => None,
@@ -197,7 +197,7 @@ impl FloatingContent {
         match self {
             FloatingContent::Inventory(i) => actor.inventory.get(*i).clone(),
             FloatingContent::WandSpell(w, i) => actor.get_spell(*w, *i).map(|w| InventoryItem {
-                item_type: InventoryItemType::Spell(w.spell_type.clone()),
+                item_type: InventoryItemType::Spell(w.spell.clone()),
                 price: w.price,
             }),
         }
@@ -216,7 +216,7 @@ impl FloatingContent {
                     price,
                 }),
             ) => {
-                actor.wands[*w].slots[*s] = Some(WandSpell { spell_type, price });
+                actor.wands[*w].slots[*s] = Some(WandSpell { spell: spell_type, price });
                 actor.wands[*w].index = 0;
             }
             (FloatingContent::WandSpell(w, s), None) => {

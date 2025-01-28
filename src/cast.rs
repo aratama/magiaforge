@@ -12,7 +12,6 @@ use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
-use crate::component::vertical::Vertical;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
@@ -138,7 +137,6 @@ pub fn cast_spell(
     actor_transform: &Transform,
     mut actor_impulse: &mut ExternalImpulse,
     actor_velocity: &Velocity,
-    mut actor_vertical: &mut Vertical,
     mut collision_groups: &mut CollisionGroups,
     actor_metamorphosis: &Option<&Metamorphosed>,
     player: Option<&Player>,
@@ -168,7 +166,7 @@ pub fn cast_spell(
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index].as_ref() {
-            let props = registry.get_spell_props(&spell.spell_type);
+            let props = registry.get_spell_props(&spell.spell);
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;
@@ -350,15 +348,9 @@ pub fn cast_spell(
                 }
                 SpellCast::RockFall => {
                     let position = actor_position + actor.pointer;
-                    let actor = get_default_actor(&registry, &ActorType::new("Rock"));
-                    spawn_actor(
-                        &mut commands,
-                        asset_server,
-                        registry,
-                        position,
-                        100.0,
-                        actor,
-                    );
+                    let mut actor = get_default_actor(&registry, &ActorType::new("Rock"));
+                    actor.v = 100.0;
+                    spawn_actor(&mut commands, asset_server, registry, position, actor);
                     se.send(SEEvent::pos(STATUS2, position));
                 }
                 SpellCast::Fireball => {
@@ -444,7 +436,6 @@ pub fn cast_spell(
                     jump_actor(
                         &mut se,
                         &mut actor,
-                        &mut actor_vertical,
                         &mut actor_impulse,
                         &mut collision_groups,
                         &actor_transform,

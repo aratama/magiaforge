@@ -7,7 +7,7 @@ use serde::Serialize;
 
 #[derive(Reflect, Clone, Debug, Serialize, Deserialize)]
 pub struct WandSpell {
-    pub spell_type: Spell,
+    pub spell: Spell,
     pub price: u32,
 }
 
@@ -24,7 +24,7 @@ impl Default for Wand {
 impl WandSpell {
     pub fn new(spell_type: Spell) -> Self {
         Self {
-            spell_type,
+            spell: spell_type,
             price: 0,
         }
     }

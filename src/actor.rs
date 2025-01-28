@@ -23,7 +23,6 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::Metamorphosed;
-use crate::component::vertical::Vertical;
 use crate::constant::BLOOD_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
@@ -270,6 +269,11 @@ pub struct Actor {
     /// 影の中に隠れた状態
     /// この状態では弾丸に当たらないが、壁やアクターには当たる
     pub hidden: bool,
+
+    pub velocity: f32,
+    pub gravity: f32,
+    pub just_landed: bool,
+    pub v: f32,
 }
 
 #[derive(Default, Component, Reflect)]
@@ -283,14 +287,7 @@ pub struct ActorLevitationEffect;
 /// この ActorSpriteGroup の子、ルートのエンティティ孫としてアタッチされます
 /// これは、打撃アニメーションや浮遊アニメーションにおいて、本体の位置をそのままにスプタイトの位置だけ揺動させて表現するためです
 #[derive(Default, Component, Reflect)]
-#[require(
-    Visibility,
-    Counter,
-    Transform,
-    LifeBeingSprite,
-    ChildEntityDepth,
-    Vertical
-)]
+#[require(Visibility, Counter, Transform, LifeBeingSprite, ChildEntityDepth)]
 pub struct ActorSpriteGroup;
 
 impl Actor {
@@ -305,7 +302,7 @@ impl Actor {
             FloatingContent::WandSpell(w, s) => {
                 self.wands[w].slots[s]
                     .as_ref()
-                    .map(|WandSpell { ref spell_type, .. }| {
+                    .map(|WandSpell { spell: ref spell_type, .. }| {
                         registry.get_spell_props(spell_type).icon.clone()
                     })
             }
@@ -378,12 +375,12 @@ impl Actor {
         for wand in self.wands.iter() {
             for slot in &wand.slots {
                 scale_factor += match slot {
-                    Some(WandSpell { spell_type, .. })
+                    Some(WandSpell { spell: spell_type, .. })
                         if *spell_type == Spell::new("Telescope") =>
                     {
                         0.5
                     }
-                    Some(WandSpell { spell_type, .. })
+                    Some(WandSpell { spell: spell_type, .. })
                         if *spell_type == Spell::new("Magnifier") =>
                     {
                         -0.5
@@ -412,7 +409,7 @@ impl Actor {
             for item in wand.slots.iter() {
                 if let Some(ref item) = &item {
                     if item.price == 0 {
-                        let _ = discovered_spells.insert(item.spell_type.clone());
+                        let _ = discovered_spells.insert(item.spell.clone());
                     }
                 }
             }
@@ -460,6 +457,10 @@ impl Default for Actor {
             cloned: None,
             getting_up: 0,
             hidden: false,
+            velocity: 0.0,
+            gravity: -0.2,
+            just_landed: false,
+            v: 0.0,
         }
     }
 }
@@ -563,7 +564,7 @@ fn update_actor_light(
             for wand in actor.wands.iter() {
                 for slot in &wand.slots {
                     match slot {
-                        Some(WandSpell { spell_type, .. })
+                        Some(WandSpell { spell: spell_type, .. })
                             if *spell_type == Spell::new("Lantern") =>
                         {
                             point_light_radius += 160.0;
@@ -644,7 +645,6 @@ fn fire_bullet(
             &mut Transform,
             &mut ExternalImpulse,
             &Velocity,
-            &mut Vertical,
             &mut CollisionGroups,
             Option<&Player>,
             Option<&PlayerControlled>,
@@ -661,7 +661,6 @@ fn fire_bullet(
         actor_transform,
         mut actor_impulse,
         actor_velocty,
-        mut actor_falling,
         mut collision_groups,
         player,
         player_controlled,
@@ -698,7 +697,6 @@ fn fire_bullet(
                 &actor_transform,
                 &mut actor_impulse,
                 &actor_velocty,
-                &mut actor_falling,
                 &mut collision_groups,
                 &actor_metamorphosis,
                 player,
@@ -724,7 +722,6 @@ fn fire_bullet(
                 &actor_transform,
                 &mut actor_impulse,
                 &actor_velocty,
-                &mut actor_falling,
                 &mut collision_groups,
                 &actor_metamorphosis,
                 player,
@@ -745,14 +742,14 @@ fn fire_bullet(
 /// 魔法の発射中は移動速度が低下します
 fn apply_external_force(
     registry: Registry,
-    mut query: Query<(&mut Actor, &mut ExternalForce, &Transform, &Vertical)>,
+    mut query: Query<(&mut Actor, &mut ExternalForce, &Transform)>,
     mut se: EventWriter<SEEvent>,
     level: Res<LevelSetup>,
 ) {
     let constants = registry.actor();
 
     if let Some(ref chunk) = level.chunk {
-        for (mut actor, mut external_force, transform, vertical) in query.iter_mut() {
+        for (mut actor, mut external_force, transform) in query.iter_mut() {
             let position = transform.translation.truncate();
             let props = registry.get_actor_props(&actor.actor_type);
 
@@ -769,7 +766,7 @@ fn apply_external_force(
                 0.0
             } else if 0 < actor.drown {
                 constants.acceleration_on_drowning
-            } else if 0.0 < vertical.v {
+            } else if 0.0 < actor.v {
                 constants.acceleration_on_air
             } else if on_ice {
                 constants.acceleration_on_ice
@@ -816,14 +813,14 @@ fn defreeze(registry: Registry, mut query: Query<&mut Actor>) {
     }
 }
 
-pub fn collision_group_by_actor(mut query: Query<(&Actor, &Vertical, &mut CollisionGroups)>) {
-    for (actor, vertical, mut groups) in query.iter_mut() {
+pub fn collision_group_by_actor(mut query: Query<(&Actor, &mut CollisionGroups)>) {
+    for (actor, mut groups) in query.iter_mut() {
         *groups = if actor.hidden {
             *SHADOW_GROUPS
         } else if actor.actor_type == ActorType::new("Rabbit") {
             *RABBIT_GROUPS
         } else {
-            actor.actor_group.to_groups(vertical.v, actor.drown)
+            actor.actor_group.to_groups(actor.v, actor.drown)
         };
     }
 }
@@ -868,20 +865,20 @@ fn levitation_effect(
 }
 
 fn apply_v(
-    mut actor_query: Query<(&Actor, &mut Vertical)>,
+    mut actor_query: Query<&mut Actor>,
     mut group_query: Query<(&Parent, &mut Transform, &Counter), With<ActorSpriteGroup>>,
 ) {
     for (parent, mut transform, counter) in group_query.iter_mut() {
-        let (actor, mut vertical) = actor_query.get_mut(parent.get()).unwrap();
+        let mut actor = actor_query.get_mut(parent.get()).unwrap();
         if 0 < actor.levitation {
             // 上下の揺動が常に一番下の -1 から始まるように、cos(PI) から始めていることに注意
             let v = 6.0 + (std::f32::consts::PI + (counter.count as f32 * 0.08)).cos() * 4.0;
             transform.translation.y = v;
-            vertical.v = v;
-            vertical.gravity = 0.0;
+            actor.v = v;
+            actor.gravity = 0.0;
         } else {
-            vertical.gravity = -0.2;
-            transform.translation.y = vertical.v;
+            actor.gravity = -0.2;
+            transform.translation.y = actor.v;
         }
     }
 }
@@ -898,13 +895,13 @@ fn apply_z(
 
 fn apply_damping(
     registry: Registry,
-    mut query: Query<(&Vertical, &mut Damping, &Actor, &Transform)>,
+    mut query: Query<(&mut Damping, &Actor, &Transform)>,
     level: Res<LevelSetup>,
 ) {
     let constants = registry.actor();
 
     if let Some(ref chunk) = level.chunk {
-        for (vertical, mut damping, actor, transform) in query.iter_mut() {
+        for (mut damping, actor, transform) in query.iter_mut() {
             let on_ice = match chunk
                 .get_tile_by_coords(transform.translation.truncate())
                 .0
@@ -916,7 +913,7 @@ fn apply_damping(
 
             let props = registry.get_actor_props(&actor.actor_type);
             damping.linear_damping = props.linear_damping
-                * if 0.0 < vertical.v {
+                * if 0.0 < actor.v {
                     constants.dumping_on_air
                 } else if on_ice {
                     constants.dumping_on_ice
@@ -928,13 +925,13 @@ fn apply_damping(
 }
 
 fn drown(
-    mut actor_query: Query<(&mut Actor, &Vertical, &Transform)>,
+    mut actor_query: Query<(&mut Actor, &Transform)>,
     level: Res<LevelSetup>,
     mut se: EventWriter<SEEvent>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        for (mut actor, vertical, transform) in actor_query.iter_mut() {
-            if actor.levitation == 0 && vertical.v == 0.0 {
+        for (mut actor, transform) in actor_query.iter_mut() {
+            if actor.levitation == 0 && actor.v == 0.0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
                 if tile == Tile::new("Water") || tile == Tile::new("Lava") {
@@ -957,7 +954,6 @@ fn drown_damage(
         Entity,
         &mut Actor,
         &Transform,
-        &Vertical,
         Option<&Player>,
         Option<&Metamorphosed>,
     )>,
@@ -967,7 +963,7 @@ fn drown_damage(
     mut se: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
-    for (entity, mut actor, transform, vertical, player, morph) in actor_query.iter_mut() {
+    for (entity, mut actor, transform, player, morph) in actor_query.iter_mut() {
         let position = transform.translation.truncate();
         let tile = if let Some(ref chunk) = level.chunk {
             chunk.get_tile_by_coords(position)
@@ -1005,7 +1001,7 @@ fn drown_damage(
                     actor.drown = 1;
                 }
             }
-            "Crack" if vertical.v <= 0.0 => {
+            "Crack" if actor.v <= 0.0 => {
                 let position = transform.translation.truncate();
                 commands.entity(entity).despawn_recursive();
 
@@ -1034,7 +1030,6 @@ pub fn jump_actor(
     se: &mut EventWriter<SEEvent>,
 
     actor: &mut Actor,
-    actor_falling: &mut Vertical,
     actor_impulse: &mut ExternalImpulse,
     collision_groups: &mut CollisionGroups,
     actor_transform: &Transform,
@@ -1042,11 +1037,11 @@ pub fn jump_actor(
     velocity: f32,
     impulse: f32,
 ) -> bool {
-    if actor_falling.v == 0.0 {
-        actor_falling.v = actor_falling.v.max(0.01);
-        actor_falling.velocity = velocity;
+    if actor.v == 0.0 {
+        actor.v = actor.v.max(0.01);
+        actor.velocity = velocity;
         actor_impulse.impulse += actor.move_direction.normalize_or_zero() * impulse;
-        *collision_groups = actor.actor_group.to_groups(actor_falling.v, actor.drown);
+        *collision_groups = actor.actor_group.to_groups(actor.v, actor.drown);
         let position = actor_transform.translation.truncate();
         se.send(SEEvent::pos(SUNA, position));
         true
@@ -1357,23 +1352,18 @@ pub fn spawn_actor(
     asset_server: &Res<AssetServer>,
     registry: &Registry,
     position: Vec2,
-    vertical: f32,
     mut actor: Actor,
 ) -> Entity {
     let actor_type = actor.actor_type.clone();
     let actor_group = actor.actor_group;
     let props = registry.get_actor_props(&actor.actor_type);
-
+    let v = actor.v;
     actor.home_position = position;
 
     let mut builder = commands.spawn((
         Name::new(format!("{:?}", &actor.actor_type)),
         actor,
         Transform::from_translation(position.extend(0.0)),
-        Vertical {
-            v: vertical,
-            ..default()
-        },
         Counter::default(),
         match props.collider {
             ActorCollider::Ball(radius) => Collider::ball(radius),
@@ -1395,7 +1385,7 @@ pub fn spawn_actor(
         }
 
         parent
-            .spawn((ActorSpriteGroup, Transform::from_xyz(0.0, vertical, 0.0)))
+            .spawn((ActorSpriteGroup, Transform::from_xyz(0.0, v, 0.0)))
             .with_children(|parent| {
                 // 浮遊効果の輪
                 parent.spawn((
@@ -1606,9 +1596,9 @@ impl Plugin for ActorPlugin {
                     apply_z,
                     update_sprite_flip,
                     update_actor_light,
-                    add_life_bar,
                     getting_up,
                     basic_animate,
+                    add_life_bar,
                     flip,
                     vibrate_breakabke_sprite,
                 ),

@@ -1,6 +1,5 @@
 use crate::actor::Actor;
 use crate::actor::ActorType;
-use crate::component::vertical::Vertical;
 use crate::controller::player::PlayerServant;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
@@ -62,17 +61,17 @@ fn control_chiken(mut chiken_query: Query<(&mut Chicken, &mut Actor, Option<&Pla
     }
 }
 
-fn hopping(mut chicken_query: Query<(&Chicken, &Actor, &mut Vertical)>, registry: Registry) {
+fn hopping(mut chicken_query: Query<(&Chicken, &mut Actor)>, registry: Registry) {
     let props = registry.get_actor_props(&ActorType::new("Chicken"));
-    for (chicken, actor, mut vertical) in chicken_query.iter_mut() {
+    for (chicken, mut actor) in chicken_query.iter_mut() {
         if 0 < actor.frozen {
             continue;
         }
         match chicken.state {
             ChickenState::Wait(..) => {}
             ChickenState::Walk { .. } => {
-                if vertical.just_landed || vertical.velocity == 0.0 {
-                    vertical.velocity = props.jump;
+                if actor.just_landed || actor.velocity == 0.0 {
+                    actor.velocity = props.jump;
                 }
             }
         }

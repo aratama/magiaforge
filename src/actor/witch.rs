@@ -1,6 +1,5 @@
 use crate::actor::Actor;
 use crate::actor::ActorSpriteGroup;
-use crate::component::vertical::Vertical;
 use crate::se::SEEvent;
 use crate::se::CHAKUCHI;
 use crate::set::FixedUpdateGameActiveSet;
@@ -46,7 +45,7 @@ fn update_wand(
     }
 }
 
-fn land_se(witch_query: Query<(&Vertical, &Transform), With<Witch>>, mut se: EventWriter<SEEvent>) {
+fn land_se(witch_query: Query<(&Actor, &Transform), With<Witch>>, mut se: EventWriter<SEEvent>) {
     for (vertical, transform) in witch_query.iter() {
         if vertical.just_landed {
             let position = transform.translation.truncate();

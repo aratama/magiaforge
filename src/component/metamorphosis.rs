@@ -96,7 +96,6 @@ pub fn cast_metamorphosis(
         &asset_server,
         &registry,
         position,
-        0.0,
         dest_actor,
     );
 

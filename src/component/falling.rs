@@ -1,33 +1,22 @@
-use crate::component::vertical::Vertical;
+use crate::actor::Actor;
+use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
-use crate::registry::Registry;
-use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::SCENE2;
 use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 
-/// 水面、亀裂などの床に落ちた場合にdespawnするコンポーネントを表します
-/// ただしアクターは独自で落下の実装が行われているため、このコンポーネントは使いません
-/// Verticalと併用します
-#[derive(Component, Debug)]
-#[require(Vertical)]
-pub struct Falling;
-
 fn despawn(
     mut commands: Commands,
-    registry: Registry,
     level: Res<LevelSetup>,
-    query: Query<(Entity, &Transform, Option<&Vertical>, Option<&Name>), With<Falling>>,
+    query: Query<(Entity, &Transform, &Actor, Option<&Name>)>,
     mut se: EventWriter<SEEvent>,
 ) {
     if let Some(ref chunk) = level.chunk {
-        for (entity, transform, vertical, name) in query.iter() {
+        for (entity, transform, actor, name) in query.iter() {
             let position = transform.translation.truncate();
             let tile = chunk.get_tile_by_coords(position);
-            let props = registry.get_tile(&tile);
-            if props.tile_type != TileType::Surface && vertical.map(|v| v.v == 0.0).unwrap_or(true)
-            {
+            if actor.v <= 0.0 && tile == Tile::new("Crack") {
                 commands.entity(entity).despawn_recursive();
 
                 se.send(SEEvent::pos(SCENE2, position));
