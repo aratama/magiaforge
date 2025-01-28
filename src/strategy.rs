@@ -17,38 +17,6 @@ use vleue_navigator::prelude::ManagedNavMesh;
 use vleue_navigator::prelude::NavMeshStatus;
 use vleue_navigator::NavMesh;
 
-// スライム
-// Sleep
-// Loop
-//     Wait
-//     Approarch
-//     Attack
-
-// 巨大スライム: {
-//
-// "Initial": (
-//     min_life: 10000,
-//     actions: [
-//       Roar,
-//       Loop,
-//         Approarch (speed: 1),
-//         Wait,
-//         Summon (actor: Slime, count: 3),
-//       End,
-//     ]
-// ),
-// "Promoted":
-//     min_life: 2000,
-//     actions: [
-//       Roar
-//       Loop
-//         Approarch (speed: 2)
-//         Wait
-//         Summon (actor: Slime, count: 20)
-//       End
-//     ],
-// )
-
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct Strategy {
     min_life: u32,

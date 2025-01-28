@@ -4,7 +4,6 @@ use crate::controller::player::Player;
 use crate::inventory::Inventory;
 use crate::spell::Spell;
 use crate::wand::Wand;
-use crate::wand::WandSpell;
 use bevy::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
@@ -27,16 +26,7 @@ impl Default for PlayerState {
         let inventory = Inventory::new();
 
         let wands = [
-            Wand::with_slots([
-                Some(WandSpell::new(Spell::new("MagicBolt"))),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ]),
+            Wand::with_slots([None, None, None, None, None, None, None, None]),
             Wand::default(),
             Wand::default(),
             Wand::with_slots([None, None, None, None, None, None, None, None]),

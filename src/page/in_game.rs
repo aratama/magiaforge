@@ -120,21 +120,58 @@ pub fn setup_level(
     images: Res<Assets<Image>>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
+    mut next_bgm: ResMut<NextBGM>,
     mut spawn: EventWriter<SpawnEvent>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
-    let game_registry = registry.game();
+    // 各種変数の初期化
 
-    overlay.send(OverlayEvent::SetOpen(true));
+    let game_registry = registry.game();
 
     let mut rng = StdRng::from_entropy();
 
-    current.level = Some(current.next_level.clone());
-    let level = &current.next_level;
+    // プレイヤーの状態の復元 //////////////////////////////////////////////////////////////
+    let mut player_state = current
+        .next_state
+        .clone()
+        .unwrap_or(if cfg!(feature = "item") {
+            PlayerState {
+                inventory: Inventory::from_vec(game_registry.debug_items.clone()),
+                wands: Wand::from_vec(&game_registry.debug_wands),
+                ..default()
+            }
+        } else {
+            PlayerState::default()
+        });
+
+    player_state.name = config.player_name.clone();
+    player_state.update_discovered_spell();
+
+    // 次のレベルの選定 /////////////////////////////////////////////////////////////////////
+
+    let level = if player_state.discovered_spells.is_empty() {
+        GameLevel::new("warehouse")
+    } else {
+        current.next_level.clone()
+    };
+
+    current.level = Some(level.clone());
+    current.next_level = level.clone();
+
+    // bgm ////////////////////////////////////////////////////////////////////////////////
+
+    let props = registry.get_level(&level);
+    *next_bgm = NextBGM(Some(asset_server.load(props.bgm.clone())));
+
+    // レベルの生成 ///////////////////////////////////////////////////////////////////////////
+
+    // 拠点に戻ってきたときは全回復します
+    if level == GameLevel::new(HOME_LEVEL) {
+        player_state.life = player_state.max_life;
+    }
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    let getting_up_animation =
-        *level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
+    let getting_up_animation = level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
 
     let biome_tile = registry.get_level(&level).biome.clone();
 
@@ -177,27 +214,8 @@ pub fn setup_level(
     let entry_points = chunk.entry_points();
     let entry_point = entry_points.choose(&mut rng).expect("No entrypoint found");
 
-    let mut player_state = current
-        .next_state
-        .clone()
-        .unwrap_or(if cfg!(feature = "item") {
-            PlayerState {
-                inventory: Inventory::from_vec(game_registry.debug_items.clone()),
-                wands: Wand::from_vec(&game_registry.debug_wands),
-                ..default()
-            }
-        } else {
-            PlayerState::default()
-        });
-
-    player_state.name = config.player_name.clone();
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
-
-    // 拠点に戻ってきたときは全回復します
-    if *level == GameLevel::new(HOME_LEVEL) {
-        player_state.life = player_state.max_life;
-    }
 
     // レベルのコリジョンを生成します
     spawn_wall_collisions(&mut commands, &chunk);
@@ -235,7 +253,7 @@ pub fn setup_level(
     spawn_dropped_items(&mut commands, &registry, &empties, &mut rng, &props.items);
 
     // 拠点のみ、数羽のニワトリを生成します
-    if *level == GameLevel::new(HOME_LEVEL) {
+    if level == GameLevel::new(HOME_LEVEL) {
         for _ in 0..5 {
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEvent {
@@ -290,18 +308,8 @@ pub fn setup_level(
     ));
 
     current.chunk = Some(chunk);
-}
 
-fn select_level_bgm(
-    asset_server: Res<AssetServer>,
-    registry: Registry,
-    next_level: Res<LevelSetup>,
-    mut next_bgm: ResMut<NextBGM>,
-) {
-    if next_level.is_changed() {
-        let props = registry.get_level(&next_level.next_level);
-        *next_bgm = NextBGM(Some(asset_server.load(props.bgm.clone())));
-    }
+    overlay.send(OverlayEvent::SetOpen(true));
 }
 
 fn spawn_random_enemies(
@@ -445,7 +453,6 @@ impl Plugin for WorldPlugin {
         app.add_event::<SpawnEvent>();
         app.add_systems(FixedUpdate, spawn_entity.in_set(FixedUpdateGameActiveSet));
         app.add_systems(OnEnter(GameState::InGame), setup_level);
-        app.add_systems(OnEnter(GameState::InGame), select_level_bgm);
         app.add_systems(FixedUpdate, update_tile_sprites.in_set(FixedUpdateAfterAll));
         app.init_resource::<LevelSetup>();
     }

@@ -105,7 +105,7 @@ TileRegistry(
 
     levels: {
         "home": (
-            next: ["library", "waterside_of_leap", "valley"],
+            next: ["warehouse", "library", "waterside_of_leap", "valley"],
             name: Dict (
                 ja: "ウサギ族のキャンプ",
                 en: "Rabbit's Camp",
@@ -121,8 +121,32 @@ TileRegistry(
             enemies: 0,
             enemy_types: [],
             biome: "StoneTile",
-            bgm: "bgm/水のしたたる洞窟.ogg",
+            bgm: "bgm/最果てのルージュ.ogg",
             brightness: 0.4
+        ),
+
+        "warehouse": (
+            next: ["home"],
+            name: Dict (
+                ja: "倉庫",
+                en: "Warehouse",
+                zh_cn: "仓库",
+                zh_tw: "倉庫",
+                es: "Almacén",
+                fr: "Entrepôt",
+                pt: "Armazém",
+                de: "Lagerhaus",
+                ko: "창고",
+                ru: "Склад",
+            ),
+            enemies: 0,
+            enemy_types: ["Slime"],
+            biome: "StoneTile",
+            bgm: "bgm/水のしたたる洞窟.ogg",
+            brightness: 0.4,
+            items: {
+                (152, 224): "MagicBolt"
+            }
         ),
 
         "library": (
@@ -605,13 +629,13 @@ TileRegistry(
             entry_point: false,
             spawn_offset_x: 0.0,
         ),
-        (68, 0, 94, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: BGM,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
+        // (68, 0, 94, 255): (
+        //     tile: None,
+        //     zone: SafeZone,
+        //     entity: BGM ( bgm: "bgm/最果てのルージュ.ogg" ),
+        //     entry_point: false,
+        //     spawn_offset_x: 0.0,
+        // ),
         (153, 229, 80, 255): (
             tile: "Grassland",
             zone: SafeZone,

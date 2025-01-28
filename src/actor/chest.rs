@@ -40,20 +40,22 @@ pub enum ChestType {
     Jar(JarColor),
 }
 
-pub const CHEST_OR_BARREL: [ChestType; 12] = [
-    ChestType::Crate,
-    ChestType::Crate,
-    ChestType::Crate,
-    ChestType::Crate,
-    ChestType::Barrel,
-    ChestType::Barrel,
-    ChestType::Barrel,
-    ChestType::Barrel,
-    ChestType::BarrelBomb,
-    ChestType::Jar(JarColor::Red),
-    ChestType::Jar(JarColor::Blue),
-    ChestType::Jar(JarColor::Green),
-];
+pub fn chest_or_barrel() -> Vec<ChestType> {
+    vec![
+        ChestType::Crate,
+        ChestType::Crate,
+        ChestType::Crate,
+        ChestType::Crate,
+        ChestType::Barrel,
+        ChestType::Barrel,
+        ChestType::Barrel,
+        ChestType::Barrel,
+        // ChestType::BarrelBomb,
+        ChestType::Jar(JarColor::Red),
+        ChestType::Jar(JarColor::Blue),
+        ChestType::Jar(JarColor::Green),
+    ]
+}
 
 #[derive(Component, Reflect, Debug)]
 pub struct Chest {
@@ -62,7 +64,7 @@ pub struct Chest {
 
 impl Chest {
     pub fn random() -> Self {
-        let chest_type = *CHEST_OR_BARREL
+        let chest_type = *chest_or_barrel()
             .iter()
             .choose(&mut rand::thread_rng())
             .unwrap();

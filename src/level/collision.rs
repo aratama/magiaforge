@@ -107,17 +107,14 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
             GlobalTransform::default(),
-            // todo: merge colliders
-            (
-                Collider::cuboid(w, h),
-                RigidBody::Fixed,
-                Friction {
-                    coefficient: 0.0,
-                    combine_rule: CoefficientCombineRule::Min,
-                },
-                *WALL_GROUPS,
-            ),
             PrimitiveObstacle::Rectangle(Rectangle::new(w * 2.0, h * 2.0)),
+            Collider::cuboid(w, h),
+            RigidBody::Fixed,
+            Friction {
+                coefficient: 0.0,
+                combine_rule: CoefficientCombineRule::Min,
+            },
+            *WALL_GROUPS,
         ));
     }
 
@@ -135,6 +132,7 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
             GlobalTransform::default(),
+            PrimitiveObstacle::Rectangle(Rectangle::new(w * 2.0, h * 2.0)),
             // todo: merge colliders
             Collider::cuboid(w, h),
             RigidBody::Fixed,

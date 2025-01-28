@@ -98,6 +98,7 @@ use serde::Serialize;
 use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
+use vleue_navigator::prelude::PrimitiveObstacle;
 use witch::WitchWandSprite;
 
 /// アクターの種類を表します
@@ -1322,7 +1323,6 @@ pub fn spawn_actor(
     let actor_group = actor.actor_group;
     let props = registry.get_actor_props(&actor.actor_type);
     let v = actor.v;
-    let point_light_radius = props.point_light_radius;
     actor.home_position = position;
 
     let mut builder = commands.spawn((
@@ -1331,8 +1331,14 @@ pub fn spawn_actor(
         Transform::from_translation(position.extend(0.0)),
         Counter::default(),
         match props.collider {
-            ActorCollider::Ball(radius) => Collider::ball(radius),
-            ActorCollider::Cuboid(width, height) => Collider::cuboid(width, height),
+            ActorCollider::Ball(radius) => (
+                Collider::ball(radius),
+                PrimitiveObstacle::Circle(Circle::new(radius)),
+            ),
+            ActorCollider::Cuboid(width, height) => (
+                Collider::cuboid(width, height),
+                PrimitiveObstacle::Rectangle(Rectangle::new(width * 2.0, height * 2.0)),
+            ),
         },
         actor_group.to_groups(0.0, 0),
         PointLight2d {

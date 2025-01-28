@@ -106,7 +106,9 @@ pub enum Spawn {
     Routes,
     ShopSpell,
     ShopDoor,
-    BGM,
+    BGM {
+        bgm: String,
+    }, // 使われていません
     RandomChest,
     SpellInChest {
         spell: Spell,
@@ -306,8 +308,14 @@ pub fn spawn_entity(
             Spawn::ShopDoor => {
                 spawn_shop_door(&mut commands, &registry, *position);
             }
-            Spawn::BGM => {
-                spawn_bgm_switch(&mut commands, &asset_server, &registry, *position);
+            Spawn::BGM { bgm } => {
+                spawn_bgm_switch(
+                    &mut commands,
+                    &asset_server,
+                    &registry,
+                    *position,
+                    bgm.clone(),
+                );
             }
             Spawn::RandomChest => {
                 spawn_actor_internal(

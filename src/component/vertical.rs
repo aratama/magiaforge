@@ -1,6 +1,7 @@
-use crate::{
-    actor::Actor, entity::impact::SpawnImpact, registry::Registry, set::FixedUpdateGameActiveSet,
-};
+use crate::actor::Actor;
+use crate::entity::impact::SpawnImpact;
+use crate::registry::Registry;
+use crate::set::FixedUpdateGameActiveSet;
 use bevy::prelude::*;
 
 fn fall(

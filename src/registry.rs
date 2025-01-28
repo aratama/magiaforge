@@ -22,7 +22,6 @@ use std::sync::LazyLock;
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct GameRegistry {
     pub bgms: HashMap<String, BGMProps>,
-    pub home_bgm: String,
     pub ending_bgm: String,
     pub debug_items: Vec<Spell>,
     pub debug_wands: Vec<Vec<Option<Spell>>>,

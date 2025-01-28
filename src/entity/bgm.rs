@@ -12,20 +12,23 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 
+/// 使われていません
 #[derive(Component)]
 struct BGMSwitch {
     audio: Handle<AudioSource>,
 }
 
+/// 使われていません
 pub fn spawn_bgm_switch(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     registry: &Registry,
     position: Vec2,
+    bgm: String,
 ) {
     commands.spawn((
         BGMSwitch {
-            audio: asset_server.load(registry.game().home_bgm.clone()),
+            audio: asset_server.load(bgm.clone()),
         },
         StateScoped(GameState::InGame),
         Sensor,

@@ -216,7 +216,10 @@ impl FloatingContent {
                     price,
                 }),
             ) => {
-                actor.wands[*w].slots[*s] = Some(WandSpell { spell: spell_type, price });
+                actor.wands[*w].slots[*s] = Some(WandSpell {
+                    spell: spell_type,
+                    price,
+                });
                 actor.wands[*w].index = 0;
             }
             (FloatingContent::WandSpell(w, s), None) => {
