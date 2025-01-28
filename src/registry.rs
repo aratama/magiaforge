@@ -148,11 +148,27 @@ pub struct ActorPropsByType {
     pub aseprite: String,
     pub animations: ActorAnimationMap,
     pub shadow: Option<String>,
+
+    #[serde(default)]
     pub wands: Vec<Vec<Option<Spell>>>,
+
+    #[serde(default)]
     pub strategies: HashMap<String, Strategy>,
 
     #[serde(default)]
     pub impact_radius: f32,
+
+    #[serde(default)]
+    pub point_light_radius: f32,
+
+    #[serde(default)]
+    pub point_light_color: (f32, f32, f32, f32),
+
+    #[serde(default)]
+    pub point_light_intensity: f32,
+
+    #[serde(default)]
+    pub point_light_falloff: f32,
 }
 
 #[derive(serde::Deserialize, Debug)]

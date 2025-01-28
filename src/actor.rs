@@ -224,7 +224,6 @@ pub struct Actor {
     pub state: ActorState,
 
     // 定数 ////////////////////////////////////////////////////////////////////////////////////////////////
-    pub point_light_radius: f32,
 
     // 効果と状態異常 ////////////////////////////////////////////////////////////////////////////////////////////
     /// 再び詠唱操作をできるようになるまでの待ち時間
@@ -299,13 +298,12 @@ impl Actor {
                 .get(index)
                 .as_ref()
                 .map(|i| i.item_type.get_icon(&registry)),
-            FloatingContent::WandSpell(w, s) => {
-                self.wands[w].slots[s]
-                    .as_ref()
-                    .map(|WandSpell { spell: ref spell_type, .. }| {
-                        registry.get_spell_props(spell_type).icon.clone()
-                    })
-            }
+            FloatingContent::WandSpell(w, s) => self.wands[w].slots[s].as_ref().map(
+                |WandSpell {
+                     spell: ref spell_type,
+                     ..
+                 }| { registry.get_spell_props(spell_type).icon.clone() },
+            ),
         }
     }
 
@@ -375,16 +373,12 @@ impl Actor {
         for wand in self.wands.iter() {
             for slot in &wand.slots {
                 scale_factor += match slot {
-                    Some(WandSpell { spell: spell_type, .. })
-                        if *spell_type == Spell::new("Telescope") =>
-                    {
-                        0.5
-                    }
-                    Some(WandSpell { spell: spell_type, .. })
-                        if *spell_type == Spell::new("Magnifier") =>
-                    {
-                        -0.5
-                    }
+                    Some(WandSpell {
+                        spell: spell_type, ..
+                    }) if *spell_type == Spell::new("Telescope") => 0.5,
+                    Some(WandSpell {
+                        spell: spell_type, ..
+                    }) if *spell_type == Spell::new("Magnifier") => -0.5,
                     _ => 0.0,
                 }
             }
@@ -429,7 +423,6 @@ impl Default for Actor {
             amplitude: 0.0,
             fire_damage_wait: 0,
             pointer: Vec2::ZERO,
-            point_light_radius: 0.0,
             current_wand: 0,
             actor_group: ActorGroup::Neutral,
             golds: 0,
@@ -543,20 +536,12 @@ fn update_sprite_flip(
     }
 }
 
-#[derive(Component)]
-pub struct ActorLight {
-    owner: Entity,
-}
-
 fn update_actor_light(
-    mut commands: Commands,
-    mut light_query: Query<(Entity, &ActorLight, &mut PointLight2d, &mut Transform)>,
-    mut actor_query: Query<(Entity, &mut Actor, &Transform, Option<&Player>), Without<ActorLight>>,
+    registry: Registry,
+    mut query: Query<(&mut Actor, Option<&Player>, &mut PointLight2d)>,
 ) {
-    for (actor_entity, mut actor, transform, _) in actor_query.iter_mut() {
-        // 光源の明るさ(というか半径)を計算
-        let mut point_light_radius: f32 = 0.0;
-
+    for (actor, player, mut point_light) in query.iter_mut() {
+        let mut point_light_radius_by_item: f32 = 0.0;
         // 複製されたアクターは光源を0とする
         // プレイヤーキャラクターは明るい光源を装備していることが多く、
         // 大量に複製すると明るくなりすぎるため
@@ -564,10 +549,10 @@ fn update_actor_light(
             for wand in actor.wands.iter() {
                 for slot in &wand.slots {
                     match slot {
-                        Some(WandSpell { spell: spell_type, .. })
-                            if *spell_type == Spell::new("Lantern") =>
-                        {
-                            point_light_radius += 160.0;
+                        Some(WandSpell {
+                            spell: spell_type, ..
+                        }) if *spell_type == Spell::new("Lantern") => {
+                            point_light_radius_by_item += 160.0;
                         }
                         _ => {}
                     }
@@ -575,53 +560,32 @@ fn update_actor_light(
             }
         }
 
-        actor.point_light_radius = point_light_radius;
-
-        // 光源がないアクターに光源を追加
-        if 0.0 < point_light_radius {
-            if light_query
-                .iter()
-                .find(|(_, light, _, _)| light.owner == actor_entity)
-                .is_none()
-            {
-                // SpriteBundle に PointLight2d を追加すると、画面外に出た時に Sprite が描画されなくなり、
-                // ライトも描画されず不自然になるため、別で追加する
-                // https://github.com/jgayfer/bevy_light_2d/issues/26
-                commands.spawn((
-                    Name::new("actor light"),
-                    StateScoped(GameState::InGame),
-                    ActorLight {
-                        owner: actor_entity,
-                    },
-                    transform.clone(),
-                    PointLight2d {
-                        radius: actor.point_light_radius,
-                        intensity: 1.0,
-                        falloff: 10.0,
-                        ..default()
-                    },
-                ));
-            }
-        }
-    }
-
-    // 光源の明るさを更新
-    for (light_entity, light, mut point_light, mut light_transform) in light_query.iter_mut() {
-        if let Ok((_, actor, actor_transform, player)) = actor_query.get(light.owner) {
-            if 0.0 < actor.point_light_radius {
-                point_light.intensity = 2.5;
-                point_light.color = Color::WHITE;
-                point_light.radius = actor.point_light_radius;
-            } else if player.is_some() {
-                point_light.intensity = 1.0;
-                point_light.color = Color::hsv(240.0, 0.5, 1.0);
-                point_light.radius = TILE_SIZE * 3.0;
-            };
-            light_transform.translation.x = actor_transform.translation.x;
-            light_transform.translation.y = actor_transform.translation.y;
-        } else {
-            commands.entity(light_entity).despawn_recursive();
-        }
+        let props = registry.get_actor_props(&actor.actor_type);
+        if 0.0 < props.point_light_radius && 0.0 < props.point_light_intensity {
+            // アクター種別ごとの明るさが設定されている場合
+            point_light.intensity = props.point_light_intensity;
+            point_light.color = Color::hsla(
+                props.point_light_color.0,
+                props.point_light_color.1,
+                props.point_light_color.2,
+                props.point_light_color.3,
+            );
+            point_light.radius = props.point_light_radius;
+            point_light.falloff = props.point_light_falloff;
+        } else if 0.0 < point_light_radius_by_item {
+            // 装備している呪文による明るさ
+            point_light.intensity = 1.0;
+            point_light.color = Color::hsv(0.0, 0.0, 1.0);
+            point_light.radius = point_light_radius_by_item;
+            point_light.falloff = 1.0;
+        } else if player.is_some() {
+            // プレイヤーキャラクターのみ、アクター種別や呪文装備による明るさがゼロでも、
+            // 薄く青い光を発する
+            point_light.intensity = 1.0;
+            point_light.color = Color::hsv(240.0, 0.5, 1.0);
+            point_light.radius = TILE_SIZE * 3.0;
+            point_light.falloff = 1.0;
+        };
     }
 }
 
@@ -1358,6 +1322,7 @@ pub fn spawn_actor(
     let actor_group = actor.actor_group;
     let props = registry.get_actor_props(&actor.actor_type);
     let v = actor.v;
+    let point_light_radius = props.point_light_radius;
     actor.home_position = position;
 
     let mut builder = commands.spawn((
@@ -1370,6 +1335,11 @@ pub fn spawn_actor(
             ActorCollider::Cuboid(width, height) => Collider::cuboid(width, height),
         },
         actor_group.to_groups(0.0, 0),
+        PointLight2d {
+            radius: 0.0,
+            intensity: 0.0,
+            ..default()
+        },
     ));
 
     builder.with_children(|parent| {

@@ -190,9 +190,9 @@ TileRegistry(
                 ru: "Долина Тьмы",
             ),
             enemies: 10,
-            enemy_types: ["Slime", "EyeBall"],
+            enemy_types: ["Slime"],
             items: {
-             
+                (142, 164): "LightBall"
             },
             biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",

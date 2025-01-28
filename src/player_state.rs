@@ -39,16 +39,7 @@ impl Default for PlayerState {
             ]),
             Wand::default(),
             Wand::default(),
-            Wand::with_slots([
-                Some(WandSpell::new(Spell::new("LightBall"))),
-                Some(WandSpell::new(Spell::new("Lantern"))),
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ]),
+            Wand::with_slots([None, None, None, None, None, None, None, None]),
         ];
 
         let mut instance = PlayerState {

@@ -454,13 +454,10 @@ ActorRegistry(
                 staggered: "idle",
             ),
             shadow: "entity_shadow",
-            wands: [
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None], 
-                [None, None, None, None, None, None, None, None], 
-                [None, None, None, None, None, None, None, None], 
-            ],
-            strategies: {}
+            point_light_radius: 100.0,
+            point_light_color: (42.0, 1.0, 0.5, 1.0),
+            point_light_intensity: 3.0,
+            point_light_falloff: 20.0
         ),
         "Chest": (
             collider: Cuboid(8.0, 8.0),

@@ -72,7 +72,6 @@ pub enum RemoteMessage {
         life: u32,
         max_life: u32,
         angle: f32,
-        point_light_radius: f32,
     },
     // 弾を発射したことを通知します
     Fire(SpawnBullet),
@@ -129,7 +128,6 @@ fn send_player_states(
                     life: actor.life,
                     max_life: actor.max_life,
                     angle: actor.pointer.to_angle(),
-                    point_light_radius: actor.point_light_radius,
                 };
                 let serialized = bincode::serialize(&command).unwrap();
                 writer.send(ClientMessage::Binary(serialized));
@@ -224,7 +222,6 @@ fn receive_events(
                             life,
                             max_life,
                             angle,
-                            point_light_radius: intensity,
                         } => {
                             let target = remotes
                                 .iter_mut()
@@ -241,7 +238,6 @@ fn receive_events(
                                 actor.life = life;
                                 actor.max_life = max_life;
                                 actor.pointer = Vec2::from_angle(angle);
-                                actor.point_light_radius = intensity;
                             } else if !spawned_players.contains(&uuid) {
                                 // spawned_players.insert(uuid);
                                 // let entity = spawn_basic_actor(
