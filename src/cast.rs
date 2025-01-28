@@ -57,18 +57,34 @@ pub struct SpellCastBullet {
     pub speed: f32,
 
     pub lifetime: u32,
+
+    #[serde(default)]
     pub damage: i32,
+
+    #[serde(default)]
     pub impulse: f32,
 
+    #[serde(default)]
+    pub upper_impulse: f32,
+
+    #[serde(default)]
     pub scattering: f32,
 
+    #[serde(default)]
     pub light_intensity: f32,
+
+    #[serde(default)]
     pub light_radius: f32,
+
+    #[serde(default)]
     pub light_color_hlsa: [f32; 4],
 
     ///// 当たった対象への特殊効果の付与 /////////
+    #[serde(default)]
     pub freeze: u32,
+    #[serde(default)]
     pub levitation: u32,
+    #[serde(default)]
     pub stagger: u32,
 }
 
@@ -200,6 +216,7 @@ pub fn cast_spell(
                         sender: Some(actor.uuid),
                         damage: cast.damage + actor.effects.bullet_damage_buff_amount,
                         impulse: cast.impulse,
+                        upper_impulse: cast.upper_impulse,
                         slices: cast.slices.clone(),
                         collier_radius: cast.collier_radius,
                         light_intensity: cast.light_intensity,
@@ -388,6 +405,7 @@ pub fn cast_spell(
                         sender: Some(actor.uuid),
                         damage: 330 + actor.effects.bullet_damage_buff_amount,
                         impulse: 0.0,
+                        upper_impulse: 0.0,
                         slices: BulletImage::Slice {
                             names: vec![
                                 "light_sword".to_string(),

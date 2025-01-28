@@ -49,6 +49,7 @@ pub struct Bullet {
     life: u32,
     damage: i32,
     impulse: f32,
+    upper_impulse: f32,
     owner: Option<Uuid>,
     homing: f32,
     freeze: u32,
@@ -112,6 +113,7 @@ pub struct SpawnBullet {
     pub bullet_lifetime: u32,
     pub damage: i32,
     pub impulse: f32,
+    pub upper_impulse: f32,
     pub slices: BulletImage,
     pub collier_radius: f32,
     pub light_intensity: f32,
@@ -151,6 +153,7 @@ pub fn spawn_bullet(
             life: spawn.bullet_lifetime,
             damage: spawn.damage,
             impulse: spawn.impulse,
+            upper_impulse: spawn.upper_impulse,
             owner: spawn.sender,
             homing: spawn.homing,
             freeze: spawn.freeze,
@@ -353,6 +356,8 @@ fn bullet_collision(
                 se.send(SEEvent::pos(STATUS2, bullet_position));
             }
             actor.levitation += bullet.levitation;
+
+            actor.velocity += bullet.upper_impulse;
 
             actor_event.send(ActorEvent::Damaged {
                 actor: other_entity,

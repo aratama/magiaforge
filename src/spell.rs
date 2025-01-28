@@ -126,6 +126,7 @@ pub fn get_spell_appendix(cast: &SpellCast) -> Dict<String> {
             lifetime,
             damage,
             impulse,
+            upper_impulse: _,
             scattering,
             light_intensity: _,
             light_radius: _,
