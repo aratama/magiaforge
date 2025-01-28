@@ -1,51 +1,15 @@
 use crate::audio::NextBGM;
-use crate::collision::SENSOR_GROUPS;
-use crate::constant::PAINT_LAYER_Z;
-use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
-use crate::registry::Registry;
 use crate::set::FixedUpdateInGameSet;
-use crate::states::GameState;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_rapier2d::prelude::*;
 
 /// 使われていません
 #[derive(Component)]
 struct BGMSwitch {
     audio: Handle<AudioSource>,
-}
-
-/// 使われていません
-pub fn spawn_bgm_switch(
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    registry: &Registry,
-    position: Vec2,
-    bgm: String,
-) {
-    commands.spawn((
-        BGMSwitch {
-            audio: asset_server.load(bgm.clone()),
-        },
-        StateScoped(GameState::InGame),
-        Sensor,
-        Collider::cuboid(TILE_SIZE * 3.0, TILE_SIZE * 5.0),
-        Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
-        ActiveEvents::COLLISION_EVENTS,
-        *SENSOR_GROUPS,
-    ));
-
-    commands.spawn((
-        StateScoped(GameState::InGame),
-        AseSpriteSlice {
-            aseprite: registry.assets.atlas.clone(),
-            name: "facilities".into(),
-        },
-        Transform::from_translation(Vec3::new(position.x, position.y, PAINT_LAYER_Z)),
-    ));
 }
 
 fn sensor(

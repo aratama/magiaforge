@@ -4,7 +4,6 @@ use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::controller::player::Player;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -35,23 +34,13 @@ pub fn spawn_dropped_item(
     position: Vec2,
     item: &InventoryItem,
 ) {
-    let item_type = &item.item_type;
-    let icon = match item_type {
-        InventoryItemType::Spell(spell) => registry.get_spell_props(&spell).icon.clone(),
-    };
-    let name = match item_type {
-        InventoryItemType::Spell(spell) => registry.get_spell_props(&spell).name.en.clone(),
-    };
-    let frame_slice = match item_type {
-        InventoryItemType::Spell(_) if 0 < item.price => "spell_frame",
-        InventoryItemType::Spell(_) => "spell_frame",
-    };
-    let collider_width = match item_type {
-        _ => 8.0,
-    };
-    let swing = match item_type {
-        InventoryItemType::Spell(_) => 2.0,
-    };
+    let item_type = &item.spell;
+    let props = registry.get_spell_props(&item_type);
+    let icon = props.icon.clone();
+    let name = props.name.en.clone();
+    let frame_slice = "spell_frame";
+    let collider_width = 8.0;
+    let swing = 2.0;
     commands
         .spawn((
             Name::new(format!("dropped item {}", name)),
@@ -151,7 +140,7 @@ fn pickup_dropped_item(
                     se.send(SEEvent::new(PICK_UP));
 
                     let InventoryItem {
-                        item_type: InventoryItemType::Spell(spell),
+                        spell,
                         price: _,
                     } = &item.item;
 

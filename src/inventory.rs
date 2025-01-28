@@ -1,22 +1,22 @@
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
-use crate::inventory_item::InventoryItemType;
 use crate::spell::Spell;
 use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
+/// インベントリ内のアイテムを表します
+/// インベントリ内のアイテムは未精算の場合があり、それを表すために使われます
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
 pub struct InventoryItem {
-    pub item_type: InventoryItemType,
+    pub spell: Spell,
+
+    /// 清算済みの場合は0、未清算の場合は価格が設定されます
     pub price: u32,
 }
 
 impl InventoryItem {
-    pub fn new(item_type: InventoryItemType) -> InventoryItem {
-        InventoryItem {
-            item_type,
-            price: 0,
-        }
+    pub fn new(spell: Spell) -> InventoryItem {
+        InventoryItem { spell, price: 0 }
     }
 }
 
@@ -31,9 +31,7 @@ impl Inventory {
     pub fn from_vec(vec: Vec<Spell>) -> Inventory {
         let mut inventory = Inventory(vec![None; MAX_ITEMS_IN_INVENTORY]);
         for i in 0..MAX_ITEMS_IN_INVENTORY {
-            inventory.0[i] = vec
-                .get(i)
-                .map(|s| InventoryItem::new(InventoryItemType::Spell(s.clone())));
+            inventory.0[i] = vec.get(i).map(|s| InventoryItem::new(s.clone()));
         }
         inventory
     }
@@ -48,30 +46,6 @@ impl Inventory {
         inventory[index] = item;
     }
 
-    // pub fn is_settable(&self, index: usize, item: InventoryItem) -> bool {
-    //     let x = index % MAX_ITEMS_IN_INVENTORY_ROW;
-    //     let y = index / MAX_ITEMS_IN_INVENTORY_ROW;
-    //     if MAX_ITEMS_IN_INVENTORY_COLUMN <= y {
-    //         return false;
-    //     }
-    //     for i in 0..item.item_type.get_width() {
-    //         if MAX_ITEMS_IN_INVENTORY_ROW <= x + i {
-    //             return false;
-    //         }
-    //         if self.0[index + i].is_some() {
-    //             return false;
-    //         }
-    //     }
-    //     return true;
-    // }
-
-    // pub fn is_settable_optional(&self, index: usize, item: Option<InventoryItem>) -> bool {
-    //     if let Some(item) = item {
-    //         return self.is_settable(index, item);
-    //     }
-    //     return true;
-    // }
-
     pub fn insert(&mut self, item: InventoryItem) -> bool {
         let Inventory(ref mut inventory) = *self;
         let mut i = 0;
@@ -81,8 +55,8 @@ impl Inventory {
                     inventory[i] = Some(item);
                     return true;
                 }
-                Some(item) => {
-                    i += item.item_type.get_width();
+                Some(_) => {
+                    i += 1;
                 }
             }
         }
@@ -92,7 +66,7 @@ impl Inventory {
     #[allow(dead_code)]
     pub fn insert_spell(&mut self, item_type: Spell) -> bool {
         self.insert(InventoryItem {
-            item_type: InventoryItemType::Spell(item_type),
+            spell: item_type,
             price: 0,
         })
     }
@@ -107,7 +81,7 @@ impl Inventory {
                 return std::cmp::Ordering::Less;
             }
             match (a.as_ref().unwrap(), b.as_ref().unwrap()) {
-                (a, b) => a.item_type.cmp(&b.item_type),
+                (a, b) => a.spell.cmp(&b.spell),
             }
         });
         let mut i = 0;
@@ -115,10 +89,7 @@ impl Inventory {
             if MAX_ITEMS_IN_INVENTORY <= i {
                 break;
             }
-            let width = match &item {
-                Some(item) => item.item_type.get_width(),
-                None => 1,
-            };
+            let width = 1;
             self.0[i] = item.clone();
             for j in 1..width {
                 self.0[i + j] = None;

@@ -8,7 +8,6 @@ use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BREAK;
@@ -138,7 +137,7 @@ fn break_chest(
                         spell: spell_type, ..
                     }) = spell
                     {
-                        let item = InventoryItem::new(InventoryItemType::Spell(spell_type.clone()));
+                        let item = InventoryItem::new(spell_type.clone());
                         spawn_dropped_item(&mut commands, &registry, position, &item);
                     }
                 }

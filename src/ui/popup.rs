@@ -2,7 +2,6 @@ use crate::actor::Actor;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::language::M18NTtext;
 use crate::message::UNPAID;
 use crate::registry::Registry;
@@ -143,8 +142,7 @@ fn update_spell_icon(
             match first {
                 PopupContent::FloatingContent(content) => match content.get_item(actor) {
                     Some(InventoryItem {
-                        item_type: InventoryItemType::Spell(spell),
-                        ..
+                        spell, ..
                     }) => {
                         let props = registry.get_spell_props(&spell);
                         slice.name = props.icon.clone();
@@ -179,8 +177,7 @@ fn update_spell_name(
         match first {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(InventoryItem {
-                    item_type: InventoryItemType::Spell(spell),
-                    ..
+                    spell, ..
                 }) = content.get_item(actor)
                 {
                     text.0 = registry.get_spell_props(&spell).name.clone();
@@ -213,8 +210,7 @@ fn update_item_description(
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(item) = content.get_item(actor) {
                     let InventoryItem {
-                        item_type: InventoryItemType::Spell(spell),
-                        ..
+                        spell, ..
                     } = item;
 
                     let props = registry.get_spell_props(&spell);

@@ -122,7 +122,17 @@ TileRegistry(
             enemy_types: [],
             biome: "StoneTile",
             bgm: "bgm/最果てのルージュ.ogg",
-            brightness: 0.4
+            brightness: 0.4,
+            items: {
+                // 溶岩流を渡った先
+                (100, 66): "LightSword",
+                // 水路の奥の隠し部屋
+                (83, 28): "Dash",
+                // ジャンプ練習場の奥
+                (30, 69): "Levitation",
+                // Z字型の裂け目の奥の隠し部屋
+                (53, 24): "Bomb",
+            }
         ),
 
         "warehouse": (
@@ -145,7 +155,7 @@ TileRegistry(
             bgm: "bgm/水のしたたる洞窟.ogg",
             brightness: 0.4,
             items: {
-                (152, 224): "MagicBolt"
+                (158, 224): "MagicBolt"
             }
         ),
 
@@ -413,46 +423,6 @@ TileRegistry(
             entry_point: false,
             spawn_offset_x: 0.0,
         ),
-        // (81, 28) 水路の奥の隠し部屋
-        (255, 155, 88, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: SpellInChest (
-                spell: "Dash",
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        // (30, 69) ジャンプ練習場の奥
-        (255, 155, 89, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: SpellInChest (
-                spell: "Levitation",
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        // (53, 24) Z字型の裂け目の奥の隠し部屋
-        (255, 155, 90, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: SpellInChest (
-                spell: "Bomb",
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        // (100, 66) 溶岩流を渡った先
-        (255, 155, 91, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: SpellInChest (
-                spell: "LightSword",
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
         (48, 96, 130, 255): (
             tile: "StoneTile",
             zone: SafeZone,
@@ -492,13 +462,6 @@ TileRegistry(
             tile: "StoneTile",
             zone: SafeZone,
             entity: Usage,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (254, 0, 255, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: Routes,
             entry_point: false,
             spawn_offset_x: 0.0,
         ),

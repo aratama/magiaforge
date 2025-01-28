@@ -23,7 +23,6 @@ mod hud;
 mod input;
 mod interpreter;
 mod inventory;
-mod inventory_item;
 mod language;
 mod level;
 mod message;

@@ -45,7 +45,6 @@ use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::inventory::Inventory;
-use crate::inventory_item::InventoryItemType;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
@@ -294,11 +293,10 @@ impl Actor {
     #[allow(dead_code)]
     pub fn get_item_icon(&self, registry: Registry, index: FloatingContent) -> Option<String> {
         match index {
-            FloatingContent::Inventory(index) => self
-                .inventory
-                .get(index)
-                .as_ref()
-                .map(|i| i.item_type.get_icon(&registry)),
+            FloatingContent::Inventory(index) => self.inventory.get(index).as_ref().map(|i| {
+                let props = registry.get_spell_props(&i.spell);
+                props.icon.clone()
+            }),
             FloatingContent::WandSpell(w, s) => self.wands[w].slots[s].as_ref().map(
                 |WandSpell {
                      spell: ref spell_type,
@@ -392,12 +390,9 @@ impl Actor {
         let mut discovered_spells: HashSet<Spell> = HashSet::new();
         for item in self.inventory.0.iter() {
             if let Some(ref item) = item {
-                match &item.item_type {
-                    InventoryItemType::Spell(spell) if item.price == 0 => {
-                        let _ = discovered_spells.insert(spell.clone());
-                    }
-                    _ => {}
-                };
+                if item.price == 0 {
+                    let _ = discovered_spells.insert(item.spell.clone());
+                }
             }
         }
         for wand in self.wands.iter() {
@@ -941,7 +936,7 @@ fn drown_damage(
                     damage.send(ActorEvent::Damaged {
                         actor: entity,
                         position: transform.translation.truncate(),
-                        damage: 1,
+                        damage: 3,
                         fire: false,
                         impulse: Vec2::ZERO,
                         stagger: 0,

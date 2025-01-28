@@ -1,5 +1,4 @@
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::registry::Registry;
 use crate::spell::Spell;
 use crate::states::GameState;
@@ -111,8 +110,7 @@ pub fn spawn_item_panel<T: Component>(
 fn update_inventory_slot(registry: Registry, mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>) {
     for (slot, mut aseprite) in slot_query.iter_mut() {
         if let Some(InventoryItem {
-            item_type: InventoryItemType::Spell(spell),
-            ..
+            spell, ..
         }) = &slot.0
         {
             aseprite.name = registry.get_spell_props(spell).icon.clone();
@@ -128,8 +126,8 @@ fn update_panel_width(
 ) {
     for (parent, mut node) in frame_query.iter_mut() {
         let (slot, mut aseprite) = slot_query.get_mut(parent.get()).unwrap();
-        if let Some(item) = &slot.0 {
-            let width = Val::Px(item.item_type.get_icon_width());
+        if let Some(_) = &slot.0 {
+            let width = Val::Px(32.0);
             node.width = width;
             aseprite.width = width;
         } else {
@@ -146,10 +144,7 @@ fn update_item_frame(
     for (parent, mut aseprite) in children_query.iter_mut() {
         let item_optional = slot_query.get(parent.get()).unwrap();
         match item_optional.0 {
-            Some(InventoryItem {
-                item_type: InventoryItemType::Spell(..),
-                ..
-            }) => {
+            Some(_) => {
                 aseprite.name = "spell_frame".into();
             }
             _ => {
@@ -183,15 +178,10 @@ fn update_friend_marker(
     for (parent, mut aseprite) in children_query.iter_mut() {
         let slot = slot_query.get(parent.get()).unwrap();
         let visible = match &slot.0 {
-            Some(item) => match &item.item_type {
-                InventoryItemType::Spell(spell) if *spell == Spell::new("SummonFriendSlime") => {
-                    true
-                }
-                InventoryItemType::Spell(spell) if *spell == Spell::new("SummonFriendEyeball") => {
-                    true
-                }
-                _ => false,
-            },
+            Some(item) => {
+                item.spell == Spell::new("SummonFriendSlime")
+                    || item.spell == Spell::new("SummonFriendEyeball")
+            }
             _ => false,
         };
         aseprite.display = if visible {

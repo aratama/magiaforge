@@ -71,8 +71,6 @@ pub fn spawn_impact(
     context: &RapierContext,
     impact: SpawnImpact,
 ) {
-    info!("imcapct: {:?}", impact);
-
     writer.send(SEEvent::pos(DROP, impact.position));
     let (mut camera, camera_transform) = camera_query.single_mut();
     camera.vibrate(&camera_transform, impact.position, 20.0);

@@ -4,7 +4,6 @@ use crate::controller::player::Player;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::DropArea;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::registry::TileType;
@@ -31,7 +30,7 @@ impl FloatingContent {
             FloatingContent::WandSpell(wand_index, spell_index) => {
                 match &actor.wands[*wand_index].slots[*spell_index] {
                     Some(spell) => Some(InventoryItem {
-                        item_type: InventoryItemType::Spell(spell.spell.clone()),
+                        spell: spell.spell.clone(),
                         price: spell.price,
                     }),
                     None => None,
@@ -197,7 +196,7 @@ impl FloatingContent {
         match self {
             FloatingContent::Inventory(i) => actor.inventory.get(*i).clone(),
             FloatingContent::WandSpell(w, i) => actor.get_spell(*w, *i).map(|w| InventoryItem {
-                item_type: InventoryItemType::Spell(w.spell.clone()),
+                spell: w.spell.clone(),
                 price: w.price,
             }),
         }
@@ -212,7 +211,7 @@ impl FloatingContent {
             (
                 FloatingContent::WandSpell(w, s),
                 Some(InventoryItem {
-                    item_type: InventoryItemType::Spell(spell_type),
+                    spell: spell_type,
                     price,
                 }),
             ) => {
@@ -232,13 +231,7 @@ impl FloatingContent {
     pub fn is_settable(&self, item: &Option<InventoryItem>) -> bool {
         match (self, item) {
             (FloatingContent::Inventory(_), _) => true,
-            (
-                FloatingContent::WandSpell(..),
-                Some(InventoryItem {
-                    item_type: InventoryItemType::Spell(_),
-                    ..
-                }),
-            ) => true,
+            (FloatingContent::WandSpell(..), Some(_)) => true,
             (FloatingContent::WandSpell(..), None) => true,
         }
     }

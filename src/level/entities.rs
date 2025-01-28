@@ -18,7 +18,6 @@ use crate::controller::shop_rabbit::ShopRabbit;
 use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
 use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::huge_slime::Boss;
-use crate::entity::bgm::spawn_bgm_switch;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
@@ -38,6 +37,7 @@ use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::spell::Spell;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::plugin::DefaultRapierContext;
@@ -103,12 +103,8 @@ pub enum Spawn {
     MagicCircleDemoEnding,
     BrokenMagicCircle,
     Usage,
-    Routes,
     ShopSpell,
     ShopDoor,
-    BGM {
-        bgm: String,
-    }, // 使われていません
     RandomChest,
     SpellInChest {
         spell: Spell,
@@ -198,6 +194,7 @@ pub fn spawn_entity(
             Spawn::Usage => {
                 commands.spawn((
                     Name::new("usage"),
+                    StateScoped(GameState::InGame),
                     Transform::from_translation(position.extend(PAINT_LAYER_Z)),
                     Sprite {
                         color: Color::hsla(0.0, 0.0, 1.0, 0.7),
@@ -206,20 +203,6 @@ pub fn spawn_entity(
                     AseSpriteSlice {
                         aseprite: registry.assets.atlas.clone(),
                         name: "usage".into(),
-                    },
-                ));
-            }
-            Spawn::Routes => {
-                commands.spawn((
-                    Name::new("routes"),
-                    Transform::from_translation(position.extend(PAINT_LAYER_Z)),
-                    Sprite {
-                        color: Color::hsla(0.0, 0.0, 1.0, 0.7),
-                        ..default()
-                    },
-                    AseSpriteSlice {
-                        aseprite: registry.assets.atlas.clone(),
-                        name: "routes".into(),
                     },
                 ));
             }
@@ -307,15 +290,6 @@ pub fn spawn_entity(
             }
             Spawn::ShopDoor => {
                 spawn_shop_door(&mut commands, &registry, *position);
-            }
-            Spawn::BGM { bgm } => {
-                spawn_bgm_switch(
-                    &mut commands,
-                    &asset_server,
-                    &registry,
-                    *position,
-                    bgm.clone(),
-                );
             }
             Spawn::RandomChest => {
                 spawn_actor_internal(

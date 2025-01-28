@@ -12,7 +12,6 @@ use crate::controller::player::Player;
 use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::language::Dict;
 use crate::language::Languages;
 use crate::level::tile::Tile;
@@ -56,10 +55,6 @@ pub enum Cmd {
 
     /// フキダシを非表示にします
     Close,
-
-    /// プレイヤーがインベントリにアイテムを入手します
-    #[allow(dead_code)]
-    GetItem(InventoryItemType),
 
     /// 次のアクションまで指定したフレーム数待機します
     #[allow(dead_code)]
@@ -298,15 +293,6 @@ fn interpret(
             se_writer.send(SEEvent::new(path));
             interpreter.index += 1;
         }
-        Cmd::GetItem(item) => {
-            if let Ok((mut actor, _)) = player_query.get_single_mut() {
-                actor.inventory.insert(InventoryItem {
-                    item_type: item,
-                    price: 0,
-                });
-            }
-            interpreter.index += 1;
-        }
         Cmd::Close => {
             *visibility = Visibility::Hidden;
             interpreter.index += 1;
@@ -439,7 +425,7 @@ fn interpret(
         Cmd::GetSpell { spell } => {
             if let Ok((mut actor, player)) = player_query.get_single_mut() {
                 actor.inventory.insert(InventoryItem {
-                    item_type: InventoryItemType::Spell(spell.clone()),
+                    spell: spell.clone(),
                     price: 0,
                 });
                 if !player.discovered_spells.contains(&spell) {

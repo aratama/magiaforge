@@ -13,7 +13,6 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::Inventory;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::level::appearance::read_level_chunk_data;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::spawn_world_tilemap;
@@ -101,7 +100,7 @@ pub fn new_shop_item_queue(
         .iter()
         .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
         .map(|s| InventoryItem {
-            item_type: InventoryItemType::Spell(s.clone()),
+            spell: s.clone(),
             price: registry.get_spell_props(s).price,
         })
         .collect();
@@ -375,7 +374,7 @@ fn spawn_dropped_items(
             &registry,
             position,
             &InventoryItem {
-                item_type: InventoryItemType::Spell(spell.clone()),
+                spell: spell.clone(),
                 price: 0,
             },
         );

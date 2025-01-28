@@ -2,7 +2,6 @@ use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::controller::player::Player;
 use crate::inventory::InventoryItem;
-use crate::inventory_item::InventoryItemType;
 use crate::registry::Registry;
 use crate::states::GameMenuState;
 use crate::states::GameState;
@@ -57,7 +56,7 @@ fn update_panel_item(
                 _ => actor
                     .get_wand_spell(sprite.wand_index, sprite.spell_index)
                     .map(|e| InventoryItem {
-                        item_type: InventoryItemType::Spell(e.spell),
+                        spell: e.spell,
                         price: e.price,
                     }),
             };
