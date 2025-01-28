@@ -105,7 +105,7 @@ TileRegistry(
 
     levels: {
         "home": (
-            next: ["level_jump"],
+            next: ["library", "waterside_of_leap", "valley"],
             name: Dict (
                 ja: "ウサギ族のキャンプ",
                 en: "Rabbit's Camp",
@@ -124,7 +124,31 @@ TileRegistry(
             bgm: "bgm/水のしたたる洞窟.ogg",
             brightness: 0.4
         ),
-        "level_jump": (
+
+        "library": (
+            next: ["level_2_0"],
+            name: Dict (
+                ja: "図書館跡",
+                en: "Library Ruins",
+                zh_cn: "图书馆废墟",
+                zh_tw: "圖書館廢墟",
+                es: "Ruinas de la Biblioteca",
+                fr: "Ruines de la Bibliothèque",
+                pt: "Ruínas da Biblioteca",
+                de: "Bibliotheksruinen",
+                ko: "도서관 폐허",
+                ru: "Руины библиотеки",
+            ),
+            enemies: 10,
+            enemy_types: ["Slime"],
+            biome: "StoneTile",
+            bgm: "bgm/森のいざない.ogg",
+            brightness: 0.4
+        ),
+
+        // 飛躍の呪文を入手
+        // 比較的安全な水辺でジャンプの練習
+        "waterside_of_leap": (
             next: ["level_2_0"],
             name: Dict (
                 ja: "飛躍の水辺",
@@ -146,33 +170,40 @@ TileRegistry(
             biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
-            
         ),
 
-
-
-
-
-        "level_1_0": (
+        // 光の玉の魔法を入手
+        // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
+        // 明かりで照らしながら慎重に進む
+        "valley": (
             next: ["level_2_0"],
             name: Dict (
-                ja: "図書館跡",
-                en: "Library Ruins",
-                zh_cn: "图书馆废墟",
-                zh_tw: "圖書館廢墟",
-                es: "Ruinas de la Biblioteca",
-                fr: "Ruines de la Bibliothèque",
-                pt: "Ruínas da Biblioteca",
-                de: "Bibliotheksruinen",
-                ko: "도서관 폐허",
-                ru: "Руины библиотеки",
+                ja: "暗闇の谷",
+                en: "Valley of Darkness",
+                zh_cn: "黑暗之谷",
+                zh_tw: "黑暗之谷",
+                es: "Valle de la Oscuridad",
+                fr: "Vallée des Ténèbres",
+                pt: "Vale da Escuridão",
+                de: "Tal der Dunkelheit",
+                ko: "어둠의 계곡",
+                ru: "Долина Тьмы",
             ),
             enemies: 10,
-            enemy_types: ["Slime"],
+            enemy_types: ["Slime", "EyeBall"],
+            items: {
+             
+            },
             biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
-            brightness: 0.4
+            brightness: 0.01,
         ),
+
+
+
+
+
+        
         "level_2_0": (
             next: ["level_3_0"],
             name: Dict (
