@@ -537,7 +537,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Rock": (
-            collider: Ball(5.0),
+            collider: Ball(16.0),
             move_force: 0.0,
             jump: 0.0,
             linear_damping: 60.0,
@@ -571,7 +571,8 @@ ActorRegistry(
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
             ],
-            strategies: {}
+            strategies: {},
+            impact_radius: 24.0,
         ),
         "Bomb": (
             collider: Ball(5.0),

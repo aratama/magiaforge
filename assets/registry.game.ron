@@ -5,7 +5,7 @@ GameRegistry(
    
 
     debug_wands: [
-        ["DualCast", "Levitation", "MagicBolt"],
+        ["RockFall"],
         ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt"],
         ["DualCast", "Levitation", "MagicBolt"],
         ["DualCast", "Dash", "Jump", "Lantern"]

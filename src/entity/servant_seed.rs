@@ -160,6 +160,7 @@ fn spawn_servant(
             &asset_server,
             &registry,
             event.position,
+            0.0,
             actor,
         );
         commands.entity(entity).insert(Servant {

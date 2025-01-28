@@ -276,6 +276,7 @@ pub fn setup_level(
         &asset_server,
         &registry,
         Vec2::new(player_x, player_y),
+        0.0,
         Actor {
             actor_type: ActorType::new("Witch"),
             life: player_state.max_life, // 新しいレベルに入るたびに全回復している

@@ -2,7 +2,6 @@ pub mod bomb;
 pub mod book_shelf;
 pub mod chest;
 pub mod chicken;
-pub mod rock;
 pub mod stone_lantern;
 pub mod witch;
 
@@ -160,7 +159,6 @@ pub struct ActorAppearanceSprite;
 #[derive(Component, Reflect, Debug, Clone, Deserialize)]
 #[require(
     HomingTarget,
-    Vertical,
     StateScoped<GameState>(||StateScoped(GameState::InGame)),
     Visibility,
     Damping,
@@ -1359,6 +1357,7 @@ pub fn spawn_actor(
     asset_server: &Res<AssetServer>,
     registry: &Registry,
     position: Vec2,
+    vertical: f32,
     mut actor: Actor,
 ) -> Entity {
     let actor_type = actor.actor_type.clone();
@@ -1371,6 +1370,10 @@ pub fn spawn_actor(
         Name::new(format!("{:?}", &actor.actor_type)),
         actor,
         Transform::from_translation(position.extend(0.0)),
+        Vertical {
+            v: vertical,
+            ..default()
+        },
         Counter::default(),
         match props.collider {
             ActorCollider::Ball(radius) => Collider::ball(radius),
@@ -1391,39 +1394,41 @@ pub fn spawn_actor(
             ));
         }
 
-        parent.spawn(ActorSpriteGroup).with_children(|parent| {
-            // 浮遊効果の輪
-            parent.spawn((
-                ActorLevitationEffect,
-                AseSpriteSlice {
-                    aseprite: registry.assets.atlas.clone(),
-                    name: "levitation".into(),
-                },
-                Transform::from_xyz(0.0, 0.0, -0.0002),
-            ));
-
-            // 本体
-            parent.spawn((
-                ActorAppearanceSprite,
-                CounterAnimated,
-                AseSpriteAnimation {
-                    aseprite: asset_server.load(props.aseprite.clone()),
-                    animation: Animation::default().with_tag(props.animations.idle_r.clone()),
-                },
-                Transform::from_xyz(0.0, 0.0, 0.0),
-            ));
-
-            if actor_type == ActorType::new("Witch") {
+        parent
+            .spawn((ActorSpriteGroup, Transform::from_xyz(0.0, vertical, 0.0)))
+            .with_children(|parent| {
+                // 浮遊効果の輪
                 parent.spawn((
-                    WitchWandSprite,
+                    ActorLevitationEffect,
                     AseSpriteSlice {
                         aseprite: registry.assets.atlas.clone(),
-                        name: "wand_cypress".into(),
+                        name: "levitation".into(),
                     },
-                    Transform::from_xyz(0.0, 4.0, -0.0001),
+                    Transform::from_xyz(0.0, 0.0, -0.0002),
                 ));
-            }
-        });
+
+                // 本体
+                parent.spawn((
+                    ActorAppearanceSprite,
+                    CounterAnimated,
+                    AseSpriteAnimation {
+                        aseprite: asset_server.load(props.aseprite.clone()),
+                        animation: Animation::default().with_tag(props.animations.idle_r.clone()),
+                    },
+                    Transform::from_xyz(0.0, 0.0, 0.0),
+                ));
+
+                if actor_type == ActorType::new("Witch") {
+                    parent.spawn((
+                        WitchWandSprite,
+                        AseSpriteSlice {
+                            aseprite: registry.assets.atlas.clone(),
+                            name: "wand_cypress".into(),
+                        },
+                        Transform::from_xyz(0.0, 4.0, -0.0001),
+                    ));
+                }
+            });
     });
 
     if actor_type == ActorType::new("Witch") {

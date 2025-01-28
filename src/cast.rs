@@ -1,5 +1,6 @@
+use crate::actor::get_default_actor;
 use crate::actor::jump_actor;
-use crate::actor::rock::spawn_falling_rock;
+use crate::actor::spawn_actor;
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
@@ -349,7 +350,15 @@ pub fn cast_spell(
                 }
                 SpellCast::RockFall => {
                     let position = actor_position + actor.pointer;
-                    spawn_falling_rock(&mut commands, registry, position);
+                    let actor = get_default_actor(&registry, &ActorType::new("Rock"));
+                    spawn_actor(
+                        &mut commands,
+                        asset_server,
+                        registry,
+                        position,
+                        100.0,
+                        actor,
+                    );
                     se.send(SEEvent::pos(STATUS2, position));
                 }
                 SpellCast::Fireball => {

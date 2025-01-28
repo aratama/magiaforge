@@ -232,7 +232,14 @@ pub fn spawn_entity(
             } => {
                 let actor = get_default_actor(&registry, &ActorType::new("Rabbit"));
 
-                let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+                let entity = spawn_actor(
+                    &mut commands,
+                    &asset_server,
+                    &registry,
+                    *position,
+                    0.0,
+                    actor,
+                );
 
                 let mut entity = commands.entity(entity);
 
@@ -325,6 +332,7 @@ pub fn spawn_entity(
                     &asset_server,
                     &registry,
                     *position,
+                    0.0,
                     chest_actor(0),
                 );
                 commands.entity(entity).insert(Chest {
@@ -334,7 +342,14 @@ pub fn spawn_entity(
             }
             Spawn::Actor(actor_type) => {
                 let actor = get_default_actor(&registry, actor_type);
-                spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+                spawn_actor(
+                    &mut commands,
+                    &asset_server,
+                    &registry,
+                    *position,
+                    0.0,
+                    actor,
+                );
             }
             Spawn::Boss {
                 actor_type,
@@ -343,7 +358,14 @@ pub fn spawn_entity(
             } => {
                 let mut actor = get_default_actor(&registry, actor_type);
                 actor.actor_group = ActorGroup::Enemy;
-                let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+                let entity = spawn_actor(
+                    &mut commands,
+                    &asset_server,
+                    &registry,
+                    *position,
+                    0.0,
+                    actor,
+                );
                 commands.entity(entity).insert(Boss {
                     name: name.clone(),
                     on_despawn: on_despawn.clone(),
@@ -447,6 +469,7 @@ fn spawn_actor_internal(
         &asset_server,
         &registry,
         position,
+        0.0,
         actor.clone(),
     );
     if player_controlled {

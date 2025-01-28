@@ -2,7 +2,6 @@ use crate::actor::bomb::BombPlugin;
 use crate::actor::book_shelf::BookshelfPlugin;
 use crate::actor::chest::ChestPlugin;
 use crate::actor::chicken::ChikenControlPlugin;
-use crate::actor::rock::RockPlugin;
 use crate::actor::stone_lantern::StoneLanternPlugin;
 use crate::actor::witch::WitchPlugin;
 use crate::actor::ActorPlugin;
@@ -259,7 +258,6 @@ pub fn run_game() {
         .add_plugins(PointerPlugin)
         .add_plugins(PopUpPlugin)
         .add_plugins(RemotePlayerPlugin)
-        .add_plugins(RockPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)

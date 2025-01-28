@@ -148,6 +148,9 @@ pub struct ActorPropsByType {
     pub shadow: Option<String>,
     pub wands: Vec<Vec<Option<Spell>>>,
     pub strategies: HashMap<String, Strategy>,
+
+    #[serde(default)]
+    pub impact_radius: f32,
 }
 
 #[derive(serde::Deserialize, Debug)]
