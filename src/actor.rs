@@ -870,23 +870,6 @@ fn levitation_effect(
     }
 }
 
-fn add_levitation_effect(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    query: Query<Entity, Added<ActorSpriteGroup>>,
-) {
-    for entity in query.iter() {
-        commands.entity(entity).with_child((
-            ActorLevitationEffect,
-            AseSpriteSlice {
-                aseprite: assets.atlas.clone(),
-                name: "levitation".into(),
-            },
-            Transform::from_xyz(0.0, -4.0, -0.0002),
-        ));
-    }
-}
-
 fn apply_v(
     mut actor_query: Query<(&Actor, &mut Vertical)>,
     mut group_query: Query<(&Parent, &mut Transform, &Counter), With<ActorSpriteGroup>>,
@@ -1398,6 +1381,7 @@ pub fn spawn_actor(
     ));
 
     builder.with_children(|parent| {
+        // 影
         if let Some(shadow) = &props.shadow {
             parent.spawn((
                 AseSpriteSlice {
@@ -1409,6 +1393,17 @@ pub fn spawn_actor(
         }
 
         parent.spawn(ActorSpriteGroup).with_children(|parent| {
+            // 浮遊効果の輪
+            parent.spawn((
+                ActorLevitationEffect,
+                AseSpriteSlice {
+                    aseprite: registry.assets.atlas.clone(),
+                    name: "levitation".into(),
+                },
+                Transform::from_xyz(0.0, 0.0, -0.0002),
+            ));
+
+            // 本体
             parent.spawn((
                 ActorAppearanceSprite,
                 CounterAnimated,
@@ -1605,7 +1600,6 @@ impl Plugin for ActorPlugin {
                 (
                     apply_v,
                     apply_z,
-                    add_levitation_effect,
                     update_sprite_flip,
                     update_actor_light,
                     add_life_bar,
