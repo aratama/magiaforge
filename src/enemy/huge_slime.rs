@@ -171,7 +171,7 @@ fn update_huge_slime_summon(
                                 spawn: Spawn::Seed {
                                     to,
                                     actor_group: ActorGroup::Enemy,
-                                    owner: Some(huge_slime_entity),
+                                    master: huge_slime_entity,
                                     servant_type: ActorType::new("Slime"),
                                     remote: false,
                                     servant: false,

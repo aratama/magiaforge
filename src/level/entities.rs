@@ -89,7 +89,7 @@ pub enum Spawn {
     Seed {
         to: Vec2,
         actor_group: ActorGroup,
-        owner: Option<Entity>,
+        master: Entity,
         servant_type: ActorType,
         remote: bool,
         servant: bool,
@@ -352,7 +352,7 @@ pub fn spawn_entity(
             &Spawn::Seed {
                 to,
                 actor_group,
-                owner,
+                master: owner,
                 servant_type,
                 remote,
                 servant,

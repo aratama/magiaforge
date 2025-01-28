@@ -6,7 +6,6 @@ pub mod rock;
 pub mod stone_lantern;
 pub mod witch;
 
-use crate::asset::GameAssets;
 use crate::cast::cast_spell;
 use crate::collision::ENEMY_BULLET_GROUP;
 use crate::collision::ENEMY_GROUPS;

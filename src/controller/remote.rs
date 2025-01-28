@@ -7,7 +7,6 @@ use crate::controller::player::Player;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
 use crate::entity::gold::spawn_gold;
-use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::page::in_game::setup_level;
 use crate::page::in_game::GameLevel;
@@ -195,7 +194,7 @@ fn receive_events(
     >,
     frame_count: Res<FrameCount>,
     mut writer: EventWriter<SEEvent>,
-    mut spawn: EventWriter<SpawnEvent>,
+    mut _spawn: EventWriter<SpawnEvent>,
 ) {
     // キャラクターを生成されたときに実際に反映させるのは次のフレームからですが、
     // 1フレームに複数のメッセージが届くことがあるため、
@@ -299,22 +298,26 @@ fn receive_events(
                             }
                         }
                         RemoteMessage::ServantSeed {
-                            from,
-                            to,
-                            actor_group,
-                            servant_type,
+                            ..
+                            // from,
+                            // to,
+                            // actor_group,
+                            // servant_type,
                         } => {
-                            spawn.send(SpawnEvent {
-                                position: from,
-                                spawn: Spawn::Seed {
-                                    to,
-                                    actor_group,
-                                    owner: None,
-                                    servant_type,
-                                    remote: false,
-                                    servant: false,
-                                },
-                            });
+                            // todo
+                            // SpawnEvent で Remove の場合だけ master を送れない
+                            // UUIDにする？検討中
+                            // spawn.send(SpawnEvent {
+                            //     position: from,
+                            //     spawn: Spawn::Seed {
+                            //         to,
+                            //         actor_group,
+                            //         master: None,
+                            //         servant_type,
+                            //         remote: false,
+                            //         servant: false,
+                            //     },
+                            // });
                         }
                     };
                 }

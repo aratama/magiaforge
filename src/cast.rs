@@ -291,7 +291,7 @@ pub fn cast_spell(
                         position: actor_position,
                         spawn: Spawn::Seed {
                             to: actor_position + actor.pointer,
-                            owner: Some(actor_entity),
+                            master: actor_entity,
                             servant_type: servant_type.clone(),
                             actor_group: match (actor.actor_group, friend) {
                                 (ActorGroup::Friend, true) => ActorGroup::Friend,

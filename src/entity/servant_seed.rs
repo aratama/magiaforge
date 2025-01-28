@@ -1,5 +1,6 @@
 use crate::actor::get_default_actor;
 use crate::actor::spawn_actor;
+use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::component::counter::CounterAnimated;
@@ -25,8 +26,8 @@ pub struct ServantSeed {
     from: Vec2,
     to: Vec2,
     speed: u32,
-    // actor_group: ActorGroup,
-    // master: Option<Entity>,
+    actor_group: ActorGroup,
+    master: Entity,
     servant_type: ActorType,
     // servant: bool,
 }
@@ -43,7 +44,7 @@ pub fn spawn_servant_seed(
     from: Vec2,
     to: Vec2,
     actor_group: ActorGroup,
-    _owner: Option<Entity>,
+    master: Entity,
     servant_type: &ActorType,
     remote: bool,
     _servant: bool,
@@ -64,8 +65,8 @@ pub fn spawn_servant_seed(
                     to.y + 16.0 * (rand::random::<f32>() - 0.5),
                 ),
                 speed: 60 + rand::random::<u32>() % 30,
-                // actor_group: actor_group,
-                // master: owner,
+                actor_group: actor_group,
+                master,
                 servant_type: servant_type.clone(),
                 // servant: servant,
             },
@@ -125,8 +126,8 @@ fn update_servant_seed(
                     spawn_writer.send(SpawnServantEvent {
                         servant_type: seed.servant_type.clone(),
                         position: seed.to,
-                        // actor_group: seed.actor_group,
-                        // master: seed.master,
+                        actor_group: seed.actor_group,
+                        master: seed.master,
                         // servant: seed.servant,
                     });
                     se_writer.send(SEEvent::pos(BICHA, seed.to));
@@ -140,8 +141,8 @@ fn update_servant_seed(
 struct SpawnServantEvent {
     servant_type: ActorType,
     position: Vec2,
-    // actor_group: ActorGroup,
-    // master: Option<Entity>,
+    actor_group: ActorGroup,
+    master: Entity,
     // servant: bool,
 }
 
@@ -152,13 +153,18 @@ fn spawn_servant(
     mut reader: EventReader<SpawnServantEvent>,
 ) {
     for event in reader.read() {
-        spawn_actor(
+        let mut actor = get_default_actor(&registry, &event.servant_type);
+        actor.actor_group = event.actor_group;
+        let entity = spawn_actor(
             &mut commands,
             &asset_server,
             &registry,
             event.position,
-            get_default_actor(&registry, &event.servant_type),
+            actor,
         );
+        commands.entity(entity).insert(Servant {
+            master: event.master,
+        });
     }
 }
 
@@ -173,6 +179,23 @@ fn update_slime_seed_sprite(
     }
 }
 
+/// 召喚を行ったマスターが消滅した場合に同時に消滅する配下を表します
+#[derive(Component)]
+pub struct Servant {
+    master: Entity,
+}
+
+fn despawn_on_master_despawn(
+    mut query: Query<(&mut Actor, &Servant)>,
+    master_query: Query<&Actor, Without<Servant>>,
+) {
+    for (mut actor, servant) in query.iter_mut() {
+        if !master_query.contains(servant.master) {
+            actor.life = 0;
+        }
+    }
+}
+
 pub struct ServantSeedPlugin;
 
 impl Plugin for ServantSeedPlugin {
@@ -180,7 +203,12 @@ impl Plugin for ServantSeedPlugin {
         app.add_event::<SpawnServantEvent>();
         app.add_systems(
             FixedUpdate,
-            (update_servant_seed, update_slime_seed_sprite, spawn_servant)
+            (
+                update_servant_seed,
+                update_slime_seed_sprite,
+                spawn_servant,
+                despawn_on_master_despawn,
+            )
                 .in_set(FixedUpdateGameActiveSet),
         );
     }
