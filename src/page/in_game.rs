@@ -38,10 +38,10 @@ use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use rand::rngs::StdRng;
-use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use serde::Deserialize;
+use std::collections::HashMap;
 use vleue_navigator::prelude::NavMeshSettings;
 use vleue_navigator::prelude::NavMeshUpdateMode;
 use vleue_navigator::Triangulation;
@@ -232,15 +232,7 @@ pub fn setup_level(
         &mut spawn,
     );
 
-    spawn_dropped_items(
-        &mut commands,
-        &registry,
-        &empties,
-        &mut rng,
-        entry_point.clone(),
-        props.items,
-        props.item_ranks.clone(),
-    );
+    spawn_dropped_items(&mut commands, &registry, &empties, &mut rng, &props.items);
 
     // 拠点のみ、数羽のニワトリを生成します
     if *level == GameLevel::new(HOME_LEVEL) {
@@ -363,55 +355,22 @@ fn spawn_dropped_items(
     registry: &Registry,
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
-    safe_zone_center: (i32, i32),
-    spaw_item_count: u8,
-    ranks: Vec<u8>,
+    item_map: &HashMap<(i32, i32), Spell>,
 ) {
     let mut empties = empties.clone();
     empties.shuffle(&mut rng);
 
-    let mut items = 0;
-
-    for (x, y) in empties {
-        if spaw_item_count <= items {
-            break;
-        }
-
-        if Vec2::new(safe_zone_center.0 as f32, safe_zone_center.1 as f32)
-            .distance(Vec2::new(x as f32, y as f32))
-            < 16.0
-        {
-            continue;
-        }
-
-        let position = Vec2::new(
-            TILE_SIZE * x as f32 + TILE_HALF,
-            TILE_SIZE * -y as f32 - TILE_HALF,
+    for ((x, y), spell) in item_map.iter() {
+        let position = index_to_position((*x, *y));
+        spawn_dropped_item(
+            &mut commands,
+            &registry,
+            position,
+            &InventoryItem {
+                item_type: InventoryItemType::Spell(spell.clone()),
+                price: 0,
+            },
         );
-
-        if let Some(spell) = registry
-            .spells()
-            .iter()
-            .filter(|i| {
-                let props = registry.get_spell_props(*i);
-                ranks.contains(&props.rank)
-            })
-            .choose(&mut rng)
-        {
-            spawn_dropped_item(
-                &mut commands,
-                &registry,
-                position,
-                &InventoryItem {
-                    item_type: InventoryItemType::Spell(spell.clone()),
-                    price: 0,
-                },
-            );
-        } else {
-            warn!("No spell found to spawn as dropped item");
-        }
-
-        items += 1;
     }
 }
 

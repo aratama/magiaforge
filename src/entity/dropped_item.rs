@@ -3,8 +3,6 @@ use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::controller::player::Player;
-use crate::interpreter::Cmd;
-use crate::interpreter::InterpreterEvent;
 use crate::inventory::InventoryItem;
 use crate::inventory_item::InventoryItemType;
 use crate::physics::identify;
@@ -14,6 +12,8 @@ use crate::se::SEEvent;
 use crate::se::PICK_UP;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
+use crate::states::TimeState;
+use crate::ui::new_spell::spawn_new_spell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -131,17 +131,20 @@ fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
 
 fn pickup_dropped_item(
     mut commands: Commands,
+    registry: Registry,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
-    mut player_query: Query<&mut Actor, With<Player>>,
+    mut player_query: Query<(&mut Actor, &Player)>,
     mut se: EventWriter<SEEvent>,
-    mut interpreter: EventWriter<InterpreterEvent>,
+    mut time: ResMut<NextState<TimeState>>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
+                info!("pickup_dropped_item ");
+
                 let item = item_query.get(item_entity).unwrap();
-                let mut actor = player_query.get_mut(player_entity).unwrap();
+                let (mut actor, player) = player_query.get_mut(player_entity).unwrap();
                 if actor.inventory.insert(item.item.clone()) {
                     commands.entity(item_entity).despawn_recursive();
 
@@ -152,11 +155,15 @@ fn pickup_dropped_item(
                         price: _,
                     } = &item.item;
 
-                    interpreter.send(InterpreterEvent::Play {
-                        commands: vec![Cmd::GetSpell {
-                            spell: spell.clone(),
-                        }],
-                    });
+                    if !player.discovered_spells.contains(&spell) {
+                        spawn_new_spell(
+                            &mut commands,
+                            &registry,
+                            &mut time,
+                            spell.clone(),
+                            &mut se,
+                        );
+                    }
                 }
             }
             _ => {}

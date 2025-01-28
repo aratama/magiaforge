@@ -2,11 +2,9 @@
 #![enable(unwrap_newtypes)]
 #![enable(implicit_some)]
 GameRegistry(
-   
-
     debug_wands: [
-        ["RockFall"],
         ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt"],
+        ["RockFall"],
         ["DualCast", "Levitation", "MagicBolt"],
         ["DualCast", "Dash", "Jump", "Lantern"]
     ],

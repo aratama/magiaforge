@@ -46,6 +46,7 @@ fn process_debug_command(
     for atmark_level_name in atmark_level_names {
         if local.ends_with(&atmark_level_name) {
             level.next_level = GameLevel::new(atmark_level_name.strip_prefix("@").unwrap());
+            info!("next_level {:?}", level.next_level);
             level.next_state = Some(PlayerState::from_query(
                 &player_query.transmute_lens().query(),
             ));

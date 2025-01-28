@@ -99,8 +99,10 @@ pub struct LevelProps {
     pub name: Dict<String>,
     pub enemies: u8,
     pub enemy_types: Vec<ActorType>,
-    pub items: u8,
-    pub item_ranks: Vec<u8>,
+
+    #[serde(default)]
+    pub items: HashMap<(i32, i32), Spell>,
+
     pub biome: Tile,
     pub bgm: String,
     pub brightness: f32,
@@ -267,11 +269,15 @@ impl<'w> Registry<'w> {
     }
 
     pub fn get_level(&self, GameLevel(level): &GameLevel) -> &LevelProps {
-        let constants = self.tile.get(&self.assets.tile_registry).unwrap();
-        constants
-            .levels
-            .get(level)
-            .expect(&format!("Level '{:?}' not found", level).as_str())
+        let constants: &TileRegistry = self.tile.get(&self.assets.tile_registry).unwrap();
+        constants.levels.get(level).expect(
+            &format!(
+                "Level {:?} not found in {:?}",
+                level,
+                constants.levels.keys()
+            )
+            .as_str(),
+        )
     }
 
     pub fn get_bgm(&self, handle: &Handle<AudioSource>) -> &BGMProps {

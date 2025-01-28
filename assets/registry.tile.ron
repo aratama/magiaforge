@@ -105,7 +105,7 @@ TileRegistry(
 
     levels: {
         "home": (
-            next: ["level_1_0"],
+            next: ["level_jump"],
             name: Dict (
                 ja: "ウサギ族のキャンプ",
                 en: "Rabbit's Camp",
@@ -120,12 +120,39 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: [],
-            items: 0,
-            item_ranks: [],
             biome: "StoneTile",
             bgm: "bgm/水のしたたる洞窟.ogg",
             brightness: 0.4
         ),
+        "level_jump": (
+            next: ["level_2_0"],
+            name: Dict (
+                ja: "飛躍の水辺",
+                en: "Waterside of Leap",
+                zh_cn: "飞跃之水边",
+                zh_tw: "飛躍之水邊",
+                es: "Orilla del Salto",
+                fr: "Rivage du Saut",
+                pt: "Margem do Salto",
+                de: "Sprungufer",
+                ko: "도약의 물가",
+                ru: "Берег Прыжка",
+            ),
+            enemies: 10,
+            enemy_types: ["Slime", "EyeBall"],
+            items: {
+                (154,89): "Jump"
+            },
+            biome: "StoneTile",
+            bgm: "bgm/森のいざない.ogg",
+            brightness: 0.4,
+            
+        ),
+
+
+
+
+
         "level_1_0": (
             next: ["level_2_0"],
             name: Dict (
@@ -142,8 +169,6 @@ TileRegistry(
             ),
             enemies: 10,
             enemy_types: ["Slime"],
-            items: 3,
-            item_ranks: [0, 1, 2],
             biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4
@@ -164,8 +189,6 @@ TileRegistry(
             ),
             enemies: 15,
             enemy_types: ["Slime", "Spider"],
-            items: 3,
-            item_ranks: [1, 2, 3],
             biome: "Grassland",
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.02,
@@ -186,8 +209,6 @@ TileRegistry(
             ),
             enemies: 20,
             enemy_types: ["Spider", "EyeBall"],
-            items: 3,
-            item_ranks: [2, 3, 4],
             biome: "StoneTile",
             bgm: "bgm/迷宮.ogg",
             brightness: 0.4
@@ -208,8 +229,6 @@ TileRegistry(
             ),
             enemies: 20,
             enemy_types: ["EyeBall", "Shadow"],
-            items: 3,
-            item_ranks: [3, 4, 5],
             biome: "StoneTile",
             bgm: "bgm/ダンジョンを踏破せし者.ogg",
             brightness: 0.4
@@ -230,8 +249,6 @@ TileRegistry(
             ),
             enemies: 15,
             enemy_types: ["Shadow", "Salamander"],
-            items: 3,
-            item_ranks: [4, 5, 6],
             biome: "Ice",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4
@@ -252,8 +269,6 @@ TileRegistry(
             ),
             enemies: 30,
             enemy_types: ["Slime", "Spider", "EyeBall", "Shadow", "Salamander"],
-            items: 3,
-            item_ranks: [4, 5, 6],
             biome: "StoneTile",
             bgm: "bgm/忘れられた神殿.ogg",
             brightness: 0.4
@@ -274,8 +289,6 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: [],
-            items: 3,
-            item_ranks: [],
             biome: "StoneTile",
             bgm: "bgm/炎神の吐息.ogg",
             brightness: 0.4
@@ -296,8 +309,6 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: [],
-            items: 3,
-            item_ranks: [],
             biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4
