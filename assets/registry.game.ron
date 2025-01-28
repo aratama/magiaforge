@@ -54,7 +54,6 @@ GameRegistry(
     ],
 
     
-    home_bgm: "bgm/最果てのルージュ.ogg",
     ending_bgm: "bgm/Tides_of_Adventure.ogg",
 
     bgms: {
@@ -67,8 +66,8 @@ GameRegistry(
         ),
         "bgm/水のしたたる洞窟.ogg": (
             author: "",
-            title: "水のしたたる洞窟",
-            appendix: "(タイトル画面BGM)"
+            title: "",
+            appendix: ""
         ),
         // 拠点        
         "bgm/最果てのルージュ.ogg": (
