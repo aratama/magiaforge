@@ -105,7 +105,7 @@ TileRegistry(
 
     levels: {
         "home": (
-            next: ["warehouse", "library", "waterside_of_leap", "valley"],
+            next: ["library", "waterside_of_leap", "valley"],
             name: Dict (
                 ja: "ウサギ族のキャンプ",
                 en: "Rabbit's Camp",
@@ -135,6 +135,8 @@ TileRegistry(
             }
         ),
 
+        // チュートリアルを兼ねて最初にマジックボルトを入手
+        // 呪文をひとつも発見していないときはこのレベルに来る
         "warehouse": (
             next: ["home"],
             name: Dict (
@@ -648,7 +650,5 @@ TileRegistry(
             entry_point: false,
             spawn_offset_x: 0.0,
         )
-    },
-
-
+    }
 )
