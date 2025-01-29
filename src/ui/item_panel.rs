@@ -109,10 +109,7 @@ pub fn spawn_item_panel<T: Component>(
 
 fn update_inventory_slot(registry: Registry, mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>) {
     for (slot, mut aseprite) in slot_query.iter_mut() {
-        if let Some(InventoryItem {
-            spell, ..
-        }) = &slot.0
-        {
+        if let Some(InventoryItem { spell, .. }) = &slot.0 {
             aseprite.name = registry.get_spell_props(spell).icon.clone();
         } else {
             aseprite.name = "empty".into();

@@ -406,6 +406,19 @@ impl Actor {
         }
         discovered_spells
     }
+
+    pub fn contains_in_slot(&self, spell: &Spell) -> bool {
+        for wand in self.wands.iter() {
+            for slot in wand.slots.iter() {
+                if let Some(slot) = slot {
+                    if slot.spell == *spell {
+                        return true;
+                    }
+                }
+            }
+        }
+        false
+    }
 }
 
 impl Default for Actor {
@@ -1271,6 +1284,16 @@ fn despawn(
     }
 }
 
+fn count_up_broken_chests(mut player_0query: Query<&mut Player>, actor_query: Query<&Actor>) {
+    if let Ok(mut player) = player_0query.get_single_mut() {
+        for actor in actor_query.iter() {
+            if actor.life == 0 {
+                player.broken_chests += 1;
+            }
+        }
+    }
+}
+
 fn add_life_bar(
     mut commands: Commands,
     query: Query<
@@ -1572,6 +1595,7 @@ impl Plugin for ActorPlugin {
                     add_life_bar,
                     flip,
                     vibrate_breakabke_sprite,
+                    count_up_broken_chests,
                 ),
             )
                 .in_set(FixedUpdateGameActiveSet),

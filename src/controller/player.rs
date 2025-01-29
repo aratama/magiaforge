@@ -54,6 +54,7 @@ pub struct Player {
     pub last_idle_life: u32,
     pub last_idle_max_life: u32,
     pub discovered_spells: HashSet<Spell>,
+    pub broken_chests: u32,
 }
 
 impl Player {
@@ -68,6 +69,7 @@ impl Player {
             last_idle_life: 0,
             last_idle_max_life: 0,
             discovered_spells: discovered_spells.clone(),
+            broken_chests: 0,
         }
     }
 

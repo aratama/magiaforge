@@ -36,6 +36,9 @@ pub enum GameState {
     Ending,
     //
     // 画面を追加したら OverlayPlugin や update_pointer_image_by_angle にも変更が必要
+
+    // アセットの読み込みエラー
+    Error,
 }
 
 #[derive(SubStates, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]

@@ -139,10 +139,7 @@ fn pickup_dropped_item(
 
                     se.send(SEEvent::new(PICK_UP));
 
-                    let InventoryItem {
-                        spell,
-                        price: _,
-                    } = &item.item;
+                    let InventoryItem { spell, price: _ } = &item.item;
 
                     if !player.discovered_spells.contains(&spell) {
                         spawn_new_spell(

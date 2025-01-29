@@ -1,6 +1,7 @@
 pub mod life_bar;
 pub mod overlay;
 pub mod pointer;
+pub mod tutorial;
 
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
@@ -21,6 +22,7 @@ use crate::ui::wand_editor::spawn_wand_editor;
 use crate::ui::wand_list::spawn_wand_list;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
+use tutorial::spawn_tutorial_text;
 
 #[derive(Component)]
 pub struct HUD;
@@ -109,6 +111,8 @@ fn setup_hud(mut commands: Commands, registry: Registry, next: Res<LevelSetup>) 
             spawn_boss_hitpoint_bar(&mut parent, &registry);
 
             spawn_drop_area(&mut parent);
+
+            spawn_tutorial_text(&mut parent);
         });
 
     spawn_speech_bubble(&mut commands, &registry);

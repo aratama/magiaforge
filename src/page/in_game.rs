@@ -170,7 +170,8 @@ pub fn setup_level(
     }
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    let getting_up_animation = level == GameLevel::new(HOME_LEVEL) && cfg!(not(feature = "ingame"));
+    let getting_up_animation =
+        level == GameLevel::new("warehouse") && cfg!(not(feature = "ingame"));
 
     let biome_tile = registry.get_level(&level).biome.clone();
 

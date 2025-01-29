@@ -141,9 +141,7 @@ fn update_spell_icon(
         if let Some(first) = popup.set.iter().next() {
             match first {
                 PopupContent::FloatingContent(content) => match content.get_item(actor) {
-                    Some(InventoryItem {
-                        spell, ..
-                    }) => {
+                    Some(InventoryItem { spell, .. }) => {
                         let props = registry.get_spell_props(&spell);
                         slice.name = props.icon.clone();
                     }
@@ -176,10 +174,7 @@ fn update_spell_name(
         let first = popup.set.iter().next();
         match first {
             Some(PopupContent::FloatingContent(content)) => {
-                if let Some(InventoryItem {
-                    spell, ..
-                }) = content.get_item(actor)
-                {
+                if let Some(InventoryItem { spell, .. }) = content.get_item(actor) {
                     text.0 = registry.get_spell_props(&spell).name.clone();
                 }
             }
@@ -209,9 +204,7 @@ fn update_item_description(
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
                 if let Some(item) = content.get_item(actor) {
-                    let InventoryItem {
-                        spell, ..
-                    } = item;
+                    let InventoryItem { spell, .. } = item;
 
                     let props = registry.get_spell_props(&spell);
                     let mut dict = props.description.clone();

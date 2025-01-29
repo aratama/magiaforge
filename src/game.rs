@@ -50,6 +50,7 @@ use crate::footsteps::FootStepsPlugin;
 use crate::hud::life_bar::LifeBarPlugin;
 use crate::hud::overlay::*;
 use crate::hud::pointer::PointerPlugin;
+use crate::hud::tutorial::TutorialPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
 use crate::interpreter::InterpreterPlugin;
@@ -115,6 +116,7 @@ use bevy_light_2d::plugin::Light2dPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
+use std::num::NonZero;
 use vleue_navigator::prelude::NavmeshUpdaterPlugin;
 use vleue_navigator::prelude::PrimitiveObstacle;
 use vleue_navigator::VleueNavigatorPlugin;
@@ -273,6 +275,7 @@ pub fn run_game() {
         .add_plugins(StatusBarPlugin)
         .add_plugins(StoneLanternPlugin)
         .add_plugins(TrainingDummyPlugin)
+        .add_plugins(TutorialPlugin)
         .add_plugins(MessageRabbitPlugin)
         .add_plugins(WandEditorPlugin)
         .add_plugins(WandListPlugin)
@@ -300,12 +303,14 @@ pub fn run_game() {
                         GameState::MainMenu
                     },
                 )
+                .on_failure_continue_to_state(GameState::Error)
                 .load_collection::<GameAssets>(),
         )
         // State Scoped Entities をオンにすることで、
         // stateを変更したときに自動的にエンティティを削除できます
         // https://bevyengine.org/news/bevy-0-14/#state-scoped-entities
-        .enable_state_scoped_entities::<GameState>();
+        .enable_state_scoped_entities::<GameState>()
+        .add_systems(OnEnter(GameState::Error), on_error);
 
     #[cfg(feature = "debug_command")]
     app.add_plugins(DebugCommandPlugin);
@@ -353,4 +358,8 @@ fn toggle_fullscreen(mut window_query: Query<&mut Window>, keys: Res<ButtonInput
             WindowMode::Fullscreen(_) => WindowMode::Windowed,
         };
     }
+}
+
+fn on_error(mut exit: EventWriter<AppExit>) {
+    exit.send(AppExit::Error(NonZero::new(1).unwrap()));
 }
