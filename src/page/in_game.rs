@@ -182,6 +182,9 @@ pub fn setup_level(
     commands.spawn((
         StateScoped(GameState::InGame),
         NavMeshSettings {
+            // デスクトップ版では問題ないが、ブラウザ版ではナビメッシュの生成がかなり重い
+            // 4.0 で少し改善する？
+            simplify: 4.0,
             // Define the outer borders of the navmesh.
             fixed: Triangulation::from_outer_edges(&[
                 // ここ半タイルぶんズレてる？
@@ -199,9 +202,7 @@ pub fn setup_level(
             agent_radius: 5.0,
             ..default()
         },
-        // Mark it for update as soon as obstacles are changed.
-        // Other modes can be debounced or manually triggered.
-        NavMeshUpdateMode::Direct,
+        NavMeshUpdateMode::Debounced(5.0),
         Transform::from_translation(Vec3::ZERO),
     ));
 
