@@ -153,7 +153,7 @@ fn spawn_autotile<T: Component + Clone>(
 ) {
     let x = TILE_SIZE * xi as f32 + TILE_HALF * dx as f32;
     let y = (TILE_SIZE * -yi as f32) + TILE_HALF * -dy as f32 + y_offset;
-    commands.spawn((
+    let mut builder = commands.spawn((
         TileSprite((xi, yi)),
         Name::new(prefix[0].clone()),
         StateScoped(GameState::InGame),
@@ -162,14 +162,16 @@ fn spawn_autotile<T: Component + Clone>(
             aseprite: registry.assets.atlas.clone(),
             name: format!("{}_{:?}", prefix[0], roof_index).to_string(),
         },
-        AnimatedSlice {
+        marker.clone(),
+    ));
+    if 2 <= prefix.len() {
+        builder.insert(AnimatedSlice {
             slices: prefix
                 .clone()
                 .iter()
                 .map(|s| format!("{}_{}", s, roof_index))
                 .collect(),
             wait: 50,
-        },
-        marker.clone(),
-    ));
+        });
+    }
 }

@@ -389,29 +389,29 @@ fn update_tile_sprites(
     collider_query: Query<Entity, With<WallCollider>>,
 ) {
     if let Some(ref mut chunk) = current.chunk {
-        // 縦２タイルのみ孤立して残っているものがあれば削除
-        for y in chunk.min_y..(chunk.max_y + 1) {
-            for x in chunk.min_x..(chunk.max_x + 1) {
-                if !chunk.is_wall(&registry, x, y + 0)
-                    && chunk.is_wall(&registry, x, y + 1)
-                    && !chunk.is_wall(&registry, x, y + 2)
-                {
-                    warn!("filling gap at {} {}", x, y);
-                    chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
-                } else if !chunk.is_wall(&registry, x, y + 0)
-                    && chunk.is_wall(&registry, x, y + 1)
-                    && chunk.is_wall(&registry, x, y + 2)
-                    && !chunk.is_wall(&registry, x, y + 3)
-                {
-                    warn!("filling gap at {} {}", x, y);
-                    chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
-                    chunk.set_tile(x, y + 2, Tile::new("StoneTile"));
-                }
-            }
-        }
-
         // 範囲内を更新
         if let Some((left, top, right, bottom)) = chunk.dirty {
+            // 縦２タイルのみ孤立して残っているものがあれば削除
+            for y in chunk.min_y..(chunk.max_y + 1) {
+                for x in chunk.min_x..(chunk.max_x + 1) {
+                    if !chunk.is_wall(&registry, x, y + 0)
+                        && chunk.is_wall(&registry, x, y + 1)
+                        && !chunk.is_wall(&registry, x, y + 2)
+                    {
+                        warn!("filling gap at {} {}", x, y);
+                        chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
+                    } else if !chunk.is_wall(&registry, x, y + 0)
+                        && chunk.is_wall(&registry, x, y + 1)
+                        && chunk.is_wall(&registry, x, y + 2)
+                        && !chunk.is_wall(&registry, x, y + 3)
+                    {
+                        warn!("filling gap at {} {}", x, y);
+                        chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
+                        chunk.set_tile(x, y + 2, Tile::new("StoneTile"));
+                    }
+                }
+            }
+
             info!("updating chunk {:?}", chunk.dirty);
 
             let min_x = (left - 1).max(chunk.min_x);

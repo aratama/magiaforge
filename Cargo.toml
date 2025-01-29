@@ -94,7 +94,11 @@ features = [
     # https://github.com/jgayfer/bevy_light_2d/pull/7
     "webgpu",
 
+
     # "x11",
+
+
+    # "trace_tracy",
 ]
 
 [target.'cfg(target_arch = "x86_64")'.dependencies.bevy]

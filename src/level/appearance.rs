@@ -105,13 +105,9 @@ pub fn spawn_world_tile(
                     Tiling::Simple { patterns } => {
                         if let Some(slices) = patterns.choose(&mut rand) {
                             if let Some(s) = slices.choose(&mut rand) {
-                                commands.spawn((
+                                let mut builder = commands.spawn((
                                     TileSprite((x, y)),
                                     StateScoped(GameState::InGame),
-                                    AnimatedSlice {
-                                        slices: slices.clone(),
-                                        wait: 53,
-                                    },
                                     AseSpriteSlice {
                                         aseprite: registry.assets.atlas.clone(),
                                         name: s.clone(),
@@ -122,6 +118,12 @@ pub fn spawn_world_tile(
                                         layer.depth,
                                     ),
                                 ));
+                                if 2 <= slices.len() {
+                                    builder.insert(AnimatedSlice {
+                                        slices: slices.clone(),
+                                        wait: 53,
+                                    });
+                                }
                             }
                         }
                     }
@@ -152,13 +154,9 @@ pub fn spawn_world_tile(
                     }
                     Tiling::Simple { patterns } => {
                         if let Some(frames) = patterns.choose(&mut rand) {
-                            commands.spawn((
+                            let mut buidler = commands.spawn((
                                 TileSprite((x, y)),
                                 StateScoped(GameState::InGame),
-                                AnimatedSlice {
-                                    slices: frames.clone(),
-                                    wait: 53,
-                                },
                                 AseSpriteSlice {
                                     aseprite: registry.assets.atlas.clone(),
                                     name: frames[0].clone(),
@@ -169,6 +167,12 @@ pub fn spawn_world_tile(
                                     FLOOR_LAYER_Z,
                                 ),
                             ));
+                            if 2 <= frames.len() {
+                                buidler.insert(AnimatedSlice {
+                                    slices: frames.clone(),
+                                    wait: 53,
+                                });
+                            }
                         }
                     }
                 }
