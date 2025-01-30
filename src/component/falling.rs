@@ -16,7 +16,7 @@ fn despawn(
         for (entity, transform, actor, name) in query.iter() {
             let position = transform.translation.truncate();
             let tile = chunk.get_tile_by_coords(position);
-            if actor.v <= 0.0 && tile == Tile::new("Crack") {
+            if actor.v <= 0.0 && *tile == Tile::new("Crack") {
                 commands.entity(entity).despawn_recursive();
 
                 se.send(SEEvent::pos(SCENE2, position));

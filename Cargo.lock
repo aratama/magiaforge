@@ -4637,6 +4637,7 @@ dependencies = [
 name = "magiaforge"
 version = "0.1.0"
 dependencies = [
+ "aseprite-loader",
  "bevy",
  "bevy_aseprite_ultra",
  "bevy_asset_loader",
@@ -4656,6 +4657,7 @@ dependencies = [
  "serde",
  "serde_json",
  "strum",
+ "thiserror 2.0.11",
  "trunk",
  "uuid",
  "vleue_navigator",

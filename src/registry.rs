@@ -3,7 +3,7 @@ use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
-use crate::level::map::LevelTile;
+use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::spell::Spell;
@@ -36,9 +36,14 @@ pub struct GameRegistry {
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct TileRegistry {
-    pub levels: HashMap<String, LevelProps>,
-    pub tiles: HashMap<(u8, u8, u8, u8), LevelTile>,
     pub tile_types: HashMap<String, TileTypeProps>,
+    pub color_to_tile_mapping: HashMap<(u8, u8, u8, u8), Tile>,
+
+    /// 各レベル共通で使われるエンティティは、色が割り当てられてentityレイヤーをもとに生成します
+    pub color_to_entity_mapping: HashMap<(u8, u8, u8, u8), SpawnEntityProps>,
+
+    /// 各レベル固有の呪文生成などは、LevelPropsのitemsに記述します
+    pub levels: HashMap<String, LevelProps>,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -66,6 +71,14 @@ pub struct TileTypeProps {
 
     #[serde(default)]
     pub grasses: bool,
+}
+
+#[derive(serde::Deserialize, Debug, Clone)]
+pub struct SpawnEntityProps {
+    pub entity: Spawn,
+
+    #[serde(default)]
+    pub spawn_offset_x: f32,
 }
 
 #[derive(serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
@@ -109,7 +122,6 @@ pub struct LevelProps {
     #[serde(default)]
     pub items: HashMap<(i32, i32), Spell>,
 
-    pub biome: Tile,
     pub bgm: String,
     pub brightness: f32,
 }

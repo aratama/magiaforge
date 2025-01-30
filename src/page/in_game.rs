@@ -3,6 +3,7 @@ use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
+use crate::aseprite_raw_loader::RawAseprite;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
@@ -13,7 +14,6 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::Inventory;
 use crate::inventory::InventoryItem;
-use crate::level::appearance::read_level_chunk_data;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
@@ -22,7 +22,6 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
-use crate::level::map::image_to_spawn_tiles;
 use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
 use crate::level::tile::Tile;
@@ -35,7 +34,6 @@ use crate::states::GameState;
 use crate::wand::Wand;
 use bevy::asset::*;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::*;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -115,8 +113,7 @@ pub fn setup_level(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    level_aseprites: Res<Assets<Aseprite>>,
-    images: Res<Assets<Image>>,
+    raw_aseprites: Res<Assets<RawAseprite>>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
@@ -173,10 +170,8 @@ pub fn setup_level(
     let getting_up_animation =
         level == GameLevel::new("warehouse") && cfg!(not(feature = "ingame"));
 
-    let biome_tile = registry.get_level(&level).biome.clone();
-
     // 画像データからレベルの情報を選択して読み取ります
-    let chunk = read_level_chunk_data(&registry, &level_aseprites, &images, &level, biome_tile);
+    let chunk = LevelChunk::new(&registry, &raw_aseprites, &level);
 
     // ナビゲーションメッシュを作成します
     // Spawn a new navmesh that will be automatically updated.
@@ -222,21 +217,16 @@ pub fn setup_level(
     spawn_wall_collisions(&mut commands, &chunk);
 
     // 宝箱や灯篭などのエンティティを生成します
-    for y in chunk.min_y..chunk.max_y {
-        for x in chunk.min_x..chunk.max_x {
-            let tile = chunk.get_level_tile(x, y);
-            if let Some(ref entity) = tile.entity {
-                spawn.send(SpawnEvent {
-                    position: index_to_position((x, y)) + Vec2::new(tile.spawn_offset_x, 0.0),
-                    spawn: entity.clone(),
-                });
-            }
-        }
+    for ((x, y), props) in chunk.entities.iter() {
+        spawn.send(SpawnEvent {
+            position: index_to_position((*x, *y)) + Vec2::new(props.spawn_offset_x, 0.0),
+            spawn: props.entity.clone(),
+        });
     }
 
     // 空間
     // ここに敵モブや落ちているアイテムを生成します
-    let empties = image_to_spawn_tiles(&chunk);
+    let empties = chunk.get_spawn_tiles(&registry);
 
     // 空いた空間に敵モブキャラクターをランダムに生成します
     let props = registry.get_level(&level);

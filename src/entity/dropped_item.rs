@@ -130,8 +130,6 @@ fn pickup_dropped_item(
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
-                info!("pickup_dropped_item ");
-
                 let item = item_query.get(item_entity).unwrap();
                 let (mut actor, player) = player_query.get_mut(player_entity).unwrap();
                 if actor.inventory.insert(item.item.clone()) {

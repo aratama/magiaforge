@@ -3,11 +3,9 @@ use crate::constant::*;
 use crate::entity::grass::spawn_grasses;
 use crate::level::ceil::spawn_autotiles;
 use crate::level::ceil::WALL_HEIGHT_IN_TILES;
-use crate::level::map::image_to_tilemap;
 use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
 use crate::level::tile::*;
-use crate::page::in_game::GameLevel;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::registry::Tiling;
@@ -21,32 +19,6 @@ const WATER_PLANE_OFFEST: f32 = -4.0;
 
 #[derive(Component)]
 pub struct TileSprite(pub (i32, i32));
-
-/// レベルの番号を指定して、画像データからレベル情報を取得します
-/// このとき、該当するレベルの複数のスライスからランダムにひとつが選択されます、
-pub fn read_level_chunk_data(
-    registry: &Registry,
-    level_aseprites: &Res<Assets<Aseprite>>,
-    images: &Res<Assets<Image>>,
-    level: &GameLevel,
-    biome_tile: Tile,
-) -> LevelChunk {
-    let level_aseprite = level_aseprites.get(registry.assets.level.id()).unwrap();
-    let level_image = images.get(level_aseprite.atlas_image.id()).unwrap();
-    let slice = level_aseprite.slices.get(&level.0).unwrap();
-
-    let chunk = image_to_tilemap(
-        &registry,
-        biome_tile,
-        &level_image,
-        slice.rect.min.x as i32,
-        slice.rect.max.x as i32,
-        slice.rect.min.y as i32,
-        slice.rect.max.y as i32,
-    );
-
-    return chunk;
-}
 
 #[derive(Component, Clone)]
 struct FoamTile;

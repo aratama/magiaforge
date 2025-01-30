@@ -37,8 +37,6 @@ fn spawn(
     parent_query: Query<(Entity, &WithPointLight, &Transform), Added<WithPointLight>>,
 ) {
     for (parent, light, transform) in parent_query.iter() {
-        info!("spawning light");
-
         commands.spawn((
             Name::new("entity point light"),
             StateScoped(GameState::InGame),

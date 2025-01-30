@@ -3,6 +3,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod actor;
+mod aseprite_raw_loader;
 mod asset;
 mod audio;
 mod camera;

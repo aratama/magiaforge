@@ -907,7 +907,7 @@ fn drown(
             if actor.levitation == 0 && actor.v == 0.0 {
                 let position = transform.translation.truncate();
                 let tile = chunk.get_tile_by_coords(position);
-                if tile == Tile::new("Water") || tile == Tile::new("Lava") {
+                if *tile == Tile::new("Water") || *tile == Tile::new("Lava") {
                     if actor.drown == 0 {
                         se.send(SEEvent::pos(BASHA2, position));
                     }
@@ -941,7 +941,7 @@ fn drown_damage(
         let tile = if let Some(ref chunk) = level.chunk {
             chunk.get_tile_by_coords(position)
         } else {
-            Tile::new("Blank")
+            &Tile::default()
         };
         match tile.0.as_str() {
             "Water" => {

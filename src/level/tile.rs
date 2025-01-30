@@ -6,3 +6,9 @@ impl Tile {
         Tile(s.to_string())
     }
 }
+
+impl Default for Tile {
+    fn default() -> Self {
+        Tile::new("Blank")
+    }
+}

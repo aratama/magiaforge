@@ -5,6 +5,7 @@ use crate::actor::chicken::ChikenControlPlugin;
 use crate::actor::stone_lantern::StoneLanternPlugin;
 use crate::actor::witch::WitchPlugin;
 use crate::actor::ActorPlugin;
+use crate::aseprite_raw_loader::RawAsepriteLoaderPlugin;
 use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
@@ -284,6 +285,8 @@ pub fn run_game() {
         .add_plugins(WebSocketPlugin)
         .add_plugins(WitchPlugin)
         .add_plugins(WorldPlugin)
+        //
+        .add_plugins(RawAsepriteLoaderPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

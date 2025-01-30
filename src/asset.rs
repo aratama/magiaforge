@@ -1,3 +1,4 @@
+use crate::aseprite_raw_loader::RawAseprite;
 use crate::registry::ActorRegistry;
 use crate::registry::GameRegistry;
 use crate::registry::SenarioRegistry;
@@ -48,6 +49,9 @@ pub struct GameAssets {
 
     #[asset(path = "image/level.aseprite")]
     pub level: Handle<Aseprite>,
+
+    #[asset(path = "image/level.aseprite")]
+    pub raw_level: Handle<RawAseprite>,
 
     #[asset(path = "image/title.aseprite")]
     pub title: Handle<Aseprite>,

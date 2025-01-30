@@ -103,6 +103,142 @@ TileRegistry(
         ),
     },
 
+    // level.aseprite の tiles レイヤーに以下の色のピクセルを配置すると、その位置にタイルが生成されます
+    color_to_tile_mapping: {
+        // 壁
+        (0, 0, 0, 255): "PermanentWall",
+        (82, 75, 36, 255): "Wall",
+
+        // 床
+        (203, 219, 252, 255): "StoneTile",
+        (153, 229, 80, 255): "Grassland",
+        (222, 233, 255, 255): "Ice",
+
+        // 水面など
+        (55, 79, 225, 255): "Water",
+        (205, 121, 54, 255): "Lava",
+        (43, 43, 43, 255): "Crack",
+    },
+
+    // level.aseprite の entities レイヤーに以下の色のピクセルを配置すると、その位置にエンティティが生成されます
+    color_to_entity_mapping: {
+        // 魔法陣 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        (48, 96, 130, 255): (
+            entity: MagicCircle,
+        ),
+        (47, 96, 130, 255): (
+            entity: MultiPlayArenaMagicCircle,
+        ),
+        (56, 111, 161, 255): (
+            entity: MagicCircleHome,
+        ),
+        (46, 96, 130, 255): (
+            entity: MagicCircleDemoEnding,
+        ),
+        (255, 0, 0, 255): (
+            entity: BrokenMagicCircle, // エントリポイント 
+        ),
+
+        // 施設など /////////////////////////////////////////////////////////////////////////////////////////////////////
+        (197, 255, 142, 255): (
+            entity: ShopDoor,
+        ),
+        (0, 222, 255, 255): (
+            entity: ShopSpell,
+        ),
+        // (68, 0, 94, 255): (
+        //     entity: BGM ( bgm: "bgm/最果てのルージュ.ogg" ),
+        //     entry_point: false,
+        //     spawn_offset_x: 0.0,
+        // ),        
+        (251, 242, 54, 255): (
+            entity: RandomChest,
+        ),
+        (255, 155, 87, 255): (
+            entity: RandomChest,
+        ),
+        (102, 57, 49, 255): (
+            entity: RandomChest,
+        ),
+        (255, 0, 255, 255): (
+            entity: Usage,
+        ),
+        (184, 0, 255, 255): (
+            entity: Boss (
+                actor_type: "HugeSlime",
+                name: Dict (
+                    ja: "スライムの王 エミルス",
+                    en: "Slime King Emils",
+                    zh_cn: "史莱姆之王 艾米尔斯",
+                    zh_tw: "史萊姆之王 艾米爾斯",
+                    es: "Rey Slime Emils",
+                    fr: "Roi Slime Emils",
+                    pt: "Rei Slime Emils",
+                    de: "Schleimkönig Emils",
+                    ko: "슬라임 왕 에밀스",
+                    ru: "Король слизней Эмильс",
+                ),
+                on_despawn: "HugeSlime"
+            ),
+        ),
+
+        // ラビット ////////////////////////////////////////////////////////////////////////////////////////////////
+        (255, 243, 0, 255): (
+            entity: Rabbit (
+                aseprite: "entity/rabbit_yellow.aseprite",
+                senario: "ShopRabbit"
+            ),
+        ),
+        (255, 244, 0, 255): (
+            entity: Rabbit (
+                aseprite: "entity/rabbit_red.aseprite",
+                senario: "TrainingRabbit"
+            ),
+        ),
+        (255, 245, 0, 255): (
+            entity: Rabbit ( 
+                aseprite: "entity/rabbit_blue.aseprite",
+                senario: "GuideRabbit"
+            ),
+        ),
+        (255, 246, 0, 255): (
+            entity: Rabbit ( 
+                aseprite: "entity/rabbit_black.aseprite",
+                senario: "MultiPlayRabbit"
+            ),
+        ),
+        (255, 247, 0, 255): (
+            entity: Rabbit (
+                aseprite: "entity/rabbit_white.aseprite",
+                senario: "SingleplayRabbit"
+            ),
+        ),
+        (255, 248, 0, 255): (
+            entity: Rabbit (
+                aseprite: "entity/rabbit_green.aseprite",
+                senario: "ReadingRabbit"
+            ),
+        ),
+        (255, 249, 0, 255): (
+            entity: Rabbit (
+                aseprite: "entity/rabbit_blue.aseprite",
+                senario: "SpellListRabbit"
+            ),
+        ),
+
+        // 通常のアクター /////////////////////////////////////////////////////////////////////////////////////
+        (223, 113, 38, 255): (
+            entity: Actor("Lantern"),
+        ),
+        (118, 66, 138, 255): (
+            entity: Actor("BookShelf"),
+            spawn_offset_x: 8.0
+        ),        
+        (182, 0, 255, 255): (
+            entity: Actor("Sandbag"),
+        ),
+    },
+
     levels: {
         "home": (
             next: ["library", "waterside_of_leap", "valley", "grassland"],
@@ -120,7 +256,6 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: [],
-            biome: "StoneTile",
             bgm: "bgm/最果てのルージュ.ogg",
             brightness: 0.4,
             items: {
@@ -134,7 +269,6 @@ TileRegistry(
                 (53, 24): "Bomb",
             }
         ),
-
         // チュートリアルを兼ねて最初にマジックボルトを入手
         // 呪文をひとつも発見していないときはこのレベルに来る
         "warehouse": (
@@ -153,16 +287,13 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: ["Slime"],
-            biome: "StoneTile",
             bgm: "bgm/水のしたたる洞窟.ogg",
             brightness: 0.4,
             items: {
                 (158, 224): "MagicBolt"
             }
         ),
-
         // レベル1 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         // 飛躍の呪文を入手
         // 比較的安全な水辺でジャンプの練習
         "waterside_of_leap": (
@@ -184,11 +315,9 @@ TileRegistry(
             items: {
                 (154,89): "Jump"
             },
-            biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
         ),
-
         // 光の玉の魔法を入手
         // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
         // 明かりで照らしながら慎重に進む
@@ -211,11 +340,9 @@ TileRegistry(
             items: {
                 (142, 164): "LightBall"
             },
-            biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.01,
         ),
-
         // ランタンを入手
         // 非常に暗いが、周囲が明るくなり、蜘蛛の巣を避けやすくなる
         // 光の玉と異なり、ランタンでは遠くを見通すことはできない
@@ -236,14 +363,12 @@ TileRegistry(
             ),
             enemies: 15,
             enemy_types: ["Slime", "Spider"],
-            biome: "Grassland",
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.02,
             items: {
                 (202, 25): "Lantern"
             }
         ),
-
         // 望遠鏡を入手
         // レベルとのシナジーがない……
         // スナイパー系のモンスターを出す？ 
@@ -263,7 +388,6 @@ TileRegistry(
             ),
             enemies: 10,
             enemy_types: ["Slime"],
-            biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
             items: {
@@ -271,9 +395,7 @@ TileRegistry(
             }
         ),
 
-
         // レベル2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         // 地面に爆発キノコが埋まっている
         // うっかり踏むと大爆発してダメージを受けるが、
         // 拡大鏡で地面をよく見ながら進もう
@@ -294,25 +416,17 @@ TileRegistry(
             ),
             enemies: 15,
             enemy_types: ["Slime", "Spider"],
-            biome: "Grassland",
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.4,
             items: {
                 (206, 91): "Magnifier"
             }
         ),
-
         // これ以下はテーマ未定 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
         
-
         
-
-
-
 
 
         
@@ -333,7 +447,6 @@ TileRegistry(
             ),
             enemies: 20,
             enemy_types: ["Spider", "EyeBall"],
-            biome: "StoneTile",
             bgm: "bgm/迷宮.ogg",
             brightness: 0.4
         ),
@@ -353,7 +466,6 @@ TileRegistry(
             ),
             enemies: 20,
             enemy_types: ["EyeBall", "Shadow"],
-            biome: "StoneTile",
             bgm: "bgm/ダンジョンを踏破せし者.ogg",
             brightness: 0.4
         ),
@@ -373,7 +485,6 @@ TileRegistry(
             ),
             enemies: 15,
             enemy_types: ["Shadow", "Salamander"],
-            biome: "Ice",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4
         ),
@@ -393,7 +504,6 @@ TileRegistry(
             ),
             enemies: 30,
             enemy_types: ["Slime", "Spider", "EyeBall", "Shadow", "Salamander"],
-            biome: "StoneTile",
             bgm: "bgm/忘れられた神殿.ogg",
             brightness: 0.4
         ),
@@ -413,7 +523,6 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: [],
-            biome: "StoneTile",
             bgm: "bgm/炎神の吐息.ogg",
             brightness: 0.4
         ),
@@ -433,279 +542,11 @@ TileRegistry(
             ),
             enemies: 0,
             enemy_types: [],
-            biome: "StoneTile",
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4
         ),
     },
     
-    tiles: {
-        (203, 219, 252, 255): (
-            tile: None,
-            zone: Dungeon,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (234, 255, 214, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (82, 75, 36, 255): (
-            tile: "Wall",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (118, 66, 138, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Actor("BookShelf"),
-            entry_point: false,
-            spawn_offset_x: 8.0,
-        ),
-        (251, 242, 54, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: RandomChest,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 155, 87, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: RandomChest,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (48, 96, 130, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: MagicCircle,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (47, 96, 130, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: MultiPlayArenaMagicCircle,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (56, 111, 161, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: MagicCircleHome,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (46, 96, 130, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: MagicCircleDemoEnding,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 0, 0, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: BrokenMagicCircle,
-            entry_point: true,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 0, 255, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: Usage,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (223, 113, 38, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: Actor("Lantern"),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (0, 222, 255, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: ShopSpell,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (102, 57, 49, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: RandomChest,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (184, 0, 255, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Boss (
-                actor_type: "HugeSlime",
-                name: Dict (
-                    ja: "スライムの王 エミルス",
-                    en: "Slime King Emils",
-                    zh_cn: "史莱姆之王 艾米尔斯",
-                    zh_tw: "史萊姆之王 艾米爾斯",
-                    es: "Rey Slime Emils",
-                    fr: "Roi Slime Emils",
-                    pt: "Rei Slime Emils",
-                    de: "Schleimkönig Emils",
-                    ko: "슬라임 왕 에밀스",
-                    ru: "Король слизней Эмильс",
-                ),
-                on_despawn: "HugeSlime"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 243, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit (
-                aseprite: "entity/rabbit_yellow.aseprite",
-                senario: "ShopRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 244, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit (
-                aseprite: "entity/rabbit_red.aseprite",
-                senario: "TrainingRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 245, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit ( 
-                aseprite: "entity/rabbit_blue.aseprite",
-                senario: "GuideRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 246, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit ( 
-                aseprite: "entity/rabbit_black.aseprite",
-                senario: "MultiPlayRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 247, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit (
-                aseprite: "entity/rabbit_white.aseprite",
-                senario: "SingleplayRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 248, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit (
-                aseprite: "entity/rabbit_green.aseprite",
-                senario: "ReadingRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (255, 249, 0, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Rabbit (
-                aseprite: "entity/rabbit_blue.aseprite",
-                senario: "SpellListRabbit"
-            ),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (182, 0, 255, 255): (
-            tile: None,
-            zone: SafeZone,
-            entity: Actor("Sandbag"),
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (197, 255, 142, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: ShopDoor,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        // (68, 0, 94, 255): (
-        //     tile: None,
-        //     zone: SafeZone,
-        //     entity: BGM ( bgm: "bgm/最果てのルージュ.ogg" ),
-        //     entry_point: false,
-        //     spawn_offset_x: 0.0,
-        // ),
-        (153, 229, 80, 255): (
-            tile: "Grassland",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (156, 156, 156, 255): (
-            tile: "StoneTile",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (55, 79, 225, 255): (
-            tile: "Water",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (205, 121, 54, 255): (
-            tile: "Lava",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (43, 43, 43, 255): (
-            tile: "Crack",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (222, 233, 255, 255): (
-            tile: "Ice",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        ),
-        (0, 0, 0, 255): (
-            tile: "PermanentWall",
-            zone: SafeZone,
-            entity: None,
-            entry_point: false,
-            spawn_offset_x: 0.0,
-        )
-    }
+
+    
 )

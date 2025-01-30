@@ -45,7 +45,6 @@ fn read_overlay_event(mut query: Query<&mut Overlay>, mut reader: EventReader<Ov
     let mut overlay = query.single_mut();
 
     for event in reader.read() {
-        info!("{:?}", event);
         match event {
             OverlayEvent::Close(next) => {
                 overlay.open = false;
