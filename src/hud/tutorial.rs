@@ -18,7 +18,7 @@ pub fn spawn_tutorial_text(builder: &mut ChildBuilder) {
     builder
         .spawn((Node {
             position_type: PositionType::Absolute,
-            bottom: Val::Px(16.),
+            bottom: Val::Px(64.),
             justify_content: JustifyContent::Center,
             width: Val::Percent(100.),
             ..default()

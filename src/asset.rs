@@ -39,6 +39,7 @@ pub struct GameAssets {
     #[asset(path = "font/NotoSansKR-Medium.ttf")]
     pub noto_sans_kr: Handle<Font>,
 
+    // テクスチャ /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "image/atlas.aseprite")]
     pub atlas: Handle<Aseprite>,
 
@@ -68,12 +69,6 @@ pub struct GameAssets {
 
     #[asset(path = "entity/witch.aseprite")]
     pub witch: Handle<Aseprite>,
-
-    #[asset(path = "entity/freeze.aseprite")]
-    pub freeze: Handle<Aseprite>,
-
-    #[asset(path = "entity/slash.aseprite")]
-    pub slash: Handle<Aseprite>,
 
     // モンスター //////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/slime.aseprite")]
@@ -121,28 +116,22 @@ pub struct GameAssets {
     // 先読みのためにここでも含めておく
     // でも通常はタイトル画面を表示しているあいだに読み込みが間に合う？
     #[asset(path = "entity/rabbit_yellow.aseprite")]
-    #[allow(dead_code)]
-    pub rabbit_yellow: Handle<Aseprite>,
+    pub _rabbit_yellow: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_red.aseprite")]
-    #[allow(dead_code)]
-    pub rabbit_red: Handle<Aseprite>,
+    pub _rabbit_red: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_blue.aseprite")]
-    #[allow(dead_code)]
-    pub rabbit_blue: Handle<Aseprite>,
+    pub _rabbit_blue: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_black.aseprite")]
-    #[allow(dead_code)]
-    pub rabbit_black: Handle<Aseprite>,
+    pub _rabbit_black: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_white.aseprite")]
-    #[allow(dead_code)]
-    pub rabbit_white: Handle<Aseprite>,
+    pub _rabbit_white: Handle<Aseprite>,
 
     #[asset(path = "entity/rabbit_green.aseprite")]
-    #[allow(dead_code)]
-    pub rabbit_green: Handle<Aseprite>,
+    pub _rabbit_green: Handle<Aseprite>,
 
     // 箱 //////////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/chest.aseprite")]
@@ -167,9 +156,14 @@ pub struct GameAssets {
     pub _jar_green: Handle<Aseprite>,
 
     // 呪文 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    #[asset(path = "entity/freeze.aseprite")]
+    pub freeze: Handle<Aseprite>,
+
+    #[asset(path = "entity/slash.aseprite")]
+    pub slash: Handle<Aseprite>,
+
     #[asset(path = "entity/bomb.aseprite")]
-    #[allow(dead_code)]
-    pub bomb: Handle<Aseprite>,
+    pub _bomb: Handle<Aseprite>,
 
     #[asset(path = "entity/gold.aseprite")]
     pub gold: Handle<Aseprite>,
@@ -181,178 +175,135 @@ pub struct GameAssets {
     pub fire: Handle<Aseprite>,
 
     #[asset(path = "entity/stone_lantern.aseprite")]
-    #[allow(dead_code)]
-    pub stone_lantern: Handle<Aseprite>,
+    pub _stone_lantern: Handle<Aseprite>,
 
     #[asset(path = "entity/impact.aseprite")]
     pub impact: Handle<Aseprite>,
 
     // 効果音 ////////////////////////////////////////////////////////////////////////////
     #[asset(path = "audio/dageki.ogg")]
-    #[allow(dead_code)]
-    pub dageki: Handle<AudioSource>,
+    pub _dageki: Handle<AudioSource>,
 
     #[asset(path = "audio/shibafu.ogg")]
-    #[allow(dead_code)]
-    pub shibafu: Handle<AudioSource>,
+    pub _shibafu: Handle<AudioSource>,
 
     #[asset(path = "audio/hiyoko.ogg")]
-    #[allow(dead_code)]
-    pub hiyoko: Handle<AudioSource>,
+    pub _hiyoko: Handle<AudioSource>,
 
     #[asset(path = "audio/kuzureru.ogg")]
-    #[allow(dead_code)]
-    pub kuzureru: Handle<AudioSource>,
+    pub _kuzureru: Handle<AudioSource>,
 
     #[asset(path = "audio/kettei.ogg")]
-    #[allow(dead_code)]
-    pub kettei: Handle<AudioSource>,
+    pub _kettei: Handle<AudioSource>,
 
     #[asset(path = "audio/suburi.ogg")]
-    #[allow(dead_code)]
-    pub suburi: Handle<AudioSource>,
+    pub _suburi: Handle<AudioSource>,
 
     #[asset(path = "audio/アスファルトの上を歩く2.ogg")]
-    #[allow(dead_code)]
-    pub asphalt: Handle<AudioSource>,
+    pub _asphalt: Handle<AudioSource>,
 
     #[asset(path = "audio/メニューを開く2.ogg")]
-    #[allow(dead_code)]
-    pub menu_open: Handle<AudioSource>,
+    pub _menu_open: Handle<AudioSource>,
 
     #[asset(path = "audio/ワープ.ogg")]
-    #[allow(dead_code)]
-    pub warp: Handle<AudioSource>,
+    pub _warp: Handle<AudioSource>,
 
     #[asset(path = "audio/キャンセル9.ogg")]
-    #[allow(dead_code)]
-    pub cancel: Handle<AudioSource>,
+    pub _cancel: Handle<AudioSource>,
 
     #[asset(path = "audio/体育館で走る.ogg")]
-    #[allow(dead_code)]
     pub taiikukan: Handle<AudioSource>,
 
     #[asset(path = "audio/回復魔法1.ogg")]
-    #[allow(dead_code)]
-    pub kaifuku1: Handle<AudioSource>,
+    pub _kaifuku1: Handle<AudioSource>,
 
     #[asset(path = "audio/カーソル移動2.ogg")]
-    #[allow(dead_code)]
-    pub cursor2: Handle<AudioSource>,
+    pub _cursor2: Handle<AudioSource>,
 
     #[asset(path = "audio/爆発3_drop.ogg")]
-    #[allow(dead_code)]
-    pub drop: Handle<AudioSource>,
+    pub _drop: Handle<AudioSource>,
 
     #[asset(path = "audio/イノシシの鳴き声.ogg")]
-    #[allow(dead_code)]
-    pub inoshishi: Handle<AudioSource>,
+    pub _inoshishi: Handle<AudioSource>,
 
     #[asset(path = "audio/ぷよん.ogg")]
-    #[allow(dead_code)]
-    pub puyon: Handle<AudioSource>,
+    pub _puyon: Handle<AudioSource>,
 
     #[asset(path = "audio/お風呂.ogg")]
-    #[allow(dead_code)]
-    pub bicha: Handle<AudioSource>,
+    pub _bicha: Handle<AudioSource>,
 
     #[asset(path = "audio/可愛い動作.ogg")]
-    #[allow(dead_code)]
-    pub kawaii: Handle<AudioSource>,
+    pub _kawaii: Handle<AudioSource>,
 
     #[asset(path = "audio/レジスターで精算.ogg")]
-    #[allow(dead_code)]
-    pub register: Handle<AudioSource>,
+    pub _register: Handle<AudioSource>,
 
     #[asset(path = "audio/手裏剣を投げる.ogg")]
-    #[allow(dead_code)]
-    pub shuriken: Handle<AudioSource>,
+    pub _shuriken: Handle<AudioSource>,
 
     #[asset(path = "audio/バスのドアが開く2.ogg")]
-    #[allow(dead_code)]
-    pub bus: Handle<AudioSource>,
+    pub _bus: Handle<AudioSource>,
 
     #[asset(path = "audio/ガラスが割れる2.ogg")]
-    #[allow(dead_code)]
-    pub glass: Handle<AudioSource>,
+    pub _glass: Handle<AudioSource>,
 
     #[asset(path = "audio/雷魔法4.ogg")]
-    #[allow(dead_code)]
-    pub kaminari: Handle<AudioSource>,
+    pub _kaminari: Handle<AudioSource>,
 
     #[asset(path = "audio/地震魔法2.ogg")]
-    #[allow(dead_code)]
-    pub jishin: Handle<AudioSource>,
+    pub _jishin: Handle<AudioSource>,
 
     #[asset(path = "audio/爆発2.ogg")]
-    #[allow(dead_code)]
-    pub bakuhatsu: Handle<AudioSource>,
+    pub _bakuhatsu: Handle<AudioSource>,
 
     #[asset(path = "audio/ステータス上昇魔法2.ogg")]
-    #[allow(dead_code)]
-    pub status2: Handle<AudioSource>,
+    pub _status2: Handle<AudioSource>,
 
     #[asset(path = "audio/たき火.ogg")]
-    #[allow(dead_code)]
     pub takibi: Handle<AudioSource>,
 
     #[asset(path = "audio/ゾンビの食事.ogg")]
-    #[allow(dead_code)]
-    pub zombie: Handle<AudioSource>,
+    pub _zombie: Handle<AudioSource>,
 
     #[asset(path = "audio/構えを取る.ogg")]
-    #[allow(dead_code)]
-    pub kamae: Handle<AudioSource>,
+    pub _kamae: Handle<AudioSource>,
 
     #[asset(path = "audio/コルク栓を抜く1.ogg")]
-    #[allow(dead_code)]
-    pub sen: Handle<AudioSource>,
+    pub _sen: Handle<AudioSource>,
 
     #[asset(path = "audio/風が吹く1.ogg")]
-    #[allow(dead_code)]
-    pub kaze: Handle<AudioSource>,
+    pub _kaze: Handle<AudioSource>,
 
     #[asset(path = "audio/ドラゴンの鳴き声2.ogg")]
-    #[allow(dead_code)]
-    pub dragon: Handle<AudioSource>,
+    pub _dragon: Handle<AudioSource>,
 
     #[asset(path = "audio/ドラゴンの羽ばたき.ogg")]
-    #[allow(dead_code)]
-    pub dragon_flutter: Handle<AudioSource>,
+    pub _dragon_flutter: Handle<AudioSource>,
 
     #[asset(path = "audio/倒れる.ogg")]
-    #[allow(dead_code)]
-    pub taoreru: Handle<AudioSource>,
+    pub _taoreru: Handle<AudioSource>,
 
     #[asset(path = "audio/氷魔法で凍結.ogg")]
-    #[allow(dead_code)]
-    pub freeze_se: Handle<AudioSource>,
+    pub _freeze_se: Handle<AudioSource>,
 
     #[asset(path = "audio/水をバシャッとかける2.ogg")]
-    #[allow(dead_code)]
-    pub basha2: Handle<AudioSource>,
+    pub _basha2: Handle<AudioSource>,
 
     #[asset(path = "audio/ジャンプの着地.ogg")]
-    #[allow(dead_code)]
-    pub chakuchi: Handle<AudioSource>,
+    pub _chakuchi: Handle<AudioSource>,
 
     #[asset(path = "audio/砂の上を走る.ogg")]
-    #[allow(dead_code)]
-    pub suna: Handle<AudioSource>,
+    pub _suna: Handle<AudioSource>,
 
     #[asset(path = "audio/シーン切り替え2.ogg")]
-    #[allow(dead_code)]
-    pub scene2: Handle<AudioSource>,
+    pub _scene2: Handle<AudioSource>,
 
     #[asset(path = "audio/HP吸収魔法2_short.ogg")]
-    #[allow(dead_code)]
-    pub kyushu2_short: Handle<AudioSource>,
+    pub _kyushu2_short: Handle<AudioSource>,
 
     #[asset(path = "audio/剣の素振り2.ogg")]
-    #[allow(dead_code)]
-    pub ken2: Handle<AudioSource>,
+    pub _ken2: Handle<AudioSource>,
 
     #[asset(path = "bgm/発見.ogg")]
-    #[allow(dead_code)]
-    pub hakken: Handle<AudioSource>,
+    pub _hakken: Handle<AudioSource>,
 }
