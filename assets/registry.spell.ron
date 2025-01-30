@@ -4,6 +4,7 @@
 #![enable(unwrap_variant_newtypes)]
 SpellRegistry(
     spells: {
+        // warehouseで入手
         "MagicBolt": (
             rank: 0,
             name: Dict (
@@ -47,6 +48,7 @@ SpellRegistry(
                 stagger: 60,
             ),
         ),
+        // valleyで入手
         "LightBall": (
             rank: 0,
             name: Dict (
@@ -79,7 +81,7 @@ SpellRegistry(
             cast: Bullet(
                 slices: Slice (names: ["light_ball"]),
                 collier_radius: 5.0,
-                speed: 4.0,
+                speed: 40.0,
                 lifetime: 1800,
                 damage: 0,
                 impulse: 0.0,
@@ -91,6 +93,7 @@ SpellRegistry(
                 stagger: 0,
             ),
         ),
+        // 草原で入手
         "Lantern": (
             rank: 0,
             name: Dict (
@@ -235,6 +238,7 @@ SpellRegistry(
                 stagger: 20,
             ),
         ),
+        // 図書館で入手
         "Telescope": (
             rank: 1,
             name: Dict (
@@ -266,6 +270,7 @@ SpellRegistry(
             price: 300,
             cast: NoCast
         ),
+        // 爆発キノコの湿地で入手
         "Magnifier": (
             rank: 1,
             name: Dict (

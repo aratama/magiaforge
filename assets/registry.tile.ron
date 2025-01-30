@@ -105,7 +105,7 @@ TileRegistry(
 
     levels: {
         "home": (
-            next: ["library", "waterside_of_leap", "valley"],
+            next: ["library", "waterside_of_leap", "valley", "grassland"],
             name: Dict (
                 ja: "ウサギ族のキャンプ",
                 en: "Rabbit's Camp",
@@ -161,31 +161,12 @@ TileRegistry(
             }
         ),
 
-        "library": (
-            next: ["level_2_0"],
-            name: Dict (
-                ja: "図書館跡",
-                en: "Library Ruins",
-                zh_cn: "图书馆废墟",
-                zh_tw: "圖書館廢墟",
-                es: "Ruinas de la Biblioteca",
-                fr: "Ruines de la Bibliothèque",
-                pt: "Ruínas da Biblioteca",
-                de: "Bibliotheksruinen",
-                ko: "도서관 폐허",
-                ru: "Руины библиотеки",
-            ),
-            enemies: 10,
-            enemy_types: ["Slime"],
-            biome: "StoneTile",
-            bgm: "bgm/森のいざない.ogg",
-            brightness: 0.4
-        ),
+        // レベル1 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // 飛躍の呪文を入手
         // 比較的安全な水辺でジャンプの練習
         "waterside_of_leap": (
-            next: ["level_2_0"],
+            next: ["minefield"],
             name: Dict (
                 ja: "飛躍の水辺",
                 en: "Waterside of Leap",
@@ -212,7 +193,7 @@ TileRegistry(
         // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
         // 明かりで照らしながら慎重に進む
         "valley": (
-            next: ["level_2_0"],
+            next: ["minefield"],
             name: Dict (
                 ja: "暗闇の谷",
                 en: "Valley of Darkness",
@@ -235,13 +216,12 @@ TileRegistry(
             brightness: 0.01,
         ),
 
-
-
-
-
-        
-        "level_2_0": (
-            next: ["level_3_0"],
+        // ランタンを入手
+        // 非常に暗いが、周囲が明るくなり、蜘蛛の巣を避けやすくなる
+        // 光の玉と異なり、ランタンでは遠くを見通すことはできない
+        // valleyと差別化が微妙？
+        "grassland": (
+            next: ["minefield"],
             name: Dict (
                 ja: "地下草原",
                 en: "Underground Grassland",
@@ -259,7 +239,84 @@ TileRegistry(
             biome: "Grassland",
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.02,
+            items: {
+                (202, 25): "Lantern"
+            }
         ),
+
+        // 望遠鏡を入手
+        // レベルとのシナジーがない……
+        // スナイパー系のモンスターを出す？ 
+        "library": (
+            next: ["minefield"],
+            name: Dict (
+                ja: "図書館跡",
+                en: "Library Ruins",
+                zh_cn: "图书馆废墟",
+                zh_tw: "圖書館廢墟",
+                es: "Ruinas de la Biblioteca",
+                fr: "Ruines de la Bibliothèque",
+                pt: "Ruínas da Biblioteca",
+                de: "Bibliotheksruinen",
+                ko: "도서관 폐허",
+                ru: "Руины библиотеки",
+            ),
+            enemies: 10,
+            enemy_types: ["Slime"],
+            biome: "StoneTile",
+            bgm: "bgm/森のいざない.ogg",
+            brightness: 0.4,
+            items: {
+                (175, 17): "Telescope"
+            }
+        ),
+
+
+        // レベル2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // 地面に爆発キノコが埋まっている
+        // うっかり踏むと大爆発してダメージを受けるが、
+        // 拡大鏡で地面をよく見ながら進もう
+        // 爆発キノコは浮遊の魔法などでも回避できる
+        "minefield": (
+            next: ["level_4_0"],
+            name: Dict (
+                ja: "爆発キノコの湿地",
+                en: "Explosive Mushroom Swamp",
+                zh_cn: "爆炸蘑菇沼泽",
+                zh_tw: "爆炸蘑菇沼泽",
+                es: "Pantano de Hongos Explosivos",
+                fr: "Marais aux Champignons Explosifs",
+                pt: "Pântano de Cogumelos Explosivos",
+                de: "Explosiver Pilzsumpf",
+                ko: "폭발 버섯 늪지",
+                ru: "Болото взрывных грибов",
+            ),
+            enemies: 15,
+            enemy_types: ["Slime", "Spider"],
+            biome: "Grassland",
+            bgm: "bgm/midnight-forest-184304.ogg",
+            brightness: 0.4,
+            items: {
+                (206, 91): "Magnifier"
+            }
+        ),
+
+        // これ以下はテーマ未定 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+        
+
+        
+
+
+
+
+
+        
+        
         "level_3_0": (
             next: ["level_4_0"],
             name: Dict (
