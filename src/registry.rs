@@ -49,6 +49,8 @@ pub struct TileRegistry {
 #[derive(serde::Deserialize, Debug)]
 pub struct TileTypeProps {
     pub tile_type: TileType,
+
+    #[serde(default)]
     pub layers: Vec<TileTypeLayer>,
     /// それぞれのタイルに以下の照度をランダムに割り当てます
     #[serde(default)]
@@ -124,6 +126,8 @@ pub struct LevelProps {
 
     pub bgm: String,
     pub brightness: f32,
+
+    pub default_tile: Tile,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]

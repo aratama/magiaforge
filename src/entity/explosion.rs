@@ -8,6 +8,7 @@ use crate::entity::fire::Fire;
 use crate::level::map::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BAKUHATSU;
 use crate::set::FixedUpdateGameActiveSet;
@@ -34,6 +35,7 @@ pub struct SpawnExplosion {
 
 fn spawn_explosion(
     mut commands: Commands,
+    registry: Registry,
     assets: Res<GameAssets>,
     mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnExplosion>,
@@ -122,6 +124,7 @@ fn spawn_explosion(
 
         // 付近の壁を破壊、または氷床を水に変更
         if let Some(ref mut chunk) = level.chunk {
+            let props = registry.get_level(&chunk.level);
             let range = 5;
             for dy in -range..(range + 1) {
                 for dx in -range..(range + 1) {
@@ -131,7 +134,7 @@ fn spawn_explosion(
                     if distance < TILE_SIZE * 5.0 {
                         match chunk.get_tile(x, y).0.as_str() {
                             "Wall" => {
-                                chunk.set_tile(x, y, Tile::new("StoneTile"));
+                                chunk.set_tile(x, y, props.default_tile.clone());
                             }
                             "Ice" => {
                                 chunk.set_tile(x, y, Tile::new("Water"));

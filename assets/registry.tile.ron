@@ -6,16 +6,13 @@ TileRegistry(
         // 侵入できないタイル　
         // FloorまたはSurfaceが隣接していると、壁の部分を描画します
         "Blank": (
-            tile_type: Wall,
-            layers: [],
+            tile_type: Wall
         ),
         "Wall": (
-            tile_type: Wall,
-            layers: [],
+            tile_type: Wall
         ),
         "PermanentWall": (
-            tile_type: Wall,
-            layers: [],
+            tile_type: Wall
         ),
         // ジャンプしたときのみ侵入できるタイル
         // 岸の部分を描画します
@@ -26,8 +23,7 @@ TileRegistry(
                     depth: 0.0,
                     tiling: Simple (patterns: [["tile_ice"]])
                 ),
-            ],
-            lights: []
+            ]
         ),
         "Lava": (
             tile_type: Surface,
@@ -46,9 +42,7 @@ TileRegistry(
             light_density: 0.1
         ),
         "Crack": (
-            tile_type: Surface,
-            layers: [],
-            lights: []                        
+            tile_type: Surface,                     
         ),        
         "Water": (
             tile_type: Surface,
@@ -113,6 +107,7 @@ TileRegistry(
         (203, 219, 252, 255): "StoneTile",
         (153, 229, 80, 255): "Grassland",
         (222, 233, 255, 255): "Ice",
+        (255, 220, 204, 255): "Soil",
 
         // 水面など
         (55, 79, 225, 255): "Water",
@@ -254,6 +249,7 @@ TileRegistry(
                 ko: "토끼 캠프",
                 ru: "Лагерь кроликов",
             ),
+            default_tile: "StoneTile",
             enemies: 0,
             enemy_types: [],
             bgm: "bgm/最果てのルージュ.ogg",
@@ -285,6 +281,7 @@ TileRegistry(
                 ko: "창고",
                 ru: "Склад",
             ),
+            default_tile: "StoneTile",
             enemies: 0,
             enemy_types: ["Slime"],
             bgm: "bgm/水のしたたる洞窟.ogg",
@@ -310,6 +307,7 @@ TileRegistry(
                 ko: "도약의 물가",
                 ru: "Берег Прыжка",
             ),
+            default_tile: "StoneTile",
             enemies: 10,
             enemy_types: ["Slime", "EyeBall"],
             items: {
@@ -335,6 +333,7 @@ TileRegistry(
                 ko: "어둠의 계곡",
                 ru: "Долина Тьмы",
             ),
+            default_tile: "StoneTile",
             enemies: 10,
             enemy_types: ["Slime"],
             items: {
@@ -361,6 +360,7 @@ TileRegistry(
                 ko: "지하 초원",
                 ru: "Подземные луга",
             ),
+            default_tile: "Grassland",
             enemies: 15,
             enemy_types: ["Slime", "Spider"],
             bgm: "bgm/midnight-forest-184304.ogg",
@@ -386,6 +386,7 @@ TileRegistry(
                 ko: "도서관 폐허",
                 ru: "Руины библиотеки",
             ),
+            default_tile: "StoneTile",
             enemies: 10,
             enemy_types: ["Slime"],
             bgm: "bgm/森のいざない.ogg",
@@ -414,6 +415,7 @@ TileRegistry(
                 ko: "폭발 버섯 늪지",
                 ru: "Болото взрывных грибов",
             ),
+            default_tile: "Soil",
             enemies: 15,
             enemy_types: ["Slime", "Spider"],
             bgm: "bgm/midnight-forest-184304.ogg",
@@ -445,6 +447,7 @@ TileRegistry(
                 ko: "고대 성",
                 ru: "Древний замок",
             ),
+            default_tile: "StoneTile",
             enemies: 20,
             enemy_types: ["Spider", "EyeBall"],
             bgm: "bgm/迷宮.ogg",
@@ -464,6 +467,7 @@ TileRegistry(
                 ko: "슬라임 둥지",
                 ru: "Гнездо слизней",
             ),
+            default_tile: "StoneTile",
             enemies: 20,
             enemy_types: ["EyeBall", "Shadow"],
             bgm: "bgm/ダンジョンを踏破せし者.ogg",
@@ -483,6 +487,7 @@ TileRegistry(
                 ko: "얼음 동굴",
                 ru: "Ледяная пещера",
             ),
+            default_tile: "StoneTile",
             enemies: 15,
             enemy_types: ["Shadow", "Salamander"],
             bgm: "bgm/森のいざない.ogg",
@@ -502,6 +507,7 @@ TileRegistry(
                 ko: "고대 회랑",
                 ru: "Древний коридор",
             ),
+            default_tile: "StoneTile",
             enemies: 30,
             enemy_types: ["Slime", "Spider", "EyeBall", "Shadow", "Salamander"],
             bgm: "bgm/忘れられた神殿.ogg",
@@ -521,6 +527,7 @@ TileRegistry(
                 ko: "큰 동굴",
                 ru: "Большая пещера",
             ),
+            default_tile: "StoneTile",
             enemies: 0,
             enemy_types: [],
             bgm: "bgm/炎神の吐息.ogg",
@@ -540,6 +547,7 @@ TileRegistry(
                 ko: "대결의 동굴",
                 ru: "Пещера противостояния"
             ),
+            default_tile: "StoneTile",
             enemies: 0,
             enemy_types: [],
             bgm: "bgm/森のいざない.ogg",

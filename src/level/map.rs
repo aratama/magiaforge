@@ -13,6 +13,7 @@ use std::sync::LazyLock;
 
 #[derive(Clone, Debug)]
 pub struct LevelChunk {
+    pub level: GameLevel,
     pub tiles: Vec<Tile>,
     pub entities: HashMap<(i32, i32), SpawnEntityProps>,
     pub min_x: i32,
@@ -49,8 +50,8 @@ impl LevelChunk {
             slice_keys.x + slice_keys.width as i32,
             slice_keys.y as i32,
             slice_keys.y + slice_keys.height as i32,
+            level.clone(),
         );
-
         return chunk;
     }
 
@@ -141,6 +142,29 @@ impl LevelChunk {
         }
         tiles
     }
+
+    pub fn remove_isolated_tiles(&mut self, registry: &Registry, default_tile: &Tile) {
+        // 縦２タイルのみ孤立して残っているものがあれば削除
+        for y in self.min_y..(self.max_y + 1) {
+            for x in self.min_x..(self.max_x + 1) {
+                if !self.is_wall(&registry, x, y + 0)
+                    && self.is_wall(&registry, x, y + 1)
+                    && !self.is_wall(&registry, x, y + 2)
+                {
+                    warn!("filling gap at {} {}", x, y);
+                    self.set_tile(x, y + 1, default_tile.clone());
+                } else if !self.is_wall(&registry, x, y + 0)
+                    && self.is_wall(&registry, x, y + 1)
+                    && self.is_wall(&registry, x, y + 2)
+                    && !self.is_wall(&registry, x, y + 3)
+                {
+                    warn!("filling gap at {} {}", x, y);
+                    self.set_tile(x, y + 1, default_tile.clone());
+                    self.set_tile(x, y + 2, default_tile.clone());
+                }
+            }
+        }
+    }
 }
 
 pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
@@ -166,6 +190,7 @@ fn image_to_tilemap(
     max_x: i32,
     min_y: i32,
     max_y: i32,
+    level: GameLevel,
 ) -> LevelChunk {
     let texture_width = level_image.width();
     let map = &registry.tile().color_to_tile_mapping;
@@ -216,12 +241,13 @@ fn image_to_tilemap(
     }
 
     return LevelChunk {
+        level,
         tiles,
         entities,
         min_x,
         max_x,
         min_y,
         max_y,
-        dirty: None,
+        dirty: Some((min_x, min_y, max_x, max_y)),
     };
 }

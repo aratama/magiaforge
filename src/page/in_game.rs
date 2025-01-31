@@ -24,7 +24,6 @@ use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
-use crate::level::tile::Tile;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::set::FixedUpdateAfterAll;
@@ -383,28 +382,12 @@ fn update_tile_sprites(
     if let Some(ref mut chunk) = current.chunk {
         // 範囲内を更新
         if let Some((left, top, right, bottom)) = chunk.dirty {
-            // 縦２タイルのみ孤立して残っているものがあれば削除
-            for y in chunk.min_y..(chunk.max_y + 1) {
-                for x in chunk.min_x..(chunk.max_x + 1) {
-                    if !chunk.is_wall(&registry, x, y + 0)
-                        && chunk.is_wall(&registry, x, y + 1)
-                        && !chunk.is_wall(&registry, x, y + 2)
-                    {
-                        warn!("filling gap at {} {}", x, y);
-                        chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
-                    } else if !chunk.is_wall(&registry, x, y + 0)
-                        && chunk.is_wall(&registry, x, y + 1)
-                        && chunk.is_wall(&registry, x, y + 2)
-                        && !chunk.is_wall(&registry, x, y + 3)
-                    {
-                        warn!("filling gap at {} {}", x, y);
-                        chunk.set_tile(x, y + 1, Tile::new("StoneTile"));
-                        chunk.set_tile(x, y + 2, Tile::new("StoneTile"));
-                    }
-                }
-            }
-
             info!("updating chunk {:?}", chunk.dirty);
+
+            let props = registry.get_level(&chunk.level);
+
+            // 縦２タイルのみ孤立して残っているものがあれば削除
+            chunk.remove_isolated_tiles(&registry, &props.default_tile);
 
             let min_x = (left - 1).max(chunk.min_x);
             let max_x = (right + 1).min(chunk.max_x);
