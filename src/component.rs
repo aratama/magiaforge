@@ -4,5 +4,6 @@ pub mod entity_depth;
 pub mod falling;
 pub mod flip;
 pub mod metamorphosis;
+pub mod mine;
 pub mod point_light;
 pub mod vertical;

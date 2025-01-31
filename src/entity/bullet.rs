@@ -357,7 +357,9 @@ fn bullet_collision(
             }
             actor.levitation += bullet.levitation;
 
-            actor.velocity += bullet.upper_impulse;
+            // 単純な加算だと、複数のスライムに同時に殴られたときに飛び上がりすぎてしまう
+            // max でいい？
+            actor.velocity = actor.velocity.max(bullet.upper_impulse);
 
             actor_event.send(ActorEvent::Damaged {
                 actor: other_entity,

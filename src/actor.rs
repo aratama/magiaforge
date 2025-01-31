@@ -23,6 +23,7 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::Metamorphosed;
+use crate::component::mine::spawn_mine_child;
 use crate::constant::BLOOD_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
@@ -377,7 +378,7 @@ impl Actor {
                     }) if *spell_type == Spell::new("Telescope") => 0.5,
                     Some(WandSpell {
                         spell: spell_type, ..
-                    }) if *spell_type == Spell::new("Magnifier") => -0.5,
+                    }) if *spell_type == Spell::new("Magnifier") => -1.0,
                     _ => 0.0,
                 }
             }
@@ -1426,6 +1427,12 @@ pub fn spawn_actor(
                 ..default()
             },
         ));
+    }
+
+    if props.mine {
+        builder.with_children(|mut builder| {
+            spawn_mine_child(&mut builder);
+        });
     }
 
     // if let Some(owner) = master {

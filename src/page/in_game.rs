@@ -26,6 +26,7 @@ use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
+use crate::registry::TileType;
 use crate::set::FixedUpdateAfterAll;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
@@ -240,7 +241,35 @@ pub fn setup_level(
         &mut spawn,
     );
 
-    spawn_dropped_items(&mut commands, &registry, &empties, &mut rng, &props.items);
+    // 落ちている呪文を生成
+    spawn_dropped_items(&mut commands, &registry, &props.items);
+
+    // そのほかのエンティティを生成
+    for ((x, y), entity) in props.spawn.iter() {
+        let position = index_to_position((*x, *y));
+        spawn.send(SpawnEvent {
+            position,
+            spawn: entity.clone(),
+        });
+    }
+
+    // 地雷原テスト実装
+    if level == GameLevel::new("minefield") {
+        for y in 0..chunk.max_y {
+            for x in 0..chunk.max_x {
+                let tile = chunk.get_tile(x, y);
+                let props = registry.get_tile(&tile);
+                if props.tile_type == TileType::Floor {
+                    if rand::random::<u32>() % 20 == 0 {
+                        spawn.send(SpawnEvent {
+                            position: index_to_position((x, y)),
+                            spawn: Spawn::Actor(ActorType::new("ExplosiveMashroom")),
+                        });
+                    }
+                }
+            }
+        }
+    }
 
     // 拠点のみ、数羽のニワトリを生成します
     if level == GameLevel::new(HOME_LEVEL) {
@@ -351,13 +380,8 @@ fn spawn_random_enemies(
 fn spawn_dropped_items(
     mut commands: &mut Commands,
     registry: &Registry,
-    empties: &Vec<(i32, i32)>,
-    mut rng: &mut StdRng,
     item_map: &HashMap<(i32, i32), Spell>,
 ) {
-    let mut empties = empties.clone();
-    empties.shuffle(&mut rng);
-
     for ((x, y), spell) in item_map.iter() {
         let position = index_to_position((*x, *y));
         spawn_dropped_item(

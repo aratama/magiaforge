@@ -286,7 +286,7 @@ SpellRegistry(
                 ru: "Лупа",
             ),
             description: Dict (
-                ja: "大きなレンズのついた拡大鏡。装備すると手元が見やすくなります。",
+                ja: "装備すると、周囲を拡大して観察できる。足元をよく見て、良いキノコと悪いキノコを見分けよう。",
                 en: "A magnifying glass with a large lens. It is easier to see the details.",
                 zh_cn: "带有大型镜片的放大镜。更容易看到细节。",
                 zh_tw: "帶有大型鏡片的放大鏡。更容易看到細節。",
@@ -1121,6 +1121,7 @@ SpellRegistry(
             price: 1000,
             cast: LightSword,
         ),
+        // lakeで入手
         "Freeze": (
             rank: 6,
             name: Dict (

@@ -608,5 +608,11 @@ ActorRegistry(
             ],
             strategies: {}
         ),
+        "ExplosiveMashroom": (
+            life: 10,
+            actor_group: Enemy,
+            aseprite: "entity/explosive_mashroom.aseprite",
+            mine: true 
+        )
     }
 )

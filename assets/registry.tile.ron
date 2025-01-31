@@ -235,40 +235,11 @@ TileRegistry(
     },
 
     levels: {
-        "home": (
-            next: ["library", "waterside_of_leap", "valley", "grassland"],
-            name: Dict (
-                ja: "ウサギ族のキャンプ",
-                en: "Rabbit's Camp",
-                zh_cn: "兔子的营地",
-                zh_tw: "兔子的營地",
-                es: "Campamento de Conejos",
-                fr: "Camp des Lapins",
-                pt: "Acampamento dos Coelhos",
-                de: "Kaninchenlager",
-                ko: "토끼 캠프",
-                ru: "Лагерь кроликов",
-            ),
-            default_tile: "StoneTile",
-            enemies: 0,
-            enemy_types: [],
-            bgm: "bgm/最果てのルージュ.ogg",
-            brightness: 0.4,
-            items: {
-                // 溶岩流を渡った先
-                (100, 66): "LightSword",
-                // 水路の奥の隠し部屋
-                (83, 28): "Dash",
-                // ジャンプ練習場の奥
-                (30, 69): "Levitation",
-                // Z字型の裂け目の奥の隠し部屋
-                (53, 24): "Bomb",
-            }
-        ),
+
+
         // チュートリアルを兼ねて最初にマジックボルトを入手
         // 呪文をひとつも発見していないときはこのレベルに来る
         "warehouse": (
-            next: ["home"],
             name: Dict (
                 ja: "倉庫",
                 en: "Warehouse",
@@ -288,39 +259,84 @@ TileRegistry(
             brightness: 0.4,
             items: {
                 (158, 224): "MagicBolt"
-            }
+            },
+            next: ["home"],
         ),
-        // レベル1 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // 飛躍の呪文を入手
-        // 比較的安全な水辺でジャンプの練習
-        "waterside_of_leap": (
-            next: ["minefield"],
+
+        // レベル内にエンティティを生成するには、以下の三種類があります
+        // 1. level.aseprite の entities レイヤーで指定する。色のマッピングも指定する必要があるが、地形と連動させて編集しやすい
+        // 2. registry.tile.ron の items で指定する。これは記述が簡便ですが、呪文専用です
+        // 3. registry.tile.ron の spawn で指定する。こちらは呪文以外のエンティティも生成できます
+        "home": (
             name: Dict (
-                ja: "飛躍の水辺",
-                en: "Waterside of Leap",
-                zh_cn: "飞跃之水边",
-                zh_tw: "飛躍之水邊",
-                es: "Orilla del Salto",
-                fr: "Rivage du Saut",
-                pt: "Margem do Salto",
-                de: "Sprungufer",
-                ko: "도약의 물가",
-                ru: "Берег Прыжка",
+                ja: "ウサギ族のキャンプ",
+                en: "Rabbit's Camp",
+                zh_cn: "兔子的营地",
+                zh_tw: "兔子的營地",
+                es: "Campamento de Conejos",
+                fr: "Camp des Lapins",
+                pt: "Acampamento dos Coelhos",
+                de: "Kaninchenlager",
+                ko: "토끼 캠프",
+                ru: "Лагерь кроликов",
+            ),
+            default_tile: "StoneTile",
+            enemies: 0,
+            enemy_types: [],
+            bgm: "bgm/最果てのルージュ.ogg",
+            brightness: 0.4,
+            // このレベルに落ちているアイテムはitemsで定義します
+            items: {
+                // 溶岩流を渡った先
+                (100, 66): "LightSword",
+                // 水路の奥の隠し部屋
+                (83, 28): "Dash",
+                // ジャンプ練習場の奥
+                (30, 69): "Levitation",
+                // Z字型の裂け目の奥の隠し部屋
+                (53, 24): "Bomb",
+            },
+            // itemsで指定する以外のエンティティの生成はspawnで指定します
+            // spawn: {
+            //     (50, 52): Actor ("ExplosiveMashroom")
+            // },
+            next: ["library"],
+        ),
+
+        // レベル1 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // 望遠鏡を入手
+        // レベルとのシナジーがない……
+        // スナイパー系のモンスターを出す？ 
+        "library": (
+            next: ["valley"],
+            name: Dict (
+                ja: "図書館跡",
+                en: "Library Ruins",
+                zh_cn: "图书馆废墟",
+                zh_tw: "圖書館廢墟",
+                es: "Ruinas de la Biblioteca",
+                fr: "Ruines de la Bibliothèque",
+                pt: "Ruínas da Biblioteca",
+                de: "Bibliotheksruinen",
+                ko: "도서관 폐허",
+                ru: "Руины библиотеки",
             ),
             default_tile: "StoneTile",
             enemies: 10,
-            enemy_types: ["Slime", "EyeBall"],
-            items: {
-                (154,89): "Jump"
-            },
+            enemy_types: ["Slime"],
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
+            items: {
+                (175, 17): "Telescope"
+            }
         ),
+
         // 光の玉の魔法を入手
         // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
         // 明かりで照らしながら慎重に進む
         "valley": (
-            next: ["minefield"],
+            next: ["waterside"],
             name: Dict (
                 ja: "暗闇の谷",
                 en: "Valley of Darkness",
@@ -342,6 +358,33 @@ TileRegistry(
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.01,
         ),
+
+        // 飛躍の呪文を入手
+        // 比較的安全な水辺でジャンプの練習
+        "waterside": (
+            next: ["grassland"],
+            name: Dict (
+                ja: "飛躍の水辺",
+                en: "Waterside of Leap",
+                zh_cn: "飞跃之水边",
+                zh_tw: "飛躍之水邊",
+                es: "Orilla del Salto",
+                fr: "Rivage du Saut",
+                pt: "Margem do Salto",
+                de: "Sprungufer",
+                ko: "도약의 물가",
+                ru: "Берег Прыжка",
+            ),
+            default_tile: "StoneTile",
+            enemies: 10,
+            enemy_types: ["Slime", "EyeBall"],
+            items: {
+                (154,89): "Jump"
+            },
+            bgm: "bgm/森のいざない.ogg",
+            brightness: 0.4,
+        ),
+        
         // ランタンを入手
         // 非常に暗いが、周囲が明るくなり、蜘蛛の巣を避けやすくなる
         // 光の玉と異なり、ランタンでは遠くを見通すことはできない
@@ -369,32 +412,7 @@ TileRegistry(
                 (202, 25): "Lantern"
             }
         ),
-        // 望遠鏡を入手
-        // レベルとのシナジーがない……
-        // スナイパー系のモンスターを出す？ 
-        "library": (
-            next: ["minefield"],
-            name: Dict (
-                ja: "図書館跡",
-                en: "Library Ruins",
-                zh_cn: "图书馆废墟",
-                zh_tw: "圖書館廢墟",
-                es: "Ruinas de la Biblioteca",
-                fr: "Ruines de la Bibliothèque",
-                pt: "Ruínas da Biblioteca",
-                de: "Bibliotheksruinen",
-                ko: "도서관 폐허",
-                ru: "Руины библиотеки",
-            ),
-            default_tile: "StoneTile",
-            enemies: 10,
-            enemy_types: ["Slime"],
-            bgm: "bgm/森のいざない.ogg",
-            brightness: 0.4,
-            items: {
-                (175, 17): "Telescope"
-            }
-        ),
+
 
         // レベル2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // 地面に爆発キノコが埋まっている
@@ -402,7 +420,7 @@ TileRegistry(
         // 拡大鏡で地面をよく見ながら進もう
         // 爆発キノコは浮遊の魔法などでも回避できる
         "minefield": (
-            next: ["level_4_0"],
+            next: ["lake"],
             name: Dict (
                 ja: "爆発キノコの湿地",
                 en: "Explosive Mushroom Swamp",
@@ -417,18 +435,81 @@ TileRegistry(
             ),
             default_tile: "Soil",
             enemies: 15,
-            enemy_types: ["Slime", "Spider"],
+            enemy_types: ["EyeBall"],
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.4,
             items: {
                 (206, 91): "Magnifier"
             }
         ),
+
+        // 凍結の魔法で湖を凍らせて渡る
+        // 浮遊の魔法でも渡れる
+        "lake": (
+            next: ["corridor"],
+            name: Dict (
+                ja: "地底湖",
+                en: "Underground Lake",
+                zh_cn: "地下湖",
+                zh_tw: "地下湖",
+                es: "Lago Subterráneo",
+                fr: "Lac Souterrain",
+                pt: "Lago Subterrâneo",
+                de: "Unterirdischer See",
+                ko: "지하 호수",
+                ru: "Подземное озеро",
+            ),
+            default_tile: "Soil",
+            enemies: 15,
+            enemy_types: ["Slime", "Spider"],
+            bgm: "bgm/midnight-forest-184304.ogg",
+            brightness: 0.4,
+            items: {
+                (402, 82): "Freeze"
+            }
+        ),
         // これ以下はテーマ未定 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-        
-        
+        "corridor": (
+            next: ["boss"],
+            name: Dict (
+                ja: "古の回廊",
+                en: "Ancient Corridor",
+                zh_cn: "古代走廊",
+                zh_tw: "古代走廊",
+                es: "Corredor Antiguo",
+                fr: "Couloir Ancien",
+                pt: "Corredor Antigo",
+                de: "Alter Korridor",
+                ko: "고대 회랑",
+                ru: "Древний коридор",
+            ),
+            default_tile: "StoneTile",
+            enemies: 30,
+            enemy_types: ["Slime", "Spider", "EyeBall", "Shadow", "Salamander"],
+            bgm: "bgm/忘れられた神殿.ogg",
+            brightness: 0.4
+        ),
+        "boss": (
+            next: ["home"],
+            name: Dict (
+                ja: "大空洞",
+                en: "Great Cavern",
+                zh_cn: "大洞穴",
+                zh_tw: "大洞穴",
+                es: "Gran Caverna",
+                fr: "Grande Caverne",
+                pt: "Grande Caverna",
+                de: "Große Höhle",
+                ko: "큰 동굴",
+                ru: "Большая пещера",
+            ),
+            default_tile: "StoneTile",
+            enemies: 0,
+            enemy_types: [],
+            bgm: "bgm/炎神の吐息.ogg",
+            brightness: 0.4
+        ),
 
 
         
@@ -493,46 +574,7 @@ TileRegistry(
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4
         ),
-        "level_6_0": (
-            next: ["boss"],
-            name: Dict (
-                ja: "古の回廊",
-                en: "Ancient Corridor",
-                zh_cn: "古代走廊",
-                zh_tw: "古代走廊",
-                es: "Corredor Antiguo",
-                fr: "Couloir Ancien",
-                pt: "Corredor Antigo",
-                de: "Alter Korridor",
-                ko: "고대 회랑",
-                ru: "Древний коридор",
-            ),
-            default_tile: "StoneTile",
-            enemies: 30,
-            enemy_types: ["Slime", "Spider", "EyeBall", "Shadow", "Salamander"],
-            bgm: "bgm/忘れられた神殿.ogg",
-            brightness: 0.4
-        ),
-        "boss": (
-            next: ["home"],
-            name: Dict (
-                ja: "大空洞",
-                en: "Great Cavern",
-                zh_cn: "大洞穴",
-                zh_tw: "大洞穴",
-                es: "Gran Caverna",
-                fr: "Grande Caverne",
-                pt: "Grande Caverna",
-                de: "Große Höhle",
-                ko: "큰 동굴",
-                ru: "Большая пещера",
-            ),
-            default_tile: "StoneTile",
-            enemies: 0,
-            enemy_types: [],
-            bgm: "bgm/炎神の吐息.ogg",
-            brightness: 0.4
-        ),
+
         "arena": (
             next: ["home"],
             name: Dict (

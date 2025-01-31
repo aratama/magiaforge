@@ -15,6 +15,7 @@ use crate::component::entity_depth::EntityDepthPlugin;
 use crate::component::falling::FallingPlugin;
 use crate::component::flip::FlipPlugin;
 use crate::component::metamorphosis::MetamorphosisPlugin;
+use crate::component::mine::ExplosiveMashroomPlugin;
 use crate::component::point_light::EntityPointLightPlugin;
 use crate::component::vertical::VerticalPlugin;
 use crate::config::GameConfigPlugin;
@@ -219,6 +220,7 @@ pub fn run_game() {
         .add_plugins(EntityDepthPlugin)
         .add_plugins(EntityPointLightPlugin)
         .add_plugins(ExplosionPlugin)
+        .add_plugins(ExplosiveMashroomPlugin)
         .add_plugins(FallingPlugin)
         .add_plugins(FirePlugin)
         .add_plugins(FireballPlugin)
