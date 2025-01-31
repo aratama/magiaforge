@@ -180,43 +180,43 @@ TileRegistry(
         // ラビット ////////////////////////////////////////////////////////////////////////////////////////////////
         (255, 243, 0, 255): (
             entity: Rabbit (
-                aseprite: "entity/rabbit_yellow.aseprite",
+                aseprite: "rabbit/rabbit_yellow.aseprite",
                 senario: "ShopRabbit"
             ),
         ),
         (255, 244, 0, 255): (
             entity: Rabbit (
-                aseprite: "entity/rabbit_red.aseprite",
+                aseprite: "rabbit/rabbit_red.aseprite",
                 senario: "TrainingRabbit"
             ),
         ),
         (255, 245, 0, 255): (
             entity: Rabbit ( 
-                aseprite: "entity/rabbit_blue.aseprite",
+                aseprite: "rabbit/rabbit_blue.aseprite",
                 senario: "GuideRabbit"
             ),
         ),
         (255, 246, 0, 255): (
             entity: Rabbit ( 
-                aseprite: "entity/rabbit_black.aseprite",
+                aseprite: "rabbit/rabbit_black.aseprite",
                 senario: "MultiPlayRabbit"
             ),
         ),
         (255, 247, 0, 255): (
             entity: Rabbit (
-                aseprite: "entity/rabbit_white.aseprite",
+                aseprite: "rabbit/rabbit_white.aseprite",
                 senario: "SingleplayRabbit"
             ),
         ),
         (255, 248, 0, 255): (
             entity: Rabbit (
-                aseprite: "entity/rabbit_green.aseprite",
+                aseprite: "rabbit/rabbit_green.aseprite",
                 senario: "ReadingRabbit"
             ),
         ),
         (255, 249, 0, 255): (
             entity: Rabbit (
-                aseprite: "entity/rabbit_blue.aseprite",
+                aseprite: "rabbit/rabbit_blue.aseprite",
                 senario: "SpellListRabbit"
             ),
         ),

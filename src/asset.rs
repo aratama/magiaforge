@@ -71,93 +71,99 @@ pub struct GameAssets {
     #[asset(path = "image/ending.aseprite")]
     pub ending: Handle<Aseprite>,
 
-    #[asset(path = "entity/witch.aseprite")]
-    pub witch: Handle<Aseprite>,
-
     // モンスター //////////////////////////////////////////////////////////////////////////////////////////////////
-    #[asset(path = "entity/slime.aseprite")]
+    #[asset(path = "enemy/slime.aseprite")]
     pub _slime: Handle<Aseprite>,
 
-    #[asset(path = "entity/friend_slime.aseprite")]
+    #[asset(path = "enemy/friend_slime.aseprite")]
     pub _friend_slime: Handle<Aseprite>,
 
-    #[asset(path = "entity/eyeball.aseprite")]
+    #[asset(path = "enemy/eyeball.aseprite")]
     pub _eyeball: Handle<Aseprite>,
 
-    #[asset(path = "entity/eyeball_friend.aseprite")]
+    #[asset(path = "enemy/eyeball_friend.aseprite")]
     pub _eyeball_friend: Handle<Aseprite>,
 
-    #[asset(path = "entity/chicken.aseprite")]
-    pub _chicken: Handle<Aseprite>,
-
-    #[asset(path = "entity/sandbag.aseprite")]
-    pub _sandbag: Handle<Aseprite>,
-
-    #[asset(path = "entity/shadow.aseprite")]
+    #[asset(path = "enemy/shadow.aseprite")]
     pub _shadow: Handle<Aseprite>,
 
-    #[asset(path = "entity/spider.aseprite")]
+    #[asset(path = "enemy/spider.aseprite")]
     pub _spider: Handle<Aseprite>,
 
-    #[asset(path = "entity/salamander.aseprite")]
+    #[asset(path = "enemy/salamander.aseprite")]
     pub _salamander: Handle<Aseprite>,
-
-    // ボス ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // #[asset(path = "entity/buer.aseprite")]
     // pub buer: Handle<Aseprite>,
-    #[asset(path = "entity/huge_slime.aseprite")]
+    #[asset(path = "enemy/huge_slime.aseprite")]
     pub _huge_slime: Handle<Aseprite>,
 
-    #[asset(path = "entity/huge_slime_shadow.aseprite")]
+    #[asset(path = "enemy/huge_slime_shadow.aseprite")]
     pub _huge_slime_shadow: Handle<Aseprite>,
 
-    #[asset(path = "entity/raven.aseprite")]
-    pub raven: Handle<Aseprite>,
+    // そのほかのアクター ///////////////////////////////////////////////////////////////////////////////////////////
+    #[asset(path = "actor/witch.aseprite")]
+    pub witch: Handle<Aseprite>,
+
+    #[asset(path = "actor/chicken.aseprite")]
+    pub _chicken: Handle<Aseprite>,
+
+    #[asset(path = "actor/sandbag.aseprite")]
+    pub _sandbag: Handle<Aseprite>,
+
+    #[asset(path = "actor/bomb.aseprite")]
+    pub _bomb: Handle<Aseprite>,
+
+    #[asset(path = "actor/stone_lantern.aseprite")]
+    pub _stone_lantern: Handle<Aseprite>,
 
     // ウサギ //////////////////////////////////////////////////////////////////////////////////////////////////////
     // スプライトは registry ファイルのほうで指定しているのでここでは dead_code になっているが、
     // 先読みのためにここでも含めておく
     // でも通常はタイトル画面を表示しているあいだに読み込みが間に合う？
-    #[asset(path = "entity/rabbit_yellow.aseprite")]
+    #[asset(path = "rabbit/rabbit_yellow.aseprite")]
     pub _rabbit_yellow: Handle<Aseprite>,
 
-    #[asset(path = "entity/rabbit_red.aseprite")]
+    #[asset(path = "rabbit/rabbit_red.aseprite")]
     pub _rabbit_red: Handle<Aseprite>,
 
-    #[asset(path = "entity/rabbit_blue.aseprite")]
+    #[asset(path = "rabbit/rabbit_blue.aseprite")]
     pub _rabbit_blue: Handle<Aseprite>,
 
-    #[asset(path = "entity/rabbit_black.aseprite")]
+    #[asset(path = "rabbit/rabbit_black.aseprite")]
     pub _rabbit_black: Handle<Aseprite>,
 
-    #[asset(path = "entity/rabbit_white.aseprite")]
+    #[asset(path = "rabbit/rabbit_white.aseprite")]
     pub _rabbit_white: Handle<Aseprite>,
 
-    #[asset(path = "entity/rabbit_green.aseprite")]
+    #[asset(path = "rabbit/rabbit_green.aseprite")]
     pub _rabbit_green: Handle<Aseprite>,
 
     // 箱 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    #[asset(path = "entity/chest.aseprite")]
+    #[asset(path = "chest/chest.aseprite")]
     pub _chest: Handle<Aseprite>,
 
-    #[asset(path = "entity/crate.aseprite")]
+    #[asset(path = "chest/crate.aseprite")]
     pub _crate: Handle<Aseprite>,
 
-    #[asset(path = "entity/barrel.aseprite")]
+    #[asset(path = "chest/barrel.aseprite")]
     pub _barrel: Handle<Aseprite>,
 
-    #[asset(path = "entity/barrel_bomb.aseprite")]
+    #[asset(path = "chest/barrel_bomb.aseprite")]
     pub _barrel_bomb: Handle<Aseprite>,
 
-    #[asset(path = "entity/jar_red.aseprite")]
+    #[asset(path = "chest/jar_red.aseprite")]
     pub _jar_red: Handle<Aseprite>,
 
-    #[asset(path = "entity/jar_blue.aseprite")]
+    #[asset(path = "chest/jar_blue.aseprite")]
     pub _jar_blue: Handle<Aseprite>,
 
-    #[asset(path = "entity/jar_green.aseprite")]
+    #[asset(path = "chest/jar_green.aseprite")]
     pub _jar_green: Handle<Aseprite>,
+
+    // そのほかのエンティティ ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    #[asset(path = "entity/raven.aseprite")]
+    pub raven: Handle<Aseprite>,
 
     // 呪文 /////////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(path = "entity/freeze.aseprite")]
@@ -165,9 +171,6 @@ pub struct GameAssets {
 
     #[asset(path = "entity/slash.aseprite")]
     pub slash: Handle<Aseprite>,
-
-    #[asset(path = "entity/bomb.aseprite")]
-    pub _bomb: Handle<Aseprite>,
 
     #[asset(path = "entity/gold.aseprite")]
     pub gold: Handle<Aseprite>,
@@ -177,9 +180,6 @@ pub struct GameAssets {
 
     #[asset(path = "entity/fire.aseprite")]
     pub fire: Handle<Aseprite>,
-
-    #[asset(path = "entity/stone_lantern.aseprite")]
-    pub _stone_lantern: Handle<Aseprite>,
 
     #[asset(path = "entity/impact.aseprite")]
     pub impact: Handle<Aseprite>,

@@ -24,7 +24,7 @@ ActorRegistry(
             cry: true,
             life: 60,
             actor_group: Friend,
-            aseprite: "entity/witch.aseprite",
+            aseprite: "actor/witch.aseprite",
             animations: (
                 idle_r: "idle_r",
                 idle_d: "idle_d",
@@ -61,7 +61,7 @@ ActorRegistry(
             cry: true,
             life: 100,
             actor_group: Friend,
-            aseprite: "entity/rabbit_blue.aseprite",
+            aseprite: "rabbit/rabbit_blue.aseprite",
             animations: (
                 idle_r: "idle_d",
                 idle_d: "idle_d",
@@ -98,7 +98,7 @@ ActorRegistry(
             cry: true,
             life: 2,
             actor_group: Neutral,
-            aseprite: "entity/chicken.aseprite",
+            aseprite: "actor/chicken.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -135,7 +135,7 @@ ActorRegistry(
             cry: true,
             life: 10000,
             actor_group: Neutral,
-            aseprite: "entity/sandbag.aseprite",
+            aseprite: "actor/sandbag.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -439,7 +439,7 @@ ActorRegistry(
             cry: false,
             life: 100,
             actor_group: Entity,
-            aseprite: "entity/stone_lantern.aseprite",
+            aseprite: "actor/stone_lantern.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -473,7 +473,7 @@ ActorRegistry(
             cry: false,
             life: 10,
             actor_group: Entity,
-            aseprite: "entity/chest.aseprite",
+            aseprite: "chest/chest.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -510,7 +510,7 @@ ActorRegistry(
             cry: false,
             life: 25,
             actor_group: Entity,
-            aseprite: "entity/bookshelf.aseprite",
+            aseprite: "actor/bookshelf.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",

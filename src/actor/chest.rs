@@ -81,7 +81,7 @@ pub fn update_sprite(
         let parent = group_query.get(parent.get()).unwrap();
         if let Ok(chest) = chest_query.get(parent.get()) {
             animation.aseprite = asset_server.load(format!(
-                "entity/{}.aseprite",
+                "chest/{}.aseprite",
                 match chest.chest_type {
                     ChestType::Chest => "chest",
                     ChestType::Crate => "crate",

@@ -4,7 +4,7 @@ pub const CRATE_NAME: &str = "magiaforge";
 
 pub const WEBSOCKET_URL: &str = "wss://magia-server-38847751193.asia-northeast1.run.app";
 
-pub const DEFAULT_BGM_VOLUME: f32 = 0.3;
+pub const DEFAULT_BGM_VOLUME: f32 = if cfg!(feature = "ingame") { 0.0 } else { 0.3 };
 
 pub const DEFAULT_SE_VOLUME: f32 = 0.8;
 
