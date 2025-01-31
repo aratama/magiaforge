@@ -270,7 +270,7 @@ SpellRegistry(
             price: 300,
             cast: NoCast
         ),
-        // 爆発キノコの湿地で入手
+        // minefield 爆発キノコの湿地で入手
         "Magnifier": (
             rank: 1,
             name: Dict (
@@ -302,6 +302,7 @@ SpellRegistry(
             cast_delay: 0,
             cast: NoCast
         ),
+        // waterside で入手
         "Jump": (
             rank: 2,
             name: Dict (
