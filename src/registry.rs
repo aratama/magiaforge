@@ -1,6 +1,7 @@
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::asset::GameAssets;
+use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
 use crate::level::entities::Spawn;
@@ -326,6 +327,7 @@ pub struct Registry<'w> {
     spell: Res<'w, Assets<SpellRegistry>>,
     actor: Res<'w, Assets<ActorRegistry>>,
     senario: Res<'w, Assets<SenarioRegistry>>,
+    pub life_bar_resource: Res<'w, LifeBarResource>,
 }
 
 impl<'w> Registry<'w> {

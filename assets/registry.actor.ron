@@ -179,7 +179,7 @@ ActorRegistry(
             cry: true,
             life: 15,
             actor_group: Enemy,
-            aseprite: "entity/slime.aseprite",
+            aseprite: "enemy/slime.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -225,7 +225,7 @@ ActorRegistry(
             cry: true,
             life: 25,
             actor_group: Enemy,
-            aseprite: "entity/eyeball.aseprite",
+            aseprite: "enemy/eyeball.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -271,7 +271,7 @@ ActorRegistry(
             cry: true,
             life: 40,
             actor_group: Enemy,
-            aseprite: "entity/spider.aseprite",
+            aseprite: "enemy/spider.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -323,7 +323,7 @@ ActorRegistry(
                 [None, None, None, None, None, None, None, None], 
                 [None, None, None, None, None, None, None, None], 
             ],
-            aseprite: "entity/salamander.aseprite",
+            aseprite: "enemy/salamander.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -363,7 +363,7 @@ ActorRegistry(
             cry: true,
             life: 40,
             actor_group: Enemy,
-            aseprite: "entity/shadow.aseprite",
+            aseprite: "enemy/shadow.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -402,7 +402,7 @@ ActorRegistry(
             cry: false,
             life: 4000,
             actor_group: Enemy,
-            aseprite: "entity/huge_slime.aseprite",
+            aseprite: "enemy/huge_slime.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -547,7 +547,7 @@ ActorRegistry(
             cry: false,
             life: 100,
             actor_group: Entity,
-            aseprite: "entity/rock.aseprite",
+            aseprite: "actor/rock.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",
@@ -585,7 +585,7 @@ ActorRegistry(
             cry: false,
             life: 100,
             actor_group: Entity,
-            aseprite: "entity/bomb.aseprite",
+            aseprite: "actor/bomb.aseprite",
             animations: (
                 idle_r: "idle",
                 idle_d: "idle",

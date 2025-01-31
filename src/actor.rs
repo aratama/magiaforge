@@ -41,7 +41,6 @@ use crate::entity::fire::Fire;
 use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::spawn_life_bar;
-use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
@@ -1295,32 +1294,32 @@ fn count_up_broken_chests(mut player_0query: Query<&mut Player>, actor_query: Qu
     }
 }
 
-fn add_life_bar(
-    mut commands: Commands,
-    query: Query<
-        (
-            Entity,
-            &Actor,
-            Option<&Player>,
-            Option<&Metamorphosed>,
-            Option<&Boss>,
-        ),
-        Added<Actor>,
-    >,
-    life_bar_resource: Res<LifeBarResource>,
-) {
-    for (entity, actor, player, morphed, boss) in query.iter() {
-        if player.is_none()
-            && morphed.is_none()
-            && boss.is_none()
-            && actor.actor_group != ActorGroup::Entity
-        {
-            commands.entity(entity).with_children(|spawn_children| {
-                spawn_life_bar(spawn_children, &life_bar_resource);
-            });
-        }
-    }
-}
+// fn add_life_bar(
+//     mut commands: Commands,
+//     query: Query<
+//         (
+//             Entity,
+//             &Actor,
+//             Option<&Player>,
+//             Option<&Metamorphosed>,
+//             Option<&Boss>,
+//         ),
+//         Added<Actor>,
+//     >,
+//     life_bar_resource: Res<LifeBarResource>,
+// ) {
+//     for (entity, actor, player, morphed, boss) in query.iter() {
+//         if player.is_none()
+//             && morphed.is_none()
+//             && boss.is_none()
+//             && actor.actor_group != ActorGroup::Entity
+//         {
+//             commands.entity(entity).with_children(|spawn_children| {
+//                 spawn_life_bar(spawn_children, &life_bar_resource);
+//             });
+//         }
+//     }
+// }
 
 fn getting_up(mut query: Query<&mut Actor>) {
     for mut actor in query.iter_mut() {
@@ -1367,7 +1366,7 @@ pub fn spawn_actor(
         },
     ));
 
-    builder.with_children(|parent| {
+    builder.with_children(|mut parent| {
         // 影
         if let Some(shadow) = &props.shadow {
             parent.spawn((
@@ -1378,6 +1377,8 @@ pub fn spawn_actor(
                 Transform::from_xyz(0.0, 0.0, SHADOW_LAYER_Z),
             ));
         }
+
+        spawn_life_bar(&mut parent, &registry.life_bar_resource);
 
         parent
             .spawn((ActorSpriteGroup, Transform::from_xyz(0.0, v, 0.0)))
@@ -1599,7 +1600,6 @@ impl Plugin for ActorPlugin {
                     update_actor_light,
                     getting_up,
                     basic_animate,
-                    add_life_bar,
                     flip,
                     vibrate_breakabke_sprite,
                     count_up_broken_chests,

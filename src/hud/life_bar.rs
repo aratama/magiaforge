@@ -1,4 +1,7 @@
-use crate::actor::Actor;
+use crate::actor::{Actor, ActorGroup};
+use crate::component::metamorphosis::Metamorphosed;
+use crate::controller::player::Player;
+use crate::enemy::huge_slime::Boss;
 use crate::set::FixedUpdateInGameSet;
 use bevy::prelude::*;
 
@@ -12,6 +15,9 @@ const LIFE_BAR_Z: f32 = 100.0;
 
 #[derive(Component)]
 pub struct LifeBar;
+
+#[derive(Component)]
+pub struct LifeBarForeground;
 
 #[derive(Component)]
 pub struct LifeBarBackground;
@@ -39,52 +45,55 @@ fn setup_life_bar(
 }
 
 pub fn spawn_life_bar(child_builder: &mut ChildBuilder, res: &Res<LifeBarResource>) {
-    child_builder.spawn((
-        LifeBar,
-        Mesh2d::from(res.shape.clone()),
-        MeshMaterial2d::from(res.material_life.clone()),
-        Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z + 1.0),
-        Visibility::Hidden,
-    ));
-    child_builder.spawn((
-        LifeBarBackground,
-        Mesh2d::from(res.shape.clone()),
-        MeshMaterial2d::from(res.material_background.clone()),
-        Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z),
-    ));
+    child_builder
+        .spawn((
+            LifeBar,
+            Transform::from_xyz(0.0, LIFE_BAR_Y, LIFE_BAR_Z),
+            Visibility::Hidden,
+        ))
+        .with_child((
+            LifeBarForeground,
+            Mesh2d::from(res.shape.clone()),
+            MeshMaterial2d::from(res.material_life.clone()),
+            Transform::from_xyz(0.0, 0.0, 1.0),
+        ))
+        .with_child((
+            LifeBarBackground,
+            Mesh2d::from(res.shape.clone()),
+            MeshMaterial2d::from(res.material_background.clone()),
+        ));
 }
 
-pub fn update_life_bar(
-    mut query: Query<(&Parent, &mut Transform, &mut Visibility), With<LifeBar>>,
-    mut background_query: Query<
-        (&Parent, &mut Visibility),
-        (With<LifeBarBackground>, Without<LifeBar>),
+fn update_life_bar(
+    actor_query: Query<(
+        &Actor,
+        Option<&Player>,
+        Option<&Metamorphosed>,
+        Option<&Boss>,
+    )>,
+    mut lifebar_query: Query<(&Parent, &mut Visibility), With<LifeBar>>,
+    mut foreground_query: Query<
+        (&Parent, &mut Transform),
+        (With<LifeBarForeground>, Without<LifeBar>),
     >,
-    enemy_query: Query<&Actor>,
 ) {
-    for (life_bar_parent, mut transform, mut visibility) in query.iter_mut() {
-        if let Ok(enemy) = enemy_query.get(life_bar_parent.get()) {
-            let ratio = enemy.life as f32 / enemy.max_life as f32;
-            *visibility = if ratio < 1.0 {
-                Visibility::Visible
-            } else {
-                Visibility::Hidden
-            };
-
-            transform.scale.x = ratio;
-            transform.translation.x = (ratio * LIFE_BAR_WIDTH - LIFE_BAR_WIDTH) * 0.5;
-        } else {
-            warn!("enemy not found in update_life_bar");
-        }
-    }
-    for (life_bar_parent, mut visibility) in background_query.iter_mut() {
-        let enemy = enemy_query.get(life_bar_parent.get()).unwrap();
-        let ratio = enemy.life as f32 / enemy.max_life as f32;
-        *visibility = if ratio < 1.0 {
+    for (foreground_parent, mut transform) in foreground_query.iter_mut() {
+        let (lifebar_parent, mut visibility) =
+            lifebar_query.get_mut(foreground_parent.get()).unwrap();
+        let (actor, player, morphed, boss) = actor_query.get(lifebar_parent.get()).unwrap();
+        let ratio = actor.life as f32 / actor.max_life as f32;
+        *visibility = if actor.actor_group != ActorGroup::Entity
+            && player.is_none()
+            && morphed.is_none()
+            && boss.is_none()
+            && ratio < 1.0
+        {
             Visibility::Visible
         } else {
             Visibility::Hidden
         };
+        transform.scale.x = ratio;
+        transform.translation.x = (ratio * LIFE_BAR_WIDTH - LIFE_BAR_WIDTH) * 0.5;
     }
 }
 
