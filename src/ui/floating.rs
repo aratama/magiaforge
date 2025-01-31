@@ -8,6 +8,7 @@ use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::se::SEEvent;
+use crate::se::CURSOR_8;
 use crate::se::PICK_UP;
 use crate::states::GameMenuState;
 use crate::states::GameState;
@@ -133,6 +134,8 @@ fn drop(
 
         floating.content = None;
         floating.target = None;
+
+        se.send(SEEvent::new(CURSOR_8));
 
         if let Ok(mut actor) = player_query.get_single_mut() {
             if let Some(content) = content_optional {

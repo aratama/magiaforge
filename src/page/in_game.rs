@@ -24,9 +24,9 @@ use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::map::index_to_position;
 use crate::level::map::LevelChunk;
+use crate::level::tile::Tile;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
-use crate::registry::TileType;
 use crate::set::FixedUpdateAfterAll;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
@@ -258,8 +258,7 @@ pub fn setup_level(
         for y in 0..chunk.max_y {
             for x in 0..chunk.max_x {
                 let tile = chunk.get_tile(x, y);
-                let props = registry.get_tile(&tile);
-                if props.tile_type == TileType::Floor {
+                if *tile == Tile::new("Soil") || *tile == Tile::new("Grassland") {
                     if rand::random::<u32>() % 20 == 0 {
                         spawn.send(SpawnEvent {
                             position: index_to_position((x, y)),

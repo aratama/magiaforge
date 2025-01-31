@@ -1,5 +1,5 @@
 use crate::{
-    actor::Actor,
+    actor::{Actor, ActorGroup},
     collision::SENSOR_GROUPS,
     entity::explosion::SpawnExplosion,
     physics::{identify, IdentifiedCollisionEvent},
@@ -36,7 +36,9 @@ fn sensor(
                 let (mine_entity, mine_actor, mine_transform) =
                     actor_query.get(parent.get()).unwrap();
                 let (_, target_actor, _) = actor_query.get(actor_entity).unwrap();
-                if mine_actor.actor_group != target_actor.actor_group {
+                if target_actor.actor_group != ActorGroup::Entity
+                    && mine_actor.actor_group != target_actor.actor_group
+                {
                     commands.entity(mine_entity).despawn_recursive();
                     let position = mine_transform.translation.truncate();
                     spawn.send(SpawnExplosion {

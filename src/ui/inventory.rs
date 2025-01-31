@@ -2,6 +2,9 @@ use crate::actor::Actor;
 use crate::constant::MAX_ITEMS_IN_INVENTORY;
 use crate::controller::player::Player;
 use crate::registry::Registry;
+use crate::se::SEEvent;
+use crate::se::KETTEI_7;
+use crate::se::SEN;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;
@@ -83,6 +86,7 @@ fn interaction(
     mut interaction_query: Query<(&InventoryItemSlot, &Interaction), Changed<Interaction>>,
     mut floating_query: Query<&mut Floating>,
     mut popup_query: Query<&mut PopUp>,
+    mut se: EventWriter<SEEvent>,
 ) {
     let mut popup = popup_query.single_mut();
     let mut floating = floating_query.single_mut();
@@ -91,6 +95,7 @@ fn interaction(
         match *interaction {
             Interaction::Pressed => match floating.content {
                 None => {
+                    se.send(SEEvent::new(KETTEI_7));
                     floating.content = Some(FloatingContent::Inventory(slot.0));
                 }
                 _ => {}

@@ -3,6 +3,9 @@ use crate::actor::Actor;
 use crate::controller::player::Player;
 use crate::inventory::InventoryItem;
 use crate::registry::Registry;
+use crate::se::SEEvent;
+use crate::se::KETTEI_7;
+use crate::se::SEN;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
@@ -69,6 +72,7 @@ fn interaction_spell_sprite(
     mut floating_query: Query<&mut Floating>,
     state: Res<State<GameMenuState>>,
     mut popup_query: Query<&mut PopUp>,
+    mut se: EventWriter<SEEvent>,
 ) {
     if *state.get() != GameMenuState::WandEditOpen {
         return;
@@ -81,6 +85,7 @@ fn interaction_spell_sprite(
         let content = FloatingContent::WandSpell(slot.wand_index, slot.spell_index);
         match *interaction {
             Interaction::Pressed => {
+                se.send(SEEvent::new(KETTEI_7));
                 floating.content = Some(FloatingContent::WandSpell(
                     slot.wand_index,
                     slot.spell_index,

@@ -310,4 +310,10 @@ pub struct GameAssets {
 
     #[asset(path = "bgm/発見.ogg")]
     pub _hakken: Handle<AudioSource>,
+
+    #[asset(path = "audio/カーソル移動8.ogg")]
+    pub _cursor_8: Handle<AudioSource>,
+
+    #[asset(path = "audio/決定ボタンを押す7.ogg")]
+    pub _kettei_7: Handle<AudioSource>,
 }

@@ -66,14 +66,16 @@ fn spawn_explosion(
             |entity| {
                 if let Ok(life_transform) = life_query.get_mut(entity) {
                     let p = life_transform.translation.truncate();
-                    let distance = p.distance(*position);
 
-                    let damage = (*damage as f32 * 0.1
-                        + (1.0 - distance / radius) * *damage as f32 * 0.9)
-                        as u32;
+                    // 距離によるダメージ減衰は結果が安定しにくいため保留
+                    // let distance = p.distance(*position);
+                    // let damage = (*damage as f32 * 0.1
+                    //     + (1.0 - distance / radius) * *damage as f32 * 0.9)
+                    //     as u32;
+
                     damage_writer.send(ActorEvent::Damaged {
                         actor: entity,
-                        damage,
+                        damage: *damage,
                         position: p,
                         fire: false,
                         impulse: (p - position).normalize_or_zero() * impulse,
