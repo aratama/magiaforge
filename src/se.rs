@@ -46,6 +46,7 @@ pub const KEN2: &'static str = "audio/剣の素振り2.ogg";
 pub const HAKKEN: &'static str = "bgm/発見.ogg";
 pub const CURSOR_8: &'static str = "audio/カーソル移動8.ogg";
 pub const KETTEI_7: &'static str = "audio/決定ボタンを押す7.ogg";
+pub const KETTEI_31: &'static str = "audio/決定ボタンを押す31.ogg";
 
 #[derive(Event, Clone)]
 pub struct SEEvent {

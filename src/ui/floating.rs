@@ -128,68 +128,72 @@ fn drop(
     mut se: EventWriter<SEEvent>,
 ) {
     let mut floating = floating_query.single_mut();
-    if mouse.just_released(MouseButton::Left) {
-        let content_optional = floating.content;
-        let target_optional = floating.target;
+    if !mouse.just_released(MouseButton::Left) {
+        return;
+    }
 
-        floating.content = None;
-        floating.target = None;
+    let content_optional = floating.content;
+    let target_optional = floating.target;
 
-        se.send(SEEvent::new(CURSOR_8));
+    floating.content = None;
+    floating.target = None;
 
-        if let Ok(mut actor) = player_query.get_single_mut() {
-            if let Some(content) = content_optional {
-                let drop = drop_query.single();
-                if drop.hover {
-                    // アイテムを地面に置きます
-                    if let Some(ref chunk) = map.chunk {
-                        if let Ok(window) = window_query.get_single() {
-                            if let Some(cursor_in_screen) = window.cursor_position() {
-                                let (camera, camera_global_transform) = camera_query.single();
+    let Ok(mut actor) = player_query.get_single_mut() else {
+        return;
+    };
 
-                                if let Ok(mouse_in_world) = camera
-                                    .viewport_to_world(camera_global_transform, cursor_in_screen)
-                                {
-                                    let pointer_in_world = mouse_in_world.origin.truncate();
-                                    let tile = chunk.get_tile_by_coords(pointer_in_world);
-                                    let props = registry.get_tile(&tile);
-                                    if props.tile_type != TileType::Wall {
-                                        if let Some(item) = content.get_inventory_item(&actor) {
-                                            content.set_item(None, &mut actor);
+    let Some(content) = content_optional else {
+        return;
+    };
 
-                                            spawn_dropped_item(
-                                                &mut commands,
-                                                &registry,
-                                                pointer_in_world,
-                                                &item,
-                                            );
-                                            floating.content = None;
+    se.send(SEEvent::new(CURSOR_8));
 
-                                            se.send(SEEvent::new(PICK_UP));
-                                        }
-                                    }
-                                }
+    let drop = drop_query.single();
+    if drop.hover {
+        // アイテムを地面に置きます
+        if let Some(ref chunk) = map.chunk {
+            if let Ok(window) = window_query.get_single() {
+                if let Some(cursor_in_screen) = window.cursor_position() {
+                    let (camera, camera_global_transform) = camera_query.single();
+
+                    if let Ok(mouse_in_world) =
+                        camera.viewport_to_world(camera_global_transform, cursor_in_screen)
+                    {
+                        let pointer_in_world = mouse_in_world.origin.truncate();
+                        let tile = chunk.get_tile_by_coords(pointer_in_world);
+                        let props = registry.get_tile(&tile);
+                        if props.tile_type != TileType::Wall {
+                            if let Some(item) = content.get_inventory_item(&actor) {
+                                content.set_item(None, &mut actor);
+
+                                spawn_dropped_item(
+                                    &mut commands,
+                                    &registry,
+                                    pointer_in_world,
+                                    &item,
+                                );
+                                floating.content = None;
+
+                                se.send(SEEvent::new(PICK_UP));
                             }
                         }
                     }
-                } else if let Some(target) = target_optional {
-                    // アイテムを別のスロットに移動します
-
-                    // 移動元のアイテムを取得
-                    let item_optional_from = content.get_inventory_item(&actor);
-                    // 移動先のアイテムを取得
-                    let item_optional_to = target.get_inventory_item(&actor);
-
-                    if target.is_settable(&item_optional_from)
-                        && content.is_settable(&item_optional_to)
-                    {
-                        // 移動先に書きこみ
-                        target.set_item(item_optional_from, &mut actor);
-                        // 移動元に書きこみ
-                        content.set_item(item_optional_to, &mut actor);
-                    }
                 }
             }
+        }
+    } else if let Some(target) = target_optional {
+        // アイテムを別のスロットに移動します
+
+        // 移動元のアイテムを取得
+        let item_optional_from = content.get_inventory_item(&actor);
+        // 移動先のアイテムを取得
+        let item_optional_to = target.get_inventory_item(&actor);
+
+        if target.is_settable(&item_optional_from) && content.is_settable(&item_optional_to) {
+            // 移動先に書きこみ
+            target.set_item(item_optional_from, &mut actor);
+            // 移動元に書きこみ
+            content.set_item(item_optional_to, &mut actor);
         }
     }
 }

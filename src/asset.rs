@@ -316,4 +316,7 @@ pub struct GameAssets {
 
     #[asset(path = "audio/決定ボタンを押す7.ogg")]
     pub _kettei_7: Handle<AudioSource>,
+
+    #[asset(path = "audio/決定ボタンを押す31.ogg")]
+    pub _kettei_31: Handle<AudioSource>,
 }

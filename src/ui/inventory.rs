@@ -4,7 +4,6 @@ use crate::controller::player::Player;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::KETTEI_7;
-use crate::se::SEN;
 use crate::states::GameState;
 use crate::ui::floating::Floating;
 use crate::ui::floating::FloatingContent;

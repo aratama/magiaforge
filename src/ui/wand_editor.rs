@@ -4,6 +4,8 @@ use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
 use crate::message::SORT;
 use crate::registry::Registry;
+use crate::se::SEEvent;
+use crate::se::KETTEI_31;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::command_button::command_button;
@@ -109,11 +111,13 @@ fn toggle_inventory(
     state: Res<State<GameMenuState>>,
     mut next: ResMut<NextState<GameMenuState>>,
     query: Query<&Player, With<Witch>>,
+    mut se: EventWriter<SEEvent>,
 ) {
     match state.get() {
         GameMenuState::Closed => {
             if keys.just_pressed(KeyCode::Tab) && !query.is_empty() {
                 next.set(GameMenuState::WandEditOpen);
+                se.send(SEEvent::new(KETTEI_31));
             }
         }
         GameMenuState::WandEditOpen => {
@@ -124,6 +128,7 @@ fn toggle_inventory(
                 || keys.just_pressed(KeyCode::KeyD)
             {
                 next.set(GameMenuState::Closed);
+                se.send(SEEvent::new(KETTEI_31));
             }
         }
         _ => {}
