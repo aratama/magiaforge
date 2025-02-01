@@ -301,9 +301,10 @@ TileRegistry(
                 (53, 24): "Bomb",
             },
             // itemsで指定する以外のエンティティの生成はspawnで指定します
-            // spawn: {
-            //     (50, 52): Actor ("ExplosiveMashroom")
-            // },
+            spawn: {
+                // (55, 52): Actor("Slime"),
+                // (50, 52): Actor ("ExplosiveMashroom")
+            },
             next: ["library"],
         ),
 
