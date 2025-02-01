@@ -76,22 +76,26 @@ TileRegistry(
                 )
             ],
         ),
+        // 草原
+        // 地面は Soil と同じだが、大半の部分に草が生える
         "Grassland": (
             tile_type: Floor,
             layers: [
                 (
                     depth: 0.0,                    
-                    tiling: Simple (patterns: [["grassland"]])
+                    tiling: Simple (patterns: [["grassland_0"], ["grassland_1"], ["grassland_2"]])
                 )
             ],
             grasses: true
         ),
+        // 土
+        // 草が生えていない地面
         "Soil": (
             tile_type: Floor,
             layers: [
                 (
                     depth: 0.0,
-                    tiling: Simple (patterns: [["soil_tile"]])
+                    tiling: Simple (patterns: [["grassland_0"], ["grassland_1"], ["grassland_2"]])
                 )
             ],
         ),
