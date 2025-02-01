@@ -5,7 +5,6 @@ use crate::actor::chicken::ChikenControlPlugin;
 use crate::actor::stone_lantern::StoneLanternPlugin;
 use crate::actor::witch::WitchPlugin;
 use crate::actor::ActorPlugin;
-use crate::aseprite_raw_loader::RawAsepriteLoaderPlugin;
 use crate::asset::GameAssets;
 use crate::audio::GameAudioPlugin;
 use crate::camera::*;
@@ -57,6 +56,7 @@ use crate::hud::*;
 use crate::input::GameInputPlugin;
 use crate::interpreter::InterpreterPlugin;
 use crate::language::LanguagePlugin;
+use crate::ldtk::loader::RawLDTKLoaderPlugin;
 use crate::page::ending::EndingPlugin;
 use crate::page::in_game::WorldPlugin;
 use crate::page::main_menu::MainMenuPlugin;
@@ -265,6 +265,7 @@ pub fn run_game() {
         .add_plugins(PointerPlugin)
         .add_plugins(PopUpPlugin)
         .add_plugins(RemotePlayerPlugin)
+        .add_plugins(RawLDTKLoaderPlugin)
         .add_plugins(SetupPlugin)
         .add_plugins(ServantPlugin)
         .add_plugins(ShopPlugin)
@@ -289,8 +290,6 @@ pub fn run_game() {
         .add_plugins(WebSocketPlugin)
         .add_plugins(WitchPlugin)
         .add_plugins(WorldPlugin)
-        //
-        .add_plugins(RawAsepriteLoaderPlugin)
         //
         // メインメニューやゲームプレイ画面などのシーンを定義するstate
         //

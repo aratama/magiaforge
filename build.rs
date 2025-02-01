@@ -13,8 +13,9 @@ fn main() {
     let datetime = now.format("%Y-%m-%d").to_string();
     println!("cargo:rustc-env=BUILD_DATETIME={}", datetime);
 
+    let profile = std::env::var("PROFILE").unwrap();
     let target = std::env::var("TARGET").unwrap();
-    if target.contains("windows") {
+    if profile == "release" && target.contains("windows") {
         embed_resource::compile("build/windows/icon.rc", embed_resource::NONE);
         embed_resource::compile("build/windows/manifest.rc", embed_resource::NONE);
     }

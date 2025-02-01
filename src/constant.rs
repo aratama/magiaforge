@@ -25,7 +25,7 @@ pub const TILE_SIZE: f32 = 16.0;
 
 pub const TILE_HALF: f32 = TILE_SIZE / 2.0;
 
-pub const HOME_LEVEL: &'static str = "home";
+pub const HOME_LEVEL: &'static str = "Home";
 
 pub const ARENA: &'static str = "arena";
 

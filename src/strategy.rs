@@ -1,14 +1,12 @@
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
-use crate::actor::ActorType;
 use crate::collision::SENSOR_GROUPS;
 use crate::registry::ActorPropsByType;
 use crate::registry::Registry;
 use crate::states::GameState;
 use crate::states::TimeState;
 use bevy::prelude::*;
-use bevy::utils::warn;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::Collider;
@@ -91,6 +89,8 @@ pub struct Commander {
 pub struct FindResult {
     pub position: Vec2,
     pub radius: f32,
+
+    #[allow(dead_code)]
     pub actor: Actor,
 }
 
@@ -168,34 +168,18 @@ fn update(
         actor.commander.count += 1;
 
         // 各アクションのタイムアウトを超えている場合は次のアクションへ移行
-        match action {
-            Action::Sleep => {}
-            Action::Wait { count, .. } => {
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                }
-            }
-            Action::Approach { count, .. } => {
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                }
-            }
-            Action::Fire { count, .. } => {
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                }
-            }
-            Action::GoTo { count, .. } => {
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                }
-            }
-            Action::Loop => {}
-            Action::End => {}
+        let limit = match action {
+            Action::Sleep => u32::MAX,
+            Action::Wait { count, .. } => *count,
+            Action::Approach { count, .. } => *count,
+            Action::Fire { count, .. } => *count,
+            Action::GoTo { count, .. } => *count,
+            Action::Loop => u32::MAX,
+            Action::End => u32::MAX,
+        };
+        if limit < actor.commander.count {
+            actor.commander.count = 0;
+            actor.commander.next_action += 1;
         }
     }
 }
@@ -358,7 +342,7 @@ fn execute(
             actor.fire_state_secondary = ActorFireState::Idle;
             actor.navigation_path.clear();
         }
-        Action::GoTo { destination, count } => {
+        Action::GoTo { destination, .. } => {
             actor.fire_state = ActorFireState::Idle;
             actor.fire_state_secondary = ActorFireState::Idle;
             actor.navigation_path.clear();

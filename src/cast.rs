@@ -12,6 +12,7 @@ use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::random_actor_type;
 use crate::component::metamorphosis::Metamorphosed;
+use crate::component::mine::spawn_mine;
 use crate::constant::MAX_SPELLS_IN_WAND;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
@@ -33,6 +34,7 @@ use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::HEAL;
+use crate::se::SEN;
 use crate::se::SHURIKEN;
 use crate::se::STATUS2;
 use bevy::prelude::*;
@@ -131,6 +133,7 @@ pub enum SpellCast {
     Dispel,
     Clone,
     InfinityClone,
+    Mine,
 }
 
 /// 現在のインデックスをもとに呪文を唱えます
@@ -499,6 +502,17 @@ pub fn cast_spell(
                         player_controlled,
                         std::u32::MAX,
                     );
+                }
+                SpellCast::Mine => {
+                    let max_range = 32.0;
+                    let position = actor_position
+                        + if max_range < actor.pointer.length() {
+                            actor.pointer.normalize_or_zero() * max_range
+                        } else {
+                            actor.pointer
+                        };
+                    spawn_mine(&mut commands, &asset_server, actor.actor_group, position);
+                    se.send(SEEvent::pos(SEN, position));
                 }
             }
         } else {

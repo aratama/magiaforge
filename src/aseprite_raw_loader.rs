@@ -1,3 +1,5 @@
+// 使われていません
+
 use aseprite_loader::loader::AsepriteFile;
 use bevy::{
     asset::{io::Reader, AssetLoader, RenderAssetUsages},
@@ -21,10 +23,12 @@ impl Plugin for RawAsepriteLoaderPlugin {
 //to ship or bundle aseprite binaries into your release.
 #[derive(Asset, TypePath, Debug)]
 pub struct RawAseprite {
+    #[allow(dead_code)]
     pub aseprite: Arc<AsepriteFile<'static>>,
 }
 
 impl RawAseprite {
+    #[allow(dead_code)]
     pub fn get_layer_by_name(&self, name: &str, frame_index: usize) -> Option<Image> {
         let Some(first_frame) = self.aseprite.frames.get(frame_index) else {
             return None;

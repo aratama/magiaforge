@@ -25,6 +25,7 @@ mod input;
 mod interpreter;
 mod inventory;
 mod language;
+mod ldtk;
 mod level;
 mod message;
 mod page;

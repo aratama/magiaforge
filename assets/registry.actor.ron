@@ -496,7 +496,7 @@ ActorRegistry(
             ],
             strategies: {}
         ),
-        "BookShelf": (
+        "Bookshelf": (
             collider: Cuboid(16.0, 8.0),
             move_force: 0.0,
             jump: 0.0,
@@ -607,12 +607,6 @@ ActorRegistry(
                 [None, None, None, None, None, None, None, None], 
             ],
             strategies: {}
-        ),
-        "ExplosiveMashroom": (
-            life: 10,
-            actor_group: Enemy,
-            aseprite: "entity/explosive_mashroom.aseprite",
-            mine: true 
         )
     }
 )

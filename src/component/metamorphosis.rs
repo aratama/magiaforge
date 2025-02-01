@@ -37,7 +37,7 @@ pub fn random_actor_type(mut rng: &mut ThreadRng, except: &ActorType) -> ActorTy
         ActorType::new("Sandbag"),
         ActorType::new("Lantern"),
         ActorType::new("Chest"),
-        ActorType::new("BookShelf"),
+        ActorType::new("Bookshelf"),
     ]
     .iter()
     .filter(|a| **a != *except)

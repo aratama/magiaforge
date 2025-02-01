@@ -6,15 +6,31 @@ use crate::{
     set::FixedUpdateGameActiveSet,
 };
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, Sensor};
+
+use super::entity_depth::EntityDepth;
 
 /// 触れると爆発する性質です
 #[derive(Component, Clone)]
-pub struct Mine;
+pub struct Mine {
+    actor_group: ActorGroup,
+}
 
-pub fn spawn_mine_child(builder: &mut ChildBuilder) {
-    builder.spawn((
-        Mine,
+pub fn spawn_mine(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    actor_group: ActorGroup,
+    position: Vec2,
+) {
+    commands.spawn((
+        Mine { actor_group },
+        AseSpriteAnimation {
+            aseprite: asset_server.load("entity/explosive_mashroom.aseprite"),
+            ..default()
+        },
+        EntityDepth::default(),
+        Transform::from_translation(position.extend(0.0)),
         Sensor,
         Collider::ball(16.0),
         ActiveEvents::COLLISION_EVENTS,
@@ -25,22 +41,20 @@ pub fn spawn_mine_child(builder: &mut ChildBuilder) {
 fn sensor(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    mine_query: Query<(&Parent, &Mine)>,
+    mine_query: Query<(&Mine, &GlobalTransform)>,
     actor_query: Query<(Entity, &Actor, &Transform)>,
     mut spawn: EventWriter<SpawnExplosion>,
 ) {
     for collision_event in collision_events.read() {
         match identify(collision_event, &mine_query, &actor_query) {
             IdentifiedCollisionEvent::Started(mine_entity, actor_entity) => {
-                let (parent, _mine) = mine_query.get(mine_entity).unwrap();
-                let (mine_entity, mine_actor, mine_transform) =
-                    actor_query.get(parent.get()).unwrap();
+                let (mine, mine_transform) = mine_query.get(mine_entity).unwrap();
                 let (_, target_actor, _) = actor_query.get(actor_entity).unwrap();
                 if target_actor.actor_group != ActorGroup::Entity
-                    && mine_actor.actor_group != target_actor.actor_group
+                    && mine.actor_group != target_actor.actor_group
                 {
                     commands.entity(mine_entity).despawn_recursive();
-                    let position = mine_transform.translation.truncate();
+                    let position = mine_transform.translation().truncate();
                     spawn.send(SpawnExplosion {
                         position,
                         radius: 32.0,

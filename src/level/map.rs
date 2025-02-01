@@ -1,13 +1,17 @@
-use crate::aseprite_raw_loader::RawAseprite;
+use crate::actor::ActorType;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
+use crate::language::Dict;
+use crate::ldtk::loader::LDTK;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::page::in_game::GameLevel;
 use crate::registry::Registry;
 use crate::registry::SpawnEntityProps;
 use crate::registry::TileType;
+use crate::spell::Spell;
 use bevy::prelude::*;
+use bevy::scene::ron;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
@@ -24,35 +28,144 @@ pub struct LevelChunk {
 }
 
 impl LevelChunk {
+    /// LDTKで定義されたレベルを読み取ります
+    ///
+    /// LDTKでは Entities という名前のレイヤーに、以下の3種類の命名規則でエンティティを配置できます
+    /// 1. この関数内でハードコーディングされたもの。Ldtkのカスタムフィールドを読み取る必要がある場合はこれ。"Spell" など
+    /// 2. Spawn としてハードコーディングされたもの。registry.actor.ronで拡張できる。"RandomChest"や"MagicCircle"など
+    /// 3. registry.actor.ronで定義されたActorType。"StoneLantern"など
+    /// このいずれにも当てはまらなかったエンティティは警告とともに無視されます。
     /// レベルの番号を指定して、画像データからレベル情報を取得します
     /// このとき、該当するレベルの複数のスライスからランダムにひとつが選択されます、
-    pub fn new(
-        registry: &Registry,
-        raw_aseprites: &Res<Assets<RawAseprite>>,
-        level: &GameLevel,
-    ) -> Self {
-        let raw_aseprite = raw_aseprites.get(registry.assets.raw_level.id()).unwrap();
+    pub fn new(registry: &Registry, ldtk: &LDTK, level: &GameLevel) -> Self {
+        // タイル読み込み
 
-        let slice = raw_aseprite
-            .aseprite
-            .slices()
-            .iter()
-            .find(|s| s.name == level.0)
-            .unwrap();
-        let slice_keys = slice.slice_keys[0];
-        let tile_map = raw_aseprite.get_layer_by_name("tiles", 0).unwrap();
-        let entities_map = raw_aseprite.get_layer_by_name("entities", 0).unwrap();
-        let chunk = image_to_tilemap(
-            &registry,
-            &tile_map,
-            &entities_map,
-            slice_keys.x as i32,
-            slice_keys.x + slice_keys.width as i32,
-            slice_keys.y as i32,
-            slice_keys.y + slice_keys.height as i32,
-            level.clone(),
-        );
-        return chunk;
+        let ldtk_level = ldtk.get_level(&level).unwrap();
+        let int_grid_layer = ldtk_level.get_layer("Tiles").unwrap();
+        let map: HashMap<i64, &str> = ldtk.get_tile_mapping("Tiles");
+        let mut tiles: Vec<Tile> = Vec::new();
+        for tile_value in int_grid_layer.int_grid_csv.iter() {
+            tiles.push(if *tile_value == 0 {
+                Tile::default()
+            } else {
+                match map.get(&tile_value) {
+                    Some(tile) => Tile::new(tile),
+                    None => {
+                        warn!("Unknown tile: {:?}", tile_value);
+                        Tile::default()
+                    }
+                }
+            });
+        }
+
+        // エンティティ読み込み
+
+        let entity_layer = ldtk_level.get_layer("Entities").unwrap();
+
+        let mut entities: HashMap<(i32, i32), SpawnEntityProps> = HashMap::new();
+
+        for entity in entity_layer.entity_instances.iter() {
+            let key = (entity.grid[0] as i32, entity.grid[1] as i32);
+
+            match entity.identifier.as_str() {
+                "Spell" => {
+                    let spell_name = entity.get_value_as_str("spell");
+                    entities.insert(
+                        key,
+                        SpawnEntityProps {
+                            entity: Spawn::Spell(Spell::new(spell_name.clone())),
+                            spawn_offset_x: 0.0,
+                        },
+                    );
+                }
+                "Rabbit" => {
+                    entities.insert(
+                        key,
+                        SpawnEntityProps {
+                            entity: Spawn::Rabbit {
+                                aseprite: entity.get_value_as_str("aseprite"),
+                                senario: entity.get_value_as_str("senario"),
+                            },
+                            spawn_offset_x: 0.0,
+                        },
+                    );
+                }
+                "Boss" => {
+                    let actor_name = entity.get_value_as_str("actor");
+                    entities.insert(
+                        key,
+                        SpawnEntityProps {
+                            entity: Spawn::Boss {
+                                actor_type: ActorType::new(actor_name.as_str()),
+                                // todo 名前やシナリオは外部ファイルで指定できるようにする
+                                name: Dict {
+                                    ja: "スライムの王 エミルス",
+                                    en: "Slime King Emils",
+                                    zh_cn: "史莱姆之王 艾米尔斯",
+                                    zh_tw: "史萊姆之王 艾米爾斯",
+                                    es: "Rey Slime Emils",
+                                    fr: "Roi Slime Emils",
+                                    pt: "Rei Slime Emils",
+                                    de: "Schleimkönig Emils",
+                                    ko: "슬라임 왕 에밀스",
+                                    ru: "Король слизней Эмильс",
+                                }
+                                .to_string(),
+                                on_despawn: "HugeSlime".to_string(),
+                            },
+                            spawn_offset_x: 0.0,
+                        },
+                    );
+                }
+                _ => match ron::de::from_str::<Spawn>(&entity.identifier) {
+                    Ok(spawn) => {
+                        entities.insert(
+                            key,
+                            SpawnEntityProps {
+                                entity: spawn,
+                                spawn_offset_x: 0.0,
+                            },
+                        );
+                    }
+                    Err(_) => {
+                        match registry.actor().actors.get(&entity.identifier) {
+                            Some(_) => {
+                                entities.insert(
+                                    key,
+                                    SpawnEntityProps {
+                                        entity: Spawn::Actor(ActorType::new(&entity.identifier)),
+                                        spawn_offset_x: if entity.identifier == "Bookshelf" {
+                                            8.0
+                                        } else {
+                                            0.0
+                                        },
+                                    },
+                                );
+                            }
+                            None => {
+                                warn!("Unknown entity: {:?}", entity.identifier);
+                            }
+                        };
+                    }
+                },
+            }
+        }
+
+        let min_x = int_grid_layer.px_offset_x as i32;
+        let max_x = (int_grid_layer.px_offset_x + int_grid_layer.c_wid) as i32;
+        let min_y = int_grid_layer.px_offset_y as i32;
+        let max_y = (int_grid_layer.px_offset_y + int_grid_layer.c_hei) as i32;
+
+        return Self {
+            level: level.clone(),
+            tiles,
+            entities,
+            min_x,
+            max_x,
+            min_y,
+            max_y,
+            dirty: Some((min_x, min_y, max_x, max_y)),
+        };
     }
 
     pub fn get_level_tile(&self, x: i32, y: i32) -> &Tile {
@@ -180,74 +293,4 @@ pub fn position_to_index(position: Vec2) -> (i32, i32) {
         (position.x / TILE_SIZE).floor() as i32,
         (position.y / -TILE_SIZE).floor() as i32,
     )
-}
-
-fn image_to_tilemap(
-    registry: &Registry,
-    level_image: &Image,
-    entities_image: &Image,
-    min_x: i32,
-    max_x: i32,
-    min_y: i32,
-    max_y: i32,
-    level: GameLevel,
-) -> LevelChunk {
-    let texture_width = level_image.width();
-    let map = &registry.tile().color_to_tile_mapping;
-    let mut tiles: Vec<Tile> = Vec::new();
-    for y in min_y..max_y {
-        for x in min_x..max_x {
-            let i = 4 * (y * texture_width as i32 + x) as usize;
-            let r = level_image.data[i + 0];
-            let g = level_image.data[i + 1];
-            let b = level_image.data[i + 2];
-            let a = level_image.data[i + 3];
-            let tile = match map.get(&(r, g, b, a)) {
-                Some(tile) => tile,
-                None => {
-                    warn!("Unknown tile: {:?} {:?} {:?} {:?}", r, g, b, a);
-                    &Tile::default()
-                }
-            };
-            tiles.push(tile.clone());
-        }
-    }
-
-    let entity_map = &registry.tile().color_to_entity_mapping;
-    let mut entities: HashMap<(i32, i32), SpawnEntityProps> = HashMap::new();
-
-    for y in min_y..max_y {
-        for x in min_x..max_x {
-            let i = 4 * (y * texture_width as i32 + x) as usize;
-            let r = entities_image.data[i + 0];
-            let g = entities_image.data[i + 1];
-            let b = entities_image.data[i + 2];
-            let a = entities_image.data[i + 3];
-            match entity_map.get(&(r, g, b, a)) {
-                Some(tile) => {
-                    entities.insert((x, y), tile.clone());
-                }
-                None => {
-                    if (r == 0 && g == 0 && b == 0) || a == 0 {
-                    } else {
-                        warn!(
-                            "Unknown entity: {:?} {:?} {:?} {:?} at ({},{})",
-                            r, g, b, a, x, y
-                        );
-                    };
-                }
-            };
-        }
-    }
-
-    return LevelChunk {
-        level,
-        tiles,
-        entities,
-        min_x,
-        max_x,
-        min_y,
-        max_y,
-        dirty: Some((min_x, min_y, max_x, max_y)),
-    };
 }

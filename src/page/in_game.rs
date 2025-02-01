@@ -3,7 +3,6 @@ use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::aseprite_raw_loader::RawAseprite;
 use crate::audio::NextBGM;
 use crate::camera::setup_camera;
 use crate::config::GameConfig;
@@ -14,6 +13,7 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::Inventory;
 use crate::inventory::InventoryItem;
+use crate::ldtk::loader::LDTK;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
@@ -113,13 +113,15 @@ pub fn setup_level(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    raw_aseprites: Res<Assets<RawAseprite>>,
+    ldtk_assets: Res<Assets<LDTK>>,
     mut current: ResMut<LevelSetup>,
     config: Res<GameConfig>,
     mut next_bgm: ResMut<NextBGM>,
     mut spawn: EventWriter<SpawnEvent>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
+    let ldtk = ldtk_assets.get(registry.assets.ldtk_level.id()).unwrap();
+
     // 各種変数の初期化
 
     let game_registry = registry.game();
@@ -146,7 +148,7 @@ pub fn setup_level(
     // 次のレベルの選定 /////////////////////////////////////////////////////////////////////
 
     let level = if player_state.discovered_spells.is_empty() {
-        GameLevel::new("warehouse")
+        GameLevel::new("Warehouse")
     } else {
         current.next_level.clone()
     };
@@ -168,10 +170,10 @@ pub fn setup_level(
 
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
     let getting_up_animation =
-        level == GameLevel::new("warehouse") && cfg!(not(feature = "ingame"));
+        level == GameLevel::new("Warehouse") && cfg!(not(feature = "ingame"));
 
     // 画像データからレベルの情報を選択して読み取ります
-    let chunk = LevelChunk::new(&registry, &raw_aseprites, &level);
+    let chunk = LevelChunk::new(&registry, &ldtk, &level);
 
     // ナビゲーションメッシュを作成します
     // Spawn a new navmesh that will be automatically updated.
@@ -209,6 +211,8 @@ pub fn setup_level(
     // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
     let entry_points = chunk.entry_points();
     let entry_point = entry_points.choose(&mut rng).expect("No entrypoint found");
+
+    info!("entry_points {:?}", entry_points);
 
     let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
     let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
@@ -405,8 +409,6 @@ fn update_tile_sprites(
     if let Some(ref mut chunk) = current.chunk {
         // 範囲内を更新
         if let Some((left, top, right, bottom)) = chunk.dirty {
-            info!("updating chunk {:?}", chunk.dirty);
-
             let props = registry.get_level(&chunk.level);
 
             // 縦２タイルのみ孤立して残っているものがあれば削除

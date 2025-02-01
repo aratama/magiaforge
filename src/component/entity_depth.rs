@@ -4,7 +4,7 @@ use crate::states::GameState;
 use bevy::prelude::*;
 
 /// y座標の値に応じて自動的にz座標を設定し、スプライトの重なりを調整するコンポーネントです
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct EntityDepth {
     offset: f32,
 }

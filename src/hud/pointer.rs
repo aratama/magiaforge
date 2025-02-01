@@ -43,6 +43,8 @@ pub struct PointerPlugin;
 
 impl Plugin for PointerPlugin {
     fn build(&self, app: &mut App) {
+        // todo
+        // magiaforge::hud::pointer::setup_pointer could not access system parameter Res<GameAssets>
         app.add_systems(OnExit(GameState::Setup), setup_pointer);
 
         app.add_systems(

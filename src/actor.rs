@@ -23,7 +23,6 @@ use crate::component::entity_depth::ChildEntityDepth;
 use crate::component::metamorphosis::cast_metamorphosis;
 use crate::component::metamorphosis::metamorphosis_effect;
 use crate::component::metamorphosis::Metamorphosed;
-use crate::component::mine::spawn_mine_child;
 use crate::constant::BLOOD_LAYER_Z;
 use crate::constant::MAX_WANDS;
 use crate::constant::TILE_SIZE;
@@ -98,7 +97,6 @@ use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
 use vleue_navigator::prelude::PrimitiveObstacle;
-use vleue_navigator::Path;
 use witch::WitchWandSprite;
 
 /// アクターの種類を表します
@@ -1447,12 +1445,6 @@ pub fn spawn_actor(
         ));
     }
 
-    if props.mine {
-        builder.with_children(|mut builder| {
-            spawn_mine_child(&mut builder);
-        });
-    }
-
     // if let Some(owner) = master {
     //     builder.insert(Servant { master: owner });
     // }
@@ -1470,7 +1462,7 @@ pub fn spawn_actor(
         "Chest" => {
             builder.insert((Chest::random(), Burnable { life: 30 }));
         }
-        "BookShelf" => {
+        "Bookshelf" => {
             builder.insert(Burnable { life: 30 });
         }
         "Bomb" => {

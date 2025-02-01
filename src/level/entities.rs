@@ -31,6 +31,7 @@ use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
+use crate::inventory::InventoryItem;
 use crate::language::Dict;
 use crate::page::in_game::new_shop_item_queue;
 use crate::page::in_game::LevelSetup;
@@ -53,6 +54,11 @@ use serde::Deserialize;
 pub enum Spawn {
     /// 種別を指定してアクターを生成します
     Actor(ActorType),
+
+    ActorWithGroup {
+        actor_type: ActorType,
+        actor_group: ActorGroup,
+    },
 
     /// Actorを復帰します
     /// 変化からの復帰や分裂のときなどに使います
@@ -106,6 +112,7 @@ pub enum Spawn {
     ShopSpell,
     ShopDoor,
     RandomChest,
+    Spell(Spell),
     SpellInChest {
         spell: Spell,
     },
@@ -301,6 +308,14 @@ pub fn spawn_entity(
                     false,
                 );
             }
+            Spawn::Spell(spell) => {
+                spawn_dropped_item(
+                    &mut commands,
+                    &registry,
+                    *position,
+                    &InventoryItem::new(spell.clone()),
+                );
+            }
             Spawn::SpellInChest { spell } => {
                 let actor = chest_actor(0, Some(spell.clone()));
                 let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
@@ -310,6 +325,14 @@ pub fn spawn_entity(
             }
             Spawn::Actor(actor_type) => {
                 let actor = get_default_actor(&registry, actor_type);
+                spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+            }
+            Spawn::ActorWithGroup {
+                actor_type,
+                actor_group,
+            } => {
+                let mut actor = get_default_actor(&registry, actor_type);
+                actor.actor_group = *actor_group;
                 spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
             Spawn::Boss {

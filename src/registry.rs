@@ -38,10 +38,9 @@ pub struct GameRegistry {
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct TileRegistry {
     pub tile_types: HashMap<String, TileTypeProps>,
-    pub color_to_tile_mapping: HashMap<(u8, u8, u8, u8), Tile>,
 
     /// 各レベル共通で使われるエンティティは、色が割り当てられてentityレイヤーをもとに生成します
-    pub color_to_entity_mapping: HashMap<(u8, u8, u8, u8), SpawnEntityProps>,
+    // pub color_to_entity_mapping: HashMap<String, SpawnEntityProps>,
 
     /// 各レベル固有の呪文生成などは、LevelPropsのitemsに記述します
     pub levels: HashMap<String, LevelProps>,
@@ -256,9 +255,6 @@ pub struct ActorPropsByType {
 
     #[serde(default)]
     pub point_light_falloff: f32,
-
-    #[serde(default)]
-    pub mine: bool,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -335,6 +331,7 @@ impl<'w> Registry<'w> {
         self.game.get(&self.assets.game_registry).unwrap()
     }
 
+    #[allow(dead_code)]
     pub fn tile(&self) -> &TileRegistry {
         self.tile.get(&self.assets.tile_registry).unwrap()
     }

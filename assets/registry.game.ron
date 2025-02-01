@@ -3,7 +3,7 @@
 #![enable(implicit_some)]
 GameRegistry(
     debug_wands: [
-        ["SummonEnemySlime"],
+        ["Mine"],
         ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt"],
         ["DualCast", "Levitation", "MagicBolt"],
         ["DualCast", "Dash", "Jump", "Lantern"]
@@ -51,6 +51,7 @@ GameRegistry(
         "Dispel",
         "Clone",
         "InfinityClone",
+        "Mine"
     ],
 
     

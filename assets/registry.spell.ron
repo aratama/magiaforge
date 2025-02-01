@@ -302,6 +302,37 @@ SpellRegistry(
             cast_delay: 0,
             cast: NoCast
         ),
+        "Mine": (
+            rank: 2,
+            name: Dict (
+                ja: "爆発キノコ",
+                en: "Explosion Mushroom",
+                zh_cn: "爆炸蘑菇",
+                zh_tw: "爆炸蘑菇",
+                es: "Hongo Explosivo",
+                fr: "Champignon Explosif",
+                pt: "Cogumelo Explosivo",
+                de: "Explosionspilz",
+                ko: "폭발 버섯",
+                ru: "Взрывной гриб"
+            ),
+            description: Dict (
+                ja: "近づくと爆発するキノコを足元に発生させる。狭い通路に仕掛けて敵を誘い込もう。",
+                en: "Creates a mushroom that explodes when approached. Place it in narrow passages to lure enemies.",
+                zh_cn: "在脚下生成一个蘑菇，当靠近时会爆炸。将其放置在狭窄的通道中以引诱敌人。",
+                zh_tw: "在腳下生成一個蘑菇，當靠近時會爆炸。將其放置在狹窄的通道中以引誘敵人。",
+                es: "Crea un hongo que explota cuando se acerca. Colócalo en pasajes estrechos para atraer a los enemigos.",
+                fr: "Crée un champignon qui explose lorsqu'on s'en approche. Placez-le dans des passages étroits pour attirer les ennemis.",
+                pt: "Cria um cogumelo que explode quando se aproxima. Coloque-o em passagens estreitas para atrair inimigos.",
+                de: "Erzeugt einen Pilz, der explodiert, wenn man sich nähert. Platziere ihn in engen Durchgängen, um Feinde anzulocken.",
+                ko: "접근하면 폭발하는 버섯을 생성합니다. 좁은 통로에 배치하여 적을 유인하세요.",
+                ru: "Создает гриб, который взрывается при приближении. Разместите его в узких проходах, чтобы заманить врагов."
+            ),
+            icon: "mine_icon",
+            price: 300,
+            cast_delay: 60,
+            cast: Mine
+        ),
         // waterside で入手
         "Jump": (
             rank: 2,
@@ -778,7 +809,7 @@ SpellRegistry(
             cast_delay: 120,
             icon: "spawn_bookshelf_icon",
             price: 500,
-            cast: Spawn (Actor ("BookShelf")),
+            cast: Spawn (Actor ("Bookshelf")),
         ),
         "Fireball": (
             rank: 3,

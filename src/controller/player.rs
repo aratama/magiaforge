@@ -24,7 +24,6 @@ use crate::se::PICK_UP;
 use crate::se::SEN;
 use crate::se::SWITCH;
 use crate::set::FixedUpdateGameActiveSet;
-use crate::set::FixedUpdateInGameSet;
 use crate::set::FixedUpdatePlayerActiveSet;
 use crate::spell::Spell;
 use crate::states::GameMenuState;

@@ -39,7 +39,7 @@ pub fn update(
     if let Ok((actor, player)) = actor_query.get_single() {
         for mut text in query.iter_mut() {
             if let Some(level) = &level.level {
-                if *level != GameLevel::new("warehouse") {
+                if *level != GameLevel::new("Warehouse") {
                     text.0 = Dict::empty();
                 } else if 3 <= player.broken_chests {
                     text.0 = props.tutorial_magic_circle.clone();
