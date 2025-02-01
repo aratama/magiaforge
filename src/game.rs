@@ -110,6 +110,7 @@ use bevy::window::WindowMode;
 use bevy_aseprite_ultra::AsepriteUltraPlugin;
 use bevy_asset_loader::prelude::*;
 use bevy_common_assets::ron::RonAssetPlugin;
+use bevy_egui::EguiPlugin;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 #[cfg(all(not(debug_assertions), not(target_arch = "wasm32")))]
@@ -198,6 +199,7 @@ pub fn run_game() {
         .add_plugins(TextInputPlugin)
         .add_plugins(VleueNavigatorPlugin)
         .add_plugins(NavmeshUpdaterPlugin::<PrimitiveObstacle>::default())
+        .add_plugins(EguiPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン
         //

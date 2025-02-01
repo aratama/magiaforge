@@ -1,11 +1,14 @@
 use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
+use crate::actor::ActorType;
 use crate::collision::SENSOR_GROUPS;
+use crate::registry::ActorPropsByType;
 use crate::registry::Registry;
 use crate::states::GameState;
 use crate::states::TimeState;
 use bevy::prelude::*;
+use bevy::utils::warn;
 use bevy_rapier2d::plugin::DefaultRapierContext;
 use bevy_rapier2d::plugin::RapierContext;
 use bevy_rapier2d::prelude::Collider;
@@ -16,6 +19,13 @@ use std::collections::HashMap;
 use vleue_navigator::prelude::ManagedNavMesh;
 use vleue_navigator::prelude::NavMeshStatus;
 use vleue_navigator::NavMesh;
+
+const APPROACH_MERGIN: f32 = 8.0;
+
+#[cfg(feature = "debug")]
+use bevy_egui::egui;
+#[cfg(feature = "debug")]
+use bevy_egui::EguiContext;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct Strategy {
@@ -81,6 +91,7 @@ pub struct Commander {
 pub struct FindResult {
     pub position: Vec2,
     pub radius: f32,
+    pub actor: Actor,
 }
 
 fn update(
@@ -92,22 +103,18 @@ fn update(
 ) {
     let context: &RapierContext = rapier_context.single();
 
-    let map: HashMap<Entity, (ActorGroup, Vec2, f32)> = query
+    let map: HashMap<Entity, (Actor, Vec2, f32)> = query
         .iter()
         .map(|(e, a, t)| {
             let props = registry.get_actor_props(&a.actor_type);
             (
                 e,
-                (
-                    a.actor_group,
-                    t.translation.truncate(),
-                    props.collider.size(),
-                ),
+                (a.clone(), t.translation.truncate(), props.collider.size()),
             )
         })
         .collect();
 
-    for (entity, mut actor, transform) in query.iter_mut() {
+    for (entity, mut actor, actor_transform) in query.iter_mut() {
         let props = registry.get_actor_props(&actor.actor_type);
         let strategies = &props.strategies;
 
@@ -138,203 +145,260 @@ fn update(
 
         let action = strategy.actions.get(next_action_index).unwrap();
 
-        let origin = transform.translation.truncate();
+        let origin = actor_transform.translation.truncate();
 
         let self_actor_group = actor.actor_group;
 
         // 現在のアクションを実行する
+        execute(
+            context,
+            &map,
+            entity,
+            self_actor_group,
+            origin,
+            &props,
+            &mut actor,
+            &navmesh,
+            &navmeshes,
+            next_action_index,
+            action,
+        );
+
+        // アクションの match の下に置くと、continueで抜けたときにカウントアップされなくなってしまうことに注意
+        actor.commander.count += 1;
+
+        // 各アクションのタイムアウトを超えている場合は次のアクションへ移行
         match action {
-            Action::Sleep => {
-                // do nothing
-            }
-            Action::Wait { count, random } => {
-                // このアクションを開始したときに、ランダムにcountを追加することで
-                // アクションの完了時間をばらつかせます
-                if actor.commander.count == 0 {
-                    actor.commander.count = rand::random::<u32>() % random;
-                }
-
-                actor.fire_state = ActorFireState::Idle;
-                actor.fire_state_secondary = ActorFireState::Idle;
-                actor.move_direction = Vec2::ZERO;
-
+            Action::Sleep => {}
+            Action::Wait { count, .. } => {
                 if *count < actor.commander.count {
                     actor.commander.count = 0;
                     actor.commander.next_action += 1;
                 }
             }
-            Action::Approach {
-                far,
-                near,
-                count,
-                random,
-            } => {
-                if actor.commander.count == 0 {
-                    actor.commander.count = rand::random::<u32>() % random;
-                }
-
-                actor.fire_state = ActorFireState::Idle;
-                actor.fire_state_secondary = ActorFireState::Idle;
-                actor.move_direction = Vec2::ZERO;
-
-                // 指定した範囲にいる、自分以外で、かつ別のグループに所属するアクターの一覧を取得
-                // アクターは多数になるので一旦 Rapier でクエリを送っていますが、
-                // 単に線形に探してもいいかも？
-                let Some(nearest) =
-                    find_target(context, &map, entity, self_actor_group, origin, *far)
-                else {
-                    continue;
-                };
-
-                // 指定した距離まで近づいたら次のアクションへ移行
-                if (origin - nearest.position).length() < *near {
-                    actor.move_direction = Vec2::ZERO;
+            Action::Approach { count, .. } => {
+                if *count < actor.commander.count {
                     actor.commander.count = 0;
                     actor.commander.next_action += 1;
-                    continue;
                 }
+            }
+            Action::Fire { count, .. } => {
+                if *count < actor.commander.count {
+                    actor.commander.count = 0;
+                    actor.commander.next_action += 1;
+                }
+            }
+            Action::GoTo { count, .. } => {
+                if *count < actor.commander.count {
+                    actor.commander.count = 0;
+                    actor.commander.next_action += 1;
+                }
+            }
+            Action::Loop => {}
+            Action::End => {}
+        }
+    }
+}
 
-                // ナビメッシュでルートを検索
-                let (navmesh_handle, status) = navmesh.single();
-                let navmesh = navmeshes.get(navmesh_handle);
+fn execute(
+    context: &RapierContext,
+    map: &HashMap<Entity, (Actor, Vec2, f32)>,
+    entity: Entity,
+    self_actor_group: ActorGroup,
+    origin: Vec2,
+    props: &ActorPropsByType,
+    actor: &mut Actor,
+    navmesh: &Query<(&ManagedNavMesh, Ref<NavMeshStatus>)>,
+    navmeshes: &Res<Assets<NavMesh>>,
+    next_action_index: usize,
+    action: &Action,
+) {
+    match action {
+        Action::Sleep => {
+            // do nothing
+            actor.fire_state = ActorFireState::Idle;
+            actor.fire_state_secondary = ActorFireState::Idle;
+            actor.move_direction = Vec2::ZERO;
+            actor.navigation_path.clear();
+        }
+        Action::Wait { count: _, random } => {
+            // このアクションを開始したときに、ランダムにcountを追加することで
+            // アクションの完了時間をばらつかせます
+            if actor.commander.count == 0 {
+                actor.commander.count = rand::random::<u32>() % random;
+            }
 
-                let destination = if *status == NavMeshStatus::Built {
-                    if let Some(navmesh) = navmesh {
-                        let from = origin;
-                        let to = nearest.position;
+            actor.fire_state = ActorFireState::Idle;
+            actor.fire_state_secondary = ActorFireState::Idle;
+            actor.move_direction = Vec2::ZERO;
+            actor.navigation_path.clear();
+        }
+        Action::Approach {
+            far,
+            near,
+            count: _,
+            random,
+        } => {
+            if actor.commander.count == 0 {
+                actor.commander.count = rand::random::<u32>() % random;
+            }
 
-                        if let Some(path) = navmesh.path(
-                            // エンティティの位置そのものを使うと、壁際に近づいたときに agent_radius のマージンに埋もれて
-                            // 到達不可能になってしまうので、タイルの中心を使います
-                            from, to,
-                        ) {
-                            // for p in path.path.iter() {
-                            //     info!("{:?} {:?}", p.x / TILE_SIZE, p.y / TILE_SIZE);
-                            // }
-                            if let Some(first) = path.path.first() {
-                                *first
-                            } else {
-                                // ここに来ることはない？
-                                warn!("first not found");
-                                actor.commander.destination
-                            }
+            actor.fire_state = ActorFireState::Idle;
+            actor.fire_state_secondary = ActorFireState::Idle;
+            actor.move_direction = Vec2::ZERO;
+
+            // 指定した範囲にいる、自分以外で、かつ別のグループに所属するアクターの一覧を取得
+            // アクターは多数になるので一旦 Rapier でクエリを送っていますが、
+            // 単に線形に探してもいいかも？
+            let Some(nearest) = find_target(context, &map, entity, self_actor_group, origin, *far)
+            else {
+                return;
+            };
+
+            // 指定した距離まで近づいたら次のアクションへ移行
+            if (origin - nearest.position).length() < *near {
+                actor.move_direction = Vec2::ZERO;
+                actor.commander.count = 0;
+                actor.commander.next_action += 1;
+                return;
+            }
+
+            // ナビメッシュでルートを検索
+            let (navmesh_handle, status) = navmesh.single();
+            let navmesh = navmeshes.get(navmesh_handle);
+
+            let destination = if *status == NavMeshStatus::Built {
+                if let Some(navmesh) = navmesh {
+                    let from = origin;
+                    let to = nearest.position;
+
+                    if let Some(path) = navmesh.path(
+                        // エンティティの位置そのものを使うと、壁際に近づいたときに agent_radius のマージンに埋もれて
+                        // 到達不可能になってしまうので、タイルの中心を使います
+                        from, to,
+                    ) {
+                        actor.navigation_path = path.path.clone();
+
+                        // ナビメッシュで次の目的地を選定
+                        // APPROACH_MERGIN以下の近すぎるものは避ける
+                        if let Some(first) = path
+                            .path
+                            .iter()
+                            .filter(|p| APPROACH_MERGIN < (origin - **p).length())
+                            .collect::<Vec<&Vec2>>()
+                            .first()
+                        {
+                            **first
                         } else {
-                            // warn!("path not found");
+                            // ここに来ることはない？
+                            warn!("first not found");
                             actor.commander.destination
                         }
                     } else {
-                        warn!("navmesh not found");
+                        // warn!("path not found, from {:?} to {:?}", from, to);
                         actor.commander.destination
                     }
                 } else {
+                    warn!("navmesh not found");
                     actor.commander.destination
-                };
-
-                actor.commander.destination = destination;
-
-                actor.move_direction = (destination - origin).normalize_or_zero();
-
-                // 一定時間経過したら次のアクションへ移行
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
                 }
+            } else {
+                warn!("navmesh not built");
+                actor.commander.destination
+            };
+
+            actor.commander.destination = destination;
+
+            let diff = destination - origin;
+
+            // 移動先は APPROACH_MERGIN 以上のものをフィルタしたので、
+            // ここではAPPROACH_MERGIN以上は遠いはずで、ベクトルはゼロにはならないはず
+            actor.move_direction = diff.normalize_or_zero();
+        }
+        Action::Fire {
+            count: _,
+            random,
+            range,
+        } => {
+            if actor.commander.count == 0 {
+                actor.commander.count = rand::random::<u32>() % random;
             }
-            Action::Fire {
-                count,
-                random,
-                range,
-            } => {
-                if actor.commander.count == 0 {
-                    actor.commander.count = rand::random::<u32>() % random;
-                }
 
-                // 最も近い相手を検索
-                // このとき相手の大きさがわからないので正確な検索範囲はわからないが、
-                // 十分に大きい距離を検索する
-                let Some(nearest) = find_target(
-                    context,
-                    &map,
-                    entity,
-                    self_actor_group,
-                    origin,
-                    props.collider.size() + *range + 48.0,
-                ) else {
-                    continue;
-                };
+            // 最も近い相手を検索
+            // このとき相手の大きさがわからないので正確な検索範囲はわからないが、
+            // 十分に大きい距離を検索する
+            let Some(nearest) = find_target(
+                context,
+                &map,
+                entity,
+                self_actor_group,
+                origin,
+                props.collider.size() + *range + 48.0,
+            ) else {
+                return;
+            };
 
-                let max_range = props.collider.size() + nearest.radius + range;
+            let max_range = props.collider.size() + nearest.radius + range;
 
-                // 指定した距離から遠ければ中止
-                let diff = nearest.position - origin;
-                if max_range < diff.length() {
-                    actor.move_direction = Vec2::ZERO;
-                    actor.fire_state = ActorFireState::Idle;
-                    actor.fire_state_secondary = ActorFireState::Idle;
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                    continue;
-                }
-
-                // 相手に狙いを合わせる
-                actor.pointer = nearest.position - origin;
+            // 指定した距離から遠ければ中止
+            let diff = nearest.position - origin;
+            if max_range < diff.length() {
                 actor.move_direction = Vec2::ZERO;
-                actor.fire_state = ActorFireState::Fire;
-                actor.fire_state_secondary = ActorFireState::Idle;
-
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                }
-            }
-            Action::GoTo { destination, count } => {
                 actor.fire_state = ActorFireState::Idle;
                 actor.fire_state_secondary = ActorFireState::Idle;
-
-                let dest = match destination {
-                    Destination::HomePosition => actor.home_position,
-                };
-                let diff = dest - origin;
-                if diff.length() < 8.0 {
-                    actor.move_direction = Vec2::ZERO;
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                    continue;
-                }
-
-                actor.move_direction = diff.normalize_or_zero();
-
-                if *count < actor.commander.count {
-                    actor.commander.count = 0;
-                    actor.commander.next_action += 1;
-                }
-            }
-            Action::Loop => {
-                actor.commander.loop_start_indices.push(next_action_index);
                 actor.commander.count = 0;
                 actor.commander.next_action += 1;
+                return;
             }
-            Action::End => {
-                let Some(index) = actor.commander.loop_start_indices.pop() else {
-                    // ストラテジーの再読み込み後はインデックスが壊れることがあるのに注意
-                    warn!("Loop stack is empty");
-                    actor.commander.loop_start_indices.clear();
-                    actor.commander.next_action = 0;
-                    actor.commander.count = 0;
-                    continue;
-                };
-                actor.commander.count = 0;
-                actor.commander.next_action = index;
-            }
-        }
 
-        actor.commander.count += 1;
+            // 相手に狙いを合わせる
+            actor.pointer = nearest.position - origin;
+            actor.move_direction = Vec2::ZERO;
+            actor.fire_state = ActorFireState::Fire;
+            actor.fire_state_secondary = ActorFireState::Idle;
+            actor.navigation_path.clear();
+        }
+        Action::GoTo { destination, count } => {
+            actor.fire_state = ActorFireState::Idle;
+            actor.fire_state_secondary = ActorFireState::Idle;
+            actor.navigation_path.clear();
+
+            let dest = match destination {
+                Destination::HomePosition => actor.home_position,
+            };
+            let diff = dest - origin;
+            if diff.length() < 8.0 {
+                actor.move_direction = Vec2::ZERO;
+                actor.commander.count = 0;
+                actor.commander.next_action += 1;
+                return;
+            }
+
+            actor.move_direction = diff.normalize_or_zero();
+        }
+        Action::Loop => {
+            actor.commander.loop_start_indices.push(next_action_index);
+            actor.commander.count = 0;
+            actor.commander.next_action += 1;
+        }
+        Action::End => {
+            let Some(index) = actor.commander.loop_start_indices.pop() else {
+                // ストラテジーの再読み込み後はインデックスが壊れることがあるのに注意
+                warn!("Loop stack is empty");
+                actor.commander.loop_start_indices.clear();
+                actor.commander.next_action = 0;
+                actor.commander.count = 0;
+                return;
+            };
+            actor.commander.count = 0;
+            actor.commander.next_action = index;
+        }
     }
 }
 
 fn find_target(
     context: &RapierContext,
-    map: &HashMap<Entity, (ActorGroup, Vec2, f32)>,
+    map: &HashMap<Entity, (Actor, Vec2, f32)>,
     entity: Entity,
     self_actor_group: ActorGroup,
     origin: Vec2,
@@ -349,10 +413,12 @@ fn find_target(
         |e| {
             if e != entity {
                 if let Some((e_g, e_t, e_r)) = map.get(&e) {
-                    if *e_g != self_actor_group && *e_g != ActorGroup::Entity {
+                    if e_g.actor_group != self_actor_group && e_g.actor_group != ActorGroup::Entity
+                    {
                         enemies.push(FindResult {
                             position: *e_t,
                             radius: *e_r,
+                            actor: e_g.clone(),
                         });
                     }
                 }
@@ -374,6 +440,43 @@ pub fn compare_distance(origin: Vec2) -> impl FnMut(&FindResult, &FindResult) ->
     }
 }
 
+#[cfg(feature = "debug")]
+fn debug_draw(
+    mut contexts_query: Query<&mut EguiContext>,
+    camera_query: Query<(&Camera, &GlobalTransform)>,
+    actor_query: Query<(&Actor, &Transform)>,
+) {
+    let (camera, camera_transform) = camera_query.single();
+    let mut contexts = contexts_query.single_mut();
+    let context = contexts.get_mut();
+
+    egui::Area::new(egui::Id::new("overlay"))
+        .fixed_pos([0.0, 0.0])
+        .show(context, |ui| {
+            let painter = ui.painter();
+            for (actor, transform) in actor_query.iter() {
+                if actor.navigation_path.is_empty() {
+                    continue;
+                }
+                let mut points = Vec::new();
+                let Ok(origin) = camera.world_to_viewport(&camera_transform, transform.translation)
+                else {
+                    return;
+                };
+                points.push(egui::pos2(origin.x, origin.y));
+                for point in &actor.navigation_path {
+                    let Ok(in_screen) =
+                        camera.world_to_viewport(&camera_transform, point.extend(0.0))
+                    else {
+                        return;
+                    };
+                    points.push(egui::pos2(in_screen.x, in_screen.y));
+                }
+                painter.line(points, egui::Stroke::new(2.0, egui::Color32::RED));
+            }
+        });
+}
+
 pub struct StrategyPlugin;
 
 impl Plugin for StrategyPlugin {
@@ -382,5 +485,8 @@ impl Plugin for StrategyPlugin {
             Update,
             (update,).run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
+
+        #[cfg(feature = "debug")]
+        app.add_systems(Update, debug_draw.run_if(in_state(GameState::InGame)));
     }
 }

@@ -3,8 +3,8 @@
 #![enable(implicit_some)]
 GameRegistry(
     debug_wands: [
+        ["SummonEnemySlime"],
         ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt"],
-        ["RockFall"],
         ["DualCast", "Levitation", "MagicBolt"],
         ["DualCast", "Dash", "Jump", "Lantern"]
     ],

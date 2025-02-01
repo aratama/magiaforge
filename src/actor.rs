@@ -98,6 +98,7 @@ use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
 use vleue_navigator::prelude::PrimitiveObstacle;
+use vleue_navigator::Path;
 use witch::WitchWandSprite;
 
 /// アクターの種類を表します
@@ -273,6 +274,8 @@ pub struct Actor {
     pub gravity: f32,
     pub just_landed: bool,
     pub v: f32,
+
+    pub navigation_path: Vec<Vec2>,
 }
 
 #[derive(Default, Component, Reflect)]
@@ -463,6 +466,7 @@ impl Default for Actor {
             gravity: -0.2,
             just_landed: false,
             v: 0.0,
+            navigation_path: vec![],
         }
     }
 }
@@ -1351,11 +1355,11 @@ pub fn spawn_actor(
         match props.collider {
             ActorCollider::Ball(radius) => (
                 Collider::ball(radius),
-                PrimitiveObstacle::Circle(Circle::new(radius)),
+                // PrimitiveObstacle::Circle(Circle::new(radius)),
             ),
             ActorCollider::Cuboid(width, height) => (
                 Collider::cuboid(width, height),
-                PrimitiveObstacle::Rectangle(Rectangle::new(width * 2.0, height * 2.0)),
+                // PrimitiveObstacle::Rectangle(Rectangle::new(width * 2.0, height * 2.0)),
             ),
         },
         actor_group.to_groups(0.0, 0),
@@ -1365,6 +1369,19 @@ pub fn spawn_actor(
             ..default()
         },
     ));
+
+    if actor_group == ActorGroup::Entity {
+        let scale = 1.0;
+        builder.insert(match props.collider {
+            ActorCollider::Ball(radius) => {
+                (PrimitiveObstacle::Circle(Circle::new(radius * scale)),)
+            }
+            ActorCollider::Cuboid(width, height) => (PrimitiveObstacle::Rectangle(Rectangle::new(
+                width * 2.0 * scale,
+                height * 2.0 * scale,
+            )),),
+        });
+    }
 
     builder.with_children(|mut parent| {
         // 影

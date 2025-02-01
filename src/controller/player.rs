@@ -23,6 +23,7 @@ use crate::se::SEEvent;
 use crate::se::PICK_UP;
 use crate::se::SEN;
 use crate::se::SWITCH;
+use crate::set::FixedUpdateGameActiveSet;
 use crate::set::FixedUpdateInGameSet;
 use crate::set::FixedUpdatePlayerActiveSet;
 use crate::spell::Spell;
@@ -265,6 +266,8 @@ fn pick_gold(
     if let Ok((mut actor, player_transform)) = player_query.get_single_mut() {
         let mut got_gold = false;
 
+        // info!("player pos: {:?}", player_transform.translation.truncate());
+
         for (gold_entity, mut gold, gold_transform) in gold_query.iter_mut() {
             let diff =
                 player_transform.translation.truncate() - gold_transform.translation.truncate();
@@ -416,7 +419,7 @@ impl Plugin for PlayerPlugin {
                 move_player,
                 sync_wands,
             )
-                .in_set(FixedUpdateInGameSet),
+                .in_set(FixedUpdateGameActiveSet),
         );
 
         app.add_systems(
