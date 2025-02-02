@@ -9,6 +9,8 @@ use crate::controller::player::Player;
 use crate::controller::shop_rabbit::ShopRabbit;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
+use crate::level::world::GameLevel;
+use crate::level::world::LevelScoped;
 use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
@@ -32,11 +34,17 @@ struct ShopDoor {
     state: f32,
 }
 
-pub fn spawn_shop_door(commands: &mut Commands, registry: &Registry, position: Vec2) {
+pub fn spawn_shop_door(
+    commands: &mut Commands,
+    registry: &Registry,
+    level: &GameLevel,
+    position: Vec2,
+) {
     commands
         .spawn((
             // ドアを開くセンサー
             ShopDoorSensor { open: false },
+            LevelScoped(level.clone()),
             StateScoped(GameState::InGame),
             Sensor,
             Collider::cuboid(TILE_SIZE * 2.0, TILE_SIZE * 3.5),

@@ -4,7 +4,7 @@ use crate::controller::player::Player;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::DropArea;
 use crate::inventory::InventoryItem;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::se::SEEvent;
@@ -124,7 +124,7 @@ fn drop(
     registry: Registry,
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Player>)>,
-    map: Res<LevelSetup>,
+    world: Res<GameWorld>,
     mut se: EventWriter<SEEvent>,
 ) {
     let mut floating = floating_query.single_mut();
@@ -151,24 +151,25 @@ fn drop(
     let drop = drop_query.single();
     if drop.hover {
         // アイテムを地面に置きます
-        if let Some(ref chunk) = map.chunk {
-            if let Ok(window) = window_query.get_single() {
-                if let Some(cursor_in_screen) = window.cursor_position() {
-                    let (camera, camera_global_transform) = camera_query.single();
+        if let Ok(window) = window_query.get_single() {
+            if let Some(cursor_in_screen) = window.cursor_position() {
+                let (camera, camera_global_transform) = camera_query.single();
 
-                    if let Ok(mouse_in_world) =
-                        camera.viewport_to_world(camera_global_transform, cursor_in_screen)
-                    {
-                        let pointer_in_world = mouse_in_world.origin.truncate();
-                        let tile = chunk.get_tile_by_coords(pointer_in_world);
-                        let props = registry.get_tile(&tile);
-                        if props.tile_type != TileType::Wall {
-                            if let Some(item) = content.get_inventory_item(&actor) {
-                                content.set_item(None, &mut actor);
+                if let Ok(mouse_in_world) =
+                    camera.viewport_to_world(camera_global_transform, cursor_in_screen)
+                {
+                    let pointer_in_world = mouse_in_world.origin.truncate();
+                    let tile = world.get_tile_by_coords(pointer_in_world);
+                    let props = registry.get_tile(&tile);
+                    if props.tile_type != TileType::Wall {
+                        if let Some(item) = content.get_inventory_item(&actor) {
+                            content.set_item(None, &mut actor);
 
+                            if let Some(level) = world.get_level_by_position(pointer_in_world) {
                                 spawn_dropped_item(
                                     &mut commands,
                                     &registry,
+                                    &level,
                                     pointer_in_world,
                                     &item,
                                 );

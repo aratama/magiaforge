@@ -7,7 +7,7 @@ use crate::component::entity_depth::EntityDepth;
 use crate::component::point_light::WithPointLight;
 use crate::entity::fire::spawn_fire;
 use crate::level::tile::Tile;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
@@ -77,22 +77,20 @@ fn spawn_fire_on_landed(
     mut commands: Commands,
     assets: Res<GameAssets>,
     parent_query: Query<(Entity, &Actor, &Transform), With<Fireball>>,
-    interlevel: Res<LevelSetup>,
+    interlevel: Res<GameWorld>,
 ) {
     for (entity, vertical, transform) in parent_query.iter() {
         if vertical.just_landed {
             commands.entity(entity).despawn_recursive();
 
-            if let Some(ref level) = interlevel.chunk {
-                let position = transform.translation.truncate();
-                let tile = level.get_tile_by_coords(position);
-                if *tile != Tile::new("Wall")
-                    && *tile != Tile::new("Blank")
-                    && *tile != Tile::new("Water")
-                    && *tile != Tile::new("PermanentWall")
-                {
-                    spawn_fire(&mut commands, &assets, position, None);
-                }
+            let position = transform.translation.truncate();
+            let tile = interlevel.get_tile_by_coords(position);
+            if tile != Tile::new("Wall")
+                && tile != Tile::new("Blank")
+                && tile != Tile::new("Water")
+                && tile != Tile::new("PermanentWall")
+            {
+                spawn_fire(&mut commands, &assets, position, None);
             }
         }
     }

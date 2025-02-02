@@ -7,7 +7,7 @@ use crate::constant::PAINT_LAYER_Z;
 use crate::constant::TILE_SIZE;
 use crate::level::chunk::index_to_position;
 use crate::level::tile::Tile;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::DROP;
@@ -35,7 +35,7 @@ pub struct SpawnImpact {
 fn read_impact_event(
     mut commands: Commands,
     registry: Registry,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut writer: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnImpact>,
@@ -63,7 +63,7 @@ fn read_impact_event(
 pub fn spawn_impact(
     commands: &mut Commands,
     registry: &Registry,
-    level: &mut ResMut<LevelSetup>,
+    level: &mut ResMut<GameWorld>,
     writer: &mut EventWriter<SEEvent>,
     life_query: &mut Query<&Transform, With<Actor>>,
     camera_query: &mut Query<(&mut GameCamera, &Transform), Without<Actor>>,
@@ -117,21 +117,19 @@ pub fn spawn_impact(
     }
 
     // 付近の氷床を破壊
-    if let Some(ref mut chunk) = level.chunk {
-        let range = 5;
-        for dy in -range..(range + 1) {
-            for dx in -range..(range + 1) {
-                let x = (impact.position.x / TILE_SIZE) as i32 + dx;
-                let y = (impact.position.y / -TILE_SIZE) as i32 + dy;
-                let distance = index_to_position((x, y)).distance(impact.position);
-                if distance < TILE_SIZE * 5.0 {
-                    match chunk.get_tile(x, y).0.as_str() {
-                        "Ice" => {
-                            chunk.set_tile(x, y, Tile::new("Water"));
-                        }
-                        _ => {}
-                    };
-                }
+    let range = 5;
+    for dy in -range..(range + 1) {
+        for dx in -range..(range + 1) {
+            let x = (impact.position.x / TILE_SIZE) as i32 + dx;
+            let y = (impact.position.y / -TILE_SIZE) as i32 + dy;
+            let distance = index_to_position((x, y)).distance(impact.position);
+            if distance < TILE_SIZE * 5.0 {
+                match level.get_tile(x, y).0.as_str() {
+                    "Ice" => {
+                        level.set_tile(x, y, Tile::new("Water"));
+                    }
+                    _ => {}
+                };
             }
         }
     }

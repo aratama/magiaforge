@@ -3,8 +3,8 @@
 #![enable(implicit_some)]
 GameRegistry(
     debug_wands: [
+        ["QuickCast", "QuickCast", "QuickCast", "QuickCast", "QuickCast", "QuickCast", "QuickCast", "MagicBolt"],
         ["Mine"],
-        ["QuickCast", "QuickCast", "TripleCast", "Slash", "Slash", "MagicBolt"],
         ["DualCast", "Levitation", "MagicBolt"],
         ["DualCast", "Dash", "Jump", "Lantern"]
     ],

@@ -2,8 +2,10 @@ use crate::{
     actor::{Actor, ActorGroup},
     collision::SENSOR_GROUPS,
     entity::explosion::SpawnExplosion,
+    level::world::{GameLevel, LevelScoped},
     physics::{identify, IdentifiedCollisionEvent},
     set::FixedUpdateGameActiveSet,
+    states::GameState,
 };
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
@@ -21,9 +23,12 @@ pub fn spawn_mine(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     actor_group: ActorGroup,
+    level: &GameLevel,
     position: Vec2,
 ) {
     commands.spawn((
+        StateScoped(GameState::InGame),
+        LevelScoped(level.clone()),
         Mine { actor_group },
         AseSpriteAnimation {
             aseprite: asset_server.load("entity/explosive_mashroom.aseprite"),

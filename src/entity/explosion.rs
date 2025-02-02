@@ -7,7 +7,7 @@ use crate::constant::*;
 use crate::entity::fire::Fire;
 use crate::level::chunk::index_to_position;
 use crate::level::tile::Tile;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BAKUHATSU;
@@ -44,7 +44,7 @@ fn spawn_explosion(
     mut life_query: Query<&Transform, With<Actor>>,
     fire_query: Query<(Entity, &Transform), (With<Fire>, Without<Actor>)>,
     mut damage_writer: EventWriter<ActorEvent>,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
@@ -125,25 +125,29 @@ fn spawn_explosion(
         }
 
         // 付近の壁を破壊、または氷床を水に変更
-        if let Some(ref mut chunk) = level.chunk {
-            let props = registry.get_level(&chunk.level);
-            let range = 5;
-            for dy in -range..(range + 1) {
-                for dx in -range..(range + 1) {
-                    let x = (position.x / TILE_SIZE) as i32 + dx;
-                    let y = (position.y / -TILE_SIZE) as i32 + dy;
-                    let distance = index_to_position((x, y)).distance(*position);
-                    if distance < TILE_SIZE * 5.0 {
-                        match chunk.get_tile(x, y).0.as_str() {
-                            "Wall" => {
-                                chunk.set_tile(x, y, props.default_tile.clone());
-                            }
-                            "Ice" => {
-                                chunk.set_tile(x, y, Tile::new("Water"));
-                            }
-                            _ => {}
-                        };
-                    }
+
+        let range = 5;
+        for dy in -range..(range + 1) {
+            for dx in -range..(range + 1) {
+                let x = (position.x / TILE_SIZE) as i32 + dx;
+                let y = (position.y / -TILE_SIZE) as i32 + dy;
+
+                let Some(chunk) = level.find_chunk_by_index(x, y) else {
+                    continue;
+                };
+                let props = registry.get_level(&chunk.level);
+
+                let distance = index_to_position((x, y)).distance(*position);
+                if distance < TILE_SIZE * 5.0 {
+                    match level.get_tile(x, y).0.as_str() {
+                        "Wall" => {
+                            level.set_tile(x, y, props.default_tile.clone());
+                        }
+                        "Ice" => {
+                            level.set_tile(x, y, Tile::new("Water"));
+                        }
+                        _ => {}
+                    };
                 }
             }
         }

@@ -28,7 +28,7 @@ use crate::entity::web::spawn_web;
 use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::registry::TileType;
@@ -144,7 +144,7 @@ pub fn cast_spell(
     // resources
     asset_server: &Res<AssetServer>,
     registry: &Registry,
-    level: &Res<LevelSetup>,
+    world: &Res<GameWorld>,
     // events
     writer: &mut EventWriter<ClientMessage>,
     mut se: &mut EventWriter<SEEvent>,
@@ -182,6 +182,11 @@ pub fn cast_spell(
     let mut clear_effect = false;
 
     let actor_position = actor_transform.translation.truncate();
+
+    let Some(level) = world.get_level_by_position(actor_position) else {
+        warn!("actor is out of level: {:?}", actor_position);
+        return;
+    };
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index].as_ref() {
@@ -485,7 +490,7 @@ pub fn cast_spell(
                             &mut spawn,
                             actor,
                             actor_position,
-                            &level,
+                            &world,
                             player_controlled,
                             60 * 10,
                         );
@@ -498,7 +503,7 @@ pub fn cast_spell(
                         &mut spawn,
                         actor,
                         actor_position,
-                        &level,
+                        &world,
                         player_controlled,
                         std::u32::MAX,
                     );
@@ -511,7 +516,13 @@ pub fn cast_spell(
                         } else {
                             actor.pointer
                         };
-                    spawn_mine(&mut commands, &asset_server, actor.actor_group, position);
+                    spawn_mine(
+                        &mut commands,
+                        &asset_server,
+                        actor.actor_group,
+                        &level,
+                        position,
+                    );
                     se.send(SEEvent::pos(SEN, position));
                 }
             }
@@ -556,6 +567,7 @@ pub fn cast_spell(
                 &mut commands,
                 registry,
                 &mut se,
+                &level,
                 actor_position,
                 actor.actor_group,
             );
@@ -593,46 +605,44 @@ fn cast_clone(
     spawn: &mut EventWriter<SpawnEvent>,
     actor: &Actor,
     actor_position: Vec2,
-    level: &LevelSetup,
+    level: &GameWorld,
     player_controlled: bool,
     lifetime: u32,
 ) {
-    if let Some(ref chunk) = level.chunk {
-        for _ in 0..16 {
-            let angle = f32::consts::PI * 2.0 * rand::random::<f32>();
-            let position = actor_position + TILE_SIZE * 2.0 * Vec2::from_angle(angle);
-            let tile = chunk.get_tile_by_coords(position);
-            let props = registry.get_tile(&tile);
-            if props.tile_type == TileType::Floor {
-                let mut cloned = actor.clone();
-                cloned.uuid = Uuid::new_v4();
-                cloned.wait = 30; // これがないと一瞬で無限クローンしてしまうので注意
-                cloned.fire_state = ActorFireState::Idle;
-                cloned.fire_state_secondary = ActorFireState::Idle;
-                cloned.move_direction = Vec2::ZERO;
-                cloned.state = ActorState::Idle;
-                cloned.cloned = Some(lifetime);
-                cloned.life = 1;
-                cloned.max_life = 1;
-                cloned.golds = 0;
-                cloned.inventory = Inventory::new();
-                spawn.send(SpawnEvent {
-                    position,
-                    spawn: Spawn::Respawn {
-                        actor: cloned,
-                        player_controlled,
-                    },
-                });
-                spawn.send(SpawnEvent {
-                    position,
-                    spawn: Spawn::Particle {
-                        particle: metamorphosis_effect(),
-                    },
-                });
-                se.send(SEEvent::pos(HEAL, actor_position));
+    for _ in 0..16 {
+        let angle = f32::consts::PI * 2.0 * rand::random::<f32>();
+        let position = actor_position + TILE_SIZE * 2.0 * Vec2::from_angle(angle);
+        let tile = level.get_tile_by_coords(position);
+        let props = registry.get_tile(&tile);
+        if props.tile_type == TileType::Floor {
+            let mut cloned = actor.clone();
+            cloned.uuid = Uuid::new_v4();
+            cloned.wait = 30; // これがないと一瞬で無限クローンしてしまうので注意
+            cloned.fire_state = ActorFireState::Idle;
+            cloned.fire_state_secondary = ActorFireState::Idle;
+            cloned.move_direction = Vec2::ZERO;
+            cloned.state = ActorState::Idle;
+            cloned.cloned = Some(lifetime);
+            cloned.life = 1;
+            cloned.max_life = 1;
+            cloned.golds = 0;
+            cloned.inventory = Inventory::new();
+            spawn.send(SpawnEvent {
+                position,
+                spawn: Spawn::Respawn {
+                    actor: cloned,
+                    player_controlled,
+                },
+            });
+            spawn.send(SpawnEvent {
+                position,
+                spawn: Spawn::Particle {
+                    particle: metamorphosis_effect(),
+                },
+            });
+            se.send(SEEvent::pos(HEAL, actor_position));
 
-                break;
-            }
+            break;
         }
     }
 }

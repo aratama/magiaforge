@@ -33,8 +33,7 @@ use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
 use crate::inventory::InventoryItem;
 use crate::language::Dict;
-use crate::page::in_game::new_shop_item_queue;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::spell::Spell;
@@ -48,7 +47,10 @@ use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::Sensor;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::WebSocketState;
+use rand::seq::SliceRandom;
 use serde::Deserialize;
+
+use super::world::LevelScoped;
 
 #[derive(Clone, Debug, Deserialize)]
 pub enum Spawn {
@@ -132,7 +134,7 @@ pub fn spawn_entity(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    mut level: ResMut<LevelSetup>,
+    mut world: ResMut<GameWorld>,
     mut context: Query<&mut RapierContext, With<DefaultRapierContext>>,
     mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnEvent>,
@@ -148,10 +150,15 @@ pub fn spawn_entity(
         spawn: entity,
     } in reader.read()
     {
-        if level.shop_items.is_empty() {
-            level.shop_items = new_shop_item_queue(
+        let Some(level) = world.get_level_by_position(*position) else {
+            warn!("No level found at {:?}", position);
+            continue;
+        };
+
+        if world.shop_items.is_empty() {
+            world.shop_items = new_shop_item_queue(
                 &registry,
-                level
+                world
                     .next_state
                     .clone()
                     .unwrap_or_default()
@@ -167,6 +174,7 @@ pub fn spawn_entity(
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
+                    &level,
                     *position,
                     MagicCircleDestination::NextLevel,
                 );
@@ -175,6 +183,7 @@ pub fn spawn_entity(
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
+                    &level,
                     *position,
                     MagicCircleDestination::Home,
                 );
@@ -183,6 +192,7 @@ pub fn spawn_entity(
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
+                    &level,
                     *position,
                     MagicCircleDestination::MultiplayArena,
                 );
@@ -191,16 +201,23 @@ pub fn spawn_entity(
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
+                    &level,
                     *position,
                     MagicCircleDestination::Ending,
                 );
             }
             Spawn::BrokenMagicCircle => {
-                spawn_broken_magic_circle(&mut commands, registry.assets.atlas.clone(), *position);
+                spawn_broken_magic_circle(
+                    &mut commands,
+                    registry.assets.atlas.clone(),
+                    &level,
+                    *position,
+                );
             }
             Spawn::Usage => {
                 commands.spawn((
                     Name::new("usage"),
+                    LevelScoped(level.clone()),
                     StateScoped(GameState::InGame),
                     Transform::from_translation(position.extend(PAINT_LAYER_Z)),
                     Sprite {
@@ -214,8 +231,8 @@ pub fn spawn_entity(
                 ));
             }
             Spawn::ShopSpell => {
-                if let Some(item) = level.shop_items.pop() {
-                    spawn_dropped_item(&mut commands, &registry, *position, &item);
+                if let Some(item) = world.shop_items.pop() {
+                    spawn_dropped_item(&mut commands, &registry, &level, *position, &item);
                 }
             }
             Spawn::Rabbit {
@@ -296,7 +313,7 @@ pub fn spawn_entity(
                 // );
             }
             Spawn::ShopDoor => {
-                spawn_shop_door(&mut commands, &registry, *position);
+                spawn_shop_door(&mut commands, &registry, &level, *position);
             }
             Spawn::RandomChest => {
                 spawn_actor_internal(
@@ -312,6 +329,7 @@ pub fn spawn_entity(
                 spawn_dropped_item(
                     &mut commands,
                     &registry,
+                    &level,
                     *position,
                     &InventoryItem::new(spell.clone()),
                 );
@@ -385,6 +403,7 @@ pub fn spawn_entity(
                     &mut commands,
                     &registry,
                     &mut se,
+                    &level,
                     *position,
                     *owner_actor_group,
                 );
@@ -451,4 +470,22 @@ fn spawn_actor_internal(
     if player_controlled {
         commands.entity(entity).insert(PlayerControlled);
     }
+}
+
+fn new_shop_item_queue(registry: &Registry, discovered_spells: Vec<Spell>) -> Vec<InventoryItem> {
+    let mut rng = rand::thread_rng();
+
+    let mut shop_items: Vec<InventoryItem> = registry
+        .spells()
+        .iter()
+        .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
+        .map(|s| InventoryItem {
+            spell: s.clone(),
+            price: registry.get_spell_props(s).price,
+        })
+        .collect();
+
+    shop_items.shuffle(&mut rng);
+
+    shop_items
 }

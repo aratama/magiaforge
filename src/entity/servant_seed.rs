@@ -7,7 +7,7 @@ use crate::component::counter::CounterAnimated;
 use crate::constant::*;
 use crate::controller::remote::RemoteMessage;
 use crate::curve::jump_curve;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::se::SEEvent;
@@ -107,7 +107,7 @@ fn update_servant_seed(
     registry: Registry,
     mut query: Query<(Entity, &mut ServantSeed, &mut Transform)>,
     mut se_writer: EventWriter<SEEvent>,
-    current: Res<LevelSetup>,
+    current: Res<GameWorld>,
     mut spawn_writer: EventWriter<SpawnServantEvent>,
 ) {
     for (entity, mut seed, mut transform) in query.iter_mut() {
@@ -119,19 +119,17 @@ fn update_servant_seed(
         if seed.animation == seed.speed {
             commands.entity(entity).despawn_recursive();
 
-            if let Some(ref chunk) = current.chunk {
-                let tile = chunk.get_tile_by_coords(seed.to);
-                let props = registry.get_tile(&tile);
-                if props.tile_type == TileType::Floor {
-                    spawn_writer.send(SpawnServantEvent {
-                        servant_type: seed.servant_type.clone(),
-                        position: seed.to,
-                        actor_group: seed.actor_group,
-                        master: seed.master,
-                        // servant: seed.servant,
-                    });
-                    se_writer.send(SEEvent::pos(BICHA, seed.to));
-                }
+            let tile = current.get_tile_by_coords(seed.to);
+            let props = registry.get_tile(&tile);
+            if props.tile_type == TileType::Floor {
+                spawn_writer.send(SpawnServantEvent {
+                    servant_type: seed.servant_type.clone(),
+                    position: seed.to,
+                    actor_group: seed.actor_group,
+                    master: seed.master,
+                    // servant: seed.servant,
+                });
+                se_writer.send(SEEvent::pos(BICHA, seed.to));
             }
         }
     }

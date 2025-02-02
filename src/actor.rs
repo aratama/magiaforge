@@ -47,7 +47,8 @@ use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
+use crate::level::world::LevelScoped;
 use crate::registry::ActorCollider;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -605,7 +606,7 @@ fn fire_bullet(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    level: Res<LevelSetup>,
+    level: Res<GameWorld>,
     websocket: Res<WebSocketState>,
 
     mut remote_writer: EventWriter<ClientMessage>,
@@ -719,60 +720,58 @@ fn apply_external_force(
     registry: Registry,
     mut query: Query<(&mut Actor, &mut ExternalForce, &Transform)>,
     mut se: EventWriter<SEEvent>,
-    level: Res<LevelSetup>,
+    level: Res<GameWorld>,
 ) {
     let constants = registry.actor();
 
-    if let Some(ref chunk) = level.chunk {
-        for (mut actor, mut external_force, transform) in query.iter_mut() {
-            let position = transform.translation.truncate();
-            let props = registry.get_actor_props(&actor.actor_type);
+    for (mut actor, mut external_force, transform) in query.iter_mut() {
+        let position = transform.translation.truncate();
+        let props = registry.get_actor_props(&actor.actor_type);
 
-            let on_ice = match chunk.get_tile_by_coords(position).0.as_str() {
-                "Ice" => true,
-                _ => false,
-            };
+        let on_ice = match level.get_tile_by_coords(position).0.as_str() {
+            "Ice" => true,
+            _ => false,
+        };
 
-            let ratio = if 0 < actor.getting_up {
-                0.0
-            } else if 0 < actor.frozen {
-                0.0
-            } else if 0 < actor.staggered {
-                0.0
-            } else if 0 < actor.drown {
-                constants.acceleration_on_drowning
-            } else if 0.0 < actor.v {
-                constants.acceleration_on_air
-            } else if on_ice {
-                constants.acceleration_on_ice
-            } else if actor.fire_state == ActorFireState::Fire
-                || actor.fire_state_secondary == ActorFireState::Fire
-            {
-                constants.acceleration_on_firing
-            } else {
-                1.0
-            };
+        let ratio = if 0 < actor.getting_up {
+            0.0
+        } else if 0 < actor.frozen {
+            0.0
+        } else if 0 < actor.staggered {
+            0.0
+        } else if 0 < actor.drown {
+            constants.acceleration_on_drowning
+        } else if 0.0 < actor.v {
+            constants.acceleration_on_air
+        } else if on_ice {
+            constants.acceleration_on_ice
+        } else if actor.fire_state == ActorFireState::Fire
+            || actor.fire_state_secondary == ActorFireState::Fire
+        {
+            constants.acceleration_on_firing
+        } else {
+            1.0
+        };
 
-            let force = actor.move_direction * actor.get_total_move_force(&registry) * ratio;
+        let force = actor.move_direction * actor.get_total_move_force(&registry) * ratio;
 
-            if 0.0 < force.length() {
-                if 0 < actor.trapped {
-                    external_force.force = Vec2::ZERO;
-                    actor.trapped -= props.floundering;
-                    if actor.trapped == 0 {
-                        actor.trap_moratorium = 180;
-                        se.send(SEEvent::pos(ZOMBIE, position));
-                    }
-                } else {
-                    external_force.force = force;
-                }
-
-                if 0 < actor.trap_moratorium {
-                    actor.trap_moratorium -= 1;
-                }
-            } else {
+        if 0.0 < force.length() {
+            if 0 < actor.trapped {
                 external_force.force = Vec2::ZERO;
+                actor.trapped -= props.floundering;
+                if actor.trapped == 0 {
+                    actor.trap_moratorium = 180;
+                    se.send(SEEvent::pos(ZOMBIE, position));
+                }
+            } else {
+                external_force.force = force;
             }
+
+            if 0 < actor.trap_moratorium {
+                actor.trap_moratorium -= 1;
+            }
+        } else {
+            external_force.force = Vec2::ZERO;
         }
     }
 }
@@ -871,55 +870,51 @@ fn apply_z(
 fn apply_damping(
     registry: Registry,
     mut query: Query<(&mut Damping, &Actor, &Transform)>,
-    level: Res<LevelSetup>,
+    level: Res<GameWorld>,
 ) {
     let constants = registry.actor();
 
-    if let Some(ref chunk) = level.chunk {
-        for (mut damping, actor, transform) in query.iter_mut() {
-            let on_ice = match chunk
-                .get_tile_by_coords(transform.translation.truncate())
-                .0
-                .as_str()
-            {
-                "Ice" => true,
-                _ => false,
-            };
+    for (mut damping, actor, transform) in query.iter_mut() {
+        let on_ice = match level
+            .get_tile_by_coords(transform.translation.truncate())
+            .0
+            .as_str()
+        {
+            "Ice" => true,
+            _ => false,
+        };
 
-            let props = registry.get_actor_props(&actor.actor_type);
-            damping.linear_damping = props.linear_damping
-                * if 0.0 < actor.v {
-                    constants.dumping_on_air
-                } else if on_ice {
-                    constants.dumping_on_ice
-                } else {
-                    1.0
-                };
-        }
+        let props = registry.get_actor_props(&actor.actor_type);
+        damping.linear_damping = props.linear_damping
+            * if 0.0 < actor.v {
+                constants.dumping_on_air
+            } else if on_ice {
+                constants.dumping_on_ice
+            } else {
+                1.0
+            };
     }
 }
 
 fn drown(
     mut actor_query: Query<(&mut Actor, &Transform)>,
-    level: Res<LevelSetup>,
+    level: Res<GameWorld>,
     mut se: EventWriter<SEEvent>,
 ) {
-    if let Some(ref chunk) = level.chunk {
-        for (mut actor, transform) in actor_query.iter_mut() {
-            if actor.levitation == 0 && actor.v == 0.0 {
-                let position = transform.translation.truncate();
-                let tile = chunk.get_tile_by_coords(position);
-                if *tile == Tile::new("Water") || *tile == Tile::new("Lava") {
-                    if actor.drown == 0 {
-                        se.send(SEEvent::pos(BASHA2, position));
-                    }
-                    actor.drown += 1;
-                } else {
-                    actor.drown = 0;
+    for (mut actor, transform) in actor_query.iter_mut() {
+        if actor.levitation == 0 && actor.v == 0.0 {
+            let position = transform.translation.truncate();
+            let tile = level.get_tile_by_coords(position);
+            if tile == Tile::new("Water") || tile == Tile::new("Lava") {
+                if actor.drown == 0 {
+                    se.send(SEEvent::pos(BASHA2, position));
                 }
+                actor.drown += 1;
             } else {
                 actor.drown = 0;
             }
+        } else {
+            actor.drown = 0;
         }
     }
 }
@@ -933,18 +928,14 @@ fn drown_damage(
         Option<&Metamorphosed>,
     )>,
     mut damage: EventWriter<ActorEvent>,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
     mut commands: Commands,
     mut se: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
     for (entity, mut actor, transform, player, morph) in actor_query.iter_mut() {
         let position = transform.translation.truncate();
-        let tile = if let Some(ref chunk) = level.chunk {
-            chunk.get_tile_by_coords(position)
-        } else {
-            &Tile::default()
-        };
+        let tile = level.get_tile_by_coords(position);
         match tile.0.as_str() {
             "Water" => {
                 if 60 < actor.drown {
@@ -1151,10 +1142,8 @@ fn damage(
                     continue;
                 };
 
-                if actor.staggered == 0 {
-                    actor.life = (actor.life as i32 - *damage as i32).max(0) as u32;
-                    actor.staggered = (actor.staggered + stagger).min(120);
-                }
+                actor.life = (actor.life as i32 - *damage as i32).max(0) as u32;
+                actor.staggered = (actor.staggered + stagger).min(120);
 
                 actor.amplitude = 6.0;
 
@@ -1207,6 +1196,7 @@ fn decrement_cloned(mut query: Query<&mut Actor>) {
 fn despawn(
     mut commands: Commands,
     registry: Registry,
+    world: Res<GameWorld>,
     mut interpreter: EventWriter<InterpreterEvent>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEvent>,
@@ -1242,12 +1232,16 @@ fn despawn(
                 se.send(SEEvent::pos(CRY, position));
             }
 
+            let Some(level) = world.get_level_by_position(position) else {
+                continue;
+            };
+
             // ゴールドをばらまく
             // ただしプレイヤーキャラクターのみ、極端に大量にゴールドを持っているため
             // ゴールドばらまきは行わない
             if player.is_none() {
                 for _ in 0..actor.golds {
-                    spawn_gold(&mut commands, &registry, position);
+                    spawn_gold(&mut commands, &registry, &level, position);
                 }
             }
 
@@ -1257,6 +1251,7 @@ fn despawn(
                 let position = transform.translation.truncate();
                 commands.spawn((
                     Name::new("blood"),
+                    LevelScoped(level.clone()),
                     StateScoped(GameState::InGame),
                     AseSpriteSlice {
                         aseprite: registry.assets.atlas.clone(),

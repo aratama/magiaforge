@@ -6,6 +6,8 @@ use crate::constant::TILE_HALF;
 use crate::constant::Z_ORDER_SCALE;
 use crate::controller::player::Player;
 use crate::entity::fire::Burnable;
+use crate::level::world::GameLevel;
+use crate::level::world::LevelScoped;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -24,12 +26,18 @@ pub struct Grasses {
 #[derive(Default, Component, Reflect)]
 pub struct SpriteGroup;
 
-pub fn spawn_grasses(commands: &mut Commands, registry: &Registry, position: Vec2) {
+pub fn spawn_grasses(
+    commands: &mut Commands,
+    registry: &Registry,
+    level: &GameLevel,
+    position: Vec2,
+) {
     commands
         .spawn((
             Name::new("grasses"),
             Grasses { sway: 0.0 },
             Counter::default(),
+            LevelScoped(level.clone()),
             StateScoped(GameState::InGame),
             EntityDepth::new(),
             Burnable {

@@ -4,6 +4,8 @@ use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::controller::player::Player;
 use crate::inventory::InventoryItem;
+use crate::level::world::GameLevel;
+use crate::level::world::LevelScoped;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -31,6 +33,7 @@ struct SpellSprites {
 pub fn spawn_dropped_item(
     commands: &mut Commands,
     registry: &Registry,
+    level: &GameLevel,
     position: Vec2,
     item: &InventoryItem,
 ) {
@@ -44,6 +47,7 @@ pub fn spawn_dropped_item(
     commands
         .spawn((
             Name::new(format!("dropped item {}", name)),
+            LevelScoped(level.clone()),
             StateScoped(GameState::InGame),
             DroppedItemEntity { item: item.clone() },
             EntityDepth::new(),

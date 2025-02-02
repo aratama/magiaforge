@@ -9,7 +9,7 @@ use crate::constant::HUD_Z_INDEX;
 use crate::controller::player::Player;
 use crate::controller::player::PlayerDown;
 use crate::language::M18NTtext;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::states::GameState;
 use crate::ui::bar::spawn_status_bar;
@@ -33,7 +33,10 @@ pub struct PlayerLifeBar;
 #[derive(Component)]
 pub struct PlayerGold;
 
-fn setup_hud(mut commands: Commands, registry: Registry, next: Res<LevelSetup>) {
+#[derive(Component)]
+pub struct LevelName;
+
+fn setup_hud(mut commands: Commands, registry: Registry) {
     commands
         .spawn((
             Name::new("hud_root"),
@@ -91,10 +94,9 @@ fn setup_hud(mut commands: Commands, registry: Registry, next: Res<LevelSetup>) 
                         });
 
                     // 右下
-
-                    let level_props = registry.get_level(&next.next_level);
                     parent.spawn((
-                        M18NTtext::new(&level_props.name.clone()),
+                        LevelName,
+                        M18NTtext::empty(),
                         TextColor(Color::srgba(1.0, 1.0, 1.0, 0.3)),
                         TextFont {
                             font: registry.assets.noto_sans_jp.clone(),
@@ -255,6 +257,28 @@ fn update_golds_in_hud(
     }
 }
 
+fn update_level_name_in_hud(
+    world: Res<GameWorld>,
+    registry: Registry,
+    mut level_name_query: Query<&mut M18NTtext, With<LevelName>>,
+    player_query: Query<&Transform, With<Player>>,
+) {
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
+
+    let player_position = player_transform.translation.truncate();
+
+    let Some(chunk) = world.find_chunk_by_position(player_position) else {
+        return;
+    };
+
+    let level_props = registry.get_level(&chunk.level);
+
+    let mut level_name = level_name_query.single_mut();
+    level_name.0 = level_props.name.clone();
+}
+
 pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
@@ -267,6 +291,7 @@ impl Plugin for HudPlugin {
                 update_golds_in_hud,
                 drop_area_interaction,
                 drop_area_visibility,
+                update_level_name_in_hud,
             )
                 .run_if(in_state(GameState::InGame)),
         );

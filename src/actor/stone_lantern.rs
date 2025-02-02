@@ -1,5 +1,6 @@
 use crate::actor::Actor;
 use crate::entity::piece::spawn_broken_piece;
+use crate::level::world::LevelScoped;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BREAK;
@@ -12,10 +13,10 @@ struct StoneLantern;
 fn break_stone_lantern(
     mut commands: Commands,
     registry: Registry,
-    query: Query<(&Actor, &Transform), With<StoneLantern>>,
+    query: Query<(&Actor, &Transform, &LevelScoped), With<StoneLantern>>,
     mut writer: EventWriter<SEEvent>,
 ) {
-    for (breakabke, transform) in query.iter() {
+    for (breakabke, transform, scope) in query.iter() {
         if breakabke.life <= 0 {
             let position = transform.translation.truncate();
 
@@ -25,6 +26,7 @@ fn break_stone_lantern(
                 spawn_broken_piece(
                     &mut commands,
                     &registry,
+                    &scope.0,
                     position,
                     &format!("stone_lantern_piece_{}", i),
                 );

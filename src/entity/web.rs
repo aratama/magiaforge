@@ -2,6 +2,8 @@ use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
 use crate::constant::*;
+use crate::level::world::GameLevel;
+use crate::level::world::LevelScoped;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -34,6 +36,7 @@ pub fn spawn_web(
     commands: &mut Commands,
     registry: &Registry,
     se: &mut EventWriter<SEEvent>,
+    level: &GameLevel,
     position: Vec2,
     owner_actor_group: ActorGroup,
 ) {
@@ -41,6 +44,7 @@ pub fn spawn_web(
     commands.spawn((
         Name::new("web"),
         StateScoped(GameState::InGame),
+        LevelScoped(level.clone()),
         Web {
             owner_actor_group,
             lifetime: 60 * 60,

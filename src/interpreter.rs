@@ -15,8 +15,8 @@ use crate::inventory::InventoryItem;
 use crate::language::Dict;
 use crate::language::Languages;
 use crate::level::tile::Tile;
-use crate::page::in_game::GameLevel;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::KAWAII;
@@ -223,7 +223,7 @@ fn interpret(
     mut interpreter: ResMut<Interpreter>,
     mut writer: EventWriter<OverlayEvent>,
     mut se_writer: EventWriter<SEEvent>,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
     mut time: ResMut<NextState<TimeState>>,
     named_entity_query: Query<(&Name, Entity)>,
     mut interpreter_events: EventWriter<InterpreterEvent>,
@@ -386,11 +386,9 @@ fn interpret(
             interpreter.index += 1;
         }
         Cmd::SetTile { x, y, w, h, tile } => {
-            if let Some(ref mut chunk) = level.chunk {
-                for i in x..x + w as i32 {
-                    for j in y..y + h as i32 {
-                        chunk.set_tile(i, j, tile.clone());
-                    }
+            for i in x..x + w as i32 {
+                for j in y..y + h as i32 {
+                    level.set_tile(i, j, tile.clone());
                 }
             }
             interpreter.index += 1;

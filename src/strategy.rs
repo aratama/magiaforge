@@ -2,6 +2,8 @@ use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
+use crate::level::spawn::ChunkNavMesh;
+use crate::level::world::GameWorld;
 use crate::registry::ActorPropsByType;
 use crate::registry::Registry;
 use crate::states::GameState;
@@ -98,8 +100,9 @@ fn update(
     registry: Registry,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut query: Query<(Entity, &mut Actor, &Transform)>,
-    navmesh: Query<(&ManagedNavMesh, Ref<NavMeshStatus>)>,
+    navmesh: Query<(&ChunkNavMesh, &ManagedNavMesh, Ref<NavMeshStatus>)>,
     navmeshes: Res<Assets<NavMesh>>,
+    setup: Res<GameWorld>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
@@ -162,6 +165,7 @@ fn update(
             &navmeshes,
             next_action_index,
             action,
+            &setup,
         );
 
         // アクションの match の下に置くと、continueで抜けたときにカウントアップされなくなってしまうことに注意
@@ -192,10 +196,11 @@ fn execute(
     origin: Vec2,
     props: &ActorPropsByType,
     actor: &mut Actor,
-    navmesh: &Query<(&ManagedNavMesh, Ref<NavMeshStatus>)>,
+    navmesh_query: &Query<(&ChunkNavMesh, &ManagedNavMesh, Ref<NavMeshStatus>)>,
     navmeshes: &Res<Assets<NavMesh>>,
     next_action_index: usize,
     action: &Action,
+    setup: &Res<GameWorld>,
 ) {
     match action {
         Action::Sleep => {
@@ -248,7 +253,17 @@ fn execute(
             }
 
             // ナビメッシュでルートを検索
-            let (navmesh_handle, status) = navmesh.single();
+            let Some(chunk) = setup.find_chunk_by_position(origin) else {
+                return;
+            };
+
+            let Some((_, navmesh_handle, status)) = navmesh_query
+                .iter()
+                .find(|(n, _, _)| n.level == chunk.level)
+            else {
+                return;
+            };
+
             let navmesh = navmeshes.get(navmesh_handle);
 
             let destination = if *status == NavMeshStatus::Built {
@@ -287,7 +302,7 @@ fn execute(
                     actor.commander.destination
                 }
             } else {
-                warn!("navmesh not built");
+                // warn!("navmesh not built");
                 actor.commander.destination
             };
 

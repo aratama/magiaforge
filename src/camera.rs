@@ -4,7 +4,7 @@ use crate::controller::player::Player;
 use crate::controller::player::PlayerServant;
 use crate::entity::explosion::ExplosionPointLight;
 use crate::entity::explosion::EXPLOSION_COUNT;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
@@ -127,15 +127,16 @@ fn update_camera_position(
 
 fn update_camera_brightness(
     registry: Registry,
-    mut camera_query: Query<&mut AmbientLight2d, With<Camera2d>>,
-    level: Res<LevelSetup>,
+    mut camera_query: Query<(&mut AmbientLight2d, &Transform), With<Camera2d>>,
+    level: Res<GameWorld>,
     explosion_query: Query<&ExplosionPointLight>,
 ) {
-    if let Ok(mut light) = camera_query.get_single_mut() {
-        let Some(level) = &level.level else {
+    if let Ok((mut light, transform)) = camera_query.get_single_mut() {
+        let position = transform.translation.truncate();
+        let Some(level) = &level.find_chunk_by_position(position) else {
             return;
         };
-        let props = registry.get_level(&level);
+        let props = registry.get_level(&level.level);
         let brightness = props.brightness;
 
         let max_explosion = explosion_query

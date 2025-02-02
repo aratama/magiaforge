@@ -1,10 +1,8 @@
 use crate::actor::Actor;
 use crate::asset::GameAssets;
-use crate::constant::ARENA;
 use crate::controller::player::Player;
 use crate::controller::remote::RemotePlayer;
-use crate::page::in_game::GameLevel;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_simple_websocket::ReadyState;
@@ -77,16 +75,16 @@ fn spawn_player_list(mut commands: Commands, assets: Res<GameAssets>) {
 
 fn update_player_list_visibility(
     mut player_list_query: Query<&mut Node, With<PlayerListRoot>>,
-    current: Res<LevelSetup>,
+    _current: Res<GameWorld>,
 ) {
-    let mut player_list_root = player_list_query.single_mut();
+    let mut _player_list_root = player_list_query.single_mut();
 
-    player_list_root.display =
-        if current.level != None && current.level == Some(GameLevel::new(ARENA)) {
-            Display::Flex
-        } else {
-            Display::None
-        };
+    // player_list_root.display =
+    //     if current.level != None && current.level == Some(GameLevel::new(ARENA)) {
+    //         Display::Flex
+    //     } else {
+    //         Display::None
+    //     };
 }
 
 /// プレイヤーリストを更新

@@ -1,5 +1,6 @@
 use crate::collision::PIECE_GROUPS;
 use crate::constant::*;
+use crate::level::world::{GameLevel, LevelScoped};
 use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -10,10 +11,12 @@ use core::f32;
 pub fn spawn_broken_piece(
     commands: &mut Commands,
     registry: &Registry,
+    level: &GameLevel,
     position: Vec2,
     name: &str,
 ) {
     commands.spawn((
+        LevelScoped(level.clone()),
         StateScoped(GameState::InGame),
         Transform::from_translation(position.extend(PIECE_LAYER_Z)).with_rotation(
             Quat::from_rotation_z(2.0 * f32::consts::PI * rand::random::<f32>()),

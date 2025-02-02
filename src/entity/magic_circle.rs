@@ -6,7 +6,9 @@ use crate::constant::*;
 use crate::controller::player::Player;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
+use crate::level::world::LevelScoped;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -55,6 +57,7 @@ pub struct MagicCircleLight;
 pub fn spawn_magic_circle(
     commands: &mut Commands,
     registry: &Registry,
+    level: &GameLevel,
     position: Vec2,
     destination: MagicCircleDestination,
 ) {
@@ -63,6 +66,7 @@ pub fn spawn_magic_circle(
     commands
         .spawn((
             Name::new("magic_circle"),
+            LevelScoped(level.clone()),
             StateScoped(GameState::InGame),
             MagicCircle {
                 active: false,
@@ -158,54 +162,58 @@ fn power_on_circle(
 fn warp(
     mut commands: Commands,
     registry: Registry,
-    mut player_query: Query<(Entity, &Player, &Actor), With<Witch>>,
+    mut player_query: Query<(Entity, &Player, &Actor, &Transform), With<Witch>>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
     mut writer: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
-    let Some(current) = &level.level else {
+    let Ok((entity, player, actor, player_transform)) = player_query.get_single_mut() else {
         return;
     };
-    let props = registry.get_level(current);
+
+    let player_position = player_transform.translation.truncate();
+
+    let Some(current) = &level.find_chunk_by_position(player_position) else {
+        return;
+    };
+    let props = registry.get_level(&current.level);
 
     let mut rand = &mut rand::thread_rng();
 
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step == MAX_POWER {
-            if let Ok((entity, player, actor)) = player_query.get_single_mut() {
-                writer.send(SEEvent::pos(WARP, transform.translation.truncate()));
-                commands.entity(entity).despawn_recursive();
+            writer.send(SEEvent::pos(WARP, transform.translation.truncate()));
+            commands.entity(entity).despawn_recursive();
 
-                circle.step = 0;
-                let player_state = PlayerState::from_player(&player, &actor);
-                level.next_state = Some(player_state);
-                match circle.destination {
-                    MagicCircleDestination::NextLevel => {
-                        interpreter.send(InterpreterEvent::Play {
-                            commands: vec![
-                                Cmd::Wait { count: 60 },
-                                Cmd::Warp {
-                                    level: props.next.choose(&mut rand).unwrap().clone(),
-                                },
-                            ],
-                        });
-                    }
-                    MagicCircleDestination::Home => {
-                        interpreter.send(InterpreterEvent::Play {
-                            commands: vec![Cmd::Wait { count: 60 }, Cmd::Home],
-                        });
-                    }
-                    MagicCircleDestination::MultiplayArena => {
-                        interpreter.send(InterpreterEvent::Play {
-                            commands: vec![Cmd::Wait { count: 60 }, Cmd::Arena],
-                        });
-                    }
-                    MagicCircleDestination::Ending => {
-                        interpreter.send(InterpreterEvent::Play {
-                            commands: vec![Cmd::Wait { count: 60 }, Cmd::Ending],
-                        });
-                    }
+            circle.step = 0;
+            let player_state = PlayerState::from_player(&player, &actor);
+            level.next_state = Some(player_state);
+            match circle.destination {
+                MagicCircleDestination::NextLevel => {
+                    interpreter.send(InterpreterEvent::Play {
+                        commands: vec![
+                            Cmd::Wait { count: 60 },
+                            Cmd::Warp {
+                                level: props.next.choose(&mut rand).unwrap().clone(),
+                            },
+                        ],
+                    });
+                }
+                MagicCircleDestination::Home => {
+                    interpreter.send(InterpreterEvent::Play {
+                        commands: vec![Cmd::Wait { count: 60 }, Cmd::Home],
+                    });
+                }
+                MagicCircleDestination::MultiplayArena => {
+                    interpreter.send(InterpreterEvent::Play {
+                        commands: vec![Cmd::Wait { count: 60 }, Cmd::Arena],
+                    });
+                }
+                MagicCircleDestination::Ending => {
+                    interpreter.send(InterpreterEvent::Play {
+                        commands: vec![Cmd::Wait { count: 60 }, Cmd::Ending],
+                    });
                 }
             }
         }

@@ -5,7 +5,7 @@ use crate::language::Dict;
 use crate::ldtk::loader::LDTK;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
-use crate::page::in_game::GameLevel;
+use crate::level::world::GameLevel;
 use crate::registry::Registry;
 use crate::registry::SpawnEntityProps;
 use crate::registry::TileType;
@@ -38,9 +38,17 @@ impl LevelChunk {
     /// レベルの番号を指定して、画像データからレベル情報を取得します
     /// このとき、該当するレベルの複数のスライスからランダムにひとつが選択されます、
     pub fn new(registry: &Registry, ldtk: &LDTK, level: &GameLevel) -> Self {
+        let ldtk_level = ldtk.get_level(&level).unwrap();
+
+        let min_x = (ldtk_level.world_x / ldtk.coordinate.default_grid_size) as i32;
+        let max_x =
+            ((ldtk_level.world_x + ldtk_level.px_wid) / ldtk.coordinate.default_grid_size) as i32;
+        let min_y = (ldtk_level.world_y / ldtk.coordinate.default_grid_size) as i32;
+        let max_y =
+            ((ldtk_level.world_y + ldtk_level.px_hei) / ldtk.coordinate.default_grid_size) as i32;
+
         // タイル読み込み
 
-        let ldtk_level = ldtk.get_level(&level).unwrap();
         let int_grid_layer = ldtk_level.get_layer("Tiles").unwrap();
         let map: HashMap<i64, &str> = ldtk.get_tile_mapping("Tiles");
         let mut tiles: Vec<Tile> = Vec::new();
@@ -151,11 +159,6 @@ impl LevelChunk {
             }
         }
 
-        let min_x = int_grid_layer.px_offset_x as i32;
-        let max_x = (int_grid_layer.px_offset_x + int_grid_layer.c_wid) as i32;
-        let min_y = int_grid_layer.px_offset_y as i32;
-        let max_y = (int_grid_layer.px_offset_y + int_grid_layer.c_hei) as i32;
-
         return Self {
             level: level.clone(),
             tiles,
@@ -232,14 +235,21 @@ impl LevelChunk {
         return true;
     }
 
-    pub fn entry_points(&self) -> Vec<(i32, i32)> {
+    pub fn offset(&self) -> Vec2 {
+        Vec2::new(
+            TILE_SIZE * self.min_x as f32,
+            -TILE_SIZE * self.min_y as f32,
+        )
+    }
+
+    pub fn entry_points(&self) -> Vec<Vec2> {
         self.entities
             .iter()
             .filter(|(_, v)| match v.entity {
                 Spawn::BrokenMagicCircle => true,
                 _ => false,
             })
-            .map(|(k, _)| *k)
+            .map(|(k, _)| self.offset() + index_to_position(*k))
             .collect()
     }
 
@@ -277,6 +287,15 @@ impl LevelChunk {
                 }
             }
         }
+    }
+
+    pub fn contains_by_index(&self, x: i32, y: i32) -> bool {
+        x >= self.min_x && x < self.max_x && y >= self.min_y && y < self.max_y
+    }
+
+    pub fn contains(&self, position: Vec2) -> bool {
+        let (x, y) = position_to_index(position);
+        self.contains_by_index(x, y)
     }
 }
 

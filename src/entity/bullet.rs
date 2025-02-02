@@ -11,7 +11,7 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::physics::identify_single;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -275,24 +275,22 @@ fn bullet_homing(
 
 fn bullet_freeze_water(
     bullet_query: Query<(&Bullet, &Transform)>,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
     mut se: EventWriter<SEEvent>,
 ) {
-    if let Some(ref mut chunk) = level.chunk {
-        for (bullet, transform) in bullet_query.iter() {
-            if 0 < bullet.freeze {
-                let position = transform.translation.truncate();
-                match chunk.get_tile_by_coords(position).0.as_str() {
-                    "Water" => {
-                        chunk.set_tile_by_position(position, Tile::new("Ice"));
-                        se.send(SEEvent::pos(FREEZE, position));
-                    }
-                    "Lava" => {
-                        chunk.set_tile_by_position(position, Tile::new("Soil"));
-                        se.send(SEEvent::pos(FREEZE, position));
-                    }
-                    _ => {}
+    for (bullet, transform) in bullet_query.iter() {
+        if 0 < bullet.freeze {
+            let position = transform.translation.truncate();
+            match level.get_tile_by_coords(position).0.as_str() {
+                "Water" => {
+                    level.set_tile_by_position(position, Tile::new("Ice"));
+                    se.send(SEEvent::pos(FREEZE, position));
                 }
+                "Lava" => {
+                    level.set_tile_by_position(position, Tile::new("Soil"));
+                    se.send(SEEvent::pos(FREEZE, position));
+                }
+                _ => {}
             }
         }
     }

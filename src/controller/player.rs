@@ -15,8 +15,8 @@ use crate::entity::gold::Gold;
 use crate::input::get_direction;
 use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
-use crate::page::in_game::GameLevel;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::se::SEEvent;
@@ -46,12 +46,19 @@ use std::collections::HashSet;
 #[derive(Component, Debug, Clone)]
 pub struct Player {
     pub name: String,
+    #[allow(dead_code)]
     pub last_idle_frame_count: FrameCount,
+    #[allow(dead_code)]
     pub last_ilde_x: f32,
+    #[allow(dead_code)]
     pub last_ilde_y: f32,
+    #[allow(dead_code)]
     pub last_idle_vx: f32,
+    #[allow(dead_code)]
     pub last_idle_vy: f32,
+    #[allow(dead_code)]
     pub last_idle_life: u32,
+    #[allow(dead_code)]
     pub last_idle_max_life: u32,
     pub discovered_spells: HashSet<Spell>,
     pub broken_chests: u32,
@@ -295,7 +302,7 @@ fn die_player(
     mut writer: EventWriter<ClientMessage>,
     websocket: Res<WebSocketState>,
     mut interpreter: EventWriter<InterpreterEvent>,
-    mut next: ResMut<LevelSetup>,
+    mut next: ResMut<GameWorld>,
 ) {
     if let Ok((actor, transform, player, morph)) = player_query.get_single() {
         if actor.life <= 0 {
@@ -335,7 +342,7 @@ fn die_player(
 }
 
 pub fn recovery(
-    level: &mut LevelSetup,
+    level: &mut GameWorld,
     interpreter: &mut EventWriter<InterpreterEvent>,
     morph: &Option<&Metamorphosed>,
     player: &Player,

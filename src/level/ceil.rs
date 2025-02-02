@@ -2,18 +2,23 @@ use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::appearance::TileSprite;
-use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 
-pub const WALL_HEIGHT_IN_TILES: u32 = 2;
+use super::world::GameLevel;
+use super::world::LevelScoped;
+
+// これを考慮していないのでレベルの境界でおかしくなる？
+// あとで直す
+// pub const WALL_HEIGHT_IN_TILES: u32 = 2;
 
 /// 描画しようとしているタイルの、左上のタイルを4x4タイルセットのインデックスで返します
 pub fn get_tile_index_left_top(
-    chunk: &LevelChunk,
+    chunk: &GameWorld,
     xi: i32,
     yi: i32,
     depth: i32,
@@ -36,7 +41,7 @@ pub fn get_tile_index_left_top(
 }
 
 pub fn get_tile_index_right_top(
-    chunk: &LevelChunk,
+    chunk: &GameWorld,
     xi: i32,
     yi: i32,
     depth: i32,
@@ -59,7 +64,7 @@ pub fn get_tile_index_right_top(
 }
 
 pub fn get_tile_index_left_bottom(
-    chunk: &LevelChunk,
+    chunk: &GameWorld,
     xi: i32,
     yi: i32,
     depth: i32,
@@ -82,7 +87,7 @@ pub fn get_tile_index_left_bottom(
 }
 
 pub fn get_tile_index_right_bottom(
-    chunk: &LevelChunk,
+    chunk: &GameWorld,
     xi: i32,
     yi: i32,
     depth: i32,
@@ -111,7 +116,8 @@ pub fn spawn_autotiles<T: Component + Clone>(
     prefixes: &Vec<String>,
     commands: &mut Commands,
     registry: &Registry,
-    chunk: &LevelChunk,
+    world: &GameWorld,
+    level: &GameLevel,
     targets: &Vec<&Tile>,
     y_offset: f32,
     xi: i32,
@@ -120,21 +126,21 @@ pub fn spawn_autotiles<T: Component + Clone>(
     depth: i32,
     marker: &T,
 ) {
-    let lt = get_tile_index_left_top(chunk, xi, yi, depth, targets);
+    let lt = get_tile_index_left_top(world, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, registry, y_offset, xi, yi, z, 0, 0, lt, marker,
+        prefixes, commands, registry, &level, y_offset, xi, yi, z, 0, 0, lt, marker,
     );
-    let rt = get_tile_index_right_top(chunk, xi, yi, depth, targets);
+    let rt = get_tile_index_right_top(world, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, registry, y_offset, xi, yi, z, 1, 0, rt, marker,
+        prefixes, commands, registry, &level, y_offset, xi, yi, z, 1, 0, rt, marker,
     );
-    let lb = get_tile_index_left_bottom(chunk, xi, yi, depth, targets);
+    let lb = get_tile_index_left_bottom(world, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, registry, y_offset, xi, yi, z, 0, 1, lb, marker,
+        prefixes, commands, registry, &level, y_offset, xi, yi, z, 0, 1, lb, marker,
     );
-    let rb = get_tile_index_right_bottom(chunk, xi, yi, depth, targets);
+    let rb = get_tile_index_right_bottom(world, xi, yi, depth, targets);
     spawn_autotile(
-        prefixes, commands, registry, y_offset, xi, yi, z, 1, 1, rb, marker,
+        prefixes, commands, registry, &level, y_offset, xi, yi, z, 1, 1, rb, marker,
     );
 }
 
@@ -142,6 +148,7 @@ fn spawn_autotile<T: Component + Clone>(
     prefix: &Vec<String>,
     commands: &mut Commands,
     registry: &Registry,
+    level: &GameLevel,
     y_offset: f32,
     xi: i32,
     yi: i32,
@@ -155,6 +162,7 @@ fn spawn_autotile<T: Component + Clone>(
     let y = (TILE_SIZE * -yi as f32) + TILE_HALF * -dy as f32 + y_offset;
     let mut builder = commands.spawn((
         TileSprite((xi, yi)),
+        LevelScoped(level.clone()),
         Name::new(prefix[0].clone()),
         StateScoped(GameState::InGame),
         Transform::from_xyz(x, y, z),

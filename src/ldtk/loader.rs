@@ -1,5 +1,5 @@
 use super::generated::{EntityInstance, LayerDefinition, LayerInstance, Level};
-use crate::page::in_game::GameLevel;
+use crate::level::world::GameLevel;
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt},
     prelude::*,
@@ -29,6 +29,12 @@ impl LDTK {
             .find(|l| l.identifier == level.0)
     }
 
+    #[allow(dead_code)]
+    pub fn get_level_by_position(&self, position: Vec2) -> Option<&Level> {
+        self.coordinate.levels.iter().find(|l| l.contains(position))
+    }
+
+    #[allow(dead_code)]
     pub fn get_level_by_iid(&self, iid: &String) -> Option<&Level> {
         self.coordinate.levels.iter().find(|l| l.iid == *iid)
     }
@@ -78,6 +84,16 @@ impl Level {
             .unwrap()
             .iter()
             .find(|l| l.identifier == layer_name)
+    }
+
+    pub fn contains(&self, position: Vec2) -> bool {
+        let level_rect = Rect::new(
+            self.world_x as f32,
+            self.world_y as f32,
+            self.px_wid as f32,
+            self.px_hei as f32,
+        );
+        level_rect.contains(position)
     }
 }
 

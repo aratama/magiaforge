@@ -1,3 +1,4 @@
+use super::world::LevelScoped;
 use crate::collision::WALL_GROUPS;
 use crate::collision::WATER_GROUPS;
 use crate::constant::*;
@@ -91,7 +92,7 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
     wall_rects
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
+#[derive(Debug, Clone, Eq, PartialEq, Component)]
 pub struct WallCollider;
 
 pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
@@ -103,6 +104,7 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
         let y = rect.min.y as f32 * -TILE_SIZE - h;
         commands.spawn((
             Name::new("wall collider"),
+            LevelScoped(chunk.level.clone()),
             WallCollider,
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
@@ -129,6 +131,7 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
         commands.spawn((
             Name::new("water collider"),
             WallCollider,
+            LevelScoped(chunk.level.clone()),
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
             GlobalTransform::default(),

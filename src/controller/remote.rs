@@ -1,19 +1,14 @@
 use crate::actor::Actor;
 use crate::actor::ActorGroup;
 use crate::actor::ActorType;
-use crate::constant::ARENA;
-use crate::constant::*;
 use crate::controller::player::Player;
 use crate::entity::bullet::spawn_bullet;
 use crate::entity::bullet::SpawnBullet;
-use crate::entity::gold::spawn_gold;
 use crate::level::entities::SpawnEvent;
-use crate::page::in_game::setup_level;
-use crate::page::in_game::GameLevel;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
+use crate::page::in_game::setup_game_world;
 use crate::registry::Registry;
 use crate::se::SEEvent;
-use crate::se::CRY;
 use crate::set::FixedUpdateInGameSet;
 use crate::states::GameState;
 use bevy::core::FrameCount;
@@ -21,7 +16,6 @@ use bevy::prelude::*;
 use bevy::utils::HashMap;
 use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
-use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::ServerMessage;
 use bevy_simple_websocket::WebSocketState;
 use serde::Deserialize;
@@ -96,63 +90,63 @@ pub enum RemoteMessage {
 }
 
 fn send_player_states(
-    mut writer: EventWriter<ClientMessage>,
-    mut query: Query<(&mut Player, &Actor, &GlobalTransform, &Velocity)>,
-    state: Res<WebSocketState>,
-    frame_count: Res<FrameCount>,
-    current: Res<LevelSetup>,
+    mut _writer: EventWriter<ClientMessage>,
+    mut _query: Query<(&mut Player, &Actor, &GlobalTransform, &Velocity)>,
+    _state: Res<WebSocketState>,
+    _frame_count: Res<FrameCount>,
+    _current: Res<GameWorld>,
 ) {
-    if current.level == Some(GameLevel::new(ARENA)) && state.ready_state == ReadyState::OPEN {
-        if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
-            if actor.life <= 0 {
-                return;
-            }
+    // if current.level == Some(GameLevel::new(ARENA)) && state.ready_state == ReadyState::OPEN {
+    //     if let Ok((mut player, actor, transform, velocity)) = query.get_single_mut() {
+    //         if actor.life <= 0 {
+    //             return;
+    //         }
 
-            let translate = transform.translation();
+    //         let translate = transform.translation();
 
-            if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
-                || translate.x != player.last_ilde_x
-                || translate.y != player.last_ilde_y
-                || actor.life != player.last_idle_life
-                || actor.max_life != player.last_idle_max_life
-            {
-                let command = RemoteMessage::Position {
-                    sender: actor.uuid,
-                    uuid: actor.uuid,
-                    name: player.name.clone(),
-                    golds: actor.golds,
-                    x: translate.x,
-                    y: translate.y,
-                    vx: velocity.linvel.x,
-                    vy: velocity.linvel.y,
-                    life: actor.life,
-                    max_life: actor.max_life,
-                    angle: actor.pointer.to_angle(),
-                };
-                let serialized = bincode::serialize(&command).unwrap();
-                writer.send(ClientMessage::Binary(serialized));
-                player.last_idle_frame_count = frame_count.clone();
-                player.last_ilde_x = translate.x;
-                player.last_ilde_y = translate.y;
-                player.last_idle_vx = velocity.linvel.x;
-                player.last_idle_vy = velocity.linvel.y;
-            }
-        }
-    }
+    //         if 60 < (frame_count.0 as i32 - player.last_idle_frame_count.0 as i32)
+    //             || translate.x != player.last_ilde_x
+    //             || translate.y != player.last_ilde_y
+    //             || actor.life != player.last_idle_life
+    //             || actor.max_life != player.last_idle_max_life
+    //         {
+    //             let command = RemoteMessage::Position {
+    //                 sender: actor.uuid,
+    //                 uuid: actor.uuid,
+    //                 name: player.name.clone(),
+    //                 golds: actor.golds,
+    //                 x: translate.x,
+    //                 y: translate.y,
+    //                 vx: velocity.linvel.x,
+    //                 vy: velocity.linvel.y,
+    //                 life: actor.life,
+    //                 max_life: actor.max_life,
+    //                 angle: actor.pointer.to_angle(),
+    //             };
+    //             let serialized = bincode::serialize(&command).unwrap();
+    //             writer.send(ClientMessage::Binary(serialized));
+    //             player.last_idle_frame_count = frame_count.clone();
+    //             player.last_ilde_x = translate.x;
+    //             player.last_ilde_y = translate.y;
+    //             player.last_idle_vx = velocity.linvel.x;
+    //             player.last_idle_vy = velocity.linvel.y;
+    //         }
+    //     }
+    // }
 }
 
-fn on_enter(mut writer: EventWriter<ClientMessage>, current: Res<LevelSetup>) {
-    if current.level != Some(GameLevel::new(ARENA)) && current.next_level == GameLevel::new(ARENA) {
-        info!("Connecting to {}", WEBSOCKET_URL);
-        writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
-    }
+fn on_enter(mut _writer: EventWriter<ClientMessage>, _current: Res<GameWorld>) {
+    // if current.level != Some(GameLevel::new(ARENA)) && current.next_level == GameLevel::new(ARENA) {
+    //     info!("Connecting to {}", WEBSOCKET_URL);
+    //     writer.send(ClientMessage::Open(WEBSOCKET_URL.to_string()));
+    // }
 }
 
-fn on_exit(mut writer: EventWriter<ClientMessage>, current: Res<LevelSetup>) {
-    if current.level == Some(GameLevel::new(ARENA)) && current.next_level != GameLevel::new(ARENA) {
-        info!("Closing {}", WEBSOCKET_URL);
-        writer.send(ClientMessage::Close);
-    }
+fn on_exit(mut _writer: EventWriter<ClientMessage>, _current: Res<GameWorld>) {
+    // if current.level == Some(GameLevel::new(ARENA)) && current.next_level != GameLevel::new(ARENA) {
+    //     info!("Closing {}", WEBSOCKET_URL);
+    //     writer.send(ClientMessage::Close);
+    // }
 }
 
 #[allow(dead_code)]
@@ -276,22 +270,22 @@ fn receive_events(
                         }
                         RemoteMessage::Die {
                             sender: _sender,
-                            uuid,
+                            uuid: _,
                         } => {
-                            let target = remotes
-                                .iter_mut()
-                                .find(|(_, _, actor, _, _)| actor.uuid == uuid);
+                            // let target = remotes
+                            //     .iter_mut()
+                            //     .find(|(_, _, actor, _, _)| actor.uuid == uuid);
 
-                            if let Some((entity, _, _, transform, _)) = target {
-                                let position = transform.translation.truncate();
-                                writer.send(SEEvent::pos(CRY, position));
-                                commands.entity(entity).despawn_recursive();
+                            // if let Some((entity, _, _, transform, _)) = target {
+                            //     let position = transform.translation.truncate();
+                            //     writer.send(SEEvent::pos(CRY, position));
+                            //     commands.entity(entity).despawn_recursive();
 
-                                let player_defeat_bonus = 100;
-                                for _ in 0..player_defeat_bonus {
-                                    spawn_gold(&mut commands, &registry, position);
-                                }
-                            }
+                            //     let player_defeat_bonus = 100;
+                            //     for _ in 0..player_defeat_bonus {
+                            //         spawn_gold(&mut commands, &registry, &level, position);
+                            //     }
+                            // }
                         }
                         RemoteMessage::ServantSeed {
                             ..
@@ -356,7 +350,10 @@ impl Plugin for RemotePlayerPlugin {
         // setup_level が完了すると current.level が更新されるため、
         // on_enter の条件分岐が正しく動かず、オンラインになりません
         // on_enter を先にやります
-        app.add_systems(OnEnter(GameState::InGame), on_enter.before(setup_level));
+        app.add_systems(
+            OnEnter(GameState::InGame),
+            on_enter.before(setup_game_world),
+        );
 
         app.add_systems(OnExit(GameState::InGame), on_exit);
 

@@ -8,6 +8,8 @@ use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
 use crate::inventory::InventoryItem;
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BREAK;
@@ -111,10 +113,11 @@ pub fn chest_actor(golds: u32, chest_item: Option<Spell>) -> Actor {
 
 fn break_chest(
     mut commands: Commands,
-    query: Query<(&Transform, &Actor, &Burnable, &Chest)>,
     registry: Registry,
+    world: Res<GameWorld>,
     mut writer: EventWriter<SEEvent>,
     mut explosion: EventWriter<SpawnExplosion>,
+    query: Query<(&Transform, &Actor, &Burnable, &Chest)>,
 ) {
     for (transform, actor, burnable, chest) in query.iter() {
         if actor.life <= 0 || burnable.life <= 0 {
@@ -131,6 +134,10 @@ fn break_chest(
                 position,
             ));
 
+            let Some(level) = world.get_level_by_position(position) else {
+                return;
+            };
+
             for wand in actor.wands.iter() {
                 for spell in wand.slots.iter() {
                     if let Some(WandSpell {
@@ -138,7 +145,7 @@ fn break_chest(
                     }) = spell
                     {
                         let item = InventoryItem::new(spell_type.clone());
-                        spawn_dropped_item(&mut commands, &registry, position, &item);
+                        spawn_dropped_item(&mut commands, &registry, &level, position, &item);
                     }
                 }
             }
@@ -149,6 +156,7 @@ fn break_chest(
                         spawn_jar_piece(
                             &mut commands,
                             &registry,
+                            &level,
                             position,
                             "crate",
                             &JarColor::Red,
@@ -161,6 +169,7 @@ fn break_chest(
                         spawn_jar_piece(
                             &mut commands,
                             &registry,
+                            &level,
                             position,
                             "barrel",
                             &JarColor::Red,
@@ -178,7 +187,15 @@ fn break_chest(
                 }
                 ChestType::Jar(color) => {
                     for i in 0..4 {
-                        spawn_jar_piece(&mut commands, &registry, position, "jar", &color, i);
+                        spawn_jar_piece(
+                            &mut commands,
+                            &registry,
+                            &level,
+                            position,
+                            "jar",
+                            &color,
+                            i,
+                        );
                     }
                 }
                 _ => {}
@@ -190,6 +207,7 @@ fn break_chest(
 fn spawn_jar_piece(
     commands: &mut Commands,
     registry: &Registry,
+    level: &GameLevel,
     position: Vec2,
     type_name: &str,
     color: &JarColor,
@@ -198,6 +216,7 @@ fn spawn_jar_piece(
     spawn_broken_piece(
         commands,
         registry,
+        &level,
         position,
         format!(
             "{}_piece_{}_{}",

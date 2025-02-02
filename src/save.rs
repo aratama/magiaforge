@@ -2,8 +2,8 @@ use crate::actor::Actor;
 use crate::config::GameConfig;
 use crate::constant::CRATE_NAME;
 use crate::controller::player::Player;
-use crate::page::in_game::setup_level;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
+use crate::page::in_game::setup_game_world;
 use crate::player_state::PlayerState;
 use crate::states::GameState;
 use bevy::core::FrameCount;
@@ -34,7 +34,7 @@ fn save_config_on_change(mut pkv: ResMut<PkvStore>, config: Res<GameConfig>) {
     }
 }
 
-fn load_player(pkv: Res<PkvStore>, mut interlevel: ResMut<LevelSetup>) {
+fn load_player(pkv: Res<PkvStore>, mut interlevel: ResMut<GameWorld>) {
     if let Ok(v) = pkv.get::<String>("state") {
         if let Ok(deserialized) = serde_json::from_str(v.as_str()) {
             interlevel.next_state = deserialized;
@@ -75,7 +75,7 @@ impl Plugin for SavePlugin {
         app.add_systems(Update, save_config_on_change);
         app.add_systems(
             OnEnter(GameState::MainMenu),
-            load_player.before(setup_level),
+            load_player.before(setup_game_world),
         );
         app.add_systems(Update, save_player.run_if(in_state(GameState::InGame)));
     }

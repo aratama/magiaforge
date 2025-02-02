@@ -8,8 +8,8 @@ use crate::language::language_to_font;
 use crate::language::Languages;
 use crate::language::M18NTtext;
 use crate::message::CLICK_TO_START;
-use crate::page::in_game::GameLevel;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
 use crate::se::SEEvent;
 use crate::se::CLICK;
 use crate::states::GameState;
@@ -48,7 +48,7 @@ fn setup(
     asset_server: Res<AssetServer>,
     assets: Res<GameAssets>,
     mut next_bgm: ResMut<NextBGM>,
-    mut current: ResMut<LevelSetup>,
+    mut current: ResMut<GameWorld>,
     mut overlay: EventWriter<OverlayEvent>,
 ) {
     overlay.send(OverlayEvent::SetOpen(true));
@@ -392,7 +392,7 @@ fn read_events(
     mut reader: EventReader<Events>,
     mut next_bgm: ResMut<NextBGM>,
     mut overlay_event_writer: EventWriter<OverlayEvent>,
-    interlevel: Res<LevelSetup>,
+    interlevel: Res<GameWorld>,
 ) {
     for event in reader.read() {
         match event {

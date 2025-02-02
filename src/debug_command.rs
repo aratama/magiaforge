@@ -2,8 +2,8 @@ use crate::actor::Actor;
 use crate::controller::player::Player;
 use crate::hud::overlay::OverlayEvent;
 use crate::ldtk::loader::LDTK;
-use crate::page::in_game::GameLevel;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::set::FixedUpdateInGameSet;
@@ -20,9 +20,9 @@ fn process_debug_command(
     mut evr_kbd: EventReader<KeyboardInput>,
     mut local: Local<String>,
     ldtk_assets: Res<Assets<LDTK>>,
-    mut level: ResMut<LevelSetup>,
+    mut level: ResMut<GameWorld>,
     mut writer: EventWriter<OverlayEvent>,
-    mut player_query: Query<(&Player, &mut Actor)>,
+    mut player_query: Query<(&Player, &mut Actor, &Transform)>,
     mut in_game_time: ResMut<NextState<TimeState>>,
 ) {
     let ldtk = ldtk_assets.get(registry.assets.ldtk_level.id()).unwrap();
@@ -54,10 +54,14 @@ fn process_debug_command(
     }
 
     if local.ends_with("@next") {
-        let Some(current) = &level.level else {
+        let Ok((_, _, player_transform)) = player_query.get_single() else {
             return;
         };
-        let props = registry.get_level(&current);
+        let position = player_transform.translation.truncate();
+        let Some(current) = &level.find_chunk_by_position(position) else {
+            return;
+        };
+        let props = registry.get_level(&current.level);
         let next = props.next.choose(&mut rand::thread_rng()).unwrap();
         level.next_level = next.clone();
         level.next_state = Some(PlayerState::from_query(
@@ -75,7 +79,7 @@ fn process_debug_command(
         writer.send(OverlayEvent::Close(GameState::Ending));
         local.clear();
     } else if local.ends_with("@item") {
-        if let Ok((_, mut actor)) = player_query.get_single_mut() {
+        if let Ok((_, mut actor, _)) = player_query.get_single_mut() {
             for spell in registry.game().debug_items.iter() {
                 actor.inventory.insert_spell(spell.clone());
             }

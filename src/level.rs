@@ -5,3 +5,4 @@ pub mod collision;
 pub mod entities;
 pub mod spawn;
 pub mod tile;
+pub mod world;

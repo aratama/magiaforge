@@ -2,6 +2,7 @@ use crate::collision::*;
 use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::controller::player::Player;
+use crate::level::world::{GameLevel, LevelScoped};
 use crate::registry::Registry;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
@@ -19,9 +20,10 @@ pub struct Gold {
 /// チェストを生成します
 /// 指定する位置はスプライトの左上ではなく、重心のピクセル座標です
 /// 大量に生成したときに重なりが減るように、この関数内でランダムな位置にずらしています
-pub fn spawn_gold(commands: &mut Commands, registry: &Registry, position: Vec2) {
+pub fn spawn_gold(commands: &mut Commands, registry: &Registry, level: &GameLevel, position: Vec2) {
     commands.spawn((
         Name::new("gold"),
+        LevelScoped(level.clone()),
         StateScoped(GameState::InGame),
         Gold { magnet: false },
         EntityDepth::new(),

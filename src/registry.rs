@@ -6,7 +6,7 @@ use crate::interpreter::Cmd;
 use crate::language::Dict;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
-use crate::page::in_game::GameLevel;
+use crate::level::world::GameLevel;
 use crate::spell::Spell;
 use crate::spell::SpellProps;
 use crate::strategy::Strategy;
@@ -120,9 +120,6 @@ pub struct LevelProps {
     pub name: Dict<String>,
     pub enemies: u8,
     pub enemy_types: Vec<ActorType>,
-
-    #[serde(default)]
-    pub items: HashMap<(i32, i32), Spell>,
 
     #[serde(default)]
     pub spawn: HashMap<(i32, i32), Spawn>,

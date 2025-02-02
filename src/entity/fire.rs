@@ -7,7 +7,7 @@ use crate::component::counter::CounterAnimated;
 use crate::component::entity_depth::EntityDepth;
 use crate::component::point_light::WithPointLight;
 use crate::level::tile::Tile;
-use crate::page::in_game::LevelSetup;
+use crate::level::world::GameWorld;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::audio::PlaybackMode;
@@ -200,14 +200,12 @@ fn ignite(
     }
 }
 
-fn melt_ice(fire_query: Query<&Transform, With<Fire>>, mut level: ResMut<LevelSetup>) {
-    if let Some(ref mut level) = level.chunk {
-        for fire_transform in fire_query.iter() {
-            let position = fire_transform.translation.truncate();
-            let tile = level.get_tile_by_coords(position);
-            if *tile == Tile::new("Ice") {
-                level.set_tile_by_position(position, Tile::new("Water"));
-            }
+fn melt_ice(fire_query: Query<&Transform, With<Fire>>, mut level: ResMut<GameWorld>) {
+    for fire_transform in fire_query.iter() {
+        let position = fire_transform.translation.truncate();
+        let tile = level.get_tile_by_coords(position);
+        if tile == Tile::new("Ice") {
+            level.set_tile_by_position(position, Tile::new("Water"));
         }
     }
 }
@@ -215,15 +213,13 @@ fn melt_ice(fire_query: Query<&Transform, With<Fire>>, mut level: ResMut<LevelSe
 fn despawn_on_water(
     mut commands: Commands,
     fire_query: Query<(Entity, &Transform), With<Fire>>,
-    level: Res<LevelSetup>,
+    level: Res<GameWorld>,
 ) {
-    if let Some(ref level) = level.chunk {
-        for (entity, fire_transform) in fire_query.iter() {
-            let position = fire_transform.translation.truncate();
-            let tile = level.get_tile_by_coords(position);
-            if *tile == Tile::new("Water") {
-                commands.entity(entity).despawn_recursive();
-            }
+    for (entity, fire_transform) in fire_query.iter() {
+        let position = fire_transform.translation.truncate();
+        let tile = level.get_tile_by_coords(position);
+        if tile == Tile::new("Water") {
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

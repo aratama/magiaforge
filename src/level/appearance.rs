@@ -2,10 +2,10 @@ use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::*;
 use crate::entity::grass::spawn_grasses;
 use crate::level::ceil::spawn_autotiles;
-use crate::level::ceil::WALL_HEIGHT_IN_TILES;
 use crate::level::chunk::index_to_position;
 use crate::level::chunk::LevelChunk;
 use crate::level::tile::*;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::registry::Tiling;
@@ -14,6 +14,9 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use rand::seq::SliceRandom;
+
+use super::world::GameLevel;
+use super::world::LevelScoped;
 
 const WATER_PLANE_OFFEST: f32 = -4.0;
 
@@ -27,29 +30,20 @@ struct FoamTile;
 struct CeilTile;
 
 /// 床や壁の外観(スプライト)を生成します
-pub fn spawn_world_tilemap(commands: &mut Commands, registry: &Registry, chunk: &LevelChunk) {
-    // 床と壁の生成
-    for y in chunk.min_y..(chunk.max_y + WALL_HEIGHT_IN_TILES as i32) {
-        for x in chunk.min_x..chunk.max_x {
-            spawn_world_tile(commands, registry, chunk, x, y);
-        }
-    }
-}
-
-/// 床や壁の外観(スプライト)を生成します
 pub fn spawn_world_tile(
     mut commands: &mut Commands,
     registry: &Registry,
+    world: &GameWorld,
     chunk: &LevelChunk,
     x: i32,
     y: i32,
 ) {
     let mut rand = rand::thread_rng();
-    let tile = chunk.get_tile(x, y);
+    let tile = world.get_tile(x, y);
     let props = registry.get_tile(&tile);
     match props.tile_type {
         TileType::Wall => {
-            spawn_ceil_for_blank(&mut commands, registry, chunk, x, y);
+            spawn_ceil_for_blank(&mut commands, registry, world, &chunk.level, x, y);
         }
         TileType::Surface => {
             // 水辺の岸の壁
@@ -63,7 +57,8 @@ pub fn spawn_world_tile(
                                 &frame_prefixes,
                                 &mut commands,
                                 registry,
-                                &chunk,
+                                &world,
+                                &chunk.level,
                                 &vec![&tile],
                                 WATER_PLANE_OFFEST,
                                 x,
@@ -79,6 +74,7 @@ pub fn spawn_world_tile(
                             if let Some(s) = slices.choose(&mut rand) {
                                 let mut builder = commands.spawn((
                                     TileSprite((x, y)),
+                                    LevelScoped(chunk.level.clone()),
                                     StateScoped(GameState::InGame),
                                     AseSpriteSlice {
                                         aseprite: registry.assets.atlas.clone(),
@@ -128,6 +124,7 @@ pub fn spawn_world_tile(
                         if let Some(frames) = patterns.choose(&mut rand) {
                             let mut buidler = commands.spawn((
                                 TileSprite((x, y)),
+                                LevelScoped(chunk.level.clone()),
                                 StateScoped(GameState::InGame),
                                 AseSpriteSlice {
                                     aseprite: registry.assets.atlas.clone(),
@@ -156,6 +153,7 @@ pub fn spawn_world_tile(
         if rand::random::<f32>() < props.light_density {
             commands.spawn((
                 TileSprite((x, y)),
+                LevelScoped(chunk.level.clone()),
                 StateScoped(GameState::InGame),
                 Transform::from_translation(index_to_position((x, y)).extend(0.0)),
                 PointLight2d {
@@ -176,7 +174,7 @@ pub fn spawn_world_tile(
         if rand::random::<u32>() % 6 != 0 {
             let left_top = Vec2::new(x as f32 * TILE_SIZE, y as f32 * -TILE_SIZE);
             let center = left_top + Vec2::new(TILE_HALF, -TILE_HALF);
-            spawn_grasses(&mut commands, &registry, center);
+            spawn_grasses(&mut commands, &registry, &chunk.level, center);
         }
     }
 }
@@ -201,6 +199,7 @@ fn spawn_water_wall(
     ) {
         commands.spawn((
             TileSprite((x, y)),
+            LevelScoped(chunk.level.clone()),
             StateScoped(GameState::InGame),
             AseSpriteSlice {
                 aseprite: registry.assets.atlas.clone(),
@@ -214,7 +213,8 @@ fn spawn_water_wall(
 fn spawn_ceil_for_blank(
     commands: &mut Commands,
     registry: &Registry,
-    chunk: &LevelChunk,
+    world: &GameWorld,
+    level: &GameLevel,
     x: i32,
     y: i32,
 ) {
@@ -223,9 +223,10 @@ fn spawn_ceil_for_blank(
     let tz = ENTITY_LAYER_Z + (ty * Z_ORDER_SCALE);
 
     // 壁
-    if !chunk.is_wall(&registry, x as i32, y as i32 + 1) {
+    if !world.is_wall(&registry, x as i32, y as i32 + 1) {
         commands.spawn((
             TileSprite((x, y)),
+            LevelScoped(level.clone()),
             Name::new("wall"),
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(tx, ty, tz)),
@@ -241,12 +242,13 @@ fn spawn_ceil_for_blank(
     let blank_tile = Tile::new("Blank");
     let permanent_wall_tile = Tile::new("PermanentWall");
     let targets = vec![&wall_tile, &blank_tile, &permanent_wall_tile];
-    if chunk.is_visible_ceil(x, y, 3, &targets) {
+    if world.is_visible_ceil(x, y, 3, &targets) {
         spawn_autotiles(
             &vec!["roof".to_string()],
             commands,
             registry,
-            &chunk,
+            &world,
+            &level,
             &targets,
             WALL_HEIGHT,
             x,
