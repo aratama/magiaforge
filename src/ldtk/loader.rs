@@ -29,6 +29,10 @@ impl LDTK {
             .find(|l| l.identifier == level.0)
     }
 
+    pub fn get_level_by_iid(&self, iid: &String) -> Option<&Level> {
+        self.coordinate.levels.iter().find(|l| l.iid == *iid)
+    }
+
     pub fn get_levels(&self) -> core::slice::Iter<Level> {
         self.coordinate.levels.iter()
     }
@@ -48,6 +52,21 @@ impl LDTK {
             .int_grid_values
             .iter()
             .map(|v| (v.value, v.identifier.as_ref().unwrap().as_str()))
+            .collect()
+    }
+
+    pub fn get_neighbors(&self, game_level: &GameLevel) -> Vec<GameLevel> {
+        let level = self.get_level(game_level).unwrap();
+        level
+            .neighbours
+            .iter()
+            .map(|neighbor| {
+                let identifier = &self
+                    .get_level_by_iid(&neighbor.level_iid)
+                    .unwrap()
+                    .identifier;
+                GameLevel(identifier.clone())
+            })
             .collect()
     }
 }

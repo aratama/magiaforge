@@ -17,13 +17,16 @@ use crate::ldtk::loader::LDTK;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::spawn_world_tilemap;
 use crate::level::appearance::TileSprite;
+use crate::level::chunk::index_to_position;
+use crate::level::chunk::LevelChunk;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
-use crate::level::map::index_to_position;
-use crate::level::map::LevelChunk;
+use crate::level::spawn::spawn_dropped_items;
+use crate::level::spawn::spawn_navigation_mesh;
+use crate::level::spawn::spawn_random_enemies;
 use crate::level::tile::Tile;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
@@ -172,53 +175,13 @@ pub fn setup_level(
     let getting_up_animation =
         level == GameLevel::new("Warehouse") && cfg!(not(feature = "ingame"));
 
-    // 画像データからレベルの情報を選択して読み取ります
-    let chunk = LevelChunk::new(&registry, &ldtk, &level);
+    let chunk = spawn_level(&mut commands, &registry, &ldtk, &level);
 
-    // ナビゲーションメッシュを作成します
-    // Spawn a new navmesh that will be automatically updated.
-    commands.spawn((
-        StateScoped(GameState::InGame),
-        NavMeshSettings {
-            // デスクトップ版では問題ないが、ブラウザ版ではナビメッシュの生成がかなり重い
-            // 4.0 で少し改善する？
-            simplify: 4.0,
-            // Define the outer borders of the navmesh.
-            fixed: Triangulation::from_outer_edges(&[
-                // ここ半タイルぶんズレてる？
-                index_to_position((chunk.min_x, chunk.min_y)),
-                index_to_position((chunk.max_x, chunk.min_y)),
-                index_to_position((chunk.max_x, chunk.max_y)),
-                index_to_position((chunk.min_x, chunk.max_y)),
-            ]),
+    // for neighbor in ldtk.get_neighbors(&level).iter() {
+    //     spawn_level(&mut commands, &registry, &ldtk, &neighbor);
+    // }
 
-            // 小さすぎると、わずかな隙間を通り抜けようとしたり、
-            // 曲がり角で壁に近すぎて減速してしまいます
-            // 大きすぎると、対象が壁際にいるときに移動不可能な目的地になってしまうので、
-            // パスが見つけられなくなってしまいます
-            // Actorのデフォルトが5なので、それに合わせています
-            agent_radius: 5.0,
-            ..default()
-        },
-        NavMeshUpdateMode::Debounced(5.0),
-        Transform::from_translation(Vec3::ZERO),
-    ));
-
-    // レベルの外観を生成します
-    spawn_world_tilemap(&mut commands, &registry, &chunk);
-
-    // エントリーポイントを選択
-    // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
-    let entry_points = chunk.entry_points();
-    let entry_point = entry_points.choose(&mut rng).expect("No entrypoint found");
-
-    info!("entry_points {:?}", entry_points);
-
-    let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
-    let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
-
-    // レベルのコリジョンを生成します
-    spawn_wall_collisions(&mut commands, &chunk);
+    // エンティティ生成 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // 宝箱や灯篭などのエンティティを生成します
     for ((x, y), props) in chunk.entities.iter() {
@@ -227,23 +190,6 @@ pub fn setup_level(
             spawn: props.entity.clone(),
         });
     }
-
-    // 空間
-    // ここに敵モブや落ちているアイテムを生成します
-    let empties = chunk.get_spawn_tiles(&registry);
-
-    // 空いた空間に敵モブキャラクターをランダムに生成します
-    let props = registry.get_level(&level);
-    let spaw_enemy_count = props.enemies;
-    let spaw_enemy_types = props.enemy_types.clone();
-    spawn_random_enemies(
-        &empties,
-        &mut rng,
-        entry_point.clone(),
-        spaw_enemy_count,
-        &spaw_enemy_types,
-        &mut spawn,
-    );
 
     // 落ちている呪文を生成
     spawn_dropped_items(&mut commands, &registry, &props.items);
@@ -274,6 +220,42 @@ pub fn setup_level(
         }
     }
 
+    // テスト用モンスター
+    // spawn.send(SpawnEvent {
+    //     position: index_to_position((29, 52)),
+    //     spawn: Spawn::Actor {
+    //         actor_type: ActorType::new("Salamander"),
+    //         actor_group: ActorGroup::Enemy,
+    //     },
+    // });
+
+    // エントリーポイントを選択
+    // プレイヤーはここに配置し、この周囲はセーフゾーンとなって敵モブやアイテムは生成しません
+    let entry_points = chunk.entry_points();
+    let entry_point = entry_points.choose(&mut rng).expect("No entrypoint found");
+
+    info!("entry_points {:?}", entry_points);
+
+    let player_x = TILE_SIZE * entry_point.0 as f32 + TILE_HALF;
+    let player_y = -TILE_SIZE * entry_point.1 as f32 - TILE_HALF;
+
+    // 空間
+    // ここに敵モブや落ちているアイテムを生成します
+    let empties = chunk.get_spawn_tiles(&registry);
+
+    // 空いた空間に敵モブキャラクターをランダムに生成します
+    let props = registry.get_level(&level);
+    let spaw_enemy_count = props.enemies;
+    let spaw_enemy_types = props.enemy_types.clone();
+    spawn_random_enemies(
+        &empties,
+        &mut rng,
+        entry_point.clone(),
+        spaw_enemy_count,
+        &spaw_enemy_types,
+        &mut spawn,
+    );
+
     // 拠点のみ、数羽のニワトリを生成します
     if level == GameLevel::new(HOME_LEVEL) {
         for _ in 0..5 {
@@ -285,16 +267,6 @@ pub fn setup_level(
             }
         }
     }
-
-    // テスト用モンスター
-    // spawn.send(SpawnEvent {
-    //     position: index_to_position((29, 52)),
-    //     spawn: Spawn::Actor {
-    //         actor_type: ActorType::new("Salamander"),
-    //         actor_group: ActorGroup::Enemy,
-    //     },
-    // });
-
     // プレイヤーを生成します
     // まずはエントリーポイントをランダムに選択します
 
@@ -334,69 +306,27 @@ pub fn setup_level(
     overlay.send(OverlayEvent::SetOpen(true));
 }
 
-fn spawn_random_enemies(
-    empties: &Vec<(i32, i32)>,
-    mut rng: &mut StdRng,
-    safe_zone_center: (i32, i32),
-    spaw_enemy_count: u8,
-    enemy_types: &Vec<ActorType>,
-    spawn: &mut EventWriter<SpawnEvent>,
-) {
-    let mut empties = empties.clone();
-    empties.shuffle(&mut rng);
-
-    let mut enemies = 0;
-
-    for (x, y) in empties {
-        if spaw_enemy_count <= enemies {
-            break;
-        }
-
-        if Vec2::new(safe_zone_center.0 as f32, safe_zone_center.1 as f32)
-            .distance(Vec2::new(x as f32, y as f32))
-            < 8.0
-        {
-            continue;
-        }
-
-        let position = Vec2::new(
-            TILE_SIZE * x as f32 + TILE_HALF,
-            TILE_SIZE * -y as f32 - TILE_HALF,
-        );
-
-        match enemy_types.choose(&mut rng) {
-            Some(enemy_type) => {
-                spawn.send(SpawnEvent {
-                    position,
-                    spawn: Spawn::Actor(enemy_type.clone()),
-                });
-            }
-            None => {
-                warn!("No enemy type found");
-            }
-        }
-
-        enemies += 1;
-    }
-}
-
-fn spawn_dropped_items(
+fn spawn_level(
     mut commands: &mut Commands,
     registry: &Registry,
-    item_map: &HashMap<(i32, i32), Spell>,
-) {
-    for ((x, y), spell) in item_map.iter() {
-        let position = index_to_position((*x, *y));
-        spawn_dropped_item(
-            &mut commands,
-            &registry,
-            position,
-            &InventoryItem {
-                spell: spell.clone(),
-                price: 0,
-            },
-        );
-    }
+    ldtk: &LDTK,
+    level: &GameLevel,
+) -> LevelChunk {
+    // 画像データから現在位置のレベルの情報を選択して読み取ります
+    let chunk = LevelChunk::new(&registry, &ldtk, &level);
+
+    // レベルの外観を生成します
+    spawn_world_tilemap(&mut commands, &registry, &chunk);
+
+    // レベルのコリジョンを生成します
+    spawn_wall_collisions(&mut commands, &chunk);
+
+    // ナビゲーションメッシュを作成します
+    // ナビメッシュ生成は重いためチャンクごとに生成します
+    // このため、敵キャラクターがレベル境界を越えて接近することはありません
+    spawn_navigation_mesh(&mut commands, &chunk);
+
+    chunk
 }
 
 fn update_tile_sprites(

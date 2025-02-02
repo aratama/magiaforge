@@ -5,7 +5,7 @@ use crate::camera::GameCamera;
 use crate::collision::SENSOR_GROUPS;
 use crate::constant::*;
 use crate::entity::fire::Fire;
-use crate::level::map::index_to_position;
+use crate::level::chunk::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;

@@ -5,7 +5,7 @@ use crate::collision::SENSOR_GROUPS;
 use crate::component::counter::CounterAnimated;
 use crate::constant::PAINT_LAYER_Z;
 use crate::constant::TILE_SIZE;
-use crate::level::map::index_to_position;
+use crate::level::chunk::index_to_position;
 use crate::level::tile::Tile;
 use crate::page::in_game::LevelSetup;
 use crate::registry::Registry;

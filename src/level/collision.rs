@@ -1,7 +1,7 @@
 use crate::collision::WALL_GROUPS;
 use crate::collision::WATER_GROUPS;
 use crate::constant::*;
-use crate::level::map::LevelChunk;
+use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
 use crate::states::GameState;
 use bevy::prelude::*;

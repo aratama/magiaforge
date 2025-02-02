@@ -2,7 +2,7 @@ use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::appearance::TileSprite;
-use crate::level::map::LevelChunk;
+use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
 use crate::registry::Registry;
 use crate::states::GameState;
