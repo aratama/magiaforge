@@ -315,14 +315,14 @@ TileRegistry(
             items: {
                 (175, 17): "Telescope"
             },
-            next: ["Cave"]
+            next: ["Waterside"]
         ),
 
         // 光の玉の魔法を入手
         // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
         // 明かりで照らしながら慎重に進む
         "valley": (
-            next: ["waterside"],
+            next: ["Waterside"],
             name: Dict (
                 ja: "暗闇の谷",
                 en: "Valley of Darkness",
@@ -347,8 +347,7 @@ TileRegistry(
 
         // 飛躍の呪文を入手
         // 比較的安全な水辺でジャンプの練習
-        "waterside": (
-            next: ["grassland"],
+        "Waterside": (
             name: Dict (
                 ja: "飛躍の水辺",
                 en: "Waterside of Leap",
@@ -369,6 +368,7 @@ TileRegistry(
             },
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
+            next: ["Cave"],
         ),
         
         // ランタンを入手
