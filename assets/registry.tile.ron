@@ -101,149 +101,131 @@ TileRegistry(
         ),
     },
 
-    // level.aseprite の tiles レイヤーに以下の色のピクセルを配置すると、その位置にタイルが生成されます
-    color_to_tile_mapping: {
-        // 壁
-        (0, 0, 0, 255): "PermanentWall",
-        (82, 75, 36, 255): "Wall",
-
-        // 床
-        (203, 219, 252, 255): "StoneTile",
-        (153, 229, 80, 255): "Grassland",
-        (222, 233, 255, 255): "Ice",
-        (255, 220, 204, 255): "Soil",
-
-        // 水面など
-        (55, 79, 225, 255): "Water",
-        (205, 121, 54, 255): "Lava",
-        (43, 43, 43, 255): "Crack",
-    },
-
     // level.aseprite の entities レイヤーに以下の色のピクセルを配置すると、その位置にエンティティが生成されます
-    color_to_entity_mapping: {
-        // 魔法陣 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        (48, 96, 130, 255): (
-            entity: MagicCircle,
-        ),
-        (47, 96, 130, 255): (
-            entity: MultiPlayArenaMagicCircle,
-        ),
-        (56, 111, 161, 255): (
-            entity: MagicCircleHome,
-        ),
-        (46, 96, 130, 255): (
-            entity: MagicCircleDemoEnding,
-        ),
-        (255, 0, 0, 255): (
-            entity: BrokenMagicCircle, // エントリポイント 
-        ),
+    // color_to_entity_mapping: {
+    //     // 魔法陣 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //     "MagicCircle": (
+    //         entity: MagicCircle,
+    //     ),
+    //     "MultiPlayArenaMagicCircle": (
+    //         entity: MultiPlayArenaMagicCircle,
+    //     ),
+    //     "MagicCircleHome": (
+    //         entity: MagicCircleHome,
+    //     ),
+    //     "MagicCircleDemoEnding": (
+    //         entity: MagicCircleDemoEnding,
+    //     ),
+    //     "BrokenMagicCircle": (
+    //         entity: BrokenMagicCircle, // エントリポイント 
+    //     ),
 
-        // 施設など /////////////////////////////////////////////////////////////////////////////////////////////////////
-        (197, 255, 142, 255): (
-            entity: ShopDoor,
-        ),
-        (0, 222, 255, 255): (
-            entity: ShopSpell,
-        ),
-        // (68, 0, 94, 255): (
-        //     entity: BGM ( bgm: "bgm/最果てのルージュ.ogg" ),
-        //     entry_point: false,
-        //     spawn_offset_x: 0.0,
-        // ),        
-        (251, 242, 54, 255): (
-            entity: RandomChest,
-        ),
-        (255, 155, 87, 255): (
-            entity: RandomChest,
-        ),
-        (102, 57, 49, 255): (
-            entity: RandomChest,
-        ),
-        (255, 0, 255, 255): (
-            entity: Usage,
-        ),
-        (184, 0, 255, 255): (
-            entity: Boss (
-                actor_type: "HugeSlime",
-                name: Dict (
-                    ja: "スライムの王 エミルス",
-                    en: "Slime King Emils",
-                    zh_cn: "史莱姆之王 艾米尔斯",
-                    zh_tw: "史萊姆之王 艾米爾斯",
-                    es: "Rey Slime Emils",
-                    fr: "Roi Slime Emils",
-                    pt: "Rei Slime Emils",
-                    de: "Schleimkönig Emils",
-                    ko: "슬라임 왕 에밀스",
-                    ru: "Король слизней Эмильс",
-                ),
-                on_despawn: "HugeSlime"
-            ),
-        ),
+    //     // 施設など /////////////////////////////////////////////////////////////////////////////////////////////////////
+    //     "ShopDoor": (
+    //         entity: ShopDoor,
+    //     ),
+    //     "ShopSpell": (
+    //         entity: ShopSpell,
+    //     ),
+    //     // (68, 0, 94, 255): (
+    //     //     entity: BGM ( bgm: "bgm/最果てのルージュ.ogg" ),
+    //     //     entry_point: false,
+    //     //     spawn_offset_x: 0.0,
+    //     // ),        
+    //     "RandomChest": (
+    //         entity: RandomChest,
+    //     ),
+    //     "RandomChest": (
+    //         entity: RandomChest,
+    //     ),
+    //     "RandomChest": (
+    //         entity: RandomChest,
+    //     ),
+    //     "Usage": (
+    //         entity: Usage,
+    //     ),
+    //     "Boss": (
+    //         entity: Boss (
+    //             actor_type: "HugeSlime",
+    //             name: Dict (
+    //                 ja: "スライムの王 エミルス",
+    //                 en: "Slime King Emils",
+    //                 zh_cn: "史莱姆之王 艾米尔斯",
+    //                 zh_tw: "史萊姆之王 艾米爾斯",
+    //                 es: "Rey Slime Emils",
+    //                 fr: "Roi Slime Emils",
+    //                 pt: "Rei Slime Emils",
+    //                 de: "Schleimkönig Emils",
+    //                 ko: "슬라임 왕 에밀스",
+    //                 ru: "Король слизней Эмильс",
+    //             ),
+    //             on_despawn: "HugeSlime"
+    //         ),
+    //     ),
 
-        // ラビット ////////////////////////////////////////////////////////////////////////////////////////////////
-        (255, 243, 0, 255): (
-            entity: Rabbit (
-                aseprite: "rabbit/rabbit_yellow.aseprite",
-                senario: "ShopRabbit"
-            ),
-        ),
-        (255, 244, 0, 255): (
-            entity: Rabbit (
-                aseprite: "rabbit/rabbit_red.aseprite",
-                senario: "TrainingRabbit"
-            ),
-        ),
-        (255, 245, 0, 255): (
-            entity: Rabbit ( 
-                aseprite: "rabbit/rabbit_blue.aseprite",
-                senario: "GuideRabbit"
-            ),
-        ),
-        (255, 246, 0, 255): (
-            entity: Rabbit ( 
-                aseprite: "rabbit/rabbit_black.aseprite",
-                senario: "MultiPlayRabbit"
-            ),
-        ),
-        (255, 247, 0, 255): (
-            entity: Rabbit (
-                aseprite: "rabbit/rabbit_white.aseprite",
-                senario: "SingleplayRabbit"
-            ),
-        ),
-        (255, 248, 0, 255): (
-            entity: Rabbit (
-                aseprite: "rabbit/rabbit_green.aseprite",
-                senario: "ReadingRabbit"
-            ),
-        ),
-        (255, 249, 0, 255): (
-            entity: Rabbit (
-                aseprite: "rabbit/rabbit_blue.aseprite",
-                senario: "SpellListRabbit"
-            ),
-        ),
+    //     // ラビット ////////////////////////////////////////////////////////////////////////////////////////////////
+    //     "ShopRabbit": (
+    //         entity: Rabbit (
+    //             aseprite: "rabbit/rabbit_yellow.aseprite",
+    //             senario: "ShopRabbit"
+    //         ),
+    //     ),
+    //     "TrainingRabbit": (
+    //         entity: Rabbit (
+    //             aseprite: "rabbit/rabbit_red.aseprite",
+    //             senario: "TrainingRabbit"
+    //         ),
+    //     ),
+    //     "GuideRabbit": (
+    //         entity: Rabbit ( 
+    //             aseprite: "rabbit/rabbit_blue.aseprite",
+    //             senario: "GuideRabbit"
+    //         ),
+    //     ),
+    //     "MultiPlayRabbit": (
+    //         entity: Rabbit ( 
+    //             aseprite: "rabbit/rabbit_black.aseprite",
+    //             senario: "MultiPlayRabbit"
+    //         ),
+    //     ),
+    //     "SingleplayRabbit": (
+    //         entity: Rabbit (
+    //             aseprite: "rabbit/rabbit_white.aseprite",
+    //             senario: "SingleplayRabbit"
+    //         ),
+    //     ),
+    //     "ReadingRabbit": (
+    //         entity: Rabbit (
+    //             aseprite: "rabbit/rabbit_green.aseprite",
+    //             senario: "ReadingRabbit"
+    //         ),
+    //     ),
+    //     "SpellListRabbit": (
+    //         entity: Rabbit (
+    //             aseprite: "rabbit/rabbit_blue.aseprite",
+    //             senario: "SpellListRabbit"
+    //         ),
+    //     ),
 
-        // 通常のアクター /////////////////////////////////////////////////////////////////////////////////////
-        (223, 113, 38, 255): (
-            entity: Actor("Lantern"),
-        ),
-        (118, 66, 138, 255): (
-            entity: Actor("BookShelf"),
-            spawn_offset_x: 8.0
-        ),        
-        (182, 0, 255, 255): (
-            entity: Actor("Sandbag"),
-        ),
-    },
+    //     // 通常のアクター /////////////////////////////////////////////////////////////////////////////////////
+    //     "Lantern": (
+    //         entity: Actor("Lantern"),
+    //     ),
+    //     "BookShelf": (
+    //         entity: Actor("BookShelf"),
+    //         spawn_offset_x: 8.0
+    //     ),        
+    //     "Sandbag": (
+    //         entity: Actor("Sandbag"),
+    //     ),
+    // },
 
     levels: {
 
 
         // チュートリアルを兼ねて最初にマジックボルトを入手
         // 呪文をひとつも発見していないときはこのレベルに来る
-        "warehouse": (
+        "Warehouse": (
             name: Dict (
                 ja: "倉庫",
                 en: "Warehouse",
@@ -264,14 +246,14 @@ TileRegistry(
             items: {
                 (158, 224): "MagicBolt"
             },
-            next: ["home"],
+            next: ["Home"],
         ),
 
         // レベル内にエンティティを生成するには、以下の三種類があります
         // 1. level.aseprite の entities レイヤーで指定する。色のマッピングも指定する必要があるが、地形と連動させて編集しやすい
         // 2. registry.tile.ron の items で指定する。これは記述が簡便ですが、呪文専用です
         // 3. registry.tile.ron の spawn で指定する。こちらは呪文以外のエンティティも生成できます
-        "home": (
+        "Home": (
             name: Dict (
                 ja: "ウサギ族のキャンプ",
                 en: "Rabbit's Camp",
@@ -303,18 +285,16 @@ TileRegistry(
             // itemsで指定する以外のエンティティの生成はspawnで指定します
             spawn: {
                 // (55, 52): Actor("Slime"),
-                // (50, 52): Actor ("ExplosiveMashroom")
             },
-            next: ["library"],
+            next: ["Library"],
         ),
 
         // レベル1 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // 望遠鏡を入手
-        // レベルとのシナジーがない……
-        // スナイパー系のモンスターを出す？ 
-        "library": (
-            next: ["valley"],
+        // 爆発キノコを入手
+        // 狭い通路なので、遠距離からの攻撃は拡散で壁に当たってしまう
+        // 爆発キノコなら敵を誘い込むことでダメージを与えられる
+        "Library": (
             name: Dict (
                 ja: "図書館跡",
                 en: "Library Ruins",
@@ -334,7 +314,8 @@ TileRegistry(
             brightness: 0.4,
             items: {
                 (175, 17): "Telescope"
-            }
+            },
+            next: ["Cave"]
         ),
 
         // 光の玉の魔法を入手
@@ -495,8 +476,8 @@ TileRegistry(
             bgm: "bgm/忘れられた神殿.ogg",
             brightness: 0.4
         ),
-        "boss": (
-            next: ["home"],
+        "Cave": (
+            next: ["Home"],
             name: Dict (
                 ja: "大空洞",
                 en: "Great Cavern",
@@ -581,7 +562,7 @@ TileRegistry(
         ),
 
         "arena": (
-            next: ["home"],
+            next: ["Home"],
             name: Dict (
                 ja: "対決の洞窟",
                 en: "Cave of Confrontation",
