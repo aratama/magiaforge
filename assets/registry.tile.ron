@@ -243,15 +243,11 @@ TileRegistry(
             enemy_types: ["Slime"],
             bgm: "bgm/水のしたたる洞窟.ogg",
             brightness: 0.4,
-            items: {
-                (158, 224): "MagicBolt"
-            },
             next: ["Home"],
         ),
 
         // レベル内にエンティティを生成するには、以下の三種類があります
         // 1. level.aseprite の entities レイヤーで指定する。色のマッピングも指定する必要があるが、地形と連動させて編集しやすい
-        // 2. registry.tile.ron の items で指定する。これは記述が簡便ですが、呪文専用です
         // 3. registry.tile.ron の spawn で指定する。こちらは呪文以外のエンティティも生成できます
         "Home": (
             name: Dict (
@@ -271,17 +267,6 @@ TileRegistry(
             enemy_types: [],
             bgm: "bgm/最果てのルージュ.ogg",
             brightness: 0.4,
-            // このレベルに落ちているアイテムはitemsで定義します
-            items: {
-                // 溶岩流を渡った先
-                (100, 66): "LightSword",
-                // 水路の奥の隠し部屋
-                (83, 28): "Dash",
-                // ジャンプ練習場の奥
-                (30, 69): "Levitation",
-                // Z字型の裂け目の奥の隠し部屋
-                (53, 24): "Bomb",
-            },
             // itemsで指定する以外のエンティティの生成はspawnで指定します
             spawn: {
                 // (55, 52): Actor("Slime"),
@@ -312,17 +297,35 @@ TileRegistry(
             enemy_types: ["Slime"],
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
-            items: {
-                (175, 17): "Telescope"
-            },
-            next: ["Cave"]
+            next: ["Waterside"]
+        ),
+
+        "Crossing": (
+            name: Dict (
+                ja: "分岐点",
+                en: "Crossing",
+                zh_cn: "交叉点",
+                zh_tw: "交叉點",
+                es: "Cruce",
+                fr: "Croisement",
+                pt: "Cruzamento",
+                de: "Kreuzung",
+                ko: "교차로",
+                ru: "Перекресток",
+            ),
+            default_tile: "StoneTile",
+            enemies: 10,
+            enemy_types: ["Slime"],
+            bgm: "bgm/森のいざない.ogg",
+            brightness: 0.4,
+            next: ["Waterside"]
         ),
 
         // 光の玉の魔法を入手
         // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
         // 明かりで照らしながら慎重に進む
         "valley": (
-            next: ["waterside"],
+            next: ["Waterside"],
             name: Dict (
                 ja: "暗闇の谷",
                 en: "Valley of Darkness",
@@ -338,17 +341,13 @@ TileRegistry(
             default_tile: "StoneTile",
             enemies: 10,
             enemy_types: ["Slime"],
-            items: {
-                (142, 164): "LightBall"
-            },
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.01,
         ),
 
         // 飛躍の呪文を入手
         // 比較的安全な水辺でジャンプの練習
-        "waterside": (
-            next: ["grassland"],
+        "Waterside": (
             name: Dict (
                 ja: "飛躍の水辺",
                 en: "Waterside of Leap",
@@ -364,18 +363,16 @@ TileRegistry(
             default_tile: "StoneTile",
             enemies: 10,
             enemy_types: ["Slime", "EyeBall"],
-            items: {
-                (154,89): "Jump"
-            },
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
+            next: ["Cave"],
         ),
         
         // ランタンを入手
         // 非常に暗いが、周囲が明るくなり、蜘蛛の巣を避けやすくなる
         // 光の玉と異なり、ランタンでは遠くを見通すことはできない
         // valleyと差別化が微妙？
-        "grassland": (
+        "Grassland": (
             next: ["minefield"],
             name: Dict (
                 ja: "地下草原",
@@ -394,9 +391,6 @@ TileRegistry(
             enemy_types: ["Slime", "Spider"],
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.02,
-            items: {
-                (202, 25): "Lantern"
-            }
         ),
 
 
@@ -424,9 +418,6 @@ TileRegistry(
             enemy_types: ["EyeBall"],
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.4,
-            items: {
-                (206, 91): "Magnifier"
-            }
         ),
 
         // 凍結の魔法で湖を凍らせて渡る
@@ -450,9 +441,6 @@ TileRegistry(
             enemy_types: ["Slime", "Spider"],
             bgm: "bgm/midnight-forest-184304.ogg",
             brightness: 0.4,
-            items: {
-                (402, 82): "Freeze"
-            }
         ),
         // これ以下はテーマ未定 ////////////////////////////////////////////////////////////////////////////////////////////////
 
