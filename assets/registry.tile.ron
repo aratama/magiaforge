@@ -101,128 +101,7 @@ TileRegistry(
         ),
     },
 
-    // level.aseprite の entities レイヤーに以下の色のピクセルを配置すると、その位置にエンティティが生成されます
-    // color_to_entity_mapping: {
-    //     // 魔法陣 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //     "MagicCircle": (
-    //         entity: MagicCircle,
-    //     ),
-    //     "MultiPlayArenaMagicCircle": (
-    //         entity: MultiPlayArenaMagicCircle,
-    //     ),
-    //     "MagicCircleHome": (
-    //         entity: MagicCircleHome,
-    //     ),
-    //     "MagicCircleDemoEnding": (
-    //         entity: MagicCircleDemoEnding,
-    //     ),
-    //     "BrokenMagicCircle": (
-    //         entity: BrokenMagicCircle, // エントリポイント 
-    //     ),
-
-    //     // 施設など /////////////////////////////////////////////////////////////////////////////////////////////////////
-    //     "ShopDoor": (
-    //         entity: ShopDoor,
-    //     ),
-    //     "ShopSpell": (
-    //         entity: ShopSpell,
-    //     ),
-    //     // (68, 0, 94, 255): (
-    //     //     entity: BGM ( bgm: "bgm/最果てのルージュ.ogg" ),
-    //     //     entry_point: false,
-    //     //     spawn_offset_x: 0.0,
-    //     // ),        
-    //     "RandomChest": (
-    //         entity: RandomChest,
-    //     ),
-    //     "RandomChest": (
-    //         entity: RandomChest,
-    //     ),
-    //     "RandomChest": (
-    //         entity: RandomChest,
-    //     ),
-    //     "Usage": (
-    //         entity: Usage,
-    //     ),
-    //     "Boss": (
-    //         entity: Boss (
-    //             actor_type: "HugeSlime",
-    //             name: Dict (
-    //                 ja: "スライムの王 エミルス",
-    //                 en: "Slime King Emils",
-    //                 zh_cn: "史莱姆之王 艾米尔斯",
-    //                 zh_tw: "史萊姆之王 艾米爾斯",
-    //                 es: "Rey Slime Emils",
-    //                 fr: "Roi Slime Emils",
-    //                 pt: "Rei Slime Emils",
-    //                 de: "Schleimkönig Emils",
-    //                 ko: "슬라임 왕 에밀스",
-    //                 ru: "Король слизней Эмильс",
-    //             ),
-    //             on_despawn: "HugeSlime"
-    //         ),
-    //     ),
-
-    //     // ラビット ////////////////////////////////////////////////////////////////////////////////////////////////
-    //     "ShopRabbit": (
-    //         entity: Rabbit (
-    //             aseprite: "rabbit/rabbit_yellow.aseprite",
-    //             senario: "ShopRabbit"
-    //         ),
-    //     ),
-    //     "TrainingRabbit": (
-    //         entity: Rabbit (
-    //             aseprite: "rabbit/rabbit_red.aseprite",
-    //             senario: "TrainingRabbit"
-    //         ),
-    //     ),
-    //     "GuideRabbit": (
-    //         entity: Rabbit ( 
-    //             aseprite: "rabbit/rabbit_blue.aseprite",
-    //             senario: "GuideRabbit"
-    //         ),
-    //     ),
-    //     "MultiPlayRabbit": (
-    //         entity: Rabbit ( 
-    //             aseprite: "rabbit/rabbit_black.aseprite",
-    //             senario: "MultiPlayRabbit"
-    //         ),
-    //     ),
-    //     "SingleplayRabbit": (
-    //         entity: Rabbit (
-    //             aseprite: "rabbit/rabbit_white.aseprite",
-    //             senario: "SingleplayRabbit"
-    //         ),
-    //     ),
-    //     "ReadingRabbit": (
-    //         entity: Rabbit (
-    //             aseprite: "rabbit/rabbit_green.aseprite",
-    //             senario: "ReadingRabbit"
-    //         ),
-    //     ),
-    //     "SpellListRabbit": (
-    //         entity: Rabbit (
-    //             aseprite: "rabbit/rabbit_blue.aseprite",
-    //             senario: "SpellListRabbit"
-    //         ),
-    //     ),
-
-    //     // 通常のアクター /////////////////////////////////////////////////////////////////////////////////////
-    //     "Lantern": (
-    //         entity: Actor("Lantern"),
-    //     ),
-    //     "BookShelf": (
-    //         entity: Actor("BookShelf"),
-    //         spawn_offset_x: 8.0
-    //     ),        
-    //     "Sandbag": (
-    //         entity: Actor("Sandbag"),
-    //     ),
-    // },
-
     levels: {
-
-
         // チュートリアルを兼ねて最初にマジックボルトを入手
         // 呪文をひとつも発見していないときはこのレベルに来る
         "Warehouse": (
@@ -243,12 +122,9 @@ TileRegistry(
             enemy_types: ["Slime"],
             bgm: "bgm/水のしたたる洞窟.ogg",
             brightness: 0.4,
-            next: ["Home"],
         ),
 
         // レベル内にエンティティを生成するには、以下の三種類があります
-        // 1. level.aseprite の entities レイヤーで指定する。色のマッピングも指定する必要があるが、地形と連動させて編集しやすい
-        // 3. registry.tile.ron の spawn で指定する。こちらは呪文以外のエンティティも生成できます
         "Home": (
             name: Dict (
                 ja: "ウサギ族のキャンプ",
@@ -267,11 +143,6 @@ TileRegistry(
             enemy_types: [],
             bgm: "bgm/最果てのルージュ.ogg",
             brightness: 0.4,
-            // itemsで指定する以外のエンティティの生成はspawnで指定します
-            spawn: {
-                // (55, 52): Actor("Slime"),
-            },
-            next: ["Library"],
         ),
 
         // レベル1 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +168,6 @@ TileRegistry(
             enemy_types: ["Slime"],
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
-            next: ["Waterside"]
         ),
 
         "Crossing": (
@@ -318,14 +188,12 @@ TileRegistry(
             enemy_types: ["Slime"],
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
-            next: ["Waterside"]
         ),
 
         // 光の玉の魔法を入手
         // 非常に暗く、スライムに殴られるとクレバスに落ちてしまう
         // 明かりで照らしながら慎重に進む
         "valley": (
-            next: ["Waterside"],
             name: Dict (
                 ja: "暗闇の谷",
                 en: "Valley of Darkness",
@@ -365,7 +233,6 @@ TileRegistry(
             enemy_types: ["Slime", "EyeBall"],
             bgm: "bgm/森のいざない.ogg",
             brightness: 0.4,
-            next: ["Cave"],
         ),
         
         // ランタンを入手
@@ -373,7 +240,6 @@ TileRegistry(
         // 光の玉と異なり、ランタンでは遠くを見通すことはできない
         // valleyと差別化が微妙？
         "Grassland": (
-            next: ["minefield"],
             name: Dict (
                 ja: "地下草原",
                 en: "Underground Grassland",
@@ -400,7 +266,6 @@ TileRegistry(
         // 拡大鏡で地面をよく見ながら進もう
         // 爆発キノコは浮遊の魔法などでも回避できる
         "minefield": (
-            next: ["lake"],
             name: Dict (
                 ja: "爆発キノコの湿地",
                 en: "Explosive Mushroom Swamp",
@@ -423,7 +288,6 @@ TileRegistry(
         // 凍結の魔法で湖を凍らせて渡る
         // 浮遊の魔法でも渡れる
         "lake": (
-            next: ["corridor"],
             name: Dict (
                 ja: "地底湖",
                 en: "Underground Lake",
@@ -445,7 +309,6 @@ TileRegistry(
         // これ以下はテーマ未定 ////////////////////////////////////////////////////////////////////////////////////////////////
 
         "corridor": (
-            next: ["boss"],
             name: Dict (
                 ja: "古の回廊",
                 en: "Ancient Corridor",
@@ -465,7 +328,6 @@ TileRegistry(
             brightness: 0.4
         ),
         "Cave": (
-            next: ["Home"],
             name: Dict (
                 ja: "大空洞",
                 en: "Great Cavern",
@@ -485,11 +347,50 @@ TileRegistry(
             brightness: 0.4
         ),
 
+        "Inlet": (
+            name: Dict (
+                ja: "入り江",
+                en: "Great Cavern",
+                zh_cn: "大洞穴",
+                zh_tw: "大洞穴",
+                es: "Gran Caverna",
+                fr: "Grande Caverne",
+                pt: "Grande Caverna",
+                de: "Große Höhle",
+                ko: "큰 동굴",
+                ru: "Большая пещера",
+            ),
+            default_tile: "StoneTile",
+            enemies: 0,
+            enemy_types: [],
+            bgm: "bgm/炎神の吐息.ogg",
+            brightness: 0.4
+        ),
+        "Forest": (
+            name: Dict (
+                ja: "入り江",
+                en: "Great Cavern",
+                zh_cn: "大洞穴",
+                zh_tw: "大洞穴",
+                es: "Gran Caverna",
+                fr: "Grande Caverne",
+                pt: "Grande Caverna",
+                de: "Große Höhle",
+                ko: "큰 동굴",
+                ru: "Большая пещера",
+            ),
+            default_tile: "StoneTile",
+            enemies: 0,
+            enemy_types: [],
+            bgm: "bgm/炎神の吐息.ogg",
+            brightness: 0.4
+        ),
+
+
 
         
         
         "level_3_0": (
-            next: ["level_4_0"],
             name: Dict (
                 ja: "古城",
                 en: "Ancient Castle",
@@ -509,7 +410,6 @@ TileRegistry(
             brightness: 0.4
         ),
         "level_4_0": (
-            next: ["level_5_0"],
             name: Dict (
                 ja: "スライムの巣窟",
                 en: "Slime Nest",
@@ -528,8 +428,7 @@ TileRegistry(
             bgm: "bgm/ダンジョンを踏破せし者.ogg",
             brightness: 0.4
         ),
-        "level_5_0": (
-            next: ["level_6_0"],
+        "IceCave": (
             name: Dict (
                 ja: "氷の洞窟",
                 en: "Ice Cave",
@@ -550,7 +449,6 @@ TileRegistry(
         ),
 
         "arena": (
-            next: ["Home"],
             name: Dict (
                 ja: "対決の洞窟",
                 en: "Cave of Confrontation",

@@ -11,7 +11,6 @@ use crate::controller::player::Player;
 use crate::controller::player::PlayerControlled;
 use crate::hud::overlay::OverlayEvent;
 use crate::inventory::Inventory;
-use crate::ldtk::loader::LDTK;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::TileSprite;
 use crate::level::chunk::index_to_position;
@@ -46,7 +45,6 @@ pub fn setup_game_world(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     registry: Registry,
-    ldtk_assets: Res<Assets<LDTK>>,
     mut world: ResMut<GameWorld>,
     config: Res<GameConfig>,
     mut spawn: EventWriter<SpawnEvent>,
@@ -54,7 +52,6 @@ pub fn setup_game_world(
 ) {
     // 各種変数の初期化 /////////////////////////////////////////////////////////////////////
 
-    let ldtk = ldtk_assets.get(registry.assets.ldtk_level.id()).unwrap();
     let game_registry = registry.game();
     let mut rng = StdRng::from_entropy();
 
@@ -78,7 +75,7 @@ pub fn setup_game_world(
     // 次のレベルの選定 /////////////////////////////////////////////////////////////////////
 
     let level = if player_state.discovered_spells.is_empty() {
-        GameLevel::new("Warehouse")
+        GameLevel::new("Inlet")
     } else {
         world.next_level.clone()
     };
@@ -94,7 +91,7 @@ pub fn setup_game_world(
     // 各レベルのスプライト生成には隣接するレベルのタイル情報も必要なため、
     // 隣接するレベルも含めて先に読み取ります
     // 地形のスプライトやコリジョンなどはupdate_tile_spritesで改めて生成されます
-    let center_chunk = LevelChunk::new(&registry, &ldtk, &level);
+    let center_chunk = LevelChunk::new(&registry, &level);
     world.chunks.push(center_chunk.clone());
 
     // 各レベルのエンティティを生成します
@@ -192,18 +189,6 @@ fn spawn_level_entities_and_navmesh(
 
     // エンティティ生成 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // 落ちている呪文を生成(廃止)
-    // spawn_dropped_items(&mut commands, &registry, &props.items);
-
-    // そのほかのエンティティを生成
-    for ((x, y), entity) in props.spawn.iter() {
-        let position = index_to_position((*x, *y));
-        spawn.send(SpawnEvent {
-            position: chunk_offset + position,
-            spawn: entity.clone(),
-        });
-    }
-
     // 地雷原テスト実装
     if level == GameLevel::new("minefield") {
         for y in 0..chunk.max_y {
@@ -254,12 +239,11 @@ fn spawn_neighbor_chunks(
     mut commands: Commands,
     registry: Registry,
     mut world: ResMut<GameWorld>,
-    ldtk_assets: Res<Assets<LDTK>>,
     mut spawn: EventWriter<SpawnEvent>,
     player_query: Query<&Transform, With<Player>>,
 ) {
     let mut rng = StdRng::from_entropy();
-    let ldtk = ldtk_assets.get(registry.assets.ldtk_level.id()).unwrap();
+    let ldtk = registry.ldtk();
     // 現在のチャンクを取得
     let Ok(player_transform) = player_query.get_single() else {
         return;
@@ -270,7 +254,7 @@ fn spawn_neighbor_chunks(
     };
     for neighbor in ldtk.get_neighbors(&chunk.level).iter() {
         if world.get_chunk(neighbor).is_none() {
-            let chunk = LevelChunk::new(&registry, &ldtk, neighbor);
+            let chunk = LevelChunk::new(&registry, neighbor);
             world.chunks.push(chunk.clone());
             spawn_level_entities_and_navmesh(
                 &mut commands,
@@ -293,12 +277,11 @@ fn despawn_chunks(
     mut commands: Commands,
     registry: Registry,
     mut world: ResMut<GameWorld>,
-    ldtk_assets: Res<Assets<LDTK>>,
     player_query: Query<&Transform, With<Player>>,
     actors_query: Query<(Entity, &Transform), (With<Actor>, Without<Player>)>,
     scoped_query: Query<(Entity, &LevelScoped)>,
 ) {
-    let ldtk = ldtk_assets.get(registry.assets.ldtk_level.id()).unwrap();
+    let ldtk = registry.ldtk();
     // 現在のチャンクを取得
     let Ok(player_transform) = player_query.get_single() else {
         return;
@@ -424,20 +407,23 @@ fn select_bgm(
         return;
     };
 
-    let props = registry.get_level(&chunk.level);
+    let ldtk = registry.ldtk();
+
+    let ldtk_level = ldtk.get_level(&chunk.level).unwrap();
+    let bgm = ldtk_level.get_field_as_string("bgm");
 
     if let Some(source) = &next_bgm.0 {
         let Some(path) = source.path() else {
             return;
         };
-        if path_to_string(path) == props.bgm {
+        if path_to_string(path) == bgm {
             return;
         }
-        *next_bgm = NextBGM(Some(asset_server.load(props.bgm.clone())));
-        info!("bgm changed to {:?}", props.bgm);
+        *next_bgm = NextBGM(Some(asset_server.load(bgm.clone())));
+        info!("bgm changed to {:?}", bgm);
     } else {
-        *next_bgm = NextBGM(Some(asset_server.load(props.bgm.clone())));
-        info!("bgm changed to {:?}", props.bgm);
+        *next_bgm = NextBGM(Some(asset_server.load(bgm.clone())));
+        info!("bgm changed to {:?}", bgm);
     };
 }
 

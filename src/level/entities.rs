@@ -1,3 +1,5 @@
+use super::world::GameLevel;
+use super::world::LevelScoped;
 use crate::actor::chest::chest_actor;
 use crate::actor::chest::Chest;
 use crate::actor::chest::ChestType;
@@ -26,7 +28,6 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::fireball::spawn_fireball;
 use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
-use crate::entity::magic_circle::MagicCircleDestination;
 use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
@@ -50,8 +51,12 @@ use bevy_simple_websocket::WebSocketState;
 use rand::seq::SliceRandom;
 use serde::Deserialize;
 
-use super::world::LevelScoped;
-
+/// ワールドにエンティティを生成します
+/// これは魔法などでエンティティが生成されるときに使うほか、
+/// LDtkで定義されたエンティティを生成するときにも使われます
+///
+/// LDtkでエンティティを生成するには、この列挙型のバリアントと同名のエンティティをLDtk側で定義して、
+/// 必要に応じてカスタムフィールドを設定します
 #[derive(Clone, Debug, Deserialize)]
 pub enum Spawn {
     /// 種別を指定してアクターを生成します
@@ -105,19 +110,32 @@ pub enum Spawn {
     Web {
         actor_group: ActorGroup,
     },
-    MagicCircle,
-    MagicCircleHome,
-    MultiPlayArenaMagicCircle,
-    MagicCircleDemoEnding,
+    MagicCircle {
+        destination: MagicCircleProps,
+    },
     BrokenMagicCircle,
     Usage,
     ShopSpell,
     ShopDoor,
     RandomChest,
-    Spell(Spell),
+    Spell {
+        spell: String,
+    },
     SpellInChest {
         spell: Spell,
     },
+
+    Lantern,
+    Sandbag,
+    Bookshelf,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct MagicCircleProps {
+    #[serde(rename = "entityIid")]
+    entity_iid: String,
+    #[serde(rename = "levelIid")]
+    level_iid: String,
 }
 
 /// エンティティを生成するイベントです
@@ -170,40 +188,14 @@ pub fn spawn_entity(
         }
 
         match &entity {
-            Spawn::MagicCircle => {
+            Spawn::MagicCircle { destination } => {
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
                     &level,
                     *position,
-                    MagicCircleDestination::NextLevel,
-                );
-            }
-            Spawn::MagicCircleHome => {
-                spawn_magic_circle(
-                    &mut commands,
-                    &registry,
-                    &level,
-                    *position,
-                    MagicCircleDestination::Home,
-                );
-            }
-            Spawn::MultiPlayArenaMagicCircle => {
-                spawn_magic_circle(
-                    &mut commands,
-                    &registry,
-                    &level,
-                    *position,
-                    MagicCircleDestination::MultiplayArena,
-                );
-            }
-            Spawn::MagicCircleDemoEnding => {
-                spawn_magic_circle(
-                    &mut commands,
-                    &registry,
-                    &level,
-                    *position,
-                    MagicCircleDestination::Ending,
+                    GameLevel(destination.level_iid.clone()),
+                    destination.entity_iid.as_str(),
                 );
             }
             Spawn::BrokenMagicCircle => {
@@ -325,13 +317,13 @@ pub fn spawn_entity(
                     false,
                 );
             }
-            Spawn::Spell(spell) => {
+            Spawn::Spell { spell } => {
                 spawn_dropped_item(
                     &mut commands,
                     &registry,
                     &level,
                     *position,
-                    &InventoryItem::new(spell.clone()),
+                    &InventoryItem::new(Spell(spell.clone())),
                 );
             }
             Spawn::SpellInChest { spell } => {
@@ -447,6 +439,19 @@ pub fn spawn_entity(
                     actor,
                     *player_controlled,
                 );
+            }
+
+            Spawn::Lantern => {
+                let actor = get_default_actor(&registry, &ActorType::new("Lantern"));
+                spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+            }
+            Spawn::Sandbag => {
+                let actor = get_default_actor(&registry, &ActorType::new("Sandbag"));
+                spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
+            }
+            Spawn::Bookshelf => {
+                let actor = get_default_actor(&registry, &ActorType::new("Bookshelf"));
+                spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
         }
     }

@@ -89,7 +89,8 @@ pub enum Cmd {
     Arena,
 
     Warp {
-        level: GameLevel,
+        destination_level: GameLevel,
+        destination_iid: String,
     },
 
     SetTile {
@@ -380,8 +381,12 @@ fn interpret(
             writer.send(OverlayEvent::Close(GameState::Warp));
             interpreter.index += 1;
         }
-        Cmd::Warp { level: l } => {
-            level.next_level = l;
+        Cmd::Warp {
+            destination_level,
+            destination_iid,
+        } => {
+            level.next_level = destination_level;
+            level.destination_iid = Some(destination_iid);
             writer.send(OverlayEvent::Close(GameState::Warp));
             interpreter.index += 1;
         }

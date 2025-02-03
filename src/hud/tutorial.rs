@@ -52,10 +52,10 @@ pub fn update(
 
     let level = &chunk.level;
 
-    if *level != GameLevel::new("Warehouse") {
+    if *level != GameLevel::new("Inlet") {
         text.0 = Dict::empty();
     } else if 3 <= player.broken_chests {
-        text.0 = props.tutorial_magic_circle.clone();
+        text.0 = Dict::empty();
     } else if actor.contains_in_slot(&Spell::new("MagicBolt"))
         && *menu_state == GameMenuState::Closed
     {

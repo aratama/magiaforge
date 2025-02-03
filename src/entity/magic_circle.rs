@@ -25,27 +25,19 @@ use bevy_rapier2d::prelude::ActiveEvents;
 use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::QueryFilter;
 use bevy_rapier2d::prelude::Sensor;
-use rand::seq::SliceRandom;
 
 const MAX_POWER: i32 = 360;
 const MIN_RADIUS_ON: f32 = 100.0;
 const MIN_INTENSITY_ON: f32 = 1.0;
 const MIN_FALLOFF_ON: f32 = 10.0;
 
-#[derive(Debug, Clone, Copy)]
-pub enum MagicCircleDestination {
-    NextLevel,
-    Home,
-    MultiplayArena,
-    Ending,
-}
-
 #[derive(Component)]
 pub struct MagicCircle {
     active: bool,
     step: i32,
     light: Entity,
-    destination: MagicCircleDestination,
+    destination_level: GameLevel,
+    destination_iid: String,
 }
 
 #[derive(Component)]
@@ -59,7 +51,8 @@ pub fn spawn_magic_circle(
     registry: &Registry,
     level: &GameLevel,
     position: Vec2,
-    destination: MagicCircleDestination,
+    destination_level: GameLevel,
+    destination_iid: &str,
 ) {
     let light_entity = commands.spawn_empty().id();
 
@@ -72,7 +65,8 @@ pub fn spawn_magic_circle(
                 active: false,
                 step: 0,
                 light: light_entity,
-                destination,
+                destination_level,
+                destination_iid: destination_iid.to_string(),
             },
             Transform::from_translation(position.extend(PAINT_LAYER_Z)),
             Sprite {
@@ -161,25 +155,15 @@ fn power_on_circle(
 
 fn warp(
     mut commands: Commands,
-    registry: Registry,
-    mut player_query: Query<(Entity, &Player, &Actor, &Transform), With<Witch>>,
+    mut player_query: Query<(Entity, &Player, &Actor), With<Witch>>,
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut level: ResMut<GameWorld>,
     mut writer: EventWriter<SEEvent>,
     mut interpreter: EventWriter<InterpreterEvent>,
 ) {
-    let Ok((entity, player, actor, player_transform)) = player_query.get_single_mut() else {
+    let Ok((entity, player, actor)) = player_query.get_single_mut() else {
         return;
     };
-
-    let player_position = player_transform.translation.truncate();
-
-    let Some(current) = &level.find_chunk_by_position(player_position) else {
-        return;
-    };
-    let props = registry.get_level(&current.level);
-
-    let mut rand = &mut rand::thread_rng();
 
     for (mut circle, transform) in circle_query.iter_mut() {
         if circle.step == MAX_POWER {
@@ -189,33 +173,15 @@ fn warp(
             circle.step = 0;
             let player_state = PlayerState::from_player(&player, &actor);
             level.next_state = Some(player_state);
-            match circle.destination {
-                MagicCircleDestination::NextLevel => {
-                    interpreter.send(InterpreterEvent::Play {
-                        commands: vec![
-                            Cmd::Wait { count: 60 },
-                            Cmd::Warp {
-                                level: props.next.choose(&mut rand).unwrap().clone(),
-                            },
-                        ],
-                    });
-                }
-                MagicCircleDestination::Home => {
-                    interpreter.send(InterpreterEvent::Play {
-                        commands: vec![Cmd::Wait { count: 60 }, Cmd::Home],
-                    });
-                }
-                MagicCircleDestination::MultiplayArena => {
-                    interpreter.send(InterpreterEvent::Play {
-                        commands: vec![Cmd::Wait { count: 60 }, Cmd::Arena],
-                    });
-                }
-                MagicCircleDestination::Ending => {
-                    interpreter.send(InterpreterEvent::Play {
-                        commands: vec![Cmd::Wait { count: 60 }, Cmd::Ending],
-                    });
-                }
-            }
+            interpreter.send(InterpreterEvent::Play {
+                commands: vec![
+                    Cmd::Wait { count: 60 },
+                    Cmd::Warp {
+                        destination_level: circle.destination_level.clone(),
+                        destination_iid: circle.destination_iid.clone(),
+                    },
+                ],
+            });
         }
     }
 }

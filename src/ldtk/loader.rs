@@ -75,13 +75,40 @@ impl LDTK {
             })
             .collect()
     }
+
+    pub fn find_entity_by_id(&self, entity_iid: &str) -> Option<(String, EntityInstance)> {
+        for level in self.coordinate.levels.iter() {
+            for layer in level.layer_instances.as_ref().unwrap_or(&vec![]).iter() {
+                for entity in layer.entity_instances.iter() {
+                    if entity.iid == entity_iid {
+                        return Some((level.identifier.clone(), entity.clone()));
+                    }
+                }
+            }
+        }
+        None
+    }
 }
 
 impl Level {
+    pub fn get_field_as_string(&self, field_name: &str) -> String {
+        self.field_instances
+            .iter()
+            .find(|f| f.identifier == field_name)
+            .as_ref()
+            .expect(format!("Field {:?} not found", field_name).as_str())
+            .value
+            .as_ref()
+            .expect(format!("Field {:?} not found", field_name).as_str())
+            .as_str()
+            .expect("Error occurred in as_str")
+            .to_string()
+    }
+
     pub fn get_layer(&self, layer_name: &str) -> Option<&LayerInstance> {
         self.layer_instances
             .as_ref()
-            .unwrap()
+            .expect(format!("Error occurred in get_layer for {:?}", layer_name).as_str())
             .iter()
             .find(|l| l.identifier == layer_name)
     }
@@ -109,6 +136,24 @@ impl EntityInstance {
             .unwrap()
             .as_str()
             .unwrap()
+            .to_string()
+    }
+
+    pub fn get_value_as_entity_ref(&self, identifier: &str) -> String {
+        self.field_instances
+            .iter()
+            .find(|f| f.identifier == identifier)
+            .as_ref()
+            .expect(format!("{:?} not found", identifier).as_str())
+            .value
+            .as_ref()
+            .expect(format!("{:?} is not a value", identifier).as_str())
+            .as_object()
+            .expect(format!("{:?} is not a object", identifier).as_str())
+            .get("entityIid")
+            .expect(format!("entityIid not found for {:?}", identifier).as_str())
+            .as_str()
+            .expect(format!("{:?} is not a string", identifier).as_str())
             .to_string()
     }
 }

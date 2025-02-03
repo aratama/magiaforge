@@ -4,6 +4,7 @@ use crate::asset::GameAssets;
 use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
+use crate::ldtk::loader::LDTK;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::level::world::GameLevel;
@@ -32,7 +33,6 @@ pub struct GameRegistry {
     pub tutorial_slot: Dict<String>,
     pub tutorial_close_inventory: Dict<String>,
     pub tutorial_cast: Dict<String>,
-    pub tutorial_magic_circle: Dict<String>,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
@@ -116,17 +116,10 @@ pub struct SpellRegistry {
 
 #[derive(serde::Deserialize)]
 pub struct LevelProps {
-    pub next: Vec<GameLevel>,
     pub name: Dict<String>,
     pub enemies: u8,
     pub enemy_types: Vec<ActorType>,
-
-    #[serde(default)]
-    pub spawn: HashMap<(i32, i32), Spawn>,
-
-    pub bgm: String,
     pub brightness: f32,
-
     pub default_tile: Tile,
 }
 
@@ -315,6 +308,8 @@ pub struct SenarioRegistry {
 #[derive(SystemParam)]
 pub struct Registry<'w> {
     pub assets: Res<'w, GameAssets>,
+    ldtk_assets: Res<'w, Assets<LDTK>>,
+
     game: Res<'w, Assets<GameRegistry>>,
     tile: Res<'w, Assets<TileRegistry>>,
     spell: Res<'w, Assets<SpellRegistry>>,
@@ -324,6 +319,10 @@ pub struct Registry<'w> {
 }
 
 impl<'w> Registry<'w> {
+    pub fn ldtk(&self) -> &LDTK {
+        self.ldtk_assets.get(self.assets.ldtk_level.id()).unwrap()
+    }
+
     pub fn game(&self) -> &GameRegistry {
         self.game.get(&self.assets.game_registry).unwrap()
     }
@@ -384,14 +383,22 @@ impl<'w> Registry<'w> {
 
     pub fn get_level(&self, GameLevel(level): &GameLevel) -> &LevelProps {
         let constants: &TileRegistry = self.tile.get(&self.assets.tile_registry).unwrap();
-        constants.levels.get(level).expect(
-            &format!(
+        let Some(level) = constants.levels.get(level) else {
+            warn!(
                 "Level {:?} not found in {:?}",
                 level,
                 constants.levels.keys()
-            )
-            .as_str(),
-        )
+            );
+            static DEFAULT_PROPS: LazyLock<LevelProps> = LazyLock::new(|| LevelProps {
+                name: Dict::empty(),
+                enemies: 0,
+                enemy_types: vec![],
+                brightness: 1.0,
+                default_tile: Tile::new("StoneTile"),
+            });
+            return &DEFAULT_PROPS;
+        };
+        level
     }
 
     pub fn get_bgm(&self, handle: &Handle<AudioSource>) -> &BGMProps {

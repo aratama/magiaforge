@@ -1,17 +1,13 @@
-use crate::actor::ActorType;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
-use crate::language::Dict;
-use crate::ldtk::loader::LDTK;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::level::world::GameLevel;
 use crate::registry::Registry;
 use crate::registry::SpawnEntityProps;
 use crate::registry::TileType;
-use crate::spell::Spell;
 use bevy::prelude::*;
-use bevy::scene::ron;
+use serde_json::from_value;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
@@ -19,6 +15,7 @@ use std::sync::LazyLock;
 pub struct LevelChunk {
     pub level: GameLevel,
     pub tiles: Vec<Tile>,
+    pub spawing_tiles: Vec<(i32, i32)>,
     pub entities: HashMap<(i32, i32), SpawnEntityProps>,
     pub min_x: i32,
     pub min_y: i32,
@@ -37,8 +34,11 @@ impl LevelChunk {
     /// このいずれにも当てはまらなかったエンティティは警告とともに無視されます。
     /// レベルの番号を指定して、画像データからレベル情報を取得します
     /// このとき、該当するレベルの複数のスライスからランダムにひとつが選択されます、
-    pub fn new(registry: &Registry, ldtk: &LDTK, level: &GameLevel) -> Self {
-        let ldtk_level = ldtk.get_level(&level).unwrap();
+    pub fn new(registry: &Registry, level: &GameLevel) -> Self {
+        let ldtk = registry.ldtk();
+        let Some(ldtk_level) = ldtk.get_level(&level) else {
+            panic!("Level not found: {:?}", level);
+        };
 
         let min_x = (ldtk_level.world_x / ldtk.coordinate.default_grid_size) as i32;
         let max_x =
@@ -75,93 +75,48 @@ impl LevelChunk {
         for entity in entity_layer.entity_instances.iter() {
             let key = (entity.grid[0] as i32, entity.grid[1] as i32);
 
-            match entity.identifier.as_str() {
-                "Spell" => {
-                    let spell_name = entity.get_value_as_str("spell");
-                    entities.insert(
-                        key,
-                        SpawnEntityProps {
-                            entity: Spawn::Spell(Spell::new(spell_name.clone())),
-                            spawn_offset_x: 0.0,
-                        },
-                    );
+            let encoded = if entity.field_instances.is_empty() {
+                serde_json::Value::String(entity.identifier.clone())
+            } else {
+                let mut field_map = serde_json::Map::new();
+
+                field_map.insert("iid".to_string(), entity.iid.clone().into());
+
+                for field in entity.field_instances.iter() {
+                    let value = field.value.as_ref().unwrap_or(&serde_json::Value::Null);
+                    field_map.insert(field.identifier.clone(), value.clone());
                 }
-                "Rabbit" => {
-                    entities.insert(
-                        key,
-                        SpawnEntityProps {
-                            entity: Spawn::Rabbit {
-                                aseprite: entity.get_value_as_str("aseprite"),
-                                senario: entity.get_value_as_str("senario"),
-                            },
-                            spawn_offset_x: 0.0,
-                        },
-                    );
+
+                let mut external = serde_json::Map::new();
+                external.insert(
+                    entity.identifier.clone(),
+                    serde_json::Value::Object(field_map),
+                );
+
+                serde_json::Value::Object(external.clone())
+            };
+
+            let spawn = match from_value(encoded.clone()) {
+                Ok(spawn) => spawn,
+                Err(_) => {
+                    warn!("Failed to parse entity: {:?}", &encoded);
+                    continue;
                 }
-                "Boss" => {
-                    let actor_name = entity.get_value_as_str("actor");
-                    entities.insert(
-                        key,
-                        SpawnEntityProps {
-                            entity: Spawn::Boss {
-                                actor_type: ActorType::new(actor_name.as_str()),
-                                // todo 名前やシナリオは外部ファイルで指定できるようにする
-                                name: Dict {
-                                    ja: "スライムの王 エミルス",
-                                    en: "Slime King Emils",
-                                    zh_cn: "史莱姆之王 艾米尔斯",
-                                    zh_tw: "史萊姆之王 艾米爾斯",
-                                    es: "Rey Slime Emils",
-                                    fr: "Roi Slime Emils",
-                                    pt: "Rei Slime Emils",
-                                    de: "Schleimkönig Emils",
-                                    ko: "슬라임 왕 에밀스",
-                                    ru: "Король слизней Эмильс",
-                                }
-                                .to_string(),
-                                on_despawn: "HugeSlime".to_string(),
-                            },
-                            spawn_offset_x: 0.0,
-                        },
-                    );
-                }
-                _ => match ron::de::from_str::<Spawn>(&entity.identifier) {
-                    Ok(spawn) => {
-                        entities.insert(
-                            key,
-                            SpawnEntityProps {
-                                entity: spawn,
-                                spawn_offset_x: 0.0,
-                            },
-                        );
-                    }
-                    Err(_) => {
-                        match registry.actor().actors.get(&entity.identifier) {
-                            Some(_) => {
-                                entities.insert(
-                                    key,
-                                    SpawnEntityProps {
-                                        entity: Spawn::Actor(ActorType::new(&entity.identifier)),
-                                        spawn_offset_x: if entity.identifier == "Bookshelf" {
-                                            8.0
-                                        } else {
-                                            0.0
-                                        },
-                                    },
-                                );
-                            }
-                            None => {
-                                warn!("Unknown entity: {:?}", entity.identifier);
-                            }
-                        };
-                    }
+            };
+
+            entities.insert(
+                key,
+                SpawnEntityProps {
+                    entity: spawn,
+                    spawn_offset_x: 0.0,
                 },
-            }
+            );
         }
 
         return Self {
             level: level.clone(),
             tiles,
+            spawing_tiles: vec![],
             entities,
             min_x,
             max_x,
@@ -195,8 +150,7 @@ impl LevelChunk {
     }
 
     pub fn get_tile_by_coords(&self, p: Vec2) -> &Tile {
-        let x = (p.x / TILE_SIZE as f32).trunc() as i32;
-        let y = (-p.y / TILE_SIZE as f32).trunc() as i32;
+        let (x, y) = position_to_index(p);
         self.get_tile(x, y)
     }
 
@@ -246,7 +200,7 @@ impl LevelChunk {
         self.entities
             .iter()
             .filter(|(_, v)| match v.entity {
-                Spawn::BrokenMagicCircle => true,
+                Spawn::BrokenMagicCircle { .. } => true,
                 _ => false,
             })
             .map(|(k, _)| self.offset() + index_to_position(*k))
@@ -310,6 +264,6 @@ pub fn index_to_position((tx, ty): (i32, i32)) -> Vec2 {
 pub fn position_to_index(position: Vec2) -> (i32, i32) {
     (
         (position.x / TILE_SIZE).floor() as i32,
-        (position.y / -TILE_SIZE).floor() as i32,
+        (-position.y / TILE_SIZE).floor() as i32,
     )
 }

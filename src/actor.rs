@@ -44,6 +44,7 @@ use crate::interpreter::Cmd;
 use crate::interpreter::InterpreterEvent;
 use crate::interpreter::Value;
 use crate::inventory::Inventory;
+use crate::level::chunk::position_to_index;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;

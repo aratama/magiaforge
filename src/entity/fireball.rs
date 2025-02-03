@@ -96,23 +96,13 @@ fn spawn_fire_on_landed(
     }
 }
 
-fn apply_v(
-    mut query: Query<(&Parent, &mut Transform), With<FireballSprite>>,
-    parent_query: Query<&Actor, With<Fireball>>,
-) {
-    for (parent, mut transform) in query.iter_mut() {
-        let vertical = parent_query.get(parent.get()).unwrap();
-        transform.translation.y = vertical.v;
-    }
-}
-
 pub struct FireballPlugin;
 
 impl Plugin for FireballPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (spawn_fire_on_landed, apply_v).in_set(FixedUpdateGameActiveSet),
+            (spawn_fire_on_landed).in_set(FixedUpdateGameActiveSet),
         );
         app.register_type::<Fireball>();
     }

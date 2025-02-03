@@ -30,6 +30,8 @@ pub struct GameWorld {
     /// 魔法陣から転移するとこのレベルに移動します
     pub next_level: GameLevel,
 
+    pub destination_iid: Option<String>,
+
     /// 次のプレイヤー状態
     /// 魔法陣から転移したとき、この状態でプレイヤーを初期化します
     pub next_state: Option<PlayerState>,
@@ -44,6 +46,7 @@ impl Default for GameWorld {
         GameWorld {
             chunks: Vec::new(),
             next_level: GameLevel::new(HOME_LEVEL),
+            destination_iid: None,
             next_state: None,
             shop_items: Vec::new(),
         }

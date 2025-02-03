@@ -70,6 +70,11 @@ GameRegistry(
             title: "",
             appendix: ""
         ),
+        "bgm/海岸4.ogg": (
+            author: "",
+            title: "",
+            appendix: ""
+        ),
         // 拠点        
         "bgm/最果てのルージュ.ogg": (
             author: "のる",
@@ -215,17 +220,5 @@ GameRegistry(
         de: "Zauber mit Mausklick wirken",
         ko: "마우스 클릭으로 주문 시전",
         ru: "Кастуйте заклинания щелчком мыши",
-    ),
-    tutorial_magic_circle: (
-        ja: "魔法陣の上に乗ると転送開始",
-        en: "Stand on the magic circle to start teleporting",
-        zh_cn: "站在魔法阵上开始传送",
-        zh_tw: "站在魔法陣上開始傳送",
-        es: "Párate en el círculo mágico para comenzar a teletransportarte",
-        fr: "Tenez-vous sur le cercle magique pour commencer la téléportation",
-        pt: "Fique no círculo mágico para começar a teletransportar",
-        de: "Stellen Sie sich auf den magischen Kreis, um mit der Teleportation zu beginnen",
-        ko: "마법진 위에 서서 텔레포트를 시작하세요",
-        ru: "Встаньте на магический круг, чтобы начать телепортацию",
     )
 )
