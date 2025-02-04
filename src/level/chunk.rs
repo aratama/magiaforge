@@ -15,7 +15,7 @@ use std::sync::LazyLock;
 pub struct LevelChunk {
     pub level: GameLevel,
     pub tiles: Vec<Tile>,
-    pub spawing_tiles: Vec<(i32, i32)>,
+    pub loading_index: usize,
     pub entities: HashMap<(i32, i32), SpawnEntityProps>,
     pub min_x: i32,
     pub min_y: i32,
@@ -116,13 +116,13 @@ impl LevelChunk {
         return Self {
             level: level.clone(),
             tiles,
-            spawing_tiles: vec![],
+            loading_index: 0,
             entities,
             min_x,
             max_x,
             min_y,
             max_y,
-            dirty: Some((min_x, min_y, max_x, max_y)),
+            dirty: None,
         };
     }
 

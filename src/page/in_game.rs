@@ -326,6 +326,11 @@ fn despawn_chunks(
     world.chunks.retain(|c| chunk_to_remove != c.level);
 }
 
+/// チャンクの読み込み・更新には次の二種類があります
+/// ・loading_index による順次読み込みの場合。これはレベル全体にわたる広範囲であり、処理に時間がかかるので、各フレームで分割して行う
+/// ・爆弾の爆発の範囲などを dirty フラグで更新する場合。これは通常狭い範囲であり、画面内に収まっていることも多いので、瞬時にすべて更新する
+/// loading_index による順次読み込みの最中に dirty フラグが設定された場合、二重生成を避けるため、チャンクすべての再生成を瞬時に行います。
+/// これが発生するケースは希です
 fn update_tile_sprites(
     mut current: ResMut<GameWorld>,
     registry: Registry,
@@ -333,60 +338,123 @@ fn update_tile_sprites(
     tiles_query: Query<(Entity, &TileSprite)>,
     collider_query: Query<(Entity, &LevelScoped), With<WallCollider>>,
 ) {
-    let mut dirty_bounds = HashMap::new();
+    // チャンクごとに更新すべきインデックス列を保持
+    let mut tile_spawning_indices: HashMap<String, Vec<(i32, i32)>> = HashMap::new();
 
+    // ハッシュマップにチャンクごとVecを生成
     for chunk in &mut current.chunks {
-        // 範囲内を更新
-        let Some((left, top, right, bottom)) = &chunk.dirty.clone() else {
-            continue;
-        };
-
-        // ダーティーフラグをクリア
-        chunk.dirty = None;
-
-        let props = registry.get_level(&chunk.level);
-
-        // 縦２タイルのみ孤立して残っているものがあれば削除
-        chunk.remove_isolated_tiles(&registry, &props.default_tile);
-
-        let min_x = (left - 1).max(chunk.min_x);
-        let max_x = (right + 1).min(chunk.max_x);
-        let min_y = (top - 1).max(chunk.min_y);
-        let max_y = (bottom + 3).min(chunk.max_y); // 縦方向のみ広めに更新することに注意
-
-        dirty_bounds.insert(chunk.level.0.clone(), (min_x, min_y, max_x, max_y));
+        tile_spawning_indices.insert(chunk.level.0.clone(), Vec::new());
     }
 
-    for (chunk_identifier, (min_x, min_y, max_x, max_y)) in dirty_bounds.iter() {
+    // コリジョンの再生成
+
+    for chunk in &mut current.chunks {
+        // コリジョンの再生成
+        // dirty フラグが設定されている場合は常に再生成します
+        if chunk.dirty.is_some() || chunk.loading_index == 0 {
+            // 既存のコリジョンを削除
+            for (entity, scope) in collider_query.iter() {
+                if scope.0 == chunk.level {
+                    commands.entity(entity).despawn_recursive();
+                }
+            }
+
+            // コリジョンを再生成
+            spawn_wall_collisions(&mut commands, chunk);
+        }
+
+        let indiceis_to_spawn = tile_spawning_indices.get_mut(&chunk.level.0).unwrap();
+
+        // loading_index による読み込みの途中で、dirty フラグも設定されている場合
+        // チャンクすべてを同時更新
+        if chunk.loading_index < chunk.tiles.len() && chunk.dirty.is_some() {
+            warn!("dirty flag and loading index are set at the same time");
+
+            // すべての範囲のスプライトをいったんすべて削除
+            clear_tiles_by_bounds(
+                &mut commands,
+                &tiles_query,
+                chunk.min_x,
+                chunk.min_y,
+                chunk.max_x,
+                chunk.max_y,
+            );
+
+            // すべてのスプライトの生成を予約
+
+            for y in chunk.min_y..chunk.max_y {
+                for x in chunk.min_x..chunk.max_x {
+                    indiceis_to_spawn.push((x, y));
+                }
+            }
+
+            // dirtyフラグをクリア
+            chunk.dirty = None;
+            chunk.loading_index = chunk.tiles.len();
+        } else if let Some((left, top, right, bottom)) = &chunk.dirty.clone() {
+            // dirty の範囲内を瞬時に更新
+            // ダーティーフラグをクリア
+
+            let props = registry.get_level(&chunk.level);
+
+            // 縦２タイルのみ孤立して残っているものがあれば削除
+            chunk.remove_isolated_tiles(&registry, &props.default_tile);
+
+            let min_x = (left - 1).max(chunk.min_x);
+            let max_x = (right + 1).min(chunk.max_x);
+            let min_y = (top - 1).max(chunk.min_y);
+            let max_y = (bottom + 3).min(chunk.max_y); // 縦方向のみ広めに更新することに注意
+
+            for y in min_y..max_y {
+                for x in min_x..max_x {
+                    indiceis_to_spawn.push((x, y));
+                }
+            }
+
+            chunk.dirty = None;
+        } else {
+            // loading_index の続きを一部更新
+            for _ in 0..50 {
+                if chunk.tiles.len() <= chunk.loading_index {
+                    break;
+                }
+                let w = chunk.max_x - chunk.min_x;
+                let x = chunk.loading_index as i32 % w;
+                let y = chunk.loading_index as i32 / w;
+                indiceis_to_spawn.push((chunk.min_x + x as i32, chunk.min_y + y as i32));
+
+                chunk.loading_index += 1;
+            }
+        }
+    }
+
+    // 予約されたインデックスに応じてスプライトを生成
+    for (chunk_identifier, indices) in tile_spawning_indices.iter() {
         let chunk = current
             .chunks
             .iter()
             .find(|c| c.level.0 == *chunk_identifier)
             .unwrap();
 
-        // dirty の範囲のスプライトをいったんすべて削除
-        for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
-            if *min_x <= *tx && *tx <= *max_x && *min_y <= *ty && *ty <= *max_y {
-                commands.entity(entity).despawn_recursive();
-            }
-        }
-
         // スプライトを再生成
-        for y in *min_y..(*max_y + 1) {
-            for x in *min_x..(*max_x + 1) {
-                spawn_world_tile(&mut commands, &registry, &current, &chunk, x, y);
-            }
+        for (x, y) in indices.iter() {
+            spawn_world_tile(&mut commands, &registry, &current, &chunk, *x, *y);
         }
+    }
+}
 
-        // 既存のコリジョンを削除
-        for (entity, scope) in collider_query.iter() {
-            if scope.0 == chunk.level {
-                commands.entity(entity).despawn_recursive();
-            }
+fn clear_tiles_by_bounds(
+    commands: &mut Commands,
+    tiles_query: &Query<(Entity, &TileSprite)>,
+    min_x: i32,
+    min_y: i32,
+    max_x: i32,
+    max_y: i32,
+) {
+    for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
+        if min_x <= *tx && *tx <= max_x && min_y <= *ty && *ty <= max_y {
+            commands.entity(entity).despawn_recursive();
         }
-
-        // コリジョンを再生成
-        spawn_wall_collisions(&mut commands, chunk);
     }
 }
 
