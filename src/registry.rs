@@ -4,6 +4,7 @@ use crate::asset::GameAssets;
 use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
+use crate::ldtk::loader::LevelCustomFields;
 use crate::ldtk::loader::LDTK;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
@@ -18,6 +19,7 @@ use bevy::audio::AudioSource;
 use bevy::ecs::system::SystemParam;
 use bevy::log::warn;
 use bevy::prelude::Res;
+use serde_json::from_value;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
@@ -38,12 +40,6 @@ pub struct GameRegistry {
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct TileRegistry {
     pub tile_types: HashMap<String, TileTypeProps>,
-
-    /// 各レベル共通で使われるエンティティは、色が割り当てられてentityレイヤーをもとに生成します
-    // pub color_to_entity_mapping: HashMap<String, SpawnEntityProps>,
-
-    /// 各レベル固有の呪文生成などは、LevelPropsのitemsに記述します
-    pub levels: HashMap<String, LevelProps>,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -112,15 +108,6 @@ pub struct BGMProps {
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
 pub struct SpellRegistry {
     pub spells: HashMap<String, SpellProps>,
-}
-
-#[derive(serde::Deserialize)]
-pub struct LevelProps {
-    pub name: Dict<String>,
-    pub enemies: u8,
-    pub enemy_types: Vec<ActorType>,
-    pub brightness: f32,
-    pub default_tile: Tile,
 }
 
 #[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
@@ -381,24 +368,19 @@ impl<'w> Registry<'w> {
         self.spell().spells.keys().map(|k| Spell::new(k)).collect()
     }
 
-    pub fn get_level(&self, GameLevel(level): &GameLevel) -> &LevelProps {
-        let constants: &TileRegistry = self.tile.get(&self.assets.tile_registry).unwrap();
-        let Some(level) = constants.levels.get(level) else {
-            warn!(
-                "Level {:?} not found in {:?}",
-                level,
-                constants.levels.keys()
-            );
-            static DEFAULT_PROPS: LazyLock<LevelProps> = LazyLock::new(|| LevelProps {
-                name: Dict::empty(),
-                enemies: 0,
-                enemy_types: vec![],
-                brightness: 1.0,
-                default_tile: Tile::new("StoneTile"),
-            });
-            return &DEFAULT_PROPS;
+    pub fn get_level(&self, level: &GameLevel) -> LevelCustomFields {
+        let ldtk = self.ldtk();
+        let Some(level) = ldtk.get_level(level) else {
+            warn!("Level {:?} not found", level);
+            return LevelCustomFields::default();
         };
-        level
+        let map = serde_json::Map::from_iter(level.field_instances.iter().map(|v| {
+            (
+                v.identifier.clone(),
+                v.value.as_ref().unwrap_or(&serde_json::Value::Null).clone(),
+            )
+        }));
+        from_value(serde_json::Value::Object(map)).expect("Error occurred in get_level")
     }
 
     pub fn get_bgm(&self, handle: &Handle<AudioSource>) -> &BGMProps {

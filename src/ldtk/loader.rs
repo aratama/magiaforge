@@ -1,5 +1,5 @@
 use super::generated::{EntityInstance, LayerDefinition, LayerInstance, Level};
-use crate::level::world::GameLevel;
+use crate::{actor::ActorType, language::Dict, level::world::GameLevel};
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt},
     prelude::*,
@@ -92,6 +92,7 @@ impl LDTK {
 }
 
 impl Level {
+    #[allow(dead_code)]
     pub fn get_field_as_string(&self, field_name: &str) -> String {
         self.field_instances
             .iter()
@@ -193,5 +194,44 @@ impl AssetLoader for RawLDTKLoader {
     }
     fn extensions(&self) -> &[&str] {
         &["ldtk"]
+    }
+}
+
+#[derive(serde::Deserialize, Default)]
+pub struct LevelCustomFields {
+    pub bgm: String,
+    pub ja: String,
+    pub en: String,
+    pub zh_cn: String,
+    pub zh_tw: String,
+    pub es: String,
+    pub fr: String,
+    pub pt: String,
+    pub de: String,
+    pub ko: String,
+    pub ru: String,
+    pub enemies: u8,
+    pub enemy_types: Vec<String>,
+    pub brightness: f32,
+}
+
+impl LevelCustomFields {
+    pub fn get_name(&self) -> Dict<String> {
+        Dict {
+            ja: self.ja.clone(),
+            en: self.en.clone(),
+            zh_cn: self.zh_cn.clone(),
+            zh_tw: self.zh_tw.clone(),
+            es: self.es.clone(),
+            fr: self.fr.clone(),
+            pt: self.pt.clone(),
+            de: self.de.clone(),
+            ko: self.ko.clone(),
+            ru: self.ru.clone(),
+        }
+    }
+
+    pub fn get_enemy_types(&self) -> Vec<ActorType> {
+        self.enemy_types.iter().map(|t| ActorType::new(t)).collect()
     }
 }

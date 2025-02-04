@@ -8,7 +8,6 @@ use crate::entity::fire::Fire;
 use crate::level::chunk::index_to_position;
 use crate::level::tile::Tile;
 use crate::level::world::GameWorld;
-use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BAKUHATSU;
 use crate::set::FixedUpdateGameActiveSet;
@@ -35,7 +34,6 @@ pub struct SpawnExplosion {
 
 fn spawn_explosion(
     mut commands: Commands,
-    registry: Registry,
     assets: Res<GameAssets>,
     mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnExplosion>,
@@ -132,16 +130,11 @@ fn spawn_explosion(
                 let x = (position.x / TILE_SIZE) as i32 + dx;
                 let y = (position.y / -TILE_SIZE) as i32 + dy;
 
-                let Some(chunk) = level.find_chunk_by_index(x, y) else {
-                    continue;
-                };
-                let props = registry.get_level(&chunk.level);
-
                 let distance = index_to_position((x, y)).distance(*position);
                 if distance < TILE_SIZE * 5.0 {
                     match level.get_tile(x, y).0.as_str() {
                         "Wall" => {
-                            level.set_tile(x, y, props.default_tile.clone());
+                            level.set_tile(x, y, Tile::default());
                         }
                         "Ice" => {
                             level.set_tile(x, y, Tile::new("Water"));

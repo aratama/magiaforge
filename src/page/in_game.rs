@@ -212,7 +212,7 @@ fn spawn_level_entities_and_navmesh(
 
     // 空いた空間に敵モブキャラクターをランダムに生成します
     let spaw_enemy_count = props.enemies;
-    let spaw_enemy_types = props.enemy_types.clone();
+    let spaw_enemy_types = props.get_enemy_types();
     spawn_random_enemies(
         &empties,
         &mut rng,
@@ -395,10 +395,8 @@ fn update_tile_sprites(
             // dirty の範囲内を瞬時に更新
             // ダーティーフラグをクリア
 
-            let props = registry.get_level(&chunk.level);
-
             // 縦２タイルのみ孤立して残っているものがあれば削除
-            chunk.remove_isolated_tiles(&registry, &props.default_tile);
+            chunk.remove_isolated_tiles(&registry, &Tile::default());
 
             let min_x = (left - 1).max(chunk.min_x);
             let max_x = (right + 1).min(chunk.max_x);
@@ -475,23 +473,20 @@ fn select_bgm(
         return;
     };
 
-    let ldtk = registry.ldtk();
-
-    let ldtk_level = ldtk.get_level(&chunk.level).unwrap();
-    let bgm = ldtk_level.get_field_as_string("bgm");
+    let level_props = registry.get_level(&chunk.level);
 
     if let Some(source) = &next_bgm.0 {
         let Some(path) = source.path() else {
             return;
         };
-        if path_to_string(path) == bgm {
+        if path_to_string(path) == level_props.bgm {
             return;
         }
-        *next_bgm = NextBGM(Some(asset_server.load(bgm.clone())));
-        info!("bgm changed to {:?}", bgm);
+        *next_bgm = NextBGM(Some(asset_server.load(level_props.bgm.clone())));
+        info!("bgm changed to {:?}", level_props.bgm);
     } else {
-        *next_bgm = NextBGM(Some(asset_server.load(bgm.clone())));
-        info!("bgm changed to {:?}", bgm);
+        *next_bgm = NextBGM(Some(asset_server.load(level_props.bgm.clone())));
+        info!("bgm changed to {:?}", level_props.bgm);
     };
 }
 

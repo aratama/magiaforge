@@ -276,7 +276,7 @@ fn update_level_name_in_hud(
     let level_props = registry.get_level(&chunk.level);
 
     let mut level_name = level_name_query.single_mut();
-    level_name.0 = level_props.name.clone();
+    level_name.0 = level_props.get_name();
 }
 
 pub struct HudPlugin;
