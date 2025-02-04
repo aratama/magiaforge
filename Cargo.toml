@@ -35,11 +35,13 @@ opening = []
 default = ["debug_command"]
 
 [dependencies]
-aseprite-loader = "0.3.3"
-bevy_aseprite_ultra = "0.4.1"
-bevy_asset_loader = "0.22.0"
-bevy_common_assets = { version = "0.12.0", features = ["ron"] }
 bevy_egui = "0.32.0"
+aseprite-loader = "0.3.3"
+bevy_asset_loader = { version = "0.22.0", features = [
+    "standard_dynamic_assets",
+] }
+bevy_common_assets = { version = "0.12.0", features = ["ron"] }
+bevy_aseprite_ultra = "0.4.1"
 bevy_embedded_assets = "0.12.0"
 bevy_light_2d = "0.5.0"
 bevy_pkv = "0.12.0"

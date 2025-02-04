@@ -299,6 +299,7 @@ pub fn run_game() {
         .add_sub_state::<TimeState>()
         .add_loading_state(
             LoadingState::new(GameState::Setup)
+                .with_dynamic_assets_file::<StandardDynamicAssetCollection>("dynamic.assets.ron")
                 .continue_to_state(
                     // Setupステートでの初期化が完了した直後に遷移する先のステート
                     if cfg!(feature = "ingame") {

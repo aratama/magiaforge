@@ -76,6 +76,7 @@ impl LDTK {
             .collect()
     }
 
+    #[allow(dead_code)]
     pub fn find_entity_by_id(&self, entity_iid: &str) -> Option<(String, EntityInstance)> {
         for level in self.coordinate.levels.iter() {
             for layer in level.layer_instances.as_ref().unwrap_or(&vec![]).iter() {
@@ -125,6 +126,7 @@ impl Level {
 }
 
 impl EntityInstance {
+    #[allow(dead_code)]
     pub fn get_value_as_str(&self, identifier: &str) -> String {
         self.field_instances
             .iter()
@@ -139,6 +141,7 @@ impl EntityInstance {
             .to_string()
     }
 
+    #[allow(dead_code)]
     pub fn get_value_as_entity_ref(&self, identifier: &str) -> String {
         self.field_instances
             .iter()
