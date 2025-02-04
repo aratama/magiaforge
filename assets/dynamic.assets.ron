@@ -1,0 +1,299 @@
+({
+    // レジストリ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    "registry.game.ron": File (
+        path: "registry.game.ron",
+    ),
+    "registry.spell.ron": File (
+        path: "registry.spell.ron",
+    ),
+    "registry.actor.ron": File (
+        path: "registry.actor.ron",
+    ),
+    "registry.tile.ron": File (
+        path: "registry.tile.ron",
+    ),
+    "registry.senario.ron": File (
+        path: "registry.senario.ron",
+    ),
+
+    // フォント ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    "font/NotoSansJP-Medium.ttf": File (
+        path: "font/NotoSansJP-Medium.ttf",
+    ),
+
+    "font/NotoSansSC-Medium.ttf": File (
+        path: "font/NotoSansSC-Medium.ttf",
+    ),
+    "font/NotoSansTC-Medium.ttf": File (
+        path: "font/NotoSansTC-Medium.ttf",
+    ),
+    "font/NotoSansKR-Medium.ttf": File (
+        path: "font/NotoSansKR-Medium.ttf",
+    ),
+    "image/atlas.aseprite": File (
+        path: "image/atlas.aseprite",
+    ),
+    "image/next_page.aseprite": File (
+        path: "image/next_page.aseprite",
+    ),
+    "level.ldtk": File (
+        path: "level.ldtk",
+    ),
+    "image/title.aseprite": File (
+        path: "image/title.aseprite",
+    ),
+    "image/title_witch.aseprite": File (
+        path: "image/title_witch.aseprite",
+    ),
+    "image/title_cloud.aseprite": File (
+        path: "image/title_cloud.aseprite",
+    ),
+    "image/title_cloud2.aseprite": File (
+        path: "image/title_cloud2.aseprite",
+    ),
+    "image/opening.aseprite": File (
+        path: "image/opening.aseprite",
+    ),
+    "image/ending.aseprite": File (
+        path: "image/ending.aseprite",
+    ),
+    "enemy/slime.aseprite": File (
+        path: "enemy/slime.aseprite",
+    ),
+    "enemy/friend_slime.aseprite": File (
+        path: "enemy/friend_slime.aseprite",
+    ),
+    "enemy/eyeball.aseprite": File (
+        path: "enemy/eyeball.aseprite",
+    ),
+    "enemy/eyeball_friend.aseprite": File (
+        path: "enemy/eyeball_friend.aseprite",
+    ),
+    "enemy/shadow.aseprite": File (
+        path: "enemy/shadow.aseprite",
+    ),
+    "enemy/spider.aseprite": File (
+        path: "enemy/spider.aseprite",
+    ),
+    "enemy/salamander.aseprite": File (
+        path: "enemy/salamander.aseprite",
+    ),
+    "enemy/huge_slime.aseprite": File (
+        path: "enemy/huge_slime.aseprite",
+    ),
+    "enemy/huge_slime_shadow.aseprite": File (
+        path: "enemy/huge_slime_shadow.aseprite",
+    ),
+    "actor/witch.aseprite": File (
+        path: "actor/witch.aseprite",
+    ),
+    "actor/chicken.aseprite": File (
+        path: "actor/chicken.aseprite",
+    ),
+    "actor/sandbag.aseprite": File (
+        path: "actor/sandbag.aseprite",
+    ),
+    "actor/bomb.aseprite": File (
+        path: "actor/bomb.aseprite",
+    ),
+    "actor/stone_lantern.aseprite": File (
+        path: "actor/stone_lantern.aseprite",
+    ),
+    "rabbit/rabbit_yellow.aseprite": File (
+        path: "rabbit/rabbit_yellow.aseprite",
+    ),
+    "rabbit/rabbit_red.aseprite": File (
+        path: "rabbit/rabbit_red.aseprite",
+    ),
+    "rabbit/rabbit_blue.aseprite": File (
+        path: "rabbit/rabbit_blue.aseprite",
+    ),
+    "rabbit/rabbit_black.aseprite": File (
+        path: "rabbit/rabbit_black.aseprite",
+    ),
+    "rabbit/rabbit_white.aseprite": File (
+        path: "rabbit/rabbit_white.aseprite",
+    ),
+    "rabbit/rabbit_green.aseprite": File (
+        path: "rabbit/rabbit_green.aseprite",
+    ),
+    "chest/chest.aseprite": File (
+        path: "chest/chest.aseprite",
+    ),
+    "chest/crate.aseprite": File (
+        path: "chest/crate.aseprite",
+    ),
+    "chest/barrel.aseprite": File (
+        path: "chest/barrel.aseprite",
+    ),
+    "chest/barrel_bomb.aseprite": File (
+        path: "chest/barrel_bomb.aseprite",
+    ),
+    "chest/jar_red.aseprite": File (
+        path: "chest/jar_red.aseprite",
+    ),
+    "chest/jar_blue.aseprite": File (
+        path: "chest/jar_blue.aseprite",
+    ),
+    "chest/jar_green.aseprite": File (
+        path: "chest/jar_green.aseprite",
+    ),
+    "entity/raven.aseprite": File (
+        path: "entity/raven.aseprite",
+    ),
+    "entity/freeze.aseprite": File (
+        path: "entity/freeze.aseprite",
+    ),
+    "entity/slash.aseprite": File (
+        path: "entity/slash.aseprite",
+    ),
+    "entity/gold.aseprite": File (
+        path: "entity/gold.aseprite",
+    ),
+    "entity/fireball.aseprite": File (
+        path: "entity/fireball.aseprite",
+    ),
+    "entity/fire.aseprite": File (
+        path: "entity/fire.aseprite",
+    ),
+    "entity/impact.aseprite": File (
+        path: "entity/impact.aseprite",
+    ),
+    "audio/dageki.ogg": File (
+        path: "audio/dageki.ogg",
+    ),
+    "audio/shibafu.ogg": File (
+        path: "audio/shibafu.ogg",
+    ),
+    "audio/hiyoko.ogg": File (
+        path: "audio/hiyoko.ogg",
+    ),
+    "audio/kuzureru.ogg": File (
+        path: "audio/kuzureru.ogg",
+    ),
+    "audio/kettei.ogg": File (
+        path: "audio/kettei.ogg",
+    ),
+    "audio/suburi.ogg": File (
+        path: "audio/suburi.ogg",
+    ),
+    "audio/アスファルトの上を歩く2.ogg": File (
+        path: "audio/アスファルトの上を歩く2.ogg",
+    ),
+    "audio/メニューを開く2.ogg": File (
+        path: "audio/メニューを開く2.ogg",
+    ),
+    "audio/ワープ.ogg": File (
+        path: "audio/ワープ.ogg",
+    ),
+    "audio/キャンセル9.ogg": File (
+        path: "audio/キャンセル9.ogg",
+    ),
+    "audio/体育館で走る.ogg": File (
+        path: "audio/体育館で走る.ogg",
+    ),
+    "audio/回復魔法1.ogg": File (
+        path: "audio/回復魔法1.ogg",
+    ),
+    "audio/カーソル移動2.ogg": File (
+        path: "audio/カーソル移動2.ogg",
+    ),
+    "audio/爆発3_drop.ogg": File (
+        path: "audio/爆発3_drop.ogg",
+    ),
+    "audio/イノシシの鳴き声.ogg": File (
+        path: "audio/イノシシの鳴き声.ogg",
+    ),
+    "audio/ぷよん.ogg": File (
+        path: "audio/ぷよん.ogg",
+    ),
+    "audio/お風呂.ogg": File (
+        path: "audio/お風呂.ogg",
+    ),
+    "audio/可愛い動作.ogg": File (
+        path: "audio/可愛い動作.ogg",
+    ),
+    "audio/レジスターで精算.ogg": File (
+        path: "audio/レジスターで精算.ogg",
+    ),
+    "audio/手裏剣を投げる.ogg": File (
+        path: "audio/手裏剣を投げる.ogg",
+    ),
+    "audio/バスのドアが開く2.ogg": File (
+        path: "audio/バスのドアが開く2.ogg",
+    ),
+    "audio/ガラスが割れる2.ogg": File (
+        path: "audio/ガラスが割れる2.ogg",
+    ),
+    "audio/雷魔法4.ogg": File (
+        path: "audio/雷魔法4.ogg",
+    ),
+    "audio/地震魔法2.ogg": File (
+        path: "audio/地震魔法2.ogg",
+    ),
+    "audio/爆発2.ogg": File (
+        path: "audio/爆発2.ogg",
+    ),
+    "audio/ステータス上昇魔法2.ogg": File (
+        path: "audio/ステータス上昇魔法2.ogg",
+    ),
+    "audio/たき火.ogg": File (
+        path: "audio/たき火.ogg",
+    ),
+    "audio/ゾンビの食事.ogg": File (
+        path: "audio/ゾンビの食事.ogg",
+    ),
+    "audio/構えを取る.ogg": File (
+        path: "audio/構えを取る.ogg",
+    ),
+    "audio/コルク栓を抜く1.ogg": File (
+        path: "audio/コルク栓を抜く1.ogg",
+    ),
+    "audio/風が吹く1.ogg": File (
+        path: "audio/風が吹く1.ogg",
+    ),
+    "audio/ドラゴンの鳴き声2.ogg": File (
+        path: "audio/ドラゴンの鳴き声2.ogg",
+    ),
+    "audio/ドラゴンの羽ばたき.ogg": File (
+        path: "audio/ドラゴンの羽ばたき.ogg",
+    ),
+    "audio/倒れる.ogg": File (
+        path: "audio/倒れる.ogg",
+    ),
+    "audio/氷魔法で凍結.ogg": File (
+        path: "audio/氷魔法で凍結.ogg",
+    ),
+    "audio/水をバシャッとかける2.ogg": File (
+        path: "audio/水をバシャッとかける2.ogg",
+    ),
+    "audio/ジャンプの着地.ogg": File (
+        path: "audio/ジャンプの着地.ogg",
+    ),
+    "audio/砂の上を走る.ogg": File (
+        path: "audio/砂の上を走る.ogg",
+    ),
+    "audio/シーン切り替え2.ogg": File (
+        path: "audio/シーン切り替え2.ogg",
+    ),
+    "audio/HP吸収魔法2_short.ogg": File (
+        path: "audio/HP吸収魔法2_short.ogg",
+    ),
+    "audio/剣の素振り2.ogg": File (
+        path: "audio/剣の素振り2.ogg",
+    ),
+    "bgm/発見.ogg": File (
+        path: "bgm/発見.ogg",
+    ),
+    "audio/カーソル移動8.ogg": File (
+        path: "audio/カーソル移動8.ogg",
+    ),
+    "audio/決定ボタンを押す7.ogg": File (
+        path: "audio/決定ボタンを押す7.ogg",
+    ),
+    "audio/決定ボタンを押す31.ogg": File (
+        path: "audio/決定ボタンを押す31.ogg",
+    )
+})
