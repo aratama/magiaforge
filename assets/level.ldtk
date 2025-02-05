@@ -11,7 +11,7 @@
 	"iid": "d6c10700-c210-11ef-bd33-1de7d482da37",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 39,
+	"nextUid": 52,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "GridVania",
@@ -768,6 +768,487 @@
 			"allowedRefsEntityUid": null,
 			"allowedRefTags": [],
 			"tilesetUid": null
+		},
+		{
+			"identifier": "ja",
+			"doc": null,
+			"__type": "String",
+			"uid": 39,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "en",
+			"doc": null,
+			"__type": "String",
+			"uid": 40,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "zh_cn",
+			"doc": null,
+			"__type": "String",
+			"uid": 41,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "zh_tw",
+			"doc": null,
+			"__type": "String",
+			"uid": 42,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "es",
+			"doc": null,
+			"__type": "String",
+			"uid": 43,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "fr",
+			"doc": null,
+			"__type": "String",
+			"uid": 44,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "pt",
+			"doc": null,
+			"__type": "String",
+			"uid": 45,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "de",
+			"doc": null,
+			"__type": "String",
+			"uid": 46,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "ko",
+			"doc": null,
+			"__type": "String",
+			"uid": 47,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "ru",
+			"doc": null,
+			"__type": "String",
+			"uid": 48,
+			"type": "F_String",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "enemies",
+			"doc": null,
+			"__type": "Int",
+			"uid": 49,
+			"type": "F_Int",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": { "id": "V_Int", "params": [0] },
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "enemy_types",
+			"doc": null,
+			"__type": "Array<String>",
+			"uid": 50,
+			"type": "F_String",
+			"isArray": true,
+			"canBeNull": true,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
+		},
+		{
+			"identifier": "brightness",
+			"doc": null,
+			"__type": "Float",
+			"uid": 51,
+			"type": "F_Float",
+			"isArray": false,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayScale": 1,
+			"editorDisplayPos": "Above",
+			"editorLinkStyle": "StraightArrow",
+			"editorDisplayColor": null,
+			"editorAlwaysShow": false,
+			"editorShowInWorld": true,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefsEntityUid": null,
+			"allowedRefTags": [],
+			"tilesetUid": null
 		}
 	] },
 	"levels": [
@@ -790,10 +1271,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/最果てのルージュ.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/最果てのルージュ.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/最果てのルージュ.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/最果てのルージュ.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "ウサギ族のキャンプ", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["ウサギ族のキャンプ"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Rabbit's Camp", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Rabbit's Camp"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "兔子的营地", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["兔子的营地"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "兔子的營地", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["兔子的營地"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Campamento de Conejos", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Campamento de Conejos"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Camp des Lapins", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Camp des Lapins"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Acampamento dos Coelhos", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Acampamento dos Coelhos"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Kaninchenlager", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Kaninchenlager"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "토끼 캠프", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["토끼 캠프"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Лагерь кроликов", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Лагерь кроликов"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.4, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.4] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -1729,14 +2255,14 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "7ff0bd80-c210-11ef-9daa-2726d327a756", "dir": "e" }, { "levelIid": "9772f520-c210-11ef-93c0-974332f22900", "dir": "e" }, { "levelIid": "fdadde60-c210-11ef-93c0-5f8203255f12", "dir": "se" }, { "levelIid": "365c44c0-c210-11ef-b61b-ff6d525b7105", "dir": "w" } ]
+			"__neighbours": [ { "levelIid": "7ff0bd80-c210-11ef-9daa-2726d327a756", "dir": "e" }, { "levelIid": "9772f520-c210-11ef-93c0-974332f22900", "dir": "e" }, { "levelIid": "fdadde60-c210-11ef-93c0-5f8203255f12", "dir": "s" }, { "levelIid": "365c44c0-c210-11ef-b61b-ff6d525b7105", "dir": "w" } ]
 		},
 		{
 			"identifier": "Warehouse",
 			"iid": "1355a770-c210-11ef-9daa-c3fe4e4b5f89",
 			"uid": 5,
 			"worldX": -512,
-			"worldY": -512,
+			"worldY": 0,
 			"worldDepth": 0,
 			"pxWid": 512,
 			"pxHei": 256,
@@ -1750,10 +2276,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/水のしたたる洞窟.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/水のしたたる洞窟.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/水のしたたる洞窟.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/水のしたたる洞窟.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "倉庫", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["倉庫"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Warehouse", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Warehouse"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "仓库", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["仓库"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "倉庫", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["倉庫"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Almacén", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Almacén"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Entrepôt", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Entrepôt"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Armazém", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Armazém"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Lager", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Lager"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "창고", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["창고"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Склад", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Склад"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -1793,7 +2364,7 @@
 							"px": [48,48],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1809,7 +2380,7 @@
 							"px": [80,48],
 							"fieldInstances": [],
 							"__worldX": -432,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1825,7 +2396,7 @@
 							"px": [64,48],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1841,7 +2412,7 @@
 							"px": [48,64],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1857,7 +2428,7 @@
 							"px": [80,64],
 							"fieldInstances": [],
 							"__worldX": -432,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1873,7 +2444,7 @@
 							"px": [128,64],
 							"fieldInstances": [],
 							"__worldX": -384,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1889,7 +2460,7 @@
 							"px": [128,48],
 							"fieldInstances": [],
 							"__worldX": -384,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1905,7 +2476,7 @@
 							"px": [176,48],
 							"fieldInstances": [],
 							"__worldX": -336,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1921,7 +2492,7 @@
 							"px": [192,64],
 							"fieldInstances": [],
 							"__worldX": -320,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1937,7 +2508,7 @@
 							"px": [176,64],
 							"fieldInstances": [],
 							"__worldX": -336,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1953,7 +2524,7 @@
 							"px": [144,64],
 							"fieldInstances": [],
 							"__worldX": -368,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1969,7 +2540,7 @@
 							"px": [96,48],
 							"fieldInstances": [],
 							"__worldX": -416,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -1985,7 +2556,7 @@
 							"px": [112,48],
 							"fieldInstances": [],
 							"__worldX": -400,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2001,7 +2572,7 @@
 							"px": [208,48],
 							"fieldInstances": [],
 							"__worldX": -304,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2017,7 +2588,7 @@
 							"px": [240,48],
 							"fieldInstances": [],
 							"__worldX": -272,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2033,7 +2604,7 @@
 							"px": [240,64],
 							"fieldInstances": [],
 							"__worldX": -272,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2049,7 +2620,7 @@
 							"px": [224,64],
 							"fieldInstances": [],
 							"__worldX": -288,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2065,7 +2636,7 @@
 							"px": [256,48],
 							"fieldInstances": [],
 							"__worldX": -256,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2081,7 +2652,7 @@
 							"px": [256,64],
 							"fieldInstances": [],
 							"__worldX": -256,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2097,7 +2668,7 @@
 							"px": [48,80],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -432
+							"__worldY": 80
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2113,7 +2684,7 @@
 							"px": [64,80],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -432
+							"__worldY": 80
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2129,7 +2700,7 @@
 							"px": [64,112],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -400
+							"__worldY": 112
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2145,7 +2716,7 @@
 							"px": [48,96],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -416
+							"__worldY": 96
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2161,7 +2732,7 @@
 							"px": [64,128],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -384
+							"__worldY": 128
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2177,7 +2748,7 @@
 							"px": [48,160],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -352
+							"__worldY": 160
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2193,7 +2764,7 @@
 							"px": [256,192],
 							"fieldInstances": [],
 							"__worldX": -256,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2209,7 +2780,7 @@
 							"px": [64,176],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2225,7 +2796,7 @@
 							"px": [64,160],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -352
+							"__worldY": 160
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2241,7 +2812,7 @@
 							"px": [48,128],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -384
+							"__worldY": 128
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2257,7 +2828,7 @@
 							"px": [64,192],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2273,7 +2844,7 @@
 							"px": [64,176],
 							"fieldInstances": [],
 							"__worldX": -448,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2289,7 +2860,7 @@
 							"px": [48,192],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2305,7 +2876,7 @@
 							"px": [80,192],
 							"fieldInstances": [],
 							"__worldX": -432,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2321,7 +2892,7 @@
 							"px": [112,176],
 							"fieldInstances": [],
 							"__worldX": -400,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2337,7 +2908,7 @@
 							"px": [144,192],
 							"fieldInstances": [],
 							"__worldX": -368,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2353,7 +2924,7 @@
 							"px": [176,192],
 							"fieldInstances": [],
 							"__worldX": -336,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2369,7 +2940,7 @@
 							"px": [192,192],
 							"fieldInstances": [],
 							"__worldX": -320,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2385,7 +2956,7 @@
 							"px": [224,192],
 							"fieldInstances": [],
 							"__worldX": -288,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2401,7 +2972,7 @@
 							"px": [208,176],
 							"fieldInstances": [],
 							"__worldX": -304,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2417,7 +2988,7 @@
 							"px": [96,192],
 							"fieldInstances": [],
 							"__worldX": -416,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2433,7 +3004,7 @@
 							"px": [112,192],
 							"fieldInstances": [],
 							"__worldX": -400,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2449,7 +3020,7 @@
 							"px": [160,176],
 							"fieldInstances": [],
 							"__worldX": -352,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "BrokenMagicCircle",
@@ -2465,7 +3036,7 @@
 							"px": [112,112],
 							"fieldInstances": [],
 							"__worldX": -400,
-							"__worldY": -400
+							"__worldY": 112
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2481,7 +3052,7 @@
 							"px": [48,160],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -352
+							"__worldY": 160
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2497,7 +3068,7 @@
 							"px": [240,192],
 							"fieldInstances": [],
 							"__worldX": -272,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2513,7 +3084,7 @@
 							"px": [48,176],
 							"fieldInstances": [],
 							"__worldX": -464,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2529,7 +3100,7 @@
 							"px": [304,192],
 							"fieldInstances": [],
 							"__worldX": -208,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2545,7 +3116,7 @@
 							"px": [320,96],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -416
+							"__worldY": 96
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2561,7 +3132,7 @@
 							"px": [336,128],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -384
+							"__worldY": 128
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2577,7 +3148,7 @@
 							"px": [336,112],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -400
+							"__worldY": 112
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2593,7 +3164,7 @@
 							"px": [320,144],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -368
+							"__worldY": 144
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2609,7 +3180,7 @@
 							"px": [336,176],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2625,7 +3196,7 @@
 							"px": [352,192],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2641,7 +3212,7 @@
 							"px": [320,192],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2657,7 +3228,7 @@
 							"px": [336,144],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -368
+							"__worldY": 144
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2673,7 +3244,7 @@
 							"px": [320,128],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -384
+							"__worldY": 128
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2689,7 +3260,7 @@
 							"px": [320,112],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -400
+							"__worldY": 112
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2705,7 +3276,7 @@
 							"px": [336,80],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -432
+							"__worldY": 80
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2721,7 +3292,7 @@
 							"px": [336,96],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -416
+							"__worldY": 96
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2737,7 +3308,7 @@
 							"px": [320,80],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -432
+							"__worldY": 80
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2753,7 +3324,7 @@
 							"px": [320,160],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -352
+							"__worldY": 160
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2769,7 +3340,7 @@
 							"px": [320,176],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2785,7 +3356,7 @@
 							"px": [352,160],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -352
+							"__worldY": 160
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2801,7 +3372,7 @@
 							"px": [336,160],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -352
+							"__worldY": 160
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2817,7 +3388,7 @@
 							"px": [336,192],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2833,7 +3404,7 @@
 							"px": [352,176],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2849,7 +3420,7 @@
 							"px": [352,144],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -368
+							"__worldY": 144
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2865,7 +3436,7 @@
 							"px": [352,128],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -384
+							"__worldY": 128
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2881,7 +3452,7 @@
 							"px": [352,112],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -400
+							"__worldY": 112
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2897,7 +3468,7 @@
 							"px": [352,96],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -416
+							"__worldY": 96
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2913,7 +3484,7 @@
 							"px": [352,80],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -432
+							"__worldY": 80
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2929,7 +3500,7 @@
 							"px": [352,64],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2945,7 +3516,7 @@
 							"px": [336,48],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2961,7 +3532,7 @@
 							"px": [320,48],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2977,7 +3548,7 @@
 							"px": [320,64],
 							"fieldInstances": [],
 							"__worldX": -192,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -2993,7 +3564,7 @@
 							"px": [336,64],
 							"fieldInstances": [],
 							"__worldX": -176,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3009,7 +3580,7 @@
 							"px": [352,48],
 							"fieldInstances": [],
 							"__worldX": -160,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3025,7 +3596,7 @@
 							"px": [304,48],
 							"fieldInstances": [],
 							"__worldX": -208,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3041,7 +3612,7 @@
 							"px": [288,64],
 							"fieldInstances": [],
 							"__worldX": -224,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3057,7 +3628,7 @@
 							"px": [304,64],
 							"fieldInstances": [],
 							"__worldX": -208,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3073,7 +3644,7 @@
 							"px": [272,48],
 							"fieldInstances": [],
 							"__worldX": -240,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3089,7 +3660,7 @@
 							"px": [288,48],
 							"fieldInstances": [],
 							"__worldX": -224,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3105,7 +3676,7 @@
 							"px": [272,192],
 							"fieldInstances": [],
 							"__worldX": -240,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3121,7 +3692,7 @@
 							"px": [368,192],
 							"fieldInstances": [],
 							"__worldX": -144,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3137,7 +3708,7 @@
 							"px": [400,192],
 							"fieldInstances": [],
 							"__worldX": -112,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3153,7 +3724,7 @@
 							"px": [432,192],
 							"fieldInstances": [],
 							"__worldX": -80,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3169,7 +3740,7 @@
 							"px": [416,192],
 							"fieldInstances": [],
 							"__worldX": -96,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3185,7 +3756,7 @@
 							"px": [384,192],
 							"fieldInstances": [],
 							"__worldX": -128,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3201,7 +3772,7 @@
 							"px": [448,192],
 							"fieldInstances": [],
 							"__worldX": -64,
-							"__worldY": -320
+							"__worldY": 192
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3217,7 +3788,7 @@
 							"px": [448,176],
 							"fieldInstances": [],
 							"__worldX": -64,
-							"__worldY": -336
+							"__worldY": 176
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3233,7 +3804,7 @@
 							"px": [448,64],
 							"fieldInstances": [],
 							"__worldX": -64,
-							"__worldY": -448
+							"__worldY": 64
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3249,7 +3820,7 @@
 							"px": [448,48],
 							"fieldInstances": [],
 							"__worldX": -64,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3265,7 +3836,7 @@
 							"px": [432,48],
 							"fieldInstances": [],
 							"__worldX": -80,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3281,7 +3852,7 @@
 							"px": [416,48],
 							"fieldInstances": [],
 							"__worldX": -96,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3297,7 +3868,7 @@
 							"px": [400,48],
 							"fieldInstances": [],
 							"__worldX": -112,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3313,7 +3884,7 @@
 							"px": [368,48],
 							"fieldInstances": [],
 							"__worldX": -144,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3329,7 +3900,7 @@
 							"px": [384,48],
 							"fieldInstances": [],
 							"__worldX": -128,
-							"__worldY": -464
+							"__worldY": 48
 						},
 						{
 							"__identifier": "Spell",
@@ -3348,7 +3919,7 @@
 								"params": ["MagicBolt"]
 							}] }],
 							"__worldX": -240,
-							"__worldY": -400
+							"__worldY": 112
 						},
 						{
 							"__identifier": "RandomChest",
@@ -3364,7 +3935,7 @@
 							"px": [144,96],
 							"fieldInstances": [],
 							"__worldX": -368,
-							"__worldY": -416
+							"__worldY": 96
 						}
 					]
 				},
@@ -3431,10 +4002,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/森のいざない.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/森のいざない.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "図書館", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["図書館"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Library", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Library"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "图书馆", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["图书馆"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "圖書館", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["圖書館"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Biblioteca", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Biblioteca"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Bibliothèque", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Bibliothèque"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Biblioteca", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Biblioteca"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Bibliothek", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Bibliothek"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "도서관", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["도서관"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Библиотека", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Библиотека"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -5822,6 +6438,22 @@
 							}] }],
 							"__worldX": 1760,
 							"__worldY": -224
+						},
+						{
+							"__identifier": "BrokenMagicCircle",
+							"__grid": [30,40],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#3D3FBD",
+							"iid": "f6a417e0-c210-11ef-a4fe-ed85382704aa",
+							"width": 16,
+							"height": 16,
+							"defUid": 2,
+							"px": [480,640],
+							"fieldInstances": [],
+							"__worldX": 1760,
+							"__worldY": -128
 						}
 					]
 				},
@@ -5970,7 +6602,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "d6c12e10-c210-11ef-bd33-0313ded8950e", "dir": "w" }, { "levelIid": "9772f520-c210-11ef-93c0-974332f22900", "dir": "s" }, { "levelIid": "a4b520f0-c210-11ef-b61b-49c336abb4cf", "dir": "e" }, { "levelIid": "c572ef20-c210-11ef-b61b-adf97db3a7a8", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "d6c12e10-c210-11ef-bd33-0313ded8950e", "dir": "w" }, { "levelIid": "9772f520-c210-11ef-93c0-974332f22900", "dir": "s" }, { "levelIid": "3f62d310-c210-11ef-b61b-57d3d0f37033", "dir": "n" }, { "levelIid": "a4b520f0-c210-11ef-b61b-49c336abb4cf", "dir": "e" } ]
 		},
 		{
 			"identifier": "Cave",
@@ -5991,10 +6623,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/炎神の吐息.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/炎神の吐息.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/炎神の吐息.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/炎神の吐息.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "洞窟", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["洞窟"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Cave", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Cave"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "洞穴", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["洞穴"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "洞穴", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["洞穴"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Cueva", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Cueva"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Grotte", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Grotte"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Caverna", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Caverna"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Höhle", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Höhle"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "동굴", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["동굴"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Пещера", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Пещера"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -6195,10 +6872,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/森のいざない.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/森のいざない.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "水辺", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["水辺"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Waterside", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Waterside"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "水边", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["水边"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "水邊", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["水邊"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Orilla", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Orilla"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Bord de l'eau", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Bord de l'eau"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Beira da água", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Beira da água"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Wasserrand", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Wasserrand"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "물가", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["물가"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Берег", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Берег"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -6421,10 +7143,58 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/森のいざない.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/森のいざない.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "分岐点", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["分岐点"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Crossing", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Crossing"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "交叉点", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["交叉点"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "交叉點", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["交叉點"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Cruce", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Cruce"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Croisement", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Croisement"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Cruzamento", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Cruzamento"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Kreuzung", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Kreuzung"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "교차로", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["교차로"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Перекрёсток", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Перекрёсток"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": ["Slime"], "__tile": null, "defUid": 50, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Slime"]
+				}] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -6602,10 +7372,10 @@
 			"identifier": "Grassland",
 			"iid": "fdadde60-c210-11ef-93c0-5f8203255f12",
 			"uid": 26,
-			"worldX": 1280,
+			"worldX": 256,
 			"worldY": 1280,
 			"worldDepth": 0,
-			"pxWid": 1024,
+			"pxWid": 2048,
 			"pxHei": 1024,
 			"__bgColor": "#696A79",
 			"bgColor": null,
@@ -6617,15 +7387,60 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/森のいざない.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/森のいざない.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/森のいざない.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "草原", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["草原"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Grassland", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Grassland"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "草原", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["草原"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "草原", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["草原"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Pradera", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Pradera"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Prairie", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Prairie"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Pradaria", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Pradaria"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Grasland", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Grasland"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "초원", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["초원"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Луг", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Луг"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 20, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [20] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.01, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.01] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
 					"__type": "Entities",
-					"__cWid": 64,
+					"__cWid": 128,
 					"__cHei": 64,
 					"__gridSize": 16,
 					"__opacity": 1,
@@ -6650,7 +7465,7 @@
 				{
 					"__identifier": "Tiles",
 					"__type": "IntGrid",
-					"__cWid": 64,
+					"__cWid": 128,
 					"__cHei": 64,
 					"__gridSize": 16,
 					"__opacity": 1,
@@ -6666,116 +7481,225 @@
 					"visible": true,
 					"optionalRules": [],
 					"intGridCsv": [
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,
-						5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
+						1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,
+						5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,
+						5,5,5,5,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,5,5,5,5,5,5,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,
 						5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,
-						5,5,5,5,5,5,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,3,
-						3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,
-						3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,5,5,5,5,5,3,3,3,3,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,5,
+						5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,5,5,5,5,3,3,3,3,3,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,5,5,5,
 						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						5,5,5,5,3,3,3,3,3,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,
-						3,3,3,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,5,5,5,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,5,5,5,5,5,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,5,5,5,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						5,5,5,3,3,3,3,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,3,3,3,
-						3,5,5,5,5,5,5,3,5,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,3,3,3,3,5,5,5,5,5,
-						5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,
-						3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
+						5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,5,5,5,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,3,3,3,3,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,3,3,3,3,5,5,5,5,5,5,3,5,3,3,3,3,3,3,3,3,
+						3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,5,5,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,3,3,3,3,3,5,5,5,5,
+						5,5,5,5,5,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,5,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,
 						3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,5,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,3,3,3,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,
-						3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,5,5,5,5,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,
-						5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,
-						5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,
-						5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,
+						3,5,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
 						5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
-						5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,
-						5,5,5,5,5,5,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,
-						3,3,3,5,5,5,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,5,5,
-						5,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,5,5,5,5,5,5,5,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						5,5,5,5,5,5,5,5,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,
+						3,3,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
+						5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,
+						5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,3,5,5,5,5,5,3,3,3,3,3,3,3,3,3,
+						3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						5,5,5,5,5,5,5,3,3,3,3,5,5,5,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,3,3,3,3,3,3,
+						5,5,5,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
@@ -6783,7 +7707,15 @@
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
 						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3
 					],
 					"autoLayerTiles": [],
 					"seed": 8243607,
@@ -6793,11 +7725,12 @@
 				}
 			],
 			"__neighbours": [
-				{ "levelIid": "d6c12e10-c210-11ef-bd33-0313ded8950e", "dir": "nw" },
+				{ "levelIid": "d6c12e10-c210-11ef-bd33-0313ded8950e", "dir": "n" },
 				{ "levelIid": "23719770-c210-11ef-8f07-133e750c4b47", "dir": "e" },
 				{ "levelIid": "9772f520-c210-11ef-93c0-974332f22900", "dir": "n" },
 				{ "levelIid": "eae14d10-c210-11ef-b61b-89749a68c218", "dir": "s" },
-				{ "levelIid": "3ff4ab70-c210-11ef-b61b-3526ce95d387", "dir": "sw" }
+				{ "levelIid": "365c44c0-c210-11ef-b61b-ff6d525b7105", "dir": "w" },
+				{ "levelIid": "3ff4ab70-c210-11ef-b61b-3526ce95d387", "dir": "s" }
 			]
 		},
 		{
@@ -6819,10 +7752,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/迷宮.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/迷宮.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/迷宮.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/迷宮.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "氷の洞窟", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["氷の洞窟"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Ice Cave", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Ice Cave"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "冰洞", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["冰洞"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "冰洞", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["冰洞"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Cueva de Hielo", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Cueva de Hielo"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Grotte de Glace", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Grotte de Glace"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Caverna de Gelo", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Caverna de Gelo"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Eishöhle", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Eishöhle"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "얼음 동굴", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["얼음 동굴"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Ледяная пещера", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Ледяная пещера"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -7040,10 +8018,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/ダンジョンを踏破せし者.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "溶岩流", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["溶岩流"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Lava Stream", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Lava Stream"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "熔岩流", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["熔岩流"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "熔岩流", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["熔岩流"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Corriente de Lava", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Corriente de Lava"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Coulée de Lave", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Coulée de Lave"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Fluxo de Lava", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Fluxo de Lava"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Lavastrom", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Lavastrom"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "용암 흐름", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["용암 흐름"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Поток Лавы", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Поток Лавы"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -7222,7 +8245,7 @@
 			"iid": "3f62d310-c210-11ef-b61b-57d3d0f37033",
 			"uid": 29,
 			"worldX": 1280,
-			"worldY": -2816,
+			"worldY": -1792,
 			"worldDepth": 0,
 			"pxWid": 1024,
 			"pxHei": 1024,
@@ -7236,10 +8259,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/ダンジョンを踏破せし者.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "城", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["城"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Castle", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Castle"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "城堡", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["城堡"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "城堡", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["城堡"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Castillo", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Castillo"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Château", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Château"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Castelo", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Castelo"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Schloss", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Schloss"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "성", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["성"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Замок", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Замок"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -7411,7 +8479,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [{ "levelIid": "c572ef20-c210-11ef-b61b-adf97db3a7a8", "dir": "s" }]
+			"__neighbours": [ { "levelIid": "7ff0bd80-c210-11ef-9daa-2726d327a756", "dir": "s" }, { "levelIid": "a4b520f0-c210-11ef-b61b-49c336abb4cf", "dir": "e" } ]
 		},
 		{
 			"identifier": "Garden",
@@ -7432,10 +8500,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/ダンジョンを踏破せし者.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "庭園", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["庭園"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Garden", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Garden"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "花园", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["花园"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "花園", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["花園"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Jardín", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Jardín"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Jardin", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Jardin"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Jardim", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Jardim"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Garten", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Garten"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "정원", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["정원"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Сад", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Сад"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -7636,203 +8749,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "7ff0bd80-c210-11ef-9daa-2726d327a756", "dir": "w" }, { "levelIid": "c572ef20-c210-11ef-b61b-adf97db3a7a8", "dir": "w" }, { "levelIid": "c89436e0-c210-11ef-b61b-e51f6e2f91f0", "dir": "e" } ]
-		},
-		{
-			"identifier": "Bridge",
-			"iid": "c572ef20-c210-11ef-b61b-adf97db3a7a8",
-			"uid": 31,
-			"worldX": 1280,
-			"worldY": -1792,
-			"worldDepth": 0,
-			"pxWid": 1024,
-			"pxHei": 1024,
-			"__bgColor": "#696A79",
-			"bgColor": null,
-			"useAutoIdentifier": false,
-			"bgRelPath": null,
-			"bgPos": null,
-			"bgPivotX": 0.5,
-			"bgPivotY": 0.5,
-			"__smartColor": "#ADADB5",
-			"__bgPos": null,
-			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
-			"layerInstances": [
-				{
-					"__identifier": "Entities",
-					"__type": "Entities",
-					"__cWid": 64,
-					"__cHei": 64,
-					"__gridSize": 16,
-					"__opacity": 1,
-					"__pxTotalOffsetX": 0,
-					"__pxTotalOffsetY": 0,
-					"__tilesetDefUid": null,
-					"__tilesetRelPath": null,
-					"iid": "c5731630-c210-11ef-b61b-29d1f6a3eab1",
-					"levelId": 31,
-					"layerDefUid": 4,
-					"pxOffsetX": 0,
-					"pxOffsetY": 0,
-					"visible": true,
-					"optionalRules": [],
-					"intGridCsv": [],
-					"autoLayerTiles": [],
-					"seed": 7284015,
-					"overrideTilesetUid": null,
-					"gridTiles": [],
-					"entityInstances": []
-				},
-				{
-					"__identifier": "Tiles",
-					"__type": "IntGrid",
-					"__cWid": 64,
-					"__cHei": 64,
-					"__gridSize": 16,
-					"__opacity": 1,
-					"__pxTotalOffsetX": 0,
-					"__pxTotalOffsetY": 0,
-					"__tilesetDefUid": null,
-					"__tilesetRelPath": null,
-					"iid": "c5731631-c210-11ef-b61b-4fcade8a1a4e",
-					"levelId": 31,
-					"layerDefUid": 1,
-					"pxOffsetX": 0,
-					"pxOffsetY": 0,
-					"visible": true,
-					"optionalRules": [],
-					"intGridCsv": [
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2
-					],
-					"autoLayerTiles": [],
-					"seed": 1368216,
-					"overrideTilesetUid": null,
-					"gridTiles": [],
-					"entityInstances": []
-				}
-			],
-			"__neighbours": [ { "levelIid": "7ff0bd80-c210-11ef-9daa-2726d327a756", "dir": "s" }, { "levelIid": "3f62d310-c210-11ef-b61b-57d3d0f37033", "dir": "n" }, { "levelIid": "a4b520f0-c210-11ef-b61b-49c336abb4cf", "dir": "e" } ]
+			"__neighbours": [ { "levelIid": "7ff0bd80-c210-11ef-9daa-2726d327a756", "dir": "w" }, { "levelIid": "3f62d310-c210-11ef-b61b-57d3d0f37033", "dir": "w" }, { "levelIid": "c89436e0-c210-11ef-b61b-e51f6e2f91f0", "dir": "e" } ]
 		},
 		{
 			"identifier": "Temple",
@@ -7853,10 +8770,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/ダンジョンを踏破せし者.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "神殿", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["神殿"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Temple", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Temple"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "神殿", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["神殿"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "神殿", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["神殿"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Templo", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Templo"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Temple", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Temple"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Templo", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Templo"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Tempel", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Tempel"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "신전", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["신전"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Храм", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Храм"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.1, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.1] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -8034,10 +8996,10 @@
 			"identifier": "Inlet",
 			"iid": "365c44c0-c210-11ef-b61b-ff6d525b7105",
 			"uid": 33,
-			"worldX": -768,
+			"worldX": -1024,
 			"worldY": 512,
 			"worldDepth": 0,
-			"pxWid": 1024,
+			"pxWid": 1280,
 			"pxHei": 1024,
 			"__bgColor": "#696A79",
 			"bgColor": null,
@@ -8049,15 +9011,60 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/海岸4.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/海岸4.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/海岸4.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/海岸4.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "入り江", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["入り江"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Inlet", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Inlet"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "入口", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["入口"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "入口", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["入口"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Entrada", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Entrada"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Entrée", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Entrée"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Entrada", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Entrada"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Einlass", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Einlass"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "입구", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["입구"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Вход", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Вход"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
 					"__type": "Entities",
-					"__cWid": 64,
+					"__cWid": 80,
 					"__cHei": 64,
 					"__gridSize": 16,
 					"__opacity": 1,
@@ -8080,7 +9087,7 @@
 					"entityInstances": [
 						{
 							"__identifier": "Usage",
-							"__grid": [14,14],
+							"__grid": [30,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8089,14 +9096,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 38,
-							"px": [224,224],
+							"px": [480,224],
 							"fieldInstances": [],
 							"__worldX": -544,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "Lantern",
-							"__grid": [46,13],
+							"__grid": [62,13],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8105,14 +9112,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 10,
-							"px": [736,208],
+							"px": [992,208],
 							"fieldInstances": [],
 							"__worldX": -32,
 							"__worldY": 720
 						},
 						{
 							"__identifier": "Lantern",
-							"__grid": [35,13],
+							"__grid": [51,13],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8121,14 +9128,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 10,
-							"px": [560,208],
+							"px": [816,208],
 							"fieldInstances": [],
 							"__worldX": -208,
 							"__worldY": 720
 						},
 						{
 							"__identifier": "Lantern",
-							"__grid": [39,13],
+							"__grid": [55,13],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8137,14 +9144,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 10,
-							"px": [624,208],
+							"px": [880,208],
 							"fieldInstances": [],
 							"__worldX": -144,
 							"__worldY": 720
 						},
 						{
 							"__identifier": "Lantern",
-							"__grid": [35,17],
+							"__grid": [51,17],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8153,14 +9160,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 10,
-							"px": [560,272],
+							"px": [816,272],
 							"fieldInstances": [],
 							"__worldX": -208,
 							"__worldY": 784
 						},
 						{
 							"__identifier": "Lantern",
-							"__grid": [39,17],
+							"__grid": [55,17],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8169,14 +9176,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 10,
-							"px": [624,272],
+							"px": [880,272],
 							"fieldInstances": [],
 							"__worldX": -144,
 							"__worldY": 784
 						},
 						{
 							"__identifier": "Spell",
-							"__grid": [37,15],
+							"__grid": [53,15],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8185,7 +9192,7 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 7,
-							"px": [592,240],
+							"px": [848,240],
 							"fieldInstances": [{ "__identifier": "spell", "__type": "String", "__value": "MagicBolt", "__tile": null, "defUid": 8, "realEditorValues": [{
 								"id": "V_String",
 								"params": ["MagicBolt"]
@@ -8195,7 +9202,7 @@
 						},
 						{
 							"__identifier": "BrokenMagicCircle",
-							"__grid": [11,15],
+							"__grid": [27,15],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8204,14 +9211,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 2,
-							"px": [176,240],
+							"px": [432,240],
 							"fieldInstances": [],
 							"__worldX": -592,
 							"__worldY": 752
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [48,14],
+							"__grid": [64,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8220,14 +9227,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [768,224],
+							"px": [1024,224],
 							"fieldInstances": [],
 							"__worldX": 0,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [50,14],
+							"__grid": [66,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8236,14 +9243,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [800,224],
+							"px": [1056,224],
 							"fieldInstances": [],
 							"__worldX": 32,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [51,16],
+							"__grid": [67,16],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8252,14 +9259,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [816,256],
+							"px": [1072,256],
 							"fieldInstances": [],
 							"__worldX": 48,
 							"__worldY": 768
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [50,16],
+							"__grid": [66,16],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8268,14 +9275,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [800,256],
+							"px": [1056,256],
 							"fieldInstances": [],
 							"__worldX": 32,
 							"__worldY": 768
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [50,15],
+							"__grid": [66,15],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8284,14 +9291,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [800,240],
+							"px": [1056,240],
 							"fieldInstances": [],
 							"__worldX": 32,
 							"__worldY": 752
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [49,15],
+							"__grid": [65,15],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8300,14 +9307,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [784,240],
+							"px": [1040,240],
 							"fieldInstances": [],
 							"__worldX": 16,
 							"__worldY": 752
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [49,14],
+							"__grid": [65,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8316,14 +9323,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [784,224],
+							"px": [1040,224],
 							"fieldInstances": [],
 							"__worldX": 16,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [49,16],
+							"__grid": [65,16],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8332,14 +9339,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [784,256],
+							"px": [1040,256],
 							"fieldInstances": [],
 							"__worldX": 16,
 							"__worldY": 768
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [48,16],
+							"__grid": [64,16],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8348,14 +9355,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [768,256],
+							"px": [1024,256],
 							"fieldInstances": [],
 							"__worldX": 0,
 							"__worldY": 768
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [51,15],
+							"__grid": [67,15],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8364,14 +9371,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [816,240],
+							"px": [1072,240],
 							"fieldInstances": [],
 							"__worldX": 48,
 							"__worldY": 752
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [52,14],
+							"__grid": [68,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8380,14 +9387,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [832,224],
+							"px": [1088,224],
 							"fieldInstances": [],
 							"__worldX": 64,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [58,14],
+							"__grid": [74,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8396,14 +9403,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [928,224],
+							"px": [1184,224],
 							"fieldInstances": [],
 							"__worldX": 160,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [57,14],
+							"__grid": [73,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8412,14 +9419,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [912,224],
+							"px": [1168,224],
 							"fieldInstances": [],
 							"__worldX": 144,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [56,14],
+							"__grid": [72,14],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8428,14 +9435,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [896,224],
+							"px": [1152,224],
 							"fieldInstances": [],
 							"__worldX": 128,
 							"__worldY": 736
 						},
 						{
 							"__identifier": "Lantern",
-							"__grid": [46,17],
+							"__grid": [62,17],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8444,14 +9451,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 10,
-							"px": [736,272],
+							"px": [992,272],
 							"fieldInstances": [],
 							"__worldX": -32,
 							"__worldY": 784
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [45,9],
+							"__grid": [61,9],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8460,14 +9467,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [720,144],
+							"px": [976,144],
 							"fieldInstances": [],
 							"__worldX": -48,
 							"__worldY": 656
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [47,10],
+							"__grid": [63,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8476,14 +9483,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [752,160],
+							"px": [1008,160],
 							"fieldInstances": [],
 							"__worldX": -16,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [47,11],
+							"__grid": [63,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8492,14 +9499,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [752,176],
+							"px": [1008,176],
 							"fieldInstances": [],
 							"__worldX": -16,
 							"__worldY": 688
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [46,9],
+							"__grid": [62,9],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8508,14 +9515,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [736,144],
+							"px": [992,144],
 							"fieldInstances": [],
 							"__worldX": -32,
 							"__worldY": 656
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [46,8],
+							"__grid": [62,8],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8524,14 +9531,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [736,128],
+							"px": [992,128],
 							"fieldInstances": [],
 							"__worldX": -32,
 							"__worldY": 640
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [45,8],
+							"__grid": [61,8],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8540,14 +9547,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [720,128],
+							"px": [976,128],
 							"fieldInstances": [],
 							"__worldX": -48,
 							"__worldY": 640
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [44,8],
+							"__grid": [60,8],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8556,14 +9563,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [704,128],
+							"px": [960,128],
 							"fieldInstances": [],
 							"__worldX": -64,
 							"__worldY": 640
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [43,7],
+							"__grid": [59,7],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8572,14 +9579,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [688,112],
+							"px": [944,112],
 							"fieldInstances": [],
 							"__worldX": -80,
 							"__worldY": 624
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [41,7],
+							"__grid": [57,7],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8588,14 +9595,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [656,112],
+							"px": [912,112],
 							"fieldInstances": [],
 							"__worldX": -112,
 							"__worldY": 624
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [42,8],
+							"__grid": [58,8],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8604,14 +9611,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [672,128],
+							"px": [928,128],
 							"fieldInstances": [],
 							"__worldX": -96,
 							"__worldY": 640
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [43,8],
+							"__grid": [59,8],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8620,14 +9627,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [688,128],
+							"px": [944,128],
 							"fieldInstances": [],
 							"__worldX": -80,
 							"__worldY": 640
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [43,9],
+							"__grid": [59,9],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8636,14 +9643,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [688,144],
+							"px": [944,144],
 							"fieldInstances": [],
 							"__worldX": -80,
 							"__worldY": 656
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [44,9],
+							"__grid": [60,9],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8652,14 +9659,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [704,144],
+							"px": [960,144],
 							"fieldInstances": [],
 							"__worldX": -64,
 							"__worldY": 656
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [46,11],
+							"__grid": [62,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8668,14 +9675,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [736,176],
+							"px": [992,176],
 							"fieldInstances": [],
 							"__worldX": -32,
 							"__worldY": 688
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [46,10],
+							"__grid": [62,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8684,14 +9691,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [736,160],
+							"px": [992,160],
 							"fieldInstances": [],
 							"__worldX": -32,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [21,10],
+							"__grid": [37,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8700,14 +9707,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [336,160],
+							"px": [592,160],
 							"fieldInstances": [],
 							"__worldX": -432,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [24,11],
+							"__grid": [40,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8716,14 +9723,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [384,176],
+							"px": [640,176],
 							"fieldInstances": [],
 							"__worldX": -384,
 							"__worldY": 688
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [23,11],
+							"__grid": [39,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8732,14 +9739,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [368,176],
+							"px": [624,176],
 							"fieldInstances": [],
 							"__worldX": -400,
 							"__worldY": 688
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [23,10],
+							"__grid": [39,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8748,14 +9755,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [368,160],
+							"px": [624,160],
 							"fieldInstances": [],
 							"__worldX": -400,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [24,10],
+							"__grid": [40,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8764,14 +9771,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [384,160],
+							"px": [640,160],
 							"fieldInstances": [],
 							"__worldX": -384,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [21,11],
+							"__grid": [37,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8780,14 +9787,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [336,176],
+							"px": [592,176],
 							"fieldInstances": [],
 							"__worldX": -432,
 							"__worldY": 688
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [22,11],
+							"__grid": [38,11],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8796,14 +9803,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [352,176],
+							"px": [608,176],
 							"fieldInstances": [],
 							"__worldX": -416,
 							"__worldY": 688
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [22,10],
+							"__grid": [38,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8812,14 +9819,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [352,160],
+							"px": [608,160],
 							"fieldInstances": [],
 							"__worldX": -416,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [20,10],
+							"__grid": [36,10],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8828,14 +9835,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [320,160],
+							"px": [576,160],
 							"fieldInstances": [],
 							"__worldX": -448,
 							"__worldY": 672
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [22,9],
+							"__grid": [38,9],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8844,14 +9851,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [352,144],
+							"px": [608,144],
 							"fieldInstances": [],
 							"__worldX": -416,
 							"__worldY": 656
 						},
 						{
 							"__identifier": "RandomChest",
-							"__grid": [23,9],
+							"__grid": [39,9],
 							"__pivot": [0,0],
 							"__tags": [],
 							"__tile": null,
@@ -8860,17 +9867,36 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 6,
-							"px": [368,144],
+							"px": [624,144],
 							"fieldInstances": [],
 							"__worldX": -400,
 							"__worldY": 656
+						},
+						{
+							"__identifier": "Spell",
+							"__grid": [18,45],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#FF00F5",
+							"iid": "d725cb60-c210-11ef-8278-a31ff8a1c535",
+							"width": 16,
+							"height": 16,
+							"defUid": 7,
+							"px": [288,720],
+							"fieldInstances": [{ "__identifier": "spell", "__type": "String", "__value": "LightSword", "__tile": null, "defUid": 8, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["LightSword"]
+							}] }],
+							"__worldX": -736,
+							"__worldY": 1232
 						}
 					]
 				},
 				{
 					"__identifier": "Tiles",
 					"__type": "IntGrid",
-					"__cWid": 64,
+					"__cWid": 80,
 					"__cHei": 64,
 					"__gridSize": 16,
 					"__opacity": 1,
@@ -8890,120 +9916,149 @@
 						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,3,3,3,3,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,5,5,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,5,5,3,
-						3,3,5,5,5,5,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,7,5,5,5,5,5,5,5,5,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,5,5,5,5,5,5,5,5,5,7,7,
-						7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,7,7,7,7,7,7,7,5,5,5,5,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,5,5,5,5,5,5,5,5,5,7,7,7,7,7,7,7,7,7,7,
-						7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3,3,3,3,3,3,3,3,3,3,3,3,
-						3,2,2,2,2,2,2,2,5,5,5,5,5,5,5,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-						7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,
-						2,5,5,5,5,5,5,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-						7,7,7,7,7,7,7,7,7,7,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,5,5,5,5,5,
-						7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,7,7,7,7,1,1,1,1,1,7,7,7,
-						7,7,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,5,5,5,5,5,7,7,1,1,1,1,1,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,
+						3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,5,3,3,3,3,3,3,5,
+						7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						5,5,5,3,3,3,5,5,5,5,7,5,7,7,5,7,5,5,5,7,5,5,5,5,7,5,5,5,5,7,5,5,5,5,5,
+						5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,5,5,5,5,5,5,5,7,5,7,7,7,5,7,7,7,7,7,7,5,7,5,5,5,7,5,
+						5,7,5,7,7,7,7,7,7,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,5,5,5,5,5,5,7,5,7,7,7,5,7,7,7,7,7,
+						7,7,7,7,7,7,7,7,7,5,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,5,5,5,5,7,5,7,7,7,
+						7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,
+						5,5,5,5,5,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+						7,7,7,7,7,7,7,7,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,5,5,7,5,5,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+						1,7,7,7,7,7,1,1,1,1,1,7,7,7,7,7,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5,5,7,5,5,7,7,1,1,1,1,1,1,1,1,1,1,
 						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,5,5,5,5,5,7,7,1,1,1,1,1,1,1,1,1,1,1,
+						1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,5,5,7,7,7,7,
 						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-						1,1,1,1,1,1,1,1,1,2,5,5,5,5,5,5,7,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-						1,1,1,2,5,5,5,5,7,7,7,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,7,
-						7,7,7,1,1,1,1,1,7,7,7,4,4,1,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,7,7,
-						7,7,7,7,7,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,
-						7,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,7,7,7,7,7,7,7,7,
-						7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,7,7,7,7,7,7,7,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,5,5,5,5,5,5,5,5,7,7,4,4,3,3,3,3,3,
-						3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,4,4,3,3,3,3,3,3,3,3,3,3,3,
-						3,3,3,3,3,3,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,
-						2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,
-						7,7,7,7,7,7,7,5,5,5,4,4,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,
-						7,5,5,5,4,4,5,5,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,4,4,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,5,4,4,5,5,5,5,3,3,
-						3,3,3,3,3,3,3,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,4,4,7,5,5,5,3,3,3,3,3,3,3,3,
-						3,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,5,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,
-						2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,7,7,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,
+						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,7,5,7,5,7,5,7,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+						1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,7,7,7,7,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+						1,1,1,1,1,1,7,7,7,7,7,1,1,1,1,1,7,7,7,4,4,1,1,1,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,7,7,7,7,7,7,7,7,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,7,
+						7,7,7,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,
+						7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,7,7,7,7,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,
+						7,7,7,7,5,5,5,5,5,5,5,5,7,7,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,4,4,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,4,
+						4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,
+						7,7,7,7,7,7,5,5,5,4,4,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,5,5,5,4,4,5,5,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,4,4,5,5,5,3,
+						3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,
 						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,
-						7,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,5,3,
-						3,3,3,3,3,3,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,5,3,3,3,3,3,3,3,
+						7,7,7,5,4,4,5,5,5,5,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,7,7,7,4,4,7,5,5,5,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,
+						2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,5,5,5,5,3,3,3,3,
+						3,3,3,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,7,7,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,3,3,3,3,3,3,3,2,2,
 						2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,
+						5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,7,7,5,5,5,5,3,3,3,3,3,3,3,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
 						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,5,3,3,3,3,3,3,3,3,2,2,2,2,2,
-						2,4,4,4,4,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,5,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,4,7,
-						5,5,5,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,7,7,7,7,5,5,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,7,5,5,5,5,7,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,
-						7,5,5,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,7,5,5,5,5,5,7,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,5,3,3,3,
-						3,3,3,3,3,3,2,2,2,2,2,2,4,4,7,5,5,5,5,5,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,5,3,3,3,3,3,3,3,3,3,3,
-						2,2,2,2,2,2,4,4,7,5,5,5,5,5,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						7,7,7,7,4,4,4,4,7,7,7,7,7,7,7,7,5,5,5,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,
-						4,4,4,7,5,5,5,5,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,
-						7,7,7,7,7,7,7,7,7,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,4,4,4,4,7,7,
-						7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,
-						7,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,
-						5,5,5,3,3,3,3,3,3,3,3,3,3,3,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						3,3,3,3,3,3,3,3,3,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,
-						3,3,3,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,
-						7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,2,2,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,
-						7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,2,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,
-						5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,
-						5,5,5,5,5,5,5,3,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,
-						5,3,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,3,3,2,2,2,4,
+						2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,5,5,5,5,3,3,3,
+						3,3,3,3,3,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
 						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,3,3,2,2,2,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,
-						7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,3,3,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,
-						7,7,7,7,7,7,7,7,7,5,5,3,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						7,7,7,7,5,5,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,5,3,3,3,3,3,3,3,3,3,
+						2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,5,5,5,
+						3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,4,4,4,4,7,
+						7,7,7,7,7,7,7,5,5,5,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,
+						2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,5,5,5,7,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,3,3,3,3,
+						3,3,3,3,3,3,3,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,5,5,5,5,7,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,
+						5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,7,5,5,5,5,5,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,
+						7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,3,3,3,3,3,3,3,3,2,2,2,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,7,5,5,5,5,5,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+						3,3,3,3,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,7,5,5,5,5,5,7,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,5,5,5,5,3,3,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,5,5,5,
+						5,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,
+						7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,2,2,2,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,
+						7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,
+						2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,
+						5,5,5,5,5,5,5,5,3,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
 						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,
-						7,7,7,7,5,3,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,3,
-						2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3,2,2,2,2,2,2,
+						7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,
+						7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,3,2,2,2,2,2,2,
+						2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,5,5,5,5,5,5,
+						5,5,3,3,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,
+						5,5,5,5,5,5,5,5,5,5,5,5,3,3,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,
 						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,3,3,2,2,2,2,2,2,4,4,4,4,4,4,
+						4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,5,5,3,3,2,2,2,2,2,2,2,2,2,4,4,
 						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,3,3,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,7,7,7,7,7,7,7,3,3,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,
-						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,
-						7,7,7,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,7,7,7,7,2,2,2,
-						2
+						4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,5,3,2,2,
+						2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,
+						7,7,7,7,7,7,5,3,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,
+						7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,5,3,2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,
+						4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,3,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,
+						7,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,
+						4,7,7,7,7,7,7,7,7,7,7,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,3,3,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,3,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+						2,2,7,7,7,7,2,2,2,2
 					],
 					"autoLayerTiles": [],
 					"seed": 6580658,
@@ -9012,7 +10067,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [{ "levelIid": "d6c12e10-c210-11ef-bd33-0313ded8950e", "dir": "e" }]
+			"__neighbours": [ { "levelIid": "d6c12e10-c210-11ef-bd33-0313ded8950e", "dir": "e" }, { "levelIid": "fdadde60-c210-11ef-93c0-5f8203255f12", "dir": "e" } ]
 		},
 		{
 			"identifier": "Village",
@@ -9033,10 +10088,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/ダンジョンを踏破せし者.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "村", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["村"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Village", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Village"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "村庄", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["村庄"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "村莊", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["村莊"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Pueblo", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Pueblo"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Village", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Village"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Vila", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Vila"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Dorf", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Dorf"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "마을", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["마을"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Деревня", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Деревня"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 0, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.5, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.5] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -9229,10 +10329,55 @@
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
-				"id": "V_String",
-				"params": ["bgm/ダンジョンを踏破せし者.ogg"]
-			}] }],
+			"fieldInstances": [
+				{ "__identifier": "bgm", "__type": "String", "__value": "bgm/ダンジョンを踏破せし者.ogg", "__tile": null, "defUid": 9, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["bgm/ダンジョンを踏破せし者.ogg"]
+				}] },
+				{ "__identifier": "ja", "__type": "String", "__value": "森", "__tile": null, "defUid": 39, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["森"]
+				}] },
+				{ "__identifier": "en", "__type": "String", "__value": "Forest", "__tile": null, "defUid": 40, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Forest"]
+				}] },
+				{ "__identifier": "zh_cn", "__type": "String", "__value": "森林", "__tile": null, "defUid": 41, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["森林"]
+				}] },
+				{ "__identifier": "zh_tw", "__type": "String", "__value": "森林", "__tile": null, "defUid": 42, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["森林"]
+				}] },
+				{ "__identifier": "es", "__type": "String", "__value": "Bosque", "__tile": null, "defUid": 43, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Bosque"]
+				}] },
+				{ "__identifier": "fr", "__type": "String", "__value": "Forêt", "__tile": null, "defUid": 44, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Forêt"]
+				}] },
+				{ "__identifier": "pt", "__type": "String", "__value": "Floresta", "__tile": null, "defUid": 45, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Floresta"]
+				}] },
+				{ "__identifier": "de", "__type": "String", "__value": "Wald", "__tile": null, "defUid": 46, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Wald"]
+				}] },
+				{ "__identifier": "ko", "__type": "String", "__value": "숲", "__tile": null, "defUid": 47, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["숲"]
+				}] },
+				{ "__identifier": "ru", "__type": "String", "__value": "Лес", "__tile": null, "defUid": 48, "realEditorValues": [{
+					"id": "V_String",
+					"params": ["Лес"]
+				}] },
+				{ "__identifier": "enemies", "__type": "Int", "__value": 10, "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [10] }] },
+				{ "__identifier": "enemy_types", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 50, "realEditorValues": [] },
+				{ "__identifier": "brightness", "__type": "Float", "__value": 0.01, "__tile": null, "defUid": 51, "realEditorValues": [{ "id": "V_Float", "params": [0.01] }] }
+			],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -9404,7 +10549,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "fdadde60-c210-11ef-93c0-5f8203255f12", "dir": "ne" }, { "levelIid": "eae14d10-c210-11ef-b61b-89749a68c218", "dir": "e" } ]
+			"__neighbours": [ { "levelIid": "fdadde60-c210-11ef-93c0-5f8203255f12", "dir": "n" }, { "levelIid": "eae14d10-c210-11ef-b61b-89749a68c218", "dir": "e" } ]
 		}
 	],
 	"worlds": [],
