@@ -11,8 +11,6 @@ pub struct AnimatedSlice {
 }
 
 fn update(mut query: Query<(&AnimatedSlice, &mut AseSpriteSlice)>, frame_count: Res<FrameCount>) {
-    // info!("AnimatedSlice update {}", query.iter().len());
-
     for (animated, mut sprite) in query.iter_mut() {
         let frame_index = (frame_count.0 / animated.wait) % animated.slices.len() as u32;
         sprite.name = animated.slices[frame_index as usize].clone();

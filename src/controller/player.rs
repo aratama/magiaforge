@@ -272,8 +272,6 @@ fn pick_gold(
     if let Ok((mut actor, player_transform)) = player_query.get_single_mut() {
         let mut got_gold = false;
 
-        // info!("player pos: {:?}", player_transform.translation.truncate());
-
         for (gold_entity, mut gold, gold_transform) in gold_query.iter_mut() {
             let diff =
                 player_transform.translation.truncate() - gold_transform.translation.truncate();

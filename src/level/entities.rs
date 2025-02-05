@@ -189,12 +189,13 @@ pub fn spawn_entity(
 
         match &entity {
             Spawn::MagicCircle { destination } => {
+                let destination_level = registry.get_level_by_iid(&destination.level_iid);
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
                     &level,
                     *position,
-                    GameLevel(destination.level_iid.clone()),
+                    GameLevel(destination_level.identifier.clone()),
                     destination.entity_iid.as_str(),
                 );
             }

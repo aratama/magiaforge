@@ -4,6 +4,7 @@ use crate::asset::GameAssets;
 use crate::hud::life_bar::LifeBarResource;
 use crate::interpreter::Cmd;
 use crate::language::Dict;
+use crate::ldtk::generated::Level;
 use crate::ldtk::loader::LevelCustomFields;
 use crate::ldtk::loader::LDTK;
 use crate::level::entities::Spawn;
@@ -399,6 +400,16 @@ impl<'w> Registry<'w> {
             });
             &DEFAULT_BGM_PROPS
         }
+    }
+
+    pub fn get_level_by_iid(&self, iid: &str) -> Level {
+        let ldtk = self.ldtk();
+        ldtk.coordinate
+            .levels
+            .iter()
+            .find(|l| l.iid == iid)
+            .expect(&format!("Level {:?} not found", iid))
+            .clone()
     }
 }
 

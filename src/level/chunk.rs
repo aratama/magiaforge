@@ -34,7 +34,7 @@ impl LevelChunk {
     /// このいずれにも当てはまらなかったエンティティは警告とともに無視されます。
     /// レベルの番号を指定して、画像データからレベル情報を取得します
     /// このとき、該当するレベルの複数のスライスからランダムにひとつが選択されます、
-    pub fn new(registry: &Registry, level: &GameLevel) -> Self {
+    pub fn new(registry: &Registry, level: &GameLevel, lazy_loading: bool) -> Self {
         let ldtk = registry.ldtk();
         let Some(ldtk_level) = ldtk.get_level(&level) else {
             panic!("Level not found: {:?}", level);
@@ -122,7 +122,11 @@ impl LevelChunk {
             max_x,
             min_y,
             max_y,
-            dirty: None,
+            dirty: if lazy_loading {
+                None
+            } else {
+                Some((min_x, min_y, max_x, max_y))
+            },
         };
     }
 

@@ -91,7 +91,7 @@ pub fn setup_game_world(
     // 各レベルのスプライト生成には隣接するレベルのタイル情報も必要なため、
     // 隣接するレベルも含めて先に読み取ります
     // 地形のスプライトやコリジョンなどはupdate_tile_spritesで改めて生成されます
-    let center_chunk = LevelChunk::new(&registry, &level);
+    let center_chunk = LevelChunk::new(&registry, &level, false);
     world.chunks.push(center_chunk.clone());
 
     // 各レベルのエンティティを生成します
@@ -157,14 +157,7 @@ fn spawn_level_entities_and_navmesh(
 ) {
     let level = chunk.level.clone();
 
-    info!("spawning {} ...", level.0);
-
     let props = registry.get_level(&level);
-
-    info!(
-        "min_x: {}, max_x: {}, min_y: {}, max_y: {}",
-        chunk.min_x, chunk.max_x, chunk.min_y, chunk.max_y
-    );
 
     // ナビゲーションメッシュを作成します
     // ナビメッシュ生成は重いためチャンクごとに生成します
@@ -255,7 +248,7 @@ fn spawn_neighbor_chunks(
     };
     for neighbor in ldtk.get_neighbors(&chunk.level).iter() {
         if world.get_chunk(neighbor).is_none() {
-            let chunk = LevelChunk::new(&registry, neighbor);
+            let chunk = LevelChunk::new(&registry, neighbor, true);
             world.chunks.push(chunk.clone());
             spawn_level_entities_and_navmesh(
                 &mut commands,
@@ -303,8 +296,6 @@ fn despawn_chunks(
     else {
         return;
     };
-
-    info!("despawning {} ...", chunk_to_remove.0);
 
     // LevelScopedを削除
     for (entity, level_scoped) in scoped_query.iter() {
@@ -413,7 +404,7 @@ fn update_tile_sprites(
             chunk.dirty = None;
         } else {
             // loading_index の続きを一部更新
-            for _ in 0..100 {
+            for _ in 0..50 {
                 if chunk.tiles.len() <= chunk.loading_index {
                     break;
                 }
