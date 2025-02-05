@@ -95,7 +95,9 @@ pub fn spawn_random_enemies(
             Some(enemy_type) => {
                 spawn.send(SpawnEvent {
                     position,
-                    spawn: Spawn::Actor(enemy_type.clone()),
+                    spawn: Spawn::Actor {
+                        actor_type: enemy_type.0.clone(),
+                    },
                 });
             }
             None => {

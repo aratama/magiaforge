@@ -173,7 +173,7 @@ pub struct GameAssets {
     pub gold: Handle<Aseprite>,
 
     #[asset(key = "entity/fireball.aseprite")]
-    pub fireball: Handle<Aseprite>,
+    pub _fireball: Handle<Aseprite>,
 
     #[asset(key = "entity/fire.aseprite")]
     pub fire: Handle<Aseprite>,

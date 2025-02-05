@@ -172,6 +172,7 @@ struct RemoteStates {
 
 fn receive_events(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     registry: Registry,
     mut reader: EventReader<ServerMessage>,
     mut remotes: Query<
@@ -252,7 +253,7 @@ fn receive_events(
                             }
                         }
                         RemoteMessage::Fire(spawning) => {
-                            spawn_bullet(&mut commands, &registry, &mut writer, &spawning);
+                            spawn_bullet(&mut commands, &asset_server, &registry, &mut writer, &spawning);
                         }
                         RemoteMessage::Hit {
                             sender: _sender,

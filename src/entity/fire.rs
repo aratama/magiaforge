@@ -83,6 +83,9 @@ pub fn spawn_fire(
 ) {
     commands.spawn((
         Name::new("fire"),
+        // LevelScoped は設定していません
+        // Fire は Actor の移動に付属することがあるためと、
+        // 時間経過で消滅するためです
         StateScoped(GameState::InGame),
         Fire { burnable },
         Counter::down(1800),

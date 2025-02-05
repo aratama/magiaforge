@@ -6,7 +6,6 @@ pub mod damege;
 pub mod dropped_item;
 pub mod explosion;
 pub mod fire;
-pub mod fireball;
 pub mod gold;
 pub mod grass;
 pub mod impact;

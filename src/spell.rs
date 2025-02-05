@@ -134,6 +134,7 @@ pub fn get_spell_appendix(cast: &SpellCast) -> Dict<String> {
             freeze: _,
             levitation: _,
             stagger: _,
+            fire: _,
         }) => {
             let mut empty = Dict::empty();
             empty += DAMAGE.to_string();

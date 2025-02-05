@@ -191,7 +191,9 @@ fn spawn_level_entities_and_navmesh(
                     if rand::random::<u32>() % 20 == 0 {
                         spawn.send(SpawnEvent {
                             position: index_to_position((x, y)),
-                            spawn: Spawn::Actor(ActorType::new("ExplosiveMashroom")),
+                            spawn: Spawn::Actor {
+                                actor_type: "ExplosiveMashroom".to_string(),
+                            },
                         });
                     }
                 }
@@ -222,7 +224,9 @@ fn spawn_level_entities_and_navmesh(
             if let Some((x, y)) = empties.choose(&mut rng) {
                 spawn.send(SpawnEvent {
                     position: index_to_position((*x, *y)),
-                    spawn: Spawn::Actor(ActorType::new("Chicken")),
+                    spawn: Spawn::Actor {
+                        actor_type: "Chicken".to_string(),
+                    },
                 });
             }
         }

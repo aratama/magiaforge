@@ -24,6 +24,7 @@ use crate::se::STEPS;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::states::GameState;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::Animation;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
 use bevy_light_2d::light::PointLight2d;
@@ -44,23 +45,29 @@ static BULLET_Z: f32 = 10.0;
 // 大きすぎるとキャラクターと弾丸の位置が離れすぎて不自然
 pub const BULLET_SPAWNING_MARGIN: f32 = 9.0;
 
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Default)]
 pub struct Bullet {
-    life: u32,
-    damage: i32,
-    impulse: f32,
-    upper_impulse: f32,
+    // 詠唱者の情報
     owner: Option<Uuid>,
-    homing: f32,
-    freeze: u32,
-    stagger: u32,
     actor_group: ActorGroup,
     pub holder: Option<(Entity, Trigger)>,
+
+    // 弾丸の生存時間と軌道
+    life: u32,
+    homing: f32,
+
+    // 着弾時の効果
+    damage: i32,
+    impulse: f32,
+    stagger: u32,
+    upper_impulse: f32,
+    freeze: u32,
     levitation: u32,
     metamorphose: Option<ActorType>,
     dispel: bool,
     web: bool,
     slash: Option<u32>,
+    fire: bool,
 }
 
 #[derive(Bundle)]
@@ -88,6 +95,7 @@ pub enum Trigger {
 pub enum BulletImage {
     Slice { names: Vec<String> },
     Freeze,
+    Animation { path: String, tag: String },
 }
 
 /// 生成される弾丸の大半の情報を収めた構造体です
@@ -127,6 +135,7 @@ pub struct SpawnBullet {
     pub dispel: bool,
     pub web: bool,
     pub slash: Option<u32>,
+    pub fire: bool,
 }
 
 /// 指定した種類の弾丸を発射します
@@ -138,6 +147,7 @@ pub struct SpawnBullet {
 /// それ以外の物体に衝突した場合はそのまま消滅します
 pub fn spawn_bullet(
     commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
     registry: &Registry,
     writer: &mut EventWriter<SEEvent>,
     spawn: &SpawnBullet,
@@ -165,6 +175,7 @@ pub fn spawn_bullet(
             dispel: spawn.dispel,
             web: spawn.web,
             slash: spawn.slash,
+            fire: spawn.fire,
         },
         EntityDepth::new(),
         Transform::from_xyz(spawn.position.x, spawn.position.y, BULLET_Z)
@@ -197,7 +208,7 @@ pub fn spawn_bullet(
         ),
     ));
 
-    match spawn.slices {
+    match &spawn.slices {
         BulletImage::Slice { ref names } => entity.insert(AseSpriteSlice {
             aseprite: registry.assets.atlas.clone(),
             name: names.choose(&mut rng).unwrap().clone().into(),
@@ -205,6 +216,10 @@ pub fn spawn_bullet(
         BulletImage::Freeze => entity.insert(AseSpriteAnimation {
             aseprite: registry.assets.freeze.clone(),
             animation: "default".into(),
+        }),
+        BulletImage::Animation { path, tag: name } => entity.insert(AseSpriteAnimation {
+            aseprite: asset_server.load(path.clone()),
+            animation: Animation::tag(name.as_str()),
         }),
     };
 
@@ -227,12 +242,20 @@ pub fn spawn_bullet(
 fn despawn_bullet_by_lifetime(
     mut commands: Commands,
     mut bullet_query: Query<(Entity, &mut Bullet, &Transform, &Velocity)>,
+    mut spawn: EventWriter<SpawnEvent>,
 ) {
     // 弾丸のライフタイムを減らし、ライフタイムが尽きたら削除
-    for (entity, mut bullet, _, _) in bullet_query.iter_mut() {
+    for (entity, mut bullet, transform, _) in bullet_query.iter_mut() {
         bullet.life -= 1;
         if bullet.life <= 0 {
             commands.entity(entity).despawn_recursive();
+            if bullet.fire {
+                let position = transform.translation.truncate();
+                spawn.send(SpawnEvent {
+                    position,
+                    spawn: Spawn::Fire,
+                });
+            }
         }
     }
 }
@@ -403,6 +426,13 @@ fn spawn_bullet_effect(
             spawn: Spawn::Web {
                 actor_group: bullet.actor_group,
             },
+        });
+    }
+
+    if bullet.fire {
+        spawn.send(SpawnEvent {
+            position: bullet_position,
+            spawn: Spawn::Fire,
         });
     }
 

@@ -25,7 +25,7 @@ use crate::entity::bullet_particle::spawn_particle_system;
 use crate::entity::bullet_particle::BulletParticleResource;
 use crate::entity::bullet_particle::SpawnParticle;
 use crate::entity::dropped_item::spawn_dropped_item;
-use crate::entity::fireball::spawn_fireball;
+use crate::entity::fire::spawn_fire;
 use crate::entity::grass::Grasses;
 use crate::entity::magic_circle::spawn_magic_circle;
 use crate::entity::servant_seed::spawn_servant_seed;
@@ -60,7 +60,10 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Deserialize)]
 pub enum Spawn {
     /// 種別を指定してアクターを生成します
-    Actor(ActorType),
+    /// actor_groupはactor_typeごとのデフォルトになります
+    Actor {
+        actor_type: String,
+    },
 
     ActorWithGroup {
         actor_type: ActorType,
@@ -95,10 +98,6 @@ pub enum Spawn {
         angle: f32,
         damage: u32,
     },
-    Fireball {
-        velocity: Vec2,
-        actor_group: ActorGroup,
-    },
     Seed {
         to: Vec2,
         actor_group: ActorGroup,
@@ -110,6 +109,7 @@ pub enum Spawn {
     Web {
         actor_group: ActorGroup,
     },
+    Fire,
     MagicCircle {
         destination: MagicCircleProps,
     },
@@ -334,8 +334,8 @@ pub fn spawn_entity(
                     chest_type: ChestType::Chest,
                 });
             }
-            Spawn::Actor(actor_type) => {
-                let actor = get_default_actor(&registry, actor_type);
+            Spawn::Actor { actor_type } => {
+                let actor = get_default_actor(&registry, &ActorType(actor_type.clone()));
                 spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
             Spawn::ActorWithGroup {
@@ -382,12 +382,6 @@ pub fn spawn_entity(
                     *servant,
                 );
             }
-            Spawn::Fireball {
-                velocity,
-                actor_group,
-            } => {
-                spawn_fireball(&mut commands, &registry, *position, *velocity, *actor_group);
-            }
 
             Spawn::Web {
                 actor_group: owner_actor_group,
@@ -400,6 +394,10 @@ pub fn spawn_entity(
                     *position,
                     *owner_actor_group,
                 );
+            }
+
+            Spawn::Fire => {
+                spawn_fire(&mut commands, &registry.assets, *position, None);
             }
 
             Spawn::Particle { particle: spawn } => {

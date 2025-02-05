@@ -29,7 +29,6 @@ use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::level::world::GameWorld;
-use crate::random::randomize_velocity;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::se::SEEvent;
@@ -88,6 +87,9 @@ pub struct SpellCastBullet {
     pub levitation: u32,
     #[serde(default)]
     pub stagger: u32,
+
+    #[serde(default)]
+    pub fire: bool,
 }
 
 /// 呪文を詠唱したときの動作を表します
@@ -117,7 +119,6 @@ pub enum SpellCast {
     PrecisionUp,
     Bomb,
     RockFall,
-    Fireball,
     Spawn(Spawn),
     LightSword,
     Web,
@@ -239,6 +240,7 @@ pub fn cast_spell(
                         web: 0 < actor.effects.web,
                         slash,
                         groups: actor.actor_group.to_bullet_group(),
+                        fire: cast.fire,
                     };
 
                     if 0 < actor.effects.dispel {
@@ -251,7 +253,7 @@ pub fn cast_spell(
 
                     actor.effects.levitation = 0;
 
-                    spawn_bullet(commands, registry, se, &spawn);
+                    spawn_bullet(&mut commands, &asset_server, &registry, &mut se, &spawn);
                     clear_effect = true;
 
                     // リモートへ呪文詠唱を伝えます
@@ -358,7 +360,9 @@ pub fn cast_spell(
                     let position = actor_position + direction;
                     spawn.send(SpawnEvent {
                         position,
-                        spawn: Spawn::Actor(ActorType::new("Bomb")),
+                        spawn: Spawn::Actor {
+                            actor_type: "Bomb".to_string(),
+                        },
                     });
                 }
                 SpellCast::Spawn(ref entity) => {
@@ -377,17 +381,6 @@ pub fn cast_spell(
                     actor.v = 100.0;
                     spawn_actor(&mut commands, asset_server, registry, position, actor);
                     se.send(SEEvent::pos(STATUS2, position));
-                }
-                SpellCast::Fireball => {
-                    let position = actor_position + actor.pointer.normalize_or_zero() * 8.0;
-                    let velocity = randomize_velocity(actor.pointer * 1.2, 0.5, 0.5);
-                    spawn.send(SpawnEvent {
-                        position,
-                        spawn: Spawn::Fireball {
-                            velocity,
-                            actor_group: actor.actor_group,
-                        },
-                    });
                 }
                 SpellCast::LightSword => {
                     let normalized = actor.pointer.normalize_or_zero();
@@ -439,6 +432,7 @@ pub fn cast_spell(
                         web: 0 < actor.effects.web,
                         slash,
                         groups: actor.actor_group.to_bullet_group(),
+                        fire: false,
                     };
 
                     if 0 < actor.effects.dispel {
@@ -449,7 +443,7 @@ pub fn cast_spell(
                         actor.effects.web -= 1;
                     }
 
-                    spawn_bullet(commands, registry, se, &spawn);
+                    spawn_bullet(&mut commands, &asset_server, &registry, &mut se, &spawn);
                     clear_effect = true;
                 }
                 SpellCast::Web => {

@@ -478,14 +478,16 @@ pub enum ActorFireState {
     Fire,
 }
 
-#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Reflect, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum ActorGroup {
+    #[default]
     Friend,
-    Enemy,
 
     /// 中立のアクターです
     /// 敵と味方の両方の攻撃を受け、敵から攻撃対象として狙われます
     Neutral,
+
+    Enemy,
 
     /// 本棚などの設備のアクターです
     /// 敵と味方の両方の攻撃を受けますが、敵から攻撃の対象として狙われません
