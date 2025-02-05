@@ -1,8 +1,8 @@
 use crate::actor::Actor;
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
-use crate::interpreter::Cmd;
-use crate::interpreter::InterpreterEvent;
+use crate::interpreter::cmd::Cmd;
+use crate::interpreter::interpreter::InterpreterEvent;
 use crate::message::shop_rabbit;
 use crate::message::too_few_golds;
 use crate::message::SHOP_RABBIT;

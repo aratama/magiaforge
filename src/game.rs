@@ -53,7 +53,7 @@ use crate::hud::pointer::PointerPlugin;
 use crate::hud::tutorial::TutorialPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
-use crate::interpreter::InterpreterPlugin;
+use crate::interpreter::interpreter::InterpreterPlugin;
 use crate::language::LanguagePlugin;
 use crate::ldtk::loader::RawLDTKLoaderPlugin;
 use crate::page::ending::EndingPlugin;

@@ -1,8 +1,8 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::config::GameConfig;
-use crate::interpreter::Cmd;
-use crate::interpreter::Interpreter;
+use crate::interpreter::cmd::Cmd;
+use crate::interpreter::interpreter::Interpreter;
 use crate::language::language_to_font;
 use crate::registry::Registry;
 use crate::states::GameState;

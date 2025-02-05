@@ -2,7 +2,7 @@ use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::hud::life_bar::LifeBarResource;
-use crate::interpreter::Cmd;
+use crate::interpreter::cmd::Cmd;
 use crate::language::Dict;
 use crate::ldtk::generated::Level;
 use crate::ldtk::loader::LevelCustomFields;
