@@ -214,6 +214,7 @@ fn spawn_level_entities_and_navmesh(
     let spaw_enemy_count = props.enemies;
     let spaw_enemy_types = props.get_enemy_types();
     spawn_random_enemies(
+        &level,
         &empties,
         &mut rng,
         chunk.entry_points().clone(),
@@ -412,7 +413,7 @@ fn update_tile_sprites(
             chunk.dirty = None;
         } else {
             // loading_index の続きを一部更新
-            for _ in 0..50 {
+            for _ in 0..100 {
                 if chunk.tiles.len() <= chunk.loading_index {
                     break;
                 }

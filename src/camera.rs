@@ -145,10 +145,15 @@ fn update_camera_brightness(
             .max()
             .unwrap_or(0);
 
-        if max_explosion > 0 {
+        if 0 < max_explosion {
             light.brightness = brightness * max_explosion as f32 / EXPLOSION_COUNT as f32;
         } else {
-            light.brightness = brightness;
+            let delta = brightness - light.brightness;
+            light.brightness = if delta.abs() < 0.01 {
+                brightness
+            } else {
+                light.brightness + delta.signum() * 0.005
+            };
         }
     }
 }

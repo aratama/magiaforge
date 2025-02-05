@@ -53,6 +53,7 @@ pub fn spawn_navigation_mesh(commands: &mut Commands, chunk: &LevelChunk) {
 }
 
 pub fn spawn_random_enemies(
+    level: &GameLevel,
     empties: &Vec<(i32, i32)>,
     mut rng: &mut StdRng,
     _safe_zone_centers: Vec<Vec2>,
@@ -98,7 +99,8 @@ pub fn spawn_random_enemies(
                 });
             }
             None => {
-                warn!("No enemy type found");
+                warn!("No enemy type found in {:?}", level);
+                return;
             }
         }
 
