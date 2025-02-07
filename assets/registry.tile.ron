@@ -17,7 +17,7 @@ TileRegistry(
         // ジャンプしたときのみ侵入できるタイル
         // 岸の部分を描画します
         "Ice": (
-            tile_type: Surface,
+            tile_type: Floor,
             layers: [
                 (
                     depth: 0.0,
