@@ -233,6 +233,7 @@ impl Plugin for LanguagePlugin {
             Update,
             (update_text_on_change_config, update_text_on_change_text).run_if(
                 in_state(GameState::InGame)
+                    .or(in_state(GameState::Opening))
                     .or(in_state(GameState::MainMenu))
                     .or(in_state(GameState::NameInput))
                     .or(in_state(GameState::Ending)),

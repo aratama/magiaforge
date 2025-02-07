@@ -1,7 +1,11 @@
 use crate::asset::GameAssets;
 use crate::audio::NextBGM;
 use crate::hud::overlay::OverlayEvent;
+use crate::language::M18NTtext;
+use crate::message::SKIP;
+use crate::registry::Registry;
 use crate::se::SEEvent;
+use crate::se::CLICK;
 use crate::se::DAMAGE;
 use crate::se::DRAGON;
 use crate::se::DRAGON_FLUTTER;
@@ -48,11 +52,13 @@ enum OpeningEvent {
     Close,
 }
 
+#[derive(Component, Debug)]
+struct SkipButton;
+
 fn setup(
     mut commands: Commands,
+    registry: Registry,
     asset_server: Res<AssetServer>,
-    assets: Res<GameAssets>,
-
     mut count: ResMut<OpeningCount>,
     mut animations: ResMut<Assets<AnimationClip>>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
@@ -74,7 +80,7 @@ fn setup(
         Name::new("background"),
         StateScoped(GameState::Opening),
         AseSpriteAnimation {
-            aseprite: assets.opening.clone(),
+            aseprite: registry.assets.opening.clone(),
             animation: "default".into(),
         },
         Transform::from_xyz(0.0, 0.0, -200.0),
@@ -82,7 +88,7 @@ fn setup(
 
     setup_cloud(
         &mut commands,
-        &assets.title_cloud,
+        &registry.assets.title_cloud,
         &mut animations,
         &mut graphs,
         // 雲が左右に流れるアニメーション
@@ -96,7 +102,7 @@ fn setup(
 
     setup_cloud(
         &mut commands,
-        &assets.title_cloud2,
+        &registry.assets.title_cloud2,
         &mut animations,
         &mut graphs,
         // 雲が左右に流れるアニメーション
@@ -111,12 +117,62 @@ fn setup(
     setup_witch(
         &mut commands,
         &asset_server,
-        &assets,
+        &registry.assets,
         &mut animations,
         &mut graphs,
     );
 
-    setup_raven(&mut commands, &assets, &mut animations, &mut graphs);
+    setup_raven(
+        &mut commands,
+        &registry.assets,
+        &mut animations,
+        &mut graphs,
+    );
+
+    commands
+        .spawn((
+            SkipButton,
+            StateScoped(GameState::Opening),
+            Button,
+            BorderColor(Color::WHITE),
+            Node {
+                position_type: PositionType::Absolute,
+                right: Val::Px(10.0),
+                bottom: Val::Px(10.0),
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                border: UiRect::all(Val::Px(1.0)),
+                width: Val::Px(100.0),
+                height: Val::Px(25.0),
+                ..default()
+            },
+        ))
+        .with_child((
+            M18NTtext::new(&SKIP.to_string()),
+            TextColor::WHITE,
+            TextFont {
+                font: registry.assets.noto_sans_jp.clone(),
+                font_size: 12.0,
+                ..default()
+            },
+        ));
+}
+
+fn skip(
+    interaction: Query<&Interaction, (With<SkipButton>, Changed<Interaction>)>,
+    mut overlay: EventWriter<OverlayEvent>,
+    mut se: EventWriter<SEEvent>,
+) {
+    for interaction in interaction.iter() {
+        match interaction {
+            Interaction::Pressed => {
+                overlay.send(OverlayEvent::Close(GameState::InGame));
+                se.send(SEEvent::new(CLICK));
+            }
+            _ => {}
+        }
+    }
 }
 
 fn setup_cloud(
@@ -359,6 +415,7 @@ impl Plugin for OpeningPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(OpeningCount { count: 0 });
         app.add_systems(OnEnter(GameState::Opening), setup);
+        app.add_systems(Update, skip);
         app.add_event::<OpeningEvent>();
         app.add_observer(
             |trigger: Trigger<OpeningEvent>,

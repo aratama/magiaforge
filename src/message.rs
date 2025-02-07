@@ -259,3 +259,16 @@ pub const NEW_SPELL: Dict<&'static str> = Dict {
     ko: "새로운 주문 발견!",
     ru: "Новое заклинание обнаружено!",
 };
+
+pub const SKIP: Dict<&'static str> = Dict {
+    ja: "スキップ",
+    en: "Skip",
+    zh_cn: "跳过",
+    zh_tw: "跳過",
+    es: "Saltar",
+    fr: "Passer",
+    pt: "Pular",
+    de: "Überspringen",
+    ko: "건너뛰기",
+    ru: "Пропустить",
+};

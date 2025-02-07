@@ -109,8 +109,7 @@ pub fn setup_game_world(
     // プレイヤーキャラクターのみ Player コンポーネントの追加が必要なため、
     // イベントではなく直接生成します
     // 拠点のみ最初にアニメーションが入るので PlayerInActive に設定します
-    let getting_up_animation =
-        level == GameLevel::new("Warehouse") && cfg!(not(feature = "ingame"));
+    let getting_up_animation = level == GameLevel::new("Inlet") && cfg!(not(feature = "ingame"));
     let entry_points = center_chunk.entry_points();
     let player_position = entry_points.choose(&mut rng).expect("No entrypoint found");
     let entity = spawn_actor(
