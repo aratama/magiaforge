@@ -108,4 +108,14 @@ impl Inventory {
         }
         total
     }
+
+    pub fn as_string_array(&self) -> Vec<String> {
+        self.0
+            .iter()
+            .map(|item| match item {
+                Some(item) => item.spell.0.clone(),
+                None => "".to_string(),
+            })
+            .collect()
+    }
 }

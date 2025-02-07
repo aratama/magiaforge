@@ -79,7 +79,7 @@ pub enum Spawn {
 
     Rabbit {
         aseprite: String,
-        senario: String,
+        trigger: String,
     },
 
     Boss {
@@ -230,7 +230,7 @@ pub fn spawn_entity(
             }
             Spawn::Rabbit {
                 aseprite: aseprite_value,
-                senario,
+                trigger: senario,
             } => {
                 let actor = get_default_actor(&registry, &ActorType::new("Rabbit"));
 

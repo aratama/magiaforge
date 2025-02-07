@@ -8,6 +8,7 @@ use crate::{
 use bevy::{math::Vec2, prelude::Entity};
 
 #[derive(Debug, Clone, serde::Deserialize)]
+#[serde(tag = "type")]
 pub enum Cmd {
     Set {
         name: String,

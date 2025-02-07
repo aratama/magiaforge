@@ -47,7 +47,9 @@ pub fn spawn_navigation_mesh(commands: &mut Commands, chunk: &LevelChunk) {
             agent_radius: 5.0,
             ..default()
         },
-        NavMeshUpdateMode::Debounced(1.0),
+        // todo
+        // ナビゲーションメッシュ生成は重くDebouncedはWASMで実用的でない
+        NavMeshUpdateMode::OnDemand(true),
         Transform::from_translation(Vec3::ZERO),
     ));
 }

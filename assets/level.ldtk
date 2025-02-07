@@ -515,7 +515,7 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "senario",
+					"identifier": "trigger",
 					"doc": null,
 					"__type": "String",
 					"uid": 16,
@@ -1875,9 +1875,9 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_blue.aseprite"]
 								}] },
-								{ "__identifier": "senario", "__type": "String", "__value": "GuideRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "GuideRabbit()", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["GuideRabbit"]
+									"params": ["GuideRabbit()"]
 								}] }
 							],
 							"__worldX": 512,
@@ -1900,7 +1900,7 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_yellow.aseprite"]
 								}] },
-								{ "__identifier": "senario", "__type": "String", "__value": "ShopRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "ShopRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["ShopRabbit"]
 								}] }
@@ -1925,9 +1925,9 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_red.aseprite"]
 								}] },
-								{ "__identifier": "senario", "__type": "String", "__value": "TrainingRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "TrainingRabbit()", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["TrainingRabbit"]
+									"params": ["TrainingRabbit()"]
 								}] }
 							],
 							"__worldX": 448,
@@ -1950,9 +1950,9 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_black.aseprite"]
 								}] },
-								{ "__identifier": "senario", "__type": "String", "__value": "SpellListRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "SpellListRabbit()", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["SpellListRabbit"]
+									"params": ["SpellListRabbit()"]
 								}] }
 							],
 							"__worldX": 800,
@@ -1975,9 +1975,9 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_green.aseprite"]
 								}] },
-								{ "__identifier": "senario", "__type": "String", "__value": "ReadingRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "ReadingRabbit()", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["ReadingRabbit"]
+									"params": ["ReadingRabbit()"]
 								}] }
 							],
 							"__worldX": 736,
@@ -2000,9 +2000,9 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_white.aseprite"]
 								}] },
-								{ "__identifier": "senario", "__type": "String", "__value": "SingleplayRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "SingleplayRabbit()", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["SingleplayRabbit"]
+									"params": ["SingleplayRabbit()"]
 								}] }
 							],
 							"__worldX": 816,

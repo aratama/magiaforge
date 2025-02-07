@@ -260,6 +260,7 @@ pub const NEW_SPELL: Dict<&'static str> = Dict {
     ru: "Новое заклинание обнаружено!",
 };
 
+/// オープニングデモを飛ばすボタンのラベルテキスト
 pub const SKIP: Dict<&'static str> = Dict {
     ja: "スキップ",
     en: "Skip",

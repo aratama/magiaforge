@@ -67,11 +67,11 @@ use crate::physics::GamePhysicsPlugin;
 use crate::player_state::PlayerStatePlugin;
 use crate::registry::ActorRegistry;
 use crate::registry::GameRegistry;
-use crate::registry::SenarioRegistry;
 use crate::registry::SpellRegistry;
 use crate::registry::TileRegistry;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
+use crate::script::javascript_loader::JavaScriptLoaderPlugin;
 use crate::se::SECommandPlugin;
 use crate::set::GameSetPlugin;
 use crate::states::*;
@@ -182,7 +182,6 @@ pub fn run_game() {
         .add_plugins(RonAssetPlugin::<TileRegistry>::new(&["tile.ron"]))
         .add_plugins(RonAssetPlugin::<SpellRegistry>::new(&["spell.ron"]))
         .add_plugins(RonAssetPlugin::<ActorRegistry>::new(&["actor.ron"]))
-        .add_plugins(RonAssetPlugin::<SenarioRegistry>::new(&["senario.ron"]))
         .add_plugins(AsepriteUltraPlugin)
         .insert_resource(TimestepMode::Fixed {
             dt: 1.0 / 60.0,
@@ -244,6 +243,7 @@ pub fn run_game() {
         .add_plugins(InventoryItemFloatingPlugin)
         .add_plugins(InventoryPlugin)
         .add_plugins(ItemPanelPlugin)
+        .add_plugins(JavaScriptLoaderPlugin)
         .add_plugins(LanguagePlugin)
         .add_plugins(LabelPlugin)
         .add_plugins(LifeBarPlugin)

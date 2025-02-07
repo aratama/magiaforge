@@ -1,9 +1,9 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::config::GameConfig;
-use crate::interpreter::cmd::Cmd;
 use crate::interpreter::interpreter::Interpreter;
 use crate::language::language_to_font;
+use crate::language::Dict;
 use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
@@ -21,6 +21,7 @@ const DELAY: usize = 4;
 #[derive(Component)]
 pub struct SpeechBubble {
     pub entity: Option<Entity>,
+    pub dict: Dict<String>,
 }
 
 #[derive(Component)]
@@ -33,7 +34,10 @@ pub fn spawn_speech_bubble(parent: &mut Commands, registry: &Registry) {
     parent
         .spawn((
             StateScoped(GameState::InGame),
-            SpeechBubble { entity: None },
+            SpeechBubble {
+                entity: None,
+                dict: Dict::default(),
+            },
             AseUiSlice {
                 aseprite: registry.assets.atlas.clone(),
                 name: "speech_bubble".into(),
@@ -106,43 +110,37 @@ pub fn update_speech_bubble_position(
 }
 
 fn next_page_visibility(
+    speech_query: Query<&SpeechBubble>,
     mut query: Query<&mut Visibility, With<NextPage>>,
     config: Res<GameConfig>,
     theater: Res<Interpreter>,
 ) {
+    let speech = speech_query.single();
     let mut visibility = query.single_mut();
-    match theater.current_act() {
-        Some(Cmd::Speech(dict)) => {
-            let page_string = dict.get(config.language);
-            let chars = page_string.char_indices();
-            let count = chars.count();
-            let pos = theater.speech_count / DELAY;
-            *visibility = if pos < count {
-                Visibility::Hidden
-            } else {
-                Visibility::Inherited
-            };
-        }
-        _ => {}
-    }
+    let page_string = speech.dict.get(config.language);
+    let chars = page_string.char_indices();
+    let count = chars.count();
+    let pos = theater.speech_count / DELAY;
+    *visibility = if pos < count {
+        Visibility::Hidden
+    } else {
+        Visibility::Inherited
+    };
 }
 
 pub fn update_text_on_change_config(
+    speech_query: Query<&SpeechBubble>,
     config: Res<GameConfig>,
     mut speech_text_query: Query<(&mut Text, &mut TextFont), With<SpeechBubbleText>>,
     theater: Res<Interpreter>,
     assets: Res<GameAssets>,
 ) {
-    match theater.commands.get(theater.index) {
-        Some(Cmd::Speech(dict)) => {
-            let text_end_position = theater.speech_count / DELAY;
-            let (mut speech_text, mut font) = speech_text_query.single_mut();
-            let page_string = dict.get(config.language);
-            speech_text.0 = page_string.chars().take(text_end_position).collect();
-            font.font = language_to_font(&assets, config.language);
-        }
-        _ => {}
-    }
+    let speech = speech_query.single();
+    let text_end_position = theater.speech_count / DELAY;
+    let (mut speech_text, mut font) = speech_text_query.single_mut();
+    let page_string = speech.dict.get(config.language);
+    speech_text.0 = page_string.chars().take(text_end_position).collect();
+    font.font = language_to_font(&assets, config.language);
 }
 
 pub struct SpeechBubblePlugin;

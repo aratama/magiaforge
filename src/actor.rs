@@ -40,8 +40,6 @@ use crate::entity::fire::Fire;
 use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::spawn_life_bar;
-use crate::interpreter::cmd::Cmd;
-use crate::interpreter::cmd::Value;
 use crate::interpreter::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
@@ -1199,7 +1197,6 @@ fn despawn(
     mut commands: Commands,
     registry: Registry,
     world: Res<GameWorld>,
-    mut interpreter: EventWriter<InterpreterEvent>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEvent>,
     query: Query<(
@@ -1265,19 +1262,19 @@ fn despawn(
             }
 
             // ボス用の消滅シナリオ実行
-            if let Some(boss) = boss {
-                let mut cmds = registry.get_senario(&boss.on_despawn).clone();
-                cmds.insert(
-                    0,
-                    Cmd::Set {
-                        name: "position".to_string(),
-                        value: Value::Vec2 {
-                            x: position.x,
-                            y: position.y,
-                        },
-                    },
-                );
-                interpreter.send(InterpreterEvent::Play { commands: cmds });
+            if let Some(_boss) = boss {
+                // let mut cmds = registry.get_senario(&boss.on_despawn).clone();
+                // cmds.insert(
+                //     0,
+                //     Cmd::Set {
+                //         name: "position".to_string(),
+                //         value: Value::Vec2 {
+                //             x: position.x,
+                //             y: position.y,
+                //         },
+                //     },
+                // );
+                // interpreter.send(InterpreterEvent::Play { commands: cmds });
             }
         }
     }
