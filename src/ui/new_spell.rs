@@ -1,8 +1,11 @@
+use crate::actor::Actor;
 use crate::constant::UI_PRIMARY;
 use crate::constant::UI_PRIMARY_DARKER;
+use crate::controller::player::Player;
 use crate::language::M18NTtext;
 use crate::message::NEW_SPELL;
 use crate::registry::Registry;
+use crate::script::javascript_loader::JavaScriptContext;
 use crate::se::SEEvent;
 use crate::se::HAKKEN;
 use crate::set::FixedUpdateInGameSet;
@@ -15,7 +18,7 @@ use bevy_aseprite_ultra::prelude::AseUiSlice;
 #[derive(Component)]
 pub struct NewSpell;
 
-pub fn spawn_new_spell_window(
+fn spawn_new_spell_window(
     commands: &mut Commands,
     registry: &Registry,
     time: &mut ResMut<NextState<TimeState>>,
@@ -123,12 +126,40 @@ pub fn spawn_new_spell_window(
         });
 }
 
+fn open(
+    mut commands: Commands,
+    registry: Registry,
+    mut time: ResMut<NextState<TimeState>>,
+    mut se: EventWriter<SEEvent>,
+    mut player_query: Query<(&Actor, &mut Player)>,
+    query: Query<Entity, With<NewSpell>>,
+) {
+    let Ok((actor, mut player)) = player_query.get_single_mut() else {
+        return;
+    };
+
+    if !query.is_empty() {
+        return;
+    }
+
+    for spell in actor.inventory.0.iter() {
+        if let Some(spell) = spell {
+            if !player.discovered_spells.contains(&spell) {
+                spawn_new_spell_window(&mut commands, &registry, &mut time, spell.clone(), &mut se);
+                player.discovered_spells.insert(spell.clone());
+                return;
+            }
+        };
+    }
+}
+
 fn close(
     mut commands: Commands,
     query: Query<Entity, With<NewSpell>>,
     mouse: Res<ButtonInput<MouseButton>>,
     mut time: ResMut<NextState<TimeState>>,
     menu: Res<State<GameMenuState>>,
+    mut script: NonSendMut<JavaScriptContext>,
 ) {
     if *menu == GameMenuState::Closed
         && (mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right))
@@ -137,6 +168,8 @@ fn close(
             commands.entity(entity).despawn_recursive();
 
             time.set(TimeState::Active);
+
+            script.resume();
         }
     }
 }
@@ -145,6 +178,6 @@ pub struct NewSpellPlugin;
 
 impl Plugin for NewSpellPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(FixedUpdate, close.in_set(FixedUpdateInGameSet));
+        app.add_systems(FixedUpdate, (open, close).in_set(FixedUpdateInGameSet));
     }
 }

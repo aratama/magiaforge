@@ -40,7 +40,6 @@ use crate::entity::fire::Fire;
 use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::spawn_life_bar;
-use crate::interpreter::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
@@ -49,6 +48,7 @@ use crate::level::world::GameWorld;
 use crate::level::world::LevelScoped;
 use crate::registry::ActorCollider;
 use crate::registry::Registry;
+use crate::script::event::CmdEvent;
 use crate::se::SEEvent;
 use crate::se::BASHA2;
 use crate::se::CRY;
@@ -91,7 +91,6 @@ use chicken::Chicken;
 use rand::seq::SliceRandom;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashSet;
 use std::f32::consts::PI;
 use uuid::Uuid;
 use vleue_navigator::prelude::PrimitiveObstacle;
@@ -338,23 +337,6 @@ impl Actor {
         }
 
         scale_factor.max(-2.0).min(1.0)
-    }
-
-    pub fn get_owned_spell_types(&self) -> HashSet<Spell> {
-        let mut discovered_spells: HashSet<Spell> = HashSet::new();
-        for item in self.inventory.0.iter() {
-            if let Some(ref item) = item {
-                let _ = discovered_spells.insert(item.clone());
-            }
-        }
-        for wand in self.wands.iter() {
-            for item in wand.slots.iter() {
-                if let Some(ref item) = &item {
-                    let _ = discovered_spells.insert(item.clone());
-                }
-            }
-        }
-        discovered_spells
     }
 
     pub fn contains_in_slot(&self, spell: &Spell) -> bool {
@@ -879,7 +861,7 @@ fn drown_damage(
     mut level: ResMut<GameWorld>,
     mut commands: Commands,
     mut se: EventWriter<SEEvent>,
-    mut interpreter: EventWriter<InterpreterEvent>,
+    mut cmd_writer: EventWriter<CmdEvent>,
 ) {
     for (entity, mut actor, transform, player, morph) in actor_query.iter_mut() {
         let position = transform.translation.truncate();
@@ -921,7 +903,7 @@ fn drown_damage(
 
                 se.send(SEEvent::pos(SCENE2, position));
                 if let Some(player) = player {
-                    recovery(&mut level, &mut interpreter, &morph, &player, &actor);
+                    recovery(&mut level, &morph, &player, &actor, &mut cmd_writer);
                 }
             }
             _ => {}

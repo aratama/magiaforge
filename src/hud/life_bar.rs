@@ -1,4 +1,5 @@
-use crate::actor::{Actor, ActorGroup};
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
 use crate::component::metamorphosis::Metamorphosed;
 use crate::controller::player::Player;
 use crate::enemy::huge_slime::Boss;

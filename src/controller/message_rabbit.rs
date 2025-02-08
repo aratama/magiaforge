@@ -4,14 +4,16 @@ use crate::actor::ActorAppearanceSprite;
 use crate::actor::ActorSpriteGroup;
 use crate::camera::GameCamera;
 use crate::controller::player::Player;
-use crate::interpreter::interpreter::InterpreterEvent;
 use crate::physics::identify;
 use crate::physics::identify_item;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::physics::IdentifiedCollisionItem;
+use crate::script::cmd::Cmd;
+use crate::script::event::CmdEvent;
 use crate::script::javascript_loader::JavaScriptContext;
 use crate::set::FixedUpdateInGameSet;
 use crate::ui::speech_bubble::SpeechBubble;
+use crate::ui::spell_list::SpellList;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use bevy_rapier2d::prelude::*;
@@ -31,10 +33,6 @@ impl MessageRabbit {
     }
 }
 
-/// 呪文一覧のウサギは特別な処理があるので、区別できるようにするマーカー
-#[derive(Component)]
-pub struct SpellListRabbit;
-
 #[derive(Component)]
 pub struct MessageRabbitInnerSensor;
 
@@ -48,9 +46,9 @@ fn collision_inner_sensor(
     mut camera_query: Query<&mut GameCamera>,
     player_query: Query<&Actor, (With<Player>, With<Witch>)>,
     mut script: NonSendMut<JavaScriptContext>,
-    mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
+    mut speech_query: Query<&mut SpeechBubble>,
 ) {
-    let (mut visibility, mut speech) = speech_query.single_mut();
+    let mut speech = speech_query.single_mut();
     for collision_event in collision_events.read() {
         match identify_item(collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionItem::Started(parent, _, _, _) => {
@@ -62,7 +60,6 @@ fn collision_inner_sensor(
                 let rabbit = rabbit_query.get(rabbit_entity).unwrap();
                 camera.target = Some(rabbit_entity);
                 speech.entity = Some(rabbit_entity);
-                *visibility = Visibility::Inherited;
                 script.generate(rabbit.trigger.clone());
             }
             _ => {}
@@ -75,14 +72,18 @@ fn collision_outer_sensor(
     mut camera_query: Query<&mut GameCamera>,
     sensor_query: Query<&MessageRabbitOuterSensor>,
     player_query: Query<&Actor, With<Player>>,
-    mut speech_writer: EventWriter<InterpreterEvent>,
+    mut cmd_writer: EventWriter<CmdEvent>,
+    mut script: NonSendMut<JavaScriptContext>,
+    mut spell_list_query: Query<&mut SpellList>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &sensor_query, &player_query) {
             IdentifiedCollisionEvent::Stopped(..) => {
                 let mut camera = camera_query.single_mut();
                 camera.target = None;
-                speech_writer.send(InterpreterEvent::Quit);
+                cmd_writer.send(CmdEvent(Cmd::Close));
+                script.abort();
+                spell_list_query.single_mut().open = false;
             }
             _ => {}
         }

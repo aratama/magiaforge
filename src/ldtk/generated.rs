@@ -11,7 +11,8 @@
 //     let model: Coordinate = serde_json::from_str(&json).unwrap();
 // }
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashMap;
 
 /// This file is a JSON schema of files created by LDtk level editor (https://ldtk.io).

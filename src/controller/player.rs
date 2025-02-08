@@ -13,12 +13,12 @@ use crate::entity::bullet::Bullet;
 use crate::entity::bullet::Trigger;
 use crate::entity::gold::Gold;
 use crate::input::get_direction;
-use crate::interpreter::cmd::Cmd;
-use crate::interpreter::interpreter::InterpreterEvent;
 use crate::level::world::GameLevel;
 use crate::level::world::GameWorld;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
+use crate::script::cmd::Cmd;
+use crate::script::event::CmdEvent;
 use crate::se::SEEvent;
 use crate::se::PICK_UP;
 use crate::se::SEN;
@@ -78,14 +78,6 @@ impl Player {
             discovered_spells: discovered_spells.clone(),
             broken_chests: 0,
         }
-    }
-
-    pub fn update_discovered_spells(&mut self, actor: &Actor) {
-        self.discovered_spells = self
-            .discovered_spells
-            .union(&actor.get_owned_spell_types())
-            .cloned()
-            .collect();
     }
 }
 
@@ -299,8 +291,8 @@ fn die_player(
     player_query: Query<(&Actor, &Transform, &Player, Option<&Metamorphosed>)>,
     mut writer: EventWriter<ClientMessage>,
     websocket: Res<WebSocketState>,
-    mut interpreter: EventWriter<InterpreterEvent>,
     mut next: ResMut<GameWorld>,
+    mut cmd_writer: EventWriter<CmdEvent>,
 ) {
     if let Ok((actor, transform, player, morph)) = player_query.get_single() {
         if actor.life <= 0 {
@@ -334,17 +326,17 @@ fn die_player(
                 },
             );
 
-            recovery(&mut next, &mut interpreter, &morph, player, actor);
+            recovery(&mut next, &morph, player, actor, &mut cmd_writer);
         }
     }
 }
 
 pub fn recovery(
     level: &mut GameWorld,
-    interpreter: &mut EventWriter<InterpreterEvent>,
     morph: &Option<&Metamorphosed>,
     player: &Player,
     current_actor: &Actor,
+    cmd_writer: &mut EventWriter<CmdEvent>,
 ) {
     // ダウン後はキャンプに戻る
     level.next_level = GameLevel::new("level_0_0");
@@ -360,9 +352,9 @@ pub fn recovery(
     level.next_state = Some(player_state);
 
     // 数秒後にキャンプに戻る
-    interpreter.send(InterpreterEvent::Play {
-        commands: vec![Cmd::Wait { count: 300 }, Cmd::Home],
-    });
+    cmd_writer.send(CmdEvent(Cmd::Warp {
+        destination_iid: "73094a00-c210-11ef-9f2d-7faa688afc7c".to_string(),
+    }));
 }
 
 /// マウスポインタの位置を参照してプレイヤーアクターのポインターを設定します
@@ -388,12 +380,6 @@ fn update_pointer_by_mouse(
     }
 }
 
-fn insert_discovered_spells(mut player_query: Query<(&mut Player, &Actor)>) {
-    for (mut player, actor) in player_query.iter_mut() {
-        player.update_discovered_spells(actor);
-    }
-}
-
 fn sync_wands(mut query: Query<(&mut Actor, Option<&Player>), With<PlayerControlled>>) {
     let Some(original) = query
         .iter()
@@ -416,14 +402,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (
-                pick_gold,
-                die_player,
-                insert_discovered_spells,
-                move_player,
-                sync_wands,
-            )
-                .in_set(FixedUpdateGameActiveSet),
+            (pick_gold, die_player, move_player, sync_wands).in_set(FixedUpdateGameActiveSet),
         );
 
         app.add_systems(

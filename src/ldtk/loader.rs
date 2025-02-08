@@ -1,10 +1,16 @@
-use super::generated::{EntityInstance, LayerDefinition, LayerInstance, Level};
-use crate::{actor::ActorType, language::Dict, level::world::GameLevel};
-use bevy::{
-    asset::{io::Reader, AssetLoader, AsyncReadExt},
-    prelude::*,
-};
-use std::{collections::HashMap, sync::Arc};
+use super::generated::EntityInstance;
+use super::generated::LayerDefinition;
+use super::generated::LayerInstance;
+use super::generated::Level;
+use crate::actor::ActorType;
+use crate::language::Dict;
+use crate::level::world::GameLevel;
+use bevy::asset::io::Reader;
+use bevy::asset::AssetLoader;
+use bevy::asset::AsyncReadExt;
+use bevy::prelude::*;
+use std::collections::HashMap;
+use std::sync::Arc;
 use thiserror::Error;
 
 pub struct RawLDTKLoaderPlugin;

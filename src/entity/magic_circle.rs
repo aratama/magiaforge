@@ -4,13 +4,13 @@ use crate::collision::PLAYER_GROUPS;
 use crate::collision::SENSOR_GROUPS;
 use crate::constant::*;
 use crate::controller::player::Player;
-use crate::interpreter::cmd::Cmd;
-use crate::interpreter::interpreter::InterpreterEvent;
 use crate::level::world::GameLevel;
 use crate::level::world::GameWorld;
 use crate::level::world::LevelScoped;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
+use crate::script::cmd::Cmd;
+use crate::script::event::CmdEvent;
 use crate::se::SEEvent;
 use crate::se::TURN_ON;
 use crate::se::WARP;
@@ -36,7 +36,6 @@ pub struct MagicCircle {
     active: bool,
     step: i32,
     light: Entity,
-    destination_level: GameLevel,
     destination_iid: String,
 }
 
@@ -51,7 +50,6 @@ pub fn spawn_magic_circle(
     registry: &Registry,
     level: &GameLevel,
     position: Vec2,
-    destination_level: GameLevel,
     destination_iid: &str,
 ) {
     let light_entity = commands.spawn_empty().id();
@@ -65,7 +63,6 @@ pub fn spawn_magic_circle(
                 active: false,
                 step: 0,
                 light: light_entity,
-                destination_level,
                 destination_iid: destination_iid.to_string(),
             },
             Transform::from_translation(position.extend(PAINT_LAYER_Z)),
@@ -159,7 +156,7 @@ fn warp(
     mut circle_query: Query<(&mut MagicCircle, &Transform)>,
     mut level: ResMut<GameWorld>,
     mut writer: EventWriter<SEEvent>,
-    mut interpreter: EventWriter<InterpreterEvent>,
+    mut cmd_writer: EventWriter<CmdEvent>,
 ) {
     let Ok((entity, player, actor)) = player_query.get_single_mut() else {
         return;
@@ -173,15 +170,9 @@ fn warp(
             circle.step = 0;
             let player_state = PlayerState::from_player(&player, &actor);
             level.next_state = Some(player_state);
-            interpreter.send(InterpreterEvent::Play {
-                commands: vec![
-                    Cmd::Wait { count: 60 },
-                    Cmd::Warp {
-                        destination_level: circle.destination_level.clone(),
-                        destination_iid: circle.destination_iid.clone(),
-                    },
-                ],
-            });
+            cmd_writer.send(CmdEvent(Cmd::Warp {
+                destination_iid: circle.destination_iid.clone(),
+            }));
         }
     }
 }

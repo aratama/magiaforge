@@ -3,6 +3,7 @@ use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::hud::life_bar::LifeBarResource;
 use crate::language::Dict;
+use crate::ldtk::generated::EntityInstance;
 use crate::ldtk::generated::Level;
 use crate::ldtk::loader::LevelCustomFields;
 use crate::ldtk::loader::LDTK;
@@ -383,6 +384,7 @@ impl<'w> Registry<'w> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_level_by_iid(&self, iid: &str) -> Level {
         let ldtk = self.ldtk();
         ldtk.coordinate
@@ -391,6 +393,20 @@ impl<'w> Registry<'w> {
             .find(|l| l.iid == iid)
             .expect(&format!("Level {:?} not found", iid))
             .clone()
+    }
+
+    pub fn get_level_by_entity_iid(&self, entity_iid: &str) -> Option<(Level, EntityInstance)> {
+        let ldtk = self.ldtk();
+        for l in ldtk.coordinate.levels.iter() {
+            for layer in l.layer_instances.as_ref().unwrap_or(&vec![]).iter() {
+                for entity in layer.entity_instances.iter() {
+                    if entity.iid == entity_iid {
+                        return Some((l.clone(), entity.clone()));
+                    }
+                }
+            }
+        }
+        None
     }
 }
 

@@ -77,22 +77,7 @@ function* GuideRabbit(context) {
         ko: "미로에 가기 전에 우리 가게에 들르는 것이 좋아. 우리는 미로에서 발견한 주문을 팔고 있어.",
         ru: "Перед тем как идти в лабиринт, тебе стоит заглянуть в наш магазин. Мы продаем заклинания, которые нашли в лабиринте.",
     };
-
-    if (inventory.includes("Lantern")) {
-        yield {
-            type: "Speech",
-            ja: "そのランタンは持っているだけで効果がある。",
-            en: "Right, it's dark around here. You should take this.",
-            zh_cn: "对了，这里很暗。你应该带上这个。",
-            zh_tw: "對了，這裡很暗。你應該帶上這個。",
-            es: "Cierto, está oscuro por aquí. Deberías llevar esto.",
-            fr: "C'est vrai, il fait sombre par ici. Vous devriez prendre ceci.",
-            pt: "É verdade, está escuro por aqui. Você deveria levar isto.",
-            de: "Richtig, es ist dunkel hier. Du solltest das mitnehmen.",
-            ko: "그래, 이 근처는 어두워. 이걸 가져가는 게 좋을 거야.",
-            ru: "Верно, здесь темно. Тебе стоит взять это."
-        };
-    }else{
+    if (!inventory.includes("Lantern")) {
         yield {
             type: "Speech",
             ja: "そうそう。この辺りは薄暗い。これを持っていくといい。",
@@ -105,7 +90,14 @@ function* GuideRabbit(context) {
             de: "Richtig, es ist dunkel hier. Du solltest das mitnehmen.",
             ko: "그래, 이 근처는 어두워. 이걸 가져가는 게 좋을 거야.",
             ru: "Верно, здесь темно. Тебе стоит взять это."
-        };        
+        };   
+        yield {
+            type: "Close",
+        };
+        yield {
+            type: "GetSpell",
+            spell: "Lantern",
+        };
     }
 }
 
@@ -315,6 +307,7 @@ function* TrainingRabbit() {
     };
 }
 function* SpellListRabbit() {
+    spellListOpen = true;
     yield {
         type: "Speech",
         ja: "私は魔法使いたちの操る呪文に興味があってね。君の知っている呪文について教えてくれないか？",
@@ -354,6 +347,7 @@ function* SpellListRabbit() {
         ko: "모두에게 그 주문을 모으라고 말할게. 이제부터 그 주문이 가게에 있을 거야.",
         ru: "Я скажу всем собирать эти заклинания. Они должны быть доступны в магазине с этого момента.",
     }
+    spellListOpen = false;
 }
 
 function* ShopRabbit() {

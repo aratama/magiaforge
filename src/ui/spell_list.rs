@@ -1,8 +1,6 @@
-use crate::camera::GameCamera;
 use crate::constant::UI_PRIMARY;
 use crate::constant::UI_PRIMARY_DARKER;
 use crate::constant::UI_SECONDARY;
-use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::Player;
 use crate::language::M18NTtext;
 use crate::message::DISCOVERED_SPELLS;
@@ -25,7 +23,8 @@ const RIGHT_ON_OPEN: f32 = 60.0;
 const RIGHT_ON_CLOSE: f32 = -400.0;
 
 #[derive(Component)]
-struct SpellList {
+pub struct SpellList {
+    pub open: bool,
     right: f32,
 }
 
@@ -58,6 +57,7 @@ fn setup(mut commands: Commands, registry: Registry) {
         .spawn((
             Name::new("Spell list root"),
             SpellList {
+                open: false,
                 right: RIGHT_ON_CLOSE,
             },
             StateScoped(GameState::InGame),
@@ -138,22 +138,14 @@ fn setup(mut commands: Commands, registry: Registry) {
         });
 }
 
-fn update_right(
-    mut query: Query<(&mut SpellList, &mut Node)>,
-    camera_query: Query<&GameCamera>,
-    spell_list_rabbit_query: Query<&SpellListRabbit>,
-) {
-    let camera = camera_query.single();
-
-    let open = if let Some(target) = camera.target {
-        spell_list_rabbit_query.contains(target)
-    } else {
-        false
-    };
-
+fn update_right(mut query: Query<(&mut SpellList, &mut Node)>) {
     let (mut spell_list, mut node) = query.single_mut();
-    spell_list.right +=
-        ((if open { RIGHT_ON_OPEN } else { RIGHT_ON_CLOSE }) - spell_list.right) * 0.1;
+    spell_list.right += ((if spell_list.open {
+        RIGHT_ON_OPEN
+    } else {
+        RIGHT_ON_CLOSE
+    }) - spell_list.right)
+        * 0.1;
     node.right = Val::Px(spell_list.right);
 }
 

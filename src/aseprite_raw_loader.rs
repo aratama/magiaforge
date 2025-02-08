@@ -1,11 +1,13 @@
 // 使われていません
 
 use aseprite_loader::loader::AsepriteFile;
-use bevy::{
-    asset::{io::Reader, AssetLoader, RenderAssetUsages},
-    prelude::*,
-    render::render_resource::{Extent3d, TextureDimension, TextureFormat},
-};
+use bevy::asset::io::Reader;
+use bevy::asset::AssetLoader;
+use bevy::asset::RenderAssetUsages;
+use bevy::prelude::*;
+use bevy::render::render_resource::Extent3d;
+use bevy::render::render_resource::TextureDimension;
+use bevy::render::render_resource::TextureFormat;
 use std::sync::Arc;
 use thiserror::Error;
 

@@ -1,6 +1,7 @@
 use crate::collision::PIECE_GROUPS;
 use crate::constant::*;
-use crate::level::world::{GameLevel, LevelScoped};
+use crate::level::world::GameLevel;
+use crate::level::world::LevelScoped;
 use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;

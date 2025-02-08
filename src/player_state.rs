@@ -64,6 +64,11 @@ impl PlayerState {
 
     pub fn update_discovered_spell(&mut self) {
         let mut discovered_spells = self.discovered_spells.clone();
+        for spell in self.inventory.0.iter() {
+            if let Some(spell) = spell {
+                discovered_spells.insert(spell.clone());
+            }
+        }
         for wand in self.wands.iter() {
             for spell in wand.slots.iter() {
                 if let Some(spell) = spell {

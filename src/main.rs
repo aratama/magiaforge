@@ -22,7 +22,6 @@ mod footsteps;
 mod game;
 mod hud;
 mod input;
-mod interpreter;
 mod inventory;
 mod language;
 mod ldtk;

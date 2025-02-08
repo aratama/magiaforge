@@ -1,3 +1,5 @@
+use super::world::GameLevel;
+use super::world::LevelScoped;
 use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::*;
 use crate::entity::grass::spawn_grasses;
@@ -14,9 +16,6 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_light_2d::light::PointLight2d;
 use rand::seq::SliceRandom;
-
-use super::world::GameLevel;
-use super::world::LevelScoped;
 
 const WATER_PLANE_OFFEST: f32 = -4.0;
 

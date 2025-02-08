@@ -1,17 +1,20 @@
-use crate::{
-    actor::{Actor, ActorGroup},
-    collision::SENSOR_GROUPS,
-    entity::explosion::SpawnExplosion,
-    level::world::{GameLevel, LevelScoped},
-    physics::{identify, IdentifiedCollisionEvent},
-    set::FixedUpdateGameActiveSet,
-    states::GameState,
-};
+use super::entity_depth::EntityDepth;
+use crate::actor::Actor;
+use crate::actor::ActorGroup;
+use crate::collision::SENSOR_GROUPS;
+use crate::entity::explosion::SpawnExplosion;
+use crate::level::world::GameLevel;
+use crate::level::world::LevelScoped;
+use crate::physics::identify;
+use crate::physics::IdentifiedCollisionEvent;
+use crate::set::FixedUpdateGameActiveSet;
+use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
-use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, Sensor};
-
-use super::entity_depth::EntityDepth;
+use bevy_rapier2d::prelude::ActiveEvents;
+use bevy_rapier2d::prelude::Collider;
+use bevy_rapier2d::prelude::CollisionEvent;
+use bevy_rapier2d::prelude::Sensor;
 
 /// 触れると爆発する性質です
 #[derive(Component, Clone)]

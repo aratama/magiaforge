@@ -1,10 +1,10 @@
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::config::GameConfig;
-use crate::interpreter::interpreter::Interpreter;
 use crate::language::language_to_font;
 use crate::language::Dict;
 use crate::registry::Registry;
+use crate::script::event::Interpreter;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;

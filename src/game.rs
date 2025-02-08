@@ -52,7 +52,6 @@ use crate::hud::pointer::PointerPlugin;
 use crate::hud::tutorial::TutorialPlugin;
 use crate::hud::*;
 use crate::input::GameInputPlugin;
-use crate::interpreter::interpreter::InterpreterPlugin;
 use crate::language::LanguagePlugin;
 use crate::ldtk::loader::RawLDTKLoaderPlugin;
 use crate::page::ending::EndingPlugin;
@@ -70,6 +69,7 @@ use crate::registry::SpellRegistry;
 use crate::registry::TileRegistry;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
+use crate::script::event::InterpreterPlugin;
 use crate::script::javascript_loader::JavaScriptLoaderPlugin;
 use crate::se::SECommandPlugin;
 use crate::set::GameSetPlugin;

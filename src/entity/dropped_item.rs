@@ -15,8 +15,6 @@ use crate::se::REGISTER;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
 use crate::states::GameState;
-use crate::states::TimeState;
-use crate::ui::new_spell::spawn_new_spell_window;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -133,18 +131,16 @@ fn swing(mut query: Query<(&mut Transform, &SpellSprites, &Counter)>) {
 
 fn pickup_dropped_item(
     mut commands: Commands,
-    registry: Registry,
     mut collision_events: EventReader<CollisionEvent>,
     item_query: Query<&DroppedItemEntity>,
-    mut player_query: Query<(&mut Actor, &Player)>,
+    mut player_query: Query<&mut Actor, With<Player>>,
     mut se: EventWriter<SEEvent>,
-    mut time: ResMut<NextState<TimeState>>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &item_query, &player_query) {
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
                 let item = item_query.get(item_entity).unwrap();
-                let (mut actor, player) = player_query.get_mut(player_entity).unwrap();
+                let mut actor = player_query.get_mut(player_entity).unwrap();
 
                 if actor.golds <= item.price || !actor.inventory.insert(item.item.clone()) {
                     se.send(SEEvent::new(KEN2));
@@ -159,18 +155,6 @@ fn pickup_dropped_item(
                 }
 
                 commands.entity(item_entity).despawn_recursive();
-
-                let spell = &item.item;
-
-                if !player.discovered_spells.contains(&spell) {
-                    spawn_new_spell_window(
-                        &mut commands,
-                        &registry,
-                        &mut time,
-                        spell.clone(),
-                        &mut se,
-                    );
-                }
             }
             _ => {}
         }

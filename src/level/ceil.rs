@@ -1,3 +1,5 @@
+use super::world::GameLevel;
+use super::world::LevelScoped;
 use crate::component::animated_slice::AnimatedSlice;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
@@ -8,9 +10,6 @@ use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
-
-use super::world::GameLevel;
-use super::world::LevelScoped;
 
 // これを考慮していないのでレベルの境界でおかしくなる？
 // あとで直す

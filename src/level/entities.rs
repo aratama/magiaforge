@@ -1,4 +1,3 @@
-use super::world::GameLevel;
 use super::world::LevelScoped;
 use crate::actor::chest::chest_actor;
 use crate::actor::chest::Chest;
@@ -14,7 +13,6 @@ use crate::constant::*;
 use crate::controller::message_rabbit::MessageRabbit;
 use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
-use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::PlayerControlled;
 use crate::enemy::huge_slime::Boss;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
@@ -130,8 +128,6 @@ pub enum Spawn {
 pub struct MagicCircleProps {
     #[serde(rename = "entityIid")]
     entity_iid: String,
-    #[serde(rename = "levelIid")]
-    level_iid: String,
 }
 
 /// エンティティを生成するイベントです
@@ -185,13 +181,11 @@ pub fn spawn_entity(
 
         match &entity {
             Spawn::MagicCircle { destination } => {
-                let destination_level = registry.get_level_by_iid(&destination.level_iid);
                 spawn_magic_circle(
                     &mut commands,
                     &registry,
                     &level,
                     *position,
-                    GameLevel(destination_level.identifier.clone()),
                     destination.entity_iid.as_str(),
                 );
             }
@@ -243,13 +237,6 @@ pub fn spawn_entity(
                 let mut entity = commands.entity(entity);
 
                 entity.insert(MessageRabbit::new(aseprite_value, senario));
-
-                match senario.as_str() {
-                    "SpellListRabbit" => {
-                        entity.insert(SpellListRabbit);
-                    }
-                    _ => {}
-                };
 
                 entity.with_children(|builder| {
                     builder.spawn((
