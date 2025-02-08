@@ -11,7 +11,7 @@
 	"iid": "d6c10700-c210-11ef-bd33-1de7d482da37",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 54,
+	"nextUid": 55,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "GridVania",
@@ -665,6 +665,43 @@
 					"type": "F_String",
 					"isArray": false,
 					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
+				},
+				{
+					"identifier": "on_despawn",
+					"doc": null,
+					"__type": "String",
+					"uid": 54,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": false,
 					"arrayMinLength": null,
 					"arrayMaxLength": null,
 					"editorDisplayMode": "Hidden",
@@ -6668,8 +6705,8 @@
 			"identifier": "Cave",
 			"iid": "2eccafd0-c210-11ef-9daa-e9b0966b9ad8",
 			"uid": 20,
-			"worldX": 4352,
-			"worldY": 768,
+			"worldX": 4608,
+			"worldY": 1024,
 			"worldDepth": 0,
 			"pxWid": 768,
 			"pxHei": 768,
@@ -6770,8 +6807,8 @@
 							"defUid": 2,
 							"px": [368,544],
 							"fieldInstances": [],
-							"__worldX": 4720,
-							"__worldY": 1312
+							"__worldX": 4976,
+							"__worldY": 1568
 						},
 						{
 							"__identifier": "MagicCircle",
@@ -6794,8 +6831,8 @@
 								"id": "V_String",
 								"params": ["73094a00-c210-11ef-9f2d-7faa688afc7c"]
 							}] }],
-							"__worldX": 4704,
-							"__worldY": 912
+							"__worldX": 4960,
+							"__worldY": 1168
 						},
 						{
 							"__identifier": "Boss",
@@ -6809,12 +6846,18 @@
 							"height": 16,
 							"defUid": 21,
 							"px": [352,336],
-							"fieldInstances": [{ "__identifier": "actor", "__type": "String", "__value": "HugeSlime", "__tile": null, "defUid": 22, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["HugeSlime"]
-							}] }],
-							"__worldX": 4704,
-							"__worldY": 1104
+							"fieldInstances": [
+								{ "__identifier": "actor", "__type": "String", "__value": "HugeSlime", "__tile": null, "defUid": 22, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["HugeSlime"]
+								}] },
+								{ "__identifier": "on_despawn", "__type": "String", "__value": "HugeSlimeDespawn()", "__tile": null, "defUid": 54, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["HugeSlimeDespawn()"]
+								}] }
+							],
+							"__worldX": 4960,
+							"__worldY": 1360
 						}
 					]
 				},
@@ -6911,7 +6954,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "393536b0-c210-11ef-b61b-33aff04b32b9", "dir": "w" }, { "levelIid": "c89436e0-c210-11ef-b61b-e51f6e2f91f0", "dir": "n" } ]
+			"__neighbours": []
 		},
 		{
 			"identifier": "Waterside",
@@ -8066,7 +8109,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "2eccafd0-c210-11ef-9daa-e9b0966b9ad8", "dir": "e" }, { "levelIid": "23719770-c210-11ef-8f07-133e750c4b47", "dir": "w" }, { "levelIid": "5b00bfd0-c210-11ef-b61b-87919e30aded", "dir": "s" }, { "levelIid": "c89436e0-c210-11ef-b61b-e51f6e2f91f0", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "23719770-c210-11ef-8f07-133e750c4b47", "dir": "w" }, { "levelIid": "5b00bfd0-c210-11ef-b61b-87919e30aded", "dir": "s" }, { "levelIid": "c89436e0-c210-11ef-b61b-e51f6e2f91f0", "dir": "n" } ]
 		},
 		{
 			"identifier": "Lava",
@@ -10383,7 +10426,7 @@
 					"entityInstances": []
 				}
 			],
-			"__neighbours": [ { "levelIid": "2eccafd0-c210-11ef-9daa-e9b0966b9ad8", "dir": "s" }, { "levelIid": "393536b0-c210-11ef-b61b-33aff04b32b9", "dir": "s" }, { "levelIid": "a4b520f0-c210-11ef-b61b-49c336abb4cf", "dir": "w" } ]
+			"__neighbours": [ { "levelIid": "393536b0-c210-11ef-b61b-33aff04b32b9", "dir": "s" }, { "levelIid": "a4b520f0-c210-11ef-b61b-49c336abb4cf", "dir": "w" } ]
 		},
 		{
 			"identifier": "Forest",

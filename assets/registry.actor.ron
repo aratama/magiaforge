@@ -11,6 +11,7 @@ ActorRegistry(
     acceleration_on_firing: 0.5,
     actors: {
         "Witch": (
+            name_ja: "魔法使い",
             collider: Ball(5.0),
             move_force: 40000.0,
             jump: 0.0,
@@ -48,6 +49,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Rabbit": (
+            name_ja: "ウサギ",
             collider: Ball(5.0),
             move_force: 40000.0,
             jump: 1.5,
@@ -85,6 +87,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Chicken": (
+            name_ja: "ニワトリ",
             collider: Ball(5.0),
             move_force: 60000.0,
             jump: 1.5,
@@ -122,6 +125,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Sandbag": (
+            name_ja: "サンドバッグ",
             collider: Ball(5.0),
             move_force: 100000.0,
             jump: 0.0,
@@ -166,6 +170,7 @@ ActorRegistry(
             }
         ),
         "Slime": (
+            name_ja: "スライム",
             collider: Ball(5.0),
             move_force: 50000.0,
             jump: 0.0,
@@ -212,6 +217,7 @@ ActorRegistry(
             }
         ),
         "EyeBall": (
+            name_ja: "アイボール",
             collider: Ball(5.0),
             move_force: 100000.0,
             jump: 0.0,
@@ -258,6 +264,7 @@ ActorRegistry(
             }
         ),
         "Spider": (
+            name_ja: "スパイダー",
             collider: Ball(8.0),
             move_force: 150000.0,
             jump: 0.0,
@@ -304,6 +311,7 @@ ActorRegistry(
             }
         ),
         "Salamander": (
+            name_ja: "サラマンダー",
             collider: Ball(5.0),
             move_force: 100000.0,
             jump: 0.0,
@@ -350,6 +358,7 @@ ActorRegistry(
             }
         ),
         "Shadow": (
+            name_ja: "シャドウ",
             collider: Ball(5.0),
             move_force: 50000.0,
             jump: 0.0,
@@ -387,6 +396,7 @@ ActorRegistry(
             strategies: {}
         ),
         "HugeSlime": (
+            name_ja: "スライムの王　エミルス",
             collider: Ball(30.0),
             // huge slime のみ move_force を jump_actor の impulse に設定していることに注意
             move_force: 500000.0,
@@ -426,6 +436,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Lantern": (
+            name_ja: "ランタン",
             collider: Ball(5.0),
             move_force: 0.0,
             jump: 0.0,
@@ -460,6 +471,7 @@ ActorRegistry(
             point_light_falloff: 20.0
         ),
         "Chest": (
+            name_ja: "チェスト",
             collider: Cuboid(8.0, 8.0),
             move_force: 0.0,
             jump: 0.0,
@@ -497,6 +509,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Bookshelf": (
+            name_ja: "本棚",
             collider: Cuboid(16.0, 8.0),
             move_force: 0.0,
             jump: 0.0,
@@ -534,6 +547,7 @@ ActorRegistry(
             strategies: {}
         ),
         "Rock": (
+            name_ja: "岩",
             collider: Ball(16.0),
             move_force: 0.0,
             jump: 0.0,
@@ -572,6 +586,7 @@ ActorRegistry(
             impact_radius: 24.0,
         ),
         "Bomb": (
+            name_ja: "爆弾",
             collider: Ball(5.0),
             move_force: 0.0,
             jump: 0.0,

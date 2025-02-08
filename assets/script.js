@@ -367,7 +367,7 @@ function* ShopRabbit() {
 }
 
 
-function HugeSlimeDefeat() {
+function* HugeSlimeDespawn() {
     // "HugeSlime": [
     //     Sprite (
     //         name: "huge slime body",
