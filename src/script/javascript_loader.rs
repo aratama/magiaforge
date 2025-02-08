@@ -57,9 +57,6 @@ pub struct JavaScriptLoader;
 pub enum ReadError {
     #[error("Could not read asset")]
     ReadError,
-
-    #[error("Could not load asset")]
-    LoadError,
 }
 
 impl AssetLoader for JavaScriptLoader {
@@ -209,7 +206,15 @@ fn update(
             .get(PropertyKey::String("next".into()), context)
             .unwrap();
 
-        let next_function = next_function_value.to_object(context).unwrap();
+        let next_function = match next_function_value.to_object(context) {
+            Ok(next_function) => next_function,
+            Err(err) => {
+                error!("[javascript_loader] error: {:?}", err);
+                *generator = None;
+                *value = None;
+                return;
+            }
+        };
 
         let arguments = JsObject::default();
         arguments
@@ -226,6 +231,8 @@ fn update(
                 Ok(result) => result,
                 Err(err) => {
                     error!("[javascript_loader] error: {:?}", err);
+                    *generator = None;
+                    *value = None;
                     return;
                 }
             };

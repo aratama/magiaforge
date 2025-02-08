@@ -1,7 +1,6 @@
 use crate::actor::witch::Witch;
 use crate::actor::Actor;
 use crate::controller::player::Player;
-use crate::inventory::InventoryItem;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::KETTEI_7;
@@ -55,12 +54,7 @@ fn update_panel_item(
                 {
                     None
                 }
-                _ => actor
-                    .get_wand_spell(sprite.wand_index, sprite.spell_index)
-                    .map(|e| InventoryItem {
-                        spell: e.spell,
-                        price: e.price,
-                    }),
+                _ => actor.get_wand_spell(sprite.wand_index, sprite.spell_index),
             };
         }
     }

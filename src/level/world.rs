@@ -1,9 +1,9 @@
 use crate::constant::*;
-use crate::inventory::InventoryItem;
 use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
+use crate::spell::Spell;
 use bevy::prelude::*;
 use serde::Deserialize;
 
@@ -38,7 +38,7 @@ pub struct GameWorld {
 
     /// 次に生成するショップアイテムのキュー
     /// これが空になったときは改めてキューを生成します
-    pub shop_items: Vec<InventoryItem>,
+    pub shop_items: Vec<Spell>,
 }
 
 impl Default for GameWorld {

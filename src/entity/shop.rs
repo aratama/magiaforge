@@ -6,12 +6,8 @@ use crate::component::entity_depth::EntityDepth;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::controller::player::Player;
-use crate::controller::shop_rabbit::ShopRabbit;
-use crate::interpreter::cmd::Cmd;
-use crate::interpreter::interpreter::InterpreterEvent;
 use crate::level::world::GameLevel;
 use crate::level::world::LevelScoped;
-use crate::message::PAY_FIRST;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
@@ -104,31 +100,16 @@ pub fn spawn_shop_door(
 
 fn sensor(
     mut collision_events: EventReader<CollisionEvent>,
-    shop_rabbit_query: Query<Entity, With<ShopRabbit>>,
-    mut sensor_query: Query<(&mut ShopDoorSensor, &Transform), Without<ShopRabbit>>,
-    player_query: Query<&Actor, (With<Player>, Without<ShopRabbit>)>,
-    mut speech_writer: EventWriter<InterpreterEvent>,
+    mut sensor_query: Query<(&mut ShopDoorSensor, &Transform)>,
+    player_query: Query<&Actor, With<Player>>,
     mut se_writer: EventWriter<SEEvent>,
 ) {
     for collision_event in collision_events.read() {
         match identify(&collision_event, &sensor_query, &player_query) {
-            IdentifiedCollisionEvent::Started(sensor_entity, player_entity) => {
+            IdentifiedCollisionEvent::Started(sensor_entity, _player_entity) => {
                 let (mut sensor, sensor_transform) = sensor_query.get_mut(sensor_entity).unwrap();
-                let actor = player_query.get(player_entity).unwrap();
-                if 0 < actor.dept() {
-                    if let Ok(shop_rabbit_entity) = shop_rabbit_query.get_single() {
-                        sensor.open = false;
-                        speech_writer.send(InterpreterEvent::Play {
-                            commands: vec![
-                                Cmd::Focus(shop_rabbit_entity),
-                                Cmd::Speech(PAY_FIRST.to_string()),
-                            ],
-                        });
-                    }
-                } else {
-                    sensor.open = true;
-                    se_writer.send(SEEvent::pos(BUS, sensor_transform.translation.truncate()));
-                }
+                sensor.open = true;
+                se_writer.send(SEEvent::pos(BUS, sensor_transform.translation.truncate()));
             }
             IdentifiedCollisionEvent::Stopped(sensor_entity, _) => {
                 let (mut sensor, _) = sensor_query.get_mut(sensor_entity).unwrap();

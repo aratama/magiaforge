@@ -356,6 +356,21 @@ function* SpellListRabbit() {
     }
 }
 
+function* ShopRabbit() {
+    yield {
+        type: "Speech",
+        ja: "いらっしゃい！迷宮で拾った遺物を売っているんだ。",
+        en: "Welcome! We sell relics found in the labyrinth.",
+        zh_cn: "欢迎光临！我们出售在迷宫里找到的遗物。",
+        zh_tw: "歡迎光臨！我們出售在迷宮裡找到的遺物。",
+        es: "¡Bienvenido! Vendemos reliquias encontradas en el laberinto.",
+        fr: "Bienvenue ! Nous vendons des reliques trouvées dans le labyrinthe.",
+        pt: "Bem-vindo! Vendemos relíquias encontradas no labirinto.",
+        de: "Willkommen! Wir verkaufen Relikte, die im Labyrinth gefunden wurden.",
+        ko: "어서오세요! 우리는 미로에서 발견한 유물을 판매하고 있어요.",
+        ru: "Добро пожаловать! Мы продаем реликвии, найденные в лабиринте."
+    };
+}
 
 
 function HugeSlimeDefeat() {

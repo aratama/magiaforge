@@ -16,9 +16,6 @@ use crate::controller::message_rabbit::MessageRabbitInnerSensor;
 use crate::controller::message_rabbit::MessageRabbitOuterSensor;
 use crate::controller::message_rabbit::SpellListRabbit;
 use crate::controller::player::PlayerControlled;
-use crate::controller::shop_rabbit::ShopRabbit;
-use crate::controller::shop_rabbit::ShopRabbitOuterSensor;
-use crate::controller::shop_rabbit::ShopRabbitSensor;
 use crate::enemy::huge_slime::Boss;
 use crate::entity::broken_magic_circle::spawn_broken_magic_circle;
 use crate::entity::bullet_particle::spawn_particle_system;
@@ -32,7 +29,6 @@ use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
-use crate::inventory::InventoryItem;
 use crate::language::Dict;
 use crate::level::world::GameWorld;
 use crate::registry::Registry;
@@ -225,7 +221,15 @@ pub fn spawn_entity(
             }
             Spawn::ShopSpell => {
                 if let Some(item) = world.shop_items.pop() {
-                    spawn_dropped_item(&mut commands, &registry, &level, *position, &item);
+                    let props = registry.get_spell_props(&item);
+                    spawn_dropped_item(
+                        &mut commands,
+                        &registry,
+                        &level,
+                        *position,
+                        &item,
+                        props.price,
+                    );
                 }
             }
             Spawn::Rabbit {
@@ -241,9 +245,6 @@ pub fn spawn_entity(
                 entity.insert(MessageRabbit::new(aseprite_value, senario));
 
                 match senario.as_str() {
-                    "ShopRabbit" => {
-                        entity.insert(ShopRabbit);
-                    }
                     "SpellListRabbit" => {
                         entity.insert(SpellListRabbit);
                     }
@@ -251,49 +252,22 @@ pub fn spawn_entity(
                 };
 
                 entity.with_children(|builder| {
-                    match senario.as_str() {
-                        "ShopRabbit" => {
-                            builder.spawn((
-                                ShopRabbitSensor,
-                                Collider::ball(16.0),
-                                Sensor,
-                                ActiveEvents::COLLISION_EVENTS,
-                                *SENSOR_GROUPS,
-                                Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
-                            ));
-                        }
-                        _ => {
-                            builder.spawn((
-                                MessageRabbitInnerSensor,
-                                Collider::ball(16.0),
-                                Sensor,
-                                ActiveEvents::COLLISION_EVENTS,
-                                *SENSOR_GROUPS,
-                                Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
-                            ));
-                        }
-                    };
+                    builder.spawn((
+                        MessageRabbitInnerSensor,
+                        Collider::ball(16.0),
+                        Sensor,
+                        ActiveEvents::COLLISION_EVENTS,
+                        *SENSOR_GROUPS,
+                        Transform::default(), // RabbitSensor経由でフキダシの位置を取得するので、ここにGlobalTransformが必要
+                    ));
 
-                    match senario.as_str() {
-                        "ShopRabbit" => {
-                            builder.spawn((
-                                ShopRabbitOuterSensor,
-                                Collider::ball(32.0),
-                                Sensor,
-                                ActiveEvents::COLLISION_EVENTS,
-                                *SENSOR_GROUPS,
-                            ));
-                        }
-                        _ => {
-                            builder.spawn((
-                                MessageRabbitOuterSensor,
-                                Collider::ball(32.0),
-                                Sensor,
-                                ActiveEvents::COLLISION_EVENTS,
-                                *SENSOR_GROUPS,
-                            ));
-                        }
-                    };
+                    builder.spawn((
+                        MessageRabbitOuterSensor,
+                        Collider::ball(32.0),
+                        Sensor,
+                        ActiveEvents::COLLISION_EVENTS,
+                        *SENSOR_GROUPS,
+                    ));
                 });
 
                 //  spawn_rabbit(
@@ -324,7 +298,8 @@ pub fn spawn_entity(
                     &registry,
                     &level,
                     *position,
-                    &InventoryItem::new(Spell(spell.clone())),
+                    &Spell(spell.clone()),
+                    0,
                 );
             }
             Spawn::SpellInChest { spell } => {
@@ -476,17 +451,14 @@ fn spawn_actor_internal(
     }
 }
 
-fn new_shop_item_queue(registry: &Registry, discovered_spells: Vec<Spell>) -> Vec<InventoryItem> {
+fn new_shop_item_queue(registry: &Registry, discovered_spells: Vec<Spell>) -> Vec<Spell> {
     let mut rng = rand::thread_rng();
 
-    let mut shop_items: Vec<InventoryItem> = registry
+    let mut shop_items: Vec<Spell> = registry
         .spells()
         .iter()
         .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
-        .map(|s| InventoryItem {
-            spell: s.clone(),
-            price: registry.get_spell_props(s).price,
-        })
+        .cloned()
         .collect();
 
     shop_items.shuffle(&mut rng);

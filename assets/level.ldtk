@@ -1900,9 +1900,9 @@
 									"id": "V_String",
 									"params": ["rabbit/rabbit_yellow.aseprite"]
 								}] },
-								{ "__identifier": "trigger", "__type": "String", "__value": "ShopRabbit", "__tile": null, "defUid": 16, "realEditorValues": [{
+								{ "__identifier": "trigger", "__type": "String", "__value": "ShopRabbit()", "__tile": null, "defUid": 16, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["ShopRabbit"]
+									"params": ["ShopRabbit()"]
 								}] }
 							],
 							"__worldX": 592,

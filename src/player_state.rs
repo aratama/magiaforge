@@ -67,7 +67,7 @@ impl PlayerState {
         for wand in self.wands.iter() {
             for spell in wand.slots.iter() {
                 if let Some(spell) = spell {
-                    discovered_spells.insert(spell.spell.clone());
+                    discovered_spells.insert(spell.clone());
                 }
             }
         }

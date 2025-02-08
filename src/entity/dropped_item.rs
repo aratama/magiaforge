@@ -3,25 +3,31 @@ use crate::collision::*;
 use crate::component::counter::Counter;
 use crate::component::entity_depth::EntityDepth;
 use crate::controller::player::Player;
-use crate::inventory::InventoryItem;
 use crate::level::world::GameLevel;
 use crate::level::world::LevelScoped;
 use crate::physics::identify;
 use crate::physics::IdentifiedCollisionEvent;
 use crate::registry::Registry;
 use crate::se::SEEvent;
+use crate::se::KEN2;
 use crate::se::PICK_UP;
+use crate::se::REGISTER;
 use crate::set::FixedUpdateGameActiveSet;
+use crate::spell::Spell;
 use crate::states::GameState;
 use crate::states::TimeState;
-use crate::ui::new_spell::spawn_new_spell;
+use crate::ui::new_spell::spawn_new_spell_window;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 pub struct DroppedItemEntity {
-    item: InventoryItem,
+    item: Spell,
+
+    /// 呪文の価格
+    /// 呪文の基本価格とは一致しないこともあります
+    price: u32,
 }
 
 #[derive(Component)]
@@ -35,9 +41,10 @@ pub fn spawn_dropped_item(
     registry: &Registry,
     level: &GameLevel,
     position: Vec2,
-    item: &InventoryItem,
+    item: &Spell,
+    price: u32,
 ) {
-    let item_type = &item.spell;
+    let item_type = &item;
     let props = registry.get_spell_props(&item_type);
     let icon = props.icon.clone();
     let name = props.name.en.clone();
@@ -49,7 +56,10 @@ pub fn spawn_dropped_item(
             Name::new(format!("dropped item {}", name)),
             LevelScoped(level.clone()),
             StateScoped(GameState::InGame),
-            DroppedItemEntity { item: item.clone() },
+            DroppedItemEntity {
+                item: item.clone(),
+                price,
+            },
             EntityDepth::new(),
             Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             GlobalTransform::default(),
@@ -81,21 +91,6 @@ pub fn spawn_dropped_item(
                     Visibility::default(),
                 ))
                 .with_children(|parent| {
-                    if 0 < item.price {
-                        parent.spawn((
-                            // Text2dはVisibilityを必須としているため、その親にもVisibility::default(),を設定しないと警告が出る
-                            Text2d(format!("{}", item.price)),
-                            TextFont {
-                                font: registry.assets.noto_sans_jp.clone(),
-                                font_size: 24.0,
-                                ..default()
-                            },
-                            TextColor(Color::WHITE),
-                            Transform::from_xyz(0.0, 14.0, 1.0)
-                                .with_scale(Vec3::new(0.3, 0.3, 1.0)),
-                        ));
-                    }
-
                     parent.spawn((
                         AseSpriteSlice {
                             aseprite: registry.assets.atlas.clone(),
@@ -111,6 +106,20 @@ pub fn spawn_dropped_item(
                         },
                         Transform::from_xyz(0.0, 0.0, 0.0),
                     ));
+
+                    if 0 < price {
+                        parent.spawn((
+                            Text2d::new(format!("{}", price)),
+                            TextFont {
+                                font: registry.assets.noto_sans_jp.clone().into(),
+                                font_size: 30.0,
+                                ..Default::default()
+                            },
+                            TextColor(Color::WHITE),
+                            Transform::from_xyz(0.0, -14.0, 10.0)
+                                .with_scale(Vec3::new(0.2, 0.2, 1.0)),
+                        ));
+                    }
                 });
         });
 }
@@ -136,22 +145,31 @@ fn pickup_dropped_item(
             IdentifiedCollisionEvent::Started(item_entity, player_entity) => {
                 let item = item_query.get(item_entity).unwrap();
                 let (mut actor, player) = player_query.get_mut(player_entity).unwrap();
-                if actor.inventory.insert(item.item.clone()) {
-                    commands.entity(item_entity).despawn_recursive();
 
+                if actor.golds <= item.price || !actor.inventory.insert(item.item.clone()) {
+                    se.send(SEEvent::new(KEN2));
+                    continue;
+                }
+
+                if 0 < item.price {
+                    actor.golds -= item.price;
+                    se.send(SEEvent::new(REGISTER));
+                } else {
                     se.send(SEEvent::new(PICK_UP));
+                }
 
-                    let InventoryItem { spell, price: _ } = &item.item;
+                commands.entity(item_entity).despawn_recursive();
 
-                    if !player.discovered_spells.contains(&spell) {
-                        spawn_new_spell(
-                            &mut commands,
-                            &registry,
-                            &mut time,
-                            spell.clone(),
-                            &mut se,
-                        );
-                    }
+                let spell = &item.item;
+
+                if !player.discovered_spells.contains(&spell) {
+                    spawn_new_spell_window(
+                        &mut commands,
+                        &registry,
+                        &mut time,
+                        spell.clone(),
+                        &mut se,
+                    );
                 }
             }
             _ => {}

@@ -7,7 +7,6 @@ use crate::entity::dropped_item::spawn_dropped_item;
 use crate::entity::explosion::SpawnExplosion;
 use crate::entity::fire::Burnable;
 use crate::entity::piece::spawn_broken_piece;
-use crate::inventory::InventoryItem;
 use crate::level::world::GameLevel;
 use crate::level::world::GameWorld;
 use crate::registry::Registry;
@@ -17,7 +16,6 @@ use crate::se::GLASS;
 use crate::set::FixedUpdateGameActiveSet;
 use crate::spell::Spell;
 use crate::wand::Wand;
-use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 use rand::seq::IteratorRandom;
@@ -140,12 +138,15 @@ fn break_chest(
 
             for wand in actor.wands.iter() {
                 for spell in wand.slots.iter() {
-                    if let Some(WandSpell {
-                        spell: spell_type, ..
-                    }) = spell
-                    {
-                        let item = InventoryItem::new(spell_type.clone());
-                        spawn_dropped_item(&mut commands, &registry, &level, position, &item);
+                    if let Some(spell_type) = spell {
+                        spawn_dropped_item(
+                            &mut commands,
+                            &registry,
+                            &level,
+                            position,
+                            spell_type,
+                            0,
+                        );
                     }
                 }
             }

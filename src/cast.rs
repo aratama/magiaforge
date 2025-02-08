@@ -191,7 +191,7 @@ pub fn cast_spell(
 
     while 0 < multicast && spell_index < MAX_SPELLS_IN_WAND {
         if let Some(spell) = actor.wands[wand_index as usize].slots[spell_index].as_ref() {
-            let props = registry.get_spell_props(&spell.spell);
+            let props = registry.get_spell_props(&spell);
             let original_delay = props.cast_delay.max(1) as i32;
             let delay = (original_delay as i32 - actor.effects.quick_cast as i32).max(1);
             actor.effects.quick_cast -= (original_delay - delay) as u32;

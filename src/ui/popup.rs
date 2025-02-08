@@ -1,9 +1,7 @@
 use crate::actor::Actor;
 use crate::constant::WAND_EDITOR_Z_INDEX;
 use crate::controller::player::Player;
-use crate::inventory::InventoryItem;
 use crate::language::M18NTtext;
-use crate::message::UNPAID;
 use crate::registry::Registry;
 use crate::spell::get_spell_appendix;
 use crate::spell::Spell;
@@ -141,7 +139,7 @@ fn update_spell_icon(
         if let Some(first) = popup.set.iter().next() {
             match first {
                 PopupContent::FloatingContent(content) => match content.get_item(actor) {
-                    Some(InventoryItem { spell, .. }) => {
+                    Some(spell) => {
                         let props = registry.get_spell_props(&spell);
                         slice.name = props.icon.clone();
                     }
@@ -174,7 +172,7 @@ fn update_spell_name(
         let first = popup.set.iter().next();
         match first {
             Some(PopupContent::FloatingContent(content)) => {
-                if let Some(InventoryItem { spell, .. }) = content.get_item(actor) {
+                if let Some(spell) = content.get_item(actor) {
                     text.0 = registry.get_spell_props(&spell).name.clone();
                 }
             }
@@ -203,9 +201,7 @@ fn update_item_description(
     if let Ok(actor) = actor_query.get_single() {
         match popup.set.iter().next() {
             Some(PopupContent::FloatingContent(content)) => {
-                if let Some(item) = content.get_item(actor) {
-                    let InventoryItem { spell, .. } = item;
-
+                if let Some(spell) = content.get_item(actor) {
                     let props = registry.get_spell_props(&spell);
                     let mut dict = props.description.clone();
                     let appendix = get_spell_appendix(&props.cast);
@@ -223,12 +219,6 @@ fn update_item_description(
                     // .as_str();
 
                     dict += appendix;
-
-                    if 0 < item.price {
-                        dict = dict + UNPAID.to_string();
-
-                        //  &format!("\n未清算:{}ゴールド", first.price);
-                    }
 
                     text.0 = dict;
                 }

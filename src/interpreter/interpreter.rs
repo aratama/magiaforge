@@ -13,7 +13,6 @@ use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
 use crate::interpreter::cmd::Cmd;
 use crate::interpreter::cmd::Value;
-use crate::inventory::InventoryItem;
 use crate::language::Languages;
 use crate::level::world::GameLevel;
 use crate::level::world::GameWorld;
@@ -24,7 +23,7 @@ use crate::se::KAWAII;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::states::TimeState;
-use crate::ui::new_spell::spawn_new_spell;
+use crate::ui::new_spell::spawn_new_spell_window;
 use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
@@ -293,12 +292,9 @@ fn interpret(
 
         Cmd::GetSpell { spell } => {
             if let Ok((mut actor, player)) = player_query.get_single_mut() {
-                actor.inventory.insert(InventoryItem {
-                    spell: spell.clone(),
-                    price: 0,
-                });
+                actor.inventory.insert(spell.clone());
                 if !player.discovered_spells.contains(&spell) {
-                    spawn_new_spell(&mut commands, &registry, &mut time, spell, &mut se_writer);
+                    spawn_new_spell_window(&mut commands, &registry, &mut time, spell, &mut se_writer);
                 }
             }
             interpreter.index += 1;

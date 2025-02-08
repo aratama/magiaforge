@@ -23,7 +23,6 @@ use crate::controller::message_rabbit::MessageRabbitPlugin;
 use crate::controller::player::PlayerPlugin;
 use crate::controller::remote::RemotePlayerPlugin;
 use crate::controller::servant::ServantPlugin;
-use crate::controller::shop_rabbit::ShopRabbitPlugin;
 use crate::controller::training_dummy::TrainingDummyPlugin;
 #[cfg(feature = "debug")]
 use crate::debug::DebugPlugin;
@@ -271,7 +270,6 @@ pub fn run_game() {
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
         .add_plugins(InterpreterPlugin)
-        .add_plugins(ShopRabbitPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
         .add_plugins(SpellListPlugin)
