@@ -10,7 +10,7 @@ use crate::level::world::LevelScoped;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::script::cmd::Cmd;
-use crate::script::event::CmdEvent;
+use crate::script::cmd::CmdEvent;
 use crate::se::SEEvent;
 use crate::se::TURN_ON;
 use crate::se::WARP;

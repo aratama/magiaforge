@@ -77,8 +77,7 @@ pub enum Spawn {
     },
 
     Boss {
-        actor_type: ActorType,
-        name: Dict<String>,
+        actor: ActorType,
         on_despawn: String,
     },
 
@@ -309,15 +308,14 @@ pub fn spawn_entity(
                 spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
             }
             Spawn::Boss {
-                actor_type,
-                name,
+                actor: actor_type,
                 on_despawn,
             } => {
+                info!("spawining a boss: {:?}", actor_type);
                 let mut actor = get_default_actor(&registry, actor_type);
                 actor.actor_group = ActorGroup::Enemy;
                 let entity = spawn_actor(&mut commands, &asset_server, &registry, *position, actor);
                 commands.entity(entity).insert(Boss {
-                    name: name.clone(),
                     on_despawn: on_despawn.clone(),
                 });
             }

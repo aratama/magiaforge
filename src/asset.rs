@@ -3,7 +3,7 @@ use crate::registry::ActorRegistry;
 use crate::registry::GameRegistry;
 use crate::registry::SpellRegistry;
 use crate::registry::TileRegistry;
-use crate::script::javascript_loader::JavaScriptSource;
+use crate::script::loader::JavaScriptSource;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;

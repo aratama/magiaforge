@@ -163,6 +163,7 @@ pub struct ActorPropsByType {
     pub life: u32,
     pub actor_group: ActorGroup,
     pub aseprite: String,
+    pub name_ja: String,
 
     // オプション ///////////////////////////////////////////////////////////////////////////
     #[serde(default = "default_animation_map")]

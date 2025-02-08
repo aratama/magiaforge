@@ -5,7 +5,7 @@ use crate::controller::player::Player;
 use crate::language::M18NTtext;
 use crate::message::NEW_SPELL;
 use crate::registry::Registry;
-use crate::script::javascript_loader::JavaScriptContext;
+use crate::script::context::JavaScriptContext;
 use crate::se::SEEvent;
 use crate::se::HAKKEN;
 use crate::set::FixedUpdateInGameSet;

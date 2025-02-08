@@ -125,8 +125,9 @@ pub fn spawn_boss_hitpoint_bar(parent: &mut ChildBuilder, registry: &Registry) {
 }
 
 fn update_bar_visibility(
+    registry: Registry,
     mut bar_query: Query<&mut Visibility, With<BossHitpointBar>>,
-    boss_query: Query<(&Boss, &Actor)>,
+    boss_query: Query<&Actor, With<Boss>>,
     mut rect_query: Query<&mut Node, (With<StatusBarRect>, Without<StatusBarBackground>)>,
     mut text_query: Query<
         &mut Text,
@@ -147,19 +148,33 @@ fn update_bar_visibility(
     >,
 ) {
     for mut visibility in bar_query.iter_mut() {
-        if let Ok((boss, life)) = boss_query.get_single() {
+        if let Ok(boss_actor) = boss_query.get_single() {
             *visibility = Visibility::Inherited;
 
             for mut rect in rect_query.iter_mut() {
-                rect.width = Val::Px(BAR_WIDTH * life.life as f32 / life.max_life.max(1) as f32);
+                rect.width =
+                    Val::Px(BAR_WIDTH * boss_actor.life as f32 / boss_actor.max_life.max(1) as f32);
             }
 
             for mut text in text_query.iter_mut() {
-                text.0 = format!("{}", life.life);
+                text.0 = format!("{}", boss_actor.life);
             }
 
             for mut text in name_query.iter_mut() {
-                text.0 = boss.name.clone();
+                let props = registry.get_actor_props(&boss_actor.actor_type);
+                let name = Dict {
+                    ja: props.name_ja.clone(),
+                    en: props.name_ja.clone(),
+                    zh_cn: props.name_ja.clone(),
+                    zh_tw: props.name_ja.clone(),
+                    es: props.name_ja.clone(),
+                    fr: props.name_ja.clone(),
+                    pt: props.name_ja.clone(),
+                    ru: props.name_ja.clone(),
+                    de: props.name_ja.clone(),
+                    ko: props.name_ja.clone(),
+                };
+                text.0 = name.clone();
             }
         } else {
             *visibility = Visibility::Hidden;

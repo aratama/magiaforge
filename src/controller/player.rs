@@ -18,7 +18,7 @@ use crate::level::world::GameWorld;
 use crate::player_state::PlayerState;
 use crate::registry::Registry;
 use crate::script::cmd::Cmd;
-use crate::script::event::CmdEvent;
+use crate::script::cmd::CmdEvent;
 use crate::se::SEEvent;
 use crate::se::PICK_UP;
 use crate::se::SEN;

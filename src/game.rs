@@ -69,8 +69,8 @@ use crate::registry::SpellRegistry;
 use crate::registry::TileRegistry;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
-use crate::script::event::InterpreterPlugin;
-use crate::script::javascript_loader::JavaScriptLoaderPlugin;
+use crate::script::context::JavaScriptContextPlugin;
+use crate::script::loader::JavaScriptLoaderPlugin;
 use crate::se::SECommandPlugin;
 use crate::set::GameSetPlugin;
 use crate::states::*;
@@ -269,7 +269,7 @@ pub fn run_game() {
         .add_plugins(SlashPlugin)
         .add_plugins(ServantSeedPlugin)
         .add_plugins(SpeechBubblePlugin)
-        .add_plugins(InterpreterPlugin)
+        .add_plugins(JavaScriptContextPlugin)
         .add_plugins(SpellEntityPlugin)
         .add_plugins(SpellInWandPlugin)
         .add_plugins(SpellListPlugin)

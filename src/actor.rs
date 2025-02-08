@@ -48,7 +48,8 @@ use crate::level::world::GameWorld;
 use crate::level::world::LevelScoped;
 use crate::registry::ActorCollider;
 use crate::registry::Registry;
-use crate::script::event::CmdEvent;
+use crate::script::cmd::CmdEvent;
+use crate::script::context::JavaScriptContext;
 use crate::se::SEEvent;
 use crate::se::BASHA2;
 use crate::se::CRY;
@@ -1137,6 +1138,7 @@ fn despawn(
         Option<&Boss>,
         Option<&Burnable>,
     )>,
+    mut script: NonSendMut<JavaScriptContext>,
 ) {
     for (entity, actor, transform, player, boss, burnable) in query.iter() {
         let position = transform.translation.truncate();
@@ -1192,19 +1194,8 @@ fn despawn(
             }
 
             // ボス用の消滅シナリオ実行
-            if let Some(_boss) = boss {
-                // let mut cmds = registry.get_senario(&boss.on_despawn).clone();
-                // cmds.insert(
-                //     0,
-                //     Cmd::Set {
-                //         name: "position".to_string(),
-                //         value: Value::Vec2 {
-                //             x: position.x,
-                //             y: position.y,
-                //         },
-                //     },
-                // );
-                // interpreter.send(InterpreterEvent::Play { commands: cmds });
+            if let Some(boss) = boss {
+                script.generate(boss.on_despawn.clone());
             }
         }
     }

@@ -6,7 +6,6 @@ use crate::audio::NextBGM;
 use crate::component::counter::Counter;
 use crate::controller::player::Player;
 use crate::entity::impact::SpawnImpact;
-use crate::language::Dict;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
 use crate::registry::Registry;
@@ -23,7 +22,6 @@ const IMPACT_MARGIN: f32 = 16.0;
 
 #[derive(Component)]
 pub struct Boss {
-    pub name: Dict<String>,
     pub on_despawn: String,
 }
 

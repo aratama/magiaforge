@@ -1,11 +1,20 @@
+use crate::actor::Actor;
+use crate::actor::ActorFireState;
+use crate::actor::ActorState;
 use crate::asset::GameAssets;
 use crate::component::counter::CounterAnimated;
 use crate::config::GameConfig;
+use crate::controller::player::Player;
 use crate::language::language_to_font;
 use crate::language::Dict;
+use crate::language::Languages;
 use crate::registry::Registry;
-use crate::script::event::Interpreter;
+use crate::script::context::JavaScriptContext;
+use crate::se::SEEvent;
+use crate::se::KAWAII;
+use crate::states::GameMenuState;
 use crate::states::GameState;
+use crate::states::TimeState;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseUiAnimation;
 use bevy_aseprite_ultra::prelude::AseUiSlice;
@@ -22,6 +31,7 @@ const DELAY: usize = 4;
 pub struct SpeechBubble {
     pub entity: Option<Entity>,
     pub dict: Dict<String>,
+    pub speech_count: usize,
 }
 
 #[derive(Component)]
@@ -37,6 +47,7 @@ pub fn spawn_speech_bubble(parent: &mut Commands, registry: &Registry) {
             SpeechBubble {
                 entity: None,
                 dict: Dict::default(),
+                speech_count: 0,
             },
             AseUiSlice {
                 aseprite: registry.assets.atlas.clone(),
@@ -113,14 +124,13 @@ fn next_page_visibility(
     speech_query: Query<&SpeechBubble>,
     mut query: Query<&mut Visibility, With<NextPage>>,
     config: Res<GameConfig>,
-    theater: Res<Interpreter>,
 ) {
     let speech = speech_query.single();
     let mut visibility = query.single_mut();
     let page_string = speech.dict.get(config.language);
     let chars = page_string.char_indices();
     let count = chars.count();
-    let pos = theater.speech_count / DELAY;
+    let pos = speech.speech_count / DELAY;
     *visibility = if pos < count {
         Visibility::Hidden
     } else {
@@ -132,15 +142,72 @@ pub fn update_text_on_change_config(
     speech_query: Query<&SpeechBubble>,
     config: Res<GameConfig>,
     mut speech_text_query: Query<(&mut Text, &mut TextFont), With<SpeechBubbleText>>,
-    theater: Res<Interpreter>,
     assets: Res<GameAssets>,
 ) {
     let speech = speech_query.single();
-    let text_end_position = theater.speech_count / DELAY;
+    let text_end_position = speech.speech_count / DELAY;
     let (mut speech_text, mut font) = speech_text_query.single_mut();
     let page_string = speech.dict.get(config.language);
     speech_text.0 = page_string.chars().take(text_end_position).collect();
     font.font = language_to_font(&assets, config.language);
+}
+
+fn speech_countup(
+    mut speech_query: Query<(&Visibility, &mut SpeechBubble)>,
+    config: Res<GameConfig>,
+    mut player_query: Query<(&mut Actor, &Player)>,
+    mut se_writer: EventWriter<SEEvent>,
+) {
+    let (speech_visibility, mut speech) = speech_query.single_mut();
+
+    if *speech_visibility == Visibility::Hidden {
+        return;
+    }
+
+    if let Ok((mut actor, _)) = player_query.get_single_mut() {
+        actor.state = ActorState::Idle;
+        actor.fire_state = ActorFireState::Idle;
+    }
+
+    let text_end_position = speech.speech_count / DELAY;
+    let page_string = speech.dict.get(config.language);
+
+    if text_end_position < page_string.char_indices().count() {
+        let step = match config.language {
+            Languages::Ja => 1,
+            Languages::ZhCn => 1,
+            _ => 2,
+        };
+
+        if speech.speech_count % (DELAY * step) == 0 {
+            se_writer.send(SEEvent::new(KAWAII));
+        }
+
+        speech.speech_count += step;
+    }
+}
+
+fn next_page(
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut bubble_query: Query<(&Visibility, &mut SpeechBubble)>,
+    config: Res<GameConfig>,
+    state: Res<State<GameMenuState>>,
+    mut script: NonSendMut<JavaScriptContext>,
+) {
+    let (bubble_visivility, mut bubble) = bubble_query.single_mut();
+    if *bubble_visivility == Visibility::Inherited && *state != GameMenuState::PauseMenuOpen {
+        if mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right) {
+            let page_string = bubble.dict.get(config.language);
+            let chars = page_string.char_indices();
+            let count = chars.count();
+            let pos = bubble.speech_count / DELAY;
+            if pos < count {
+                bubble.speech_count = count * DELAY;
+            } else {
+                script.resume();
+            }
+        }
+    }
 }
 
 pub struct SpeechBubblePlugin;
@@ -155,6 +222,11 @@ impl Plugin for SpeechBubblePlugin {
                 update_text_on_change_config,
             )
                 .run_if(in_state(GameState::InGame)),
+        );
+        app.add_systems(
+            Update,
+            (next_page, speech_countup)
+                .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );
     }
 }
