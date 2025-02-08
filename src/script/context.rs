@@ -21,6 +21,7 @@ pub struct JavaScriptContext {
     pub context: Context,
     generator: Option<JsValue>,
     value: Option<JsValue>,
+    pub wait: u32,
 }
 
 impl JavaScriptContext {
@@ -62,7 +63,17 @@ fn update(
         context,
         ref mut value,
         ref mut generator,
+        ref mut wait,
     } = javascript_context.as_mut();
+
+    if 0 < *wait {
+        *wait -= 1;
+        if *wait == 0 {
+            *value = None;
+        } else {
+            return;
+        }
+    }
 
     if let Some(_value) = &value {
         // skip
@@ -162,36 +173,42 @@ fn read_asset_event(
         match event {
             AssetEvent::Added { id } => {
                 let source = assets.get(*id).unwrap();
-                let mut context = Context::default();
-                let result = context.eval(Source::from_bytes(&source.source));
-                if let Err(e) = result {
-                    error!("[javascript_loader] error: {:?}", e);
-                    return;
-                }
-                *javascript_context = JavaScriptContext {
-                    context,
-                    ..default()
-                };
+                *javascript_context = initialize_context(source);
                 info!("JavaScript loaded: {:?}", source.path);
             }
             AssetEvent::Modified { id } => {
                 let source = assets.get(*id).unwrap();
-                let mut context = Context::default();
-                let result = context.eval(Source::from_bytes(&source.source));
-                if let Err(e) = result {
-                    error!("[javascript_loader] error: {:?}", e);
-                    return;
-                }
-                *javascript_context = JavaScriptContext {
-                    context,
-                    ..default()
-                };
+                *javascript_context = initialize_context(source);
                 info!("JavaScript modified: {:?}", source.path);
             }
             _ => {}
         }
     }
 }
+
+fn initialize_context(source: &JavaScriptSource) -> JavaScriptContext {
+    let mut context = Context::default();
+
+    // let se_object = ObjectInitializer::new(&mut context)
+    //     .function(NativeFunction::from_fn_ptr(se), js_string!("se"), 1)
+    //     .build();
+    // context
+    //     .register_global_property(js_string!("se"), se_object, Attribute::READONLY)
+    //     .expect("Failed to register global property");
+
+    let result = context.eval(Source::from_bytes(&source.source));
+    if let Err(e) = result {
+        error!("[javascript_loader] error: {:?}", e);
+    }
+    JavaScriptContext {
+        context,
+        ..default()
+    }
+}
+
+// fn se(_caller: &JsValue, arguments: &[JsValue], context: &mut Context) -> Result<JsValue, JsError> {
+//     Ok(JsValue::Undefined)
+// }
 
 pub struct JavaScriptContextPlugin;
 

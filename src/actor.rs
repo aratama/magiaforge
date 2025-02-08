@@ -86,6 +86,8 @@ use bevy_rapier2d::prelude::Velocity;
 use bevy_simple_websocket::ClientMessage;
 use bevy_simple_websocket::ReadyState;
 use bevy_simple_websocket::WebSocketState;
+use boa_engine::js_string;
+use boa_engine::JsValue;
 use bomb::Bomb;
 use chest::Chest;
 use chicken::Chicken;
@@ -1195,6 +1197,17 @@ fn despawn(
 
             // ボス用の消滅シナリオ実行
             if let Some(boss) = boss {
+                let position_value = serde_json::to_value(position).unwrap();
+                let global = script.context.global_object();
+                global
+                    .set(
+                        js_string!("actor_position"),
+                        JsValue::from_json(&position_value, &mut script.context).unwrap(),
+                        false,
+                        &mut script.context,
+                    )
+                    .expect("Failed to set actor_position");
+
                 script.generate(boss.on_despawn.clone());
             }
         }

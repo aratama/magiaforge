@@ -1,4 +1,38 @@
 function* GuideRabbit(context) {
+
+    yield {
+        type: "Speech",
+        ja: "テスト",
+        en: "",
+        zh_cn: "",
+        zh_tw: "",
+        es: "",
+        fr: "",
+        pt: "",
+        de: "",
+        ko: "",
+        ru: "",
+    };
+
+    yield {
+        type: "Wait",
+        count: 60,
+    };
+
+    yield {
+        type: "Speech",
+        ja: "テスト2",
+        en: "",
+        zh_cn: "",
+        zh_tw: "",
+        es: "",
+        fr: "",
+        pt: "",
+        de: "",
+        ko: "",
+        ru: "",
+    };
+
     yield {
         type: "Speech",
         ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
@@ -90,7 +124,7 @@ function* GuideRabbit(context) {
             de: "Richtig, es ist dunkel hier. Du solltest das mitnehmen.",
             ko: "그래, 이 근처는 어두워. 이걸 가져가는 게 좋을 거야.",
             ru: "Верно, здесь темно. Тебе стоит взять это."
-        };   
+        };
         yield {
             type: "Close",
         };
@@ -366,69 +400,79 @@ function* ShopRabbit() {
     };
 }
 
-
 function* HugeSlimeDespawn() {
-    // "HugeSlime": [
-    //     Sprite (
-    //         name: "huge slime body",
-    //         position: Var ("position"),
-    //         aseprite: "entity/huge_slime.aseprite"
-    //     ),
-    //     BGM (None),
-    //     Shake (value: 6.0),
-    //     SE (path: "audio/雷魔法4.ogg"),
-    //     Flash (
-    //         position: Var ("position"),
-    //         intensity: 10.0,
-    //         radius: 480.0,
-    //         duration: 10,
-    //         reverse: false,
-    //     ),
-    //     Wait (count: 60),
-    //     Shake ( value: 6.0),
-    //     SE (path: "audio/雷魔法4.ogg"),
-    //     Flash (
-    //         position: Var ("position"),
-    //         intensity: 10.0,
-    //         radius: 480.0,
-    //         duration: 10,
-    //         reverse: false,
-    //     ),
-    //     Wait (count: 180),
-    //     ShakeStart (value: 6.0),
-    //     SE (path: "audio/地震魔法2.ogg"),
-    //     Flash (
-    //         position: Var ("position"),
-    //         intensity: 10.0,
-    //         radius: 240.0,
-    //         duration: 240,
-    //         reverse: true,
-    //     ),
-    //     Wait (count: 240),
-    //     SE (path: "audio/雷魔法4.ogg"),
-    //     Flash (
-    //         position: Var ("position"),
-    //         intensity: 10.0,
-    //         radius: 240.0,
-    //         duration: 240,
-    //         reverse: false,
-    //     ),
-    //     Despawn (name: "huge slime body"),
-    //     ShakeStart (count: None),
-    //     Wait (count: 240),
-    //     SetTile (
-    //         x: 22,
-    //         y: 153,
-    //         w: 5,
-    //         h: 5,
-    //         tile: "StoneTile",
-    //     ),
-    //     SE (path: "audio/kuzureru.ogg"),
-    //     SpawnRaven (name: "raven", position: (392.0, -2504.0,)),
-    //     Wait (count: 120),
-    //     SetCameraTarget (name: "raven"),
-    //     Wait (count: 120),
-    //     SetCameraTarget (name: None),
-    //     Despawn (name: "raven")
-    // ]
+    yield {
+        type: "Sprite",
+        name: "huge slime body",
+        position: actor_position,
+        aseprite: "enemy/huge_slime.aseprite"
+    };
+    yield { type: "BGM", path: null };
+    yield { type: "Shake", value: 6.0, attenuation: -0.5 };
+    yield { type: "SE", path: "audio/雷魔法4.ogg" };
+    yield {
+        type: "Flash",
+        position: actor_position,
+        intensity: 10.0,
+        radius: 480.0,
+        duration: 10,
+        reverse: false,
+    };
+    yield { type: "Wait", count: 60 };
+    yield { type: "Shake", value: 6.0, attenuation: -0.5 };
+    yield { type: "SE", path: "audio/雷魔法4.ogg" };
+    yield {
+        type: "Flash",
+        position: actor_position,
+        intensity: 10.0,
+        radius: 480.0,
+        duration: 10,
+        reverse: false,
+    };
+    yield { type: "Wait", count: 180 };
+    yield { type: "Shake", value: 6.0, attenuation: 0.0 };
+    yield { type: "SE", path: "audio/地震魔法2.ogg" };
+    yield {
+        type: "Flash",
+        position: actor_position,
+        intensity: 10.0,
+        radius: 240.0,
+        duration: 240,
+        reverse: true,
+    };
+    yield { type: "Wait", count: 240 };
+    yield { type: "SE", path: "audio/雷魔法4.ogg" };
+    yield {
+        type: "Flash",
+        position: actor_position,
+        intensity: 10.0,
+        radius: 240.0,
+        duration: 240,
+        reverse: false,
+    };
+    yield { type: "Despawn", name: "huge slime body" };
+    yield { type: "Shake", value: 6.0, attenuation: -0.5 };
+    // yield {
+    //     type: "Wait",
+    //     count: 240
+    // };
+    // yield {
+    //     type: "SetTile",
+    //     x: 22,
+    //     y: 153,
+    //     w: 5,
+    //     h: 5,
+    //     tile: "StoneTile",
+    // };
+    // yield { type: "SE", path: "audio/kuzureru.ogg" };
+    // yield {
+    //     type: "SpawnRaven",
+    //     name: "raven",
+    //     position: [392.0, -2504.0]
+    // };
+    // yield { type: "Wait", count: 120 };
+    // yield { type: "SetCameraTarget", name: "raven" };
+    // yield { type: "Wait", count: 120 };
+    // yield { type: "SetCameraTarget", name: null };
+    // yield { type: "Despawn", name: "raven" };
 }

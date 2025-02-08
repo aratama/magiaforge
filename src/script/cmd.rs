@@ -1,15 +1,22 @@
 use super::context::JavaScriptContext;
 use crate::actor::{Actor, ActorState};
+use crate::audio::NextBGM;
 use crate::camera::GameCamera;
+use crate::component::counter::CounterAnimated;
+use crate::component::entity_depth::EntityDepth;
 use crate::controller::player::Player;
+use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
+use crate::level::tile::Tile;
 use crate::level::world::{GameLevel, GameWorld};
 use crate::registry::Registry;
+use crate::se::SEEvent;
 use crate::spell::Spell;
 use crate::states::GameState;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
+use bevy_aseprite_ultra::prelude::AseSpriteAnimation;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(tag = "type")]
@@ -28,62 +35,49 @@ pub enum Cmd {
         destination_iid: String,
     },
     // /// BGMを変更します
-    // BGM(Option<String>),
+    BGM {
+        path: Option<String>,
+    },
 
-    // SE {
-    //     path: String,
-    // },
+    SE {
+        path: String,
+    },
+    /// 次のアクションまで指定したフレーム数待機します
+    Wait {
+        count: u32,
+    },
+    /// 画面を揺らします
+    Shake {
+        value: f32,
+        attenuation: f32,
+    },
+    Flash {
+        position: Vec2,
+        intensity: f32,
+        radius: f32,
+        duration: u32,
+        reverse: bool,
+    },
 
-    // /// 次のアクションまで指定したフレーム数待機します
-    // #[allow(dead_code)]
-    // Wait {
-    //     count: u32,
-    // },
+    SetTile {
+        x: i32,
+        y: i32,
+        w: u32,
+        h: u32,
+        tile: Tile,
+    },
+    Sprite {
+        name: String,
+        position: Vec2,
+        aseprite: String,
+    },
 
-    // /// 画面を揺らします
-    // Shake {
-    //     value: f32,
-    // },
-
-    // /// 画面を揺らすエフェクトを開始します
-    // ShakeStart {
-    //     value: Option<f32>,
-    // },
-
-    // Flash {
-    //     position: Expr,
-    //     intensity: f32,
-    //     radius: f32,
-    //     duration: u32,
-    //     reverse: bool,
-    // },
-
-    // /// エンディングを再生します
-    // #[allow(dead_code)]
-    // Ending,
-    // Home,
-    // Arena,
-    // SetTile {
-    //     x: i32,
-    //     y: i32,
-    //     w: u32,
-    //     h: u32,
-    //     tile: Tile,
-    // },
-
+    Despawn {
+        name: String,
+    },
     // SpawnRaven {
     //     name: String,
     //     position: Vec2,
-    // },
-
-    // Despawn {
-    //     name: String,
-    // },
-
-    // Sprite {
-    //     name: String,
-    //     position: Expr,
-    //     aseprite: String,
     // },
 
     // // todo ravenに合うような仮実装
@@ -96,14 +90,21 @@ pub enum Cmd {
 pub struct CmdEvent(pub Cmd);
 
 pub fn read_cmd_event(
+    mut commands: Commands,
     registry: Registry,
-    mut reader: EventReader<CmdEvent>,
-    mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
+    asset_server: Res<AssetServer>,
     mut level: ResMut<GameWorld>,
+    mut script: NonSendMut<JavaScriptContext>,
+
+    mut reader: EventReader<CmdEvent>,
     mut overlay_writer: EventWriter<OverlayEvent>,
+    mut se_writer: EventWriter<SEEvent>,
+    mut next_bgm: ResMut<NextBGM>,
+
+    mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
     mut camera: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
-    mut script: NonSendMut<JavaScriptContext>,
+    entities_query: Query<(Entity, &Name)>,
 ) {
     let (mut speech_visibility, mut speech) = speech_query.single_mut();
 
@@ -132,6 +133,7 @@ pub fn read_cmd_event(
                 if let Ok(mut actor) = player_query.get_single_mut() {
                     actor.inventory.insert(spell.clone());
                 }
+                script.resume();
             }
             Cmd::Warp { destination_iid } => {
                 let (destination_level, _entity) = registry
@@ -143,105 +145,84 @@ pub fn read_cmd_event(
                 script.resume();
             } //
 
-              // Cmd::BGM(path) => {
-              //     // let handle = path.clone().map(|b| asset_server.load(b)).clone();
-              //     // if path.is_some() && handle.is_none() {
-              //     //     warn!("BGM not found: {:?}", path);
-              //     // }
-              //     // next_bgm.0 = handle;
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::SE { path } => {
-              //     // se_writer.send(SEEvent::new(path));
-              //     // interpreter.index += 1;
-              // }
+            Cmd::BGM { path } => {
+                let handle = path.clone().map(|b| asset_server.load(b)).clone();
+                if path.is_some() && handle.is_none() {
+                    warn!("BGM not found: {:?}", path);
+                }
+                next_bgm.0 = handle;
+                script.resume();
+            }
+            Cmd::SE { path } => {
+                se_writer.send(SEEvent::new(path));
+                script.resume();
+            }
 
-              // Cmd::Shake { value } => {
-              //     // camera.vibration = value;
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::ShakeStart { value } => {
-              //     // interpreter.shaking = value;
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::Flash {
-              //     position,
-              //     intensity,
-              //     radius,
-              //     duration,
-              //     reverse,
-              // } => {
-              //     // spawn_flash_light(
-              //     //     &mut commands,
-              //     //     position.to_vec2(&interpreter.environment),
-              //     //     intensity,
-              //     //     radius,
-              //     //     duration,
-              //     //     reverse,
-              //     // );
-
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::Despawn { name } => {
-              //     // if !entities.contains_key(&name) {
-              //     //     warn!("Entity not found: {:?}", name);
-              //     // }
-              //     // for (entity_name, entity) in entities.iter() {
-              //     //     if *entity_name == name {
-              //     //         commands.entity(*entity).despawn_recursive();
-              //     //     }
-              //     // }
-              //     // interpreter.index += 1;
-              // }
-
-              // Cmd::Sprite {
-              //     name,
-              //     position,
-              //     aseprite,
-              // } => {
-              //     // let p = position.to_vec2(&interpreter.environment);
-              //     // commands.spawn((
-              //     //     Name::new(name),
-              //     //     CounterAnimated,
-              //     //     AseSpriteAnimation {
-              //     //         aseprite: asset_server.load(aseprite),
-              //     //         animation: "idle".into(),
-              //     //     },
-              //     //     StateScoped(GameState::InGame),
-              //     //     Transform::from_translation(p.extend(0.0)),
-              //     //     EntityDepth::new(),
-              //     // ));
-              //     // interpreter.index += 1;
-              // }
-
-              // Cmd::Wait { count } => {
-              //     // interpreter.wait = count;
-              //     // interpreter.index += 1;
-              // }
-
-              // Cmd::Ending => {
-              //     // writer.send(OverlayEvent::Close(GameState::Ending));
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::Home => {
-              //     // level.next_level = GameLevel::new(HOME_LEVEL);
-              //     // writer.send(OverlayEvent::Close(GameState::Warp));
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::Arena => {
-              //     // level.next_level = GameLevel::new(ARENA);
-              //     // writer.send(OverlayEvent::Close(GameState::Warp));
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::SetTile { x, y, w, h, tile } => {
-              //     // for i in x..x + w as i32 {
-              //     //     for j in y..y + h as i32 {
-              //     //         level.set_tile(i, j, tile.clone());
-              //     //     }
-              //     // }
-              //     // interpreter.index += 1;
-              // }
-              // Cmd::SpawnRaven { name, position } => {
+            Cmd::Wait { count } => {
+                script.wait = count;
+                *speech_visibility = Visibility::Hidden;
+            }
+            Cmd::Shake { value, attenuation } => {
+                if let Ok(mut camera) = camera.get_single_mut() {
+                    camera.vibration = value;
+                    camera.attenuation = attenuation;
+                }
+                script.resume();
+            }
+            Cmd::Flash {
+                position,
+                intensity,
+                radius,
+                duration,
+                reverse,
+            } => {
+                spawn_flash_light(
+                    &mut commands,
+                    position,
+                    intensity,
+                    radius,
+                    duration,
+                    reverse,
+                );
+                script.resume();
+            }
+            Cmd::SetTile { x, y, w, h, tile } => {
+                for i in x..x + w as i32 {
+                    for j in y..y + h as i32 {
+                        level.set_tile(i, j, tile.clone());
+                    }
+                }
+                script.resume();
+            }
+            Cmd::Sprite {
+                name,
+                position,
+                aseprite,
+            } => {
+                commands.spawn((
+                    Name::new(name),
+                    CounterAnimated,
+                    AseSpriteAnimation {
+                        aseprite: asset_server.load(aseprite),
+                        animation: "idle".into(),
+                    },
+                    StateScoped(GameState::InGame),
+                    Transform::from_translation(position.extend(0.0)),
+                    EntityDepth::new(),
+                ));
+                script.resume();
+            }
+            Cmd::Despawn { name } => {
+                // if !entities_query.contains_key(&name) {
+                //     warn!("Entity not found: {:?}", name);
+                // }
+                for (entity, entity_name) in entities_query.iter() {
+                    if entity_name.as_str() == name.as_str() {
+                        commands.entity(entity).despawn_recursive();
+                    }
+                }
+                script.resume();
+            } // Cmd::SpawnRaven { name, position } => {
               //     // commands.spawn((
               //     //     Name::new(name),
               //     //     AseSpriteAnimation {

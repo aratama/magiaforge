@@ -27,7 +27,6 @@ use crate::entity::servant_seed::spawn_servant_seed;
 use crate::entity::shop::spawn_shop_door;
 use crate::entity::slash::spawn_slash;
 use crate::entity::web::spawn_web;
-use crate::language::Dict;
 use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;

@@ -18,7 +18,21 @@ pub struct GameCamera {
     pub y: f32,
     pub scale_factor: f32,
     pub vibration: f32,
+    pub attenuation: f32,
     pub target: Option<Entity>,
+}
+
+impl Default for GameCamera {
+    fn default() -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            scale_factor: 0.0,
+            vibration: 0.0,
+            attenuation: -0.5,
+            target: None,
+        }
+    }
 }
 
 impl GameCamera {
@@ -56,8 +70,7 @@ pub fn setup_camera(commands: &mut Commands, position: Vec2) {
             x: position.x,
             y: position.y,
             scale_factor: initial_scale_factor,
-            vibration: 0.0,
-            target: None,
+            ..default()
         },
         Transform::from_xyz(position.x, position.y, 0.0),
         // カメラにAmbiendLight2dを追加すると、画面全体が暗くなり、
@@ -106,7 +119,7 @@ fn update_camera_position(
             // 目的の値を計算
             game_camera.x = vrp.x;
             game_camera.y = vrp.y;
-            game_camera.vibration = (game_camera.vibration - 0.5).max(0.0);
+            game_camera.vibration = (game_camera.vibration + game_camera.attenuation).max(0.0);
             game_camera.scale_factor = match game_camera.target {
                 Some(_) => -2.0,
                 _ => actor.get_total_scale_factor(),
