@@ -15,7 +15,7 @@ use bevy_aseprite_ultra::prelude::AseUiSlice;
 #[derive(Component)]
 pub struct NewSpell;
 
-pub fn spawn_new_spell(
+pub fn spawn_new_spell_window(
     commands: &mut Commands,
     registry: &Registry,
     time: &mut ResMut<NextState<TimeState>>,

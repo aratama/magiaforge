@@ -4,24 +4,8 @@ use bevy::reflect::Reflect;
 use serde::Deserialize;
 use serde::Serialize;
 
-/// インベントリ内のアイテムを表します
-/// インベントリ内のアイテムは未精算の場合があり、それを表すために使われます
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
-pub struct InventoryItem {
-    pub spell: Spell,
-
-    /// 清算済みの場合は0、未清算の場合は価格が設定されます
-    pub price: u32,
-}
-
-impl InventoryItem {
-    pub fn new(spell: Spell) -> InventoryItem {
-        InventoryItem { spell, price: 0 }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Reflect, Serialize, Deserialize)]
-pub struct Inventory(pub Vec<Option<InventoryItem>>);
+pub struct Inventory(pub Vec<Option<Spell>>);
 
 impl Inventory {
     pub fn new() -> Inventory {
@@ -31,22 +15,22 @@ impl Inventory {
     pub fn from_vec(vec: Vec<Spell>) -> Inventory {
         let mut inventory = Inventory(vec![None; MAX_ITEMS_IN_INVENTORY]);
         for i in 0..MAX_ITEMS_IN_INVENTORY {
-            inventory.0[i] = vec.get(i).map(|s| InventoryItem::new(s.clone()));
+            inventory.0[i] = vec.get(i).cloned();
         }
         inventory
     }
 
-    pub fn get(&self, index: usize) -> &Option<InventoryItem> {
+    pub fn get(&self, index: usize) -> &Option<Spell> {
         let Inventory(ref inventory) = *self;
         &inventory[index]
     }
 
-    pub fn set(&mut self, index: usize, item: Option<InventoryItem>) {
+    pub fn set(&mut self, index: usize, item: Option<Spell>) {
         let Inventory(ref mut inventory) = self;
         inventory[index] = item;
     }
 
-    pub fn insert(&mut self, item: InventoryItem) -> bool {
+    pub fn insert(&mut self, item: Spell) -> bool {
         let Inventory(ref mut inventory) = *self;
         let mut i = 0;
         while i < MAX_ITEMS_IN_INVENTORY {
@@ -65,10 +49,7 @@ impl Inventory {
 
     #[allow(dead_code)]
     pub fn insert_spell(&mut self, item_type: Spell) -> bool {
-        self.insert(InventoryItem {
-            spell: item_type,
-            price: 0,
-        })
+        self.insert(item_type)
     }
 
     pub fn sort(&mut self) {
@@ -81,7 +62,7 @@ impl Inventory {
                 return std::cmp::Ordering::Less;
             }
             match (a.as_ref().unwrap(), b.as_ref().unwrap()) {
-                (a, b) => a.spell.cmp(&b.spell),
+                (a, b) => a.cmp(&b),
             }
         });
         let mut i = 0;
@@ -98,14 +79,13 @@ impl Inventory {
         }
     }
 
-    // 現在所持している有料呪文の合計金額を返します
-    pub fn dept(&self) -> u32 {
-        let mut total = 0;
-        for ref item in &self.0 {
-            if let Some(item) = item {
-                total += item.price;
-            }
-        }
-        total
+    pub fn as_string_array(&self) -> Vec<String> {
+        self.0
+            .iter()
+            .map(|item| match item {
+                Some(item) => item.0.clone(),
+                None => "".to_string(),
+            })
+            .collect()
     }
 }

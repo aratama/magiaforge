@@ -2,7 +2,6 @@ use crate::actor::ActorGroup;
 use crate::actor::ActorType;
 use crate::asset::GameAssets;
 use crate::hud::life_bar::LifeBarResource;
-use crate::interpreter::cmd::Cmd;
 use crate::language::Dict;
 use crate::ldtk::generated::Level;
 use crate::ldtk::loader::LevelCustomFields;
@@ -285,11 +284,6 @@ pub struct ActorAnimationMap {
     // pub drown: String,
 }
 
-#[derive(serde::Deserialize, bevy::asset::Asset, bevy::reflect::TypePath)]
-pub struct SenarioRegistry {
-    pub senarios: HashMap<String, Vec<Cmd>>,
-}
-
 /// アセットの config.*.ron から読み取る設定を取得するシステムパラメータです
 /// また、GameAssets も参照できます
 /// この構造体がゲーム内から変更されることはありません
@@ -302,7 +296,6 @@ pub struct Registry<'w> {
     tile: Res<'w, Assets<TileRegistry>>,
     spell: Res<'w, Assets<SpellRegistry>>,
     actor: Res<'w, Assets<ActorRegistry>>,
-    senario: Res<'w, Assets<SenarioRegistry>>,
     pub life_bar_resource: Res<'w, LifeBarResource>,
 }
 
@@ -327,18 +320,6 @@ impl<'w> Registry<'w> {
     #[allow(dead_code)]
     pub fn actor(&self) -> &ActorRegistry {
         self.actor.get(&self.assets.actor_registry).unwrap()
-    }
-
-    pub fn senario(&self) -> &SenarioRegistry {
-        self.senario.get(&self.assets.senario_registry).unwrap()
-    }
-
-    pub fn get_senario<T: Into<String>>(&self, name: T) -> &Vec<Cmd> {
-        let name = name.into();
-        self.senario()
-            .senarios
-            .get(&name)
-            .expect(&format!("Senario '{}' not found", &name))
     }
 
     pub fn get_actor_props(&self, actor_type: &ActorType) -> &ActorPropsByType {

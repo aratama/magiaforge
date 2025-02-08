@@ -1,4 +1,3 @@
-use crate::inventory::InventoryItem;
 use crate::registry::Registry;
 use crate::spell::Spell;
 use crate::states::GameState;
@@ -6,13 +5,10 @@ use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::*;
 
 #[derive(Component)]
-pub struct ItemPanel(pub Option<InventoryItem>);
+pub struct ItemPanel(pub Option<Spell>);
 
 #[derive(Component)]
 struct ItemFrame;
-
-#[derive(Component)]
-struct ChargeAlert;
 
 #[derive(Component)]
 struct FriendMarker;
@@ -88,28 +84,12 @@ pub fn spawn_item_panel<T: Component>(
                 ..default()
             },
         ));
-        builder.spawn((
-            ChargeAlert,
-            AseUiSlice {
-                aseprite: registry.assets.atlas.clone(),
-                name: "charge_alert".into(),
-            },
-            ZIndex(-1),
-            Node {
-                position_type: PositionType::Absolute,
-                left: Val::Px(0.0),
-                top: Val::Px(0.0),
-                width: Val::Px(32.0),
-                height: Val::Px(32.0),
-                ..default()
-            },
-        ));
     });
 }
 
 fn update_inventory_slot(registry: Registry, mut slot_query: Query<(&ItemPanel, &mut AseUiSlice)>) {
     for (slot, mut aseprite) in slot_query.iter_mut() {
-        if let Some(InventoryItem { spell, .. }) = &slot.0 {
+        if let Some(spell) = &slot.0 {
             aseprite.name = registry.get_spell_props(spell).icon.clone();
         } else {
             aseprite.name = "empty".into();
@@ -151,23 +131,6 @@ fn update_item_frame(
     }
 }
 
-fn update_charge_alert(
-    slot_query: Query<&ItemPanel>,
-    mut children_query: Query<(&Parent, &mut Node), With<ChargeAlert>>,
-) {
-    for (parent, mut aseprite) in children_query.iter_mut() {
-        let slot = slot_query.get(parent.get()).unwrap();
-        match &slot.0 {
-            Some(item) if 0 < item.price => {
-                aseprite.display = Display::default();
-            }
-            _ => {
-                aseprite.display = Display::None;
-            }
-        }
-    }
-}
-
 fn update_friend_marker(
     slot_query: Query<&ItemPanel>,
     mut children_query: Query<(&Parent, &mut Node), With<FriendMarker>>,
@@ -175,9 +138,9 @@ fn update_friend_marker(
     for (parent, mut aseprite) in children_query.iter_mut() {
         let slot = slot_query.get(parent.get()).unwrap();
         let visible = match &slot.0 {
-            Some(item) => {
-                item.spell == Spell::new("SummonFriendSlime")
-                    || item.spell == Spell::new("SummonFriendEyeball")
+            Some(spell) => {
+                *spell == Spell::new("SummonFriendSlime")
+                    || *spell == Spell::new("SummonFriendEyeball")
             }
             _ => false,
         };
@@ -197,7 +160,6 @@ impl Plugin for ItemPanelPlugin {
             Update,
             (
                 update_inventory_slot,
-                update_charge_alert,
                 update_item_frame,
                 update_panel_width,
                 update_friend_marker,

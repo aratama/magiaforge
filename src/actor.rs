@@ -40,8 +40,6 @@ use crate::entity::fire::Fire;
 use crate::entity::gold::spawn_gold;
 use crate::entity::impact::SpawnImpact;
 use crate::hud::life_bar::spawn_life_bar;
-use crate::interpreter::cmd::Cmd;
-use crate::interpreter::cmd::Value;
 use crate::interpreter::interpreter::InterpreterEvent;
 use crate::inventory::Inventory;
 use crate::level::entities::Spawn;
@@ -65,7 +63,6 @@ use crate::states::GameState;
 use crate::strategy::Commander;
 use crate::ui::floating::FloatingContent;
 use crate::wand::Wand;
-use crate::wand::WandSpell;
 use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::AseSpriteSlice;
@@ -296,62 +293,21 @@ impl Actor {
     pub fn get_item_icon(&self, registry: Registry, index: FloatingContent) -> Option<String> {
         match index {
             FloatingContent::Inventory(index) => self.inventory.get(index).as_ref().map(|i| {
-                let props = registry.get_spell_props(&i.spell);
+                let props = registry.get_spell_props(&i);
                 props.icon.clone()
             }),
-            FloatingContent::WandSpell(w, s) => self.wands[w].slots[s].as_ref().map(
-                |WandSpell {
-                     spell: ref spell_type,
-                     ..
-                 }| { registry.get_spell_props(spell_type).icon.clone() },
-            ),
+            FloatingContent::WandSpell(w, s) => self.wands[w].slots[s]
+                .as_ref()
+                .map(|ref spell_type| registry.get_spell_props(spell_type).icon.clone()),
         }
     }
 
-    pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
+    pub fn get_spell(&self, wand_index: usize, spell_index: usize) -> Option<Spell> {
         self.wands[wand_index].slots[spell_index].clone()
     }
 
-    pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<WandSpell> {
+    pub fn get_wand_spell(&self, wand_index: usize, spell_index: usize) -> Option<Spell> {
         self.wands[wand_index].slots[spell_index].clone()
-    }
-
-    /// 現在所持している有料呪文の合計金額を返します
-    pub fn dept(&self) -> u32 {
-        let mut dept = self.inventory.dept();
-
-        let w: u32 = self.wands.iter().map(|wand| wand.dept()).sum();
-
-        dept += w;
-
-        return dept;
-    }
-
-    /// 清算します
-    /// いま所持している有料のスペルをすべて無料に戻します
-    pub fn liquidate(&mut self) -> bool {
-        let dept = self.dept();
-        if self.golds < dept {
-            return false;
-        }
-
-        self.golds -= dept;
-
-        for item in self.inventory.0.iter_mut() {
-            if let Some(item) = item {
-                item.price = 0;
-            }
-        }
-
-        for wand in self.wands.iter_mut() {
-            for s in wand.slots.iter_mut() {
-                if let Some(ref mut spell) = s {
-                    spell.price = 0;
-                }
-            }
-        }
-
-        true
     }
 
     /// 装備を含めた移動力の合計を返します
@@ -374,12 +330,8 @@ impl Actor {
         for wand in self.wands.iter() {
             for slot in &wand.slots {
                 scale_factor += match slot {
-                    Some(WandSpell {
-                        spell: spell_type, ..
-                    }) if *spell_type == Spell::new("Telescope") => 0.5,
-                    Some(WandSpell {
-                        spell: spell_type, ..
-                    }) if *spell_type == Spell::new("Magnifier") => -1.0,
+                    Some(spell_type) if *spell_type == Spell::new("Telescope") => 0.5,
+                    Some(spell_type) if *spell_type == Spell::new("Magnifier") => -1.0,
                     _ => 0.0,
                 }
             }
@@ -392,17 +344,13 @@ impl Actor {
         let mut discovered_spells: HashSet<Spell> = HashSet::new();
         for item in self.inventory.0.iter() {
             if let Some(ref item) = item {
-                if item.price == 0 {
-                    let _ = discovered_spells.insert(item.spell.clone());
-                }
+                let _ = discovered_spells.insert(item.clone());
             }
         }
         for wand in self.wands.iter() {
             for item in wand.slots.iter() {
                 if let Some(ref item) = &item {
-                    if item.price == 0 {
-                        let _ = discovered_spells.insert(item.spell.clone());
-                    }
+                    let _ = discovered_spells.insert(item.clone());
                 }
             }
         }
@@ -413,7 +361,7 @@ impl Actor {
         for wand in self.wands.iter() {
             for slot in wand.slots.iter() {
                 if let Some(slot) = slot {
-                    if slot.spell == *spell {
+                    if *slot == *spell {
                         return true;
                     }
                 }
@@ -563,9 +511,7 @@ fn update_actor_light(
             for wand in actor.wands.iter() {
                 for slot in &wand.slots {
                     match slot {
-                        Some(WandSpell {
-                            spell: spell_type, ..
-                        }) if *spell_type == Spell::new("Lantern") => {
+                        Some(spell_type) if *spell_type == Spell::new("Lantern") => {
                             point_light_radius_by_item += 160.0;
                         }
                         _ => {}
@@ -1199,7 +1145,6 @@ fn despawn(
     mut commands: Commands,
     registry: Registry,
     world: Res<GameWorld>,
-    mut interpreter: EventWriter<InterpreterEvent>,
     mut se: EventWriter<SEEvent>,
     mut spawn: EventWriter<SpawnEvent>,
     query: Query<(
@@ -1265,19 +1210,19 @@ fn despawn(
             }
 
             // ボス用の消滅シナリオ実行
-            if let Some(boss) = boss {
-                let mut cmds = registry.get_senario(&boss.on_despawn).clone();
-                cmds.insert(
-                    0,
-                    Cmd::Set {
-                        name: "position".to_string(),
-                        value: Value::Vec2 {
-                            x: position.x,
-                            y: position.y,
-                        },
-                    },
-                );
-                interpreter.send(InterpreterEvent::Play { commands: cmds });
+            if let Some(_boss) = boss {
+                // let mut cmds = registry.get_senario(&boss.on_despawn).clone();
+                // cmds.insert(
+                //     0,
+                //     Cmd::Set {
+                //         name: "position".to_string(),
+                //         value: Value::Vec2 {
+                //             x: position.x,
+                //             y: position.y,
+                //         },
+                //     },
+                // );
+                // interpreter.send(InterpreterEvent::Play { commands: cmds });
             }
         }
     }

@@ -3,18 +3,17 @@ use crate::constant::WAND_EDITOR_FLOATING_Z_INDEX;
 use crate::controller::player::Player;
 use crate::entity::dropped_item::spawn_dropped_item;
 use crate::hud::DropArea;
-use crate::inventory::InventoryItem;
 use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::registry::TileType;
 use crate::se::SEEvent;
 use crate::se::CURSOR_8;
 use crate::se::PICK_UP;
+use crate::spell::Spell;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::ui::item_panel::spawn_item_panel;
 use crate::ui::item_panel::ItemPanel;
-use crate::wand::WandSpell;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -25,17 +24,11 @@ pub enum FloatingContent {
 }
 
 impl FloatingContent {
-    pub fn get_item(&self, actor: &Actor) -> Option<InventoryItem> {
+    pub fn get_item(&self, actor: &Actor) -> Option<Spell> {
         match self {
             FloatingContent::Inventory(index) => actor.inventory.get(*index).clone(),
             FloatingContent::WandSpell(wand_index, spell_index) => {
-                match &actor.wands[*wand_index].slots[*spell_index] {
-                    Some(spell) => Some(InventoryItem {
-                        spell: spell.spell.clone(),
-                        price: spell.price,
-                    }),
-                    None => None,
-                }
+                actor.wands[*wand_index].slots[*spell_index].clone()
             }
         }
     }
@@ -172,6 +165,7 @@ fn drop(
                                     &level,
                                     pointer_in_world,
                                     &item,
+                                    0,
                                 );
                                 floating.content = None;
 
@@ -200,33 +194,21 @@ fn drop(
 }
 
 impl FloatingContent {
-    pub fn get_inventory_item(&self, actor: &Actor) -> Option<InventoryItem> {
+    pub fn get_inventory_item(&self, actor: &Actor) -> Option<Spell> {
         match self {
             FloatingContent::Inventory(i) => actor.inventory.get(*i).clone(),
-            FloatingContent::WandSpell(w, i) => actor.get_spell(*w, *i).map(|w| InventoryItem {
-                spell: w.spell.clone(),
-                price: w.price,
-            }),
+            FloatingContent::WandSpell(w, i) => actor.get_spell(*w, *i),
         }
     }
 
-    pub fn set_item(&self, item: Option<InventoryItem>, actor: &mut Actor) {
+    pub fn set_item(&self, item: Option<Spell>, actor: &mut Actor) {
         match (self, item.clone()) {
             (FloatingContent::Inventory(i), _) => {
                 actor.inventory.set(*i, item.as_ref().cloned());
             }
 
-            (
-                FloatingContent::WandSpell(w, s),
-                Some(InventoryItem {
-                    spell: spell_type,
-                    price,
-                }),
-            ) => {
-                actor.wands[*w].slots[*s] = Some(WandSpell {
-                    spell: spell_type,
-                    price,
-                });
+            (FloatingContent::WandSpell(w, s), Some(spell_type)) => {
+                actor.wands[*w].slots[*s] = Some(spell_type);
                 actor.wands[*w].index = 0;
             }
             (FloatingContent::WandSpell(w, s), None) => {
@@ -236,7 +218,7 @@ impl FloatingContent {
         }
     }
 
-    pub fn is_settable(&self, item: &Option<InventoryItem>) -> bool {
+    pub fn is_settable(&self, item: &Option<Spell>) -> bool {
         match (self, item) {
             (FloatingContent::Inventory(_), _) => true,
             (FloatingContent::WandSpell(..), Some(_)) => true,

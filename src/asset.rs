@@ -1,9 +1,9 @@
 use crate::ldtk::loader::LDTK;
 use crate::registry::ActorRegistry;
 use crate::registry::GameRegistry;
-use crate::registry::SenarioRegistry;
 use crate::registry::SpellRegistry;
 use crate::registry::TileRegistry;
+use crate::script::javascript_loader::JavaScriptSource;
 use bevy::asset::*;
 use bevy::prelude::*;
 use bevy_aseprite_ultra::prelude::Aseprite;
@@ -11,6 +11,9 @@ use bevy_asset_loader::prelude::*;
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
+    #[asset(key = "script.js")]
+    pub _script: Handle<JavaScriptSource>,
+
     // 設定 //////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(key = "registry.game.ron")]
     pub game_registry: Handle<GameRegistry>,
@@ -23,9 +26,6 @@ pub struct GameAssets {
 
     #[asset(key = "registry.tile.ron")]
     pub tile_registry: Handle<TileRegistry>,
-
-    #[asset(key = "registry.senario.ron")]
-    pub senario_registry: Handle<SenarioRegistry>,
 
     // フォント //////////////////////////////////////////////////////////////////////////////////////////////////////
     #[asset(key = "font/NotoSansJP-Medium.ttf")]

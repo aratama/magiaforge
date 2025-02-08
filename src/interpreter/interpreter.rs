@@ -13,17 +13,17 @@ use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
 use crate::interpreter::cmd::Cmd;
 use crate::interpreter::cmd::Value;
-use crate::inventory::InventoryItem;
 use crate::language::Languages;
 use crate::level::world::GameLevel;
 use crate::level::world::GameWorld;
 use crate::registry::Registry;
+use crate::script::javascript_loader::JavaScriptContext;
 use crate::se::SEEvent;
 use crate::se::KAWAII;
 use crate::states::GameMenuState;
 use crate::states::GameState;
 use crate::states::TimeState;
-use crate::ui::new_spell::spawn_new_spell;
+use crate::ui::new_spell::spawn_new_spell_window;
 use crate::ui::speech_bubble::update_speech_bubble_position;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
@@ -50,12 +50,6 @@ pub struct Interpreter {
     pub index: usize,
     pub wait: u32,
     pub shaking: Option<f32>,
-}
-
-impl Interpreter {
-    pub fn current_act(&self) -> Option<&Cmd> {
-        self.commands.get(self.index)
-    }
 }
 
 fn read_interpreter_events(
@@ -129,6 +123,7 @@ fn interpret(
         }
         Cmd::Speech(dict) => {
             *visibility = Visibility::Inherited;
+            speech.dict = dict.clone();
 
             if let Ok((mut actor, _)) = player_query.get_single_mut() {
                 actor.state = ActorState::Idle;
@@ -297,12 +292,9 @@ fn interpret(
 
         Cmd::GetSpell { spell } => {
             if let Ok((mut actor, player)) = player_query.get_single_mut() {
-                actor.inventory.insert(InventoryItem {
-                    spell: spell.clone(),
-                    price: 0,
-                });
+                actor.inventory.insert(spell.clone());
                 if !player.discovered_spells.contains(&spell) {
-                    spawn_new_spell(&mut commands, &registry, &mut time, spell, &mut se_writer);
+                    spawn_new_spell_window(&mut commands, &registry, &mut time, spell, &mut se_writer);
                 }
             }
             interpreter.index += 1;
@@ -327,33 +319,262 @@ fn interpret(
     }
 }
 
+fn speech_countup(
+    speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
+    config: Res<GameConfig>,
+    mut player_query: Query<(&mut Actor, &Player)>,
+    mut interpreter: ResMut<Interpreter>,
+    mut se_writer: EventWriter<SEEvent>,
+) {
+    let (visibility, speech) = speech_query.single();
+
+    if *visibility == Visibility::Hidden {
+        return;
+    }
+
+    if let Ok((mut actor, _)) = player_query.get_single_mut() {
+        actor.state = ActorState::Idle;
+        actor.fire_state = ActorFireState::Idle;
+    }
+
+    let text_end_position = interpreter.speech_count / DELAY;
+    let page_string = speech.dict.get(config.language);
+
+    if text_end_position < page_string.char_indices().count() {
+        let step = match config.language {
+            Languages::Ja => 1,
+            Languages::ZhCn => 1,
+            _ => 2,
+        };
+
+        if interpreter.speech_count % (DELAY * step) == 0 {
+            se_writer.send(SEEvent::new(KAWAII));
+        }
+
+        interpreter.speech_count += step;
+    }
+}
+
+#[derive(Event)]
+pub struct CmdEvent(pub Cmd);
+
+fn read_cmd_event(
+    mut reader: EventReader<CmdEvent>,
+    mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
+    mut interpreter: ResMut<Interpreter>,
+) {
+    let (mut visibility, mut speech) = speech_query.single_mut();
+
+    for CmdEvent(event) in reader.read() {
+        match event.clone() {
+            // Cmd::Set { name, value } => {
+            //     // interpreter.environment.insert(name, value);
+            //     // interpreter.index += 1;
+            // }
+            Cmd::Focus(speaker) => {
+                speech.entity = Some(speaker);
+            }
+            Cmd::Speech(dict) => {
+                *visibility = Visibility::Inherited;
+                speech.dict = dict.clone();
+                interpreter.speech_count = 0;
+            }
+            // Cmd::BGM(path) => {
+            //     // let handle = path.clone().map(|b| asset_server.load(b)).clone();
+            //     // if path.is_some() && handle.is_none() {
+            //     //     warn!("BGM not found: {:?}", path);
+            //     // }
+            //     // next_bgm.0 = handle;
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::SE { path } => {
+            //     // se_writer.send(SEEvent::new(path));
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::Close => {
+            //     // *visibility = Visibility::Hidden;
+            //     // interpreter.index += 1;
+
+            //     // camera.target = None;
+            //     // if let Ok((mut actor, _)) = player_query.get_single_mut() {
+            //     //     actor.state = ActorState::Idle;
+            //     //     actor.wait = 30;
+            //     // }
+            // }
+            // Cmd::Shake { value } => {
+            //     // camera.vibration = value;
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::ShakeStart { value } => {
+            //     // interpreter.shaking = value;
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::Flash {
+            //     position,
+            //     intensity,
+            //     radius,
+            //     duration,
+            //     reverse,
+            // } => {
+            //     // spawn_flash_light(
+            //     //     &mut commands,
+            //     //     position.to_vec2(&interpreter.environment),
+            //     //     intensity,
+            //     //     radius,
+            //     //     duration,
+            //     //     reverse,
+            //     // );
+
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::Despawn { name } => {
+            //     // if !entities.contains_key(&name) {
+            //     //     warn!("Entity not found: {:?}", name);
+            //     // }
+            //     // for (entity_name, entity) in entities.iter() {
+            //     //     if *entity_name == name {
+            //     //         commands.entity(*entity).despawn_recursive();
+            //     //     }
+            //     // }
+            //     // interpreter.index += 1;
+            // }
+
+            // Cmd::Sprite {
+            //     name,
+            //     position,
+            //     aseprite,
+            // } => {
+            //     // let p = position.to_vec2(&interpreter.environment);
+            //     // commands.spawn((
+            //     //     Name::new(name),
+            //     //     CounterAnimated,
+            //     //     AseSpriteAnimation {
+            //     //         aseprite: asset_server.load(aseprite),
+            //     //         animation: "idle".into(),
+            //     //     },
+            //     //     StateScoped(GameState::InGame),
+            //     //     Transform::from_translation(p.extend(0.0)),
+            //     //     EntityDepth::new(),
+            //     // ));
+            //     // interpreter.index += 1;
+            // }
+
+            // Cmd::Wait { count } => {
+            //     // interpreter.wait = count;
+            //     // interpreter.index += 1;
+            // }
+
+            // Cmd::Ending => {
+            //     // writer.send(OverlayEvent::Close(GameState::Ending));
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::Home => {
+            //     // level.next_level = GameLevel::new(HOME_LEVEL);
+            //     // writer.send(OverlayEvent::Close(GameState::Warp));
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::Arena => {
+            //     // level.next_level = GameLevel::new(ARENA);
+            //     // writer.send(OverlayEvent::Close(GameState::Warp));
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::Warp {
+            //     destination_level,
+            //     destination_iid,
+            // } => {
+            //     // level.next_level = destination_level;
+            //     // level.destination_iid = Some(destination_iid);
+            //     // writer.send(OverlayEvent::Close(GameState::Warp));
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::SetTile { x, y, w, h, tile } => {
+            //     // for i in x..x + w as i32 {
+            //     //     for j in y..y + h as i32 {
+            //     //         level.set_tile(i, j, tile.clone());
+            //     //     }
+            //     // }
+            //     // interpreter.index += 1;
+            // }
+            // Cmd::SpawnRaven { name, position } => {
+            //     // commands.spawn((
+            //     //     Name::new(name),
+            //     //     AseSpriteAnimation {
+            //     //         aseprite: registry.assets.raven.clone(),
+            //     //         animation: "idle".into(),
+            //     //     },
+            //     //     EntityDepth::new(),
+            //     //     Transform::from_translation(position.extend(0.0)),
+            //     // ));
+            //     // interpreter.index += 1;
+            // }
+
+            // Cmd::SetCameraTarget { name } => {
+            //     // match name {
+            //     //     Some(name) => {
+            //     //         if let Some(entity) = entities.get(&name) {
+            //     //             camera.target = Some(*entity);
+            //     //         }
+            //     //     }
+            //     //     None => {
+            //     //         camera.target = None;
+            //     //     }
+            //     // };
+            //     // interpreter.index += 1;
+            // }
+
+            // Cmd::GetSpell { spell } => {
+            //     // if let Ok((mut actor, player)) = player_query.get_single_mut() {
+            //     //     actor.inventory.insert(InventoryItem {
+            //     //         spell: spell.clone(),
+            //     //         price: 0,
+            //     //     });
+            //     //     if !player.discovered_spells.contains(&spell) {
+            //     //         spawn_new_spell(&mut commands, &registry, &mut time, spell, &mut se_writer);
+            //     //     }
+            //     // }
+            //     // interpreter.index += 1;
+            // }
+
+            // Cmd::OnNewSpell {
+            //     spell,
+            //     commands_then,
+            //     commands_else,
+            // } => {
+            //     // if let Ok((_, player)) = player_query.get_single_mut() {
+            //     //     interpreter_events.send(InterpreterEvent::Play {
+            //     //         commands: if player.discovered_spells.contains(&spell) {
+            //     //             commands_else
+            //     //         } else {
+            //     //             commands_then
+            //     //         },
+            //     //     });
+            //     // }
+            //     // interpreter.index += 1;
+            // }
+            _ => {}
+        }
+    }
+}
+
 fn next_page(
     mouse: Res<ButtonInput<MouseButton>>,
-    mut bubble_query: Query<&Visibility, With<SpeechBubble>>,
-    mut writer: EventWriter<InterpreterEvent>,
+    mut bubble_query: Query<(&Visibility, &SpeechBubble)>,
     config: Res<GameConfig>,
     mut theater: ResMut<Interpreter>,
     state: Res<State<GameMenuState>>,
+    mut script: NonSendMut<JavaScriptContext>,
 ) {
-    let bubble_visivility = bubble_query.single_mut();
+    let (bubble_visivility, bubble) = bubble_query.single_mut();
     if *bubble_visivility == Visibility::Inherited && *state != GameMenuState::PauseMenuOpen {
         if mouse.just_pressed(MouseButton::Left) || mouse.just_pressed(MouseButton::Right) {
-            match theater.current_act() {
-                Some(Cmd::Speech(dict)) => {
-                    let page_string = dict.get(config.language);
-                    let chars = page_string.char_indices();
-                    let count = chars.count();
-                    let pos = theater.speech_count / DELAY;
-                    if pos < count {
-                        theater.speech_count = count * DELAY;
-                    } else if theater.index < theater.commands.len() - 1 {
-                        theater.index += 1;
-                        theater.speech_count = 0;
-                    } else {
-                        writer.send(InterpreterEvent::Quit);
-                    }
-                }
-                _ => {}
+            let page_string = bubble.dict.get(config.language);
+            let chars = page_string.char_indices();
+            let count = chars.count();
+            let pos = theater.speech_count / DELAY;
+            if pos < count {
+                theater.speech_count = count * DELAY;
+            } else {
+                script.resume();
             }
         }
     }
@@ -378,6 +599,7 @@ pub struct InterpreterPlugin;
 
 impl Plugin for InterpreterPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<CmdEvent>();
         app.add_event::<InterpreterEvent>();
         app.init_resource::<Interpreter>();
         app.add_systems(
@@ -387,6 +609,8 @@ impl Plugin for InterpreterPlugin {
                 read_interpreter_events.before(update_speech_bubble_position),
                 interpret,
                 next_page,
+                read_cmd_event,
+                speech_countup,
             )
                 .run_if(in_state(GameState::InGame).and(in_state(TimeState::Active))),
         );

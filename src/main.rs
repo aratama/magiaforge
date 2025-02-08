@@ -34,6 +34,7 @@ mod player_state;
 mod random;
 mod registry;
 mod save;
+mod script;
 mod se;
 mod set;
 mod spell;
