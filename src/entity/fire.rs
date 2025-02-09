@@ -203,12 +203,12 @@ fn ignite(
     }
 }
 
-fn melt_ice(fire_query: Query<&Transform, With<Fire>>, mut level: ResMut<GameWorld>) {
+fn melt_ice(fire_query: Query<&Transform, With<Fire>>, mut world: ResMut<GameWorld>) {
     for fire_transform in fire_query.iter() {
         let position = fire_transform.translation.truncate();
-        let tile = level.get_tile_by_coords(position);
+        let tile = world.get_tile_by_coords(position);
         if tile == Tile::new("Ice") {
-            level.set_tile_by_position(position, Tile::new("Water"));
+            world.set_tile_by_position(position, Tile::new("Water"));
         }
     }
 }

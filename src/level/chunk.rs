@@ -195,35 +195,28 @@ impl LevelChunk {
         let w = self.bounds.max_x - self.bounds.min_x;
         let i = ((y - self.bounds.min_y) * w + (x - self.bounds.min_x)) as usize;
         self.tiles[i] = tile;
-        self.dirty = if let Some(Bounds {
-            min_x,
-            min_y,
-            max_x,
-            max_y,
-        }) = self.dirty
-        {
+        self.set_dirty(x, y);
+    }
+
+    pub fn set_dirty(&mut self, x: i32, y: i32) {
+        if !self.bounds.contains(x, y) {
+            return;
+        }
+        self.dirty = if let Some(bounds) = self.dirty {
             Some(Bounds {
-                min_x: min_x.min(x),
-                min_y: min_y.min(y),
-                max_x: max_x.max(x),
-                max_y: max_y.max(y),
+                min_x: bounds.min_x.min(x),
+                min_y: bounds.min_y.min(y),
+                max_x: bounds.max_x.max(x + 1),
+                max_y: bounds.max_y.max(y + 1),
             })
         } else {
             Some(Bounds {
                 min_x: x,
                 min_y: y,
-                max_x: x,
-                max_y: y,
+                max_x: x + 1,
+                max_y: y + 1,
             })
         };
-    }
-
-    pub fn set_tile_by_position(&mut self, position: Vec2, tile: Tile) {
-        self.set_tile(
-            (position.x / TILE_SIZE).trunc() as i32,
-            (-position.y / TILE_SIZE).trunc() as i32,
-            tile,
-        );
     }
 
     /// 実際に描画する天井タイルかどうかを返します
@@ -266,29 +259,6 @@ impl LevelChunk {
             }
         }
         tiles
-    }
-
-    pub fn remove_isolated_tiles(&mut self, registry: &Registry, default_tile: &Tile) {
-        // 縦２タイルのみ孤立して残っているものがあれば削除
-        for y in self.bounds.min_y..(self.bounds.max_y + 1) {
-            for x in self.bounds.min_x..(self.bounds.max_x + 1) {
-                if !self.is_wall(&registry, x, y + 0)
-                    && self.is_wall(&registry, x, y + 1)
-                    && !self.is_wall(&registry, x, y + 2)
-                {
-                    warn!("filling gap at {} {}", x, y);
-                    self.set_tile(x, y + 1, default_tile.clone());
-                } else if !self.is_wall(&registry, x, y + 0)
-                    && self.is_wall(&registry, x, y + 1)
-                    && self.is_wall(&registry, x, y + 2)
-                    && !self.is_wall(&registry, x, y + 3)
-                {
-                    warn!("filling gap at {} {}", x, y);
-                    self.set_tile(x, y + 1, default_tile.clone());
-                    self.set_tile(x, y + 2, default_tile.clone());
-                }
-            }
-        }
     }
 
     pub fn contains_by_index(&self, x: i32, y: i32) -> bool {

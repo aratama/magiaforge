@@ -63,7 +63,7 @@ fn read_impact_event(
 pub fn spawn_impact(
     commands: &mut Commands,
     registry: &Registry,
-    level: &mut ResMut<GameWorld>,
+    world: &mut ResMut<GameWorld>,
     writer: &mut EventWriter<SEEvent>,
     life_query: &mut Query<&Transform, With<Actor>>,
     camera_query: &mut Query<(&mut GameCamera, &Transform), Without<Actor>>,
@@ -124,9 +124,9 @@ pub fn spawn_impact(
             let y = (impact.position.y / -TILE_SIZE) as i32 + dy;
             let distance = index_to_position((x, y)).distance(impact.position);
             if distance < TILE_SIZE * 5.0 {
-                match level.get_tile(x, y).0.as_str() {
+                match world.get_tile(x, y).0.as_str() {
                     "Ice" => {
-                        level.set_tile(x, y, Tile::new("Water"));
+                        world.set_tile(x, y, Tile::new("Water"));
                     }
                     _ => {}
                 };

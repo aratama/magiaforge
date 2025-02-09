@@ -298,19 +298,19 @@ fn bullet_homing(
 
 fn bullet_freeze_water(
     bullet_query: Query<(&Bullet, &Transform)>,
-    mut level: ResMut<GameWorld>,
+    mut world: ResMut<GameWorld>,
     mut se: EventWriter<SEEvent>,
 ) {
     for (bullet, transform) in bullet_query.iter() {
         if 0 < bullet.freeze {
             let position = transform.translation.truncate();
-            match level.get_tile_by_coords(position).0.as_str() {
+            match world.get_tile_by_coords(position).0.as_str() {
                 "Water" => {
-                    level.set_tile_by_position(position, Tile::new("Ice"));
+                    world.set_tile_by_position(position, Tile::new("Ice"));
                     se.send(SEEvent::pos(FREEZE, position));
                 }
                 "Lava" => {
-                    level.set_tile_by_position(position, Tile::new("Soil"));
+                    world.set_tile_by_position(position, Tile::new("Soil"));
                     se.send(SEEvent::pos(FREEZE, position));
                 }
                 _ => {}

@@ -320,32 +320,52 @@ fn despawn_chunks(
     world.chunks.retain(|c| chunk_to_remove != c.level);
 }
 
-/// チャンクの読み込み・更新には次の二種類があります
-/// ・loading_index による順次読み込みの場合。これはレベル全体にわたる広範囲であり、処理に時間がかかるので、各フレームで分割して行う
-/// ・爆弾の爆発の範囲などを dirty フラグで更新する場合。これは通常狭い範囲であり、画面内に収まっていることも多いので、瞬時にすべて更新する
-/// loading_index による順次読み込みの最中に dirty フラグが設定された場合、二重生成を避けるため、チャンクすべての再生成を瞬時に行います。
-/// これが発生するケースは希です
-fn update_tile_sprites(
+fn remove_isolated_tiles(mut world: ResMut<GameWorld>, registry: Registry) {
+    let mut isolates: Vec<(i32, i32)> = Vec::new();
+    // 縦２タイルのみ孤立して残っているものがあれば削除
+    for chunk in &world.chunks {
+        if chunk.dirty.is_none() {
+            continue;
+        }
+        for y in chunk.bounds.min_y..(chunk.bounds.max_y + 1) {
+            for x in chunk.bounds.min_x..(chunk.bounds.max_x + 1) {
+                if !world.is_wall(&registry, x, y + 0)
+                    && world.is_wall(&registry, x, y + 1)
+                    && !world.is_wall(&registry, x, y + 2)
+                {
+                    warn!("filling gap at {} {}", x, y);
+                    isolates.push((x, y + 1));
+                } else if !world.is_wall(&registry, x, y + 0)
+                    && world.is_wall(&registry, x, y + 1)
+                    && world.is_wall(&registry, x, y + 2)
+                    && !world.is_wall(&registry, x, y + 3)
+                {
+                    warn!("filling gap at {} {}", x, y);
+                    isolates.push((x, y + 1));
+                    isolates.push((x, y + 2));
+                }
+            }
+        }
+    }
+    for (x, y) in isolates.iter() {
+        world.set_tile(*x, *y, Tile::new("Soil"));
+    }
+}
+
+fn update_tile_collisions(
     mut world: ResMut<GameWorld>,
     registry: Registry,
     mut commands: Commands,
-    tiles_query: Query<(Entity, &TileSprite)>,
     collider_query: Query<(Entity, &LevelScoped), With<WallCollider>>,
 ) {
-    // チャンクごとに更新すべきインデックス列を保持
-    let mut tile_spawning_indices: HashMap<String, Vec<(i32, i32)>> = HashMap::new();
-
-    // ハッシュマップにチャンクごとVecを生成
-    for chunk in &mut world.chunks {
-        tile_spawning_indices.insert(chunk.level.0.clone(), Vec::new());
-    }
-
     // コリジョンの再生成
-
+    // mutableでchunkを取得
     for chunk in &mut world.chunks {
         // コリジョンの再生成
         // dirty フラグが設定されている場合は常に再生成します
         if chunk.dirty.is_some() || chunk.loading_index == 0 {
+            info!("spawning chunk collisions: {:?}", chunk.level);
+
             // 既存のコリジョンを削除
             for (entity, scope) in collider_query.iter() {
                 if scope.0 == chunk.level {
@@ -356,66 +376,88 @@ fn update_tile_sprites(
             // コリジョンを再生成
             spawn_wall_collisions(&mut commands, &registry, chunk);
         }
+    }
+}
 
-        let indiceis_to_spawn = tile_spawning_indices.get_mut(&chunk.level.0).unwrap();
-
-        // loading_index による読み込みの途中で、dirty フラグも設定されている場合
-        // チャンクすべてを同時更新
-        if chunk.loading_index < chunk.tiles.len() && chunk.dirty.is_some() {
-            warn!("dirty flag and loading index are set at the same time: chunk.loading_index={:?} chunk.tiles.len()={:?}", chunk.loading_index, chunk.tiles.len());
-
-            // すべての範囲のスプライトをいったんすべて削除
-            clear_tiles_by_bounds(&mut commands, &tiles_query, chunk.bounds);
-
-            // すべてのスプライトの生成を予約
-
-            for (x, y) in chunk.bounds.iter() {
-                indiceis_to_spawn.push((x, y));
-            }
-
-            // dirtyフラグをクリア
-            chunk.dirty = None;
-            chunk.loading_index = chunk.tiles.len();
-        } else if let Some(dirty) = &chunk.dirty.clone() {
+fn update_dirty_tile_sprites(
+    mut world: ResMut<GameWorld>,
+    registry: Registry,
+    mut commands: Commands,
+    tiles_query: Query<(Entity, &TileSprite)>,
+) {
+    for chunk in &world.chunks {
+        if let Some(dirty) = &chunk.dirty.clone() {
             // 爆弾での破壊時など、通常の更新
             info!("updating dirty tiles: {:?}", dirty);
 
-            let updating_bounds = Bounds {
-                min_x: (dirty.min_x - 1).max(chunk.bounds.min_x),
-                max_x: (dirty.max_x + 1).min(chunk.bounds.max_x),
-                min_y: (dirty.min_y - 3).max(chunk.bounds.min_y),
-                max_y: (dirty.max_y + 3).min(chunk.bounds.max_y),
-            };
+            clear_tiles_by_bounds(&mut commands, &tiles_query, *dirty);
 
-            // dirty の範囲内を瞬時に更新
-            clear_tiles_by_bounds(&mut commands, &tiles_query, updating_bounds);
-
-            // 縦２タイルのみ孤立して残っているものがあれば削除
-            chunk.remove_isolated_tiles(&registry, &Tile::new("Soil"));
-
-            for (x, y) in updating_bounds.iter() {
-                indiceis_to_spawn.push((x, y));
-            }
-
-            chunk.dirty = None;
-        } else {
-            // loading_index の続きを一部更新
-            for _ in 0..50 {
-                if chunk.tiles.len() <= chunk.loading_index {
-                    break;
-                }
-                let w = chunk.bounds.max_x - chunk.bounds.min_x;
-                let x = chunk.loading_index as i32 % w;
-                let y = chunk.loading_index as i32 / w;
-                indiceis_to_spawn
-                    .push((chunk.bounds.min_x + x as i32, chunk.bounds.min_y + y as i32));
-
-                chunk.loading_index += 1;
+            for (x, y) in dirty.iter() {
+                spawn_world_tile(&mut commands, &registry, &world, &chunk, x, y);
             }
         }
     }
 
+    for chunk in &mut world.chunks {
+        chunk.dirty = None;
+    }
+}
+
+/// チャンクの読み込み・更新には次の二種類があります
+/// ・loading_index による順次読み込みの場合。これはレベル全体にわたる広範囲であり、処理に時間がかかるので、各フレームで分割して行う
+/// ・爆弾の爆発の範囲などを dirty フラグで更新する場合。これは通常狭い範囲であり、画面内に収まっていることも多いので、瞬時にすべて更新する
+/// loading_index による順次読み込みの最中に dirty フラグが設定された場合、二重生成を避けるため、チャンクすべての再生成を瞬時に行います。
+/// これが発生するケースは希です
+fn update_lazy_tile_sprites(
+    mut world: ResMut<GameWorld>,
+    registry: Registry,
+    mut commands: Commands,
+    tiles_query: Query<(Entity, &TileSprite)>,
+) {
+    // チャンクごとに更新すべきインデックス列を保持
+    let mut tile_spawning_indices: HashMap<String, Vec<(i32, i32)>> = HashMap::new();
+
+    // ハッシュマップにチャンクごとVecを生成
+    for chunk in &world.chunks {
+        tile_spawning_indices.insert(chunk.level.0.clone(), Vec::new());
+    }
+
+    // コリジョンの再生成
+    // mutableでchunkを取得
+    for chunk in &mut world.chunks {
+        let indiceis_to_spawn = tile_spawning_indices.get_mut(&chunk.level.0).unwrap();
+
+        // loading_index の続きを一部更新
+        for _ in 0..50 {
+            if chunk.tiles.len() <= chunk.loading_index {
+                break;
+            }
+
+            let w = chunk.bounds.max_x - chunk.bounds.min_x;
+            let lx = chunk.loading_index as i32 % w;
+            let ly = chunk.loading_index as i32 / w;
+            let x = chunk.bounds.min_x + lx as i32;
+            let y = chunk.bounds.min_y + ly as i32;
+            indiceis_to_spawn.push((x, y));
+
+            // todo これが重い？
+            // clear_tiles_by_bounds(
+            //     &mut commands,
+            //     &tiles_query,
+            //     Bounds {
+            //         min_x: x,
+            //         max_x: x + 1,
+            //         min_y: y,
+            //         max_y: y + 1,
+            //     },
+            // );
+
+            chunk.loading_index += 1;
+        }
+    }
+
     // 予約されたインデックスに応じてスプライトを生成
+    // こちらは immutableでchunkを取得
     for (chunk_identifier, indices) in tile_spawning_indices.iter() {
         let chunk = world
             .chunks
@@ -496,7 +538,17 @@ impl Plugin for WorldPlugin {
         );
         app.add_systems(OnEnter(GameState::InGame), setup_game_world);
         app.add_systems(OnExit(GameState::InGame), clear_world);
-        app.add_systems(FixedUpdate, update_tile_sprites.in_set(FixedUpdateAfterAll));
+        app.add_systems(
+            FixedUpdate,
+            (
+                remove_isolated_tiles,
+                update_tile_collisions,
+                update_dirty_tile_sprites,
+                update_lazy_tile_sprites,
+            )
+                .chain()
+                .in_set(FixedUpdateAfterAll),
+        );
         app.init_resource::<GameWorld>();
     }
 }

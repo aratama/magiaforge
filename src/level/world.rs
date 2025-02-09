@@ -7,6 +7,8 @@ use crate::spell::Spell;
 use bevy::prelude::*;
 use serde::Deserialize;
 
+use super::chunk::position_to_index;
+
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
 pub struct GameLevel(pub String);
 
@@ -81,13 +83,25 @@ impl GameWorld {
         }
     }
 
+    /// タイルを設定します
+    /// また、このとき、周囲のタイルをdirtyにします
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
-        if let Some(ref mut chunk) = self
-            .chunks
-            .iter_mut()
-            .find(|chunk| chunk.contains_by_index(x, y))
-        {
-            chunk.set_tile(x, y, tile);
+        for dy in -1..=3 {
+            for dx in -1..=1 {
+                let nx = x + dx;
+                let ny = y + dy;
+                if let Some(ref mut chunk) = self
+                    .chunks
+                    .iter_mut()
+                    .find(|chunk| chunk.contains_by_index(nx, ny))
+                {
+                    if dx == 0 && dy == 0 {
+                        chunk.set_tile(x, y, tile.clone());
+                    } else {
+                        chunk.set_dirty(nx, ny);
+                    }
+                }
+            }
         }
     }
 
@@ -100,13 +114,8 @@ impl GameWorld {
     }
 
     pub fn set_tile_by_position(&mut self, position: Vec2, tile: Tile) {
-        if let Some(chunk) = self
-            .chunks
-            .iter_mut()
-            .find(|chunk| chunk.contains(position))
-        {
-            chunk.set_tile_by_position(position, tile);
-        }
+        let (x, y) = position_to_index(position);
+        self.set_tile(x, y, tile);
     }
 
     pub fn is_wall(&self, registry: &Registry, x: i32, y: i32) -> bool {

@@ -93,7 +93,7 @@ pub fn read_cmd_event(
     mut commands: Commands,
     registry: Registry,
     asset_server: Res<AssetServer>,
-    mut level: ResMut<GameWorld>,
+    mut world: ResMut<GameWorld>,
     mut script: NonSendMut<JavaScriptContext>,
 
     mut reader: EventReader<CmdEvent>,
@@ -139,8 +139,8 @@ pub fn read_cmd_event(
                 let (destination_level, _entity) = registry
                     .get_level_by_entity_iid(destination_iid.as_str())
                     .unwrap();
-                level.next_level = GameLevel::new(destination_level.identifier);
-                level.destination_iid = Some(destination_iid);
+                world.next_level = GameLevel::new(destination_level.identifier);
+                world.destination_iid = Some(destination_iid);
                 overlay_writer.send(OverlayEvent::Close(GameState::Warp));
                 script.resume();
             } //
@@ -189,7 +189,7 @@ pub fn read_cmd_event(
             Cmd::SetTile { x, y, w, h, tile } => {
                 for i in x..x + w as i32 {
                     for j in y..y + h as i32 {
-                        level.set_tile(i, j, tile.clone());
+                        world.set_tile(i, j, tile.clone());
                     }
                 }
                 script.resume();
