@@ -14,6 +14,7 @@ use crate::inventory::Inventory;
 use crate::level::appearance::spawn_world_tile;
 use crate::level::appearance::TileSprite;
 use crate::level::chunk::index_to_position;
+use crate::level::chunk::Bounds;
 use crate::level::chunk::LevelChunk;
 use crate::level::collision::spawn_wall_collisions;
 use crate::level::collision::WallCollider;
@@ -386,17 +387,25 @@ fn update_tile_sprites(
             // dirtyフラグをクリア
             chunk.dirty = None;
             chunk.loading_index = chunk.tiles.len();
-        } else if let Some((left, top, right, bottom)) = &chunk.dirty.clone() {
+        } else if let Some(Bounds {
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+        }) = &chunk.dirty.clone()
+        {
+            // 爆弾での破壊時など、通常の更新
+
             // dirty の範囲内を瞬時に更新
-            // ダーティーフラグをクリア
+            clear_tiles_by_bounds(&mut commands, &tiles_query, *min_x, *min_y, *max_x, *max_y);
 
             // 縦２タイルのみ孤立して残っているものがあれば削除
-            chunk.remove_isolated_tiles(&registry, &Tile::default());
+            chunk.remove_isolated_tiles(&registry, &Tile::new("Soil"));
 
-            let min_x = (left - 1).max(chunk.min_x);
-            let max_x = (right + 1).min(chunk.max_x);
-            let min_y = (top - 1).max(chunk.min_y);
-            let max_y = (bottom + 3).min(chunk.max_y); // 縦方向のみ広めに更新することに注意
+            let min_x = (min_x - 1).max(chunk.min_x);
+            let max_x = (max_x + 1).min(chunk.max_x);
+            let min_y = (min_y - 1).max(chunk.min_y);
+            let max_y = (max_y + 3).min(chunk.max_y); // 縦方向のみ広めに更新することに注意
 
             for y in min_y..max_y {
                 for x in min_x..max_x {

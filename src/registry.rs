@@ -70,6 +70,9 @@ pub struct TileTypeProps {
 
     #[serde(default)]
     pub grasses: bool,
+
+    #[serde(default)]
+    pub break_into: Option<Tile>,
 }
 
 #[derive(serde::Deserialize, Debug, Clone)]

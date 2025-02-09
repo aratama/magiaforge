@@ -12,6 +12,14 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 #[derive(Clone, Debug)]
+pub struct Bounds {
+    pub min_x: i32,
+    pub min_y: i32,
+    pub max_x: i32,
+    pub max_y: i32,
+}
+
+#[derive(Clone, Debug)]
 pub struct LevelChunk {
     pub level: GameLevel,
     pub tiles: Vec<Tile>,
@@ -21,7 +29,7 @@ pub struct LevelChunk {
     pub min_y: i32,
     pub max_x: i32,
     pub max_y: i32,
-    pub dirty: Option<(i32, i32, i32, i32)>,
+    pub dirty: Option<Bounds>,
 }
 
 impl LevelChunk {
@@ -125,7 +133,12 @@ impl LevelChunk {
             dirty: if lazy_loading {
                 None
             } else {
-                Some((min_x, min_y, max_x, max_y))
+                Some(Bounds {
+                    min_x,
+                    min_y,
+                    max_x,
+                    max_y,
+                })
             },
         };
     }
@@ -165,10 +178,26 @@ impl LevelChunk {
         let w = self.max_x - self.min_x;
         let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
         self.tiles[i] = tile;
-        self.dirty = if let Some((min_x, min_y, max_x, max_y)) = self.dirty {
-            Some((min_x.min(x), min_y.min(y), max_x.max(x), max_y.max(y)))
+        self.dirty = if let Some(Bounds {
+            min_x,
+            min_y,
+            max_x,
+            max_y,
+        }) = self.dirty
+        {
+            Some(Bounds {
+                min_x: min_x.min(x),
+                min_y: min_y.min(y),
+                max_x: max_x.max(x),
+                max_y: max_y.max(y),
+            })
         } else {
-            Some((x, y, x, y))
+            Some(Bounds {
+                min_x: x,
+                min_y: y,
+                max_x: x,
+                max_y: y,
+            })
         };
     }
 

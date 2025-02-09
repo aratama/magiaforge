@@ -6,8 +6,8 @@ use crate::collision::SENSOR_GROUPS;
 use crate::constant::*;
 use crate::entity::fire::Fire;
 use crate::level::chunk::index_to_position;
-use crate::level::tile::Tile;
 use crate::level::world::GameWorld;
+use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::se::BAKUHATSU;
 use crate::set::FixedUpdateGameActiveSet;
@@ -34,6 +34,7 @@ pub struct SpawnExplosion {
 
 fn spawn_explosion(
     mut commands: Commands,
+    registry: Registry,
     assets: Res<GameAssets>,
     mut se: EventWriter<SEEvent>,
     mut reader: EventReader<SpawnExplosion>,
@@ -42,7 +43,7 @@ fn spawn_explosion(
     mut life_query: Query<&Transform, With<Actor>>,
     fire_query: Query<(Entity, &Transform), (With<Fire>, Without<Actor>)>,
     mut damage_writer: EventWriter<ActorEvent>,
-    mut level: ResMut<GameWorld>,
+    mut world: ResMut<GameWorld>,
 ) {
     let context: &RapierContext = rapier_context.single();
 
@@ -132,15 +133,11 @@ fn spawn_explosion(
 
                 let distance = index_to_position((x, y)).distance(*position);
                 if distance < TILE_SIZE * 5.0 {
-                    match level.get_tile(x, y).0.as_str() {
-                        "Wall" => {
-                            level.set_tile(x, y, Tile::default());
-                        }
-                        "Ice" => {
-                            level.set_tile(x, y, Tile::new("Water"));
-                        }
-                        _ => {}
-                    };
+                    let tile = world.get_tile(x, y);
+                    let props = registry.get_tile(&tile);
+                    if let Some(ref break_into) = props.break_into {
+                        world.set_tile(x, y, break_into.clone());
+                    }
                 }
             }
         }
