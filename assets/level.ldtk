@@ -104,7 +104,7 @@
 			"useAsyncRender": false,
 			"intGridValues": [
 				{ "value": 2, "identifier": "PermanentWall", "color": "#000000", "tile": null, "groupUid": 0 },
-				{ "value": 3, "identifier": "Wall", "color": "#211E1D", "tile": null, "groupUid": 0 },
+				{ "value": 3, "identifier": "Wall", "color": "#2D2421", "tile": null, "groupUid": 0 },
 				{ "value": 1, "identifier": "StoneTile", "color": "#C4C1D0", "tile": null, "groupUid": 0 },
 				{ "value": 5, "identifier": "Grassland", "color": "#3E8948", "tile": null, "groupUid": 0 },
 				{ "value": 6, "identifier": "Ice", "color": "#A9F3FE", "tile": null, "groupUid": 0 },

@@ -6,7 +6,8 @@ TileRegistry(
         // 侵入できないタイル　
         // FloorまたはSurfaceが隣接していると、壁の部分を描画します
         "Wall": (
-            tile_type: Wall
+            tile_type: Wall,
+            break_into: "Soil"
         ),
         "PermanentWall": (
             tile_type: Wall
@@ -20,7 +21,8 @@ TileRegistry(
                     depth: 0.0,
                     tiling: Simple (patterns: [["tile_ice"]])
                 ),
-            ]
+            ],
+            break_into: "Water"
         ),
         "Lava": (
             tile_type: Surface,
@@ -83,7 +85,8 @@ TileRegistry(
                     tiling: Simple (patterns: [["grassland_0"], ["grassland_1"], ["grassland_2"]])
                 )
             ],
-            grasses: true
+            grasses: true,
+            break_into: "Soil"
         ),
         // 土
         // 草が生えていない地面
