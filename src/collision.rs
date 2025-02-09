@@ -165,12 +165,10 @@ const BULLET_FILTER_BASE: LazyCell<Group> =
 pub const PLAYER_BULLET_GROUP: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         PLAYER_BULLET_MEMBERSHIPS,
-        // アイテムを押して動かせるように、プレイヤーの弾丸は DROPPED_ITEM_MEMBERSHIPS に衝突します
         ENEMY_MEMBERSHIPS
             | FLYING_ENEMY_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
             | FLYING_NEUTRAL_MEMBERSHIPS
-            | DROPPED_ITEM_MEMBERSHIPS
             | *BULLET_FILTER_BASE,
     )
 });
@@ -178,7 +176,6 @@ pub const PLAYER_BULLET_GROUP: LazyCell<CollisionGroups> = LazyCell::new(|| {
 pub const ENEMY_BULLET_GROUP: LazyCell<CollisionGroups> = LazyCell::new(|| {
     CollisionGroups::new(
         ENEMY_BULLET_MEMBESHIPS,
-        // 敵がアイテムを盾に接近するのを避けるために、敵の弾丸は DROPPED_ITEM_MEMBERSHIPS に衝突しません
         PLAYER_MEMBERSHIPS
             | FLYING_PLAYER_MEMBERSHIPS
             | NEUTRAL_MEMBERSHIPS
@@ -227,7 +224,6 @@ pub const RABBIT_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | FLYING_ENEMY_MEMBERSHIPS
             | SHADOW_MEMBERSHIPS
             | HIDDEN_WALL_MEMBERSHIPS
-            | DROPPED_ITEM_MEMBERSHIPS
             | WATER_MEMBERSHIPS,
     )
 });
@@ -243,10 +239,8 @@ pub const DROPPED_ITEM_GROUPS: LazyCell<CollisionGroups> = LazyCell::new(|| {
             | ENTITY_MEMBERSHIPS
             | PLAYER_MEMBERSHIPS
             | FLYING_PLAYER_MEMBERSHIPS
-            | PLAYER_BULLET_MEMBERSHIPS
             | WALL_MEMBERSHIPS
             | HIDDEN_WALL_MEMBERSHIPS
-            | RABBIT_MEMBERSHIPS
             | WATER_MEMBERSHIPS,
     )
 });
