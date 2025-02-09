@@ -29,11 +29,11 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
     // combine wall tiles into flat "plates" in each individual row
     let mut plate_stack: Vec<Vec<Plate>> = Vec::new();
 
-    for y in chunk.min_y..chunk.max_y {
+    for y in chunk.bounds.min_y..chunk.bounds.max_y {
         let mut row_plates: Vec<Plate> = Vec::new();
         let mut plate_start = None;
 
-        for x in chunk.min_x..chunk.max_x {
+        for x in chunk.bounds.min_x..chunk.bounds.max_x {
             match (
                 plate_start,
                 targets.contains(&chunk.get_tile(x as i32, y as i32)),
@@ -52,7 +52,7 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
         if let Some(s) = plate_start {
             row_plates.push(Plate {
                 left: s,
-                right: chunk.max_x - 1,
+                right: chunk.bounds.max_x - 1,
             });
         }
 
@@ -77,7 +77,7 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
             }
         }
 
-        let y = chunk.min_y + plate_index as i32;
+        let y = chunk.bounds.min_y + plate_index as i32;
 
         for plate in &current_row {
             rect_builder

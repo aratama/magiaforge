@@ -11,12 +11,28 @@ use serde_json::from_value;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct Bounds {
     pub min_x: i32,
     pub min_y: i32,
     pub max_x: i32,
     pub max_y: i32,
+}
+
+impl Bounds {
+    pub fn iter(&self) -> Vec<(i32, i32)> {
+        let mut v = Vec::new();
+        for x in self.min_x..self.max_x {
+            for y in self.min_y..self.max_y {
+                v.push((x, y));
+            }
+        }
+        v
+    }
+
+    pub fn contains(&self, x: i32, y: i32) -> bool {
+        x >= self.min_x && x < self.max_x && y >= self.min_y && y < self.max_y
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -25,10 +41,7 @@ pub struct LevelChunk {
     pub tiles: Vec<Tile>,
     pub loading_index: usize,
     pub entities: HashMap<(i32, i32), SpawnEntityProps>,
-    pub min_x: i32,
-    pub min_y: i32,
-    pub max_x: i32,
-    pub max_y: i32,
+    pub bounds: Bounds,
     pub dirty: Option<Bounds>,
 }
 
@@ -73,6 +86,8 @@ impl LevelChunk {
                 }
             });
         }
+
+        let tiles_length = tiles.len();
 
         // エンティティ読み込み
 
@@ -124,12 +139,14 @@ impl LevelChunk {
         return Self {
             level: level.clone(),
             tiles,
-            loading_index: 0,
             entities,
-            min_x,
-            max_x,
-            min_y,
-            max_y,
+            bounds: Bounds {
+                min_x,
+                max_x,
+                min_y,
+                max_y,
+            },
+            loading_index: if lazy_loading { 0 } else { tiles_length },
             dirty: if lazy_loading {
                 None
             } else {
@@ -144,12 +161,12 @@ impl LevelChunk {
     }
 
     pub fn get_level_tile(&self, x: i32, y: i32) -> &Tile {
-        if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
+        if !self.bounds.contains(x, y) {
             static BLANK_TILE: LazyLock<Tile> = LazyLock::new(|| Tile::default());
             return &BLANK_TILE;
         }
-        let w = self.max_x - self.min_x;
-        let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
+        let w = self.bounds.max_x - self.bounds.min_x;
+        let i = ((y - self.bounds.min_y) * w + (x - self.bounds.min_x)) as usize;
         return &self.tiles[i];
     }
 
@@ -172,11 +189,11 @@ impl LevelChunk {
     }
 
     pub fn set_tile(&mut self, x: i32, y: i32, tile: Tile) {
-        if x < self.min_x || x >= self.max_x || y < self.min_y || y >= self.max_y {
+        if !self.bounds.contains(x, y) {
             return;
         }
-        let w = self.max_x - self.min_x;
-        let i = ((y - self.min_y) * w + (x - self.min_x)) as usize;
+        let w = self.bounds.max_x - self.bounds.min_x;
+        let i = ((y - self.bounds.min_y) * w + (x - self.bounds.min_x)) as usize;
         self.tiles[i] = tile;
         self.dirty = if let Some(Bounds {
             min_x,
@@ -224,8 +241,8 @@ impl LevelChunk {
 
     pub fn offset(&self) -> Vec2 {
         Vec2::new(
-            TILE_SIZE * self.min_x as f32,
-            -TILE_SIZE * self.min_y as f32,
+            TILE_SIZE * self.bounds.min_x as f32,
+            -TILE_SIZE * self.bounds.min_y as f32,
         )
     }
 
@@ -242,12 +259,10 @@ impl LevelChunk {
 
     pub fn get_spawn_tiles(&self, registry: &Registry) -> Vec<(i32, i32)> {
         let mut tiles = Vec::new();
-        for y in self.min_y..self.max_y {
-            for x in self.min_x..self.max_x {
-                let props = registry.get_tile(&self.get_tile(x, y));
-                if props.tile_type == TileType::Floor && self.entities.get(&(x, y)).is_none() {
-                    tiles.push((x, y));
-                }
+        for (x, y) in self.bounds.iter() {
+            let props = registry.get_tile(&self.get_tile(x, y));
+            if props.tile_type == TileType::Floor && self.entities.get(&(x, y)).is_none() {
+                tiles.push((x, y));
             }
         }
         tiles
@@ -255,8 +270,8 @@ impl LevelChunk {
 
     pub fn remove_isolated_tiles(&mut self, registry: &Registry, default_tile: &Tile) {
         // 縦２タイルのみ孤立して残っているものがあれば削除
-        for y in self.min_y..(self.max_y + 1) {
-            for x in self.min_x..(self.max_x + 1) {
+        for y in self.bounds.min_y..(self.bounds.max_y + 1) {
+            for x in self.bounds.min_x..(self.bounds.max_x + 1) {
                 if !self.is_wall(&registry, x, y + 0)
                     && self.is_wall(&registry, x, y + 1)
                     && !self.is_wall(&registry, x, y + 2)
@@ -277,7 +292,7 @@ impl LevelChunk {
     }
 
     pub fn contains_by_index(&self, x: i32, y: i32) -> bool {
-        x >= self.min_x && x < self.max_x && y >= self.min_y && y < self.max_y
+        self.bounds.contains(x, y)
     }
 
     pub fn contains(&self, position: Vec2) -> bool {

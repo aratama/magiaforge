@@ -168,8 +168,8 @@ fn spawn_level_entities_and_navmesh(
 
     // 宝箱や灯篭などのエンティティを生成します
     let chunk_offset = Vec2::new(
-        TILE_SIZE * chunk.min_x as f32,
-        -TILE_SIZE * chunk.min_y as f32,
+        TILE_SIZE * chunk.bounds.min_x as f32,
+        -TILE_SIZE * chunk.bounds.min_y as f32,
     );
     for ((x, y), props) in chunk.entities.iter() {
         spawn.send(SpawnEvent {
@@ -184,18 +184,16 @@ fn spawn_level_entities_and_navmesh(
 
     // 地雷原テスト実装
     if level == GameLevel::new("minefield") {
-        for y in 0..chunk.max_y {
-            for x in 0..chunk.max_x {
-                let tile = chunk.get_tile(x, y);
-                if *tile == Tile::new("Soil") || *tile == Tile::new("Grassland") {
-                    if rand::random::<u32>() % 20 == 0 {
-                        spawn.send(SpawnEvent {
-                            position: index_to_position((x, y)),
-                            spawn: Spawn::Actor {
-                                actor_type: "ExplosiveMashroom".to_string(),
-                            },
-                        });
-                    }
+        for (x, y) in chunk.bounds.iter() {
+            let tile = chunk.get_tile(x, y);
+            if *tile == Tile::new("Soil") || *tile == Tile::new("Grassland") {
+                if rand::random::<u32>() % 20 == 0 {
+                    spawn.send(SpawnEvent {
+                        position: index_to_position((x, y)),
+                        spawn: Spawn::Actor {
+                            actor_type: "ExplosiveMashroom".to_string(),
+                        },
+                    });
                 }
             }
         }
@@ -328,7 +326,7 @@ fn despawn_chunks(
 /// loading_index による順次読み込みの最中に dirty フラグが設定された場合、二重生成を避けるため、チャンクすべての再生成を瞬時に行います。
 /// これが発生するケースは希です
 fn update_tile_sprites(
-    mut current: ResMut<GameWorld>,
+    mut world: ResMut<GameWorld>,
     registry: Registry,
     mut commands: Commands,
     tiles_query: Query<(Entity, &TileSprite)>,
@@ -338,13 +336,13 @@ fn update_tile_sprites(
     let mut tile_spawning_indices: HashMap<String, Vec<(i32, i32)>> = HashMap::new();
 
     // ハッシュマップにチャンクごとVecを生成
-    for chunk in &mut current.chunks {
+    for chunk in &mut world.chunks {
         tile_spawning_indices.insert(chunk.level.0.clone(), Vec::new());
     }
 
     // コリジョンの再生成
 
-    for chunk in &mut current.chunks {
+    for chunk in &mut world.chunks {
         // コリジョンの再生成
         // dirty フラグが設定されている場合は常に再生成します
         if chunk.dirty.is_some() || chunk.loading_index == 0 {
@@ -364,53 +362,39 @@ fn update_tile_sprites(
         // loading_index による読み込みの途中で、dirty フラグも設定されている場合
         // チャンクすべてを同時更新
         if chunk.loading_index < chunk.tiles.len() && chunk.dirty.is_some() {
-            warn!("dirty flag and loading index are set at the same time");
+            warn!("dirty flag and loading index are set at the same time: chunk.loading_index={:?} chunk.tiles.len()={:?}", chunk.loading_index, chunk.tiles.len());
 
             // すべての範囲のスプライトをいったんすべて削除
-            clear_tiles_by_bounds(
-                &mut commands,
-                &tiles_query,
-                chunk.min_x,
-                chunk.min_y,
-                chunk.max_x,
-                chunk.max_y,
-            );
+            clear_tiles_by_bounds(&mut commands, &tiles_query, chunk.bounds);
 
             // すべてのスプライトの生成を予約
 
-            for y in chunk.min_y..chunk.max_y {
-                for x in chunk.min_x..chunk.max_x {
-                    indiceis_to_spawn.push((x, y));
-                }
+            for (x, y) in chunk.bounds.iter() {
+                indiceis_to_spawn.push((x, y));
             }
 
             // dirtyフラグをクリア
             chunk.dirty = None;
             chunk.loading_index = chunk.tiles.len();
-        } else if let Some(Bounds {
-            min_x,
-            min_y,
-            max_x,
-            max_y,
-        }) = &chunk.dirty.clone()
-        {
+        } else if let Some(dirty) = &chunk.dirty.clone() {
             // 爆弾での破壊時など、通常の更新
+            info!("updating dirty tiles: {:?}", dirty);
+
+            let updating_bounds = Bounds {
+                min_x: (dirty.min_x - 1).max(chunk.bounds.min_x),
+                max_x: (dirty.max_x + 1).min(chunk.bounds.max_x),
+                min_y: (dirty.min_y - 3).max(chunk.bounds.min_y),
+                max_y: (dirty.max_y + 3).min(chunk.bounds.max_y),
+            };
 
             // dirty の範囲内を瞬時に更新
-            clear_tiles_by_bounds(&mut commands, &tiles_query, *min_x, *min_y, *max_x, *max_y);
+            clear_tiles_by_bounds(&mut commands, &tiles_query, updating_bounds);
 
             // 縦２タイルのみ孤立して残っているものがあれば削除
             chunk.remove_isolated_tiles(&registry, &Tile::new("Soil"));
 
-            let min_x = (min_x - 1).max(chunk.min_x);
-            let max_x = (max_x + 1).min(chunk.max_x);
-            let min_y = (min_y - 1).max(chunk.min_y);
-            let max_y = (max_y + 3).min(chunk.max_y); // 縦方向のみ広めに更新することに注意
-
-            for y in min_y..max_y {
-                for x in min_x..max_x {
-                    indiceis_to_spawn.push((x, y));
-                }
+            for (x, y) in updating_bounds.iter() {
+                indiceis_to_spawn.push((x, y));
             }
 
             chunk.dirty = None;
@@ -420,10 +404,11 @@ fn update_tile_sprites(
                 if chunk.tiles.len() <= chunk.loading_index {
                     break;
                 }
-                let w = chunk.max_x - chunk.min_x;
+                let w = chunk.bounds.max_x - chunk.bounds.min_x;
                 let x = chunk.loading_index as i32 % w;
                 let y = chunk.loading_index as i32 / w;
-                indiceis_to_spawn.push((chunk.min_x + x as i32, chunk.min_y + y as i32));
+                indiceis_to_spawn
+                    .push((chunk.bounds.min_x + x as i32, chunk.bounds.min_y + y as i32));
 
                 chunk.loading_index += 1;
             }
@@ -432,7 +417,7 @@ fn update_tile_sprites(
 
     // 予約されたインデックスに応じてスプライトを生成
     for (chunk_identifier, indices) in tile_spawning_indices.iter() {
-        let chunk = current
+        let chunk = world
             .chunks
             .iter()
             .find(|c| c.level.0 == *chunk_identifier)
@@ -440,7 +425,7 @@ fn update_tile_sprites(
 
         // スプライトを再生成
         for (x, y) in indices.iter() {
-            spawn_world_tile(&mut commands, &registry, &current, &chunk, *x, *y);
+            spawn_world_tile(&mut commands, &registry, &world, &chunk, *x, *y);
         }
     }
 }
@@ -448,13 +433,10 @@ fn update_tile_sprites(
 fn clear_tiles_by_bounds(
     commands: &mut Commands,
     tiles_query: &Query<(Entity, &TileSprite)>,
-    min_x: i32,
-    min_y: i32,
-    max_x: i32,
-    max_y: i32,
+    bounds: Bounds,
 ) {
     for (entity, TileSprite((tx, ty))) in tiles_query.iter() {
-        if min_x <= *tx && *tx <= max_x && min_y <= *ty && *ty <= max_y {
+        if bounds.contains(*tx, *ty) {
             commands.entity(entity).despawn_recursive();
         }
     }

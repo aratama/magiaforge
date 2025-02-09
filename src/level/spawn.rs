@@ -33,10 +33,10 @@ pub fn spawn_navigation_mesh(commands: &mut Commands, chunk: &LevelChunk) {
             // Define the outer borders of the navmesh.
             fixed: Triangulation::from_outer_edges(&[
                 // ここ半タイルぶんズレてる？
-                index_to_position((chunk.min_x, chunk.min_y)),
-                index_to_position((chunk.max_x, chunk.min_y)),
-                index_to_position((chunk.max_x, chunk.max_y)),
-                index_to_position((chunk.min_x, chunk.max_y)),
+                index_to_position((chunk.bounds.min_x, chunk.bounds.min_y)),
+                index_to_position((chunk.bounds.max_x, chunk.bounds.min_y)),
+                index_to_position((chunk.bounds.max_x, chunk.bounds.max_y)),
+                index_to_position((chunk.bounds.min_x, chunk.bounds.max_y)),
             ]),
 
             // 小さすぎると、わずかな隙間を通り抜けようとしたり、
