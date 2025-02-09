@@ -64,95 +64,119 @@ GameRegistry(
             author: "のる",
             title: "茫漠たる庭",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play21154.html"
         ),
         "bgm/水のしたたる洞窟.ogg": (
             author: "",
             title: "",
-            appendix: ""
+            appendix: "",
+            url: ""
         ),
         "bgm/海岸4.ogg": (
             author: "",
             title: "",
-            appendix: ""
+            appendix: "",
+            url: ""
+        ),
+        "bgm/発見.ogg": (
+            author: "のる",
+            title: "発見",
+            appendix: "",
+            url: "https://dova-s.jp/bgm/play20256.html"
         ),
         // 拠点        
         "bgm/最果てのルージュ.ogg": (
             author: "のる",
             title: "最果てのルージュ",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play19795.html"
         ),
         // 通常
         "bgm/荒れ地の先へ.ogg": (
             author: "松浦洋介",
             title: "荒れ地の先へ",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play17195.html"
         ),
 
         "bgm/Tides_of_Adventure.ogg": (
             author: "K’z Art Storage",
             title: "Tides of Adventure",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play21129.html"
         ),
         "bgm/ダンジョンを踏破せし者.ogg": (
             author: "こーち",
             title: "ダンジョンを踏破せし者",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play20822.html"
         ),
         "bgm/森のいざない.ogg": (
             author: "MATSU",
             title: "森のいざない",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play12135.html"
         ),
         "bgm/迷宮.ogg": (
             author: "オオヒラセイジ",
             title: "迷宮",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play8802.html"
         ),
         "bgm/忘れられた神殿.ogg": (
             author: "KK",
             title: "忘れられた神殿",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play629.html"
         ),
         "bgm/midnight-forest-184304.ogg": (
             author: "Syouki Takahashi",
             title: "Midnight Forest",
             appendix: "",
+            url: "https://pixabay.com/music/ambient-midnight-forest-184304/"
         ),
         // ボス
         "bgm/悪魔との戦闘.ogg": (
             author: "今川彰人オーケストラ",
             title: "悪魔との戦闘",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play11175.html"
         ),
         "bgm/アクション・バトル.ogg": (
             author: "田中芳典",
             title: "アクション・バトル",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play12133.html"
         ),
         "bgm/Decisive_Battle.ogg": (
             author: "Make a field Music",
             title: "Decisive Battle",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play5746.html"
         ),
         "bgm/炎神の吐息.ogg": (
             author: "こおろぎ",
             title: "炎神の吐息",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play298.html"
         ),
         "bgm/Sacred_Sacrifice.ogg": (
             author: "ilodolly",
             title: "Sacred Sacrifice",
             appendix: "",
+            url: "https://dova-s.jp/bgm/play6142.html"
         ),
         "bgm/final-battle-trailer-music-217488.ogg": (
             author: "Ihor_Koliako",
             title: "FINAL BATTLE",
             appendix: "",
+            url: "https://pixabay.com/music/electronic-final-battle-trailer-music-217488/"
         ),
         "bgm/human-vs-machine-dark-orchestral-cinematic-epic-action-271968.ogg": (
             author: "Kulakovka",
             title: "Human vs Machine",
             appendix: "",
+            url: "https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/"
         ),
         "audio/風が吹く1.ogg": (
             author: "",
