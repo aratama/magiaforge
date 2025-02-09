@@ -3,13 +3,15 @@ use crate::constant::TILE_SIZE;
 use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use crate::level::world::GameLevel;
-use crate::registry::tile::SpawnEntityProps;
 use crate::registry::tile::TileType;
 use crate::registry::Registry;
 use bevy::prelude::*;
 use serde_json::from_value;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::sync::LazyLock;
+
+use super::entities::SpawnEvent;
 
 #[derive(Clone, Debug, Copy)]
 pub struct Bounds {
@@ -40,7 +42,7 @@ pub struct LevelChunk {
     pub level: GameLevel,
     pub tiles: Vec<Tile>,
     pub loading_index: i32,
-    pub entities: HashMap<(i32, i32), SpawnEntityProps>,
+    pub entities: Vec<SpawnEvent>,
     pub bounds: Bounds,
     pub dirty: Option<Bounds>,
 }
@@ -93,11 +95,9 @@ impl LevelChunk {
 
         let entity_layer = ldtk_level.get_layer("Entities").unwrap();
 
-        let mut entities: HashMap<(i32, i32), SpawnEntityProps> = HashMap::new();
+        let mut entities: Vec<SpawnEvent> = Vec::new();
 
         for entity in entity_layer.entity_instances.iter() {
-            let key = (entity.grid[0] as i32, entity.grid[1] as i32);
-
             let encoded = if entity.field_instances.is_empty() {
                 serde_json::Value::String(entity.identifier.clone())
             } else {
@@ -127,13 +127,13 @@ impl LevelChunk {
                 }
             };
 
-            entities.insert(
-                key,
-                SpawnEntityProps {
-                    entity: spawn,
-                    spawn_offset_x: 0.0,
-                },
-            );
+            entities.push(SpawnEvent {
+                spawn,
+                position: Vec2::new(
+                    entity.world_x.unwrap_or_default() as f32 + entity.width as f32 * 0.5,
+                    -(entity.world_y.unwrap_or_default() as f32 + entity.height as f32 * 0.5),
+                ),
+            });
         }
 
         return Self {
@@ -241,33 +241,40 @@ impl LevelChunk {
         return true;
     }
 
-    pub fn offset(&self) -> Vec2 {
-        Vec2::new(
-            TILE_SIZE * self.bounds.min_x as f32,
-            -TILE_SIZE * self.bounds.min_y as f32,
-        )
-    }
-
     pub fn entry_points(&self) -> Vec<Vec2> {
         self.entities
             .iter()
-            .filter(|(_, v)| match v.entity {
+            .filter(|v| match v.spawn {
                 Spawn::BrokenMagicCircle { .. } => true,
                 _ => false,
             })
-            .map(|(k, _)| self.offset() + index_to_position(*k))
+            .map(|v| v.position)
             .collect()
     }
 
+    /// エンティティが生成されるタイルを取得します
+    /// これはモンスターの生成位置がかぶらないようにするための目安です
     pub fn get_spawn_tiles(&self, registry: &Registry) -> Vec<(i32, i32)> {
-        let mut tiles = Vec::new();
-        for (x, y) in self.bounds.iter() {
-            let props = registry.get_tile(&self.get_tile(x, y));
-            if props.tile_type == TileType::Floor && self.entities.get(&(x, y)).is_none() {
-                tiles.push((x, y));
-            }
-        }
-        tiles
+        let entity_tiles: HashSet<(i32, i32)> = self
+            .entities
+            .iter()
+            .map(|v| {
+                let (x, y) = position_to_index(v.position);
+                (x, y)
+            })
+            .collect();
+
+        let floor_tiles: HashSet<(i32, i32)> = self
+            .bounds
+            .iter()
+            .into_iter()
+            .filter(|(x, y)| {
+                let props = registry.get_tile(&self.get_tile(*x, *y));
+                props.tile_type == TileType::Floor
+            })
+            .collect();
+
+        floor_tiles.difference(&entity_tiles).cloned().collect()
     }
 
     pub fn contains_by_index(&self, x: i32, y: i32) -> bool {

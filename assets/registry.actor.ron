@@ -435,7 +435,8 @@ ActorRegistry(
             point_light_radius: 100.0,
             point_light_color: (42.0, 1.0, 0.5, 1.0),
             point_light_intensity: 3.0,
-            point_light_falloff: 20.0
+            point_light_falloff: 20.0,
+            body_type: Fixed
         ),
         "Chest": (
             name_ja: "チェスト",
@@ -453,7 +454,7 @@ ActorRegistry(
             life: 10,
             actor_group: Entity,
             aseprite: "chest/chest.aseprite",
-            shadow: "entity_shadow",
+            shadow: "entity_shadow",            
         ),
         "Bookshelf": (
             name_ja: "本棚",
@@ -471,6 +472,7 @@ ActorRegistry(
             life: 25,
             actor_group: Entity,
             aseprite: "actor/bookshelf.aseprite",
+            body_type: Fixed            
         ),
         "Rock": (
             name_ja: "岩",

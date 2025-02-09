@@ -49,6 +49,13 @@ fn default_animation_map() -> ActorAnimationMap {
     }
 }
 
+#[derive(serde::Deserialize, Debug, Default)]
+pub enum BodyType {
+    #[default]
+    Dynamic,
+    Fixed,
+}
+
 #[derive(serde::Deserialize, Debug)]
 pub struct ActorPropsByType {
     // 必須 //////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +65,9 @@ pub struct ActorPropsByType {
     pub name_ja: String,
 
     // オプション ///////////////////////////////////////////////////////////////////////////
+    #[serde(default)]
+    pub body_type: BodyType,
+
     #[serde(default = "default_animation_map")]
     pub animations: ActorAnimationMap,
 

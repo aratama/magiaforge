@@ -47,6 +47,7 @@ use crate::level::tile::Tile;
 use crate::level::world::GameWorld;
 use crate::level::world::LevelScoped;
 use crate::registry::actor::ActorCollider;
+use crate::registry::actor::BodyType;
 use crate::registry::Registry;
 use crate::script::cmd::CmdEvent;
 use crate::script::context::JavaScriptContext;
@@ -161,7 +162,6 @@ pub struct ActorAppearanceSprite;
     Visibility,
     Damping,
     LockedAxes(||LockedAxes::ROTATION_LOCKED),
-    RigidBody(||RigidBody::Dynamic),
     GravityScale(||GravityScale(0.0)),
     ExternalForce,
     ExternalImpulse,
@@ -1278,6 +1278,10 @@ pub fn spawn_actor(
         actor,
         Transform::from_translation(position.extend(0.0)),
         Counter::default(),
+        match props.body_type {
+            BodyType::Dynamic => RigidBody::Dynamic,
+            BodyType::Fixed => RigidBody::Fixed,
+        },
         match props.collider {
             ActorCollider::Ball(radius) => (
                 Collider::ball(radius),

@@ -44,7 +44,7 @@ pub fn spawn_shop_door(
             StateScoped(GameState::InGame),
             Sensor,
             Collider::cuboid(TILE_SIZE * 2.0, TILE_SIZE * 3.5),
-            Transform::from_translation(Vec3::new(position.x + TILE_HALF, position.y, 0.0)),
+            Transform::from_translation(Vec3::new(position.x, position.y, 0.0)),
             EntityDepth::new(),
             ActiveEvents::COLLISION_EVENTS,
             *SENSOR_GROUPS,

@@ -1,4 +1,3 @@
-use crate::level::entities::Spawn;
 use crate::level::tile::Tile;
 use std::collections::HashMap;
 
@@ -37,14 +36,6 @@ pub struct TileTypeProps {
 
     #[serde(default)]
     pub break_into: Option<Tile>,
-}
-
-#[derive(serde::Deserialize, Debug, Clone)]
-pub struct SpawnEntityProps {
-    pub entity: Spawn,
-
-    #[serde(default)]
-    pub spawn_offset_x: f32,
 }
 
 #[derive(serde::Deserialize, Copy, Clone, Debug, PartialEq, Eq)]

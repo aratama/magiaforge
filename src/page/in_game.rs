@@ -167,16 +167,10 @@ fn spawn_level_entities_and_navmesh(
     // エンティティ生成 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // 宝箱や灯篭などのエンティティを生成します
-    let chunk_offset = Vec2::new(
-        TILE_SIZE * chunk.bounds.min_x as f32,
-        -TILE_SIZE * chunk.bounds.min_y as f32,
-    );
-    for ((x, y), props) in chunk.entities.iter() {
+    for props in chunk.entities.iter() {
         spawn.send(SpawnEvent {
-            position: chunk_offset
-                + index_to_position((*x, *y))
-                + Vec2::new(props.spawn_offset_x, 0.0),
-            spawn: props.entity.clone(),
+            position: props.position,
+            spawn: props.spawn.clone(),
         });
     }
 
