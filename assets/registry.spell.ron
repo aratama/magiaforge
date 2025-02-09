@@ -37,14 +37,13 @@ SpellRegistry(
             cast: Bullet (
                 slices: Slice (names: ["bullet_magic_bolt"]),
                 collier_radius: 5.0,
-                speed: 150.0,
+                speed: 200.0,
                 lifetime: 240,
                 damage: 10,
                 scattering: 0.4,
                 light_intensity: 1.0,
                 light_radius: 50.0,
                 light_color_hlsa: (245.0, 1.0, 0.6, 1.0),
-
                 stagger: 60,
             ),
         ),
