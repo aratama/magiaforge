@@ -40,7 +40,6 @@ impl LDTK {
         self.coordinate.levels.iter().find(|l| l.contains(position))
     }
 
-    #[allow(dead_code)]
     pub fn get_level_by_iid(&self, iid: &String) -> Option<&Level> {
         self.coordinate.levels.iter().find(|l| l.iid == *iid)
     }
@@ -129,42 +128,6 @@ impl Level {
             self.px_hei as f32,
         );
         level_rect.contains(position)
-    }
-}
-
-impl EntityInstance {
-    #[allow(dead_code)]
-    pub fn get_value_as_str(&self, identifier: &str) -> String {
-        self.field_instances
-            .iter()
-            .find(|f| f.identifier == identifier)
-            .as_ref()
-            .expect(format!("{:?} not found", identifier).as_str())
-            .value
-            .as_ref()
-            .unwrap()
-            .as_str()
-            .unwrap()
-            .to_string()
-    }
-
-    #[allow(dead_code)]
-    pub fn get_value_as_entity_ref(&self, identifier: &str) -> String {
-        self.field_instances
-            .iter()
-            .find(|f| f.identifier == identifier)
-            .as_ref()
-            .expect(format!("{:?} not found", identifier).as_str())
-            .value
-            .as_ref()
-            .expect(format!("{:?} is not a value", identifier).as_str())
-            .as_object()
-            .expect(format!("{:?} is not a object", identifier).as_str())
-            .get("entityIid")
-            .expect(format!("entityIid not found for {:?}", identifier).as_str())
-            .as_str()
-            .expect(format!("{:?} is not a string", identifier).as_str())
-            .to_string()
     }
 }
 

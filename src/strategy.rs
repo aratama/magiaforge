@@ -4,7 +4,7 @@ use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
 use crate::level::spawn::ChunkNavMesh;
 use crate::level::world::GameWorld;
-use crate::registry::ActorPropsByType;
+use crate::registry::actor::ActorPropsByType;
 use crate::registry::Registry;
 use crate::states::GameState;
 use crate::states::TimeState;

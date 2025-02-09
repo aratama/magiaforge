@@ -1,8 +1,8 @@
 use crate::ldtk::loader::LDTK;
-use crate::registry::ActorRegistry;
-use crate::registry::GameRegistry;
-use crate::registry::SpellRegistry;
-use crate::registry::TileRegistry;
+use crate::registry::actor::ActorRegistry;
+use crate::registry::game::GameRegistry;
+use crate::registry::spell::SpellRegistry;
+use crate::registry::tile::TileRegistry;
 use crate::script::loader::JavaScriptSource;
 use bevy::asset::*;
 use bevy::prelude::*;

@@ -46,7 +46,7 @@ use crate::level::entities::SpawnEvent;
 use crate::level::tile::Tile;
 use crate::level::world::GameWorld;
 use crate::level::world::LevelScoped;
-use crate::registry::ActorCollider;
+use crate::registry::actor::ActorCollider;
 use crate::registry::Registry;
 use crate::script::cmd::CmdEvent;
 use crate::script::context::JavaScriptContext;

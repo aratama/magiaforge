@@ -439,7 +439,7 @@ fn new_shop_item_queue(registry: &Registry, discovered_spells: Vec<Spell>) -> Ve
     let mut rng = rand::thread_rng();
 
     let mut shop_items: Vec<Spell> = registry
-        .spells()
+        .get_spells()
         .iter()
         .filter(|s| discovered_spells.contains(&s) || registry.get_spell_props(*s).rank <= 1)
         .cloned()

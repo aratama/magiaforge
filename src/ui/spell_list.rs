@@ -37,7 +37,7 @@ struct SpellListItem {
 struct DicoveredSpellCount;
 
 fn setup(mut commands: Commands, registry: Registry) {
-    let spells = registry.spells();
+    let spells = registry.get_spells();
     let spell_iter = spells.iter().cloned();
     let count = spell_iter.clone().count();
     let mut spells: Vec<Option<Spell>> = spell_iter.map(|s| Some(s)).collect();
@@ -182,7 +182,7 @@ fn update_discovered_items_count(
             text.0 = format!(
                 "{} / {}",
                 player.discovered_spells.len(),
-                registry.spells().iter().count()
+                registry.get_spells().iter().count()
             );
         }
     }

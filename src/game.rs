@@ -63,10 +63,10 @@ use crate::page::setup::SetupPlugin;
 use crate::page::warp::WarpPagePlugin;
 use crate::physics::GamePhysicsPlugin;
 use crate::player_state::PlayerStatePlugin;
-use crate::registry::ActorRegistry;
-use crate::registry::GameRegistry;
-use crate::registry::SpellRegistry;
-use crate::registry::TileRegistry;
+use crate::registry::actor::ActorRegistry;
+use crate::registry::game::GameRegistry;
+use crate::registry::spell::SpellRegistry;
+use crate::registry::tile::TileRegistry;
 #[cfg(feature = "save")]
 use crate::save::SavePlugin;
 use crate::script::context::JavaScriptContextPlugin;
