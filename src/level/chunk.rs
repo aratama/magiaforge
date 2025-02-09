@@ -39,7 +39,7 @@ impl Bounds {
 pub struct LevelChunk {
     pub level: GameLevel,
     pub tiles: Vec<Tile>,
-    pub loading_index: usize,
+    pub loading_index: i32,
     pub entities: HashMap<(i32, i32), SpawnEntityProps>,
     pub bounds: Bounds,
     pub dirty: Option<Bounds>,
@@ -68,6 +68,8 @@ impl LevelChunk {
         let max_y =
             ((ldtk_level.world_y + ldtk_level.px_hei) / ldtk.coordinate.default_grid_size) as i32;
 
+        let height = max_y - min_y;
+
         // タイル読み込み
 
         let int_grid_layer = ldtk_level.get_layer("Tiles").unwrap();
@@ -86,8 +88,6 @@ impl LevelChunk {
                 }
             });
         }
-
-        let tiles_length = tiles.len();
 
         // エンティティ読み込み
 
@@ -146,7 +146,7 @@ impl LevelChunk {
                 min_y,
                 max_y,
             },
-            loading_index: if lazy_loading { 0 } else { tiles_length },
+            loading_index: if lazy_loading { 0 } else { height },
             dirty: if lazy_loading {
                 None
             } else {
@@ -158,6 +158,15 @@ impl LevelChunk {
                 })
             },
         };
+    }
+
+    #[allow(dead_code)]
+    pub fn width(&self) -> i32 {
+        self.bounds.max_x - self.bounds.min_x
+    }
+
+    pub fn height(&self) -> i32 {
+        self.bounds.max_y - self.bounds.min_y
     }
 
     pub fn get_level_tile(&self, x: i32, y: i32) -> &Tile {

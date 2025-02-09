@@ -415,7 +415,7 @@ fn update_lazy_tile_sprites(
     tiles_query: Query<(Entity, &TileSprite)>,
 ) {
     // チャンクごとに更新すべきインデックス列を保持
-    let mut tile_spawning_indices: HashMap<String, Vec<(i32, i32)>> = HashMap::new();
+    let mut tile_spawning_indices: HashMap<String, Vec<i32>> = HashMap::new();
 
     // ハッシュマップにチャンクごとVecを生成
     for chunk in &world.chunks {
@@ -428,32 +428,25 @@ fn update_lazy_tile_sprites(
         let indiceis_to_spawn = tile_spawning_indices.get_mut(&chunk.level.0).unwrap();
 
         // loading_index の続きを一部更新
-        for _ in 0..50 {
-            if chunk.tiles.len() <= chunk.loading_index {
-                break;
-            }
-
-            let w = chunk.bounds.max_x - chunk.bounds.min_x;
-            let lx = chunk.loading_index as i32 % w;
-            let ly = chunk.loading_index as i32 / w;
-            let x = chunk.bounds.min_x + lx as i32;
-            let y = chunk.bounds.min_y + ly as i32;
-            indiceis_to_spawn.push((x, y));
-
-            // todo これが重い？
-            // clear_tiles_by_bounds(
-            //     &mut commands,
-            //     &tiles_query,
-            //     Bounds {
-            //         min_x: x,
-            //         max_x: x + 1,
-            //         min_y: y,
-            //         max_y: y + 1,
-            //     },
-            // );
-
-            chunk.loading_index += 1;
+        if chunk.height() <= chunk.loading_index {
+            continue;
         }
+
+        indiceis_to_spawn.push(chunk.bounds.min_y + chunk.loading_index);
+
+        // todo これが重い？
+        clear_tiles_by_bounds(
+            &mut commands,
+            &tiles_query,
+            Bounds {
+                min_x: chunk.bounds.min_x,
+                max_x: chunk.bounds.max_x,
+                min_y: chunk.bounds.min_y + chunk.loading_index,
+                max_y: chunk.bounds.min_y + chunk.loading_index + 1,
+            },
+        );
+
+        chunk.loading_index += 1;
     }
 
     // 予約されたインデックスに応じてスプライトを生成
@@ -466,8 +459,10 @@ fn update_lazy_tile_sprites(
             .unwrap();
 
         // スプライトを再生成
-        for (x, y) in indices.iter() {
-            spawn_world_tile(&mut commands, &registry, &world, &chunk, *x, *y);
+        for y in indices.iter() {
+            for x in chunk.bounds.min_x..chunk.bounds.max_x {
+                spawn_world_tile(&mut commands, &registry, &world, &chunk, x, *y);
+            }
         }
     }
 }
