@@ -404,7 +404,7 @@ function* HugeSlimeDespawn() {
     yield {
         type: "Sprite",
         name: "huge slime body",
-        position: actor_position,
+        position: actorPosition,
         aseprite: "enemy/huge_slime.aseprite"
     };
     yield { type: "BGM", path: null };
@@ -412,7 +412,7 @@ function* HugeSlimeDespawn() {
     yield { type: "SE", path: "audio/雷魔法4.ogg" };
     yield {
         type: "Flash",
-        position: actor_position,
+        position: actorPosition,
         intensity: 10.0,
         radius: 480.0,
         duration: 10,
@@ -423,7 +423,7 @@ function* HugeSlimeDespawn() {
     yield { type: "SE", path: "audio/雷魔法4.ogg" };
     yield {
         type: "Flash",
-        position: actor_position,
+        position: actorPosition,
         intensity: 10.0,
         radius: 480.0,
         duration: 10,
@@ -434,7 +434,7 @@ function* HugeSlimeDespawn() {
     yield { type: "SE", path: "audio/地震魔法2.ogg" };
     yield {
         type: "Flash",
-        position: actor_position,
+        position: actorPosition,
         intensity: 10.0,
         radius: 240.0,
         duration: 240,
@@ -444,7 +444,7 @@ function* HugeSlimeDespawn() {
     yield { type: "SE", path: "audio/雷魔法4.ogg" };
     yield {
         type: "Flash",
-        position: actor_position,
+        position: actorPosition,
         intensity: 10.0,
         radius: 240.0,
         duration: 240,

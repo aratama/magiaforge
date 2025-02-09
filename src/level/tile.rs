@@ -9,6 +9,6 @@ impl Tile {
 
 impl Default for Tile {
     fn default() -> Self {
-        Tile::new("Soil")
+        Tile::new("PermanentWall")
     }
 }

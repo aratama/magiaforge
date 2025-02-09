@@ -58,7 +58,7 @@ pub fn spawn_world_tile(
                                 registry,
                                 &world,
                                 &chunk.level,
-                                &vec![&tile],
+                                &vec![tile.clone()],
                                 WATER_PLANE_OFFEST,
                                 x,
                                 y,
@@ -191,9 +191,9 @@ fn spawn_water_wall(
         y - 1,
         1,
         &vec![
-            &Tile::new("StoneTile"),
-            &Tile::new("Wall"),
-            &Tile::new("PermanentWall"),
+            Tile::new("StoneTile"),
+            Tile::new("Wall"),
+            Tile::new("PermanentWall"),
         ],
     ) {
         commands.spawn((
@@ -236,11 +236,8 @@ fn spawn_ceil_for_blank(
         ));
     }
 
-    // // 天井
-    let wall_tile = Tile::new("Wall");
-    let blank_tile = Tile::new("Blank");
-    let permanent_wall_tile = Tile::new("PermanentWall");
-    let targets = vec![&wall_tile, &blank_tile, &permanent_wall_tile];
+    // 天井
+    let targets = registry.get_wall_tiles();
     if world.is_visible_ceil(x, y, 3, &targets) {
         spawn_autotiles(
             &vec!["roof".to_string()],

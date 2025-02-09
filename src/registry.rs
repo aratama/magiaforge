@@ -409,6 +409,34 @@ impl<'w> Registry<'w> {
         }
         None
     }
+
+    pub fn get_wall_tiles(&self) -> Vec<Tile> {
+        self.tile()
+            .tile_types
+            .iter()
+            .filter_map(|(name, props)| {
+                if props.tile_type == TileType::Wall {
+                    Some(Tile::new(name))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    pub fn get_surface_tiles(&self) -> Vec<Tile> {
+        self.tile()
+            .tile_types
+            .iter()
+            .filter_map(|(name, props)| {
+                if props.tile_type == TileType::Surface {
+                    Some(Tile::new(name))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 pub fn path_to_string(path: &AssetPath) -> String {

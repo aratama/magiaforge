@@ -4,6 +4,7 @@ use crate::collision::WATER_GROUPS;
 use crate::constant::*;
 use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
+use crate::registry::Registry;
 use crate::states::GameState;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::CoefficientCombineRule;
@@ -15,8 +16,6 @@ use vleue_navigator::prelude::PrimitiveObstacle;
 
 /// 壁タイルから衝突矩形を計算します
 /// チェストや本棚なども侵入不可能ですが、それらは個別に衝突形状を持つため、ここでは壁のみを扱います
-/// TODO: 本棚などのエンティティもここで一括で生成したほうが効率はいい？
-/// でもエンティティが個別に削除されることも多そうなので、その場合はエンティティは別のほうがいいかも
 /// https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/walls.rs
 pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> {
     /// Represents a wide wall that is 1 tile tall
@@ -34,8 +33,7 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
         let mut row_plates: Vec<Plate> = Vec::new();
         let mut plate_start = None;
 
-        // + 1 to the width so the algorithm "terminates" plates that touch the right edge
-        for x in chunk.min_x..(chunk.max_x + 1) {
+        for x in chunk.min_x..chunk.max_x {
             match (
                 plate_start,
                 targets.contains(&chunk.get_tile(x as i32, y as i32)),
@@ -50,6 +48,12 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
                 (None, true) => plate_start = Some(x as i32),
                 _ => (),
             }
+        }
+        if let Some(s) = plate_start {
+            row_plates.push(Plate {
+                left: s,
+                right: chunk.max_x - 1,
+            });
         }
 
         plate_stack.push(row_plates);
@@ -95,9 +99,11 @@ pub fn get_wall_collisions(chunk: &LevelChunk, targets: Vec<Tile>) -> Vec<Rect> 
 #[derive(Debug, Clone, Eq, PartialEq, Component)]
 pub struct WallCollider;
 
-pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
+pub fn spawn_wall_collisions(commands: &mut Commands, registry: &Registry, chunk: &LevelChunk) {
+    let wall_tiles = registry.get_wall_tiles();
+
     // 衝突形状の生成
-    for rect in get_wall_collisions(&chunk, vec![Tile::new("Wall"), Tile::new("PermanentWall")]) {
+    for rect in get_wall_collisions(&chunk, wall_tiles) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;
@@ -120,10 +126,9 @@ pub fn spawn_wall_collisions(commands: &mut Commands, chunk: &LevelChunk) {
         ));
     }
 
-    for rect in get_wall_collisions(
-        &chunk,
-        vec![Tile::new("Water"), Tile::new("Lava"), Tile::new("Crack")],
-    ) {
+    let surface_tiles = registry.get_surface_tiles();
+
+    for rect in get_wall_collisions(&chunk, surface_tiles) {
         let w = TILE_HALF * (rect.width() + 1.0);
         let h = TILE_HALF * (rect.height() + 1.0);
         let x = rect.min.x as f32 * TILE_SIZE + w;

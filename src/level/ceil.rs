@@ -21,7 +21,7 @@ pub fn get_tile_index_left_top(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<&Tile>,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi - 1, yi - 1, depth, targets),
@@ -44,7 +44,7 @@ pub fn get_tile_index_right_top(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<&Tile>,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi + 0, yi - 1, depth, targets),
@@ -67,7 +67,7 @@ pub fn get_tile_index_left_bottom(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<&Tile>,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi - 1, yi + 0, depth, targets),
@@ -90,7 +90,7 @@ pub fn get_tile_index_right_bottom(
     xi: i32,
     yi: i32,
     depth: i32,
-    targets: &Vec<&Tile>,
+    targets: &Vec<Tile>,
 ) -> i32 {
     match (
         chunk.is_visible_ceil(xi + 1, yi + 0, depth, targets),
@@ -117,7 +117,7 @@ pub fn spawn_autotiles<T: Component + Clone>(
     registry: &Registry,
     world: &GameWorld,
     level: &GameLevel,
-    targets: &Vec<&Tile>,
+    targets: &Vec<Tile>,
     y_offset: f32,
     xi: i32,
     yi: i32,

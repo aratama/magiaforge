@@ -183,7 +183,7 @@ impl LevelChunk {
     /// 実際に描画する天井タイルかどうかを返します
     /// 天井が奥の床を隠して見えづらくなるのを避けるため、
     /// 天井タイルが3連続するところだけを描画します
-    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<&Tile>) -> bool {
+    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<Tile>) -> bool {
         for i in 0..depth {
             if targets.contains(&&self.get_tile(x, y - i)) {
                 continue;

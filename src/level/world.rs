@@ -116,7 +116,7 @@ impl GameWorld {
         chunk.is_wall(registry, x, y)
     }
 
-    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<&Tile>) -> bool {
+    pub fn is_visible_ceil(&self, x: i32, y: i32, depth: i32, targets: &Vec<Tile>) -> bool {
         let Some(chunk) = self.find_chunk_by_index(x, y) else {
             return true;
         };

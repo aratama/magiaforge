@@ -1201,12 +1201,12 @@ fn despawn(
                 let global = script.context.global_object();
                 global
                     .set(
-                        js_string!("actor_position"),
+                        js_string!("actorPosition"),
                         JsValue::from_json(&position_value, &mut script.context).unwrap(),
                         false,
                         &mut script.context,
                     )
-                    .expect("Failed to set actor_position");
+                    .expect("Failed to set actorPosition");
 
                 script.generate(boss.on_despawn.clone());
             }

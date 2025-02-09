@@ -355,7 +355,7 @@ fn update_tile_sprites(
             }
 
             // コリジョンを再生成
-            spawn_wall_collisions(&mut commands, chunk);
+            spawn_wall_collisions(&mut commands, &registry, chunk);
         }
 
         let indiceis_to_spawn = tile_spawning_indices.get_mut(&chunk.level.0).unwrap();
