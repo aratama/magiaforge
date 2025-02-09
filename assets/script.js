@@ -1,38 +1,4 @@
-function* GuideRabbit(context) {
-
-    yield {
-        type: "Speech",
-        ja: "テスト",
-        en: "",
-        zh_cn: "",
-        zh_tw: "",
-        es: "",
-        fr: "",
-        pt: "",
-        de: "",
-        ko: "",
-        ru: "",
-    };
-
-    yield {
-        type: "Wait",
-        count: 60,
-    };
-
-    yield {
-        type: "Speech",
-        ja: "テスト2",
-        en: "",
-        zh_cn: "",
-        zh_tw: "",
-        es: "",
-        fr: "",
-        pt: "",
-        de: "",
-        ko: "",
-        ru: "",
-    };
-
+function* GuideRabbit() {
     yield {
         type: "Speech",
         ja: "おや、きみは魔法使いだね。ここはぼくらの商人キャンプだよ。来客は歓迎さ。",
