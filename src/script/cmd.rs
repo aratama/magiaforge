@@ -1,5 +1,6 @@
 use super::context::JavaScriptContext;
-use crate::actor::{Actor, ActorState};
+use crate::actor::Actor;
+use crate::actor::ActorState;
 use crate::audio::NextBGM;
 use crate::camera::GameCamera;
 use crate::component::counter::CounterAnimated;
@@ -9,7 +10,8 @@ use crate::entity::light::spawn_flash_light;
 use crate::hud::overlay::OverlayEvent;
 use crate::language::Dict;
 use crate::level::tile::Tile;
-use crate::level::world::{GameLevel, GameWorld};
+use crate::level::world::GameLevel;
+use crate::level::world::GameWorld;
 use crate::registry::Registry;
 use crate::se::SEEvent;
 use crate::spell::Spell;

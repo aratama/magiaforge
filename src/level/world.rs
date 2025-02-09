@@ -1,3 +1,4 @@
+use super::chunk::position_to_index;
 use crate::constant::*;
 use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
@@ -6,8 +7,6 @@ use crate::registry::Registry;
 use crate::spell::Spell;
 use bevy::prelude::*;
 use serde::Deserialize;
-
-use super::chunk::position_to_index;
 
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
 pub struct GameLevel(pub String);

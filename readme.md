@@ -27,8 +27,20 @@ https://magiaforge.app/ (**Desktop Chrome only** for now)
 - `trunk build` to build web app and publish on GitHub Pages
 - `cargo +nightly fmt` to format
 
-Add `--features debug` to launch app in debug mode.
-Add `--features save` to launch app with Save feature.
+###### Feature Flags
+
+`cargo run --features xxxx,yyyy` to enable some debug features:
+
+- `debug` to enable debug draw.
+- `ingame` to skip main menu.
+- `item` to enable spell item cheat.
+
+### Authoring Tools
+
+This project depends on the following tools:
+
+- [LDtk](https://ldtk.io/) for level design
+- [Aseprite](https://www.aseprite.org/) for pixel art drawing
 
 ### Save Data Location
 
@@ -36,25 +48,8 @@ On Windows, save data is stored in `%HOMEPATH%\AppData\Roaming\magiaforge`.
 
 In browsers, save data is stored in local storage under the key `magiaforge.magiaforgeconfig`.
 
-### Asset credits
+### Asset Credits
 
-This game depends on the following assets:
-
-- 茫漠たる庭 https://dova-s.jp/bgm/play21154.html
-- 最果てのルージュ https://dova-s.jp/bgm/play19795.html
-- 荒れ地の先へ https://dova-s.jp/bgm/play17195.html
-- 悪魔との戦闘 https://dova-s.jp/bgm/play11175.html
-- Tides of Adventure https://dova-s.jp/bgm/play21129.html
-- ダンジョンを踏破せし者 https://dova-s.jp/bgm/play20822.html
-- 森のいざない https://dova-s.jp/bgm/play12135.html
-- 迷宮 https://dova-s.jp/bgm/play8802.html
-- 忘れられた神殿 https://dova-s.jp/bgm/play629.html
-- アクション・バトル https://dova-s.jp/bgm/play12133.html
-- Decisive Battle https://dova-s.jp/bgm/play5746.html
-- 炎神の吐息 https://dova-s.jp/bgm/play298.html
-- Sacred Sacrifice https://dova-s.jp/bgm/play6142.html
-- FINAL BATTLE (TRAILER MUSIC) https://pixabay.com/music/electronic-final-battle-trailer-music-217488/
-- Human vs Machine (dark orchestral cinematic epic action) https://pixabay.com/music/main-title-human-vs-machine-dark-orchestral-cinematic-epic-action-271968/
-- Midnight Forest https://pixabay.com/music/ambient-midnight-forest-184304/
-- 発見 https://dova-s.jp/bgm/play20256.html
-- (All Sound Effects) https://soundeffect-lab.info/
+This game depends on free musical assets from https://dova-s.jp/ .
+See [the asset creadit file](assets/registry.game.ron) for more details (Also you can see BGM credit in pause menu).
+All Sound Effects are from https://soundeffect-lab.info/ .

@@ -1,3 +1,4 @@
+use super::entities::SpawnEvent;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::entities::Spawn;
@@ -10,8 +11,6 @@ use serde_json::from_value;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::LazyLock;
-
-use super::entities::SpawnEvent;
 
 #[derive(Clone, Debug, Copy)]
 pub struct Bounds {

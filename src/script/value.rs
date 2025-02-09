@@ -1,5 +1,9 @@
 use bevy::math::Vec2;
-use boa_engine::{js_string, object::ObjectInitializer, property::Attribute, Context, JsValue};
+use boa_engine::js_string;
+use boa_engine::object::ObjectInitializer;
+use boa_engine::property::Attribute;
+use boa_engine::Context;
+use boa_engine::JsValue;
 
 #[allow(dead_code)]
 pub fn vec2_to_tuple(v: Vec2, context: &mut Context) -> JsValue {
