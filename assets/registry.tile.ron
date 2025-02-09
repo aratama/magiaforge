@@ -5,9 +5,6 @@ TileRegistry(
     tile_types: {
         // 侵入できないタイル　
         // FloorまたはSurfaceが隣接していると、壁の部分を描画します
-        "Blank": (
-            tile_type: Wall
-        ),
         "Wall": (
             tile_type: Wall
         ),
