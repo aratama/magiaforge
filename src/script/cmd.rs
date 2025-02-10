@@ -29,6 +29,13 @@ pub enum Cmd {
     /// フキダシを非表示にします
     Close,
 
+    Focus {
+        entity: Entity,
+    },
+
+    /// カメラ注目を解除します
+    Blur,
+
     GetSpell {
         spell: Spell,
     },
@@ -104,7 +111,7 @@ pub fn read_cmd_event(
     mut next_bgm: ResMut<NextBGM>,
 
     mut speech_query: Query<(&mut Visibility, &mut SpeechBubble)>,
-    mut camera: Query<&mut GameCamera>,
+    mut camera_query: Query<&mut GameCamera>,
     mut player_query: Query<&mut Actor, With<Player>>,
     entities_query: Query<(Entity, &Name)>,
 ) {
@@ -122,7 +129,21 @@ pub fn read_cmd_event(
             Cmd::Close => {
                 *speech_visibility = Visibility::Hidden;
                 speech.dict = Dict::empty();
-                if let Ok(mut camera) = camera.get_single_mut() {
+                if let Ok(mut actor) = player_query.get_single_mut() {
+                    actor.state = ActorState::Idle;
+                    actor.wait = 30;
+                }
+                script.resume();
+            }
+            Cmd::Focus { entity } => {
+                let mut camera = camera_query.single_mut();
+                if camera.target.is_some() {
+                    continue;
+                }
+                camera.target = Some(entity);
+            }
+            Cmd::Blur => {
+                if let Ok(mut camera) = camera_query.get_single_mut() {
                     camera.target = None;
                 }
                 if let Ok(mut actor) = player_query.get_single_mut() {
@@ -165,7 +186,7 @@ pub fn read_cmd_event(
                 *speech_visibility = Visibility::Hidden;
             }
             Cmd::Shake { value, attenuation } => {
-                if let Ok(mut camera) = camera.get_single_mut() {
+                if let Ok(mut camera) = camera_query.get_single_mut() {
                     camera.vibration = value;
                     camera.attenuation = attenuation;
                 }

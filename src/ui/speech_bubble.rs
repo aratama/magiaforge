@@ -193,6 +193,7 @@ fn next_page(
     config: Res<GameConfig>,
     state: Res<State<GameMenuState>>,
     mut script: NonSendMut<JavaScriptContext>,
+    mut player_query: Query<&mut Actor, With<Player>>,
 ) {
     let (bubble_visivility, mut bubble) = bubble_query.single_mut();
     if *bubble_visivility == Visibility::Inherited && *state != GameMenuState::PauseMenuOpen {
@@ -205,6 +206,10 @@ fn next_page(
                 bubble.speech_count = count * DELAY;
             } else {
                 script.resume();
+                if let Ok(mut player) = player_query.get_single_mut() {
+                    player.state = ActorState::Idle;
+                    player.wait = 30;
+                }
             }
         }
     }

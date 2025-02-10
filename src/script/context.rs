@@ -57,7 +57,7 @@ impl JavaScriptContext {
 /// 現在停止中のジェネレータ関数を再開し、値を更新します
 /// ただし、すでに生成された値が存在する場合は何もしません
 /// 値に応じた再開条件を満たされるとvalueをNoneに設定され、実行が再開されます
-fn update(
+fn execute_script(
     mut javascript_context: NonSendMut<JavaScriptContext>,
     mut cmd_writer: EventWriter<CmdEvent>,
     mut speech_query: Query<(&mut SpeechBubble, &mut Visibility)>,
@@ -220,10 +220,6 @@ fn initialize_context(source: &JavaScriptSource) -> JavaScriptContext {
     }
 }
 
-// fn se(_caller: &JsValue, arguments: &[JsValue], context: &mut Context) -> Result<JsValue, JsError> {
-//     Ok(JsValue::Undefined)
-// }
-
 pub struct JavaScriptContextPlugin;
 
 impl Plugin for JavaScriptContextPlugin {
@@ -237,7 +233,7 @@ impl Plugin for JavaScriptContextPlugin {
         app.add_systems(Update, read_asset_event);
         app.add_systems(
             FixedUpdate,
-            (register_globals, update, apply_globals)
+            (register_globals, execute_script, apply_globals)
                 .chain()
                 .in_set(FixedUpdateGameActiveSet),
         );

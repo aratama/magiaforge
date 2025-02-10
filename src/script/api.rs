@@ -5,46 +5,29 @@ use crate::ui::spell_list::SpellList;
 use bevy::prelude::*;
 use boa_engine::js_string;
 use boa_engine::object::builtins::JsArray;
-use boa_engine::object::ObjectInitializer;
 use boa_engine::property::PropertyKey;
 use boa_engine::Context;
 use boa_engine::JsError;
 use boa_engine::JsValue;
-use boa_engine::NativeFunction;
 
-// # API
-//
-// yield で発行するコマンドについては、cmd.rs の Cmd を参照してください。
-// 以下はスクリプトのグローバルスコープに公開されるもので、
-// デフォルトでは読み取り専用のです。
-//
-// inventory: string[]
-//     プレイヤーのインベントリ。呪文名が文字列の配列で格納されます。
-//
-// actorPosition: { x: number, y: number }
-//     スクリプト起動のトリガーとなったアクターの位置。
-//
-// console.log(...args: any[]): void
-//     ログを出力します
-//
-// spellListOpen: boolean
-//    呪文リストが開いているかどうかを設定します
-//    このプロパティには書き込みが可能です
-//
 pub fn register_globals(
     mut javascript_context: NonSendMut<JavaScriptContext>,
-    player_query: Query<&Actor, With<Player>>,
+    player_query: Query<(&Actor, &Player)>,
     spell_list_query: Query<&SpellList>,
 ) {
     let JavaScriptContext { context, .. } = javascript_context.as_mut();
 
-    let inventory: Vec<String> = player_query
-        .get_single()
-        .map(|actor| actor.inventory.as_string_array())
-        .unwrap_or_default();
+    let Ok((player_actor, player)) = player_query.get_single() else {
+        warn!("Failed to get player");
+        return;
+    };
+
+    // inventory ////////////////////////////////////////////////////////
 
     let inventory_jsarray = JsArray::from_iter(
-        inventory
+        player_actor
+            .inventory
+            .as_string_array()
             .iter()
             .map(|str| JsValue::String(js_string!(str.clone()))),
         context,
@@ -59,6 +42,28 @@ pub fn register_globals(
             context,
         )
         .expect("Failed to set inventory");
+
+    // discovered_spells ////////////////////////////////////////////////////////
+
+    let discovered_spells_jsarray = JsArray::from_iter(
+        player
+            .discovered_spells
+            .iter()
+            .map(|spell| JsValue::String(js_string!(spell.0.clone()))),
+        context,
+    );
+
+    context
+        .global_object()
+        .set(
+            PropertyKey::String("discoveries".into()),
+            discovered_spells_jsarray,
+            false,
+            context,
+        )
+        .expect("Failed to set discoveries");
+
+    // spellListOpen /////////////////////////////////////////////////////
 
     let spell_list = spell_list_query.single();
 
