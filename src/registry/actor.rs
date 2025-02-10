@@ -49,7 +49,7 @@ fn default_animation_map() -> ActorAnimationMap {
     }
 }
 
-#[derive(serde::Deserialize, Debug, Default)]
+#[derive(serde::Deserialize, Debug, Default, Eq, PartialEq, Hash, Clone, Copy)]
 pub enum BodyType {
     #[default]
     Dynamic,

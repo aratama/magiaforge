@@ -43,7 +43,8 @@ pub struct LevelChunk {
     pub loading_index: i32,
     pub entities: Vec<SpawnEvent>,
     pub bounds: Bounds,
-    pub dirty: Option<Bounds>,
+    pub dirty_scriptes: Option<Bounds>,
+    pub dirty_navmesh: bool,
 }
 
 impl LevelChunk {
@@ -146,7 +147,7 @@ impl LevelChunk {
                 max_y,
             },
             loading_index: if lazy_loading { 0 } else { height },
-            dirty: if lazy_loading {
+            dirty_scriptes: if lazy_loading {
                 None
             } else {
                 Some(Bounds {
@@ -156,6 +157,7 @@ impl LevelChunk {
                     max_y,
                 })
             },
+            dirty_navmesh: true,
         };
     }
 
@@ -210,7 +212,7 @@ impl LevelChunk {
         if !self.bounds.contains(x, y) {
             return;
         }
-        self.dirty = if let Some(bounds) = self.dirty {
+        self.dirty_scriptes = if let Some(bounds) = self.dirty_scriptes {
             Some(Bounds {
                 min_x: bounds.min_x.min(x),
                 min_y: bounds.min_y.min(y),

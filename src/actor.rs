@@ -1283,14 +1283,8 @@ pub fn spawn_actor(
             BodyType::Fixed => RigidBody::Fixed,
         },
         match props.collider {
-            ActorCollider::Ball(radius) => (
-                Collider::ball(radius),
-                // PrimitiveObstacle::Circle(Circle::new(radius)),
-            ),
-            ActorCollider::Cuboid(width, height) => (
-                Collider::cuboid(width, height),
-                // PrimitiveObstacle::Rectangle(Rectangle::new(width * 2.0, height * 2.0)),
-            ),
+            ActorCollider::Ball(radius) => (Collider::ball(radius),),
+            ActorCollider::Cuboid(width, height) => (Collider::cuboid(width, height),),
         },
         actor_group.to_groups(0.0, 0),
         PointLight2d {
@@ -1300,7 +1294,9 @@ pub fn spawn_actor(
         },
     ));
 
-    if actor_group == ActorGroup::Entity {
+    // ナビメッシュの再構築は重いため、本棚のような固定のアクターのみ PrimitiveObstacle を設定します
+    // アクターが破壊されるとナビメッシュを再計算します
+    if actor_group == ActorGroup::Entity && props.body_type == BodyType::Fixed {
         let scale = 1.0;
         builder.insert(match props.collider {
             ActorCollider::Ball(radius) => {

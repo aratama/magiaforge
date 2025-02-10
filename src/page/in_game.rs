@@ -21,7 +21,8 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
-use crate::level::spawn::spawn_navigation_mesh;
+use crate::level::navigation::spawn_navigation_mesh;
+use crate::level::navigation::update_dirty_navmesh;
 use crate::level::spawn::spawn_random_enemies;
 use crate::level::tile::Tile;
 use crate::level::world::GameLevel;
@@ -159,9 +160,6 @@ fn spawn_level_entities_and_navmesh(
 
     let props = registry.get_level(&level);
 
-    // ナビゲーションメッシュを作成します
-    // ナビメッシュ生成は重いためチャンクごとに生成します
-    // このため、敵キャラクターがレベル境界を越えて接近することはありません
     spawn_navigation_mesh(&mut commands, &chunk);
 
     // エンティティ生成 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +316,7 @@ fn remove_isolated_tiles(mut world: ResMut<GameWorld>, registry: Registry) {
     let mut isolates: Vec<(i32, i32)> = Vec::new();
     // 縦２タイルのみ孤立して残っているものがあれば削除
     for chunk in &world.chunks {
-        if chunk.dirty.is_none() {
+        if chunk.dirty_scriptes.is_none() {
             continue;
         }
         for y in chunk.bounds.min_y..(chunk.bounds.max_y + 1) {
@@ -327,14 +325,14 @@ fn remove_isolated_tiles(mut world: ResMut<GameWorld>, registry: Registry) {
                     && world.is_wall(&registry, x, y + 1)
                     && !world.is_wall(&registry, x, y + 2)
                 {
-                    warn!("filling gap at {} {}", x, y);
+                    warn!("Remove isolated wall at {} {}", x, y);
                     isolates.push((x, y + 1));
                 } else if !world.is_wall(&registry, x, y + 0)
                     && world.is_wall(&registry, x, y + 1)
                     && world.is_wall(&registry, x, y + 2)
                     && !world.is_wall(&registry, x, y + 3)
                 {
-                    warn!("filling gap at {} {}", x, y);
+                    warn!("Remove isolated wall at {} {}", x, y);
                     isolates.push((x, y + 1));
                     isolates.push((x, y + 2));
                 }
@@ -357,7 +355,7 @@ fn update_tile_collisions(
     for chunk in &mut world.chunks {
         // コリジョンの再生成
         // dirty フラグが設定されている場合は常に再生成します
-        if chunk.dirty.is_some() || chunk.loading_index == 0 {
+        if chunk.dirty_scriptes.is_some() || chunk.loading_index == 0 {
             info!("spawning chunk collisions: {:?}", chunk.level);
 
             // 既存のコリジョンを削除
@@ -380,7 +378,7 @@ fn update_dirty_tile_sprites(
     tiles_query: Query<(Entity, &TileSprite)>,
 ) {
     for chunk in &world.chunks {
-        if let Some(dirty) = &chunk.dirty.clone() {
+        if let Some(dirty) = &chunk.dirty_scriptes.clone() {
             // 爆弾での破壊時など、通常の更新
             info!("updating dirty tiles: {:?}", dirty);
 
@@ -393,7 +391,7 @@ fn update_dirty_tile_sprites(
     }
 
     for chunk in &mut world.chunks {
-        chunk.dirty = None;
+        chunk.dirty_scriptes = None;
     }
 }
 
@@ -519,9 +517,14 @@ impl Plugin for WorldPlugin {
         app.add_systems(
             FixedUpdate,
             (
-                spawn_entity,
                 select_bgm,
-                (spawn_neighbor_chunks, despawn_chunks).chain(),
+                (
+                    spawn_neighbor_chunks,
+                    despawn_chunks,
+                    spawn_entity,
+                    update_dirty_navmesh,
+                )
+                    .chain(),
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

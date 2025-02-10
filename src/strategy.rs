@@ -2,7 +2,7 @@ use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
-use crate::level::spawn::ChunkNavMesh;
+use crate::level::navigation::ChunkNavMesh;
 use crate::level::world::GameWorld;
 use crate::registry::actor::ActorPropsByType;
 use crate::registry::Registry;
@@ -446,7 +446,9 @@ fn debug_draw(
     actor_query: Query<(&Actor, &Transform)>,
 ) {
     let (camera, camera_transform) = camera_query.single();
-    let mut contexts = contexts_query.single_mut();
+    let Ok(mut contexts) = contexts_query.get_single_mut() else {
+        return;
+    };
     let context = contexts.get_mut();
 
     egui::Area::new(egui::Id::new("overlay"))

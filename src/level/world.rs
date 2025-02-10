@@ -59,6 +59,10 @@ impl GameWorld {
         self.chunks.iter().find(|chunk| chunk.level == *level)
     }
 
+    pub fn get_chunk_mut(&mut self, level: &GameLevel) -> Option<&mut LevelChunk> {
+        self.chunks.iter_mut().find(|chunk| chunk.level == *level)
+    }
+
     pub fn find_chunk_by_position(&self, position: Vec2) -> Option<&LevelChunk> {
         self.chunks.iter().find(|chunk| chunk.contains(position))
     }
