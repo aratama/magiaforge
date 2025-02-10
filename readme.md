@@ -35,6 +35,14 @@ https://magiaforge.app/ (**Desktop Chrome only** for now)
 - `ingame` to skip main menu.
 - `item` to enable spell item cheat.
 
+###### Profiling
+
+1. Enable `trace_tracy` feature in `cargo.toml`.
+2. Start the game.
+3. Launch [Tracy](https://github.com/wolfpld/tracy) client and click `connect` button.
+
+See [profiling.md](https://github.com/bevyengine/bevy/blob/main/docs/profiling.md) for more details.
+
 ### Authoring Tools
 
 This project depends on the following tools:
