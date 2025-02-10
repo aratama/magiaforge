@@ -1,4 +1,5 @@
 use super::api::apply_globals;
+use super::api::console_log;
 use super::api::register_globals;
 use super::cmd::read_cmd_event;
 use super::cmd::CmdEvent;
@@ -11,9 +12,12 @@ use crate::states::GameState;
 use crate::states::TimeState;
 use crate::ui::speech_bubble::SpeechBubble;
 use bevy::prelude::*;
+use boa_engine::js_string;
+use boa_engine::object::ObjectInitializer;
 use boa_engine::property::PropertyKey;
 use boa_engine::Context;
 use boa_engine::JsValue;
+use boa_engine::NativeFunction;
 use boa_engine::Source;
 
 #[derive(Default)]
@@ -84,8 +88,6 @@ fn update(
         return;
     };
 
-    info!("calling next...");
-
     let Ok(generator_function) = generator_value.to_object(context) else {
         warn!("the return value is not a function {:?}", generator_value);
         return;
@@ -125,12 +127,11 @@ fn update(
         .get(PropertyKey::String("value".into()), context)
         .unwrap();
 
-    info!("done:{:?}", next_result_done.to_json(context),);
-    if next_result_value.is_undefined() {
-        info!(" value: undefined");
-    } else {
-        info!(" value:{:?}", next_result_value.to_json(context));
-    }
+    // if next_result_value.is_undefined() {
+    //     info!(" value: undefined");
+    // } else {
+    //     info!(" value:{:?}", next_result_value.to_json(context));
+    // }
 
     *value = Some(next_result_value.clone());
 
@@ -189,12 +190,25 @@ fn read_asset_event(
 fn initialize_context(source: &JavaScriptSource) -> JavaScriptContext {
     let mut context = Context::default();
 
-    // let se_object = ObjectInitializer::new(&mut context)
-    //     .function(NativeFunction::from_fn_ptr(se), js_string!("se"), 1)
-    //     .build();
-    // context
-    //     .register_global_property(js_string!("se"), se_object, Attribute::READONLY)
-    //     .expect("Failed to register global property");
+    let log_object = ObjectInitializer::new(&mut context)
+        .function(
+            NativeFunction::from_fn_ptr(console_log),
+            js_string!("log"),
+            1,
+        )
+        .build();
+
+    context
+        .global_object()
+        .set(
+            PropertyKey::String("console".into()),
+            JsValue::from(log_object),
+            false,
+            &mut context,
+        )
+        .expect("Failed to register global property");
+
+    // スクリプト読み込み ///////////////////////////////////////////////////////////////////////
 
     let result = context.eval(Source::from_bytes(&source.source));
     if let Err(e) = result {

@@ -60,20 +60,6 @@ pub fn register_globals(
         )
         .expect("Failed to set inventory");
 
-    let log_object = ObjectInitializer::new(context)
-        .function(NativeFunction::from_fn_ptr(log), js_string!("log"), 1)
-        .build();
-
-    context
-        .global_object()
-        .set(
-            PropertyKey::String("console".into()),
-            JsValue::from(log_object),
-            false,
-            context,
-        )
-        .expect("Failed to register global property");
-
     let spell_list = spell_list_query.single();
 
     context
@@ -107,17 +93,17 @@ pub fn apply_globals(
     spell_list.open = open;
 }
 
-fn log(
+pub fn console_log(
     _caller: &JsValue,
     arguments: &[JsValue],
     context: &mut Context,
 ) -> Result<JsValue, JsError> {
     for value in arguments {
         if value.is_undefined() {
-            info!("undefined");
+            info!("[console.log] undefined");
         } else {
             let json = value.to_json(context);
-            info!("{:?}", json);
+            info!("[console.log] {:?}", json);
         }
     }
     Ok(JsValue::Undefined)

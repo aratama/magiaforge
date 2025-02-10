@@ -581,12 +581,8 @@ fn fire_bullet(
             continue;
         }
 
-        // 凍結時は攻撃不可
-        if 0 < actor.frozen {
-            continue;
-        }
-
-        if 0 < actor.staggered {
+        // 凍結、よろめき、溺れの時は攻撃不可
+        if 0 < actor.frozen || 0 < actor.staggered || 0 < actor.drown {
             continue;
         }
 

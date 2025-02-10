@@ -101,34 +101,61 @@ function* GuideRabbit() {
     }
 }
 
+let singlePlayRabbitSenarioIndex = 0;
 
 function* SingleplayRabbit() {
-    yield {
-        type: "Speech",
-        ja: "その魔法陣が地下迷宮の入り口だよ。探しものが見つかるよう、幸運を祈るよ。",
-        en: "That magic circle is the entrance to the underground labyrinth. I wish you luck in finding what you're looking for.",
-        zh_cn: "那个魔法阵是地下迷宫的入口。祝你好运找到你要找的东西。",
-        zh_tw: "那個魔法陣是地下迷宮的入口。祝你好運找到你要找的東西。",
-        es: "Ese círculo mágico es la entrada al laberinto subterráneo. Te deseo suerte en encontrar lo que buscas.",
-        fr: "Ce cercle magique est l'entrée du labyrinthe souterrain. Je vous souhaite bonne chance pour trouver ce que vous cherchez.",
-        pt: "Esse círculo mágico é a entrada para o labirinto subterrâneo. Desejo-lhe sorte em encontrar o que procura.",
-        de: "Dieser magische Kreis ist der Eingang zum unterirdischen Labyrinth. Ich wünsche dir viel Glück bei der Suche nach dem, was du suchst.",
-        ko: "그 마법진이 지하 미로의 입구야. 찾고 있는 것을 찾기를 바랄게.",
-        ru: "Этот магический круг - вход в подземный лабиринт. Желаю удачи в поисках того, что ты ищешь.",
-    };
-    yield {
-        type: "Speech",
-        ja: "そうそう、最近迷宮の奥に大きなスライムが現れるようになってね。気を付けたほうがいいよ。",
-        en: "By the way, a huge slime has recently appeared deep in the labyrinth. You should be careful.",
-        zh_cn: "顺便说一下，最近在迷宫深处出现了一个巨大的史莱姆。你应该小心。",
-        zh_tw: "順便說一下，最近在迷宮深處出現了一個巨大的史萊姆。你應該小心。",
-        es: "Por cierto, recientemente ha aparecido un gran slime en lo profundo del laberinto. Deberías tener cuidado.",
-        fr: "Au fait, un énorme slime est récemment apparu au fond du labyrinthe. Vous devriez faire attention.",
-        pt: "A propósito, recentemente apareceu um grande slime no fundo do labirinto. Você deve ter cuidado.",
-        de: "Übrigens, tief im Labyrinth ist kürzlich ein riesiger Schleim aufgetaucht. Du solltest vorsichtig sein.",
-        ko: "그런데 최근에 미로 깊숙한 곳에 거대한 슬라임이 나타났어. 조심하는 게 좋아.",
-        ru: "Кстати, недавно в глубине лабиринта появился огромный слизень. Тебе следует быть осторожным.",
-    };
+    let index = singlePlayRabbitSenarioIndex;
+    singlePlayRabbitSenarioIndex += 1;
+    switch (index % 3) {
+        case 0:
+            yield {
+                type: "Speech",
+                ja: "その魔法陣が地下迷宮の入り口だよ。探しものが見つかるよう、幸運を祈るよ。",
+                en: "That magic circle is the entrance to the underground labyrinth. I wish you luck in finding what you're looking for.",
+                zh_cn: "那个魔法阵是地下迷宫的入口。祝你好运找到你要找的东西。",
+                zh_tw: "那個魔法陣是地下迷宮的入口。祝你好運找到你要找的東西。",
+                es: "Ese círculo mágico es la entrada al laberinto subterráneo. Te deseo suerte en encontrar lo que buscas.",
+                fr: "Ce cercle magique est l'entrée du labyrinthe souterrain. Je vous souhaite bonne chance pour trouver ce que vous cherchez.",
+                pt: "Esse círculo mágico é a entrada para o labirinto subterrâneo. Desejo-lhe sorte em encontrar o que procura.",
+                de: "Dieser magische Kreis ist der Eingang zum unterirdischen Labyrinth. Ich wünsche dir viel Glück bei der Suche nach dem, was du suchst.",
+                ko: "그 마법진이 지하 미로의 입구야. 찾고 있는 것을 찾기를 바랄게.",
+                ru: "Этот магический круг - вход в подземный лабиринт. Желаю удачи в поисках того, что ты ищешь.",
+            };
+            break;
+        case 1:
+            yield {
+                type: "Speech",
+                ja: "そうそう、最近迷宮の奥に大きなスライムが現れるようになってね。気を付けたほうがいいよ。",
+                en: "By the way, a huge slime has recently appeared deep in the labyrinth. You should be careful.",
+                zh_cn: "顺便说一下，最近在迷宫深处出现了一个巨大的史莱姆。你应该小心。",
+                zh_tw: "順便說一下，最近在迷宮深處出現了一個巨大的史萊姆。你應該小心。",
+                es: "Por cierto, recientemente ha aparecido un gran slime en lo profundo del laberinto. Deberías tener cuidado.",
+                fr: "Au fait, un énorme slime est récemment apparu au fond du labyrinthe. Vous devriez faire attention.",
+                pt: "A propósito, recentemente apareceu um grande slime no fundo do labirinto. Você deve ter cuidado.",
+                de: "Übrigens, tief im Labyrinth ist kürzlich ein riesiger Schleim aufgetaucht. Du solltest vorsichtig sein.",
+                ko: "그런데 최근에 미로 깊숙한 곳에 거대한 슬라임이 나타났어. 조심하는 게 좋아.",
+                ru: "Кстати, недавно в глубине лабиринта появился огромный слизень. Тебе следует быть осторожным.",
+            };
+            break;
+        case 2:
+            yield {
+                type: "Speech",
+                ja: "このあたりの水はとても冷たい。水に浸かっているとダメージを受けるから注意した方がいいよ。",
+                en: "The water around here is very cold. You should be careful because you'll take damage if you're submerged in water.",
+                zh_cn: "这里的水很冷。如果浸在水里会受到伤害，所以要小心。",
+                zh_tw: "這裡的水很冷。如果浸在水裡會受到傷害，所以要小心。",
+                es: "El agua por aquí está muy fría. Debes tener cuidado porque recibirás daño si te sumerges en el agua.",
+                fr: "L'eau ici est très froide. Vous devriez faire attention car vous subirez des dégâts si vous êtes immergé dans l'eau.",
+                pt: "A água por aqui é muito fria. Você deve ter cuidado porque sofrerá dano se ficar submerso na água.",
+                de: "Das Wasser hier ist sehr kalt. Du solltest vorsichtig sein, da du Schaden nimmst, wenn du unter Wasser bist.",
+                ko: "이 근처의 물은 매우 차가워. 물에 잠기면 데미지를 입으니 주의해야 해.",
+                ru: "Вода здесь очень холодная. Будь осторожен, так как ты получишь урон, если окажешься под водой."
+            };
+            break;
+    }
+
+    // ウサギから離れてスクリプト実行中止された場合、
+    // ここ部分に書かれたコードは実行されないことに注意
 }
 function* MultiplayerRabbit() {
     yield {
