@@ -12,7 +12,6 @@ use bevy_rapier2d::prelude::Collider;
 use bevy_rapier2d::prelude::Friction;
 use bevy_rapier2d::prelude::RigidBody;
 use std::collections::HashMap;
-use vleue_navigator::prelude::PrimitiveObstacle;
 
 /// 壁タイルから衝突矩形を計算します
 /// チェストや本棚なども侵入不可能ですが、それらは個別に衝突形状を持つため、ここでは壁のみを扱います
@@ -115,7 +114,6 @@ pub fn spawn_wall_collisions(commands: &mut Commands, registry: &Registry, chunk
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
             GlobalTransform::default(),
-            PrimitiveObstacle::Rectangle(Rectangle::new(w * 2.0, h * 2.0)),
             Collider::cuboid(w, h),
             RigidBody::Fixed,
             Friction {
@@ -140,7 +138,6 @@ pub fn spawn_wall_collisions(commands: &mut Commands, registry: &Registry, chunk
             StateScoped(GameState::InGame),
             Transform::from_translation(Vec3::new(x, y, 0.0)),
             GlobalTransform::default(),
-            PrimitiveObstacle::Rectangle(Rectangle::new(w * 2.0, h * 2.0)),
             // todo: merge colliders
             Collider::cuboid(w, h),
             RigidBody::Fixed,

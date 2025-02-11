@@ -44,7 +44,6 @@ pub struct LevelChunk {
     pub entities: Vec<SpawnEvent>,
     pub bounds: Bounds,
     pub dirty_scriptes: Option<Bounds>,
-    pub dirty_navmesh: bool,
 }
 
 impl LevelChunk {
@@ -157,7 +156,6 @@ impl LevelChunk {
                     max_y,
                 })
             },
-            dirty_navmesh: true,
         };
     }
 
