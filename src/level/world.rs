@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use super::chunk::position_to_index;
+use super::chunk::{position_to_index, NavigationTile};
 use crate::constant::*;
 use crate::level::chunk::LevelChunk;
 use crate::level::tile::Tile;
@@ -139,17 +139,23 @@ impl GameWorld {
         chunk.is_visible_ceil(x, y, depth, targets)
     }
 
+    pub fn get_navigation_tile(&self, x: i32, y: i32) -> NavigationTile {
+        let Some(chunk) = self.find_chunk_by_index(x, y) else {
+            return NavigationTile::default();
+        };
+        chunk.get_navigation_tile(x, y)
+    }
+
     /// A* アルゴリズムを使って経路を探索します
     pub fn find_route(
         &self,
-        registry: &Registry,
         start: (i32, i32),
         goal: (i32, i32),
         max_distance: i32,
     ) -> Option<Vec<(i32, i32)>> {
         // Early return if start or goal is blocked
-        if self.get_movement_cost(registry, start, start, max_distance) == BLOCKED_PATH_COST
-            || self.get_movement_cost(registry, goal, start, max_distance) == BLOCKED_PATH_COST
+        if self.get_movement_cost(start, start, max_distance) == BLOCKED_PATH_COST
+            || self.get_movement_cost(goal, start, max_distance) == BLOCKED_PATH_COST
         {
             return None;
         }
@@ -171,7 +177,7 @@ impl GameWorld {
             open_set.remove(&current);
 
             for neighbor in neighbors(current) {
-                let cost = self.get_movement_cost(registry, neighbor, start, max_distance);
+                let cost = self.get_movement_cost(neighbor, start, max_distance);
                 if cost == BLOCKED_PATH_COST {
                     continue;
                 }
@@ -189,22 +195,15 @@ impl GameWorld {
         None
     }
 
-    fn get_movement_cost(
-        &self,
-        registry: &Registry,
-        pos: (i32, i32),
-        start: (i32, i32),
-        max_distance: i32,
-    ) -> i32 {
+    fn get_movement_cost(&self, pos: (i32, i32), start: (i32, i32), max_distance: i32) -> i32 {
         if manhattan_distance(pos, start) >= max_distance {
             return BLOCKED_PATH_COST;
         }
 
-        let tile = self.get_tile(pos.0, pos.1);
-        let props = registry.get_tile(&tile);
-        match props.tile_type {
-            TileType::Wall | TileType::Surface => BLOCKED_PATH_COST,
-            TileType::Floor => 1,
+        let tile = self.get_navigation_tile(pos.0, pos.1);
+        match tile {
+            NavigationTile::Wall | NavigationTile::Surface => BLOCKED_PATH_COST,
+            NavigationTile::Floor => 1,
         }
     }
 }

@@ -1,4 +1,5 @@
 use super::entities::SpawnEvent;
+use super::grid::Grid;
 use crate::constant::TILE_HALF;
 use crate::constant::TILE_SIZE;
 use crate::level::entities::Spawn;
@@ -11,6 +12,14 @@ use serde_json::from_value;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::LazyLock;
+
+#[derive(Clone, Debug, Default)]
+pub enum NavigationTile {
+    #[default]
+    Wall,
+    Floor,
+    Surface,
+}
 
 #[derive(Clone, Debug, Copy)]
 pub struct Bounds {
@@ -40,6 +49,7 @@ impl Bounds {
 pub struct LevelChunk {
     pub level: GameLevel,
     pub tiles: Vec<Tile>,
+    pub navigation_grid: Grid<NavigationTile>,
     pub loading_index: i32,
     pub entities: Vec<SpawnEvent>,
     pub bounds: Bounds,
@@ -69,6 +79,7 @@ impl LevelChunk {
         let max_y =
             ((ldtk_level.world_y + ldtk_level.px_hei) / ldtk.coordinate.default_grid_size) as i32;
 
+        let width = max_x - min_x;
         let height = max_y - min_y;
 
         // タイル読み込み
@@ -76,8 +87,9 @@ impl LevelChunk {
         let int_grid_layer = ldtk_level.get_layer("Tiles").unwrap();
         let map: HashMap<i64, &str> = ldtk.get_tile_mapping("Tiles");
         let mut tiles: Vec<Tile> = Vec::new();
+        let mut navigation_grid: Grid<NavigationTile> = Grid::new(width as usize, height as usize);
         for tile_value in int_grid_layer.int_grid_csv.iter() {
-            tiles.push(if *tile_value == 0 {
+            let tile = if *tile_value == 0 {
                 Tile::default()
             } else {
                 match map.get(&tile_value) {
@@ -87,7 +99,24 @@ impl LevelChunk {
                         Tile::default()
                     }
                 }
-            });
+            };
+
+            tiles.push(tile);
+        }
+
+        for (i, tile) in tiles.iter().enumerate() {
+            let x = i % width as usize;
+            let y = i / width as usize;
+            let props = registry.get_tile(tile);
+            navigation_grid.set(
+                x,
+                y,
+                match props.tile_type {
+                    TileType::Wall => NavigationTile::Wall,
+                    TileType::Floor => NavigationTile::Floor,
+                    TileType::Surface => NavigationTile::Surface,
+                },
+            );
         }
 
         // エンティティ読み込み
@@ -126,6 +155,30 @@ impl LevelChunk {
                 }
             };
 
+            match spawn {
+                Spawn::Bookshelf => {
+                    let entity_index = position_to_index(Vec2::new(
+                        entity.world_x.unwrap_or_default() as f32 + 8.0,
+                        -entity.world_y.unwrap_or_default() as f32 + 8.0,
+                    ));
+                    navigation_grid.set(
+                        (entity_index.0 - min_x) as usize,
+                        (entity_index.1 - min_y) as usize,
+                        NavigationTile::Wall,
+                    );
+                    let entity_index2 = position_to_index(Vec2::new(
+                        entity.world_x.unwrap_or_default() as f32 + 24.0,
+                        -entity.world_y.unwrap_or_default() as f32 + 8.0,
+                    ));
+                    navigation_grid.set(
+                        (entity_index2.0 - min_x) as usize,
+                        (entity_index2.1 - min_y) as usize,
+                        NavigationTile::Wall,
+                    );
+                }
+                _ => {}
+            }
+
             entities.push(SpawnEvent {
                 spawn,
                 position: Vec2::new(
@@ -138,6 +191,7 @@ impl LevelChunk {
         return Self {
             level: level.clone(),
             tiles,
+            navigation_grid,
             entities,
             bounds: Bounds {
                 min_x,
@@ -283,6 +337,30 @@ impl LevelChunk {
     pub fn contains(&self, position: Vec2) -> bool {
         let (x, y) = position_to_index(position);
         self.contains_by_index(x, y)
+    }
+
+    pub fn set_navigation_tile(&mut self, x: i32, y: i32, tile: NavigationTile) {
+        if !self.bounds.contains(x, y) {
+            return;
+        }
+        self.navigation_grid.set(
+            (x - self.bounds.min_x) as usize,
+            (y - self.bounds.min_y) as usize,
+            tile,
+        );
+    }
+
+    pub fn get_navigation_tile(&self, x: i32, y: i32) -> NavigationTile {
+        if !self.bounds.contains(x, y) {
+            return NavigationTile::default();
+        }
+        self.navigation_grid
+            .get(
+                (x - self.bounds.min_x) as usize,
+                (y - self.bounds.min_y) as usize,
+            )
+            .cloned()
+            .unwrap_or_default()
     }
 }
 

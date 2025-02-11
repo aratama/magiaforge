@@ -151,7 +151,6 @@ fn update(
 
         // 現在のアクションを実行する
         execute(
-            &registry,
             context,
             &map,
             entity,
@@ -185,7 +184,6 @@ fn update(
 }
 
 fn execute(
-    registry: &Registry,
     context: &RapierContext,
     map: &HashMap<Entity, (Actor, Vec2, f32)>,
     entity: Entity,
@@ -250,7 +248,6 @@ fn execute(
             // TODO
             // ナビメッシュでルートを検索
             let route = world.find_route(
-                &registry,
                 position_to_index(origin),
                 position_to_index(nearest.position),
                 (*far / TILE_SIZE) as i32,
