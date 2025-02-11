@@ -59,6 +59,7 @@ impl GameWorld {
         self.chunks.iter().find(|chunk| chunk.level == *level)
     }
 
+    #[allow(dead_code)]
     pub fn get_chunk_mut(&mut self, level: &GameLevel) -> Option<&mut LevelChunk> {
         self.chunks.iter_mut().find(|chunk| chunk.level == *level)
     }
