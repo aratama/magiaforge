@@ -21,8 +21,6 @@ use crate::level::collision::WallCollider;
 use crate::level::entities::spawn_entity;
 use crate::level::entities::Spawn;
 use crate::level::entities::SpawnEvent;
-use crate::level::navigation::spawn_navigation_mesh;
-use crate::level::navigation::update_dirty_navmesh;
 use crate::level::spawn::spawn_random_enemies;
 use crate::level::tile::Tile;
 use crate::level::world::GameLevel;
@@ -97,13 +95,7 @@ pub fn setup_game_world(
     world.chunks.push(center_chunk.clone());
 
     // 各レベルのエンティティを生成します
-    spawn_level_entities_and_navmesh(
-        &mut commands,
-        &registry,
-        &mut spawn,
-        &mut rng,
-        &center_chunk,
-    );
+    spawn_level_entities_and_navmesh(&registry, &mut spawn, &mut rng, &center_chunk);
 
     // プレイヤーキャラクターの生成 ///////////////////////////////////////////////////////////////////////////////////////////
     // エントリーポイントをランダムに選択
@@ -150,7 +142,6 @@ pub fn setup_game_world(
 }
 
 fn spawn_level_entities_and_navmesh(
-    mut commands: &mut Commands,
     registry: &Registry,
     mut spawn: &mut EventWriter<SpawnEvent>,
     mut rng: &mut StdRng,
@@ -159,8 +150,6 @@ fn spawn_level_entities_and_navmesh(
     let level = chunk.level.clone();
 
     let props = registry.get_level(&level);
-
-    spawn_navigation_mesh(&mut commands, &chunk);
 
     // エンティティ生成 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -224,7 +213,6 @@ fn spawn_level_entities_and_navmesh(
 }
 
 fn spawn_neighbor_chunks(
-    mut commands: Commands,
     registry: Registry,
     mut world: ResMut<GameWorld>,
     mut spawn: EventWriter<SpawnEvent>,
@@ -244,13 +232,7 @@ fn spawn_neighbor_chunks(
         if world.get_chunk(neighbor).is_none() {
             let chunk = LevelChunk::new(&registry, neighbor, true);
             world.chunks.push(chunk.clone());
-            spawn_level_entities_and_navmesh(
-                &mut commands,
-                &registry,
-                &mut spawn,
-                &mut rng,
-                &chunk,
-            );
+            spawn_level_entities_and_navmesh(&registry, &mut spawn, &mut rng, &chunk);
 
             // チャンクの生成は重い処理になるため、1フレームで生成するチャンクは最大ひとつ
             return;
@@ -426,7 +408,6 @@ fn update_lazy_tile_sprites(
 
         indiceis_to_spawn.push(chunk.bounds.min_y + chunk.loading_index);
 
-        // todo これが重い？
         clear_tiles_by_bounds(
             &mut commands,
             &tiles_query,
@@ -518,13 +499,7 @@ impl Plugin for WorldPlugin {
             FixedUpdate,
             (
                 select_bgm,
-                (
-                    spawn_neighbor_chunks,
-                    despawn_chunks,
-                    spawn_entity,
-                    update_dirty_navmesh,
-                )
-                    .chain(),
+                (spawn_neighbor_chunks, despawn_chunks, spawn_entity).chain(),
             )
                 .in_set(FixedUpdateGameActiveSet),
         );

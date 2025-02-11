@@ -118,9 +118,6 @@ use bevy_rapier2d::prelude::*;
 use bevy_simple_text_input::TextInputPlugin;
 use bevy_simple_websocket::WebSocketPlugin;
 use std::num::NonZero;
-use vleue_navigator::prelude::NavmeshUpdaterPlugin;
-use vleue_navigator::prelude::PrimitiveObstacle;
-use vleue_navigator::VleueNavigatorPlugin;
 
 pub fn run_game() {
     let mut app = App::new();
@@ -194,8 +191,6 @@ pub fn run_game() {
         .add_systems(Startup, setup_rapier_context)
         .add_plugins(Light2dPlugin)
         .add_plugins(TextInputPlugin)
-        .add_plugins(VleueNavigatorPlugin)
-        .add_plugins(NavmeshUpdaterPlugin::<PrimitiveObstacle>::default())
         .add_plugins(EguiPlugin)
         //
         // 以下はこのゲーム本体で定義されたプラグイン

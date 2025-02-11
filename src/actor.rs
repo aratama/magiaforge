@@ -97,7 +97,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::f32::consts::PI;
 use uuid::Uuid;
-use vleue_navigator::prelude::PrimitiveObstacle;
 use witch::WitchWandSprite;
 
 /// アクターの種類を表します
@@ -326,8 +325,6 @@ impl Actor {
 
     pub fn get_total_scale_factor(&self) -> f32 {
         let mut scale_factor: f32 = -1.0;
-
-        // todo
 
         for wand in self.wands.iter() {
             for slot in &wand.slots {
@@ -1289,21 +1286,6 @@ pub fn spawn_actor(
             ..default()
         },
     ));
-
-    // ナビメッシュの再構築は重いため、本棚のような固定のアクターのみ PrimitiveObstacle を設定します
-    // アクターが破壊されるとナビメッシュを再計算します
-    if actor_group == ActorGroup::Entity && props.body_type == BodyType::Fixed {
-        let scale = 1.0;
-        builder.insert(match props.collider {
-            ActorCollider::Ball(radius) => {
-                (PrimitiveObstacle::Circle(Circle::new(radius * scale)),)
-            }
-            ActorCollider::Cuboid(width, height) => (PrimitiveObstacle::Rectangle(Rectangle::new(
-                width * 2.0 * scale,
-                height * 2.0 * scale,
-            )),),
-        });
-    }
 
     builder.with_children(|mut parent| {
         // 影

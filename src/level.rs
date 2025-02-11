@@ -3,7 +3,6 @@ pub mod ceil;
 pub mod chunk;
 pub mod collision;
 pub mod entities;
-pub mod navigation;
 pub mod spawn;
 pub mod tile;
 pub mod world;

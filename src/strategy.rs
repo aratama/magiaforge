@@ -2,7 +2,8 @@ use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
-use crate::level::navigation::ChunkNavMesh;
+use crate::level::chunk::index_to_position;
+use crate::level::chunk::position_to_index;
 use crate::level::world::GameWorld;
 use crate::registry::actor::ActorPropsByType;
 use crate::registry::Registry;
@@ -16,9 +17,6 @@ use bevy_rapier2d::prelude::QueryFilter;
 use serde::Deserialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
-use vleue_navigator::prelude::ManagedNavMesh;
-use vleue_navigator::prelude::NavMeshStatus;
-use vleue_navigator::NavMesh;
 
 const APPROACH_MERGIN: f32 = 8.0;
 
@@ -100,8 +98,6 @@ fn update(
     registry: Registry,
     rapier_context: Query<&RapierContext, With<DefaultRapierContext>>,
     mut query: Query<(Entity, &mut Actor, &Transform)>,
-    navmesh: Query<(&ChunkNavMesh, &ManagedNavMesh, Ref<NavMeshStatus>)>,
-    navmeshes: Res<Assets<NavMesh>>,
     setup: Res<GameWorld>,
 ) {
     let context: &RapierContext = rapier_context.single();
@@ -154,6 +150,7 @@ fn update(
 
         // 現在のアクションを実行する
         execute(
+            &registry,
             context,
             &map,
             entity,
@@ -161,8 +158,6 @@ fn update(
             origin,
             &props,
             &mut actor,
-            &navmesh,
-            &navmeshes,
             next_action_index,
             action,
             &setup,
@@ -189,6 +184,7 @@ fn update(
 }
 
 fn execute(
+    registry: &Registry,
     context: &RapierContext,
     map: &HashMap<Entity, (Actor, Vec2, f32)>,
     entity: Entity,
@@ -196,11 +192,9 @@ fn execute(
     origin: Vec2,
     props: &ActorPropsByType,
     actor: &mut Actor,
-    navmesh_query: &Query<(&ChunkNavMesh, &ManagedNavMesh, Ref<NavMeshStatus>)>,
-    navmeshes: &Res<Assets<NavMesh>>,
     next_action_index: usize,
     action: &Action,
-    setup: &Res<GameWorld>,
+    world: &Res<GameWorld>,
 ) {
     match action {
         Action::Sleep => {
@@ -252,58 +246,27 @@ fn execute(
                 return;
             }
 
+            // TODO
             // ナビメッシュでルートを検索
-            let Some(chunk) = setup.find_chunk_by_position(origin) else {
-                return;
-            };
+            let route = world.find_route(
+                &registry,
+                position_to_index(origin),
+                position_to_index(nearest.position),
+                10,
+            );
 
-            let Some((_, navmesh_handle, status)) = navmesh_query
-                .iter()
-                .find(|(n, _, _)| n.level == chunk.level)
-            else {
-                return;
-            };
-
-            let navmesh = navmeshes.get(navmesh_handle);
-
-            let destination = if *status == NavMeshStatus::Built {
-                if let Some(navmesh) = navmesh {
-                    let from = origin;
-                    let to = nearest.position;
-
-                    if let Some(path) = navmesh.path(
-                        // エンティティの位置そのものを使うと、壁際に近づいたときに agent_radius のマージンに埋もれて
-                        // 到達不可能になってしまうので、タイルの中心を使います
-                        from, to,
-                    ) {
-                        actor.navigation_path = path.path.clone();
-
-                        // ナビメッシュで次の目的地を選定
-                        // APPROACH_MERGIN以下の近すぎるものは避ける
-                        if let Some(first) = path
-                            .path
-                            .iter()
-                            .filter(|p| APPROACH_MERGIN < (origin - **p).length())
-                            .collect::<Vec<&Vec2>>()
-                            .first()
-                        {
-                            **first
-                        } else {
-                            // ここに来ることはない？
-                            warn!("first not found");
-                            actor.commander.destination
-                        }
-                    } else {
-                        // warn!("path not found, from {:?} to {:?}", from, to);
-                        actor.commander.destination
+            let destination = match route {
+                Some(route) => {
+                    let router_fitered: Vec<_> = route
+                        .iter()
+                        .filter(|p| 8.0 < origin.distance(index_to_position(**p)))
+                        .collect();
+                    match router_fitered.get(0) {
+                        Some(index) => index_to_position(**index),
+                        None => origin,
                     }
-                } else {
-                    warn!("navmesh not found");
-                    actor.commander.destination
                 }
-            } else {
-                // warn!("navmesh not built");
-                actor.commander.destination
+                None => origin,
             };
 
             actor.commander.destination = destination;
