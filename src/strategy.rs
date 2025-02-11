@@ -2,6 +2,8 @@ use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
+use crate::level::chunk::index_to_position;
+use crate::level::chunk::position_to_index;
 use crate::level::world::GameWorld;
 use crate::registry::actor::ActorPropsByType;
 use crate::registry::Registry;
@@ -148,6 +150,7 @@ fn update(
 
         // 現在のアクションを実行する
         execute(
+            &registry,
             context,
             &map,
             entity,
@@ -181,6 +184,7 @@ fn update(
 }
 
 fn execute(
+    registry: &Registry,
     context: &RapierContext,
     map: &HashMap<Entity, (Actor, Vec2, f32)>,
     entity: Entity,
@@ -244,7 +248,26 @@ fn execute(
 
             // TODO
             // ナビメッシュでルートを検索
-            let destination = origin;
+            let route = world.find_route(
+                &registry,
+                position_to_index(origin),
+                position_to_index(nearest.position),
+                10,
+            );
+
+            let destination = match route {
+                Some(route) => {
+                    let router_fitered: Vec<_> = route
+                        .iter()
+                        .filter(|p| 8.0 < origin.distance(index_to_position(**p)))
+                        .collect();
+                    match router_fitered.get(0) {
+                        Some(index) => index_to_position(**index),
+                        None => origin,
+                    }
+                }
+                None => origin,
+            };
 
             actor.commander.destination = destination;
 
