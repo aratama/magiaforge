@@ -210,7 +210,8 @@ ActorRegistry(
                     min_life: 1000,
                     actions: [
                         Wait (count: 30, random: 30),
-                        Approach (count: 120, random: 120, far: 200.0, near: 16.0),
+                        // far:400だと画面外から発見されてしまいがち
+                        Approach (count: 120, random: 120, far: 300.0, near: 16.0),
                         Fire (count: 15, random: 15, range: 8.0)
                     ] 
                 )

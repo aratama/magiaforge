@@ -2,6 +2,7 @@ use crate::actor::Actor;
 use crate::actor::ActorFireState;
 use crate::actor::ActorGroup;
 use crate::collision::SENSOR_GROUPS;
+use crate::constant::TILE_SIZE;
 use crate::level::chunk::index_to_position;
 use crate::level::chunk::position_to_index;
 use crate::level::world::GameWorld;
@@ -222,7 +223,7 @@ fn execute(
             count: _,
             random,
         } => {
-            if actor.commander.count == 0 {
+            if actor.commander.count == 0 && 0 < *random {
                 actor.commander.count = rand::random::<u32>() % random;
             }
 
@@ -252,20 +253,14 @@ fn execute(
                 &registry,
                 position_to_index(origin),
                 position_to_index(nearest.position),
-                10,
+                (*far / TILE_SIZE) as i32,
             );
 
             let destination = match route {
-                Some(route) => {
-                    let router_fitered: Vec<_> = route
-                        .iter()
-                        .filter(|p| 8.0 < origin.distance(index_to_position(**p)))
-                        .collect();
-                    match router_fitered.get(0) {
-                        Some(index) => index_to_position(**index),
-                        None => origin,
-                    }
-                }
+                Some(route) => match route.get(1) {
+                    Some(index) => index_to_position(*index),
+                    None => origin,
+                },
                 None => origin,
             };
 

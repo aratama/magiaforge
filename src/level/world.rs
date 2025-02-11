@@ -165,7 +165,7 @@ impl GameWorld {
         // 探索
         while let Some(current) = pop_lowest_node(&mut open_set, &f_score) {
             if current == goal {
-                return Some(self.reconstruct_path(current, &came_from));
+                return Some(reconstruct_path(current, &came_from));
             }
 
             open_set.remove(&current);
@@ -207,24 +207,23 @@ impl GameWorld {
             TileType::Floor => 1,
         }
     }
-
-    fn reconstruct_path(
-        &self,
-        current: (i32, i32),
-        came_from: &HashMap<(i32, i32), (i32, i32)>,
-    ) -> Vec<(i32, i32)> {
-        let mut path = vec![current];
-        let mut current = current;
-        while let Some(&prev) = came_from.get(&current) {
-            path.push(prev);
-            current = prev;
-        }
-        path.reverse();
-        path
-    }
 }
 
 const BLOCKED_PATH_COST: i32 = std::i32::MAX;
+
+fn reconstruct_path(
+    current: (i32, i32),
+    came_from: &HashMap<(i32, i32), (i32, i32)>,
+) -> Vec<(i32, i32)> {
+    let mut path = vec![current];
+    let mut current = current;
+    while let Some(&prev) = came_from.get(&current) {
+        path.push(prev);
+        current = prev;
+    }
+    path.reverse();
+    path
+}
 
 fn pop_lowest_node(
     open_set: &mut HashSet<(i32, i32)>,
