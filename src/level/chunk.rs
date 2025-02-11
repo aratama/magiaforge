@@ -159,7 +159,7 @@ impl LevelChunk {
                 Spawn::Bookshelf => {
                     let entity_index = position_to_index(Vec2::new(
                         entity.world_x.unwrap_or_default() as f32 + 8.0,
-                        -entity.world_y.unwrap_or_default() as f32 + 8.0,
+                        -entity.world_y.unwrap_or_default() as f32 - 8.0,
                     ));
                     navigation_grid.set(
                         (entity_index.0 - min_x) as usize,
@@ -168,7 +168,7 @@ impl LevelChunk {
                     );
                     let entity_index2 = position_to_index(Vec2::new(
                         entity.world_x.unwrap_or_default() as f32 + 24.0,
-                        -entity.world_y.unwrap_or_default() as f32 + 8.0,
+                        -entity.world_y.unwrap_or_default() as f32 - 8.0,
                     ));
                     navigation_grid.set(
                         (entity_index2.0 - min_x) as usize,
